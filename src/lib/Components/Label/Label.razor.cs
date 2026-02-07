@@ -10,6 +10,12 @@ namespace LowlandTech.Components.Components.Label;
 public partial class Label
 {
     /// <summary>
+    /// The id of the form element this label is associated with.
+    /// </summary>
+    [Parameter]
+    public string? For { get; set; }
+
+    /// <summary>
     /// Child content, typically the label text.
     /// </summary>
     [Parameter]
@@ -29,12 +35,6 @@ public partial class Label
 
     private string GetClasses()
     {
-        return CssClassUtils.Merge(
-            "cn-label",
-            "flex",
-            "items-center",
-            "select-none",
-            Class
-        );
+        return CssClassUtils.Merge("label", Class);
     }
 }

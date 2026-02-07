@@ -3,6 +3,6 @@
 @inherits ComponentBase
 @using LowlandTech.Components.Utilities
 
-<label class="@GetClasses()">
+<label for="@For" class="@GetClasses()" @attributes="AdditionalAttributes">
     @ChildContent
 </label>
