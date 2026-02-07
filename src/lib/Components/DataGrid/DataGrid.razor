@@ -18,14 +18,25 @@
         @HeaderTemplate
     }
 
-    @if (Data != null && Data.Any())
-    {
-        @if (AllowPaging && (PagerPosition == PagerPosition.Top || PagerPosition == PagerPosition.TopAndBottom))
+    <div class="datagrid-container" style="position: relative;">
+        @if (IsLoading)
         {
-            @RenderPager()
+            <div class="datagrid-loading-overlay">
+                <div class="datagrid-loading-indicator">
+                    <div class="spinner"></div>
+                    <span>Loading...</span>
+                </div>
+            </div>
         }
 
-        <table class="@GetTableClasses()" @attributes="AdditionalAttributes">
+        @if (Data != null && Data.Any())
+        {
+            @if (AllowPaging && (PagerPosition == PagerPosition.Top || PagerPosition == PagerPosition.TopAndBottom))
+            {
+                @RenderPager()
+            }
+
+            <table class="@GetTableClasses()" @attributes="AdditionalAttributes">
             <thead>
                 <tr>
                     @if (ShowSelectColumn && SelectionMode == SelectionMode.Multiple)
@@ -115,22 +126,23 @@
             </tbody>
         </table>
 
-        @if (AllowPaging && (PagerPosition == PagerPosition.Bottom || PagerPosition == PagerPosition.TopAndBottom))
-        {
-            @RenderPager()
+            @if (AllowPaging && (PagerPosition == PagerPosition.Bottom || PagerPosition == PagerPosition.TopAndBottom))
+            {
+                @RenderPager()
+            }
         }
-    }
-    else
-    {
-        <div class="@GetEmptyStateClasses()">
-            @if (EmptyTemplate != null)
-            {
-                @EmptyTemplate
-            }
-            else
-            {
-                <p>No data available</p>
-            }
-        </div>
-    }
+        else
+        {
+            <div class="@GetEmptyStateClasses()">
+                @if (EmptyTemplate != null)
+                {
+                    @EmptyTemplate
+                }
+                else
+                {
+                    <p>No data available</p>
+                }
+            </div>
+        }
+    </div>
 </CascadingValue>

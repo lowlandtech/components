@@ -178,14 +178,34 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
+    /// <summary>
+    /// Gets or sets the event callback for loading data from a server.
+    /// When set, the grid will use server-side data operations instead of client-side.
+    /// </summary>
+    [Parameter]
+    public EventCallback<LoadDataArgs> LoadData { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether the grid is currently loading data.
+    /// </summary>
+    [Parameter]
+    public bool IsLoading { get; set; }
+
+    /// <summary>
+    /// Gets or sets the total count of items on the server (for server-side paging).
+    /// Only used when LoadData is set.
+    /// </summary>
+    [Parameter]
+    public int? Count { get; set; }
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
     }
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
-        base.OnParametersSet();
+        await base.OnParametersSetAsync();
         
         // Reset the flag when parameters change so sort gets applied
         if (!string.IsNullOrEmpty(SortBy) && SortDirection != SortDirection.None)
@@ -215,6 +235,12 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
             }
             _selectedItem = _selectedItems.FirstOrDefault();
         }
+
+        // Trigger LoadData if configured for server-side operations
+        if (LoadData.HasDelegate)
+        {
+            await ReloadServerDataAsync();
+        }
     }
 
     /// <summary>
@@ -243,6 +269,12 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
         _sortColumn = null;
         _sortDirection = SortDirection.None;
         _sortDescriptors.Clear();
+        
+        if (LoadData.HasDelegate)
+        {
+            await ReloadServerDataAsync();
+        }
+        
         await InvokeAsync(StateHasChanged);
     }
 
@@ -257,6 +289,12 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
             _sortColumn = column;
             _sortDirection = direction;
             _sortDescriptors.Clear();
+            
+            if (LoadData.HasDelegate)
+            {
+                await ReloadServerDataAsync();
+            }
+            
             await InvokeAsync(StateHasChanged);
         }
     }
@@ -313,6 +351,11 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
                 });
             }
 
+            if (LoadData.HasDelegate)
+            {
+                await ReloadServerDataAsync();
+            }
+
             await InvokeAsync(StateHasChanged);
         }
     }
@@ -335,6 +378,12 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
             }
             
             _currentPage = 1; // Reset to first page
+            
+            if (LoadData.HasDelegate)
+            {
+                await ReloadServerDataAsync();
+            }
+            
             await InvokeAsync(StateHasChanged);
         }
     }
@@ -346,6 +395,12 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     {
         _columnFilters.Clear();
         _currentPage = 1;
+        
+        if (LoadData.HasDelegate)
+        {
+            await ReloadServerDataAsync();
+        }
+        
         await InvokeAsync(StateHasChanged);
     }
 
@@ -381,16 +436,16 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     /// <summary>
     /// Handles column header click with mouse event args for multi-sort detection.
     /// </summary>
-    private void HandleHeaderClick(DataGridColumn<TItem> column, MouseEventArgs args)
+    private async Task HandleHeaderClick(DataGridColumn<TItem> column, MouseEventArgs args)
     {
         bool isMultiSort = args.CtrlKey || args.MetaKey; // Ctrl on Windows/Linux, Cmd on Mac
-        HandleColumnHeaderClick(column, isMultiSort);
+        await HandleColumnHeaderClick(column, isMultiSort);
     }
 
     /// <summary>
     /// Handles column header click for sorting.
     /// </summary>
-    internal void HandleColumnHeaderClick(DataGridColumn<TItem> column, bool isMultiSort = false)
+    internal async Task HandleColumnHeaderClick(DataGridColumn<TItem> column, bool isMultiSort = false)
     {
         if (!AllowSorting || !column.Sortable)
             return;
@@ -405,6 +460,11 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
             HandleMultiColumnSort(column);
         }
 
+        if (LoadData.HasDelegate)
+        {
+            await ReloadServerDataAsync();
+        }
+        
         StateHasChanged();
     }
 
@@ -511,13 +571,140 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     }
 
     /// <summary>
-    /// Gets the sort priority for a column (for multi-column sorting).
+    /// Gets the column's current sort priority for display.
     /// Returns 0 if column is not sorted.
     /// </summary>
     internal int GetColumnSortPriority(DataGridColumn<TItem> column)
     {
         var descriptor = _sortDescriptors.FirstOrDefault(s => s.Column == column);
         return descriptor?.Priority ?? 0;
+    }
+
+    /// <summary>
+    /// Reloads data from the server by invoking the LoadData event.
+    /// </summary>
+    private async Task ReloadServerDataAsync()
+    {
+        if (!LoadData.HasDelegate)
+            return;
+
+        var args = BuildLoadDataArgs();
+        await LoadData.InvokeAsync(args);
+    }
+
+    /// <summary>
+    /// Builds the LoadDataArgs object with current grid state.
+    /// </summary>
+    private LoadDataArgs BuildLoadDataArgs()
+    {
+        var skip = AllowPaging ? (_currentPage - 1) * PageSize : 0;
+        var top = AllowPaging ? PageSize : int.MaxValue;
+
+        // Build OrderBy string
+        var orderBy = BuildOrderByString();
+
+        // Build Filter string
+        var filter = BuildFilterString();
+
+        // Build SortInfo collection
+        var sortInfos = BuildSortInfos();
+
+        return new LoadDataArgs
+        {
+            Skip = skip,
+            Top = top,
+            OrderBy = orderBy,
+            Filter = filter,
+            SortDescriptors = sortInfos,
+            Filters = _columnFilters.Any() ? new Dictionary<string, string>(_columnFilters) : null
+        };
+    }
+
+    /// <summary>
+    /// Builds OData-style OrderBy string from current sort state.
+    /// </summary>
+    private string? BuildOrderByString()
+    {
+        var orderByClauses = new List<string>();
+
+        // Handle multi-column sorting
+        if (_sortDescriptors.Any())
+        {
+            foreach (var descriptor in _sortDescriptors.OrderBy(d => d.Priority))
+            {
+                if (descriptor.Direction != SortDirection.None && !string.IsNullOrEmpty(descriptor.Column.Property))
+                {
+                    var direction = descriptor.Direction == SortDirection.Ascending ? "asc" : "desc";
+                    orderByClauses.Add($"{descriptor.Column.Property} {direction}");
+                }
+            }
+        }
+        // Handle single-column sorting
+        else if (_sortColumn != null && _sortDirection != SortDirection.None && !string.IsNullOrEmpty(_sortColumn.Property))
+        {
+            var direction = _sortDirection == SortDirection.Ascending ? "asc" : "desc";
+            orderByClauses.Add($"{_sortColumn.Property} {direction}");
+        }
+
+        return orderByClauses.Any() ? string.Join(",", orderByClauses) : null;
+    }
+
+    /// <summary>
+    /// Builds OData-style Filter string from current filter state.
+    /// </summary>
+    private string? BuildFilterString()
+    {
+        if (!_columnFilters.Any())
+            return null;
+
+        var filterClauses = new List<string>();
+        foreach (var filter in _columnFilters)
+        {
+            if (!string.IsNullOrWhiteSpace(filter.Value))
+            {
+                // Simple contains filter for now
+                filterClauses.Add($"contains({filter.Key},'{filter.Value}')");
+            }
+        }
+
+        return filterClauses.Any() ? string.Join(" and ", filterClauses) : null;
+    }
+
+    /// <summary>
+    /// Builds SortInfo collection from current sort state.
+    /// </summary>
+    private IEnumerable<SortInfo>? BuildSortInfos()
+    {
+        var sortInfos = new List<SortInfo>();
+
+        // Handle multi-column sorting
+        if (_sortDescriptors.Any())
+        {
+            foreach (var descriptor in _sortDescriptors.OrderBy(d => d.Priority))
+            {
+                if (descriptor.Direction != SortDirection.None && !string.IsNullOrEmpty(descriptor.Column.Property))
+                {
+                    sortInfos.Add(new SortInfo
+                    {
+                        PropertyName = descriptor.Column.Property,
+                        Direction = descriptor.Direction,
+                        Priority = descriptor.Priority
+                    });
+                }
+            }
+        }
+        // Handle single-column sorting
+        else if (_sortColumn != null && _sortDirection != SortDirection.None && !string.IsNullOrEmpty(_sortColumn.Property))
+        {
+            sortInfos.Add(new SortInfo
+            {
+                PropertyName = _sortColumn.Property,
+                Direction = _sortDirection,
+                Priority = 1
+            });
+        }
+
+        return sortInfos.Any() ? sortInfos : null;
     }
 
     /// <summary>
@@ -608,7 +795,17 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     /// </summary>
     private int GetTotalPages()
     {
-        if (!AllowPaging || Data == null)
+        if (!AllowPaging)
+            return 1;
+
+        // Use server-side count if available
+        if (LoadData.HasDelegate && Count.HasValue)
+        {
+            return (int)Math.Ceiling((double)Count.Value / PageSize);
+        }
+
+        // Fall back to client-side count
+        if (Data == null)
             return 1;
 
         var totalCount = Data.Count();
@@ -618,11 +815,15 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     /// <summary>
     /// Navigates to the next page.
     /// </summary>
-    private void GoToNextPage()
+    private async Task GoToNextPage()
     {
         if (_currentPage < GetTotalPages())
         {
             _currentPage++;
+            if (LoadData.HasDelegate)
+            {
+                await ReloadServerDataAsync();
+            }
             StateHasChanged();
         }
     }
@@ -630,11 +831,15 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     /// <summary>
     /// Navigates to the previous page.
     /// </summary>
-    private void GoToPreviousPage()
+    private async Task GoToPreviousPage()
     {
         if (_currentPage > 1)
         {
             _currentPage--;
+            if (LoadData.HasDelegate)
+            {
+                await ReloadServerDataAsync();
+            }
             StateHasChanged();
         }
     }
@@ -642,11 +847,15 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     /// <summary>
     /// Navigates to a specific page.
     /// </summary>
-    private void GoToPage(int page)
+    private async Task GoToPage(int page)
     {
         if (page >= 1 && page <= GetTotalPages())
         {
             _currentPage = page;
+            if (LoadData.HasDelegate)
+            {
+                await ReloadServerDataAsync();
+            }
             StateHasChanged();
         }
     }
@@ -654,12 +863,16 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     /// <summary>
     /// Handles page size change from dropdown.
     /// </summary>
-    private void OnPageSizeChanged(ChangeEventArgs e)
+    private async Task OnPageSizeChanged(ChangeEventArgs e)
     {
         if (int.TryParse(e.Value?.ToString(), out var newSize))
         {
             PageSize = newSize;
             _currentPage = 1; // Reset to first page
+            if (LoadData.HasDelegate)
+            {
+                await ReloadServerDataAsync();
+            }
             StateHasChanged();
         }
     }
@@ -771,7 +984,7 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     /// <summary>
     /// Handles filter input change for a column.
     /// </summary>
-    private void HandleFilterChange(string propertyName, ChangeEventArgs e)
+    private async Task HandleFilterChange(string propertyName, ChangeEventArgs e)
     {
         var filterValue = e.Value?.ToString() ?? string.Empty;
         
@@ -786,6 +999,12 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
         
         // Reset to first page when filtering
         _currentPage = 1;
+        
+        if (LoadData.HasDelegate)
+        {
+            await ReloadServerDataAsync();
+        }
+        
         StateHasChanged();
     }
 
