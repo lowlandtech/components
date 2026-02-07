@@ -1,12 +1,13 @@
 # LowlandTech Blazor Components
 
-A comprehensive Blazor component library inspired by shadcn/ui, built with .NET 10.0 and Tailwind CSS.
+A comprehensive Blazor component library inspired by shadcn/ui and Radzen Blazor, built with .NET 10.0 and Tailwind CSS.
 
 ## Project Status
 
 - **Build Status**: ✅ 0 Warnings, 0 Errors
 - **Test Coverage**: ✅ 257 Tests, 100% Passing
-- **Components**: 22 / 57 Complete (39%)
+- **Components**: 22 / 62 Complete (35%)
+- **High Priority**: 🔥 DataGrid & DataFilter (Radzen-inspired)
 
 ## Component Library
 
@@ -72,6 +73,16 @@ A comprehensive Blazor component library inspired by shadcn/ui, built with .NET 
 | Resizable | 📋 Planned | - | Resizable panels |
 | Scroll-Area | 📋 Planned | - | Custom scrollable area |
 
+### Data Components
+
+| Component | Status | Tests | Description |
+|-----------|--------|-------|-------------|
+| DataGrid | 🔥 High Priority | - | Advanced data grid with sorting, filtering, paging, grouping |
+| DataFilter | 🔥 High Priority | - | Dynamic query builder for filtering data |
+| DataList | 📋 Planned | - | List view with data binding and templates |
+| TreeList | 📋 Planned | - | Hierarchical tree grid |
+| AutoComplete | 📋 Planned | - | Autocomplete input with suggestions |
+
 ### Feedback Components
 
 | Component | Status | Tests | Description |
@@ -117,6 +128,36 @@ A comprehensive Blazor component library inspired by shadcn/ui, built with .NET 
 - Tailwind CSS integration
 - 22 foundational components
 - Zero build warnings
+
+### 🔥 HIGH PRIORITY: Advanced Data Components (Radzen-Inspired)
+
+Port key components from Radzen Blazor library with Tailwind/shadcn styling:
+
+| Component | Priority | Complexity | Description |
+|-----------|----------|------------|-------------|
+| **DataGrid** | 🔴 Critical | High | Advanced data grid with sorting, filtering, grouping, paging |
+| **DataFilter** | 🔴 Critical | Medium | Dynamic query builder for data filtering |
+| **DataList** | 🟡 High | Medium | List view with templating and data binding |
+| **AutoComplete** | 🟡 High | Medium | Autocomplete input with suggestions |
+| **Scheduler** | 🟠 Medium | High | Calendar scheduler with event management |
+| **TreeList** | 🟠 Medium | High | Hierarchical tree grid component |
+| **FileUpload** | 🟡 High | Medium | File upload with progress and validation |
+| **Splitter** | 🟢 Low | Low | Resizable split panel layout |
+
+**Key Features to Port from RadzenDataGrid**:
+- ✅ Generic typed data binding (`TItem`)
+- ✅ Virtual scrolling for large datasets
+- ✅ Column sorting (single & multi-column)
+- ✅ Advanced filtering with filter menu
+- ✅ Grouping with expand/collapse
+- ✅ Inline editing with validation
+- ✅ Row selection (single & multi-select)
+- ✅ Export to Excel/CSV
+- ✅ Column resizing and reordering
+- ✅ Frozen columns
+- ✅ Paging with configurable page sizes
+- ✅ Custom cell templates
+- ✅ Footer aggregations (sum, avg, count, etc.)
 
 ### 🚀 Phase 1: Essential Form Components (Planned)
 1. Label - Form field labels
@@ -196,5 +237,6 @@ Components follow the BDD testing pattern with Given/When/Then scenarios. Each c
 ## Acknowledgments
 
 - Inspired by [shadcn/ui](https://ui.shadcn.com/)
+- Advanced data components inspired by [Radzen Blazor](https://blazor.radzen.com/)
 - Built with [Radix UI](https://www.radix-ui.com/) patterns
 - Styled with [Tailwind CSS](https://tailwindcss.com/)
