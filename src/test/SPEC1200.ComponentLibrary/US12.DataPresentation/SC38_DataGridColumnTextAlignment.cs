@@ -14,11 +14,15 @@ namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US12.DataPresen
 /// When the grid renders
 /// Then cell content aligns as specified (Left, Center, Right)
 /// </summary>
+[Trait(Spec.SPEC, "1200")]
+[Trait(Spec.US, "12")]
+[Trait(Spec.SC, "38")]
 public class SC38_DataGridColumnTextAlignment
 {
     private record TestItem(int Id, string Name, decimal Price);
 
     [Fact(DisplayName = "Column with TextAlign Left aligns content to the left")]
+    [Trait(Spec.UAC, "01")]
     public void Column_WithTextAlignLeft_AlignsContentLeft()
     {
         // Given
@@ -47,6 +51,7 @@ public class SC38_DataGridColumnTextAlignment
     }
 
     [Fact(DisplayName = "Column with TextAlign Center aligns content to center")]
+    [Trait(Spec.UAC, "02")]
     public void Column_WithTextAlignCenter_AlignsContentCenter()
     {
         // Given
@@ -75,6 +80,7 @@ public class SC38_DataGridColumnTextAlignment
     }
 
     [Fact(DisplayName = "Column with TextAlign Right aligns content to the right")]
+    [Trait(Spec.UAC, "03")]
     public void Column_WithTextAlignRight_AlignsContentRight()
     {
         // Given
@@ -103,6 +109,7 @@ public class SC38_DataGridColumnTextAlignment
     }
 
     [Fact(DisplayName = "Multiple columns can have different text alignments")]
+    [Trait(Spec.UAC, "04")]
     public void MultipleColumns_CanHaveDifferentAlignments()
     {
         // Given
@@ -149,6 +156,7 @@ public class SC38_DataGridColumnTextAlignment
     }
 
     [Fact(DisplayName = "Column without TextAlign uses default alignment")]
+    [Trait(Spec.UAC, "05")]
     public void Column_WithoutTextAlign_UsesDefaultAlignment()
     {
         // Given
@@ -177,6 +185,7 @@ public class SC38_DataGridColumnTextAlignment
     }
 
     [Fact(DisplayName = "TextAlign applies to both header and data cells")]
+    [Trait(Spec.UAC, "06")]
     public void TextAlign_AppliesToHeaderAndDataCells()
     {
         // Given

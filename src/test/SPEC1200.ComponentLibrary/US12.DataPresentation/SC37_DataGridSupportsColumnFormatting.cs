@@ -15,11 +15,15 @@ namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US12.DataPresen
 /// Then cell values format according to the format string
 /// And I can use standard or custom .NET format strings
 /// </summary>
+[Trait(Spec.SPEC, "1200")]
+[Trait(Spec.US, "12")]
+[Trait(Spec.SC, "37")]
 public class SC37_DataGridSupportsColumnFormatting
 {
     private record TestItem(int Id, string Name, decimal Price, DateTime CreatedDate, double Percentage);
 
     [Fact(DisplayName = "Column with FormatString formats numeric values")]
+    [Trait(Spec.UAC, "01")]
     public void Column_WithFormatString_FormatsNumericValues()
     {
         // Given
@@ -48,6 +52,7 @@ public class SC37_DataGridSupportsColumnFormatting
     }
 
     [Fact(DisplayName = "Column with FormatString formats date values")]
+    [Trait(Spec.UAC, "02")]
     public void Column_WithFormatString_FormatsDateValues()
     {
         // Given
@@ -75,6 +80,7 @@ public class SC37_DataGridSupportsColumnFormatting
     }
 
     [Fact(DisplayName = "Column with FormatString formats percentage values")]
+    [Trait(Spec.UAC, "03")]
     public void Column_WithFormatString_FormatsPercentageValues()
     {
         // Given
@@ -104,6 +110,7 @@ public class SC37_DataGridSupportsColumnFormatting
     }
 
     [Fact(DisplayName = "Multiple columns can have different format strings")]
+    [Trait(Spec.UAC, "04")]
     public void MultipleColumns_CanHaveDifferentFormatStrings()
     {
         // Given
@@ -150,6 +157,7 @@ public class SC37_DataGridSupportsColumnFormatting
     }
 
     [Fact(DisplayName = "Column without FormatString displays raw value")]
+    [Trait(Spec.UAC, "05")]
     public void Column_WithoutFormatString_DisplaysRawValue()
     {
         // Given
@@ -176,6 +184,7 @@ public class SC37_DataGridSupportsColumnFormatting
     }
 
     [Fact(DisplayName = "FormatString supports custom number formatting")]
+    [Trait(Spec.UAC, "06")]
     public void FormatString_SupportsCustomNumberFormatting()
     {
         // Given
@@ -203,6 +212,7 @@ public class SC37_DataGridSupportsColumnFormatting
     }
 
     [Fact(DisplayName = "FormatString with fixed decimal places")]
+    [Trait(Spec.UAC, "07")]
     public void FormatString_WithFixedDecimalPlaces()
     {
         // Given
