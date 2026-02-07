@@ -57,12 +57,13 @@ The Vite sample routes cover multiple product areas (dashboards, public profile,
 5. Normalize all styling to component classes from `src/lib/wwwroot/css/input.css`.
 6. Add placeholder or simplified content where a direct Blazor equivalent is missing (charts, advanced tables).
 
-## Coordination and Tracking (Agent Loop)
+## Coordination and Tracking (Agent Loop + Chat Board)
 
-- Use `issues/SPEC1250/` as the single source of truth for scope and status.
-- Track work items in `issues/SPEC1250/todos.md` and update `issues/SPEC1250/progress.md` as each spec slice lands.
-- Reference spec IDs in all issues and notes using `SPEC1250.USXX` or `SPEC1250.USX.SCXX`.
-- Each implementer follows the Agent Loop in `.chat/README.md` before moving work to done.
+- Use the file-based chat/board workflow in `.chat/` as the primary coordination method.
+- Create and move issue files under `.chat/board/` (`backlog` -> `todo` -> `doing` -> `done`).
+- Each issue file must include spec IDs in the format `SPEC1250.USXX` or `SPEC1250.USX.SCXX`.
+- Use `.chat/` message ticks for handoffs and decisions when coordinating between agents.
+- Keep `issues/SPEC1250/` updated for scope context, but treat the board as the execution source of truth.
 
 ## Component Usage Rules
 
