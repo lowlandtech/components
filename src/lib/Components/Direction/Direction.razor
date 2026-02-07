@@ -1,0 +1,8 @@
+@namespace LowlandTech.Components
+@inherits DirectionBase
+
+<CascadingValue Value="@CurrentDirection" Name="Direction">
+    <div dir="@CurrentDirection.ToString().ToLowerInvariant()">
+        @ChildContent
+    </div>
+</CascadingValue>
