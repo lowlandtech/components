@@ -1,0 +1,16 @@
+@namespace LowlandTech.Components.Components.InputOtp
+@using LowlandTech.Components.Utilities
+
+<div class="@_className" @attributes="AdditionalAttributes">
+    @for (int i = 0; i < Length; i++)
+    {
+        var index = i; // Capture for closure
+        <input type="text"
+               maxlength="1"
+               class="input-otp-slot"
+               value="@GetSlotValue(index)"
+               @oninput="@(e => HandleInput(index, e))"
+               @onkeydown="@(e => HandleKeyDown(index, e))"
+               @ref="_inputRefs[index]" />
+    }
+</div>
