@@ -45,6 +45,12 @@ public partial class DataGridColumn<TItem> : ComponentBase where TItem : notnull
     [Parameter]
     public TextAlign TextAlign { get; set; } = TextAlign.Left;
 
+    /// <summary>
+    /// Gets or sets whether the column is sortable.
+    /// </summary>
+    [Parameter]
+    public bool Sortable { get; set; }
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
@@ -93,6 +99,14 @@ public partial class DataGridColumn<TItem> : ComponentBase where TItem : notnull
             TextAlign.Right => "text-right",
             _ => "text-left"
         };
+    }
+
+    /// <summary>
+    /// Gets the PropertyInfo for this column (used internally for sorting/filtering).
+    /// </summary>
+    internal PropertyInfo? GetPropertyInfo()
+    {
+        return _propertyInfo;
     }
 
     public void Dispose()

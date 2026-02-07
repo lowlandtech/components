@@ -24,12 +24,28 @@
                 <tr>
                     @foreach (var column in _columns)
                     {
-                        <th class="@column.GetAlignmentClass()">@column.Title</th>
+                        <th class="@column.GetAlignmentClass()" @onclick="() => HandleColumnHeaderClick(column)">
+                            @column.Title
+                            @if (AllowSorting && column.Sortable)
+                            {
+                                var sortDir = GetColumnSortDirection(column);
+                                <span class="sort-indicator" data-sort-direction="@sortDir.ToString().ToLower()">
+                                    @if (sortDir == SortDirection.Ascending)
+                                    {
+                                        <text>▲</text>
+                                    }
+                                    else if (sortDir == SortDirection.Descending)
+                                    {
+                                        <text>▼</text>
+                                    }
+                                </span>
+                            }
+                        </th>
                     }
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Data)
+                @foreach (var item in GetSortedData())
                 {
                     <tr>
                         @foreach (var column in _columns)
