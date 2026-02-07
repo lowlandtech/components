@@ -24,6 +24,12 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     public RenderFragment? Columns { get; set; }
 
     /// <summary>
+    /// Gets or sets the child content (alternative way to define content).
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
     /// Gets or sets the template to display when there is no data.
     /// </summary>
     [Parameter]

@@ -41,6 +41,8 @@ public partial class DataGridColumn<TItem> : ComponentBase where TItem : notnull
 
     protected override void OnInitialized()
     {
+        base.OnInitialized();
+        
         if (Grid != null)
         {
             Grid.AddColumn(this);
@@ -50,8 +52,6 @@ public partial class DataGridColumn<TItem> : ComponentBase where TItem : notnull
         {
             _propertyInfo = typeof(TItem).GetProperty(Property);
         }
-
-        base.OnInitialized();
     }
 
     /// <summary>
