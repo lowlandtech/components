@@ -2,5 +2,6 @@
   <Folder Name="/src/">
     <Project Path="src/lib/LowlandTech.Components.csproj" />
     <Project Path="src/test/LowlandTech.Components.Tests.csproj" />
+    <Project Path="src/theme/LandlandTech.Theme.csproj" />
   </Folder>
 </Solution>

@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Components;
 using LowlandTech.Components.Utilities;
 
-namespace LowlandTech.Components;
+namespace LowlandTech.Components.Components.Spinner;
  
 /// <summary>
 /// A loading spinner component with size variants.
 /// </summary>
-public class Spinner : ComponentBase
+public partial class Spinner : ComponentBase
 {
     /// <summary>
     /// Gets or sets the size of the spinner.

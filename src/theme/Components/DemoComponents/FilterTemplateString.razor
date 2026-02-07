@@ -1,0 +1,133 @@
+@namespace LowlandTech.Theme
+
+@using LowlandTech.Components.Badge
+
+<div class="card border-border bg-card text-card-foreground rounded-lg shadow-sm p-5">
+    <h3 class="text-lg font-semibold mb-4">Filter @GetTemplateType()</h3>
+    <div class="space-y-4">
+        @if (GetTemplateType() == "string")
+        {
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-muted-foreground">Column:</span>
+                <select class="input" @bind="SelectedColumn">
+                    @foreach (var option in ColumnOptions)
+                    {
+                        <option value="@option">@option</option>
+                    }
+                </select>
+            </div>
+            <div class="flex-grow">
+                <input type="text" class="input" placeholder="Contains..." @bind="StringValue" />
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-muted-foreground">Operator:</span>
+                <select class="input" @bind="SelectedOperator">
+                    <option value="">-- Select --</option>
+                    <option value="equals">Equals</option>
+                    <option value="contains">Contains</option>
+                    <option value="starts-with">Starts With</option>
+                    <option value="ends-with">Ends With</option>
+                </select>
+            </div>
+            <div class="flex-grow">
+                <input type="text" class="input" placeholder="Value..." @bind="Value" />
+            </div>
+        </div>
+    }
+    @if (GetTemplateType() == "number")
+        {
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-muted-foreground">Column:</span>
+                <select class="input" @bind="SelectedColumn">
+                    @foreach (var option in ColumnOptions)
+                    {
+                        <option value="@option">@option</option>
+                    }
+                </select>
+            </div>
+            <div class="space-y-3">
+                <div class="flex items-center gap-3">
+                    <span class="text-sm text-muted-foreground">From:</span>
+                    <input type="number" class="input" placeholder="0" @bind="FromValue" />
+                    <span class="text-xs text-muted-foreground">To:</span>
+                    <input type="number" class="input" placeholder="100" @bind="ToValue" />
+                </div>
+            </div>
+        </div>
+    }
+    @if (GetTemplateType() == "boolean")
+        {
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-muted-foreground">Column:</span>
+                <select class="input" @bind="SelectedColumn">
+                    @foreach (var option in ColumnOptions)
+                    {
+                        <option value="@option">@option</option>
+                    }
+                </select>
+            </div>
+            <div class="flex items-center">
+                <input type="checkbox" class="checkbox" @bind="Value" />
+            </div>
+        </div>
+    }
+    @if (GetTemplateType() == "date")
+        {
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-muted-foreground">Column:</span>
+                <select class="input" @bind="SelectedColumn">
+                    @foreach (var option in ColumnOptions)
+                    {
+                        <option value="@option">@option</option>
+                    }
+                </select>
+            </div>
+            <div class="space-y-3">
+                <div class="flex items-center gap-3">
+                    <span class="text-sm text-muted-foreground">From:</span>
+                    <input type="date" class="input" @bind="FromValue" />
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs text-muted-foreground">To:</span>
+                    <input type="date" class="input" @bind="ToValue" />
+                </div>
+            </div>
+        }
+    </div>
+    <div class="flex justify-end mt-6">
+        <button class="btn btn-default">Apply Filter</button>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    [Parameter]
+    public string TemplateType { get; set; }
+
+    [Parameter]
+    public string? SelectedColumn { get; set; }
+
+    [Parameter]
+    public object? StringValue { get; set; }
+
+    [Parameter]
+    public string? SelectedOperator { get; set; }
+
+    [Parameter]
+    public int? FromValue { get; set; }
+
+    [Parameter]
+    public int? ToValue { get; set; }
+
+    private static string[] ColumnOptions { get; } = new() { "Name", "Email", "Category", "Status" };
+
+    private static string GetTemplateType()
+    {
+        return TemplateType ?? "custom";
+    }
+}

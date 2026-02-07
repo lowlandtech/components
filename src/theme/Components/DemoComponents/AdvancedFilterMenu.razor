@@ -1,0 +1,148 @@
+@namespace LowlandTech.Theme
+
+@using LowlandTech.Components.Badge
+
+<div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5">
+    <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+            <span class="text-lg font-semibold">Advanced Filters</span>
+            <Badge Variant="BadgeVariants.Secondary" Class="text-xs">Custom</Badge>
+        </div>
+        <button class="btn btn-ghost btn-sm" @onclick="ClearAllFilters">
+            <span>Clear All</span>
+        </button>
+    </div>
+
+    <div class="flex items-center gap-2 mb-4">
+        <button class="btn btn-default btn-sm" @onclick="ShowFilterBuilder">
+            <span>+ Add Filter</span>
+        </button>
+        <div class="flex-grow">
+            <select class="input" @bind="SelectedFilterType">
+                <option value="">Select a filter type...</option>
+                <option value="string">String Contains</option>
+                <option value="number">Number Range</option>
+                <option value="boolean">Boolean Equals</option>
+                <option value="date">Date Range</option>
+            </select>
+        </div>
+    </div>
+
+    @if (FilterItems.Count > 0)
+    {
+        <div class="space-y-2 mt-4">
+            @foreach (var filter in FilterItems)
+            {
+                <div class="flex items-center justify-between bg-muted/30 p-3 rounded-lg">
+                    <div class="flex items-center gap-3 flex-grow">
+                        <div class="flex-grow">
+                            <p class="text-sm font-medium text-foreground">@GetFilterTitle(filter.Type)</p>
+                            <p class="text-xs text-muted-foreground">@GetFilterDescription(filter)</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-muted-foreground">Column:</span>
+                            <select class="input text-sm" @bind="filter.Column">
+                                @GetColumnOptions(filter.Type)
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-muted-foreground">Value:</span>
+                            @if (filter.Type == "string")
+                            {
+                                <input type="text" class="input text-sm" @bind="filter.Value" placeholder="Enter value..." />
+                            }
+                            else if (filter.Type == "number")
+                            {
+                                <input type="number" class="input text-sm" @bind="filter.Value" placeholder="0" />
+                            }
+                            else if (filter.Type == "boolean")
+                            {
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" class="checkbox" @bind="filter.Value" />
+                                    <span class="text-sm text-foreground">@(filter.Value ? "True" : "False")</span>
+                                </div>
+                            }
+                            else if (filter.Type == "date")
+                            {
+                                <input type="date" class="input text-sm" @bind="filter.Value" />
+                            }
+                        </div>
+                    </div>
+                    <button class="btn btn-outline btn-sm" @onclick="() => RemoveFilter(filter)">
+                        <span>✕</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    public List<AdvancedFilter> FilterItems { get; set; } = new();
+
+    public string? SelectedFilterType { get; set; }
+
+    private void ShowFilterBuilder()
+    {
+        SelectedFilterType = string.Empty;
+    }
+
+    private void ClearAllFilters()
+    {
+        FilterItems.Clear();
+    }
+
+    private void RemoveFilter(AdvancedFilter filter)
+    {
+        FilterItems.Remove(filter);
+    }
+
+    private static string GetFilterTitle(string type)
+    {
+        return type switch
+        {
+            "string" => "String Contains",
+            "number" => "Number Range",
+            "boolean" => "Boolean Equals",
+            "date" => "Date Range"
+            _ => "Custom Filter"
+        };
+    }
+
+    private static string GetFilterDescription(string type)
+    {
+        return type switch
+        {
+            "string" => "Filter records where column contains specific text",
+            "number" => "Filter records where column is between two values",
+            "boolean" => "Filter records where column equals true or false",
+            "date" => "Filter records where column is within a date range",
+            _ => "Custom filter criteria"
+        };
+    }
+
+    private static string[] GetColumnOptions(string filterType)
+    {
+        return filterType switch
+        {
+            "string" => new[] { "Name", "Email", "Category", "Status" },
+            "number" => new[] { "Age", "Count", "Score" },
+            "boolean" => new[] { "Active", "Verified", "Deleted" },
+            "date" => new[] { "Created", "Updated", "Expiry" },
+            _ => new[] { "Custom" }
+        };
+    }
+
+    public class AdvancedFilter
+    {
+        public string Type { get; set; } = string.Empty;
+        public string? Column { get; set; }
+        public object? Value { get; set; }
+    }
+}

@@ -231,9 +231,9 @@ public class SC05_DataGridSupportsSingleColumnSorting
 
         // Then - should sort numerically
         var cells = cut.FindAll("tbody tr td");
-        Assert.Contains("5.25", cells[0].TextContent);
-        Assert.Contains("15.5", cells[1].TextContent);
-        Assert.Contains("99.99", cells[2].TextContent);
+        Assert.Contains("5.25", cells[0].TextContent.Replace(",", "."));
+        Assert.Contains("15.5", cells[1].TextContent.Replace(",", "."));
+        Assert.Contains("99.99", cells[2].TextContent.Replace(",", "."));
     }
 
     [Fact(DisplayName = "AllowSorting false prevents all sorting")]

@@ -47,7 +47,7 @@ public class SC02_DataGridSupportsColumnTemplates
                 {
                     builder.OpenElement(0, "strong");
                     builder.AddAttribute(1, "class", "price-value");
-                    builder.AddContent(2, $"${item.Price:F2}");
+                    builder.AddContent(2, FormattableString.Invariant($"${item.Price:F2}"));
                     builder.CloseElement();
                 }));
                 builder.CloseComponent();
@@ -56,7 +56,7 @@ public class SC02_DataGridSupportsColumnTemplates
         // Then
         var priceCell = cut.Find("tbody tr:first-child td:nth-child(2) strong.price-value");
         Assert.NotNull(priceCell);
-        Assert.Equal("$99.99", priceCell.TextContent);
+        Assert.Equal("$99.99", priceCell.TextContent.Replace(",", "."));
     }
 
     [Fact(DisplayName = "Template context provides access to row item properties")]
@@ -82,7 +82,7 @@ public class SC02_DataGridSupportsColumnTemplates
                 {
                     builder.OpenElement(0, "div");
                     builder.AddAttribute(1, "class", "item-details");
-                    builder.AddContent(2, $"#{item.Id} - {item.Name} - ${item.Price}");
+                    builder.AddContent(2, FormattableString.Invariant($"#{item.Id} - {item.Name} - ${item.Price}"));
                     builder.CloseElement();
                 }));
                 builder.CloseComponent();
@@ -92,12 +92,12 @@ public class SC02_DataGridSupportsColumnTemplates
         var firstRow = cut.Find("tbody tr:first-child td .item-details");
         Assert.Contains("#1", firstRow.TextContent);
         Assert.Contains("Product A", firstRow.TextContent);
-        Assert.Contains("$99.99", firstRow.TextContent);
+        Assert.Contains("$99.99", firstRow.TextContent.Replace(",", "."));
 
         var secondRow = cut.Find("tbody tr:nth-child(2) td .item-details");
         Assert.Contains("#2", secondRow.TextContent);
         Assert.Contains("Product B", secondRow.TextContent);
-        Assert.Contains("$149.99", secondRow.TextContent);
+        Assert.Contains("$149.99", secondRow.TextContent.Replace(",", "."));
     }
 
     [Fact(DisplayName = "Template can contain interactive Blazor components")]
@@ -225,7 +225,7 @@ public class SC02_DataGridSupportsColumnTemplates
                 builder.AddAttribute(7, "Template", (RenderFragment<TestItem>)(item => builder =>
                 {
                     builder.OpenElement(0, "em");
-                    builder.AddContent(1, $"${item.Price}");
+                    builder.AddContent(1, FormattableString.Invariant($"${item.Price}"));
                     builder.CloseElement();
                 }));
                 builder.CloseComponent();
@@ -251,7 +251,7 @@ public class SC02_DataGridSupportsColumnTemplates
         Assert.NotNull(cells[0].QuerySelector("strong"));
         Assert.Equal("Product A", cells[0].TextContent);
         Assert.NotNull(cells[1].QuerySelector("em"));
-        Assert.Contains("$99.99", cells[1].TextContent);
+        Assert.Contains("$99.99", cells[1].TextContent.Replace(",", "."));
         Assert.Equal("✓", cells[2].TextContent);
     }
 }

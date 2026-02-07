@@ -1,6 +1,7 @@
 @page "/demo3"
 @rendermode InteractiveServer
 @using LowlandTech.Components.Components.Stepper
+@using LandlandTech.Theme.DemoComponents
 
 <div class="grid gap-5 lg:gap-7.5">
     <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
@@ -18,20 +19,7 @@
         </div>
         <div class="lg:col-span-1">
             @* Highlights Component (reuse from demo1) *@
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm h-full p-5 lg:p-7.5 lg:pt-4">
-                <div class="flex flex-col gap-4">
-                    <div>
-                        <h3 class="text-lg font-semibold">Highlights</h3>
-                    </div>
-                    <div class="flex flex-col gap-0.5">
-                        <span class="text-sm font-normal text-muted-foreground">All time sales</span>
-                        <div class="flex items-center gap-2.5">
-                            <span class="text-3xl font-semibold text-mono">$295.7k</span>
-                            <span class="text-xs text-muted-foreground">+2.7%</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <Highlights Limit="3" />
         </div>
     </div>
     <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
@@ -68,7 +56,6 @@
                     <a href="#" class="btn btn-default">Create Team</a>
                 </div>
             </div>
-        </div>
         </div>
         <div class="lg:col-span-1">
             @* Block List Placeholder *@

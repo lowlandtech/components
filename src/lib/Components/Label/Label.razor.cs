@@ -35,6 +35,6 @@ public partial class Label
 
     private string GetClasses()
     {
-        return CssClassUtils.Merge("label", Class);
+        return CssClassUtils.Merge("label cn-label flex items-center select-none", Class);
     }
 }

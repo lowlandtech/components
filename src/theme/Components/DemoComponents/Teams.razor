@@ -1,4 +1,4 @@
-@namespace LowlandTech.Theme.DemoComponents
+@namespace LandlandTech.Theme.DemoComponents
 
 @using LowlandTech.Components.Badge
 
@@ -20,9 +20,9 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th class="table-header cursor-pointer" @onclick="() => SortBy('name')">Team Name <span>@GetSortIcon('name')</span></th>
-                        <th class="table-header cursor-pointer" @onclick="() => SortBy('members')">Members <span>@GetSortIcon('members')</span></th>
-                        <th class="table-header cursor-pointer" @onclick="() => SortBy('projects')">Projects <span>@GetSortIcon('projects')</span></th>
+                        <th class="table-header cursor-pointer" @onclick="@(() => SortBy("name"))">Team Name <span>@GetSortIcon("name")</span></th>
+                        <th class="table-header cursor-pointer" @onclick="@(() => SortBy("members"))">Members <span>@GetSortIcon("members")</span></th>
+                        <th class="table-header cursor-pointer" @onclick="@(() => SortBy("projects"))">Projects <span>@GetSortIcon("projects")</span></th>
                         <th class="table-header">Status</th>
                         <th class="table-header text-right">Actions</th>
                     </tr>
@@ -69,7 +69,7 @@
     [Parameter]
     public string? SearchText { get; set; }
 
-    private List<TeamData> Teams { get; set; } = new()
+    private List<TeamData> TeamsList { get; set; } = new()
     {
         new() { Name = "Design Team", Initials = "DT", Members = 24, Projects = 12, Status = "Active" },
         new() { Name = "Development Team", Initials = "DV", Members = 18, Projects = 8, Status = "Active" },
@@ -81,41 +81,27 @@
     private string _sortColumn = string.Empty;
     private bool _sortAscending = true;
 
-    private List<TeamData> FilteredTeams
-    {
-        get
-        {
-            return GetFilteredTeams();
-        }
-        set
-        {
-            Teams = value;
-        }
-    }
+    private List<TeamData> FilteredTeams => GetFilteredTeams();
 
     private List<TeamData> GetFilteredTeams()
     {
-        var result = Teams.AsEnumerable();
+        var result = TeamsList.AsEnumerable();
 
         if (!string.IsNullOrEmpty(SearchText))
         {
             result = result.Where(t => t.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
         }
 
-        if (!string.IsNullOrEmpty(_sortColumn))
-        {
-            result = result.OrderBy(t => t.Name);
-        }
-        else
-        {
-            result = _sortColumn switch
-            {
-                "name" => _sortAscending ? result.OrderBy(t => t.Name) : result.OrderByDescending(t => t.Name),
-                "members" => _sortAscending ? result.OrderBy(t => t.Members) : result.OrderByDescending(t => t.Members),
-                "projects" => _sortAscending ? result.OrderBy(t => t.Projects) : result.OrderByDescending(t => t.Projects),
-                _ => result
-            };
-        }
+         if (!string.IsNullOrEmpty(_sortColumn))
+         {
+             result = _sortColumn switch
+             {
+                 "name" => _sortAscending ? result.OrderBy(t => t.Name) : result.OrderByDescending(t => t.Name),
+                 "members" => _sortAscending ? result.OrderBy(t => t.Members) : result.OrderByDescending(t => t.Members),
+                 "projects" => _sortAscending ? result.OrderBy(t => t.Projects) : result.OrderByDescending(t => t.Projects),
+                 _ => result
+             };
+         }
 
         return result.ToList();
     }
@@ -138,14 +124,11 @@
             _sortColumn = column;
             _sortAscending = true;
         }
-
-        FilteredTeams = GetFilteredTeams();
     }
 
-    private void OnSearchChanged(string? newValue)
+    private void OnSearchChanged()
     {
-        SearchText = newValue ?? string.Empty;
-        FilteredTeams = GetFilteredTeams();
+        // Filter is automatically applied via the FilteredTeams property
     }
 
     private BadgeVariants GetStatusVariant(string status)
@@ -168,8 +151,7 @@
 
     private void DeleteTeam(TeamData team)
     {
-        Teams.Remove(team);
-        FilteredTeams = GetFilteredTeams();
+        TeamsList.Remove(team);
     }
 
     public class TeamData

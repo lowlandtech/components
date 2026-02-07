@@ -1,12 +1,12 @@
-@namespace LowlandTech.Theme
+@namespace LandlandTech.Theme.DemoComponents
 
 <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm @GetClasses()" @attributes="AdditionalAttributes">
-    <div class="card-content p-10 bg-cover bg-no-repeat entry-callout-bg flex flex-col h-full">
-        <div class="flex flex-col justify-center gap-4">
-            @if (!string.IsNullOrEmpty(AvatarContent))
-            {
-                @AvatarContent
-            }
+<div class="card-content p-10 bg-cover bg-no-repeat entry-callout-bg flex flex-col h-full">
+    <div class="flex flex-col justify-center gap-4">
+        @if (AvatarContent != null)
+        {
+            @AvatarContent
+        }
             else
             {
                 <div class="flex gap-2">

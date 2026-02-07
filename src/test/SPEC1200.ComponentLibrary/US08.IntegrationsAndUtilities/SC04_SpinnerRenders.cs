@@ -1,5 +1,5 @@
 using Bunit;
-using LowlandTech.Components;
+using LowlandTech.Components.Components.Spinner;
 
 namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US08.IntegrationsAndUtilities;
 
