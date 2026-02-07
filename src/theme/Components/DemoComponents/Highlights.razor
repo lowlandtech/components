@@ -1,0 +1,108 @@
+@namespace LowlandTech.Theme
+
+@using LowlandTech.Components.Badge
+
+<div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm @GetClasses()" @attributes="AdditionalAttributes">
+    <div class="card-header flex items-center justify-between">
+        <h3 class="text-lg font-semibold">Highlights</h3>
+        <button class="btn btn-ghost btn-icon">
+            <span>•••</span>
+        </button>
+    </div>
+    <div class="card-content flex flex-col gap-4 p-5 lg:p-7.5 lg:pt-4">
+        <div class="flex flex-col gap-0.5">
+            <span class="text-sm font-normal text-muted-foreground">All time sales</span>
+            <div class="flex items-center gap-2.5">
+                <span class="text-3xl font-semibold text-mono">$295.7k</span>
+                <Badge Variant="BadgeVariants.Success" Class="text-xs">+2.7%</Badge>
+            </div>
+        </div>
+        <div class="flex items-center gap-1 mb-1.5">
+            <div class="bg-primary h-2 w-full max-w-[60%] rounded-xs"></div>
+            <div class="bg-destructive h-2 w-full max-w-[25%] rounded-xs"></div>
+            <div class="bg-accent h-2 w-full max-w-[15%] rounded-xs"></div>
+        </div>
+        <div class="flex items-center flex-wrap gap-4 mb-1">
+            @foreach (var item in BadgeItems)
+            {
+                <div class="flex items-center gap-1.5">
+                    <div class="@item.Color size-2 rounded-full"></div>
+                    <span class="text-sm font-normal text-foreground">@item.Label</span>
+                </div>
+            }
+        </div>
+        <div class="border-b border-border"></div>
+        <div class="grid gap-3">
+            @foreach (var row in Rows.Take(Limit))
+            {
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-2xl">@row.Icon</span>
+                        <span class="text-sm font-normal text-foreground">@row.Text</span>
+                    </div>
+                    <div class="flex items-center text-sm font-medium text-foreground gap-6">
+                        <span class="lg:text-right">$@row.Total k</span>
+                        <span class="flex items-center justify-end gap-1">
+                            @if (row.Increase)
+                            {
+                                <span class="text-success">▲</span>
+                            }
+                            else
+                            {
+                                <span class="text-destructive">▼</span>
+                            }
+                            @row.Stats%
+                        </span>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    [Parameter]
+    public int Limit { get; set; } = 10;
+
+    private List<BadgeItem> BadgeItems { get; set; } = new()
+    {
+        new() { Color = "bg-success", Label = "Metronic" },
+        new() { Color = "bg-destructive", Label = "Bundle" },
+        new() { Color = "bg-accent", Label = "MetronicNest" }
+    };
+
+    private List<HighlightsRow> Rows { get; set; } = new()
+    {
+        new() { Icon = "🏪", Text = "Online Store", Total = 172, Stats = 3.9m, Increase = true },
+        new() { Icon = "📘", Text = "Facebook", Total = 85, Stats = 0.7m, Increase = false },
+        new() { Icon = "📸", Text = "Instagram", Total = 36, Stats = 8.2m, Increase = true },
+        new() { Icon = "🔍", Text = "Google", Total = 26, Stats = 8.2m, Increase = true },
+        new() { Icon = "🏦", Text = "Retail", Total = 7, Stats = 0.7m, Increase = false }
+    };
+
+    private string GetClasses()
+    {
+        return Class ?? string.Empty;
+    }
+
+    public class BadgeItem
+    {
+        public string Color { get; set; } = string.Empty;
+        public string Label { get; set; } = string.Empty;
+    }
+
+    public class HighlightsRow
+    {
+        public string Icon { get; set; } = string.Empty;
+        public string Text { get; set; } = string.Empty;
+        public int Total { get; set; }
+        public double Stats { get; set; }
+        public bool Increase { get; set; }
+    }
+}

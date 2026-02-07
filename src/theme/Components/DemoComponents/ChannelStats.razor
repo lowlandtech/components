@@ -1,0 +1,44 @@
+@namespace LowlandTech.Theme
+
+<div class="@GetClasses()" @attributes="AdditionalAttributes">
+    <div class="grid grid-cols-2 gap-5 lg:gap-7.5 h-full items-stretch">
+        @foreach (var item in Items)
+        {
+            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-0 flex flex-col justify-between gap-6 h-full">
+                <div class="flex justify-start mt-4 ms-5">
+                    @if (!string.IsNullOrEmpty(item.IconClass))
+                    {
+                        <span class="@item.IconClass text-3xl"></span>
+                    }
+                </div>
+                <div class="flex flex-col gap-1 pb-4 px-5">
+                    <span class="text-3xl font-semibold text-mono">@item.Value</span>
+                    <span class="text-sm font-normal text-muted-foreground">@item.Description</span>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    [Parameter]
+    public List<ChannelStatsItem> Items { get; set; } = new();
+
+    private string GetClasses()
+    {
+        return Class ?? string.Empty;
+    }
+
+    public class ChannelStatsItem
+    {
+        public string? IconClass { get; set; }
+        public string Value { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+    }
+}

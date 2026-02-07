@@ -1,0 +1,59 @@
+@page "/demo1"
+@rendermode InteractiveServer
+@using LowlandTech.Theme.DemoComponents
+
+<div class="grid gap-5 lg:gap-7.5">
+    <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
+        <div class="lg:col-span-1">
+            <ChannelStats Items="stats" />
+        </div>
+        <div class="lg:col-span-2">
+            <EntryCallout 
+                Headline="Connect Today & Join"
+                Description="Enhance your projects with premium themes and templates. Join the KeenThemes community today for top-quality designs and resources."
+                LinkText="KeenThemes Network"
+                LinkUrl="#"
+                ActionText="Get Started"
+                ActionUrl="#"
+                Class="h-full" />
+        </div>
+    </div>
+    <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
+        <div class="lg:col-span-1">
+            <Highlights Limit="3" />
+        </div>
+        <div class="lg:col-span-2">
+            @* EarningsChart placeholder *@
+            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm h-full p-5 lg:p-7.5">
+                <h3 class="text-lg font-semibold mb-4">Earnings Chart</h3>
+                <p class="text-sm text-muted-foreground">Chart placeholder - to be implemented</p>
+            </div>
+        </div>
+    </div>
+    <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
+        <div class="lg:col-span-1">
+            @* TeamMeeting placeholder *@
+            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm h-full p-5 lg:p-7.5">
+                <h3 class="text-lg font-semibold mb-4">Team Meeting</h3>
+                <p class="text-sm text-muted-foreground">Meeting placeholder - to be implemented</p>
+            </div>
+        </div>
+        <div class="lg:col-span-2">
+            @* Teams table placeholder *@
+            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm h-full p-5 lg:p-7.5">
+                <h3 class="text-lg font-semibold mb-4">Teams</h3>
+                <p class="text-sm text-muted-foreground">Teams table placeholder - implement with DataGrid component</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<ChannelStats.ChannelStatsItem> stats = new()
+    {
+        new() { IconClass = "📘", Value = "9.3k", Description = "Amazing mates" },
+        new() { IconClass = "▶️", Value = "24k", Description = "Lessons Views" },
+        new() { IconClass = "📸", Value = "608", Description = "New subscribers" },
+        new() { IconClass = "🎵", Value = "2.5k", Description = "Stream audience" }
+    };
+}

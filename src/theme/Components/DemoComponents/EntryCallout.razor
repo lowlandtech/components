@@ -1,0 +1,70 @@
+@namespace LowlandTech.Theme
+
+<div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm @GetClasses()" @attributes="AdditionalAttributes">
+    <div class="card-content p-10 bg-cover bg-no-repeat entry-callout-bg flex flex-col h-full">
+        <div class="flex flex-col justify-center gap-4">
+            @if (!string.IsNullOrEmpty(AvatarContent))
+            {
+                @AvatarContent
+            }
+            else
+            {
+                <div class="flex gap-2">
+                    <div class="size-10 rounded-full bg-primary"></div>
+                    <div class="size-10 rounded-full bg-secondary"></div>
+                </div>
+            }
+            <h2 class="text-xl font-semibold text-foreground">
+                @Headline
+                @if (!string.IsNullOrEmpty(LinkText))
+                {
+                    <a href="@LinkUrl" class="text-xl font-semibold text-primary underline">@LinkText</a>
+                }
+            </h2>
+            @if (!string.IsNullOrEmpty(Description))
+            {
+                <p class="text-sm font-normal text-muted-foreground leading-5.5">@Description</p>
+            }
+        </div>
+    </div>
+    @if (!string.IsNullOrEmpty(ActionText))
+    {
+        <div class="card-footer justify-center">
+            <a href="@ActionUrl" class="btn btn-link border-b border-dashed border-primary text-sm font-medium text-primary hover:underline">@ActionText</a>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    [Parameter]
+    public string Headline { get; set; } = string.Empty;
+
+    [Parameter]
+    public string? Description { get; set; }
+
+    [Parameter]
+    public string? LinkText { get; set; }
+
+    [Parameter]
+    public string LinkUrl { get; set; } = "#";
+
+    [Parameter]
+    public string? ActionText { get; set; }
+
+    [Parameter]
+    public string ActionUrl { get; set; } = "#";
+
+    [Parameter]
+    public RenderFragment? AvatarContent { get; set; }
+
+    private string GetClasses()
+    {
+        return Class ?? string.Empty;
+    }
+}
