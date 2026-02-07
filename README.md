@@ -6,8 +6,8 @@ A comprehensive Blazor component library inspired by shadcn/ui and Radzen Blazor
 
 - **Build Status**: ✅ 0 Warnings, 0 Errors
 - **Test Coverage**: ✅ 257 Tests, 100% Passing
-- **Components**: 22 / 63 Complete (35%)
-- **High Priority**: 🔥 Grid (MudBlazor), DataGrid & DataFilter (Radzen)
+- **Components**: 22 / 78 Complete (28%)
+- **Critical Foundation**: 🔥 Sidebar (App Shell), Grid (Responsive), DataGrid & DataFilter (Data)
 
 ## Component Library
 
@@ -54,12 +54,12 @@ A comprehensive Blazor component library inspired by shadcn/ui and Radzen Blazor
 
 | Component | Status | Tests | Description |
 |-----------|--------|-------|-------------|
+| **Sidebar** | 🔥 CRITICAL | - | Application navigation shell (~15 sub-components) |
 | Accordion | ✅ Complete | ✅ Passing | Collapsible content sections |
 | Tabs | ✅ Complete | ✅ Passing | Tabbed navigation |
 | Breadcrumb | 📋 Planned | - | Breadcrumb navigation |
 | Navigation-Menu | 📋 Planned | - | Complex navigation menus |
 | Pagination | 📋 Planned | - | Page navigation |
-| Sidebar | 📋 Planned | - | Application sidebar |
 
 ### Layout Components
 
@@ -130,11 +130,52 @@ A comprehensive Blazor component library inspired by shadcn/ui and Radzen Blazor
 - 22 foundational components
 - Zero build warnings
 
-### 🔥 HIGH PRIORITY: Responsive Layout & Data Components
+### 🔥 CRITICAL FOUNDATION: Application Shell & Layout
 
-#### MudBlazor Grid System (Critical for Responsive Layouts)
+These components establish the foundation for all 100+ plugins and applications:
 
-**Grid** - CSS Grid-based responsive layout system
+#### 1. Sidebar (shadcn/ui) - Application Navigation Shell
+
+**Priority**: 🔴 **CRITICAL** - Establishes common look and feel for all plugins
+
+**Why Critical**: 
+- Provides consistent navigation UX across 100+ plugins
+- Sets the visual identity for the entire component ecosystem
+- Foundation for application layout patterns
+- Required before building any plugin UIs
+
+**Key Features to Port from shadcn Sidebar**:
+- ✅ Collapsible sidebar with expand/collapse states
+- ✅ Mobile responsive with sheet overlay
+- ✅ Multiple variants: `sidebar`, `floating`, `inset`
+- ✅ Collapsible modes: `offcanvas`, `icon`, `none`
+- ✅ Left/right positioning support
+- ✅ Keyboard shortcut toggle (Cmd/Ctrl+B)
+- ✅ Cookie-based state persistence
+- ✅ Context-based state management
+- ✅ Composed sub-components:
+  - `SidebarProvider` - Context provider
+  - `Sidebar` - Main container
+  - `SidebarTrigger` - Toggle button
+  - `SidebarRail` - Resize handle
+  - `SidebarInset` - Main content area
+  - `SidebarHeader` / `SidebarFooter` - Header/footer sections
+  - `SidebarContent` - Scrollable content area
+  - `SidebarGroup` - Menu groups
+  - `SidebarGroupLabel` - Group labels
+  - `SidebarMenu` / `SidebarMenuItem` - Menu items
+  - `SidebarMenuButton` - Interactive menu buttons
+  - `SidebarMenuAction` - Action buttons
+  - `SidebarMenuBadge` - Notification badges
+  - `SidebarSeparator` - Visual dividers
+
+**Component Count**: ~15 sub-components
+
+---
+
+#### 2. Grid (MudBlazor) - Responsive Layout System
+
+**Priority**: 🔴 **CRITICAL** - Foundation for responsive layouts
 
 **Why Critical**: After observing agents struggle with responsive data tables, a proper grid system is essential for building responsive layouts efficiently.
 
@@ -150,16 +191,15 @@ A comprehensive Blazor component library inspired by shadcn/ui and Radzen Blazor
 - ✅ Drag-and-drop grid items (optional)
 - ✅ Grid overlay for visual debugging
 
-**Priority**: 🔴 **CRITICAL** - Foundation for all responsive layouts
-
 ---
 
-#### Radzen Data Components
+#### 3. Radzen Data Components
 
 Port key components from Radzen Blazor library with Tailwind/shadcn styling:
 
 | Component | Priority | Complexity | Description |
 |-----------|----------|------------|-------------|
+| **Sidebar** (shadcn) | 🔴 Critical | Medium | App navigation shell & plugin UX foundation |
 | **Grid** (MudBlazor) | 🔴 Critical | Medium | CSS Grid responsive layout system |
 | **DataGrid** | 🔴 Critical | High | Advanced data grid with sorting, filtering, grouping, paging |
 | **DataFilter** | 🔴 Critical | Medium | Dynamic query builder for data filtering |
@@ -184,6 +224,68 @@ Port key components from Radzen Blazor library with Tailwind/shadcn styling:
 - ✅ Paging with configurable page sizes
 - ✅ Custom cell templates
 - ✅ Footer aggregations (sum, avg, count, etc.)
+
+---
+
+### 📋 Recommended Build Order
+
+#### Phase 0.5: Critical Foundation (START HERE)
+
+```
+1. Sidebar (shadcn) ← BUILD FIRST
+   │
+   ├── SidebarProvider (Context)
+   ├── Sidebar (Main container)
+   ├── SidebarTrigger (Toggle)
+   ├── SidebarRail (Resize handle)
+   ├── SidebarInset (Content area)
+   ├── SidebarHeader
+   ├── SidebarFooter
+   ├── SidebarContent
+   ├── SidebarGroup
+   ├── SidebarGroupLabel
+   ├── SidebarGroupAction
+   ├── SidebarGroupContent
+   ├── SidebarMenu
+   ├── SidebarMenuItem
+   ├── SidebarMenuButton
+   ├── SidebarMenuAction
+   ├── SidebarMenuBadge
+   └── SidebarSeparator
+
+   ⚡ Impact: Establishes UX foundation for 100+ plugins
+   ⏱️  Estimated: 3-5 days
+
+2. Grid (MudBlazor)
+   │
+   ├── Grid (Main container)
+   └── GridSection (colspan/rowspan)
+
+   ⚡ Impact: Enables responsive layouts everywhere
+   ⏱️  Estimated: 2-3 days
+
+3. DataGrid (Radzen) + DataFilter
+   │
+   ├── DataGrid
+   ├── DataGridColumn
+   ├── DataGridRow
+   ├── DataGridHeaderCell
+   ├── DataGridCell
+   ├── DataGridFooter
+   └── DataFilter
+
+   ⚡ Impact: Enterprise data presentation
+   ⏱️  Estimated: 7-10 days
+```
+
+**Total Estimated Time**: 12-18 days for critical foundation
+
+**Why This Order?**
+1. **Sidebar First** = Consistent plugin UX from day one
+2. **Grid Second** = Responsive layouts for sidebar content
+3. **DataGrid Third** = Can use Grid for responsive columns
+
+---
 
 ### 🚀 Phase 1: Essential Form Components (Planned)
 1. Label - Form field labels
