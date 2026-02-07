@@ -39,7 +39,6 @@ public partial class Grid
     public string? Style { get; set; }
 
     [Parameter]
-    [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
     [Parameter]
