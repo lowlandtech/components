@@ -1,0 +1,15 @@
+@namespace LowlandTech.Components.Components.ScrollArea
+
+<div class="@GetClasses()" @attributes="AdditionalAttributes">
+    <div class="scroll-area-viewport">
+        @ChildContent
+    </div>
+    @if (ShowScrollBarHorizontal)
+    {
+        <ScrollBar Orientation="ScrollBarOrientation.Horizontal" />
+    }
+    @if (ShowScrollBarVertical)
+    {
+        <ScrollBar Orientation="ScrollBarOrientation.Vertical" />
+    }
+</div>
