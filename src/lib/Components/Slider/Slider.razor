@@ -1,0 +1,22 @@
+@namespace LowlandTech.Components.Components.Slider
+@inherits ComponentBase
+
+<div class="@RootClass" @attributes="AdditionalAttributes">
+    <div class="slider-track">
+        <div class="slider-range" style="@RangeStyle"></div>
+        <button type="button"
+                class="@ThumbClass"
+                style="@ThumbStyle"
+                aria-hidden="true"
+                tabindex="-1">
+        </button>
+        <input type="range"
+               class="sr-only"
+               min="@Min"
+               max="@Max"
+               step="@Step"
+               value="@Value"
+               disabled="@Disabled"
+               @oninput="HandleInputAsync" />
+    </div>
+</div>
