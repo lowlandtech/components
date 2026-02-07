@@ -124,6 +124,7 @@ public class SC01_DataGridRendersBasicTableStructure : Scenario
                 builder.OpenComponent<DataGridColumn<TestItem>>(3);
                 builder.AddAttribute(4, "Property", "Price");
                 builder.AddAttribute(5, "Title", "Price");
+                builder.AddAttribute(6, "FormatString", "{0:0.00}");
                 builder.CloseComponent();
             }));
 

@@ -81,7 +81,7 @@ public partial class DataGridColumn<TItem> : ComponentBase where TItem : notnull
 
         if (!string.IsNullOrEmpty(FormatString))
         {
-            return string.Format(FormatString, value);
+            return string.Format(System.Globalization.CultureInfo.InvariantCulture, FormatString, value);
         }
 
         return value;
