@@ -1,0 +1,22 @@
+@namespace LowlandTech.Components.Components.Field
+
+@inherits ComponentBase
+@using LowlandTech.Components.Utilities
+
+<div class="@GetClasses()">
+    @if (Label != null)
+    {
+        <label class="field-label">@Label</label>
+    }
+    <div class="field-control">
+        @ChildContent
+    </div>
+    @if (Description != null)
+    {
+        <p class="field-description">@Description</p>
+    }
+    @if (ErrorMessage != null)
+    {
+        <p class="field-error">@ErrorMessage</p>
+    }
+</div>

@@ -305,6 +305,36 @@
     cursor: not-allowed;
   }
 
+  /* Field Component */
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .field-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1;
+    color: hsl(var(--foreground));
+  }
+
+  .field-control {
+    display: flex;
+  }
+
+  .field-description {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+    margin-top: 0.25rem;
+  }
+
+  .field-error {
+    font-size: 0.875rem;
+    color: hsl(var(--destructive));
+    margin-top: 0.25rem;
+  }
+
   .label {
     font-size: 0.875rem;
     font-weight: 500;
