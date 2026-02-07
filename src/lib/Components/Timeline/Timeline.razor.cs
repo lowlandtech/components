@@ -5,7 +5,6 @@ namespace LowlandTech.Components.Components.Timeline;
 
 /// <summary>
 /// A container component for displaying timeline items in vertical or horizontal orientation.
-/// Based on MudBlazor Timeline component.
 /// </summary>
 public partial class Timeline : ComponentBase
 {

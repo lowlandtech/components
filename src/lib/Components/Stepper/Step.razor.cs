@@ -5,7 +5,6 @@ namespace LowlandTech.Components.Components.Stepper;
 
 /// <summary>
 /// An individual step within a stepper component.
-/// Based on MudBlazor Step component.
 /// </summary>
 public partial class Step : ComponentBase
 {

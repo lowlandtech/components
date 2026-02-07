@@ -2,7 +2,7 @@ using Bunit;
 using LowlandTech.Components.Components.Timeline;
 using Shouldly;
 
-namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US10.MudComponents;
+namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US10.UtilityComponents;
 
 [Trait(Spec.SPEC, "1200")]
 [Trait(Spec.US, "10")]

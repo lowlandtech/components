@@ -5,7 +5,6 @@ namespace LowlandTech.Components.Components.Stack;
 
 /// <summary>
 /// A flex container component for stacking elements horizontally or vertically with configurable spacing.
-/// Based on MudBlazor Stack component.
 /// </summary>
 public partial class Stack : ComponentBase
 {

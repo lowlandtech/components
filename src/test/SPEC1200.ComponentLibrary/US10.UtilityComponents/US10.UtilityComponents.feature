@@ -1,7 +1,7 @@
 @US10
-Feature: US10 - MudBlazor-Inspired Components
+Feature: US10 - Utility Components
     As a Blazor developer
-    I want MudBlazor-style utility components in Tailwind/chadcn style
+    I want utility components in Tailwind/shadcn style
     So that I can reuse layout and interaction patterns consistently
 
     Background:
@@ -11,8 +11,8 @@ Feature: US10 - MudBlazor-Inspired Components
 
     @SC01
     Scenario: Implement Stack component
-        Given I have the MudBlazor Stack component
-        When I port it to a Blazor component
+        Given I have a Stack component specification
+        When I implement it as a Blazor component
         #UAC01
         Then it should render a <div> element with class "stack"
         #UAC02
@@ -26,8 +26,8 @@ Feature: US10 - MudBlazor-Inspired Components
 
     @SC02
     Scenario: Implement Spacer component
-        Given I have the MudBlazor Spacer component
-        When I port it to a Blazor component
+        Given I have a Spacer component specification
+        When I implement it as a Blazor component
         #UAC06
         Then it should render a <div> element with class "spacer"
         #UAC07
@@ -37,8 +37,8 @@ Feature: US10 - MudBlazor-Inspired Components
 
     @SC03
     Scenario: Implement Timeline components
-        Given I have the MudBlazor Timeline components
-        When I port them to Blazor
+        Given I have Timeline component specifications
+        When I implement them as Blazor components
         #UAC09
         Then I should have Timeline and TimelineItem components
         #UAC10
@@ -52,8 +52,8 @@ Feature: US10 - MudBlazor-Inspired Components
 
     @SC04
     Scenario: Implement SwipeArea component
-        Given I have the MudBlazor SwipeArea component
-        When I port it to a Blazor component
+        Given I have a SwipeArea component specification
+        When I implement it as a Blazor component
         #UAC14
         Then it should render a wrapper element with class "swipe-area"
         #UAC15
@@ -64,9 +64,9 @@ Feature: US10 - MudBlazor-Inspired Components
         And it should honor PreventDefault by invoking the required JS interop
 
     @SC05
-    Scenario: Implement Skeleton component (MudBlazor style)
-        Given I have the MudBlazor Skeleton component
-        When I port it to a Blazor component
+    Scenario: Implement Skeleton component
+        Given I have a Skeleton component specification
+        When I implement it as a Blazor component
         #UAC18
         Then it should render a <div> element with class "skeleton"
         #UAC19
@@ -78,8 +78,8 @@ Feature: US10 - MudBlazor-Inspired Components
 
     @SC06
     Scenario: Implement Stepper components
-        Given I have the MudBlazor Stepper components
-        When I port them to Blazor
+        Given I have Stepper component specifications
+        When I implement them as Blazor components
         #UAC22
         Then I should have Stepper and Step components
         #UAC23

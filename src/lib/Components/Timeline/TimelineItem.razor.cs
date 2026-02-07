@@ -5,7 +5,6 @@ namespace LowlandTech.Components.Components.Timeline;
 
 /// <summary>
 /// An individual item within a timeline.
-/// Based on MudBlazor TimelineItem component.
 /// </summary>
 public partial class TimelineItem : ComponentBase
 {

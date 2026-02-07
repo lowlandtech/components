@@ -5,7 +5,6 @@ namespace LowlandTech.Components.Components.Skeleton;
 
 /// <summary>
 /// A placeholder component for loading states with optional animations.
-/// Based on MudBlazor Skeleton component.
 /// </summary>
 public partial class Skeleton : ComponentBase
 {
