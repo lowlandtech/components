@@ -1,48 +1,53 @@
 @page "/"
 @rendermode InteractiveServer
 @using LowlandTech.Components.Badge
+@using LowlandTech.Components.Button
+@using LowlandTech.Components.Button
+@using LowlandTech.Components.Checkbox
+@using LowlandTech.Components.Input
+@using LowlandTech.Components.Label
 
 <div class="grid gap-5 lg:gap-7.5">
     <div class="grid lg:grid-cols-3 gap-y-5 lg:gap-7.5 items-stretch">
         <div class="lg:col-span-1">
             <div class="grid grid-cols-2 gap-5 lg:gap-7.5 h-full items-stretch">
-                @* Channel Stats Component Placeholder *@
-                <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm flex flex-col justify-between gap-6 p-0">
-                    <div class="p-5 lg:p-7.5">
-                        <div class="flex flex-col gap-1">
-                            <span class="text-3xl font-semibold text-mono">9.3k</span>
-                            <span class="text-sm font-normal text-muted-foreground">Amazing mates</span>
+                @* Channel Stats Component *@
+                <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-0">
+                    <div class="grid grid-cols-2 gap-5 lg:gap-7.5 h-full items-stretch">
+                        <div class="card border-border bg-card text-card-foreground rounded-lg p-4 flex flex-col justify-center items-center gap-3">
+                            <div>
+                                <Label>Amazing Mates</Label>
+                                <Input Type="text" Placeholder="9,300" />
+                            </div>
+                            <div class="text-3xl font-semibold text-mono">9.3k</div>
                         </div>
-                    </div>
-                </div>
-                <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm flex flex-col justify-between gap-6 p-0">
-                    <div class="p-5 lg:p-7.5">
-                        <div class="flex flex-col gap-1">
-                            <span class="text-3xl font-semibold text-mono">24k</span>
-                            <span class="text-sm font-normal text-muted-foreground">Lessons Views</span>
+                        <div class="card border-border bg-card text-card-foreground rounded-lg p-4 flex flex-col justify-center items-center gap-3">
+                            <div>
+                                <Label>Lessons Views</Label>
+                                <Input Type="text" Placeholder="24,000" />
+                            </div>
+                            <div class="text-3xl font-semibold text-mono">24k</div>
                         </div>
-                    </div>
-                </div>
-                <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm flex flex-col justify-between gap-6 p-0">
-                    <div class="p-5 lg:p-7.5">
-                        <div class="flex flex-col gap-1">
-                            <span class="text-3xl font-semibold text-mono">608</span>
-                            <span class="text-sm font-normal text-muted-foreground">New subscribers</span>
+                        <div class="card border-border bg-card text-card-foreground rounded-lg p-4 flex flex-col justify-center items-center gap-3">
+                            <div>
+                                <Label>New Subscribers</Label>
+                                <Input Type="text" Placeholder="600" />
+                            </div>
+                            <div class="text-3xl font-semibold text-mono">608</div>
                         </div>
-                    </div>
-                </div>
-                <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm flex flex-col justify-between gap-6 p-0">
-                    <div class="p-5 lg:p-7.5">
-                        <div class="flex flex-col gap-1">
-                            <span class="text-3xl font-semibold text-mono">2.5k</span>
-                            <span class="text-sm font-normal text-muted-foreground">Stream audience</span>
+                        <div class="card border-border bg-card text-card-foreground rounded-lg p-4 flex flex-col justify-center items-center gap-3">
+                            <div>
+                                <Label>Stream Audience</Label>
+                                <Input Type="text" Placeholder="2,500" />
+                            </div>
+                            <div class="text-3xl font-semibold text-mono">2.5k</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="lg:col-span-2">
-            @* Entry Callout Component Placeholder *@
+            @* Entry Callout Component *@
             <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm flex flex-col h-full">
                 <div class="p-10 flex flex-col justify-center gap-4">
                     <div class="flex gap-2">
@@ -55,20 +60,20 @@
                     </h2>
                     <p class="text-sm font-normal text-muted-foreground leading-5.5">
                         Enhance your projects with premium themes and<br />
-                        templates. Join the KeenThemes community today<br />
+                        templates. Join to KeenThemes community today<br />
                         for top-quality designs and resources.
                     </p>
                 </div>
                 <div class="flex justify-center p-6 pt-0">
-                    <a href="#" class="btn btn-primary">Get Started</a>
+                    <Button Class="btn btn-default">Get Started</Button>
                 </div>
             </div>
         </div>
     </div>
     <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
         <div class="lg:col-span-1">
-            @* Highlights Component Placeholder *@
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm flex flex-col h-full p-5 lg:p-7.5 lg:pt-4">
+            @* Highlights Component *@
+            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5 lg:pt-4">
                 <div class="flex flex-col gap-4">
                     <div>
                         <h3 class="text-lg font-semibold">Highlights</h3>
@@ -76,9 +81,8 @@
                     <div class="flex flex-col gap-0.5">
                         <span class="text-sm font-normal text-muted-foreground">All time sales</span>
                         <div class="flex items-center gap-2.5">
-                            <div class="bg-primary h-2 w-full max-w-[60%] rounded-full"></div>
-                            <div class="bg-secondary h-2 w-full max-w-[25%] rounded-full"></div>
-                            <div class="bg-accent h-2 w-full max-w-[15%] rounded-full"></div>
+                            <span class="text-3xl font-semibold text-mono">$295.7k</span>
+                            <Badge Variant="BadgeVariants.Success" Class="text-xs">+2.7%</Badge>
                         </div>
                     </div>
                     <div class="flex items-center gap-1 mb-1.5">
@@ -90,99 +94,63 @@
             </div>
         </div>
         <div class="lg:col-span-2">
-            @* Earnings Chart Component Placeholder *@
+            @* Earnings Chart Placeholder *@
             <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5">
-                <div class="flex flex-col gap-4">
-                    <h3 class="text-lg font-semibold">Earnings Chart</h3>
-                    <p class="text-sm text-muted-foreground">Chart placeholder - implement with chart library</p>
-                </div>
+                <h3 class="text-lg font-semibold mb-4">Earnings Chart</h3>
+                <p class="text-sm text-muted-foreground">Chart placeholder - implement with chart library</p>
             </div>
         </div>
     </div>
     <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
         <div class="lg:col-span-1">
-            @* Team Meeting Component Placeholder *@
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm flex flex-col h-full p-5 lg:p-7.5 lg:pt-6">
-                <div class="flex flex-col gap-4">
-                    <div class="flex items-center justify-between flex-wrap gap-5 mb-7.5">
-                        <div class="flex flex-col gap-1">
-                            <span class="text-xl font-semibold text-mono">Team Meeting</span>
-                            <span class="text-sm font-semibold text-foreground">09:00 - 09:30</span>
-                        </div>
+            @* Team Meeting Component *@
+            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5 lg:pt-6">
+                <div class="flex items-center justify-between flex-wrap gap-5 mb-7.5">
+                    <div class="flex flex-col gap-1">
+                        <span class="text-xl font-semibold text-mono">Team Meeting</span>
+                        <span class="text-sm font-semibold text-foreground">09:00 - 09:30</span>
                     </div>
-                    <p class="text-sm font-normal text-foreground leading-5.5 mb-8">
-                        Team meeting to discuss strategies, outline<br />
-                        project milestones, define key goals, and<br />
-                        establish clear timelines.
-                    </p>
-                    <div class="flex rounded-lg bg-accent/50 gap-10 p-5">
-                        <div class="flex flex-col gap-5">
-                            <div class="flex items-center gap-1.5 text-sm font-normal text-foreground">
-                                <span class="text-base text-muted-foreground">📍</span>
-                                Location
-                            </div>
-                            <div class="text-sm font-medium text-foreground pt-1.5">Amsterdam</div>
+                    <div>
+                        <img src="/media/brand-logos/zoom.svg" class="size-7" alt="Zoom" />
+                    </div>
+                </div>
+                <p class="text-sm font-normal text-foreground leading-5.5 mb-8">
+                    Team meeting to discuss strategies, outline<br />
+                    project milestones, define key goals, and<br />
+                    establish clear timelines.
+                </p>
+                <div class="flex rounded-lg bg-accent/50 gap-10 p-5">
+                    <div class="flex flex-col gap-5">
+                        <div class="flex items-center gap-1.5 text-sm font-normal text-foreground">
+                            <span>📍</span>
+                            <span>Location</span>
                         </div>
-                        <div class="flex flex-col gap-5">
-                            <div class="flex items-center gap-1.5 text-sm font-normal text-foreground">
-                                <span class="text-base text-muted-foreground">👥</span>
-                                Team
-                            </div>
-                            <div class="flex -space-x-2">
-                                <div class="size-8 rounded-full bg-primary border-2 border-card"></div>
-                                <div class="size-8 rounded-full bg-secondary border-2 border-card"></div>
-                                <div class="size-8 rounded-full bg-accent border-2 border-card"></div>
-                            </div>
+                        <div class="text-sm font-medium text-foreground pt-1.5">Amsterdam</div>
+                    </div>
+                    <div class="flex flex-col gap-5">
+                        <div class="flex items-center gap-1.5 text-sm font-normal text-foreground">
+                            <span>👥</span>
+                            <span>Team</span>
+                        </div>
+                        <div class="flex -space-x-2">
+                            <div class="size-8 rounded-full bg-primary border-2 border-card"></div>
+                            <div class="size-8 rounded-full bg-secondary border-2 border-card"></div>
+                            <div class="size-8 rounded-full bg-accent border-2 border-card"></div>
+                            <div class="size-8 rounded-full bg-destructive-foreground border-2 border-card"></div>
+                            <span class="text-xs font-medium text-card-foreground">+10</span>
                         </div>
                     </div>
                 </div>
                 <div class="flex justify-center p-6 pt-0">
-                    <a href="#" class="btn btn-secondary">Join Meeting</a>
+                    <Button Class="btn btn-default">Join Meeting</Button>
                 </div>
             </div>
         </div>
-         <div class="lg:col-span-2">
-             @* Table Component *@
-             <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5">
-                 <div class="flex flex-col gap-4">
-                     <h3 class="text-lg font-semibold">Teams</h3>
-                     <p class="text-sm font-normal text-muted-foreground">Table component showcase - displaying team data</p>
-                 </div>
-                 <div class="p-4">
-                     <table class="table">
-                         <thead>
-                             <tr>
-                                 <th class="text-left font-semibold">Name</th>
-                                 <th class="text-left font-semibold">Role</th>
-                                 <th class="text-left font-semibold">Status</th>
-                             </tr>
-                         </thead>
-                         <tbody>
-                             <tr>
-                                 <td>John Doe</td>
-                                 <td>Developer</td>
-                                 <td class="text-emerald-500">Active</td>
-                             </tr>
-                             <tr>
-                                 <td>Jane Smith</td>
-                                 <td>Designer</td>
-                                 <td class="text-amber-500">On Leave</td>
-                             </tr>
-                             <tr>
-                                 <td>Bob Wilson</td>
-                                 <td>Manager</td>
-                                 <td class="text-emerald-500">Active</td>
-                             </tr>
-                         </tbody>
-                     </table>
-                 </div>
-                 <div class="flex justify-center p-6 pt-0">
-                     <a href="#" class="btn btn-primary text-sm font-medium">View All Team</a>
-                 </div>
-             </div>
-         </div>
-     </div>
-
+        <div class="lg:col-span-2">
+            @* Teams Table Placeholder *@
+            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5">
+                <h3 class="text-lg font-semibold mb-4">Teams</h3>
+                <p class="text-sm text-muted-foreground">Teams table placeholder - implement with DataGrid component</p>
             </div>
         </div>
     </div>
@@ -191,3 +159,4 @@
 @code {
 
 }
+
