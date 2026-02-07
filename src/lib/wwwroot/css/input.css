@@ -1692,4 +1692,31 @@
   .empty-action {
     margin-top: 0.5rem;
   }
+
+  /* Item Component */
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .item-leading {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .item-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: 0.25rem;
+  }
+
+  .item-trailing {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
 }

@@ -1,0 +1,20 @@
+@namespace LowlandTech.Components
+@inherits ItemBase
+
+<div @attributes="AdditionalAttributes" class="@CssClass">
+    @if (Leading != null)
+    {
+        <div class="item-leading">
+            @Leading
+        </div>
+    }
+    <div class="item-content">
+        @ChildContent
+    </div>
+    @if (Trailing != null)
+    {
+        <div class="item-trailing">
+            @Trailing
+        </div>
+    }
+</div>
