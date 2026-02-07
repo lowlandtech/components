@@ -1,0 +1,17 @@
+@namespace LowlandTech.Components.Components.RadioGroup
+@typeparam TValue
+
+<div class="@GetClasses()" @attributes="AdditionalAttributes" @onclick="HandleClickAsync">
+    <input 
+        type="radio" 
+        class="radio-group-item-input" 
+        checked="@IsChecked"
+        disabled="@Disabled"
+        @onclick:stopPropagation="true"
+        @onchange="HandleChangeAsync" />
+    <span class="radio-group-item-indicator"></span>
+    @if (ChildContent != null)
+    {
+        @ChildContent
+    }
+</div>
