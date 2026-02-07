@@ -16,6 +16,7 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     private SortDirection _sortDirection = SortDirection.None;
     private List<SortDescriptor<TItem>> _sortDescriptors = new();
     private bool _initialSortApplied = false;
+    private int _currentPage = 1;
 
     /// <summary>
     /// Gets or sets the data items to display in the grid.
@@ -47,6 +48,36 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     /// </summary>
     [Parameter]
     public SortDirection SortDirection { get; set; } = SortDirection.None;
+
+    /// <summary>
+    /// Gets or sets whether paging is enabled for the grid.
+    /// </summary>
+    [Parameter]
+    public bool AllowPaging { get; set; }
+
+    /// <summary>
+    /// Gets or sets the number of items per page.
+    /// </summary>
+    [Parameter]
+    public int PageSize { get; set; } = 10;
+
+    /// <summary>
+    /// Gets or sets the current page number (1-based).
+    /// </summary>
+    [Parameter]
+    public int CurrentPage { get; set; } = 1;
+
+    /// <summary>
+    /// Gets or sets the position of the pager(s).
+    /// </summary>
+    [Parameter]
+    public PagerPosition PagerPosition { get; set; } = PagerPosition.Bottom;
+
+    /// <summary>
+    /// Gets or sets the available page size options for the dropdown.
+    /// </summary>
+    [Parameter]
+    public int[]? PageSizeOptions { get; set; }
 
     /// <summary>
     /// Gets or sets the columns for the data grid.
@@ -97,6 +128,12 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
         if (!string.IsNullOrEmpty(SortBy) && SortDirection != SortDirection.None)
         {
             _initialSortApplied = false;
+        }
+
+        // Sync internal page state with parameter
+        if (CurrentPage != _currentPage)
+        {
+            _currentPage = CurrentPage;
         }
     }
 
@@ -390,6 +427,81 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
             : Data.OrderByDescending(item => propertyInfo.GetValue(item));
     }
 
+    /// <summary>
+    /// Gets the data with sorting and paging applied.
+    /// </summary>
+    private IEnumerable<TItem> GetPagedData()
+    {
+        var sortedData = GetSortedData();
+
+        if (!AllowPaging)
+            return sortedData;
+
+        var skip = (_currentPage - 1) * PageSize;
+        return sortedData.Skip(skip).Take(PageSize);
+    }
+
+    /// <summary>
+    /// Gets the total number of pages.
+    /// </summary>
+    private int GetTotalPages()
+    {
+        if (!AllowPaging || Data == null)
+            return 1;
+
+        var totalCount = Data.Count();
+        return (int)Math.Ceiling((double)totalCount / PageSize);
+    }
+
+    /// <summary>
+    /// Navigates to the next page.
+    /// </summary>
+    private void GoToNextPage()
+    {
+        if (_currentPage < GetTotalPages())
+        {
+            _currentPage++;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Navigates to the previous page.
+    /// </summary>
+    private void GoToPreviousPage()
+    {
+        if (_currentPage > 1)
+        {
+            _currentPage--;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Navigates to a specific page.
+    /// </summary>
+    private void GoToPage(int page)
+    {
+        if (page >= 1 && page <= GetTotalPages())
+        {
+            _currentPage = page;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Handles page size change from dropdown.
+    /// </summary>
+    private void OnPageSizeChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var newSize))
+        {
+            PageSize = newSize;
+            _currentPage = 1; // Reset to first page
+            StateHasChanged();
+        }
+    }
+
     private IEnumerable<TItem> ApplyMultiColumnSort(IEnumerable<TItem> data)
     {
         IOrderedEnumerable<TItem>? orderedData = null;
@@ -439,4 +551,70 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
             "text-muted-foreground"
         );
     }
+
+    private RenderFragment RenderPager() => builder =>
+    {
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "class", "data-grid-pager");
+        
+        // First button
+        builder.OpenElement(2, "button");
+        builder.AddAttribute(3, "class", "pager-first");
+        builder.AddAttribute(4, "disabled", _currentPage == 1);
+        builder.AddAttribute(5, "onclick", EventCallback.Factory.Create(this, () => GoToPage(1)));
+        builder.AddContent(6, "First");
+        builder.CloseElement();
+        
+        // Previous button
+        builder.OpenElement(7, "button");
+        builder.AddAttribute(8, "class", "pager-prev");
+        builder.AddAttribute(9, "disabled", _currentPage == 1);
+        builder.AddAttribute(10, "onclick", EventCallback.Factory.Create(this, GoToPreviousPage));
+        builder.AddContent(11, "Previous");
+        builder.CloseElement();
+        
+        // Page info
+        builder.OpenElement(12, "span");
+        builder.AddAttribute(13, "class", "pager-info");
+        builder.AddContent(14, $"Page {_currentPage} of {GetTotalPages()}");
+        builder.CloseElement();
+        
+        // Next button
+        builder.OpenElement(15, "button");
+        builder.AddAttribute(16, "class", "pager-next");
+        builder.AddAttribute(17, "disabled", _currentPage == GetTotalPages());
+        builder.AddAttribute(18, "onclick", EventCallback.Factory.Create(this, GoToNextPage));
+        builder.AddContent(19, "Next");
+        builder.CloseElement();
+        
+        // Last button
+        builder.OpenElement(20, "button");
+        builder.AddAttribute(21, "class", "pager-last");
+        builder.AddAttribute(22, "disabled", _currentPage == GetTotalPages());
+        builder.AddAttribute(23, "onclick", EventCallback.Factory.Create(this, () => GoToPage(GetTotalPages())));
+        builder.AddContent(24, "Last");
+        builder.CloseElement();
+        
+        // Page size selector
+        if (PageSizeOptions != null && PageSizeOptions.Length > 0)
+        {
+            builder.OpenElement(25, "select");
+            builder.AddAttribute(26, "class", "page-size-select");
+            builder.AddAttribute(27, "value", PageSize);
+            builder.AddAttribute(28, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, OnPageSizeChanged));
+            
+            var seq = 29;
+            foreach (var size in PageSizeOptions)
+            {
+                builder.OpenElement(seq++, "option");
+                builder.AddAttribute(seq++, "value", size);
+                builder.AddContent(seq++, $"{size} per page");
+                builder.CloseElement();
+            }
+            
+            builder.CloseElement(); // Close select
+        }
+        
+        builder.CloseElement(); // Close pager div
+    };
 }
