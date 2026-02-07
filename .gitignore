@@ -480,4 +480,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
-samples/chadcn/
+
+# Samples directory (reference implementations)
+samples/
