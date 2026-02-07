@@ -57,6 +57,12 @@ public partial class DataGridColumn<TItem> : ComponentBase where TItem : notnull
     [Parameter]
     public bool Filterable { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets whether the column is visible.
+    /// </summary>
+    [Parameter]
+    public bool Visible { get; set; } = true;
+
     protected override void OnInitialized()
     {
         base.OnInitialized();

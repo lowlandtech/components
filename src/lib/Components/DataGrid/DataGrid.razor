@@ -45,7 +45,7 @@
                             <input type="checkbox" checked="@AreAllRowsSelected()" @onchange="HandleSelectAllChange" />
                         </th>
                     }
-                    @foreach (var column in _columns)
+                    @foreach (var column in _columns.Where(c => c.Visible))
                     {
                         <th class="@column.GetAlignmentClass()" @onclick="@(e => HandleHeaderClick(column, e))">
                             @column.Title
@@ -78,7 +78,7 @@
                         {
                             <th class="select-column"></th>
                         }
-                        @foreach (var column in _columns)
+                        @foreach (var column in _columns.Where(c => c.Visible))
                         {
                             <th class="@column.GetAlignmentClass()">
                                 @if (column.Filterable && !string.IsNullOrEmpty(column.Property))
@@ -107,7 +107,7 @@
                                 <input type="checkbox" checked="@IsRowSelected(item)" @onchange="@(e => HandleCheckboxChange(item, e))" @onclick:stopPropagation />
                             </td>
                         }
-                        @foreach (var column in _columns)
+                        @foreach (var column in _columns.Where(c => c.Visible))
                         {
                             <td class="@column.GetAlignmentClass()">
                                 @if (column.Template != null)
