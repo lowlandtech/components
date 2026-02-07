@@ -1,0 +1,25 @@
+@namespace LowlandTech.Components.Components.Grid
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@inject IJSRuntime JS
+
+<div class="@GetClasses()" 
+     style="@GetStyle()" 
+     data-grid-section="@Id"
+     data-slot="grid-section"
+     @onclick="HandleClick"
+     @ondblclick="HandleDoubleClick"
+     @oncontextmenu="HandleContextMenu"
+     @attributes="AdditionalAttributes">
+    @if (WrapInGroupBox && !string.IsNullOrEmpty(Title))
+    {
+        <div class="grid-groupbox">
+            <div class="grid-groupbox-header">@Title</div>
+            <div class="grid-groupbox-content">@ChildContent</div>
+        </div>
+    }
+    else
+    {
+        <div class="grid-section-wrapper">@ChildContent</div>
+    }
+</div>

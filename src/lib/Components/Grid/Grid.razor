@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Components.Grid
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+
+<div class="@GetClasses()" 
+     style="@GetStyle()"
+     @onclick="HandleClick"
+     @oncontextmenu="HandleContextMenu"
+     @attributes="AdditionalAttributes"
+     data-slot="grid">
+    @ChildContent
+</div>
