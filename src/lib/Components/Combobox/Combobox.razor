@@ -1,0 +1,51 @@
+@namespace LowlandTech.Components.Components.Combobox
+@inherits ComponentBase
+@using LowlandTech.Components.Utilities
+
+<div class="@GetClasses()" @attributes="AdditionalAttributes">
+    <input 
+        type="text" 
+        class="combobox-input" 
+        placeholder="@Placeholder"
+        value="@SearchText"
+        @oninput="OnSearchInputAsync"
+        @onfocus="OnFocusAsync"
+        @onblur="OnBlurAsync"
+        disabled="@IsDisabled" />
+    
+    @if (IsOpen && Items.Count > 0)
+    {
+        <div class="combobox-dropdown">
+            @if (FilteredItems.Count > 0)
+            {
+                <div class="combobox-list">
+                    @foreach (var item in FilteredItems)
+                    {
+                        <div class="combobox-item @(item.Value == Value ? "combobox-item-selected" : "")"
+                             @onclick="@(() => SelectItemAsync(item))"
+                             @onmousedown:preventDefault>
+                            @item.ChildContent
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="combobox-empty">
+                    @if (EmptyContent != null)
+                    {
+                        @EmptyContent
+                    }
+                    else
+                    {
+                        <span>No items found</span>
+                    }
+                </div>
+            }
+        </div>
+    }
+    
+    <CascadingValue Value="this">
+        @ChildContent
+    </CascadingValue>
+</div>
