@@ -198,6 +198,12 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     [Parameter]
     public int? Count { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the column picker is enabled.
+    /// </summary>
+    [Parameter]
+    public bool AllowColumnPicking { get; set; }
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
@@ -1143,4 +1149,13 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
         
         builder.CloseElement(); // Close pager div
     };
+
+    /// <summary>
+    /// Toggles the visibility of a column.
+    /// </summary>
+    private void ToggleColumnVisibility(DataGridColumn<TItem> column)
+    {
+        column.Visible = !column.Visible;
+        StateHasChanged();
+    }
 }

@@ -31,6 +31,25 @@
 
         @if (Data != null && Data.Any())
         {
+            @if (AllowColumnPicking)
+            {
+                <div class="datagrid-column-picker">
+                    <label>Columns:</label>
+                    <div class="column-picker-dropdown">
+                        @foreach (var column in _columns)
+                        {
+                            <div class="column-picker-item">
+                                <input type="checkbox" 
+                                       id="@($"column-{column.Property}")"
+                                       checked="@column.Visible" 
+                                       @onchange="@(e => ToggleColumnVisibility(column))" />
+                                <label for="@($"column-{column.Property}")">@column.Title</label>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
             @if (AllowPaging && (PagerPosition == PagerPosition.Top || PagerPosition == PagerPosition.TopAndBottom))
             {
                 @RenderPager()

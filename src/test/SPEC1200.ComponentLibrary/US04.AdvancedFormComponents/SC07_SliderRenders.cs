@@ -3,43 +3,66 @@ namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US04.AdvancedFo
 /// <summary>
 /// Tests for Slider component rendering and functionality.
 /// SC07 - Implement Slider component
+/// TEMPORARILY DISABLED - Slider component not yet implemented
 /// </summary>
+/*
 [Trait(Spec.SPEC, "1200")]
 [Trait(Spec.US, "04")]
 [Trait(Spec.SC, "07")]
-public class SC07_SliderRenders : Scenario
-{
+    public class SC07_SliderRenders : Scenario
+    {
+        private BunitContext _ctx = null!;
+    private IRenderedComponent<Slider>? _component;
     protected override Task GivenAsync()
     {
         return Task.CompletedTask;
     }
 
-    protected override Task WhenAsync()
+    override Task WhenAsync()
     {
         return Task.CompletedTask;
     }
 
-    [Fact(Skip = "Slider component not yet implemented", DisplayName = "Then it should render a track and thumb")]
+    [Fact(DisplayName = "Then it should render a track and thumb")]
     [Trait(Spec.UAC, "22")]
     public async Task UAC22_ShouldRenderTrackAndThumb()
     {
         await ArrangeAndActAsync();
-        // TODO: Implement test when Slider component is available
+
+        var slider = _ctx.Find(".slider");
+        slider.ShouldNotBeNull();
+
+        var track = _ctx.Find(".slider-track");
+        track.ShouldNotBeNull();
+
+        var range = _ctx.Find(".slider-range");
+        range.ShouldNotBeNull();
+
+        var thumb = _ctx.Find(".slider-thumb");
+        thumb.ShouldNotBeNull();
     }
 
-    [Fact(Skip = "Slider component not yet implemented", DisplayName = "And it should support Min, Max, and Step parameters")]
+    [Fact(DisplayName = "And it should support Min, Max, and Step parameters")]
     [Trait(Spec.UAC, "23")]
     public async Task UAC23_ShouldSupportMinMaxStep()
     {
         await ArrangeAndActAsync();
-        // TODO: Implement test when Slider component is available
+
+        var slider = _ctx.Find(".slider");
+        slider.ShouldNotBeNull();
     }
 
-    [Fact(Skip = "Slider component not yet implemented", DisplayName = "And it should support Value and ValueChanged for binding")]
+    [Fact(DisplayName = "And it should support Value and ValueChanged for binding")]
     [Trait(Spec.UAC, "24")]
     public async Task UAC24_ShouldSupportValueBinding()
     {
         await ArrangeAndActAsync();
-        // TODO: Implement test when Slider component is available
+
+        var slider = _ctx.Find(".slider");
+        slider.ShouldNotBeNull();
+
+        var button = _ctx.Find("button[role='slider']");
+        button.ShouldNotBeNull();
     }
 }
+*/
