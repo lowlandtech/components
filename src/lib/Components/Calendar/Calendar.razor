@@ -1,0 +1,48 @@
+@namespace LowlandTech.Components.Components.Calendar
+@inherits ComponentBase
+
+<div class="@RootClass" @attributes="AdditionalAttributes">
+    <div class="calendar-header">
+        <button type="button" 
+                class="calendar-nav" 
+                @onclick="NavigatePreviousMonth"
+                aria-label="Previous month">
+            <svg class="calendar-nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
+        <div class="calendar-month">
+            @CurrentMonth.ToString("MMMM yyyy")
+        </div>
+        <button type="button" 
+                class="calendar-nav" 
+                @onclick="NavigateNextMonth"
+                aria-label="Next month">
+            <svg class="calendar-nav-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </button>
+    </div>
+    
+    <div class="calendar-grid">
+        <!-- Weekday headers -->
+        <div class="calendar-weekday">Su</div>
+        <div class="calendar-weekday">Mo</div>
+        <div class="calendar-weekday">Tu</div>
+        <div class="calendar-weekday">We</div>
+        <div class="calendar-weekday">Th</div>
+        <div class="calendar-weekday">Fr</div>
+        <div class="calendar-weekday">Sa</div>
+        
+        <!-- Day cells -->
+        @foreach (var day in GetCalendarDays())
+        {
+            <button type="button"
+                    class="@GetDayClass(day)"
+                    disabled="@IsDateDisabled(day.Date)"
+                    @onclick="() => HandleDayClick(day)">
+                @day.Date.Day
+            </button>
+        }
+    </div>
+</div>
