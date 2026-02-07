@@ -15,6 +15,7 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     private DataGridColumn<TItem>? _sortColumn;
     private SortDirection _sortDirection = SortDirection.None;
     private List<SortDescriptor<TItem>> _sortDescriptors = new();
+    private bool _initialSortApplied = false;
 
     /// <summary>
     /// Gets or sets the data items to display in the grid.
@@ -34,6 +35,18 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     /// </summary>
     [Parameter]
     public bool AllowMultiColumnSorting { get; set; }
+
+    /// <summary>
+    /// Gets or sets the initial sort column property name.
+    /// </summary>
+    [Parameter]
+    public string? SortBy { get; set; }
+
+    /// <summary>
+    /// Gets or sets the initial sort direction.
+    /// </summary>
+    [Parameter]
+    public SortDirection SortDirection { get; set; } = SortDirection.None;
 
     /// <summary>
     /// Gets or sets the columns for the data grid.
@@ -74,6 +87,117 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     protected override void OnInitialized()
     {
         base.OnInitialized();
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        
+        // Reset the flag when parameters change so sort gets applied
+        if (!string.IsNullOrEmpty(SortBy) && SortDirection != SortDirection.None)
+        {
+            _initialSortApplied = false;
+        }
+    }
+
+    /// <summary>
+    /// Applies sorting based on SortBy and SortDirection parameters.
+    /// </summary>
+    private void ApplyProgrammaticSort()
+    {
+        if (string.IsNullOrEmpty(SortBy) || _initialSortApplied)
+            return;
+
+        var column = _columns.FirstOrDefault(c => c.Property == SortBy);
+        if (column != null && column.Sortable)
+        {
+            _sortColumn = column;
+            _sortDirection = SortDirection;
+            _sortDescriptors.Clear();
+            _initialSortApplied = true;
+        }
+    }
+
+    /// <summary>
+    /// Clears all sorting.
+    /// </summary>
+    public async Task ClearSort()
+    {
+        _sortColumn = null;
+        _sortDirection = SortDirection.None;
+        _sortDescriptors.Clear();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Sets sorting for a specific column programmatically.
+    /// </summary>
+    public async Task SetSort(string propertyName, SortDirection direction)
+    {
+        var column = _columns.FirstOrDefault(c => c.Property == propertyName);
+        if (column != null && column.Sortable)
+        {
+            _sortColumn = column;
+            _sortDirection = direction;
+            _sortDescriptors.Clear();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    /// <summary>
+    /// Adds a sort column programmatically (for multi-column sorting).
+    /// </summary>
+    public async Task AddSort(string propertyName, SortDirection direction)
+    {
+        if (!AllowMultiColumnSorting)
+        {
+            await SetSort(propertyName, direction);
+            return;
+        }
+
+        var column = _columns.FirstOrDefault(c => c.Property == propertyName);
+        if (column != null && column.Sortable)
+        {
+            // Migrate single-column sort if needed
+            if (_sortColumn != null && _sortDirection != SortDirection.None && !_sortDescriptors.Any())
+            {
+                _sortDescriptors.Add(new SortDescriptor<TItem>
+                {
+                    Column = _sortColumn,
+                    Direction = _sortDirection,
+                    Priority = 1
+                });
+                _sortColumn = null;
+                _sortDirection = SortDirection.None;
+            }
+
+            // Add or update the column
+            var existing = _sortDescriptors.FirstOrDefault(s => s.Column == column);
+            if (existing != null)
+            {
+                existing.Direction = direction;
+                if (direction == SortDirection.None)
+                {
+                    _sortDescriptors.Remove(existing);
+                    // Re-assign priorities
+                    for (int i = 0; i < _sortDescriptors.Count; i++)
+                    {
+                        _sortDescriptors[i].Priority = i + 1;
+                    }
+                }
+            }
+            else if (direction != SortDirection.None)
+            {
+                _sortDescriptors.Add(new SortDescriptor<TItem>
+                {
+                    Column = column,
+                    Direction = direction,
+                    Priority = _sortDescriptors.Count + 1
+                });
+            }
+
+            await InvokeAsync(StateHasChanged);
+        }
     }
 
     /// <summary>
@@ -214,6 +338,12 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     /// </summary>
     internal SortDirection GetColumnSortDirection(DataGridColumn<TItem> column)
     {
+        // Apply programmatic sort if not yet applied
+        if (!_initialSortApplied && !string.IsNullOrEmpty(SortBy) && SortDirection != SortDirection.None)
+        {
+            ApplyProgrammaticSort();
+        }
+
         // Check multi-column sort first
         var descriptor = _sortDescriptors.FirstOrDefault(s => s.Column == column);
         if (descriptor != null)
