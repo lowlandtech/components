@@ -1,8 +1,176 @@
 @page "/demo2"
 @rendermode InteractiveServer
 @using LowlandTech.Components.Badge
+@using LowlandTech.Components.Components.Button
+@using LowlandTech.Components.Components.Input
+@using LowlandTech.Components.Components.Label
 
 <div class="grid gap-5 lg:gap-7.5">
+    <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
+        @* Options Component *@
+        <div class="lg:col-span-2">
+            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5">
+                <h3 class="text-lg font-semibold mb-4">Options</h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="field">
+                        <Label>General</Label>
+                        <Input Type="text" Placeholder="General settings..." />
+                    </div>
+                    <div class="field">
+                        <Label>Appearance</Label>
+                        <Input Type="text" Placeholder="Theme settings..." />
+                    </div>
+                    <div class="field">
+                        <Label>Notifications</Label>
+                        <Input Type="text" Placeholder="Notification settings..." />
+                    </div>
+                    <div class="field">
+                        <Label>Advanced</Label>
+                        <Input Type="text" Placeholder="Advanced options..." />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="lg:col-span-1">
+            @* My Balance Component *@
+            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm h-full p-5 lg:p-7.5">
+                <h3 class="text-lg font-semibold mb-4">My Balance</h3>
+                <div class="flex flex-col gap-2">
+                    <Label>Current Balance</Label>
+                    <Input Type="text" Placeholder="$12,450.00" />
+                    <div class="flex items-center gap-2 mt-4">
+                        <Badge Variant="BadgeVariants.Success" Class="text-xs">+2.5%</Badge>
+                        <span class="text-sm text-muted-foreground">vs last month</span>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-border">
+                    <Button Class="btn btn-default w-full">View Transactions</Button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
+        <div class="lg:col-span-2">
+            @* Entry Callout (reuse from demo1) *@
+            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm flex flex-col h-full">
+                <div class="p-10 flex flex-col justify-center gap-4">
+                    <div class="flex gap-2">
+                        <div class="size-10 rounded-full bg-primary"></div>
+                        <div class="size-10 rounded-full bg-secondary"></div>
+                    </div>
+                    <h2 class="text-xl font-semibold text-foreground">
+                        Connect Today & Join<br />
+                        <a href="#" class="text-xl font-semibold text-primary underline">KeenThemes Network</a>
+                    </h2>
+                    <p class="text-sm font-normal text-muted-foreground leading-5.5">
+                        Enhance your projects with premium themes and<br />
+                        templates. Join to KeenThemes community today<br />
+                        for top-quality designs and resources.
+                    </p>
+                </div>
+                <div class="flex justify-center p-6 pt-0">
+                    <a href="#" class="text-sm font-medium text-primary hover:underline border-b border-dashed border-primary">Get Started</a>
+                </div>
+            </div>
+        </div>
+        <div class="lg:col-span-1">
+            @* Report Settings *@
+            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5">
+                <h3 class="text-lg font-semibold mb-4">Report Settings</h3>
+                <div class="field">
+                    <Label>Report Type</Label>
+                    <select class="input">
+                        <option value="daily">Daily Report</option>
+                        <option value="weekly">Weekly Report</option>
+                        <option value="monthly">Monthly Report</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
+        <div class="lg:col-span-2">
+            @* Integrations *@
+            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5">
+                <h3 class="text-lg font-semibold mb-4">Integrations</h3>
+                <div class="space-y-3">
+                    <label class="field flex items-center gap-3">
+                        <input type="checkbox" class="checkbox" checked />
+                        <span class="text-sm text-foreground">Slack Integration</span>
+                    </label>
+                    <label class="field flex items-center gap-3">
+                        <input type="checkbox" class="checkbox" />
+                        <span class="text-sm text-foreground">Google Analytics</span>
+                    </label>
+                    <label class="field flex items-center gap-3">
+                        <input type="checkbox" class="checkbox" />
+                        <span class="text-sm text-foreground">GitHub Actions</span>
+                    </label>
+                    <label class="field flex items-center gap-3">
+                        <input type="checkbox" class="checkbox" />
+                        <span class="text-sm text-foreground">Jira Integration</span>
+                    </label>
+                </div>
+                <div class="mt-4">
+                    <Button Class="btn btn-default w-full">Configure</Button>
+                </div>
+            </div>
+        </div>
+        <div class="lg:col-span-1">
+            @* Block List *@
+            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5">
+                <h3 class="text-lg font-semibold mb-4">Block List</h3>
+                <div class="space-y-2">
+                    <label class="field flex items-center gap-3">
+                        <input type="checkbox" class="checkbox" checked />
+                        <span class="text-sm text-foreground">&#64;user1</span>
+                    </label>
+                    <label class="field flex items-center gap-3">
+                        <input type="checkbox" class="checkbox" />
+                        <span class="text-sm text-foreground">&#64;user2</span>
+                    </label>
+                    <label class="field flex items-center gap-3">
+                        <input type="checkbox" class="checkbox" />
+                        <span class="text-sm text-foreground">Spam Bot</span>
+                    </label>
+                </div>
+                <div class="mt-4 pt-4 border-t border-border">
+                    <Button Class="btn btn-outline w-full">View All</Button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
+        <div class="lg:col-span-2">
+            @* Teams Table (reuse from demo1) *@
+            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5">
+                <h3 class="text-lg font-semibold mb-4">Teams</h3>
+                <p class="text-sm text-muted-foreground">Teams table placeholder - implement with DataGrid component</p>
+            </div>
+        </div>
+        <div class="lg:col-span-1">
+            @* Manage Data *@
+            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm h-full p-5 lg:p-7.5">
+                <h3 class="text-lg font-semibold mb-4">Manage Data</h3>
+                <div class="field">
+                    <Label>Export Format</Label>
+                    <select class="input">
+                        <option value="csv">CSV</option>
+                        <option value="json">JSON</option>
+                        <option value="excel">Excel</option>
+                    </select>
+                </div>
+                <div class="mt-4 pt-4 border-t border-border">
+                    <Button Class="btn btn-default w-full">Export Data</Button>
+                </div>
+            </div>
+        </div>
+</div>
+
+@code {
+
+}
+
     <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
         @* Options Component Placeholder *@
         <div class="lg:col-span-2">

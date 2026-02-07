@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Components.Breadcrumb
+
+<span class="@GetClasses()" @attributes="AdditionalAttributes">
+    @if (ChildContent != null)
+    {
+        @ChildContent
+    }
+    else
+    {
+        <text>/</text>
+    }
+</span>
