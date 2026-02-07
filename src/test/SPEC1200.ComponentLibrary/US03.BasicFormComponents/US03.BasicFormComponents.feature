@@ -39,7 +39,7 @@ Feature: US03 - Basic Form Components
 
     @SC03
     Scenario: Implement Textarea component
-        Given I have the shadcn/ui Textarea component
+        Given I have a shadcn/ui Textarea component
         When I port it to a Blazor component
         #UAC10
         Then it should render a <textarea> element with class "input"
@@ -47,3 +47,16 @@ Feature: US03 - Basic Form Components
         And it should support Rows and Placeholder parameters
         #UAC12
         And it should support Disabled and ReadOnly states
+
+    @SC04
+    Scenario: Implement Label component
+        Given I have a shadcn/ui Label component
+        When I port it to a Blazor component
+        #UAC13
+        Then it should render a <label> element with proper classes
+        #UAC14
+        And it should merge the Class parameter with generated classes
+        #UAC15
+        And it should forward unmatched attributes to the underlying element
+        #UAC16
+        And it should render child content
