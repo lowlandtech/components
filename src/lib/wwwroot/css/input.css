@@ -172,6 +172,45 @@
     opacity: 0.5;
   }
 
+  /* InputGroup Component */
+  .input-group {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid hsl(var(--input));
+    border-radius: 0.375rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+
+  .input-group:focus-within {
+    box-shadow: 0 0 0 1px hsl(var(--ring));
+  }
+
+  .input-group-prefix {
+    display: flex;
+    align-items: center;
+    padding-left: 0.75rem;
+    padding-right: 0.25rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .input-group-suffix {
+    display: flex;
+    align-items: center;
+    padding-left: 0.25rem;
+    padding-right: 0.75rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .input-group input {
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .input-group input:focus-visible {
+    box-shadow: none;
+  }
+
   .label {
     font-size: 0.875rem;
     font-weight: 500;

@@ -1,0 +1,16 @@
+@namespace LowlandTech.Components.Components.InputGroup
+
+@inherits ComponentBase
+@using LowlandTech.Components.Utilities
+
+<div class="@GetClasses()">
+    @if (Prefix != null)
+    {
+        <span class="input-group-prefix">@Prefix</span>
+    }
+    @ChildContent
+    @if (Suffix != null)
+    {
+        <span class="input-group-suffix">@Suffix</span>
+    }
+</div>

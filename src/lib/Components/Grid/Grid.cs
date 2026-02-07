@@ -9,6 +9,7 @@ public partial class Grid
 {
     private List<GridSection> _sections = new();
     private int _nextSectionIndex = 1;
+    private bool _isSuspended;
 
     [Parameter]
     public int Row { get; set; } = 4;
@@ -147,8 +148,8 @@ public partial class Grid
             var newPosition = FindFirstAvailablePosition(section.RowSpan, section.ColSpan, occupied);
             if (newPosition.HasValue)
             {
-                section.UpdatePosition(newPosition.Value.Row, newPosition.Value.Column, false);
-                MarkOccupied(newPosition.Value.Row, newPosition.Value.Column, section.RowSpan, section.ColSpan, occupied);
+                section.UpdatePosition(newPosition.Value.Row, newPosition.Value.Col, false);
+                MarkOccupied(newPosition.Value.Row, newPosition.Value.Col, section.RowSpan, section.ColSpan, occupied);
             }
         }
     }
