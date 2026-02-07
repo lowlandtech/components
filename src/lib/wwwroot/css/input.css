@@ -1477,4 +1477,51 @@
   .swipe-area:active {
     cursor: grabbing;
   }
+
+  /* Collapsible */
+  .collapsible {
+    display: block;
+  }
+
+  .collapsible-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem;
+    font-weight: 500;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+
+  .collapsible-trigger:hover {
+    background-color: hsl(var(--accent));
+  }
+
+  .collapsible-trigger:focus-visible {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px hsl(var(--ring));
+  }
+
+  .collapsible-content {
+    overflow: hidden;
+    padding: 0.5rem;
+  }
+
+  /* Progress Component */
+  .progress {
+    position: relative;
+    height: 0.5rem;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 9999px;
+    background-color: hsl(var(--muted));
+  }
+
+  .progress-indicator {
+    height: 100%;
+    background-color: hsl(var(--primary));
+    transition: width 0.3s ease-in-out;
+  }
 }

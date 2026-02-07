@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Components.Collapsible
+@inherits CollapsibleContentBase
+
+@if (Collapsible?.IsOpen == true)
+{
+    <div @attributes="AdditionalAttributes" 
+         class="@GetCssClasses()"
+         id="@($"collapsible-content-{Collapsible?.GetHashCode()}")"
+         role="region">
+        @ChildContent
+    </div>
+}

@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Components.Collapsible
+@inherits CollapsibleTriggerBase
+
+<button @attributes="AdditionalAttributes" 
+        type="button"
+        class="@GetCssClasses()" 
+        @onclick="HandleClick"
+        @onkeydown="HandleKeyDown"
+        aria-expanded="@Collapsible?.IsOpen.ToString().ToLower()"
+        aria-controls="@($"collapsible-content-{Collapsible?.GetHashCode()}")">
+    @ChildContent
+</button>

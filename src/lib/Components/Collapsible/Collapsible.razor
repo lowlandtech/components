@@ -1,0 +1,8 @@
+@namespace LowlandTech.Components.Components.Collapsible
+@inherits CollapsibleBase
+
+<CascadingValue Value="this">
+    <div @attributes="AdditionalAttributes" class="@GetCssClasses()">
+        @ChildContent
+    </div>
+</CascadingValue>
