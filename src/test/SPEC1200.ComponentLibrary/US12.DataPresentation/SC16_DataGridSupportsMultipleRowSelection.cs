@@ -56,12 +56,11 @@ public class SC16_DataGridSupportsMultipleRowSelection : Scenario
             }));
 
         // When - click first and third rows
-        var rows = cut.FindAll("tbody tr");
-        rows[0].Click();
-        rows[2].Click();
+        cut.InvokeAsync(() => cut.FindAll("tbody tr")[0].Click());
+        cut.InvokeAsync(() => cut.FindAll("tbody tr")[2].Click());
 
         // Then - both should be selected
-        rows = cut.FindAll("tbody tr");
+        var rows = cut.FindAll("tbody tr");
         rows[0].ClassList.ShouldContain("row-selected");
         rows[1].ClassList.ShouldNotContain("row-selected");
         rows[2].ClassList.ShouldContain("row-selected");
@@ -96,9 +95,8 @@ public class SC16_DataGridSupportsMultipleRowSelection : Scenario
             }));
 
         // When - click two rows
-        var rows = cut.FindAll("tbody tr");
-        rows[0].Click();
-        rows[1].Click();
+        cut.InvokeAsync(() => cut.FindAll("tbody tr")[0].Click());
+        cut.InvokeAsync(() => cut.FindAll("tbody tr")[1].Click());
 
         // Then - event should fire twice
         selectedItems.Count.ShouldBe(2);
@@ -132,15 +130,14 @@ public class SC16_DataGridSupportsMultipleRowSelection : Scenario
             }));
 
         // When - click first row twice
-        var rows = cut.FindAll("tbody tr");
-        rows[0].Click();
+        cut.InvokeAsync(() => cut.FindAll("tbody tr")[0].Click());
         
         // Then - should be selected
-        rows = cut.FindAll("tbody tr");
+        var rows = cut.FindAll("tbody tr");
         rows[0].ClassList.ShouldContain("row-selected");
 
         // When - click again
-        rows[0].Click();
+        cut.InvokeAsync(() => cut.FindAll("tbody tr")[0].Click());
 
         // Then - should be deselected
         rows = cut.FindAll("tbody tr");

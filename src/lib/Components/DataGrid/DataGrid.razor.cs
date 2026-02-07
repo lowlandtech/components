@@ -88,6 +88,36 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     public SelectionMode SelectionMode { get; set; } = SelectionMode.None;
 
     /// <summary>
+    /// Gets or sets whether to show a checkbox column for selection.
+    /// </summary>
+    [Parameter]
+    public bool ShowSelectColumn { get; set; }
+
+    /// <summary>
+    /// Gets or sets the selected item (for single selection mode).
+    /// </summary>
+    [Parameter]
+    public TItem? SelectedItem { get; set; }
+
+    /// <summary>
+    /// Gets or sets the event callback fired when the selected item changes.
+    /// </summary>
+    [Parameter]
+    public EventCallback<TItem?> SelectedItemChanged { get; set; }
+
+    /// <summary>
+    /// Gets or sets the selected items (for multiple selection mode).
+    /// </summary>
+    [Parameter]
+    public IEnumerable<TItem>? SelectedItems { get; set; }
+
+    /// <summary>
+    /// Gets or sets the event callback fired when the selected items change.
+    /// </summary>
+    [Parameter]
+    public EventCallback<IEnumerable<TItem>> SelectedItemsChanged { get; set; }
+
+    /// <summary>
     /// Gets or sets the event callback fired when a row is selected.
     /// </summary>
     [Parameter]
@@ -148,6 +178,23 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
         if (CurrentPage != _currentPage)
         {
             _currentPage = CurrentPage;
+        }
+
+        // Sync selected item/items from parameters
+        if (SelectionMode == SelectionMode.Single && SelectedItem != null)
+        {
+            _selectedItem = SelectedItem;
+            _selectedItems.Clear();
+            _selectedItems.Add(SelectedItem);
+        }
+        else if (SelectionMode == SelectionMode.Multiple && SelectedItems != null)
+        {
+            _selectedItems.Clear();
+            foreach (var item in SelectedItems)
+            {
+                _selectedItems.Add(item);
+            }
+            _selectedItem = _selectedItems.FirstOrDefault();
         }
     }
 
@@ -547,6 +594,69 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
 
         await RowSelect.InvokeAsync(item);
         StateHasChanged();
+    }
+
+    /// <summary>
+    /// Handles checkbox change for a row.
+    /// </summary>
+    private async Task HandleCheckboxChange(TItem item, ChangeEventArgs e)
+    {
+        if (e.Value is bool isChecked)
+        {
+            if (isChecked && !_selectedItems.Contains(item))
+            {
+                _selectedItems.Add(item);
+                _selectedItem = item;
+                await RowSelect.InvokeAsync(item);
+            }
+            else if (!isChecked && _selectedItems.Contains(item))
+            {
+                _selectedItems.Remove(item);
+                if (ReferenceEquals(_selectedItem, item))
+                    _selectedItem = default;
+            }
+            
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Handles select all checkbox change.
+    /// </summary>
+    private async Task HandleSelectAllChange(ChangeEventArgs e)
+    {
+        if (e.Value is bool isChecked)
+        {
+            if (isChecked)
+            {
+                // Select all items
+                var allItems = GetPagedData().ToList();
+                foreach (var item in allItems)
+                {
+                    if (!_selectedItems.Contains(item))
+                    {
+                        _selectedItems.Add(item);
+                    }
+                }
+            }
+            else
+            {
+                // Deselect all items
+                _selectedItems.Clear();
+                _selectedItem = default;
+            }
+            
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Checks if all visible rows are selected.
+    /// </summary>
+    private bool AreAllRowsSelected()
+    {
+        var visibleItems = GetPagedData().ToList();
+        return visibleItems.Any() && visibleItems.All(item => _selectedItems.Contains(item));
     }
 
     /// <summary>

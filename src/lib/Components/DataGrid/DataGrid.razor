@@ -28,6 +28,12 @@
         <table class="@GetTableClasses()" @attributes="AdditionalAttributes">
             <thead>
                 <tr>
+                    @if (ShowSelectColumn && SelectionMode == SelectionMode.Multiple)
+                    {
+                        <th class="select-column">
+                            <input type="checkbox" checked="@AreAllRowsSelected()" @onchange="HandleSelectAllChange" />
+                        </th>
+                    }
                     @foreach (var column in _columns)
                     {
                         <th class="@column.GetAlignmentClass()" @onclick="@(e => HandleHeaderClick(column, e))">
@@ -59,6 +65,12 @@
                 @foreach (var item in GetPagedData())
                 {
                     <tr class="@GetRowClass(item)" @onclick="@(() => HandleRowClick(item))">
+                        @if (ShowSelectColumn && SelectionMode == SelectionMode.Multiple)
+                        {
+                            <td class="select-column">
+                                <input type="checkbox" checked="@IsRowSelected(item)" @onchange="@(e => HandleCheckboxChange(item, e))" @onclick:stopPropagation />
+                            </td>
+                        }
                         @foreach (var column in _columns)
                         {
                             <td class="@column.GetAlignmentClass()">
