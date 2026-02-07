@@ -483,3 +483,5 @@ $RECYCLE.BIN/
 
 # Samples directory (reference implementations)
 samples/
+
+.chat/

@@ -17,6 +17,8 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     private List<SortDescriptor<TItem>> _sortDescriptors = new();
     private bool _initialSortApplied = false;
     private int _currentPage = 1;
+    private TItem? _selectedItem;
+    private HashSet<TItem> _selectedItems = new();
 
     /// <summary>
     /// Gets or sets the data items to display in the grid.
@@ -78,6 +80,18 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     /// </summary>
     [Parameter]
     public int[]? PageSizeOptions { get; set; }
+
+    /// <summary>
+    /// Gets or sets the row selection mode.
+    /// </summary>
+    [Parameter]
+    public SelectionMode SelectionMode { get; set; } = SelectionMode.None;
+
+    /// <summary>
+    /// Gets or sets the event callback fired when a row is selected.
+    /// </summary>
+    [Parameter]
+    public EventCallback<TItem> RowSelect { get; set; }
 
     /// <summary>
     /// Gets or sets the columns for the data grid.
@@ -500,6 +514,55 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
             _currentPage = 1; // Reset to first page
             StateHasChanged();
         }
+    }
+
+    /// <summary>
+    /// Handles row click for selection.
+    /// </summary>
+    private async Task HandleRowClick(TItem item)
+    {
+        if (SelectionMode == SelectionMode.None)
+            return;
+
+        if (SelectionMode == SelectionMode.Single)
+        {
+            _selectedItem = item;
+            _selectedItems.Clear();
+            _selectedItems.Add(item);
+        }
+        else if (SelectionMode == SelectionMode.Multiple)
+        {
+            if (_selectedItems.Contains(item))
+            {
+                _selectedItems.Remove(item);
+                if (ReferenceEquals(_selectedItem, item))
+                    _selectedItem = default;
+            }
+            else
+            {
+                _selectedItems.Add(item);
+                _selectedItem = item;
+            }
+        }
+
+        await RowSelect.InvokeAsync(item);
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Checks if a row is selected.
+    /// </summary>
+    private bool IsRowSelected(TItem item)
+    {
+        return _selectedItems.Contains(item);
+    }
+
+    /// <summary>
+    /// Gets the CSS class for a row.
+    /// </summary>
+    private string GetRowClass(TItem item)
+    {
+        return IsRowSelected(item) ? "row-selected" : "";
     }
 
     private IEnumerable<TItem> ApplyMultiColumnSort(IEnumerable<TItem> data)

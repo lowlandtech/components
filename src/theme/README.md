@@ -79,6 +79,7 @@ The Vite sample routes cover multiple product areas (dashboards, public profile,
 - Sidebar and layout follow the peer-checked pattern if a sidebar is used.
 - Sections match the Vite sample structure and content order.
 - Components showcase is comprehensive and uses real component variants.
+- Visual parity checked against Vite at `http://localhost:5174` using browser snapshots.
 
 ## Follow-up
 

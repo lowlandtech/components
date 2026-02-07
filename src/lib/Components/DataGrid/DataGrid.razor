@@ -58,7 +58,7 @@
             <tbody>
                 @foreach (var item in GetPagedData())
                 {
-                    <tr>
+                    <tr class="@GetRowClass(item)" @onclick="@(() => HandleRowClick(item))">
                         @foreach (var column in _columns)
                         {
                             <td class="@column.GetAlignmentClass()">
