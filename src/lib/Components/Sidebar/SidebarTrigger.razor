@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Components.Sidebar
+@using Microsoft.AspNetCore.Components
+@using LowlandTech.Components.Components.Button
+@using LowlandTech.Components.Components.Icons
+
+<Button Variant="ButtonVariant.Ghost"
+        Class="@Classes"
+        OnClick="@HandleClickAsync"
+        AdditionalAttributes="@MergedAttributes">
+    <PanelLeftIcon Class="cn-rtl-flip" />
+    <span class="sr-only">Toggle Sidebar</span>
+</Button>

@@ -1,0 +1,35 @@
+@namespace LowlandTech.Components.Components.Sidebar
+@using Microsoft.AspNetCore.Components
+@using LowlandTech.Components
+
+@if (Provider != null && Provider.State == "collapsed" && !Provider.IsMobile && !string.IsNullOrEmpty(TooltipText))
+{
+    <Tooltip>
+        <TooltipTrigger>
+            <button type="button"
+                    data-slot="sidebar-menu-button"
+                    data-sidebar="menu-button"
+                    data-size="@Size.ToString().ToLowerInvariant()"
+                    data-active="@IsActive.ToString().ToLowerInvariant()"
+                    class="@Classes"
+                    @attributes="AdditionalAttributes">
+                @ChildContent
+            </button>
+        </TooltipTrigger>
+        <TooltipContent Side="TooltipSide.Right" Align="TooltipAlign.Center">
+            @TooltipText
+        </TooltipContent>
+    </Tooltip>
+}
+else
+{
+    <button type="button"
+            data-slot="sidebar-menu-button"
+            data-sidebar="menu-button"
+            data-size="@Size.ToString().ToLowerInvariant()"
+            data-active="@IsActive.ToString().ToLowerInvariant()"
+            class="@Classes"
+            @attributes="AdditionalAttributes">
+        @ChildContent
+    </button>
+}

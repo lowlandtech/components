@@ -20,7 +20,11 @@
     --input: 250 31% 24%;
     --ring: 251 100% 71%;
     --sidebar: 240 21% 8%;
+    --sidebar-foreground: 237 100% 97%;
     --sidebar-border: 250 21% 19%;
+    --sidebar-accent: 240 16% 20%;
+    --sidebar-accent-foreground: 237 100% 97%;
+    --sidebar-ring: 251 100% 71%;
     --radius: 0.5rem;
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
@@ -43,4 +47,14 @@
     white-space: nowrap;
     border-width: 0;
   }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
+

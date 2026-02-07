@@ -1,0 +1,13 @@
+@namespace LowlandTech.Components.Components.Sidebar
+@using Microsoft.AspNetCore.Components
+@using Microsoft.JSInterop
+
+<CascadingValue Value="this" IsFixed="false">
+    <div @ref="_wrapperRef"
+         data-slot="sidebar-wrapper"
+         class="@WrapperClasses"
+         style="@WrapperStyle"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>

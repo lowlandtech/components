@@ -1,0 +1,27 @@
+@namespace LowlandTech.Components.Components.Sidebar
+@using Microsoft.AspNetCore.Components
+
+<div data-slot="sidebar-content"
+     data-sidebar="content"
+     class="@Classes"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string Classes => LowlandTech.Components.Utilities.CssClassUtils.Merge(
+        "no-scrollbar",
+        "flex",
+        "min-h-0",
+        "flex-1",
+        "flex-col",
+        "gap-0",
+        "overflow-auto",
+        "group-data-[collapsible=icon]:overflow-hidden",
+        Class
+    );
+}

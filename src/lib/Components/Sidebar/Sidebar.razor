@@ -1,0 +1,55 @@
+@namespace LowlandTech.Components.Components.Sidebar
+@using Microsoft.AspNetCore.Components
+@using LowlandTech.Components.Components.Sheet
+
+@if (Provider == null)
+{
+    <div data-slot="sidebar" class="@Classes" @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+}
+else if (Provider.IsMobile)
+{
+    <Sheet Open="@Provider.OpenMobile" 
+           OpenChanged="@(v => Provider.OpenMobile = v)">
+        <SheetContent Side="@ConvertToSheetSide(Side)"
+                     data-sidebar="sidebar"
+                     data-slot="sidebar"
+                     data-mobile="true"
+                     Class="@MobileClasses"
+                     Style="@MobileStyle">
+            <div class="flex h-full w-full flex-col">
+                @ChildContent
+            </div>
+        </SheetContent>
+    </Sheet>
+}
+else if (Collapsible == SidebarCollapsible.None)
+{
+    <div data-slot="sidebar" class="@NonCollapsibleClasses" @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+}
+else
+{
+    <div class="@GroupClasses"
+         data-state="@Provider.State"
+         data-collapsible="@(Provider.State == "collapsed" ? Collapsible.ToString().ToLowerInvariant() : "")"
+         data-variant="@Variant.ToString().ToLowerInvariant()"
+         data-side="@Side.ToString().ToLowerInvariant()"
+         data-slot="sidebar">
+        
+        <div data-slot="sidebar-gap" class="@GapClasses"></div>
+        
+        <div data-slot="sidebar-container"
+             data-side="@Side.ToString().ToLowerInvariant()"
+             class="@ContainerClasses"
+             @attributes="AdditionalAttributes">
+            <div data-sidebar="sidebar"
+                 data-slot="sidebar-inner"
+                 class="@InnerClasses">
+                @ChildContent
+            </div>
+        </div>
+    </div>
+}
