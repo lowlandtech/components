@@ -312,6 +312,46 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     }
 
     /// <summary>
+    /// Sets a filter programmatically.
+    /// </summary>
+    public async Task SetFilter(string propertyName, string value)
+    {
+        var column = _columns.FirstOrDefault(c => c.Property == propertyName);
+        if (column != null && column.Filterable)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                _columnFilters.Remove(propertyName);
+            }
+            else
+            {
+                _columnFilters[propertyName] = value;
+            }
+            
+            _currentPage = 1; // Reset to first page
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    /// <summary>
+    /// Clears all filters.
+    /// </summary>
+    public async Task ClearFilters()
+    {
+        _columnFilters.Clear();
+        _currentPage = 1;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Gets the current filter value for a column.
+    /// </summary>
+    public string GetFilterValue(string propertyName)
+    {
+        return _columnFilters.TryGetValue(propertyName, out var value) ? value : string.Empty;
+    }
+
+    /// <summary>
     /// Registers a column with the data grid.
     /// </summary>
     internal void AddColumn(DataGridColumn<TItem> column)

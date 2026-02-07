@@ -75,6 +75,7 @@
                                     <input type="text" 
                                            class="filter-input" 
                                            placeholder="Filter..." 
+                                           value="@GetFilterValue(column.Property!)"
                                            @onchange="@(e => HandleFilterChange(column.Property!, e))" />
                                 }
                             </th>
