@@ -1,0 +1,183 @@
+@namespace LowlandTech.Theme.DemoComponents
+
+@using LowlandTech.Components.Badge
+
+<div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm h-full p-5 lg:p-7.5">
+    <div class="card-header flex items-center justify-between">
+        <h3 class="text-lg font-semibold">Teams</h3>
+        <button class="btn btn-ghost btn-icon">
+            <span>•••</span>
+        </button>
+    </div>
+    <div class="card-content p-0">
+        @if (!string.IsNullOrEmpty(SearchText))
+        {
+            <div class="mb-4">
+                <input type="text" placeholder="Search teams..." class="input" @bind="SearchText" @bind:after="OnSearchChanged" />
+            </div>
+        }
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="table-header cursor-pointer" @onclick="() => SortBy('name')">Team Name <span>@GetSortIcon('name')</span></th>
+                        <th class="table-header cursor-pointer" @onclick="() => SortBy('members')">Members <span>@GetSortIcon('members')</span></th>
+                        <th class="table-header cursor-pointer" @onclick="() => SortBy('projects')">Projects <span>@GetSortIcon('projects')</span></th>
+                        <th class="table-header">Status</th>
+                        <th class="table-header text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var team in FilteredTeams)
+                    {
+                        <tr class="table-row hover:bg-accent/50">
+                                <td class="table-cell">
+                                    <div class="flex items-center gap-2">
+                                            <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-sm font-medium">@team.Initials</div>
+                                            <span class="text-sm font-medium text-foreground">@team.Name</span>
+                                    </div>
+                                </td>
+                                <td class="table-cell">@team.Members</td>
+                                <td class="table-cell">@team.Projects</td>
+                                <td class="table-cell">
+                                    <Badge Variant="@GetStatusVariant(team.Status)" Class="text-xs">@team.Status</Badge>
+                                </td>
+                                <td class="table-cell text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                            <button class="btn btn-ghost btn-sm" @onclick="() => ViewTeam(team)">View</button>
+                                            <button class="btn btn-outline btn-sm" @onclick="() => EditTeam(team)">Edit</button>
+                                            <button class="btn btn-destructive btn-sm" @onclick="() => DeleteTeam(team)">
+                                                <span>🗑</span>
+                                            </button>
+                                    </div>
+                                </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    [Parameter]
+    public string? SearchText { get; set; }
+
+    private List<TeamData> Teams { get; set; } = new()
+    {
+        new() { Name = "Design Team", Initials = "DT", Members = 24, Projects = 12, Status = "Active" },
+        new() { Name = "Development Team", Initials = "DV", Members = 18, Projects = 8, Status = "Active" },
+        new() { Name = "Marketing Team", Initials = "MK", Members = 32, Projects = 15, Status = "Active" },
+        new() { Name = "Sales Team", Initials = "SL", Members = 45, Projects = 22, Status = "Active" },
+        new() { Name = "Support Team", Initials = "SU", Members = 12, Projects = 6, Status = "Inactive" }
+    };
+
+    private string _sortColumn = string.Empty;
+    private bool _sortAscending = true;
+
+    private List<TeamData> FilteredTeams
+    {
+        get
+        {
+            return GetFilteredTeams();
+        }
+        set
+        {
+            Teams = value;
+        }
+    }
+
+    private List<TeamData> GetFilteredTeams()
+    {
+        var result = Teams.AsEnumerable();
+
+        if (!string.IsNullOrEmpty(SearchText))
+        {
+            result = result.Where(t => t.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (!string.IsNullOrEmpty(_sortColumn))
+        {
+            result = result.OrderBy(t => t.Name);
+        }
+        else
+        {
+            result = _sortColumn switch
+            {
+                "name" => _sortAscending ? result.OrderBy(t => t.Name) : result.OrderByDescending(t => t.Name),
+                "members" => _sortAscending ? result.OrderBy(t => t.Members) : result.OrderByDescending(t => t.Members),
+                "projects" => _sortAscending ? result.OrderBy(t => t.Projects) : result.OrderByDescending(t => t.Projects),
+                _ => result
+            };
+        }
+
+        return result.ToList();
+    }
+
+    private string GetSortIcon(string column)
+    {
+        if (_sortColumn != column) return string.Empty;
+
+        return _sortAscending ? "▲" : "▼";
+    }
+
+    private void SortBy(string column)
+    {
+        if (_sortColumn == column)
+        {
+            _sortAscending = !_sortAscending;
+        }
+        else
+        {
+            _sortColumn = column;
+            _sortAscending = true;
+        }
+
+        FilteredTeams = GetFilteredTeams();
+    }
+
+    private void OnSearchChanged(string? newValue)
+    {
+        SearchText = newValue ?? string.Empty;
+        FilteredTeams = GetFilteredTeams();
+    }
+
+    private BadgeVariants GetStatusVariant(string status)
+    {
+        return status switch
+        {
+            "Active" => BadgeVariants.Success,
+            "Inactive" => BadgeVariants.Secondary,
+            _ => BadgeVariants.Default
+        };
+    }
+
+    private void ViewTeam(TeamData team)
+    {
+    }
+
+    private void EditTeam(TeamData team)
+    {
+    }
+
+    private void DeleteTeam(TeamData team)
+    {
+        Teams.Remove(team);
+        FilteredTeams = GetFilteredTeams();
+    }
+
+    public class TeamData
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Initials { get; set; } = string.Empty;
+        public int Members { get; set; }
+        public int Projects { get; set; }
+        public string Status { get; set; } = string.Empty;
+    }
+}
