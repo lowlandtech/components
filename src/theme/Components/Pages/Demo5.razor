@@ -1,0 +1,122 @@
+@page "/demo5"
+@rendermode InteractiveServer
+@using LowlandTech.Components.Badge
+
+<div class="grid gap-5 lg:gap-7.5">
+    <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
+        <div class="lg:col-span-2">
+            @* Team Info Component *@
+            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="size-12 rounded-full bg-primary flex items-center justify-center">
+                        <span class="text-lg font-bold text-primary-foreground">DT</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <h3 class="text-xl font-bold text-foreground">Design Team</h3>
+                        <p class="text-sm text-muted-foreground">Creative design and marketing team</p>
+                    </div>
+                </div>
+                <div class="flex gap-2 mt-4">
+                    <a href="#" class="btn btn-default text-sm">Settings</a>
+                    <a href="#" class="btn btn-outline text-sm">Members</a>
+                </div>
+                <div class="border-t border-border pt-4 mt-4">
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-muted-foreground">Team Members</span>
+                            <span class="text-sm font-medium text-foreground">24</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-muted-foreground">Active Projects</span>
+                            <span class="text-sm font-medium text-foreground">12</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-muted-foreground">Completion Rate</span>
+                            <Badge Variant="BadgeVariants.Success" Class="text-xs">92%</Badge>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="lg:col-span-1">
+            @* Options Component *@
+            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm h-full p-5 lg:p-7.5">
+                <h3 class="text-lg font-semibold mb-4">Options</h3>
+                <div class="grid md:grid-cols-1 gap-3">
+                    <div class="card border-border bg-card rounded-lg p-4 hover:bg-accent/50 cursor-pointer transition-colors">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="text-2xl">⚙️</span>
+                            <span class="font-medium text-foreground">General</span>
+                        </div>
+                    </div>
+                    <div class="card border-border bg-card rounded-lg p-4 hover:bg-accent/50 cursor-pointer transition-colors">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="text-2xl">👥</span>
+                            <span class="font-medium text-foreground">Permissions</span>
+                        </div>
+                    </div>
+                    <div class="card border-border bg-card rounded-lg p-4 hover:bg-accent/50 cursor-pointer transition-colors">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="text-2xl">📁</span>
+                            <span class="font-medium text-foreground">Projects</span>
+                        </div>
+                    </div>
+                    <div class="card border-border bg-card rounded-lg p-4 hover:bg-accent/50 cursor-pointer transition-colors">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="text-2xl">📊</span>
+                            <span class="font-medium text-foreground">Analytics</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
+        <div class="lg:col-span-2">
+            @* Teams Table (reuse from demo1) *@
+            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm h-full p-5 lg:p-7.5">
+                <h3 class="text-lg font-semibold mb-4">Teams</h3>
+                <p class="text-sm text-muted-foreground">Teams table placeholder - implement with DataGrid component</p>
+            </div>
+        </div>
+        <div class="lg:col-span-1">
+            @* FAQ Component *@
+            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm h-full p-5 lg:p-7.5">
+                <h3 class="text-lg font-semibold mb-4">Frequently Asked Questions</h3>
+                <div class="space-y-3">
+                    <details class="group">
+                        <summary class="flex items-center justify-between cursor-pointer text-sm font-medium text-foreground list-none">
+                            <span>How do I create a new team?</span>
+                            <span class="transform group-open:rotate-180 transition-transform">▼</span>
+                        </summary>
+                        <div class="mt-2 pl-4 text-sm text-muted-foreground">
+                            Go to the teams section in your dashboard and click the "Create Team" button. Follow the setup wizard to configure your team settings.
+                        </div>
+                    </details>
+                    <details class="group">
+                        <summary class="flex items-center justify-between cursor-pointer text-sm font-medium text-foreground list-none">
+                            <span>How do I invite members?</span>
+                            <span class="transform group-open:rotate-180 transition-transform">▼</span>
+                        </summary>
+                        <div class="mt-2 pl-4 text-sm text-muted-foreground">
+                            Navigate to your team settings and use the "Invite" button to send invitations to new members via email.
+                        </div>
+                    </details>
+                    <details class="group">
+                        <summary class="flex items-center justify-between cursor-pointer text-sm font-medium text-foreground list-none">
+                            <span>How do I manage permissions?</span>
+                            <span class="transform group-open:rotate-180 transition-transform">▼</span>
+                        </summary>
+                        <div class="mt-2 pl-4 text-sm text-muted-foreground">
+                            Use the Permissions section in team settings to configure what each team member can do.
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+}
