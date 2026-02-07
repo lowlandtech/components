@@ -1,13 +1,13 @@
 using Bunit;
 using LowlandTech.Components.Components.Input;
 
-namespace LowlandTech.Tests.SPEC1227.ComponentLibrary.US03.BasicFormComponents;
+namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US03.BasicFormComponents;
 
 /// <summary>
 /// Tests for Input component functionality.
 /// SC02 - Implement Input component
 /// </summary>
-[Trait(Spec.SPEC, "0027")]
+[Trait(Spec.SPEC, "1200")]
 [Trait(Spec.US, "03")]
 [Trait(Spec.SC, "02")]
 public class SC02_InputRenders : Scenario

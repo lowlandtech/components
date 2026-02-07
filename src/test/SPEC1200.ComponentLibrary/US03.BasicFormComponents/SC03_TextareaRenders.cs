@@ -1,13 +1,13 @@
 using Bunit;
 using LowlandTech.Components.Components.Textarea;
 
-namespace LowlandTech.Tests.SPEC1227.ComponentLibrary.US03.BasicFormComponents;
+namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US03.BasicFormComponents;
 
 /// <summary>
 /// Tests for Textarea component functionality.
 /// SC03 - Implement Textarea component
 /// </summary>
-[Trait(Spec.SPEC, "0027")]
+[Trait(Spec.SPEC, "1200")]
 [Trait(Spec.US, "03")]
 [Trait(Spec.SC, "03")]
 public class SC03_TextareaRenders : Scenario

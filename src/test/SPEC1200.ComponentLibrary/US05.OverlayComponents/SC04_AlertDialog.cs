@@ -8,13 +8,13 @@ using Moq;
 using Shouldly;
 using Xunit;
 
-namespace LowlandTech.Tests.SPEC1227.ComponentLibrary.US05.OverlayComponents;
+namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US05.OverlayComponents;
 
 /// <summary>
 /// Tests for AlertDialog component (SC04: AlertDialog Component)
 /// Covers UAC16-UAC20 from US05.OverlayComponents.feature
 /// </summary>
-[Trait(Spec.SPEC, "0027")]
+[Trait(Spec.SPEC, "1200")]
 [Trait(Spec.US, "05")]
 [Trait(Spec.SC, "04")]
 public class SC04_AlertDialog : IDisposable

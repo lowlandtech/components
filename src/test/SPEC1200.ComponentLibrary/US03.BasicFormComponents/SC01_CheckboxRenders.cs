@@ -3,13 +3,13 @@ using LowlandTech.Components.Components.Checkbox;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
-namespace LowlandTech.Tests.SPEC1227.ComponentLibrary.US03.BasicFormComponents;
+namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US03.BasicFormComponents;
 
 /// <summary>
 /// Tests for Checkbox component functionality.
 /// SC01 - Implement Checkbox component
 /// </summary>
-[Trait(Spec.SPEC, "0027")]
+[Trait(Spec.SPEC, "1200")]
 [Trait(Spec.US, "03")]
 [Trait(Spec.SC, "01")]
 public class SC01_CheckboxRenders : Scenario

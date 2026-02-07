@@ -1,0 +1,876 @@
+# Pluggables - Cursor AI Project Rules
+
+This file contains coding standards and guidelines for AI assistants working on this project.
+
+---
+
+## Project Overview
+
+**.NET 10 Plugin System** with Blazor Server UI, supporting hot-reloadable plugins with rich metadata and lifecycle management.
+
+**Tech Stack:** C# 10+, .NET 10, Blazor Server, Tailwind CSS v4, xUnit, Reqnroll (BDD), Playwright (E2E), bUnit (Component Tests)
+
+---
+
+## UI & Styling Guidelines
+
+### Framework & Architecture
+
+**Tailwind CSS v4** with **shadcn/ui-inspired** component system
+
+- **Dark theme only** - color-scheme: dark
+- **Custom CSS variables** in `src/Pluggable.Shell/wwwroot/css/variables.css`
+- **Component classes** in `src/Pluggable.Shell/wwwroot/css/input.css`
+- **Auto-compilation** via MSBuild (see `Pluggable.Shell.csproj`)
+
+### Color Palette
+
+Primary colors (CSS variables in `:root`):
+```css
+--background: #1a1a27       /* Main background */
+--foreground: #f4f5ff       /* Main text */
+--card: #1f1f2e             /* Card backgrounds */
+--primary: #7e6fff          /* Primary brand color (purple) */
+--secondary: #f66426        /* Secondary brand color (orange) */
+--muted: #2a2a3a            /* Muted backgrounds */
+--muted-foreground: #a0a3b8 /* Muted text */
+--destructive: #ff5252      /* Error/destructive actions */
+--border: #2f2a4f           /* Border color */
+--sidebar: #141420          /* Sidebar background */
+--sidebar-border: #241f3b   /* Sidebar borders */
+```
+
+Use semantic color classes, not raw values:
+```razor
+✅ CORRECT
+<div class="bg-background text-foreground">
+<button class="bg-primary text-primary-foreground">
+
+❌ INCORRECT
+<div class="bg-[#1a1a27] text-[#f4f5ff]">
+<button class="bg-purple-600 text-white">
+```
+
+### Component Classes
+
+All components use **pre-defined classes** from `input.css`. Never use inline Tailwind utilities for components that have a class.
+
+#### Buttons
+```razor
+<!-- Base button classes -->
+<button class="btn btn-default">Default</button>
+<button class="btn btn-destructive">Delete</button>
+<button class="btn btn-outline">Outline</button>
+<button class="btn btn-secondary">Secondary</button>
+<button class="btn btn-ghost">Ghost</button>
+<button class="btn btn-link">Link</button>
+
+<!-- Size modifiers -->
+<button class="btn btn-default btn-sm">Small</button>
+<button class="btn btn-default btn-lg">Large</button>
+<button class="btn btn-default btn-icon">🔍</button>
+
+<!-- ALWAYS combine btn with a variant, never use btn alone -->
+❌ <button class="btn">Bad</button>
+✅ <button class="btn btn-default">Good</button>
+```
+
+#### Cards
+```razor
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Title</h3>
+        <p class="card-description">Description</p>
+    </div>
+    <div class="card-content">
+        Content goes here
+    </div>
+    <div class="card-footer">
+        <button class="btn btn-default">Action</button>
+    </div>
+</div>
+```
+
+#### Inputs & Labels
+```razor
+<div>
+    <label class="label">Email</label>
+    <input type="email" class="input" placeholder="you@example.com" />
+</div>
+
+<select class="input">
+    <option>Option 1</option>
+</select>
+```
+
+#### Tables
+```razor
+<div class="table-wrapper">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Header</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Data</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+```
+
+#### Badges
+```razor
+<span class="badge badge-default">Default</span>
+<span class="badge badge-secondary">Secondary</span>
+<span class="badge badge-destructive">Error</span>
+<span class="badge badge-success">Success</span>
+<span class="badge badge-outline">Outline</span>
+```
+
+#### Separators
+```razor
+<div class="separator separator-horizontal"></div>
+<div class="separator separator-vertical"></div>
+```
+
+#### Stats (Dashboard)
+```razor
+<div class="stat-card">
+    <div class="stat-title">Total Plugins</div>
+    <div class="stat-value">24</div>
+    <div class="stat-description">
+        <span class="stat-trend-up">+12%</span> from last month
+    </div>
+</div>
+```
+
+### Layout Patterns
+
+#### Sidebar Navigation
+```razor
+<!-- Collapsible sidebar using CSS-only peer-checked pattern -->
+<input type="checkbox" id="sidebar-toggle" class="peer sr-only" />
+
+<aside class="sidebar fixed inset-y-0 left-0 z-50 flex h-full w-64 flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-200 ease-in-out peer-checked:w-14">
+    <nav class="flex-1 overflow-y-auto sidebar-scroll px-2 py-4">
+        <div class="space-y-1">
+            <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
+                <svg class="size-5 shrink-0">...</svg>
+                <span class="sidebar-text">Home</span>
+            </NavLink>
+        </div>
+    </nav>
+</aside>
+
+<!-- Main content area - MUST be sibling of checkbox -->
+<div class="min-h-screen ml-64 transition-[margin] duration-200 ease-in-out peer-checked:ml-14">
+    <main class="flex-1 p-6">
+        @Body
+    </main>
+</div>
+```
+
+**CRITICAL sidebar rules:**
+1. Checkbox MUST have `peer` class
+2. Sidebar MUST have `peer-checked:w-14` for collapsed width
+3. Main content MUST have `peer-checked:ml-14` for collapsed margin
+4. Both sidebar and main content MUST be direct siblings of the checkbox
+5. Use `sidebar-text` class for text that should hide when collapsed
+
+#### Page Layout
+```razor
+@page "/example"
+
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold tracking-tight">Page Title</h1>
+            <p class="text-muted-foreground">Page description</p>
+        </div>
+        <button class="btn btn-default">Action</button>
+    </div>
+
+    <!-- Content Cards -->
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div class="card">...</div>
+    </div>
+</div>
+```
+
+### Spacing & Typography
+
+**Consistent spacing scale:**
+- `gap-2` (0.5rem / 8px) - Tight spacing
+- `gap-4` (1rem / 16px) - Default spacing
+- `gap-6` (1.5rem / 24px) - Comfortable spacing
+- `space-y-6` - Vertical stacking with 1.5rem gap
+
+**Typography scale:**
+```razor
+<h1 class="text-3xl font-bold tracking-tight">Page Title</h1>
+<h2 class="text-2xl font-semibold">Section Title</h2>
+<h3 class="text-xl font-semibold">Card Title</h3>
+<p class="text-sm text-muted-foreground">Muted description</p>
+<span class="text-xs text-muted-foreground">Small text</span>
+```
+
+### Icons
+
+Use inline SVG with Lucide icon style (24x24 viewBox, 2px stroke):
+```razor
+<svg class="size-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
+    <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+</svg>
+```
+
+**Icon sizing:**
+- `size-4` (16px) - Small icons (breadcrumbs, badges)
+- `size-5` (20px) - Default icons (nav, buttons)
+- `size-6` (24px) - Large icons (headers)
+
+### State & Interaction
+
+**Hover states:** All interactive elements should have hover states
+```razor
+<button class="... hover:bg-primary/90">
+<div class="... hover:bg-muted/50">
+```
+
+**Focus states:** Use focus-visible for keyboard navigation
+```razor
+<button class="... focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+```
+
+**Active states:** NavLink uses `.active` class automatically
+```css
+.nav-link.active {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+}
+```
+
+**Transitions:** Use transition classes for smooth state changes
+```razor
+<div class="transition-colors">
+<aside class="transition-[width] duration-200">
+```
+
+### Responsive Design
+
+**Mobile-first approach:**
+```razor
+<!-- Stack on mobile, grid on tablet+ -->
+<div class="flex flex-col md:grid md:grid-cols-2 lg:grid-cols-3">
+
+<!-- Hide on mobile, show on desktop -->
+<span class="hidden md:inline">Desktop only</span>
+
+<!-- Responsive padding -->
+<div class="p-4 md:p-6">
+```
+
+**Breakpoints:**
+- `sm:` - 640px
+- `md:` - 768px
+- `lg:` - 1024px
+- `xl:` - 1280px
+
+### Component Guidelines
+
+1. **Always use component classes** instead of rebuilding with utilities
+   - ✅ `class="btn btn-default"`
+   - ❌ `class="inline-flex items-center justify-center rounded-md bg-primary..."`
+
+2. **Maintain dark theme consistency** - never use light colors
+   - ✅ `bg-card text-card-foreground`
+   - ❌ `bg-white text-black`
+
+3. **Use semantic color variables** - never hardcode colors
+   - ✅ `bg-primary text-primary-foreground`
+   - ❌ `bg-[#7e6fff] text-white`
+
+4. **Follow spacing scale** - use gap-2/4/6, not arbitrary values
+   - ✅ `gap-4 p-6`
+   - ❌ `gap-[13px] p-[22px]`
+
+5. **Prefer flexbox/grid** over float or absolute positioning
+   - ✅ `flex items-center justify-between`
+   - ❌ `float-right`
+
+6. **Use transitions** for state changes
+   - ✅ `transition-colors hover:bg-accent`
+   - ❌ Just `hover:bg-accent` with no transition
+
+---
+
+## C# & Blazor Guidelines
+
+### Naming Conventions
+
+**Interfaces:** PascalCase with `I` prefix
+```csharp
+IPlugin, IPluginManager, IPluginDiscovery
+```
+
+**Classes:** PascalCase
+```csharp
+PluginManager, HelloWorldPlugin, PluginService
+```
+
+**Private fields:** camelCase with `_` prefix
+```csharp
+private readonly IPluginDiscovery _discovery;
+private readonly ConcurrentDictionary<string, LoadedPlugin> _loadedPlugins;
+private bool _disposed;
+```
+
+**Methods:** PascalCase, async methods end with `Async`
+```csharp
+Task InitializeAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default);
+Task<IPlugin?> GetPluginAsync(string pluginId, CancellationToken cancellationToken = default);
+```
+
+### Type Usage
+
+**Nullable Reference Types:** MANDATORY (enabled globally)
+```csharp
+✅ CORRECT
+public string? Name { get; set; }
+IPlugin? plugin = await GetPluginAsync(id);
+event EventHandler<PluginEventArgs>? PluginLoaded;
+
+❌ INCORRECT
+public string Name { get; set; }
+```
+
+**Prefer `var` for obvious types:**
+```csharp
+var manager = new PluginManager();
+var plugins = new ConcurrentDictionary<string, IPlugin>();
+```
+
+**Explicit types for clarity:**
+```csharp
+IPlugin plugin = factory.CreateInstance();
+CancellationToken cancellationToken = default;
+```
+
+### Async/Await Patterns
+
+**CRITICAL: ALL methods in execution path MUST be async Task**
+
+```csharp
+✅ CORRECT
+[Fact]
+public async Task LoadPlugin_ShouldSucceed() { }
+
+private async Task SetupTestDataAsync() { }
+protected override async Task OnInitializedAsync() { }
+private async Task OnClickAsync() { }
+```
+
+```csharp
+❌ FORBIDDEN - These cause test hangs
+[Fact]
+public void MyTest() { }                    // Sync test
+private void Setup() { }                    // Sync helper
+private async void OnStateChanged() { }     // async void
+```
+
+**Default CancellationToken pattern:**
+```csharp
+Task ExecuteAsync(CancellationToken cancellationToken = default);
+```
+
+**Await everything, no blocking calls:**
+```csharp
+✅ CORRECT
+await plugin.InitializeAsync(serviceProvider, cancellationToken);
+
+❌ INCORRECT
+plugin.InitializeAsync(serviceProvider, cancellationToken).Wait();
+plugin.InitializeAsync(serviceProvider, cancellationToken).GetAwaiter().GetResult();
+```
+
+### Blazor Component Patterns
+
+**Component structure:**
+```razor
+@page "/example"
+@inject IPluginManager PluginManager
+
+<div class="space-y-6">
+    <!-- Markup -->
+</div>
+
+@code {
+    private List<IPlugin>? _plugins;
+    private bool _loading = true;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPluginsAsync();
+    }
+    
+    private async Task LoadPluginsAsync()
+    {
+        _loading = true;
+        try
+        {
+            _plugins = await PluginManager.GetAllPluginsAsync();
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}
+```
+
+**Event handlers:**
+```razor
+<!-- Always async -->
+<button class="btn btn-default" @onclick="HandleClickAsync">Click</button>
+
+@code {
+    private async Task HandleClickAsync()
+    {
+        await DoSomethingAsync();
+        StateHasChanged();
+    }
+}
+```
+
+### Dependency Injection
+
+**Constructor injection (preferred):**
+```csharp
+public class PluginManager : IPluginManager
+{
+    private readonly IPluginDiscovery _discovery;
+    private readonly IServiceProvider _serviceProvider;
+
+    public PluginManager(IServiceProvider? serviceProvider = null)
+    {
+        _serviceProvider = serviceProvider ?? new DefaultServiceProvider();
+        _discovery = new PluginDiscovery();
+    }
+}
+```
+
+**Service registration:**
+```csharp
+builder.Services.AddSingleton<IPluginManager, PluginManager>();
+builder.Services.AddScoped<PluginService>();
+```
+
+---
+
+## Testing Standards
+
+### Philosophy: Specification by Example / Living Documentation
+
+Tests serve as executable specifications. Every test traces back to a **Specification > User Story > Scenario > User Acceptance Criterion (UAC)**. Feature files provide human-readable documentation; test classes provide executable verification.
+
+### Traceability Constants
+
+The `Spec` static class defines trait keys for xUnit filtering:
+
+```csharp
+public static class Spec
+{
+    public const string SPEC = "SPEC";
+    public const string US = "US";
+    public const string SC = "SC";
+    public const string UAC = "UAC";
+}
+```
+
+Every test is uniquely identified by a 4-level hierarchy:
+
+```
+SPEC0623.US01.SC01.UAC01
+|        |    |    +-- User Acceptance Criterion ID
+|        |    +------- Scenario ID
+|        +------------ User Story ID
++---------------------- Specification ID
+```
+
+### Folder Structure
+
+```
+src/test/
++-- Scenario.cs                          # Base class for all scenarios
++-- FakeContextFactory.cs                # In-memory DB factory (if needed)
++-- GlobalUsings.cs                      # Global using statements
+|
++-- SPEC0623.PluginGenerator/            # Specification folder
+|   +-- US01.CommandParsing/             # User Story folder
+|   |   +-- US01.CommandParsing.feature  # Gherkin spec (living docs)
+|   |   +-- SC01_ParseValidName.cs       # Scenario test class
+|   |   +-- SC02_ParseInvalidName.cs
+|   |   +-- SC03_ParseShellCommands.cs
+|   |
+|   +-- US02.PluginTemplateGeneration/
+|   |   +-- US02.PluginTemplateGeneration.feature
+|   |   +-- SC01_GeneratePluginCs.cs
+|   |   +-- SC02_GenerateProjectFiles.cs
+|   |   +-- SC03_GenerateSolutionFile.cs
+|   |
+|   +-- US03.PipelineExecution/
+|   +-- US04.OutputValidation/
+```
+
+**Naming conventions:**
+- Spec folders: `SPECXXXX.ComponentName/`
+- User Story folders: `USXX.StoryName/`
+- Feature files: `USXX.StoryName.feature`
+- Scenario classes: `SCXX_ScenarioName.cs`
+
+### Feature File Pattern (Gherkin)
+
+```gherkin
+@US01
+Feature: US01 - Command Parsing
+
+    @SC01
+    Scenario: Parse valid plugin name with dot separator
+        Given the command parser is initialized
+        When I parse the input "MyOrg.MyPlugin"
+        #UAC01
+        Then the organization name should be "MyOrg"
+        #UAC02
+        And the plugin name should be "MyPlugin"
+
+    @SC02
+    Scenario: Parse invalid name without dot separator
+        Given the command parser is initialized
+        When I parse the input "InvalidName"
+        #UAC03
+        Then a validation exception should be thrown
+        #UAC04
+        And the error message should indicate the format is invalid
+```
+
+**UAC tagging rules (CRITICAL):**
+1. `#UAC` tags go **immediately before** `Then` or `And` lines (assertions only)
+2. **Never** place `#UAC` on `Given` or `When` lines (those are setup/action, not assertions)
+3. Each assertion (`Then`/`And`) gets its own sequential UAC number
+4. UAC numbering is **sequential across ALL scenarios** within a User Story
+5. Never skip or duplicate UAC numbers within a User Story
+
+### Base Scenario Class
+
+All test scenarios extend a base class implementing `IAsyncLifetime`:
+
+```csharp
+public abstract class Scenario : IAsyncLifetime
+{
+    protected HttpClient Client = null!;
+
+    public async ValueTask InitializeAsync()
+    {
+        // Setup HttpClient, DI, test infrastructure
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        // Teardown
+    }
+
+    protected virtual Task GivenAsync() => Task.CompletedTask;
+    protected virtual Task WhenAsync() => Task.CompletedTask;
+
+    protected async Task ArrangeAndActAsync()
+    {
+        await GivenAsync();
+        await WhenAsync();
+    }
+}
+```
+
+### Test Class Pattern
+
+```csharp
+namespace LowlandTech.Factory.Tests.SPEC0623.PluginGenerator.US01.CommandParsing;
+
+[Trait(Spec.SPEC, "0623")]
+[Trait(Spec.US, "01")]
+[Trait(Spec.SC, "01")]
+public class SC01_ParseValidName : Scenario
+{
+    private PluginNameResult? _result;
+
+    protected override Task GivenAsync()
+    {
+        // Setup - matches "Given" in feature file
+        return Task.CompletedTask;
+    }
+
+    protected override async Task WhenAsync()
+    {
+        // Action - matches "When" in feature file
+        var parser = new PluginNameParser();
+        var attempt = parser.TryParse("MyOrg.MyPlugin");
+        if (attempt.IsValid)
+            _result = attempt.Value;
+    }
+
+    [Fact(DisplayName = "Then the organization name should be \"MyOrg\"")]
+    [Trait(Spec.UAC, "01")]
+    public async Task UAC01_OrganizationShouldBeMyOrg()
+    {
+        await ArrangeAndActAsync();
+        _result.ShouldNotBeNull();
+        _result!.Org.ShouldBe("MyOrg");
+    }
+
+    [Fact(DisplayName = "And the plugin name should be \"MyPlugin\"")]
+    [Trait(Spec.UAC, "02")]
+    public async Task UAC02_PluginNameShouldBeMyPlugin()
+    {
+        await ArrangeAndActAsync();
+        _result.ShouldNotBeNull();
+        _result!.Plugin.ShouldBe("MyPlugin");
+    }
+}
+```
+
+**Mandatory rules:**
+- **Class-level traits**: `SPEC`, `US`, `SC` — applied once per scenario class
+- **Method-level traits**: `UAC` — applied per `[Fact]` method
+- **DisplayName**: Must match the Gherkin `Then`/`And` statement **exactly**
+- **Method name**: Always `UACXX_DescriptiveName`
+- **One assertion per test**: Every `Then`/`And` = one `[Fact]`
+- **All async Task**: Every test method MUST be `async Task`
+- **Shouldly assertions**: Use `ShouldBe`, `ShouldNotBeNull`, `ShouldContain` (not FluentAssertions)
+
+### Test Filtering
+
+```bash
+# Run all tests for a specification
+dotnet test --filter "SPEC=0623"
+
+# Run all tests for a User Story
+dotnet test --filter "SPEC=0623&US=01"
+
+# Run a specific scenario (all its UACs)
+dotnet test --filter "SPEC=0623&US=01&SC=01"
+
+# Run a specific acceptance criterion
+dotnet test --filter "SPEC=0623&US=01&SC=01&UAC=01"
+```
+
+### Common Pitfalls
+
+| Mistake | Why It's Wrong | Fix |
+|---------|----------------|-----|
+| UAC tag before `When` | Marks action, not assertion | Move after `When`, before `Then` |
+| Missing UAC on `And` | Can't trace individual assertions | Add `#UAC` to every `And` |
+| Duplicate SC tags | Multiple scenarios with same ID | Use unique SC01, SC02, SC03... |
+| Missing SPEC trait | Can't filter by specification | Always add all 4 traits |
+| Sync test methods | Causes test hangs | Make all tests `async Task` |
+| Skipping scenarios | Incomplete test coverage | Implement all or defer entire US |
+| Using FluentAssertions | Wrong assertion library | Use Shouldly (`ShouldBe`, not `Should().Be()`) |
+| Multiple assertions per Fact | Violates one-assertion-per-test | Split into separate UAC methods |
+
+### Theory for Scenario Outlines
+
+When a scenario has multiple data variations, use `[Theory]` with `[InlineData]`:
+
+```csharp
+[Theory]
+[InlineData("MyOrg.MyPlugin", "MyOrg", "MyPlugin")]
+[InlineData("acme.product", "acme", "product")]
+[InlineData("company.module-name", "company", "module-name")]
+[Trait(Spec.UAC, "01")]
+public async Task UAC01_ShouldParseOrgAndPlugin(string input, string expectedOrg, string expectedPlugin)
+{
+    // ...
+}
+```
+
+### bUnit Component Tests
+
+```csharp
+using Bunit;
+using Xunit;
+
+public class MyComponentTests : BunitContext
+{
+    [Fact]
+    public void Component_RendersCorrectly()
+    {
+        Services.AddSingleton<IMyService, MockMyService>();
+        var cut = Render<MyComponent>();
+        var element = cut.Find(".expected-class");
+        Assert.NotNull(element);
+    }
+}
+```
+
+**Key bUnit selectors for our components:**
+- Buttons: `.btn.btn-default`, `.btn.btn-destructive`
+- Cards: `.card`, `.card-header`, `.card-content`
+- Nav links: `.nav-link`, `.nav-link.active`
+- Sidebar: `.sidebar`, `.sidebar-text`
+
+### E2E Tests (Playwright + Reqnroll)
+
+```gherkin
+@baget @marketplace
+Feature: BaGet Marketplace Integration
+
+Scenario: Marketplace shows packages from BaGet feed
+    Given BaGet server is running at "http://localhost:5000"
+    When I navigate to the Marketplace page
+    Then I should see "TestPlugin.Backend" in the package list
+```
+
+**Use `@ignore` tag for WIP features:**
+```gherkin
+@ignore @wip
+Feature: Plugin Configuration
+  # This feature is not yet implemented
+```
+
+---
+
+## Build & Commands
+
+### Building
+```bash
+dotnet build                              # Build entire solution
+dotnet build -c Release                   # Release build
+```
+
+### Running
+```bash
+cd src/Pluggable.Shell
+dotnet run --urls http://localhost:5000
+```
+
+### Testing
+
+**All tests:**
+```bash
+dotnet test
+```
+
+**Filter by spec/story/scenario/UAC:**
+```bash
+dotnet test --filter "SPEC=0623"
+dotnet test --filter "SPEC=0623&US=01"
+dotnet test --filter "SPEC=0623&US=01&SC=01"
+dotnet test --filter "SPEC=0623&US=01&SC=01&UAC=01"
+```
+
+**Single test by name:**
+```bash
+dotnet test --filter "FullyQualifiedName=Namespace.ClassName.TestMethodName"
+```
+
+**bUnit tests only:**
+```bash
+dotnet test test/Pluggable.Shell.Tests
+```
+
+**E2E tests only:**
+```bash
+dotnet test test/Pluggable.E2E.Tests
+```
+
+**Exclude E2E tests:**
+```bash
+dotnet test --filter "FullyQualifiedName!~E2E"
+```
+
+### Tailwind CSS
+
+**Build CSS (automatic via MSBuild):**
+```bash
+cd src/Pluggable.Shell/wwwroot
+npm run build:css
+```
+
+**Watch mode (development):**
+```bash
+cd src/Pluggable.Shell/wwwroot
+npm run watch:css
+```
+
+---
+
+## File References
+
+When referencing code locations, use: `file_path:line_number`
+
+Example: "The plugin is loaded in `src/Pluggable.Core/PluginManager.cs:101`"
+
+---
+
+## Key Documentation
+
+- **Agent Loop Protocol:** `docs/AGENT_LOOP.md` (work continuity pattern)
+- **Agent Guidelines:** `AGENTS.md` (comprehensive coding standards)
+- **Unit Testing:** `docs/UNITEST.README.md`
+- **E2E Testing:** `docs/E2E.README.md`
+- **Main README:** `README.md`
+- **User Stories:** `docs/UserStories.md`
+- **Active Specs:** `issues/SPECXXXX/` (work items with context/todos/progress)
+- **Plugin Integration Plan:** `factory-plugin-integration-plan.md`
+- **Plugin Generator Test Plan:** `factory-plugin-generator-test-plan.md`
+
+---
+
+## Common Patterns
+
+### Plugin Lifecycle
+```
+Discovery -> Load -> Initialize -> Execute -> Shutdown -> Unload
+```
+
+### Event-Driven Architecture
+```csharp
+public event EventHandler<PluginEventArgs>? PluginLoaded;
+public event EventHandler<PluginEventArgs>? PluginUnloaded;
+public event EventHandler<PluginErrorEventArgs>? PluginError;
+```
+
+### IDisposable Pattern
+```csharp
+public void Dispose()
+{
+    if (_disposed) return;
+
+    // Cleanup logic
+
+    _semaphore.Dispose();
+    _disposed = true;
+}
+```
+
+---
+
+## Important Notes
+
+1. **Always use component classes** - Don't rebuild buttons/cards with raw Tailwind utilities
+2. **Dark theme only** - Never add light theme styles
+3. **All async, all the time** - Tests and event handlers MUST be async Task
+4. **Nullable everything** - All reference types must have nullability annotations
+5. **Semantic colors** - Use CSS variables, never hardcode colors
+6. **Collapsible sidebar** - Use peer-checked pattern, not JavaScript
+7. **bUnit for component tests** - Test UI components with bUnit, not Playwright
+8. **@ignore for WIP** - Tag incomplete E2E scenarios with `@ignore`
+9. **Follow Agent Loop** - Always check `issues/SPECXXXX/` for work, update todos.md and progress.md
+10. **Memory Handoff** - Before context compaction, update all three spec files (context, todos, progress)
+11. **Spec tracing** - Every test MUST have `[Trait(Spec.SPEC/US/SC/UAC)]` for full traceability
+12. **Feature files** - Every User Story MUST have a `.feature` file with `#UAC` tags on assertions
+13. **One assertion per test** - Every `Then`/`And` = one `[Fact]` with a UAC trait
+14. **Shouldly** - Use Shouldly for assertions (`ShouldBe`, `ShouldNotBeNull`), not FluentAssertions
+15. **Commit after task completion** - After completing a task/issue, commit with a semantic message and reference the issue number (e.g., `feat(component): add feature X (#33)`)

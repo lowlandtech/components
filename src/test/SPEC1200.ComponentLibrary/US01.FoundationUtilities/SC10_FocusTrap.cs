@@ -2,7 +2,7 @@ using LowlandTech.Components.Utilities;
 using Microsoft.JSInterop;
 using Moq;
 
-namespace LowlandTech.Cli.Tests.SPEC1227.ComponentLibrary.US01.FoundationUtilities;
+namespace LowlandTech.Cli.Tests.SPEC1200.ComponentLibrary.US01.FoundationUtilities;
 
 /// <summary>
 /// Tests for FocusTrap utility
@@ -10,7 +10,7 @@ namespace LowlandTech.Cli.Tests.SPEC1227.ComponentLibrary.US01.FoundationUtiliti
 /// Scenario: SC10 - Implement focus trap utility
 /// UACs: UAC45-UAC50
 /// </summary>
-[Trait(Spec.SPEC, "0027")]
+[Trait(Spec.SPEC, "1200")]
 [Trait(Spec.US, "01")]
 [Trait(Spec.SC, "10")]
 public class SC10_FocusTrap

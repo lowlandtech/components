@@ -1,7 +1,7 @@
 using LowlandTech.Components.Utilities;
 using Microsoft.AspNetCore.Components;
 
-namespace LowlandTech.Cli.Tests.SPEC1227.ComponentLibrary.US01.FoundationUtilities;
+namespace LowlandTech.Cli.Tests.SPEC1200.ComponentLibrary.US01.FoundationUtilities;
 
 /// <summary>
 /// Tests for ComponentBase extension methods
@@ -9,7 +9,7 @@ namespace LowlandTech.Cli.Tests.SPEC1227.ComponentLibrary.US01.FoundationUtiliti
 /// Scenario: SC09 - Create ComponentBase extensions
 /// UACs: UAC42-UAC44
 /// </summary>
-[Trait(Spec.SPEC, "0027")]
+[Trait(Spec.SPEC, "1200")]
 [Trait(Spec.US, "01")]
 [Trait(Spec.SC, "09")]
 public class SC09_ComponentBaseExtensions

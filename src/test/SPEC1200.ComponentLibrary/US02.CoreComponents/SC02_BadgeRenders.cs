@@ -1,20 +1,21 @@
 using Bunit;
-using LowlandTech.Components.Badge;
 using Shouldly;
+using BadgeComponent = LowlandTech.Components.Badge.Badge;
+using LowlandTech.Components.Badge;
 
-namespace LowlandTech.Tests.SPEC1227.ComponentLibrary.US02.CoreComponents;
+namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US02.CoreComponents;
 
 /// <summary>
 /// Tests for Badge component rendering and variants.
 /// SC02 - Implement Badge component
 /// </summary>
-[Trait(Spec.SPEC, "0027")]
+[Trait(Spec.SPEC, "1200")]
 [Trait(Spec.US, "02")]
 [Trait(Spec.SC, "02")]
 public class SC02_BadgeRenders : Scenario
 {
     private TestContext _ctx = null!;
-    private IRenderedComponent<Badge>? _badge;
+    private IRenderedComponent<BadgeComponent>? _badge;
 
     protected override Task GivenAsync()
     {
@@ -24,7 +25,7 @@ public class SC02_BadgeRenders : Scenario
 
     protected override Task WhenAsync()
     {
-        _badge = _ctx.Render<Badge>(parameters => parameters
+        _badge = _ctx.Render<BadgeComponent>(parameters => parameters
             .Add(p => p.ChildContent, "Badge")
         );
         return Task.CompletedTask;
@@ -54,7 +55,7 @@ public class SC02_BadgeRenders : Scenario
     {
         _ctx = new TestContext();
 
-        _badge = _ctx.Render<Badge>(parameters => parameters
+        _badge = _ctx.Render<BadgeComponent>(parameters => parameters
             .Add(p => p.ChildContent, "Default")
         );
         _badge.ShouldNotBeNull();
@@ -71,31 +72,31 @@ public class SC02_BadgeRenders : Scenario
     {
         _ctx = new TestContext();
 
-        _badge = _ctx.Render<Badge>(parameters => parameters
+        _badge = _ctx.Render<BadgeComponent>(parameters => parameters
             .Add(p => p.Variant, BadgeVariants.Default)
             .Add(p => p.ChildContent, "Default")
         );
         _badge!.Find("span").ClassList.ShouldContain("badge-default");
 
-        _badge = _ctx.Render<Badge>(parameters => parameters
+        _badge = _ctx.Render<BadgeComponent>(parameters => parameters
             .Add(p => p.Variant, BadgeVariants.Secondary)
             .Add(p => p.ChildContent, "Secondary")
         );
         _badge!.Find("span").ClassList.ShouldContain("badge-secondary");
 
-        _badge = _ctx.Render<Badge>(parameters => parameters
+        _badge = _ctx.Render<BadgeComponent>(parameters => parameters
             .Add(p => p.Variant, BadgeVariants.Destructive)
             .Add(p => p.ChildContent, "Destructive")
         );
         _badge!.Find("span").ClassList.ShouldContain("badge-destructive");
 
-        _badge = _ctx.Render<Badge>(parameters => parameters
+        _badge = _ctx.Render<BadgeComponent>(parameters => parameters
             .Add(p => p.Variant, BadgeVariants.Success)
             .Add(p => p.ChildContent, "Success")
         );
         _badge!.Find("span").ClassList.ShouldContain("badge-success");
 
-        _badge = _ctx.Render<Badge>(parameters => parameters
+        _badge = _ctx.Render<BadgeComponent>(parameters => parameters
             .Add(p => p.Variant, BadgeVariants.Outline)
             .Add(p => p.ChildContent, "Outline")
         );
@@ -108,7 +109,7 @@ public class SC02_BadgeRenders : Scenario
     {
         _ctx = new TestContext();
 
-        _badge = _ctx.Render<Badge>(parameters => parameters
+        _badge = _ctx.Render<BadgeComponent>(parameters => parameters
             .Add(p => p.Class, "custom-class")
             .Add(p => p.Variant, BadgeVariants.Default)
             .Add(p => p.ChildContent, "Custom")

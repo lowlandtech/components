@@ -1,4 +1,4 @@
-# SPEC1227 - shadcn/ui Component Library for Blazor
+# SPEC1200 - shadcn/ui Component Library for Blazor
 
 ## Overview
 
@@ -242,7 +242,7 @@ All components are tested using:
 - **Shouldly** - Assertion library
 - **Moq** - Mocking framework (for JSInterop)
 
-Test files are located in `src/test/SPEC1227.ComponentLibrary/` alongside feature files.
+Test files are located in `src/test/SPEC1200.ComponentLibrary/` alongside feature files.
 
 ## Build Process
 

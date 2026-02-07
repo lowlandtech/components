@@ -2,9 +2,9 @@ using Bunit;
 using LowlandTech.Components.Components.Accordion;
 using Microsoft.AspNetCore.Components;
 
-namespace LowlandTech.Tests.SPEC1227.ComponentLibrary.US06.NavigationComponents;
+namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US06.NavigationComponents;
 
-[Trait(Spec.SPEC, "0027")]
+[Trait(Spec.SPEC, "1200")]
 [Trait(Spec.US, "06")]
 [Trait(Spec.SC, "02")]
 public class SC02_Accordion : Scenario

@@ -2,9 +2,9 @@ using Bunit;
 using LowlandTech.Components.Components.Skeleton;
 using Shouldly;
 
-namespace LowlandTech.Tests.SPEC1227.ComponentLibrary.US10.MudComponents;
+namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US10.MudComponents;
 
-[Trait(Spec.SPEC, "0027")]
+[Trait(Spec.SPEC, "1200")]
 [Trait(Spec.US, "10")]
 [Trait(Spec.SC, "05")]
 public class SC05_SkeletonRenders : Scenario

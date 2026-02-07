@@ -1,13 +1,13 @@
 using Bunit;
 using LowlandTech.Components.Components.Button;
 
-namespace LowlandTech.Tests.SPEC1227.ComponentLibrary.US02.CoreComponents;
+namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US02.CoreComponents;
 
 /// <summary>
 /// Tests for Button component rendering and base functionality.
 /// SC01 - Implement Button component
 /// </summary>
-[Trait(Spec.SPEC, "0027")]
+[Trait(Spec.SPEC, "1200")]
 [Trait(Spec.US, "02")]
 [Trait(Spec.SC, "01")]
 public class SC01_ButtonRenders : Scenario

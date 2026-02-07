@@ -2,13 +2,13 @@ using Bunit;
 using LowlandTech.Components.Components.Table;
 using Microsoft.AspNetCore.Components;
 
-namespace LowlandTech.Tests.SPEC1227.ComponentLibrary.US07.LayoutComponents;
+namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US07.LayoutComponents;
 
 /// <summary>
 /// Tests for Table component functionality.
 /// SC01 - Implement Table components
 /// </summary>
-[Trait(Spec.SPEC, "0027")]
+[Trait(Spec.SPEC, "1200")]
 [Trait(Spec.US, "07")]
 [Trait(Spec.SC, "01")]
 public class SC01_TableRenders : Scenario

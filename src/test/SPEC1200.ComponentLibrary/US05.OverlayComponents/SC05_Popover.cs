@@ -8,13 +8,13 @@ using Moq;
 using Shouldly;
 using Xunit;
 
-namespace LowlandTech.Tests.SPEC1227.ComponentLibrary.US05.OverlayComponents;
+namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US05.OverlayComponents;
 
 /// <summary>
 /// Tests for Popover component (SC05: Popover Component)
 /// Covers UAC21-UAC25 from US05.OverlayComponents.feature
 /// </summary>
-[Trait(Spec.SPEC, "0027")]
+[Trait(Spec.SPEC, "1200")]
 [Trait(Spec.US, "05")]
 [Trait(Spec.SC, "05")]
 public class SC05_Popover : IDisposable

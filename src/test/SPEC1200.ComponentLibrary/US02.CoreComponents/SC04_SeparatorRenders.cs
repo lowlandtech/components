@@ -1,20 +1,21 @@
 using Bunit;
-using LowlandTech.Components.Separator;
 using Shouldly;
+using SeparatorComponent = LowlandTech.Components.Separator.Separator;
+using LowlandTech.Components.Separator;
 
-namespace LowlandTech.Tests.SPEC1227.ComponentLibrary.US02.CoreComponents;
+namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US02.CoreComponents;
 
 /// <summary>
 /// Tests for Separator component rendering and orientation.
 /// SC04 - Implement Separator component
-/// </summary>
+/// </summarSPEC, "12
 [Trait(Spec.SPEC, "0027")]
 [Trait(Spec.US, "02")]
 [Trait(Spec.SC, "04")]
 public class SC04_SeparatorRenders : Scenario
 {
     private TestContext _ctx = null!;
-    private IRenderedComponent<Separator>? _separator;
+    private IRenderedComponent<SeparatorComponent>? _separator;
 
     protected override Task GivenAsync()
     {
@@ -24,7 +25,7 @@ public class SC04_SeparatorRenders : Scenario
 
     protected override Task WhenAsync()
     {
-        _separator = _ctx.Render<Separator>();
+        _separator = _ctx.Render<SeparatorComponent>();
         return Task.CompletedTask;
     }
 
@@ -40,7 +41,7 @@ public class SC04_SeparatorRenders : Scenario
     {
         _ctx = new TestContext();
 
-        _separator = _ctx.Render<Separator>();
+        _separator = _ctx.Render<SeparatorComponent>();
         _separator.ShouldNotBeNull();
 
         var div = _separator!.Find("div");
@@ -53,7 +54,7 @@ public class SC04_SeparatorRenders : Scenario
     {
         _ctx = new TestContext();
 
-        _separator = _ctx.Render<Separator>();
+        _separator = _ctx.Render<SeparatorComponent>();
         _separator.ShouldNotBeNull();
 
         var div = _separator!.Find("div");
@@ -66,12 +67,12 @@ public class SC04_SeparatorRenders : Scenario
     {
         _ctx = new TestContext();
 
-        var horizontal = _ctx.Render<Separator>(parameters => parameters
+        var horizontal = _ctx.Render<SeparatorComponent>(parameters => parameters
             .Add(p => p.Orientation, SeparatorOrientation.Horizontal)
         );
         horizontal!.Find("div").ClassList.ShouldContain("separator-horizontal");
 
-        _separator = _ctx.Render<Separator>(parameters => parameters
+        _separator = _ctx.Render<SeparatorComponent>(parameters => parameters
             .Add(p => p.Orientation, SeparatorOrientation.Vertical)
         );
         _separator!.Find("div").ClassList.ShouldContain("separator-vertical");
@@ -83,7 +84,7 @@ public class SC04_SeparatorRenders : Scenario
     {
         _ctx = new TestContext();
 
-        _separator = _ctx.Render<Separator>();
+        _separator = _ctx.Render<SeparatorComponent>();
         _separator.ShouldNotBeNull();
 
         var ariaAttr = _separator!.Find("div").GetAttribute("aria-hidden");
@@ -96,7 +97,7 @@ public class SC04_SeparatorRenders : Scenario
     {
         _ctx = new TestContext();
 
-        _separator = _ctx.Render<Separator>(parameters => parameters
+        _separator = _ctx.Render<SeparatorComponent>(parameters => parameters
             .Add(p => p.Class, "custom-class")
         );
         _separator.ShouldNotBeNull();

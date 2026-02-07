@@ -9,9 +9,6 @@ namespace LowlandTech.Components.Components.Stepper;
 /// </summary>
 public partial class Step : ComponentBase
 {
-    private int _stepIndex;
-    private static int _nextStepId = 0;
-
     [CascadingParameter]
     private Stepper? ParentStepper { get; set; }
 
@@ -53,7 +50,7 @@ public partial class Step : ComponentBase
 
     protected override void OnInitialized()
     {
-        _stepIndex = _nextStepId++;
+        ParentStepper?.RegisterStep(this);
     }
 
     private string GetClasses()
@@ -63,7 +60,8 @@ public partial class Step : ComponentBase
         if (ParentStepper != null)
         {
             var currentIndex = ParentStepper.GetCurrentIndex();
-            if (_stepIndex == currentIndex)
+            var stepIndex = ParentStepper.GetStepIndex(this);
+            if (stepIndex == currentIndex)
                 classes.Add("step-active");
         }
 

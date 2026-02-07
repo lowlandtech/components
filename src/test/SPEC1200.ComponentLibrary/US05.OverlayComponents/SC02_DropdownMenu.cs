@@ -8,13 +8,13 @@ using Moq;
 using Shouldly;
 using Xunit;
 
-namespace LowlandTech.Tests.SPEC1227.ComponentLibrary.US05.OverlayComponents;
+namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US05.OverlayComponents;
 
 /// <summary>
 /// Tests for DropdownMenu component (SC02: DropdownMenu Component)
 /// Covers UAC07-UAC11 from US05.OverlayComponents.feature
 /// </summary>
-[Trait(Spec.SPEC, "0027")]
+[Trait(Spec.SPEC, "1200")]
 [Trait(Spec.US, "05")]
 [Trait(Spec.SC, "02")]
 public class SC02_DropdownMenu : IDisposable

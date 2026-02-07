@@ -58,6 +58,7 @@ public partial class Stepper : ComponentBase
     public bool NonLinear { get; set; }
 
     private int _currentIndex;
+    private readonly List<Step> _steps = new();
 
     protected override void OnInitialized()
     {
@@ -65,6 +66,19 @@ public partial class Stepper : ComponentBase
     }
 
     public int GetCurrentIndex() => _currentIndex;
+
+    public void RegisterStep(Step step)
+    {
+        if (!_steps.Contains(step))
+        {
+            _steps.Add(step);
+        }
+    }
+
+    public int GetStepIndex(Step step)
+    {
+        return _steps.IndexOf(step);
+    }
 
     public async Task SetActiveIndexAsync(int index)
     {

@@ -1,4 +1,4 @@
-namespace LowlandTech.Tests;
+namespace LowlandTech.Components.Tests;
 
 public static class Spec
 {

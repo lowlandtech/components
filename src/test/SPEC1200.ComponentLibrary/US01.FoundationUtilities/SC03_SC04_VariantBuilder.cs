@@ -1,12 +1,12 @@
 using LowlandTech.Components.Utilities;
 
-namespace LowlandTech.Tests.SPEC1227.ComponentLibrary.US01.FoundationUtilities;
+namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US01.FoundationUtilities;
 
 /// <summary>
 /// Tests for VariantBuilder (class-variance-authority port)
 /// Covers SC03-SC04 from US01.FoundationUtilities.feature
 /// </summary>
-[Trait(Spec.SPEC, "0027")]
+[Trait(Spec.SPEC, "1200")]
 [Trait(Spec.US, "01")]
 [Trait(Spec.SC, "03")]
 public class SC03_SC04_VariantBuilder

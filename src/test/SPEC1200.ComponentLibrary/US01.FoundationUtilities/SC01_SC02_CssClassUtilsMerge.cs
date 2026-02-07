@@ -1,12 +1,12 @@
 using LowlandTech.Components.Utilities;
 
-namespace LowlandTech.Tests.SPEC1227.ComponentLibrary.US01.FoundationUtilities;
+namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US01.FoundationUtilities;
 
 /// <summary>
 /// Tests for CssClassUtils.Merge (shadcn/ui cn() function port)
 /// Covers SC01-SC02 from US01.FoundationUtilities.feature
 /// </summary>
-[Trait(Spec.SPEC, "0027")]
+[Trait(Spec.SPEC, "1200")]
 [Trait(Spec.US, "01")]
 [Trait(Spec.SC, "01")]
 public class SC01_SC02_CssClassUtilsMerge

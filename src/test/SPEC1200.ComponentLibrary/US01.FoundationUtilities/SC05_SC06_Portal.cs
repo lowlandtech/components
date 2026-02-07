@@ -7,13 +7,13 @@ using Moq;
 using Shouldly;
 using Xunit;
 
-namespace LowlandTech.Tests.SPEC1227.ComponentLibrary.US01.FoundationUtilities;
+namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US01.FoundationUtilities;
 
 /// <summary>
 /// Tests for Portal component (SC05-SC06: Portal Component)
 /// Covers UAC22-UAC31 from US01.FoundationUtilities.feature
 /// </summary>
-[Trait(Spec.SPEC, "0027")]
+[Trait(Spec.SPEC, "1200")]
 [Trait(Spec.US, "01")]
 [Trait(Spec.SC, "05")]
 public class SC05_SC06_Portal : IDisposable
