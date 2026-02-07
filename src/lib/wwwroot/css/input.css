@@ -211,6 +211,57 @@
     box-shadow: none;
   }
 
+  /* Switch Component */
+  .switch-wrapper {
+    display: inline-block;
+  }
+
+  .switch {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 1.25rem;
+    background-color: hsl(var(--input));
+    border-radius: 9999px;
+    border: none;
+    cursor: pointer;
+    transition-property: background-color, transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+    outline: none;
+  }
+
+  .switch:focus-visible {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px hsl(var(--ring));
+  }
+
+  .switch-thumb {
+    width: 0.875rem;
+    height: 0.875rem;
+    background-color: hsl(var(--background));
+    border-radius: 9999px;
+    transition-property: transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+    transform: translateX(0);
+  }
+
+  .switch-checked {
+    background-color: hsl(var(--primary));
+  }
+
+  .switch-checked .switch-thumb {
+    transform: translateX(1.25rem);
+  }
+
+  .switch-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
   .label {
     font-size: 0.875rem;
     font-weight: 500;

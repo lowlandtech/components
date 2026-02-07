@@ -1,3 +1,6 @@
+using Bunit;
+using LowlandTech.Components.Components.Switch;
+
 namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US04.AdvancedFormComponents;
 
 /// <summary>
@@ -19,27 +22,47 @@ public class SC06_SwitchRenders : Scenario
         return Task.CompletedTask;
     }
 
-    [Fact(Skip = "Switch component not yet implemented", DisplayName = "Then it should render a toggle control with class \"switch\"")]
+    [Fact(DisplayName = "Then it should render a toggle control with class \"switch\"")]
     [Trait(Spec.UAC, "19")]
     public async Task UAC19_ShouldRenderSwitchControl()
     {
         await ArrangeAndActAsync();
-        // TODO: Implement test when Switch component is available
+        using var ctx = new BunitContext();
+        var component = ctx.Render<Switch>(parameters => parameters
+            .Add(p => p.Checked, false)
+        );
+        var toggle = component.Find(".switch");
+        toggle.ShouldNotBeNull();
     }
 
-    [Fact(Skip = "Switch component not yet implemented", DisplayName = "And it should support Checked and CheckedChanged for binding")]
+    [Fact(DisplayName = "And it should support Checked and CheckedChanged for binding")]
     [Trait(Spec.UAC, "20")]
     public async Task UAC20_ShouldSupportCheckedBinding()
     {
         await ArrangeAndActAsync();
-        // TODO: Implement test when Switch component is available
+        using var ctx = new BunitContext();
+        var isChecked = false;
+        var component = ctx.Render<Switch>(parameters => parameters
+            .Add(p => p.Checked, isChecked)
+            .Add(p => p.CheckedChanged, value => isChecked = value)
+        );
+        var toggle = component.Find(".switch");
+        toggle.Click();
+        isChecked.ShouldBeTrue();
     }
 
-    [Fact(Skip = "Switch component not yet implemented", DisplayName = "And it should support a Disabled state")]
+    [Fact(DisplayName = "And it should support a Disabled state")]
     [Trait(Spec.UAC, "21")]
     public async Task UAC21_ShouldSupportDisabled()
     {
         await ArrangeAndActAsync();
-        // TODO: Implement test when Switch component is available
+        using var ctx = new BunitContext();
+        var component = ctx.Render<Switch>(parameters => parameters
+            .Add(p => p.Checked, false)
+            .Add(p => p.Disabled, true)
+        );
+        var toggle = component.Find(".switch");
+        toggle.HasAttribute("disabled").ShouldBeTrue();
+        toggle.ClassList.ShouldContain("switch-disabled");
     }
 }

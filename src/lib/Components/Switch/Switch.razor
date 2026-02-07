@@ -1,0 +1,24 @@
+@namespace LowlandTech.Components.Components.Switch
+
+@inherits ComponentBase
+@using LowlandTech.Components.Utilities
+
+<div class="@GetClasses()">
+    <button type="button"
+            role="switch"
+            aria-checked="@Checked"
+            aria-disabled="@Disabled"
+            class="@GetButtonClasses()"
+            disabled="@Disabled"
+            @onchange="HandleChange"
+            @onclick="HandleClick">
+        @if (Checked)
+        {
+            <span class="switch-thumb"></span>
+        }
+        else
+        {
+            <span class="switch-thumb"></span>
+        }
+    </button>
+</div>
