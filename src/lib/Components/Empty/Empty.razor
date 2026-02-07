@@ -1,0 +1,24 @@
+@namespace LowlandTech.Components
+@inherits EmptyBase
+
+<div @attributes="AdditionalAttributes" class="@CssClass">
+    @if (Title != null || Description != null)
+    {
+        <div class="empty-content">
+            @if (Title != null)
+            {
+                <div class="empty-title">@Title</div>
+            }
+            @if (Description != null)
+            {
+                <div class="empty-description">@Description</div>
+            }
+        </div>
+    }
+    @if (Action != null)
+    {
+        <div class="empty-action">
+            @Action
+        </div>
+    }
+</div>
