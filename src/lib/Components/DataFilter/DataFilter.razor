@@ -1,0 +1,110 @@
+@namespace LowlandTech.Components.Components.DataFilter
+@using Microsoft.AspNetCore.Components
+
+<div class="@CssClass" @attributes="AdditionalAttributes" role="region" aria-label="Data Filter">
+    @if (Fields.Length > 0)
+    {
+        <div class="data-filter-header">
+            <h3 class="data-filter-title">Filter Data</h3>
+            <div class="data-filter-actions">
+                <button type="button" class="btn btn-default" @onclick="ApplyAsync" aria-label="Apply filters">Apply</button>
+                <button type="button" class="btn btn-destructive" @onclick="Reset" aria-label="Reset filters">Reset</button>
+                <button type="button" class="btn btn-default" @onclick="AddCondition" aria-label="Add filter condition">+ Add</button>
+            </div>
+        </div>
+
+        <div class="data-filter-body">
+            @if (Conditions.Length == 0)
+            {
+                <div class="data-filter-empty">No filters applied. Click "+ Add" to create a filter condition.</div>
+            }
+            else
+            {
+                @for (int i = 0; i < Conditions.Length; i++)
+                {
+                    var condition = Conditions[i];
+                    var field = GetField(condition.FieldName);
+                    var operators = field?.Operators.Length > 0 ? field.Operators : GetDefaultOperators(field?.Type ?? FilterFieldType.Text);
+
+                    <div class="data-filter-row" role="group">
+                        <label class="data-filter-label" for="@($"filter-field-{i}")">
+                            @if (i == 0)
+                            {
+                                <span>Field</span>
+                            }
+                            else
+                            {
+                                <select class="data-filter-logical" id="@($"filter-logical-{i}")" @onchange="(ChangeEventArgs e) => HandleLogicalChange(i, e)">
+                                    <option value="And" selected="@condition.LogicalOperator == LogicalOperator.And">AND</option>
+                                    <option value="Or" selected="@condition.LogicalOperator == LogicalOperator.Or">OR</option>
+                                </select>
+                            }
+                        </label>
+
+                        <div class="data-filter-field">
+                            <select id="@($"filter-field-{i}")" class="data-filter-select" @onchange="(ChangeEventArgs e) => HandleFieldChange(i, e)">
+                                @foreach (var f in Fields)
+                                {
+                                    <option value="@f.Name" selected="@condition.FieldName == f.Name">@f.Label</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="data-filter-operator">
+                            <select class="data-filter-select" @onchange="(ChangeEventArgs e) => HandleOperatorChange(i, e)">
+                                @foreach (var op in operators)
+                                {
+                                    <option value="@op" selected="@condition.Operator == op">@GetOperatorLabel(op)</option>
+                                }
+                            </select>
+                        </div>
+
+                        @if (ShouldShowValueInput(field, condition.Operator))
+                        {
+                            <div class="data-filter-value">
+                                @if (field?.Type == FilterFieldType.Select && field.Options != null)
+                                {
+                                    <select class="data-filter-select" @onchange="(ChangeEventArgs e) => HandleValueChange(i, e)">
+                                        @foreach (var opt in field.Options)
+                                        {
+                                            <option value="@opt.Value" selected="@FilterHelpers.IsEqual(condition.Value, opt?.Value)">@opt.Label</option>
+                                        }
+                                    </select>
+                                }
+                                else if (field?.Type == FilterFieldType.Date)
+                                {
+                                    <input type="date" class="input" value="@(condition.Value?.ToString() ?? string.Empty)" @onchange="(ChangeEventArgs e) => HandleValueChange(i, e)" />
+                                }
+                                else
+                                {
+                                    <input type="@(field?.Type == FilterFieldType.Number ? "number" : "text")" class="input" value="@(condition.Value?.ToString() ?? string.Empty)" @onchange="(ChangeEventArgs e) => HandleValueChange(i, e)" />
+                                }
+                            </div>
+                        }
+
+                        @if (condition.Operator == FilterOperator.Between && ShouldShowValueInput(field, FilterOperator.Between))
+                        {
+                            <div class="data-filter-value">
+                                <label class="data-filter-between-label" for="@($"filter-between-{i}")">and</label>
+                            </div>
+                            <div class="data-filter-value">
+                                @if (field?.Type == FilterFieldType.Date)
+                                {
+                                    <input type="date" id="@($"filter-between-{i}")" class="input" value="@(condition.Value2?.ToString() ?? string.Empty)" @onchange="(ChangeEventArgs e) => HandleValue2Change(i, e)" />
+                                }
+                                else
+                                {
+                                    <input type="@(field?.Type == FilterFieldType.Number ? "number" : "text")" id="@($"filter-between-{i}")" class="input" value="@(condition.Value2?.ToString() ?? string.Empty)" @onchange="(ChangeEventArgs e) => HandleValue2Change(i, e)" />
+                                }
+                            </div>
+                        }
+
+                        <div class="data-filter-remove">
+                            <button type="button" class="btn btn-destructive btn-sm" @onclick="() => RemoveCondition(i)" aria-label="@($"Remove filter condition {i + 1}")">✕</button>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    }
+</div>
