@@ -1,0 +1,8 @@
+@namespace LowlandTech.Components.Components.Command
+@inherits ComponentBase
+
+<div class="@RootClass" @attributes="AdditionalAttributes">
+    <CascadingValue Value="this">
+        @ChildContent
+    </CascadingValue>
+</div>

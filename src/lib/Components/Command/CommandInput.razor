@@ -1,0 +1,10 @@
+@namespace LowlandTech.Components.Components.Command
+@inherits ComponentBase
+
+<input type="text" 
+       class="@RootClass" 
+       placeholder="@Placeholder"
+       value="@Value"
+       @oninput="HandleInputAsync"
+       @onkeydown="HandleKeyDownAsync"
+       @attributes="AdditionalAttributes" />

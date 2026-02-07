@@ -1,0 +1,26 @@
+@namespace LowlandTech.Components.Components.Command
+@inherits ComponentBase
+
+<div class="@RootClass" @attributes="AdditionalAttributes">
+    @if (Parent != null)
+    {
+        var visibleItems = Parent.GetVisibleItems();
+        
+        if (Parent.IsLoading)
+        {
+            <div class="command-loading">Loading...</div>
+        }
+        else if (visibleItems.Count == 0)
+        {
+            <div class="command-empty">@EmptyMessage</div>
+        }
+        else
+        {
+            @ChildContent
+        }
+    }
+    else
+    {
+        @ChildContent
+    }
+</div>

@@ -2109,4 +2109,74 @@
     background-color: hsl(var(--primary));
     color: hsl(var(--primary-foreground));
   }
+
+  /* Command Component Styles */
+  .command {
+    display: flex;
+    flex-direction: column;
+    border-radius: 0.5rem;
+    border: 1px solid hsl(var(--border));
+    background-color: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+    overflow: hidden;
+  }
+
+  .command-input {
+    display: flex;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    border: none;
+    background: transparent;
+    outline: none;
+    color: hsl(var(--foreground));
+  }
+
+  .command-input::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+
+  .command-list {
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0.5rem;
+  }
+
+  .command-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    border-radius: 0.375rem;
+    transition-property: color, background-color;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+    outline: none;
+  }
+
+  .command-item:hover {
+    background-color: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+
+  .command-item-selected {
+    background-color: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+
+  .command-empty {
+    padding: 1.5rem 0.75rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .command-loading {
+    padding: 1.5rem 0.75rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+  }
 }

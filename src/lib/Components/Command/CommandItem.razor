@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Components.Command
+@inherits ComponentBase
+@implements IDisposable
+
+@if (IsVisible)
+{
+    <div class="@ItemClass" 
+         @onclick="HandleClickAsync"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+}
