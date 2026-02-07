@@ -1,6 +1,7 @@
 @namespace LowlandTech.Components.Components.DataGrid
 @typeparam TItem
 @using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
 
 <CascadingValue Value="this" IsFixed="false">
     @if (Columns != null)
@@ -24,11 +25,12 @@
                 <tr>
                     @foreach (var column in _columns)
                     {
-                        <th class="@column.GetAlignmentClass()" @onclick="() => HandleColumnHeaderClick(column)">
+                        <th class="@column.GetAlignmentClass()" @onclick="@(e => HandleHeaderClick(column, e))">
                             @column.Title
                             @if (AllowSorting && column.Sortable)
                             {
                                 var sortDir = GetColumnSortDirection(column);
+                                var sortPriority = GetColumnSortPriority(column);
                                 <span class="sort-indicator" data-sort-direction="@sortDir.ToString().ToLower()">
                                     @if (sortDir == SortDirection.Ascending)
                                     {
@@ -37,6 +39,10 @@
                                     else if (sortDir == SortDirection.Descending)
                                     {
                                         <text>▼</text>
+                                    }
+                                    @if (AllowMultiColumnSorting && sortPriority > 0 && _sortDescriptors.Count > 1)
+                                    {
+                                        <span class="sort-priority">@sortPriority</span>
                                     }
                                 </span>
                             }
