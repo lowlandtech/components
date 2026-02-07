@@ -60,6 +60,7 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
         if (!_columns.Contains(column))
         {
             _columns.Add(column);
+            StateHasChanged();
         }
     }
 
@@ -69,6 +70,7 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     internal void RemoveColumn(DataGridColumn<TItem> column)
     {
         _columns.Remove(column);
+        StateHasChanged();
     }
 
     private string GetTableClasses()
