@@ -1,0 +1,8 @@
+@namespace LowlandTech.Components.Components.Resizable
+@inherits ResizablePanelGroupBase
+
+<div class="@GetCssClasses()" data-orientation="@Orientation.ToString().ToLower()">
+    <CascadingValue Value="this">
+        @ChildContent
+    </CascadingValue>
+</div>

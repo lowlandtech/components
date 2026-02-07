@@ -1,0 +1,13 @@
+@namespace LowlandTech.Components.Components.Resizable
+@inherits ResizableHandleBase
+
+<div class="@GetCssClasses()" data-orientation="@PanelGroup?.Orientation.ToString().ToLower()">
+    @if (ChildContent != null)
+    {
+        @ChildContent
+    }
+    else
+    {
+        <div class="resizable-handle-line"></div>
+    }
+</div>
