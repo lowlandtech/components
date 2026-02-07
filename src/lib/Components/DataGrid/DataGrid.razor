@@ -12,6 +12,11 @@
         @ChildContent
     }
 
+    @if (HeaderTemplate != null)
+    {
+        @HeaderTemplate
+    }
+
     @if (Data != null && Data.Any())
     {
         <table class="@GetTableClasses()" @attributes="AdditionalAttributes">

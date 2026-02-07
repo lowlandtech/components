@@ -30,6 +30,12 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     public RenderFragment? ChildContent { get; set; }
 
     /// <summary>
+    /// Gets or sets the template to display above the grid (header toolbar).
+    /// </summary>
+    [Parameter]
+    public RenderFragment? HeaderTemplate { get; set; }
+
+    /// <summary>
     /// Gets or sets the template to display when there is no data.
     /// </summary>
     [Parameter]
