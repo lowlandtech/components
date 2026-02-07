@@ -6,14 +6,17 @@
     <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
         @* Create Team Component (primary button) *@
         <div class="lg:col-span-2">
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm h-full p-10 flex flex-col justify-center gap-4">
-                <div class="size-16 rounded-full bg-primary/20 mb-4"></div>
-                <h2 class="text-2xl font-bold text-foreground text-center mb-2">Swift Setup for New Teams</h2>
-                <p class="text-sm text-muted-foreground text-center leading-6 mb-6">
-                    Create and customize your team with our<br />
-                    simple yet powerful setup wizard
-                </p>
-                <a href="#" class="btn btn-default text-center">Create Team</a>
+            <div class="card h-full">
+                <div class="card-content flex flex-col justify-center items-center text-center gap-4 p-10">
+                    <div class="size-16 rounded-full bg-primary/20"></div>
+                    <h2 class="card-title text-2xl">Swift Setup for New Teams</h2>
+                    <p class="card-description leading-6">
+                        Create and customize your team with our simple yet powerful setup wizard
+                    </p>
+                </div>
+                <div class="card-footer justify-center">
+                    <button class="btn btn-default">Create Team</button>
+                </div>
             </div>
         </div>
         <div class="lg:col-span-1">
@@ -24,16 +27,17 @@
     <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
         <div class="lg:col-span-2">
             @* Teams Table (reuse from demo1) *@
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5">
-                <h3 class="text-lg font-semibold mb-4">Teams</h3>
-                <p class="text-sm text-muted-foreground">Teams table placeholder - implement with DataGrid component</p>
-            </div>
+            <Teams />
         </div>
         <div class="lg:col-span-1">
             @* Block List Placeholder *@
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5">
-                <h3 class="text-lg font-semibold mb-4">Block List</h3>
-                <p class="text-sm text-muted-foreground">Block list placeholder</p>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Block List</h3>
+                </div>
+                <div class="card-content">
+                    <p class="text-sm text-muted-foreground">Block list placeholder</p>
+                </div>
             </div>
         </div>
     </div>

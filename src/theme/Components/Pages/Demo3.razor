@@ -7,14 +7,17 @@
     <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
         @* Create Team Component *@
         <div class="lg:col-span-2">
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm h-full p-10 flex flex-col justify-center gap-4">
-                <div class="size-16 rounded-full bg-primary/20 mb-4"></div>
-                <h2 class="text-2xl font-bold text-foreground text-center mb-2">Swift Setup for New Teams</h2>
-                <p class="text-sm text-muted-foreground text-center leading-6 mb-6">
-                    Create and customize your team with our<br />
-                    simple yet powerful setup wizard
-                </p>
-                <a href="#" class="btn btn-default text-center">Create Team</a>
+            <div class="card h-full">
+                <div class="card-content flex flex-col justify-center items-center text-center gap-4 p-10">
+                    <div class="size-16 rounded-full bg-primary/20"></div>
+                    <h2 class="card-title text-2xl">Swift Setup for New Teams</h2>
+                    <p class="card-description leading-6">
+                        Create and customize your team with our simple yet powerful setup wizard
+                    </p>
+                </div>
+                <div class="card-footer justify-center">
+                    <button class="btn btn-default">Create Team</button>
+                </div>
             </div>
         </div>
         <div class="lg:col-span-1">
@@ -24,60 +27,76 @@
     </div>
     <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
         <div class="lg:col-span-2">
-            @* Create Team Component *@
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm h-full p-5 lg:p-7.5">
-                <h2 class="text-xl font-bold text-foreground mb-4">Swift Setup for New Teams</h2>
-                <p class="text-sm text-muted-foreground mb-6">
-                    Create and customize your team with our simple yet powerful setup wizard
-                </p>
-                <Stepper ActiveIndex="0" DefaultIndex="0">
-                    <Step Label="Team Info" Completed="false">
-                        <div class="mt-4 p-4 border border-border rounded-lg bg-muted/20">
-                            <p class="text-sm text-muted-foreground">Enter your team name, description, and category</p>
-                        </div>
-                    </Step>
-                    <Step Label="Members" Completed="false">
-                        <div class="mt-4 p-4 border border-border rounded-lg bg-muted/20">
-                            <p class="text-sm text-muted-foreground">Add team members and assign roles</p>
-                        </div>
-                    </Step>
-                    <Step Label="Permissions" Completed="false">
-                        <div class="mt-4 p-4 border border-border rounded-lg bg-muted/20">
-                            <p class="text-sm text-muted-foreground">Configure team permissions and access levels</p>
-                        </div>
-                    </Step>
-                    <Step Label="Settings" Completed="false">
-                        <div class="mt-4 p-4 border border-border rounded-lg bg-muted/20">
-                            <p class="text-sm text-muted-foreground">Customize team settings and notifications</p>
-                        </div>
-                    </Step>
-                </Stepper>
-                <div class="mt-6 flex justify-center">
-                    <a href="#" class="btn btn-default">Create Team</a>
+            @* Create Team Stepper *@
+            <div class="card h-full">
+                <div class="card-header">
+                    <h2 class="card-title">Swift Setup for New Teams</h2>
+                    <p class="card-description">
+                        Create and customize your team with our simple yet powerful setup wizard
+                    </p>
+                </div>
+                <div class="card-content">
+                    <Stepper ActiveIndex="0" DefaultIndex="0">
+                        <Step Label="Team Info" Completed="false">
+                            <div class="mt-4 p-4 border border-border rounded-lg bg-muted/20">
+                                <p class="text-sm text-muted-foreground">Enter your team name, description, and category</p>
+                            </div>
+                        </Step>
+                        <Step Label="Members" Completed="false">
+                            <div class="mt-4 p-4 border border-border rounded-lg bg-muted/20">
+                                <p class="text-sm text-muted-foreground">Add team members and assign roles</p>
+                            </div>
+                        </Step>
+                        <Step Label="Permissions" Completed="false">
+                            <div class="mt-4 p-4 border border-border rounded-lg bg-muted/20">
+                                <p class="text-sm text-muted-foreground">Configure team permissions and access levels</p>
+                            </div>
+                        </Step>
+                        <Step Label="Settings" Completed="false">
+                            <div class="mt-4 p-4 border border-border rounded-lg bg-muted/20">
+                                <p class="text-sm text-muted-foreground">Customize team settings and notifications</p>
+                            </div>
+                        </Step>
+                    </Stepper>
+                </div>
+                <div class="card-footer justify-center">
+                    <button class="btn btn-default">Create Team</button>
                 </div>
             </div>
         </div>
         <div class="lg:col-span-1">
             @* Block List Placeholder *@
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5">
-                <h3 class="text-lg font-semibold mb-4">Block List</h3>
-                <p class="text-sm text-muted-foreground">Block list placeholder</p>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Block List</h3>
+                </div>
+                <div class="card-content">
+                    <p class="text-sm text-muted-foreground">Block list placeholder</p>
+                </div>
             </div>
         </div>
     </div>
     <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
         <div class="lg:col-span-2">
-            @* Integations Placeholder *@
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5">
-                <h3 class="text-lg font-semibold mb-4">Integations</h3>
-                <p class="text-sm text-muted-foreground">Integations placeholder</p>
+            @* Integrations Placeholder *@
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Integrations</h3>
+                </div>
+                <div class="card-content">
+                    <p class="text-sm text-muted-foreground">Integrations placeholder</p>
+                </div>
             </div>
         </div>
         <div class="lg:col-span-1">
             @* Manage Data (reuse from demo2) *@
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm h-full p-5 lg:p-7.5">
-                <h3 class="text-lg font-semibold mb-4">Manage Data</h3>
-                <p class="text-sm text-muted-foreground">Manage data placeholder</p>
+            <div class="card h-full">
+                <div class="card-header">
+                    <h3 class="card-title">Manage Data</h3>
+                </div>
+                <div class="card-content">
+                    <p class="text-sm text-muted-foreground">Manage data placeholder</p>
+                </div>
             </div>
         </div>
     </div>

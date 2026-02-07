@@ -5,46 +5,55 @@
 @using LowlandTech.Components.Components.Input
 @using LowlandTech.Components.Components.Label
 @using LowlandTech.Components.Components.Skeleton
+@using LandlandTech.Theme.DemoComponents
 
 <div class="grid gap-5 lg:gap-7.5">
     <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
         @* Options Component *@
         <div class="lg:col-span-2">
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5">
-                <h3 class="text-lg font-semibold mb-4">Options</h3>
-                <div class="grid md:grid-cols-2 gap-4">
-                    <div class="field">
-                        <Label>General</Label>
-                        <Input Type="text" Placeholder="General settings..." />
-                    </div>
-                    <div class="field">
-                        <Label>Appearance</Label>
-                        <Input Type="text" Placeholder="Theme settings..." />
-                    </div>
-                    <div class="field">
-                        <Label>Notifications</Label>
-                        <Input Type="text" Placeholder="Notification settings..." />
-                    </div>
-                    <div class="field">
-                        <Label>Advanced</Label>
-                        <Input Type="text" Placeholder="Advanced options..." />
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Options</h3>
+                </div>
+                <div class="card-content">
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="field">
+                            <Label>General</Label>
+                            <Input Type="text" Placeholder="General settings..." />
+                        </div>
+                        <div class="field">
+                            <Label>Appearance</Label>
+                            <Input Type="text" Placeholder="Theme settings..." />
+                        </div>
+                        <div class="field">
+                            <Label>Notifications</Label>
+                            <Input Type="text" Placeholder="Notification settings..." />
+                        </div>
+                        <div class="field">
+                            <Label>Advanced</Label>
+                            <Input Type="text" Placeholder="Advanced options..." />
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="lg:col-span-1">
             @* My Balance Component *@
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm h-full p-5 lg:p-7.5">
-                <h3 class="text-lg font-semibold mb-4">My Balance</h3>
-                <div class="flex flex-col gap-2">
-                    <Label>Current Balance</Label>
-                    <Input Type="text" Placeholder="$12,450.00" />
-                    <div class="flex items-center gap-2 mt-4">
-                        <Badge Variant="BadgeVariants.Success" Class="text-xs">+2.5%</Badge>
-                        <span class="text-sm text-muted-foreground">vs last month</span>
+            <div class="card h-full">
+                <div class="card-header">
+                    <h3 class="card-title">My Balance</h3>
+                </div>
+                <div class="card-content">
+                    <div class="flex flex-col gap-2">
+                        <Label>Current Balance</Label>
+                        <Input Type="text" Placeholder="$12,450.00" />
+                        <div class="flex items-center gap-2 mt-4">
+                            <Badge Variant="BadgeVariants.Success" Class="text-xs">+2.5%</Badge>
+                            <span class="text-sm text-muted-foreground">vs last month</span>
+                        </div>
                     </div>
                 </div>
-                <div class="mt-4 pt-4 border-t border-border">
+                <div class="card-footer">
                     <Button Class="btn btn-default w-full">View Transactions</Button>
                 </div>
             </div>
@@ -53,77 +62,97 @@
     <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
         <div class="lg:col-span-3">
             @* Loading State Demo *@
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5">
-                <h3 class="text-lg font-semibold mb-4">Loading State Example</h3>
-                <div class="grid md:grid-cols-3 gap-4">
-                    <div class="space-y-3">
-                        <Skeleton Variant="circle" Width="48px" Height="48px" />
-                        <Skeleton Variant="text" Height="20px" Class="w-3/4" />
-                        <Skeleton Variant="text" Height="16px" Class="w-1/2" />
-                        <Skeleton Variant="rect" Height="40px" />
-                    </div>
-                    <div class="space-y-3">
-                        <Skeleton Variant="text" Height="24px" Class="w-full" />
-                        <Skeleton Variant="text" Height="16px" Class="w-full" />
-                        <Skeleton Variant="text" Height="16px" Class="w-5/6" />
-                        <Skeleton Variant="rect" Height="80px" />
-                    </div>
-                    <div class="space-y-3">
-                        <Skeleton Variant="circle" Width="40px" Height="40px" />
-                        <Skeleton Variant="text" Height="20px" Class="w-2/3" />
-                        <Skeleton Variant="rect" Height="60px" />
-                        <Skeleton Variant="text" Height="16px" Class="w-4/5" />
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Loading State Example</h3>
+                </div>
+                <div class="card-content">
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div class="space-y-3">
+                            <Skeleton Variant="circle" Width="48px" Height="48px" />
+                            <Skeleton Variant="text" Height="20px" Class="w-3/4" />
+                            <Skeleton Variant="text" Height="16px" Class="w-1/2" />
+                            <Skeleton Variant="rect" Height="40px" />
+                        </div>
+                        <div class="space-y-3">
+                            <Skeleton Variant="text" Height="24px" Class="w-full" />
+                            <Skeleton Variant="text" Height="16px" Class="w-full" />
+                            <Skeleton Variant="text" Height="16px" Class="w-5/6" />
+                            <Skeleton Variant="rect" Height="80px" />
+                        </div>
+                        <div class="space-y-3">
+                            <Skeleton Variant="circle" Width="40px" Height="40px" />
+                            <Skeleton Variant="text" Height="20px" Class="w-2/3" />
+                            <Skeleton Variant="rect" Height="60px" />
+                            <Skeleton Variant="text" Height="16px" Class="w-4/5" />
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
-        @* Options Component Placeholder *@
+        @* Options Component with Interactive Cards *@
         <div class="lg:col-span-2">
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5">
-                <h3 class="text-lg font-semibold mb-4">Options</h3>
-                <div class="grid md:grid-cols-2 gap-4">
-                    <div class="card border-border bg-card rounded-lg p-4 hover:bg-accent/50 cursor-pointer transition-colors">
-                        <div class="flex items-center gap-3 mb-2">
-                            <span class="text-2xl">⚙️</span>
-                            <span class="font-medium text-foreground">Settings</span>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Quick Actions</h3>
+                </div>
+                <div class="card-content">
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="card hover:bg-accent/50 cursor-pointer transition-colors">
+                            <div class="card-content">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-2xl">⚙️</span>
+                                    <span class="font-medium text-foreground">Settings</span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card border-border bg-card rounded-lg p-4 hover:bg-accent/50 cursor-pointer transition-colors">
-                        <div class="flex items-center gap-3 mb-2">
-                            <span class="text-2xl">📊</span>
-                            <span class="font-medium text-foreground">Analytics</span>
+                        <div class="card hover:bg-accent/50 cursor-pointer transition-colors">
+                            <div class="card-content">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-2xl">📊</span>
+                                    <span class="font-medium text-foreground">Analytics</span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card border-border bg-card rounded-lg p-4 hover:bg-accent/50 cursor-pointer transition-colors">
-                        <div class="flex items-center gap-3 mb-2">
-                            <span class="text-2xl">🔔</span>
-                            <span class="font-medium text-foreground">Notifications</span>
+                        <div class="card hover:bg-accent/50 cursor-pointer transition-colors">
+                            <div class="card-content">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-2xl">🔔</span>
+                                    <span class="font-medium text-foreground">Notifications</span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card border-border bg-card rounded-lg p-4 hover:bg-accent/50 cursor-pointer transition-colors">
-                        <div class="flex items-center gap-3 mb-2">
-                            <span class="text-2xl">📁</span>
-                            <span class="font-medium text-foreground">Files</span>
+                        <div class="card hover:bg-accent/50 cursor-pointer transition-colors">
+                            <div class="card-content">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-2xl">📁</span>
+                                    <span class="font-medium text-foreground">Files</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="lg:col-span-1">
-            @* My Balance Component Placeholder *@
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm h-full p-5 lg:p-7.5">
-                <h3 class="text-lg font-semibold mb-4">My Balance</h3>
-                <div class="flex flex-col gap-2">
-                    <span class="text-3xl font-semibold text-mono">$12,450.00</span>
-                    <div class="flex items-center gap-2">
-                        <Badge Variant="BadgeVariants.Success" Class="text-xs">+2.5%</Badge>
-                        <span class="text-sm text-muted-foreground">vs last month</span>
+            @* My Balance Summary *@
+            <div class="card h-full">
+                <div class="card-header">
+                    <h3 class="card-title">My Balance</h3>
+                </div>
+                <div class="card-content">
+                    <div class="flex flex-col gap-2">
+                        <span class="text-3xl font-semibold text-mono">$12,450.00</span>
+                        <div class="flex items-center gap-2">
+                            <Badge Variant="BadgeVariants.Success" Class="text-xs">+2.5%</Badge>
+                            <span class="text-sm text-muted-foreground">vs last month</span>
+                        </div>
                     </div>
                 </div>
-                <div class="mt-4 pt-4 border-t border-border">
-                    <a href="#" class="text-sm font-medium text-primary hover:underline">View Transactions</a>
+                <div class="card-footer">
+                    <button class="btn btn-link">View Transactions</button>
                 </div>
             </div>
         </div>
@@ -131,64 +160,65 @@
     <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
         <div class="lg:col-span-2">
             @* Entry Callout (reuse from demo1) *@
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm flex flex-col h-full">
-                <div class="p-10 flex flex-col justify-center gap-4">
-                    <div class="flex gap-2">
-                        <div class="size-10 rounded-full bg-primary"></div>
-                        <div class="size-10 rounded-full bg-secondary"></div>
-                    </div>
-                    <h2 class="text-xl font-semibold text-foreground">
-                        Connect Today & Join<br />
-                        <a href="#" class="text-xl font-semibold text-primary underline">KeenThemes Network</a>
-                    </h2>
-                    <p class="text-sm font-normal text-muted-foreground leading-5.5">
-                        Enhance your projects with premium themes and<br />
-                        templates. Join the KeenThemes community today<br />
-                        for top-quality designs and resources.
-                    </p>
-                </div>
-                <div class="flex justify-center p-6 pt-0">
-                    <a href="#" class="text-sm font-medium text-primary hover:underline border-b border-dashed border-primary">Get Started</a>
-                </div>
-            </div>
+            <EntryCallout 
+                Headline="Connect Today & Join"
+                Description="Enhance your projects with premium themes and templates. Join the KeenThemes community today for top-quality designs and resources."
+                LinkText="KeenThemes Network"
+                LinkUrl="#"
+                ActionText="Get Started"
+                ActionUrl="#"
+                Class="h-full" />
         </div>
         <div class="lg:col-span-1">
             @* Report Settings Placeholder *@
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5">
-                <h3 class="text-lg font-semibold mb-4">Report Settings</h3>
-                <p class="text-sm text-muted-foreground">Report settings placeholder</p>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Report Settings</h3>
+                </div>
+                <div class="card-content">
+                    <p class="text-sm text-muted-foreground">Report settings placeholder</p>
+                </div>
             </div>
         </div>
     </div>
     <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
         <div class="lg:col-span-2">
             @* Integrations Placeholder *@
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5">
-                <h3 class="text-lg font-semibold mb-4">Integrations</h3>
-                <p class="text-sm text-muted-foreground">Integrations placeholder</p>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Integrations</h3>
+                </div>
+                <div class="card-content">
+                    <p class="text-sm text-muted-foreground">Integrations placeholder</p>
+                </div>
             </div>
         </div>
         <div class="lg:col-span-1">
             @* Block List Placeholder *@
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5">
-                <h3 class="text-lg font-semibold mb-4">Block List</h3>
-                <p class="text-sm text-muted-foreground">Block list placeholder</p>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Block List</h3>
+                </div>
+                <div class="card-content">
+                    <p class="text-sm text-muted-foreground">Block list placeholder</p>
+                </div>
             </div>
         </div>
     </div>
     <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
         <div class="lg:col-span-2">
             @* Teams Table (reuse from demo1) *@
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5">
-                <h3 class="text-lg font-semibold mb-4">Teams</h3>
-                <p class="text-sm text-muted-foreground">Teams table placeholder - implement with DataGrid component</p>
-            </div>
+            <Teams />
         </div>
         <div class="lg:col-span-1">
             @* Manage Data Placeholder *@
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm h-full p-5 lg:p-7.5">
-                <h3 class="text-lg font-semibold mb-4">Manage Data</h3>
-                <p class="text-sm text-muted-foreground">Manage data placeholder</p>
+            <div class="card h-full">
+                <div class="card-header">
+                    <h3 class="card-title">Manage Data</h3>
+                </div>
+                <div class="card-content">
+                    <p class="text-sm text-muted-foreground">Manage data placeholder</p>
+                </div>
             </div>
         </div>
     </div>
