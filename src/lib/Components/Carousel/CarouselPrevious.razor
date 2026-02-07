@@ -1,0 +1,13 @@
+@inherits CarouselPreviousBase
+
+<button class="@GetCssClasses()" @onclick="HandleClick" disabled="@IsDisabled" @attributes="AdditionalAttributes">
+    @if (ChildContent != null)
+    {
+        @ChildContent
+    }
+    else
+    {
+        <span aria-hidden="true">&lt;</span>
+    }
+    <span class="sr-only">Previous</span>
+</button>

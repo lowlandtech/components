@@ -1,0 +1,7 @@
+@inherits CarouselBase
+
+<div class="@GetCssClasses()" @onkeydown="HandleKeyDown" tabindex="0" @attributes="AdditionalAttributes">
+    <CascadingValue Value="this">
+        @ChildContent
+    </CascadingValue>
+</div>
