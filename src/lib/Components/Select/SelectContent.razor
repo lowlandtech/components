@@ -1,0 +1,8 @@
+@namespace LowlandTech.Components.Components.Select
+
+@if (IsVisible)
+{
+    <div class="@GetClasses()" @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+}
