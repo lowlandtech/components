@@ -95,6 +95,12 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     public FilterMode FilterMode { get; set; } = FilterMode.None;
 
     /// <summary>
+    /// Gets or sets whether alternating row colors are enabled.
+    /// </summary>
+    [Parameter]
+    public bool AllowAlternatingRows { get; set; }
+
+    /// <summary>
     /// Gets or sets the row selection mode.
     /// </summary>
     [Parameter]
@@ -786,9 +792,21 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     /// <summary>
     /// Gets the CSS class for a row.
     /// </summary>
-    private string GetRowClass(TItem item)
+    private string GetRowClass(TItem item, int index)
     {
-        return IsRowSelected(item) ? "row-selected" : "";
+        var classes = new List<string>();
+        
+        if (IsRowSelected(item))
+        {
+            classes.Add("row-selected");
+        }
+        
+        if (AllowAlternatingRows)
+        {
+            classes.Add(index % 2 == 0 ? "row-even" : "row-odd");
+        }
+        
+        return string.Join(" ", classes);
     }
 
     private IEnumerable<TItem> ApplyMultiColumnSort(IEnumerable<TItem> data)

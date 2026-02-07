@@ -84,9 +84,12 @@
                 }
             </thead>
             <tbody>
+                @{
+                    var rowIndex = 0;
+                }
                 @foreach (var item in GetPagedData())
                 {
-                    <tr class="@GetRowClass(item)" @onclick="@(() => HandleRowClick(item))">
+                    <tr class="@GetRowClass(item, rowIndex)" @onclick="@(() => HandleRowClick(item))">
                         @if (ShowSelectColumn && SelectionMode == SelectionMode.Multiple)
                         {
                             <td class="select-column">
@@ -107,6 +110,7 @@
                             </td>
                         }
                     </tr>
+                    rowIndex++;
                 }
             </tbody>
         </table>
