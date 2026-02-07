@@ -9,7 +9,6 @@ public partial class Grid
 {
     private List<GridSection> _sections = new();
     private int _nextSectionIndex = 1;
-    private bool _isSuspended = false;
 
     [Parameter]
     public int Row { get; set; } = 4;
@@ -38,7 +37,7 @@ public partial class Grid
     [Parameter]
     public string? Style { get; set; }
 
-    [Parameter]
+    [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
     [Parameter]
