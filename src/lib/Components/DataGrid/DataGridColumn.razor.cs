@@ -51,6 +51,12 @@ public partial class DataGridColumn<TItem> : ComponentBase where TItem : notnull
     [Parameter]
     public bool Sortable { get; set; }
 
+    /// <summary>
+    /// Gets or sets whether the column is filterable.
+    /// </summary>
+    [Parameter]
+    public bool Filterable { get; set; } = true;
+
     protected override void OnInitialized()
     {
         base.OnInitialized();

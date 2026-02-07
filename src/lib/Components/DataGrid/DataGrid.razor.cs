@@ -19,6 +19,7 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     private int _currentPage = 1;
     private TItem? _selectedItem;
     private HashSet<TItem> _selectedItems = new();
+    private Dictionary<string, string> _columnFilters = new();
 
     /// <summary>
     /// Gets or sets the data items to display in the grid.
@@ -80,6 +81,18 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     /// </summary>
     [Parameter]
     public int[]? PageSizeOptions { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether filtering is enabled for the grid.
+    /// </summary>
+    [Parameter]
+    public bool AllowFiltering { get; set; }
+
+    /// <summary>
+    /// Gets or sets the filter mode (Simple or Advanced).
+    /// </summary>
+    [Parameter]
+    public FilterMode FilterMode { get; set; } = FilterMode.None;
 
     /// <summary>
     /// Gets or sets the row selection mode.
@@ -462,30 +475,72 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     }
 
     /// <summary>
-    /// Gets the data with sorting applied.
+    /// Gets the data with filtering applied.
     /// </summary>
-    private IEnumerable<TItem> GetSortedData()
+    private IEnumerable<TItem> GetFilteredData()
     {
         if (Data == null)
             return Enumerable.Empty<TItem>();
 
+        if (!AllowFiltering || !_columnFilters.Any())
+            return Data;
+
+        var filteredData = Data;
+
+        foreach (var filter in _columnFilters)
+        {
+            var propertyName = filter.Key;
+            var filterValue = filter.Value;
+
+            if (string.IsNullOrWhiteSpace(filterValue))
+                continue;
+
+            var column = _columns.FirstOrDefault(c => c.Property == propertyName);
+            if (column == null)
+                continue;
+
+            var propertyInfo = column.GetPropertyInfo();
+            if (propertyInfo == null)
+                continue;
+
+            filteredData = filteredData.Where(item =>
+            {
+                var value = propertyInfo.GetValue(item);
+                if (value == null)
+                    return false;
+
+                var stringValue = value.ToString() ?? string.Empty;
+                return stringValue.Contains(filterValue, StringComparison.OrdinalIgnoreCase);
+            });
+        }
+
+        return filteredData;
+    }
+
+    /// <summary>
+    /// Gets the data with sorting applied.
+    /// </summary>
+    private IEnumerable<TItem> GetSortedData()
+    {
+        var filteredData = GetFilteredData();
+
         // Use multi-column sort if available
         if (_sortDescriptors.Any())
         {
-            return ApplyMultiColumnSort(Data);
+            return ApplyMultiColumnSort(filteredData);
         }
 
         // Fall back to single-column sort
         if (_sortColumn == null || _sortDirection == SortDirection.None)
-            return Data;
+            return filteredData;
 
         var propertyInfo = _sortColumn.GetPropertyInfo();
         if (propertyInfo == null)
-            return Data;
+            return filteredData;
 
         return _sortDirection == SortDirection.Ascending
-            ? Data.OrderBy(item => propertyInfo.GetValue(item))
-            : Data.OrderByDescending(item => propertyInfo.GetValue(item));
+            ? filteredData.OrderBy(item => propertyInfo.GetValue(item))
+            : filteredData.OrderByDescending(item => propertyInfo.GetValue(item));
     }
 
     /// <summary>
@@ -665,6 +720,27 @@ public partial class DataGrid<TItem> : ComponentBase where TItem : notnull
     private bool IsRowSelected(TItem item)
     {
         return _selectedItems.Contains(item);
+    }
+
+    /// <summary>
+    /// Handles filter input change for a column.
+    /// </summary>
+    private void HandleFilterChange(string propertyName, ChangeEventArgs e)
+    {
+        var filterValue = e.Value?.ToString() ?? string.Empty;
+        
+        if (string.IsNullOrWhiteSpace(filterValue))
+        {
+            _columnFilters.Remove(propertyName);
+        }
+        else
+        {
+            _columnFilters[propertyName] = filterValue;
+        }
+        
+        // Reset to first page when filtering
+        _currentPage = 1;
+        StateHasChanged();
     }
 
     /// <summary>

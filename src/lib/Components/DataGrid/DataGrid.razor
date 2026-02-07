@@ -60,6 +60,27 @@
                         </th>
                     }
                 </tr>
+                @if (AllowFiltering && FilterMode == FilterMode.Simple)
+                {
+                    <tr class="filter-row">
+                        @if (ShowSelectColumn && SelectionMode == SelectionMode.Multiple)
+                        {
+                            <th class="select-column"></th>
+                        }
+                        @foreach (var column in _columns)
+                        {
+                            <th class="@column.GetAlignmentClass()">
+                                @if (column.Filterable && !string.IsNullOrEmpty(column.Property))
+                                {
+                                    <input type="text" 
+                                           class="filter-input" 
+                                           placeholder="Filter..." 
+                                           @onchange="@(e => HandleFilterChange(column.Property!, e))" />
+                                }
+                            </th>
+                        }
+                    </tr>
+                }
             </thead>
             <tbody>
                 @foreach (var item in GetPagedData())
