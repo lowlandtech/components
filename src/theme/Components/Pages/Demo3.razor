@@ -1,5 +1,6 @@
 @page "/demo3"
 @rendermode InteractiveServer
+@using LowlandTech.Components.Components.Stepper
 
 <div class="grid gap-5 lg:gap-7.5">
     <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
@@ -35,11 +36,39 @@
     </div>
     <div class="grid lg:grid-cols-3 gap-5 lg:gap-7.5 items-stretch">
         <div class="lg:col-span-2">
-            @* Teams Table (reuse from demo1) *@
-            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm p-5 lg:p-7.5">
-                <h3 class="text-lg font-semibold mb-4">Teams</h3>
-                <p class="text-sm text-muted-foreground">Teams table placeholder - implement with DataGrid component</p>
+            @* Create Team Component *@
+            <div class="card border-border bg-card text-card-foreground rounded-xl shadow-sm h-full p-5 lg:p-7.5">
+                <h2 class="text-xl font-bold text-foreground mb-4">Swift Setup for New Teams</h2>
+                <p class="text-sm text-muted-foreground mb-6">
+                    Create and customize your team with our simple yet powerful setup wizard
+                </p>
+                <Stepper ActiveIndex="0" DefaultIndex="0">
+                    <Step Label="Team Info" Completed="false">
+                        <div class="mt-4 p-4 border border-border rounded-lg bg-muted/20">
+                            <p class="text-sm text-muted-foreground">Enter your team name, description, and category</p>
+                        </div>
+                    </Step>
+                    <Step Label="Members" Completed="false">
+                        <div class="mt-4 p-4 border border-border rounded-lg bg-muted/20">
+                            <p class="text-sm text-muted-foreground">Add team members and assign roles</p>
+                        </div>
+                    </Step>
+                    <Step Label="Permissions" Completed="false">
+                        <div class="mt-4 p-4 border border-border rounded-lg bg-muted/20">
+                            <p class="text-sm text-muted-foreground">Configure team permissions and access levels</p>
+                        </div>
+                    </Step>
+                    <Step Label="Settings" Completed="false">
+                        <div class="mt-4 p-4 border border-border rounded-lg bg-muted/20">
+                            <p class="text-sm text-muted-foreground">Customize team settings and notifications</p>
+                        </div>
+                    </Step>
+                </Stepper>
+                <div class="mt-6 flex justify-center">
+                    <a href="#" class="btn btn-default">Create Team</a>
+                </div>
             </div>
+        </div>
         </div>
         <div class="lg:col-span-1">
             @* Block List Placeholder *@
