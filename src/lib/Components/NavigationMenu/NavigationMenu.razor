@@ -1,0 +1,9 @@
+@namespace LowlandTech.Components.Components.NavigationMenu
+
+<CascadingValue Value="this">
+    <nav class="@GetClasses()"
+         data-orientation="@Orientation"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </nav>
+</CascadingValue>

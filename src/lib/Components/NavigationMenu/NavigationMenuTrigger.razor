@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Components.NavigationMenu
+
+<button type="button"
+        class="@GetClasses()"
+        role="menuitem"
+        data-state="@(ParentItem?.IsOpen == true ? "open" : "closed")"
+        aria-expanded="@(ParentItem?.IsOpen == true ? "true" : "false")"
+        @onclick="HandleClickAsync"
+        @onkeydown="HandleKeyDownAsync"
+        @attributes="AdditionalAttributes">
+    @ChildContent
+</button>

@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Components.NavigationMenu
+
+@if (ParentItem != null)
+{
+    <div class="@GetClasses()"
+         role="menu"
+         data-state="@(ParentItem.IsOpen ? "open" : "closed")"
+         aria-hidden="@(!ParentItem.IsOpen ? "true" : "false")"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+}

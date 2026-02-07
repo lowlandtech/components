@@ -1,0 +1,9 @@
+@namespace LowlandTech.Components.Components.NavigationMenu
+
+<CascadingValue Value="this">
+    <li class="@GetClasses()"
+        role="none"
+        @attributes="AdditionalAttributes">
+        @ChildContent
+    </li>
+</CascadingValue>
