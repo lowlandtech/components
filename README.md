@@ -6,8 +6,8 @@ A comprehensive Blazor component library inspired by shadcn/ui and Radzen Blazor
 
 - **Build Status**: ✅ 0 Warnings, 0 Errors
 - **Test Coverage**: ✅ 257 Tests, 100% Passing
-- **Components**: 22 / 62 Complete (35%)
-- **High Priority**: 🔥 DataGrid & DataFilter (Radzen-inspired)
+- **Components**: 22 / 63 Complete (35%)
+- **High Priority**: 🔥 Grid (MudBlazor), DataGrid & DataFilter (Radzen)
 
 ## Component Library
 
@@ -65,6 +65,7 @@ A comprehensive Blazor component library inspired by shadcn/ui and Radzen Blazor
 
 | Component | Status | Tests | Description |
 |-----------|--------|-------|-------------|
+| **Grid** | 🔥 High Priority | - | CSS Grid responsive layout system with colspan/rowspan |
 | Card | 📋 Planned | - | Content card container |
 | Stack | ✅ Complete | ✅ Passing | Flex-based stacking layout |
 | Table | ✅ Complete | ✅ Passing | Data table component |
@@ -129,12 +130,37 @@ A comprehensive Blazor component library inspired by shadcn/ui and Radzen Blazor
 - 22 foundational components
 - Zero build warnings
 
-### 🔥 HIGH PRIORITY: Advanced Data Components (Radzen-Inspired)
+### 🔥 HIGH PRIORITY: Responsive Layout & Data Components
+
+#### MudBlazor Grid System (Critical for Responsive Layouts)
+
+**Grid** - CSS Grid-based responsive layout system
+
+**Why Critical**: After observing agents struggle with responsive data tables, a proper grid system is essential for building responsive layouts efficiently.
+
+**Key Features to Port from MudExGrid**:
+- ✅ CSS Grid-based layout (not flexbox)
+- ✅ Configurable columns and rows (default 4x4)
+- ✅ Grid sections with colspan/rowspan support
+- ✅ Responsive breakpoints (xs, sm, md, lg, xl)
+- ✅ Auto-flow and item placement
+- ✅ Gap/spacing configuration
+- ✅ Height/width constraints
+- ✅ Nested grids support
+- ✅ Drag-and-drop grid items (optional)
+- ✅ Grid overlay for visual debugging
+
+**Priority**: 🔴 **CRITICAL** - Foundation for all responsive layouts
+
+---
+
+#### Radzen Data Components
 
 Port key components from Radzen Blazor library with Tailwind/shadcn styling:
 
 | Component | Priority | Complexity | Description |
 |-----------|----------|------------|-------------|
+| **Grid** (MudBlazor) | 🔴 Critical | Medium | CSS Grid responsive layout system |
 | **DataGrid** | 🔴 Critical | High | Advanced data grid with sorting, filtering, grouping, paging |
 | **DataFilter** | 🔴 Critical | Medium | Dynamic query builder for data filtering |
 | **DataList** | 🟡 High | Medium | List view with templating and data binding |
@@ -237,6 +263,7 @@ Components follow the BDD testing pattern with Given/When/Then scenarios. Each c
 ## Acknowledgments
 
 - Inspired by [shadcn/ui](https://ui.shadcn.com/)
+- Responsive grid system inspired by [MudBlazor](https://mudblazor.com/) & [MudBlazor.Extensions](https://www.mudex.org/)
 - Advanced data components inspired by [Radzen Blazor](https://blazor.radzen.com/)
 - Built with [Radix UI](https://www.radix-ui.com/) patterns
 - Styled with [Tailwind CSS](https://tailwindcss.com/)
