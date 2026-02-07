@@ -1,0 +1,106 @@
+@namespace LowlandTech.Components
+@using LowlandTech.Components.Utilities
+
+@if (_tooltip != null)
+{
+    <button @ref="_triggerRef"
+            type="button"
+            @onmouseenter="OnMouseEnter"
+            @onmouseleave="OnMouseLeave"
+            @onfocus="OnFocus"
+            @onblur="OnBlur"
+            @attributes="AdditionalAttributes">
+        @ChildContent
+    </button>
+}
+
+@code {
+    private ElementReference _triggerRef;
+    private Tooltip? _tooltip;
+    private TooltipProvider? _provider;
+    private System.Threading.Timer? _openTimer;
+    private System.Threading.Timer? _closeTimer;
+
+    [CascadingParameter] private Tooltip? CascadingTooltip { get; set; }
+    [CascadingParameter] private TooltipProvider? CascadingProvider { get; set; }
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _tooltip = CascadingTooltip;
+        _provider = CascadingProvider;
+    }
+
+    private void OnMouseEnter()
+    {
+        CancelCloseTimer();
+        
+        var delay = _provider?.GetOpenDelay() ?? 700;
+        if (delay > 0)
+        {
+            _openTimer = new System.Threading.Timer(_ => InvokeAsync(OpenTooltip), null, delay, Timeout.Infinite);
+        }
+        else
+        {
+            InvokeAsync(OpenTooltip);
+        }
+    }
+
+    private void OnMouseLeave()
+    {
+        CancelOpenTimer();
+        
+        var delay = _provider?.GetCloseDelay() ?? 300;
+        if (delay > 0)
+        {
+            _closeTimer = new System.Threading.Timer(_ => InvokeAsync(CloseTooltip), null, delay, Timeout.Infinite);
+        }
+        else
+        {
+            InvokeAsync(CloseTooltip);
+        }
+    }
+
+    private void OnFocus() => OnMouseEnter();
+    private void OnBlur() => OnMouseLeave();
+
+    private async Task OpenTooltip()
+    {
+        if (_tooltip != null)
+        {
+            await _tooltip.SetOpenAsync(true);
+            StateHasChanged();
+        }
+    }
+
+    private async Task CloseTooltip()
+    {
+        if (_tooltip != null)
+        {
+            await _tooltip.SetOpenAsync(false);
+            StateHasChanged();
+        }
+    }
+
+    private void CancelOpenTimer()
+    {
+        _openTimer?.Dispose();
+        _openTimer = null;
+    }
+
+    private void CancelCloseTimer()
+    {
+        _closeTimer?.Dispose();
+        _closeTimer = null;
+    }
+
+    public void Dispose()
+    {
+        CancelOpenTimer();
+        CancelCloseTimer();
+    }
+
+    internal ElementReference GetTriggerElement() => _triggerRef;
+}

@@ -1,0 +1,22 @@
+@namespace LowlandTech.Components.Components.AlertDialog
+@using LowlandTech.Components.Components.Portal
+@inherits ComponentBase
+@implements IAsyncDisposable
+
+@if (AlertDialogContext?.Open == true)
+{
+    <Portal Target="body">
+        @* Overlay/backdrop *@
+        <div class="fixed inset-0 z-50 bg-black/80" @onclick="OnOverlayClick"></div>
+        
+        @* Alert dialog content *@
+        <div id="@_contentId" 
+             class="@GetContentClasses()" 
+             role="alertdialog" 
+             aria-modal="true"
+             @onkeydown="OnKeyDown"
+             @attributes="AdditionalAttributes">
+            @ChildContent
+        </div>
+    </Portal>
+}

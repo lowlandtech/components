@@ -1,0 +1,48 @@
+@namespace LowlandTech.Components.Components.Popover
+
+<CascadingValue Value="this" IsFixed="true">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    /// <summary>
+    /// Content to be rendered inside the popover.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// Controls whether the popover is open.
+    /// </summary>
+    [Parameter]
+    public bool Open { get; set; }
+
+    /// <summary>
+    /// Event callback when the Open state changes.
+    /// </summary>
+    [Parameter]
+    public EventCallback<bool> OpenChanged { get; set; }
+
+    /// <summary>
+    /// CSS class to merge with popover classes.
+    /// </summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    /// <summary>
+    /// Gets whether the popover is currently open.
+    /// </summary>
+    internal bool IsOpen => Open;
+
+    /// <summary>
+    /// Sets the open state of the popover.
+    /// </summary>
+    internal async Task SetOpenAsync(bool value)
+    {
+        if (Open != value)
+        {
+            Open = value;
+            await OpenChanged.InvokeAsync(value);
+        }
+    }
+}

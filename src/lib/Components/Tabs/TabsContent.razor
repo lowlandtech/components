@@ -1,0 +1,10 @@
+@namespace LowlandTech.Components.Components.Tabs
+
+@if (IsActive)
+{
+    <div class="@GetClasses()"
+         role="tabpanel"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+}

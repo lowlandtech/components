@@ -1,0 +1,70 @@
+@namespace LowlandTech.Components.Components.DropdownMenu
+
+@if (_dropdownMenu != null)
+{
+    <button @ref="_triggerRef"
+            type="button"
+            id="@_triggerId"
+            aria-haspopup="true"
+            aria-expanded="@(_dropdownMenu.IsOpen ? "True" : "False")"
+            @onclick="OnClick"
+            @onkeydown="OnKeyDown"
+            @attributes="AdditionalAttributes">
+        @ChildContent
+    </button>
+}
+
+@code {
+    private ElementReference _triggerRef;
+    private DropdownMenu? _dropdownMenu;
+    private string _triggerId = $"dropdown-trigger-{Guid.NewGuid():N}";
+
+    [CascadingParameter] private DropdownMenu? CascadingDropdownMenu { get; set; }
+
+    /// <summary>
+    /// Content to be rendered inside the trigger button.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// Additional attributes to be applied to the trigger button.
+    /// </summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _dropdownMenu = CascadingDropdownMenu;
+    }
+
+    private async Task OnClick()
+    {
+        if (_dropdownMenu != null)
+        {
+            await _dropdownMenu.SetOpenAsync(!_dropdownMenu.IsOpen);
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (_dropdownMenu == null) return;
+
+        // Open on ArrowDown or Enter
+        if (!_dropdownMenu.IsOpen && (e.Key == "ArrowDown" || e.Key == "Enter" || e.Key == " "))
+        {
+            await _dropdownMenu.SetOpenAsync(true);
+            StateHasChanged();
+        }
+        // Close on Escape
+        else if (_dropdownMenu.IsOpen && e.Key == "Escape")
+        {
+            await _dropdownMenu.SetOpenAsync(false);
+            StateHasChanged();
+        }
+    }
+
+    internal ElementReference GetTriggerElement() => _triggerRef;
+    internal string GetTriggerId() => _triggerId;
+}

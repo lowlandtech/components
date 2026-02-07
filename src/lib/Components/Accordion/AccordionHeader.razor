@@ -1,0 +1,11 @@
+@namespace LowlandTech.Components.Components.Accordion
+@inherits ComponentBase
+
+@if (ChildContent != null)
+{
+    <h3 class="accordion-header">
+        <AccordionTrigger>
+            @ChildContent
+        </AccordionTrigger>
+    </h3>
+}

@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Components.Stepper
+
+<div class="@GetClasses()"
+     @attributes="AdditionalAttributes">
+    @if (!string.IsNullOrEmpty(Label))
+    {
+        <div class="step-label">@Label</div>
+    }
+    <div class="step-content">
+        @ChildContent
+    </div>
+</div>

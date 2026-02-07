@@ -1,0 +1,14 @@
+@namespace LowlandTech.Components.Components.Timeline
+
+<div class="@GetClasses()"
+     @attributes="AdditionalAttributes">
+    @if (DotContent != null)
+    {
+        <div class="timeline-dot">
+            @DotContent
+        </div>
+    }
+    <div class="timeline-content">
+        @ChildContent
+    </div>
+</div>

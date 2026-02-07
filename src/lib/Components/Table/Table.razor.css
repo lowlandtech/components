@@ -1,0 +1,91 @@
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    caption-side: bottom;
+    font-size: 0.875rem;
+}
+
+.table-caption {
+    padding: 0.5rem 1rem;
+    text-align: center;
+    color: var(--muted-foreground);
+}
+
+.table-header {
+    display: table-row-group;
+}
+
+.table-body {
+    display: table-row-group;
+}
+
+.table-footer {
+    display: table-row-group;
+}
+
+.table-row {
+    display: table-row;
+    transition: background-color 0.2s;
+}
+
+.table-row:hover {
+    background-color: var(--muted);
+}
+
+.table-row-selected {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+}
+
+.table-row-selected:hover {
+    background-color: var(--primary);
+}
+
+.table-head {
+    display: table-cell;
+    padding: 0.5rem 1rem;
+    text-align: left;
+    font-weight: 500;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border);
+    color: var(--foreground);
+}
+
+.table-cell {
+    display: table-cell;
+    padding: 0.5rem 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border);
+    color: var(--foreground);
+}
+
+/* Alignment variants */
+
+.table-head-align-left { text-align: left; }
+.table-head-align-center { text-align: center; }
+.table-head-align-right { text-align: right; }
+
+.table-cell-align-left { text-align: left; }
+.table-cell-align-center { text-align: center; }
+.table-cell-align-right { text-align: right; }
+
+.table-cell-align-top { vertical-align: top; }
+.table-cell-align-middle { vertical-align: middle; }
+.table-cell-align-bottom { vertical-align: bottom; }
+
+/* Empty cell styling */
+
+.table-cell:empty::before {
+    content: "\00a0";
+}
+
+/* Responsive table */
+
+@media (max-width: 640px) {
+    .table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}

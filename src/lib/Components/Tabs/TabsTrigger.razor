@@ -1,0 +1,11 @@
+@namespace LowlandTech.Components.Components.Tabs
+
+<button type="button"
+        class="@GetClasses()"
+        role="tab"
+        aria-selected="@IsActive"
+        disabled="@Disabled"
+        @onclick="HandleClickAsync"
+        @attributes="AdditionalAttributes">
+    @ChildContent
+</button>

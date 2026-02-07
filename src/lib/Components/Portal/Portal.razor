@@ -1,0 +1,15 @@
+@namespace LowlandTech.Components.Components.Portal
+@inherits ComponentBase
+
+@if (_isInitialized)
+{
+    @* Content is portaled to target via JS *@
+    <div id="portal-@_portalId">
+        @ChildContent
+    </div>
+}
+else
+{
+    @* Fallback: render in place during SSR or before JS initialization *@
+    @ChildContent
+}

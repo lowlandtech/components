@@ -1,0 +1,22 @@
+@namespace LowlandTech.Components
+
+<CascadingValue Value="this" IsFixed="true">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public bool Open { get; set; }
+    [Parameter] public EventCallback<bool> OpenChanged { get; set; }
+
+    internal bool IsOpen => Open;
+
+    internal async Task SetOpenAsync(bool value)
+    {
+        if (Open != value)
+        {
+            Open = value;
+            await OpenChanged.InvokeAsync(value);
+        }
+    }
+}

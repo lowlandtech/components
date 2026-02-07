@@ -1,0 +1,42 @@
+@namespace LowlandTech.Components.Components.DropdownMenu
+
+<CascadingValue Value="this" IsFixed="true">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    /// <summary>
+    /// Content to be rendered inside the dropdown menu.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// Controls whether the dropdown menu is open.
+    /// </summary>
+    [Parameter]
+    public bool Open { get; set; }
+
+    /// <summary>
+    /// Event callback when the Open state changes.
+    /// </summary>
+    [Parameter]
+    public EventCallback<bool> OpenChanged { get; set; }
+
+    /// <summary>
+    /// Gets whether the dropdown menu is currently open.
+    /// </summary>
+    internal bool IsOpen => Open;
+
+    /// <summary>
+    /// Sets the open state of the dropdown menu.
+    /// </summary>
+    internal async Task SetOpenAsync(bool value)
+    {
+        if (Open != value)
+        {
+            Open = value;
+            await OpenChanged.InvokeAsync(value);
+        }
+    }
+}

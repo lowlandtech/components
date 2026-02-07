@@ -1,0 +1,9 @@
+@namespace LowlandTech.Components.Components.Tabs
+
+<CascadingValue Value="this">
+    <div class="@GetClasses()"
+         data-orientation="@Orientation"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>

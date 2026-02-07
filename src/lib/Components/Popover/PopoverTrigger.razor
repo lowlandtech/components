@@ -1,0 +1,70 @@
+@namespace LowlandTech.Components.Components.Popover
+
+@if (_popover != null)
+{
+    <button @ref="_triggerRef"
+            type="button"
+            id="@_triggerId"
+            aria-haspopup="dialog"
+            aria-expanded="@(_popover.IsOpen ? "True" : "False")"
+            @onclick="OnClick"
+            @onkeydown="OnKeyDown"
+            @attributes="AdditionalAttributes">
+        @ChildContent
+    </button>
+}
+
+@code {
+    private ElementReference _triggerRef;
+    private Popover? _popover;
+    private string _triggerId = $"popover-trigger-{Guid.NewGuid():N}";
+
+    [CascadingParameter] private Popover? CascadingPopover { get; set; }
+
+    /// <summary>
+    /// Content to be rendered inside the trigger button.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// Additional attributes to be applied to the trigger button.
+    /// </summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _popover = CascadingPopover;
+    }
+
+    private async Task OnClick()
+    {
+        if (_popover != null)
+        {
+            await _popover.SetOpenAsync(!_popover.IsOpen);
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (_popover == null) return;
+
+        // Toggle on Enter or Space
+        if (e.Key == "Enter" || e.Key == " ")
+        {
+            await _popover.SetOpenAsync(!_popover.IsOpen);
+            StateHasChanged();
+        }
+        // Close on Escape
+        else if (_popover.IsOpen && e.Key == "Escape")
+        {
+            await _popover.SetOpenAsync(false);
+            StateHasChanged();
+        }
+    }
+
+    internal ElementReference GetTriggerElement() => _triggerRef;
+    internal string GetTriggerId() => _triggerId;
+}

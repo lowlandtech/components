@@ -1,0 +1,25 @@
+@namespace LowlandTech.Components.Components.Sheet
+@using Microsoft.AspNetCore.Components.Web
+
+<button @onclick="OnClick"
+        type="button"
+        data-slot="sheet-trigger"
+        @attributes="AdditionalAttributes">
+    @ChildContent
+</button>
+
+@code {
+    [CascadingParameter]
+    public Sheet? Sheet { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private void OnClick()
+    {
+        Sheet?.OpenSheet();
+    }
+}

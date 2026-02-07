@@ -1,0 +1,14 @@
+@namespace LowlandTech.Components
+
+<CascadingValue Value="this" IsFixed="true">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public int DelayMs { get; set; } = 700;
+    [Parameter] public int CloseDelayMs { get; set; } = 300;
+
+    public int GetOpenDelay() => DelayMs;
+    public int GetCloseDelay() => CloseDelayMs;
+}

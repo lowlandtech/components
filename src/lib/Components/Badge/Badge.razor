@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Badge
+
+@inherits ComponentBase
+@using LowlandTech.Components.Badge
+@using LowlandTech.Components.Utilities
+
+@* Base badge classes are defined in input.css *@
+
+<span data-slot="badge" data-variant="@Variant" class="@GetBadgeClass()" @attributes="AdditionalAttributes">
+    @ChildContent
+</span>
+

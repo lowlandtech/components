@@ -1,0 +1,23 @@
+@namespace LowlandTech.Components.Components.Sheet
+
+<p class="@GetClasses()" 
+   data-slot="sheet-description"
+   @attributes="AdditionalAttributes">
+    @ChildContent
+</p>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string GetClasses()
+    {
+        return $"text-sm text-muted-foreground {Class}".Trim();
+    }
+}

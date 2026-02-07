@@ -1,0 +1,134 @@
+@namespace LowlandTech.Components.Components.HoverCard
+@using LowlandTech.Components.Utilities
+@using LowlandTech.Components.Components.Portal
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+@if (_hoverCard?.IsOpen == true)
+{
+    <Portal Target="@Target">
+        <div @ref="_contentRef"
+             id="@_hoverCardId"
+             data-hover-card-content
+             role="dialog"
+             class="@GetClasses()"
+             style="@GetStyles()"
+             @onmouseenter="OnMouseEnter"
+             @onmouseleave="OnMouseLeave"
+             @attributes="AdditionalAttributes">
+            @ChildContent
+        </div>
+    </Portal>
+}
+
+@code {
+    private ElementReference _contentRef;
+    private HoverCard? _hoverCard;
+    private HoverCardTrigger? _trigger;
+    private PositionUtils? _positionUtils;
+    private string _hoverCardId = $"hover-card-{Guid.NewGuid():N}";
+    private PositionResult? _position;
+
+    [CascadingParameter] private HoverCard? CascadingHoverCard { get; set; }
+    [CascadingParameter] private HoverCardTrigger? CascadingTrigger { get; set; }
+
+    /// <summary>
+    /// Content to be rendered inside the hover card.
+    /// </summary>
+    [Parameter] 
+    public RenderFragment? ChildContent { get; set; }
+    
+    /// <summary>
+    /// CSS class to merge with hover card classes.
+    /// </summary>
+    [Parameter] 
+    public string? Class { get; set; }
+    
+    /// <summary>
+    /// Side placement of the hover card relative to trigger (top, right, bottom, left).
+    /// </summary>
+    [Parameter] 
+    public string Side { get; set; } = "bottom";
+    
+    /// <summary>
+    /// Offset in pixels from the side.
+    /// </summary>
+    [Parameter] 
+    public int SideOffset { get; set; } = 4;
+    
+    /// <summary>
+    /// Alignment relative to the trigger (start, center, end).
+    /// </summary>
+    [Parameter] 
+    public string Align { get; set; } = "center";
+    
+    /// <summary>
+    /// Target element selector for Portal rendering.
+    /// </summary>
+    [Parameter] 
+    public string Target { get; set; } = "body";
+    
+    /// <summary>
+    /// Additional attributes to be applied to the hover card content.
+    /// </summary>
+    [Parameter(CaptureUnmatchedValues = true)] 
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _hoverCard = CascadingHoverCard;
+        _trigger = CascadingTrigger;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_hoverCard?.IsOpen == true && _trigger != null)
+        {
+            try
+            {
+                // Position calculation could be enhanced with PositionUtils
+                // For now using simple fixed positioning
+                StateHasChanged();
+            }
+            catch (Exception)
+            {
+                // SSR or JS not available - graceful degradation
+            }
+        }
+    }
+
+    private void OnMouseEnter(MouseEventArgs e)
+    {
+        // Keep card open when hovering over it
+        _hoverCard?.OpenHoverCard();
+    }
+
+    private void OnMouseLeave(MouseEventArgs e)
+    {
+        // Close when leaving the card
+        _hoverCard?.CloseHoverCard();
+    }
+
+    private string GetClasses()
+    {
+        var baseClasses = "z-50 w-72 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-hidden";
+        return CssClassUtils.Merge(baseClasses, Class);
+    }
+
+    private string GetStyles()
+    {
+        if (_position != null)
+        {
+            return $"position: fixed; top: {_position.Top}px; left: {_position.Left}px;";
+        }
+        return "position: fixed;";
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_positionUtils != null)
+        {
+            await _positionUtils.DisposeAsync();
+        }
+    }
+}

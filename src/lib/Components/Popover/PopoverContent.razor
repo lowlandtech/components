@@ -1,0 +1,136 @@
+@namespace LowlandTech.Components.Components.Popover
+@using LowlandTech.Components.Utilities
+@using LowlandTech.Components.Components.Portal
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+@if (_popover?.IsOpen == true)
+{
+    <Portal Target="@Target">
+        <div @ref="_contentRef"
+             id="@_popoverId"
+             data-popover-content
+             role="dialog"
+             aria-labelledby="@GetTriggerId()"
+             class="@GetClasses()"
+             style="@GetStyles()"
+             @onkeydown="OnKeyDown"
+             @attributes="AdditionalAttributes">
+            @ChildContent
+        </div>
+    </Portal>
+}
+
+@code {
+    private ElementReference _contentRef;
+    private Popover? _popover;
+    private PopoverTrigger? _trigger;
+    private PositionUtils? _positionUtils;
+    private string _popoverId = $"popover-{Guid.NewGuid():N}";
+    private PositionResult? _position;
+
+    [CascadingParameter] private Popover? CascadingPopover { get; set; }
+    [CascadingParameter] private PopoverTrigger? CascadingTrigger { get; set; }
+
+    /// <summary>
+    /// Content to be rendered inside the popover.
+    /// </summary>
+    [Parameter] 
+    public RenderFragment? ChildContent { get; set; }
+    
+    /// <summary>
+    /// CSS class to merge with popover classes.
+    /// </summary>
+    [Parameter] 
+    public string? Class { get; set; }
+    
+    /// <summary>
+    /// Side placement of the popover relative to trigger (top, right, bottom, left).
+    /// </summary>
+    [Parameter] 
+    public string Side { get; set; } = "bottom";
+    
+    /// <summary>
+    /// Offset in pixels from the side.
+    /// </summary>
+    [Parameter] 
+    public int SideOffset { get; set; } = 4;
+    
+    /// <summary>
+    /// Alignment relative to the trigger (start, center, end).
+    /// </summary>
+    [Parameter] 
+    public string Align { get; set; } = "center";
+    
+    /// <summary>
+    /// Target element selector for Portal rendering.
+    /// </summary>
+    [Parameter] 
+    public string Target { get; set; } = "body";
+    
+    /// <summary>
+    /// Additional attributes to be applied to the popover content.
+    /// </summary>
+    [Parameter(CaptureUnmatchedValues = true)] 
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _popover = CascadingPopover;
+        _trigger = CascadingTrigger;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_popover?.IsOpen == true && _trigger != null)
+        {
+            try
+            {
+                // Position calculation could be enhanced with PositionUtils
+                // For now using simple fixed positioning
+                StateHasChanged();
+            }
+            catch (Exception)
+            {
+                // SSR or JS not available - graceful degradation
+            }
+        }
+    }
+
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        // Close on Escape
+        if (e.Key == "Escape" && _popover != null)
+        {
+            await _popover.SetOpenAsync(false);
+        }
+    }
+
+    private string GetClasses()
+    {
+        var baseClasses = "z-50 w-72 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-hidden";
+        return CssClassUtils.Merge(baseClasses, Class);
+    }
+
+    private string GetStyles()
+    {
+        if (_position != null)
+        {
+            return $"position: fixed; top: {_position.Top}px; left: {_position.Left}px;";
+        }
+        return "position: fixed;";
+    }
+
+    private string GetTriggerId()
+    {
+        return _trigger?.GetTriggerId() ?? "";
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_positionUtils != null)
+        {
+            await _positionUtils.DisposeAsync();
+        }
+    }
+}

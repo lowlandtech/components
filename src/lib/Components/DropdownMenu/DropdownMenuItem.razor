@@ -1,0 +1,117 @@
+@namespace LowlandTech.Components.Components.DropdownMenu
+@using LowlandTech.Components.Utilities
+@implements IDisposable
+
+<div @ref="_itemRef"
+     role="menuitem"
+     aria-disabled="@(Disabled ? "True" : "False")"
+     tabindex="@(Disabled ? -1 : 0)"
+     class="@GetClasses()"
+     @onclick="HandleClickAsync"
+     @onkeydown="OnKeyDown"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    private ElementReference _itemRef;
+    private DropdownMenuContent? _content;
+
+    [CascadingParameter] private DropdownMenuContent? CascadingContent { get; set; }
+
+    /// <summary>
+    /// Content to be rendered inside the menu item.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// Whether the menu item is disabled.
+    /// </summary>
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    /// <summary>
+    /// CSS class to be applied to the menu item.
+    /// </summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    /// <summary>
+    /// Event callback when the menu item is clicked.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+
+    /// <summary>
+    /// Additional attributes to be applied to the menu item.
+    /// </summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _content = CascadingContent;
+        _content?.RegisterMenuItem(this);
+    }
+
+    private async Task HandleClickAsync(MouseEventArgs e)
+    {
+        if (!Disabled)
+        {
+            // Notify parent content that item was clicked
+            if (_content != null)
+            {
+                await _content.OnMenuItemClickedAsync(this);
+            }
+
+            // Invoke the user's OnClick callback
+            await OnClick.InvokeAsync();
+        }
+    }
+
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (Disabled) return;
+
+        if (e.Key == "Enter" || e.Key == " ")
+        {
+            // Activate the item
+            if (_content != null)
+            {
+                await _content.OnMenuItemClickedAsync(this);
+            }
+
+            await OnClick.InvokeAsync();
+        }
+    }
+
+    private string GetClasses()
+    {
+        var baseClasses = "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors";
+        
+        if (Disabled)
+        {
+            baseClasses += " pointer-events-none opacity-50";
+        }
+        else
+        {
+            baseClasses += " hover:bg-accent hover:text-accent-foreground";
+            
+            // Add focused class if this item is focused
+            if (_content?.IsItemFocused(this) == true)
+            {
+                baseClasses += " bg-accent text-accent-foreground";
+            }
+        }
+
+        return CssClassUtils.Merge(baseClasses, Class);
+    }
+
+    internal bool IsDisabled => Disabled;
+
+    public void Dispose()
+    {
+        _content?.UnregisterMenuItem(this);
+    }
+}

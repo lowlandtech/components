@@ -1,0 +1,22 @@
+@namespace LowlandTech.Components.Components.Dialog
+@using LowlandTech.Components.Components.Portal
+@inherits ComponentBase
+@implements IAsyncDisposable
+
+@if (DialogContext?.Open == true)
+{
+    <Portal Target="body">
+        @* Overlay/backdrop *@
+        <div class="fixed inset-0 z-50 bg-black/80" @onclick="OnOverlayClick"></div>
+        
+        @* Dialog content *@
+        <div id="@_contentId" 
+             class="@GetContentClasses()" 
+             role="dialog" 
+             aria-modal="true"
+             @onkeydown="OnKeyDown"
+             @attributes="AdditionalAttributes">
+            @ChildContent
+        </div>
+    </Portal>
+}

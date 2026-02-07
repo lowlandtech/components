@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <NpmWorkingDirectory>$(MSBuildProjectDirectory)\wwwroot</NpmWorkingDirectory>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.2" />
+    <PackageReference Include="Microsoft.JSInterop" Version="10.0.2" />
+  </ItemGroup>
+
+  <!-- NPM Integration for Tailwind CSS -->
+  <Target Name="NpmInstall" BeforeTargets="BeforeBuild" Condition="!Exists('$(NpmWorkingDirectory)\node_modules')">
+    <Message Text="Running npm install in $(NpmWorkingDirectory)..." Importance="high" />
+    <Exec Command="npm install" WorkingDirectory="$(NpmWorkingDirectory)" />
+  </Target>
+
+  <Target Name="BuildTailwind" BeforeTargets="BeforeBuild" DependsOnTargets="NpmInstall">
+    <Message Text="Building Tailwind CSS..." Importance="high" />
+    <Exec Command="npm run build" WorkingDirectory="$(NpmWorkingDirectory)" />
+  </Target>
+
+  <Target Name="CleanNpm" AfterTargets="Clean">
+    <Message Text="Cleaning npm artifacts..." Importance="high" />
+    <RemoveDir Directories="$(NpmWorkingDirectory)\node_modules" />
+    <Delete Files="$(NpmWorkingDirectory)\package-lock.json" />
+    <Delete Files="$(NpmWorkingDirectory)\css\app.min.css" />
+  </Target>
+
+</Project>

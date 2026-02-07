@@ -1,0 +1,155 @@
+@namespace LowlandTech.Components.Components.Sheet
+@using LowlandTech.Components.Components.Portal
+@using LowlandTech.Components.Utilities
+@inherits ComponentBase
+@implements IAsyncDisposable
+
+@if (_sheet?.Open == true)
+{
+    <Portal Target="@Target">
+        @* Overlay/backdrop *@
+        @if (ShowOverlay)
+        {
+            <div class="fixed inset-0 z-50 bg-black/80" 
+                 data-slot="sheet-overlay"
+                 @onclick="OnOverlayClick"></div>
+        }
+        
+        @* Sheet content *@
+        <div id="@_contentId"
+             @ref="_contentRef"
+             class="@GetContentClasses()" 
+             role="dialog" 
+             aria-modal="True"
+             data-slot="sheet-content"
+             data-side="@Side.ToString().ToLower()"
+             @onkeydown="OnKeyDown"
+             @attributes="AdditionalAttributes">
+            @ChildContent
+            
+            @if (ShowCloseButton)
+            {
+                <button type="button" 
+                        class="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
+                        data-slot="sheet-close"
+                        @onclick="Close">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </button>
+            }
+        </div>
+    </Portal>
+}
+
+@code {
+    private ElementReference _contentRef;
+    private Sheet? _sheet;
+    private string _contentId = $"sheet-content-{Guid.NewGuid():N}";
+    private FocusTrap? _focusTrap;
+    private bool _disposed;
+
+    [CascadingParameter]
+    public Sheet? Sheet 
+    { 
+        get => _sheet;
+        set => _sheet = value;
+    }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public SheetSide Side { get; set; } = SheetSide.Right;
+
+    [Parameter]
+    public bool CloseOnEscape { get; set; } = true;
+
+    [Parameter]
+    public bool CloseOnOverlayClick { get; set; } = true;
+
+    [Parameter]
+    public bool ShowOverlay { get; set; } = true;
+
+    [Parameter]
+    public bool ShowCloseButton { get; set; } = true;
+
+    [Parameter]
+    public string Target { get; set; } = "body";
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; } = default!;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_sheet?.Open == true && _focusTrap == null)
+        {
+            // Initialize focus trap when sheet opens
+            _focusTrap = new FocusTrap(JSRuntime, _contentId);
+            await _focusTrap.ActivateAsync(restoreFocusOnRelease: true);
+        }
+        else if (_sheet?.Open == false && _focusTrap != null)
+        {
+            // Deactivate focus trap when sheet closes
+            await _focusTrap.DeactivateAsync();
+            await _focusTrap.DisposeAsync();
+            _focusTrap = null;
+        }
+    }
+
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (CloseOnEscape && e.Key == "Escape")
+        {
+            Close();
+        }
+    }
+
+    private void OnOverlayClick()
+    {
+        if (CloseOnOverlayClick)
+        {
+            Close();
+        }
+    }
+
+    private void Close()
+    {
+        _sheet?.CloseSheet();
+    }
+
+    private string GetContentClasses()
+    {
+        var baseClasses = "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500";
+        
+        var sideClasses = Side switch
+        {
+            SheetSide.Top => "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
+            SheetSide.Right => "inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm",
+            SheetSide.Bottom => "inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+            SheetSide.Left => "inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm",
+            _ => ""
+        };
+
+        return $"{baseClasses} {sideClasses} {Class}".Trim();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_disposed) return;
+
+        if (_focusTrap != null)
+        {
+            await _focusTrap.DisposeAsync();
+            _focusTrap = null;
+        }
+
+        _disposed = true;
+        GC.SuppressFinalize(this);
+    }
+}

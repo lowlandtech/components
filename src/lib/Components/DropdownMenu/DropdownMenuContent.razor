@@ -1,0 +1,214 @@
+@namespace LowlandTech.Components.Components.DropdownMenu
+@using LowlandTech.Components.Components.Portal
+@using LowlandTech.Components.Utilities
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+@if (_dropdownMenu?.IsOpen == true)
+{
+    <Portal Target="@Target">
+        <div @ref="_contentRef"
+             id="@_contentId"
+             role="menu"
+             aria-labelledby="@(_trigger?.GetTriggerId())"
+             class="@GetClasses()"
+             style="@GetStyles()"
+             tabindex="-1"
+             @onkeydown="OnKeyDown"
+             @attributes="AdditionalAttributes">
+            <CascadingValue Value="this" IsFixed="true">
+                @ChildContent
+            </CascadingValue>
+        </div>
+    </Portal>
+}
+
+@code {
+    private ElementReference _contentRef;
+    private DropdownMenu? _dropdownMenu;
+    private DropdownMenuTrigger? _trigger;
+    private string _contentId = $"dropdown-content-{Guid.NewGuid():N}";
+    private int _focusedIndex = -1;
+    private List<DropdownMenuItem> _menuItems = new();
+
+    [CascadingParameter] private DropdownMenu? CascadingDropdownMenu { get; set; }
+    [CascadingParameter] private DropdownMenuTrigger? CascadingTrigger { get; set; }
+
+    /// <summary>
+    /// Content to be rendered inside the dropdown menu.
+    /// </summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// CSS class to be applied to the dropdown content.
+    /// </summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    /// <summary>
+    /// The side of the trigger to position the content (top, right, bottom, left).
+    /// </summary>
+    [Parameter]
+    public string Side { get; set; } = "bottom";
+
+    /// <summary>
+    /// Offset in pixels from the trigger.
+    /// </summary>
+    [Parameter]
+    public int SideOffset { get; set; } = 4;
+
+    /// <summary>
+    /// Alignment relative to the trigger (start, center, end).
+    /// </summary>
+    [Parameter]
+    public string Align { get; set; } = "start";
+
+    /// <summary>
+    /// CSS selector for the target element where the portal should render. Defaults to "body".
+    /// </summary>
+    [Parameter]
+    public string Target { get; set; } = "body";
+
+    /// <summary>
+    /// Additional attributes to be applied to the content container.
+    /// </summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _dropdownMenu = CascadingDropdownMenu;
+        _trigger = CascadingTrigger;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_dropdownMenu?.IsOpen == true && firstRender)
+        {
+            try
+            {
+                // Focus the first enabled menu item when opened
+                if (_menuItems.Any())
+                {
+                    _focusedIndex = 0;
+                    StateHasChanged();
+                }
+            }
+            catch (Exception)
+            {
+                // JSInterop or focus not available
+            }
+        }
+    }
+
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (_dropdownMenu == null) return;
+
+        switch (e.Key)
+        {
+            case "ArrowDown":
+                // Focus next item
+                FocusNextItem();
+                StateHasChanged();
+                break;
+
+            case "ArrowUp":
+                // Focus previous item
+                FocusPreviousItem();
+                StateHasChanged();
+                break;
+
+            case "Escape":
+                // Close the dropdown
+                await _dropdownMenu.SetOpenAsync(false);
+                StateHasChanged();
+                break;
+
+            case "Tab":
+                // Close on Tab
+                await _dropdownMenu.SetOpenAsync(false);
+                StateHasChanged();
+                break;
+        }
+    }
+
+    private void FocusNextItem()
+    {
+        if (!_menuItems.Any()) return;
+
+        int nextIndex = _focusedIndex + 1;
+        while (nextIndex < _menuItems.Count)
+        {
+            if (!_menuItems[nextIndex].IsDisabled)
+            {
+                _focusedIndex = nextIndex;
+                return;
+            }
+            nextIndex++;
+        }
+    }
+
+    private void FocusPreviousItem()
+    {
+        if (!_menuItems.Any()) return;
+
+        int prevIndex = _focusedIndex - 1;
+        while (prevIndex >= 0)
+        {
+            if (!_menuItems[prevIndex].IsDisabled)
+            {
+                _focusedIndex = prevIndex;
+                return;
+            }
+            prevIndex--;
+        }
+    }
+
+    private string GetClasses()
+    {
+        var baseClasses = "z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md";
+        return CssClassUtils.Merge(baseClasses, Class);
+    }
+
+    private string GetStyles()
+    {
+        // Simple fixed positioning (can be enhanced with PositionUtils later)
+        return "position: fixed;";
+    }
+
+    internal void RegisterMenuItem(DropdownMenuItem item)
+    {
+        if (!_menuItems.Contains(item))
+        {
+            _menuItems.Add(item);
+        }
+    }
+
+    internal void UnregisterMenuItem(DropdownMenuItem item)
+    {
+        _menuItems.Remove(item);
+    }
+
+    internal bool IsItemFocused(DropdownMenuItem item)
+    {
+        int index = _menuItems.IndexOf(item);
+        return index >= 0 && index == _focusedIndex;
+    }
+
+    internal async Task OnMenuItemClickedAsync(DropdownMenuItem item)
+    {
+        if (_dropdownMenu != null && !item.IsDisabled)
+        {
+            // Close the dropdown when an item is clicked
+            await _dropdownMenu.SetOpenAsync(false);
+            StateHasChanged();
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await Task.CompletedTask;
+    }
+}

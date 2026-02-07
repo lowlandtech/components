@@ -1,0 +1,9 @@
+@namespace LowlandTech.Components.Components.Accordion
+@inherits ComponentBase
+
+@if (IsOpen)
+{
+    <div class="accordion-content">
+        @ChildContent
+    </div>
+}

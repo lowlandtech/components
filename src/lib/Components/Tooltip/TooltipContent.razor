@@ -1,0 +1,94 @@
+@namespace LowlandTech.Components
+@using LowlandTech.Components.Utilities
+@using LowlandTech.Components.Components.Portal
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+@if (_tooltip?.IsOpen == true)
+{
+    <Portal Target="@Target">
+        <div @ref="_contentRef"
+             id="@_tooltipId"
+             role="tooltip"
+             class="@GetClasses()"
+             style="@GetStyles()"
+             @attributes="AdditionalAttributes">
+            @ChildContent
+        </div>
+    </Portal>
+}
+
+@code {
+    private ElementReference _contentRef;
+    private Tooltip? _tooltip;
+    private TooltipTrigger? _trigger;
+    private PositionUtils? _positionUtils;
+    private string _tooltipId = $"tooltip-{Guid.NewGuid():N}";
+    private string _triggerId = $"trigger-{Guid.NewGuid():N}";
+    private PositionResult? _position;
+
+    [CascadingParameter] private Tooltip? CascadingTooltip { get; set; }
+    [CascadingParameter] private TooltipTrigger? CascadingTrigger { get; set; }
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string Side { get; set; } = "top";
+    [Parameter] public int SideOffset { get; set; } = 4;
+    [Parameter] public string Align { get; set; } = "center";
+    [Parameter] public string Target { get; set; } = "body";
+    [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _tooltip = CascadingTooltip;
+        _trigger = CascadingTrigger;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_tooltip?.IsOpen == true && _trigger != null)
+        {
+            try
+            {
+                // Get trigger element ID (we need to add it to TooltipTrigger)
+                var triggerElement = _trigger.GetTriggerElement();
+                
+                // Create position utils if needed
+                if (_positionUtils == null)
+                {
+                    // For now, calculate position without utils (simplified)
+                    // In production, you'd use PositionUtils properly
+                }
+
+                StateHasChanged();
+            }
+            catch (Exception)
+            {
+                // SSR or JS not available
+            }
+        }
+    }
+
+    private string GetClasses()
+    {
+        var baseClasses = "z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md";
+        return CssClassUtils.Merge(baseClasses, Class);
+    }
+
+    private string GetStyles()
+    {
+        if (_position != null)
+        {
+            return $"position: fixed; top: {_position.Top}px; left: {_position.Left}px;";
+        }
+        return "position: fixed;";
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_positionUtils != null)
+        {
+            await _positionUtils.DisposeAsync();
+        }
+    }
+}
