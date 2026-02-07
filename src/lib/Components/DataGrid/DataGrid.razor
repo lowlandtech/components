@@ -1,0 +1,54 @@
+@namespace LowlandTech.Components.Components.DataGrid
+@typeparam TItem
+@using Microsoft.AspNetCore.Components
+
+<CascadingValue Value="this" IsFixed="true">
+    @Columns
+</CascadingValue>
+
+@if (Data != null && Data.Any())
+{
+    <table class="@GetTableClasses()" @attributes="AdditionalAttributes">
+        <thead>
+            <tr>
+                @foreach (var column in _columns)
+                {
+                    <th>@column.Title</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Data)
+            {
+                <tr>
+                    @foreach (var column in _columns)
+                    {
+                        <td>
+                            @if (column.Template != null)
+                            {
+                                @column.Template(item)
+                            }
+                            else
+                            {
+                                @column.GetValue(item)
+                            }
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="@GetEmptyStateClasses()">
+        @if (EmptyTemplate != null)
+        {
+            @EmptyTemplate
+        }
+        else
+        {
+            <p>No data available</p>
+        }
+    </div>
+}
