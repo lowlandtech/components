@@ -1,0 +1,10 @@
+@namespace LowlandTech.Components.Components.ToggleGroup
+
+@inherits ComponentBase
+@using LowlandTech.Components.Utilities
+
+<div class="@GetClasses()" @attributes="AdditionalAttributes">
+    <CascadingValue Value="this">
+        @ChildContent
+    </CascadingValue>
+</div>

@@ -1,0 +1,13 @@
+@namespace LowlandTech.Components.Components.ToggleGroup
+
+@inherits ComponentBase
+@using LowlandTech.Components.Utilities
+
+<button type="button"
+        aria-pressed="@IsPressed"
+        class="@GetClasses()"
+        disabled="@(Disabled || Group?.Disabled == true)"
+        @onclick="HandleClick"
+        @attributes="AdditionalAttributes">
+    @ChildContent
+</button>
