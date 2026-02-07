@@ -261,12 +261,73 @@ export const positionUtils = {
     }
 };
 
+// Swipe utilities - for swipe gesture detection
+export const swipeUtils = {
+    /**
+     * Initializes swipe detection on an element
+     * @param {HTMLElement} element - The element to enable swipe detection on
+     */
+    init(element) {
+        if (!element) {
+            console.error('Swipe: element not found');
+            return false;
+        }
+        // Mark element as initialized for swipe detection
+        element.setAttribute('data-swipe-initialized', 'true');
+        return true;
+    },
+
+    /**
+     * Prevents default browser behavior for touch/pointer events
+     * @param {HTMLElement} element - The element to prevent default on
+     */
+    preventDefault(element) {
+        if (!element) {
+            return;
+        }
+
+        const preventDefaultHandler = (e) => {
+            e.preventDefault();
+        };
+
+        element.addEventListener('touchstart', preventDefaultHandler, { passive: false });
+        element.addEventListener('touchmove', preventDefaultHandler, { passive: false });
+        element.addEventListener('pointerdown', preventDefaultHandler);
+        element.addEventListener('pointermove', preventDefaultHandler);
+
+        // Store handlers for cleanup if needed
+        element._swipePreventDefaultHandlers = preventDefaultHandler;
+    },
+
+    /**
+     * Cleans up swipe detection on an element
+     * @param {HTMLElement} element - The element to clean up
+     */
+    cleanup(element) {
+        if (!element) {
+            return;
+        }
+
+        if (element._swipePreventDefaultHandlers) {
+            element.removeEventListener('touchstart', element._swipePreventDefaultHandlers);
+            element.removeEventListener('touchmove', element._swipePreventDefaultHandlers);
+            element.removeEventListener('pointerdown', element._swipePreventDefaultHandlers);
+            element.removeEventListener('pointermove', element._swipePreventDefaultHandlers);
+            delete element._swipePreventDefaultHandlers;
+        }
+
+        element.removeAttribute('data-swipe-initialized');
+    }
+};
+
 // Export window globals for non-module usage
 if (typeof window !== 'undefined') {
     window.LowlandTechComponents = {
         portalUtils,
         themeUtils,
         focusTrapUtils,
-        positionUtils
+        positionUtils,
+        swipeUtils
     };
 }
+
