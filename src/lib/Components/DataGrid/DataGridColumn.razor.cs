@@ -39,6 +39,12 @@ public partial class DataGridColumn<TItem> : ComponentBase where TItem : notnull
     [Parameter]
     public string? FormatString { get; set; }
 
+    /// <summary>
+    /// Gets or sets the text alignment for the column.
+    /// </summary>
+    [Parameter]
+    public TextAlign TextAlign { get; set; } = TextAlign.Left;
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
@@ -73,6 +79,20 @@ public partial class DataGridColumn<TItem> : ComponentBase where TItem : notnull
         }
 
         return value;
+    }
+
+    /// <summary>
+    /// Gets the CSS class for text alignment.
+    /// </summary>
+    public string GetAlignmentClass()
+    {
+        return TextAlign switch
+        {
+            TextAlign.Left => "text-left",
+            TextAlign.Center => "text-center",
+            TextAlign.Right => "text-right",
+            _ => "text-left"
+        };
     }
 
     public void Dispose()

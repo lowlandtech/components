@@ -24,7 +24,7 @@
                 <tr>
                     @foreach (var column in _columns)
                     {
-                        <th>@column.Title</th>
+                        <th class="@column.GetAlignmentClass()">@column.Title</th>
                     }
                 </tr>
             </thead>
@@ -34,7 +34,7 @@
                     <tr>
                         @foreach (var column in _columns)
                         {
-                            <td>
+                            <td class="@column.GetAlignmentClass()">
                                 @if (column.Template != null)
                                 {
                                     @column.Template(item)
