@@ -874,4 +874,29 @@
     opacity: 0.5;
     pointer-events: none;
   }
+
+  /* Alert Component */
+  .alert {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid hsl(var(--border));
+    background-color: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+  }
+
+  .alert-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1;
+    color: hsl(var(--foreground));
+  }
+
+  .alert-description {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: hsl(var(--muted-foreground));
+  }
 }
