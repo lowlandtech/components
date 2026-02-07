@@ -1,0 +1,8 @@
+@namespace LowlandTech.Components.Components.NativeSelect
+
+@inherits ComponentBase
+@using LowlandTech.Components.Utilities
+
+<select class="@GetClasses()" disabled="@Disabled" @attributes="AdditionalAttributes">
+    @ChildContent
+</select>
