@@ -1,0 +1,6 @@
+@namespace LowlandTech.Components
+@inherits ProgressBase
+
+<div @attributes="AdditionalAttributes" class="@CssClass" role="progressbar" aria-valuenow="@Value" aria-valuemin="0" aria-valuemax="100">
+    <div class="progress-indicator" style="width: @(Value)%"></div>
+</div>
