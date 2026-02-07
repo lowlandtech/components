@@ -11,7 +11,6 @@ namespace LowlandTech.Components.Components.Checkbox;
 /// </summary>
 public partial class Checkbox : ComponentBase, IAsyncDisposable
 {
-    private ElementReference _checkboxRef;
     private bool _disposed;
 
     /// <summary>

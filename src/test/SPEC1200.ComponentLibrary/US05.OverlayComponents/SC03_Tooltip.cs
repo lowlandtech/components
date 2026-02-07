@@ -18,12 +18,12 @@ namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US05.OverlayCom
 [Trait(Spec.SC, "03")]
 public class SC03_Tooltip : IDisposable
 {
-    private readonly TestContext _testContext;
+    private readonly BunitContext _testContext;
     private readonly Mock<IJSRuntime> _mockJsRuntime;
 
     public SC03_Tooltip()
     {
-        _testContext = new TestContext();
+        _testContext = new BunitContext();
         _mockJsRuntime = new Mock<IJSRuntime>();
         _testContext.Services.AddSingleton(_mockJsRuntime.Object);
 

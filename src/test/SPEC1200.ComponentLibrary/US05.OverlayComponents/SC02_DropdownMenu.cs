@@ -19,12 +19,12 @@ namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US05.OverlayCom
 [Trait(Spec.SC, "02")]
 public class SC02_DropdownMenu : IDisposable
 {
-    private readonly TestContext _testContext;
+    private readonly BunitContext _testContext;
     private readonly Mock<IJSRuntime> _mockJsRuntime;
 
     public SC02_DropdownMenu()
     {
-        _testContext = new TestContext();
+        _testContext = new BunitContext();
         _mockJsRuntime = new Mock<IJSRuntime>();
         _testContext.Services.AddSingleton(_mockJsRuntime.Object);
 

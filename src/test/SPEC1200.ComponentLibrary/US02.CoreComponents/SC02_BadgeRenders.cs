@@ -14,12 +14,12 @@ namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US02.CoreCompon
 [Trait(Spec.SC, "02")]
 public class SC02_BadgeRenders : Scenario
 {
-    private TestContext _ctx = null!;
+    private BunitContext _ctx = null!;
     private IRenderedComponent<BadgeComponent>? _badge;
 
     protected override Task GivenAsync()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
         return Task.CompletedTask;
     }
 
@@ -53,7 +53,7 @@ public class SC02_BadgeRenders : Scenario
     [Trait(Spec.UAC, "08")]
     public async Task UAC08_ShouldApplyBaseClass()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
 
         _badge = _ctx.Render<BadgeComponent>(parameters => parameters
             .Add(p => p.ChildContent, "Default")
@@ -70,7 +70,7 @@ public class SC02_BadgeRenders : Scenario
     [Trait(Spec.UAC, "09")]
     public async Task UAC09_ShouldSupportVariantClasses()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
 
         _badge = _ctx.Render<BadgeComponent>(parameters => parameters
             .Add(p => p.Variant, BadgeVariants.Default)
@@ -107,7 +107,7 @@ public class SC02_BadgeRenders : Scenario
     [Trait(Spec.UAC, "10")]
     public async Task UAC10_ShouldMergeClassParameter()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
 
         _badge = _ctx.Render<BadgeComponent>(parameters => parameters
             .Add(p => p.Class, "custom-class")

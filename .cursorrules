@@ -19,9 +19,9 @@ This file contains coding standards and guidelines for AI assistants working on 
 **Tailwind CSS v4** with **shadcn/ui-inspired** component system
 
 - **Dark theme only** - color-scheme: dark
-- **Custom CSS variables** in `src/Pluggable.Shell/wwwroot/css/variables.css`
-- **Component classes** in `src/Pluggable.Shell/wwwroot/css/input.css`
-- **Auto-compilation** via MSBuild (see `Pluggable.Shell.csproj`)
+- **Custom CSS variables** in `src/lib/wwwroot/css/variables.css`
+- **Component classes** in `src/lib/wwwroot/css/input.css`
+- **Auto-compilation** via MSBuild (see `LowlandTech.Components.csproj`)
 
 ### Color Palette
 
@@ -751,7 +751,7 @@ dotnet build -c Release                   # Release build
 
 ### Running
 ```bash
-cd src/Pluggable.Shell
+cd src/LowlandTech.Components
 dotnet run --urls http://localhost:5000
 ```
 
@@ -777,7 +777,7 @@ dotnet test --filter "FullyQualifiedName=Namespace.ClassName.TestMethodName"
 
 **bUnit tests only:**
 ```bash
-dotnet test test/Pluggable.Shell.Tests
+dotnet test test/LowlandTech.Components.Tests
 ```
 
 **E2E tests only:**
@@ -794,13 +794,13 @@ dotnet test --filter "FullyQualifiedName!~E2E"
 
 **Build CSS (automatic via MSBuild):**
 ```bash
-cd src/Pluggable.Shell/wwwroot
+cd src/lib/wwwroot
 npm run build:css
 ```
 
 **Watch mode (development):**
 ```bash
-cd src/Pluggable.Shell/wwwroot
+cd src/lib/wwwroot
 npm run watch:css
 ```
 

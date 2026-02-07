@@ -13,12 +13,12 @@ namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US07.LayoutComp
 [Trait(Spec.SC, "01")]
 public class SC01_TableRenders : Scenario
 {
-    private TestContext _ctx = null!;
+    private BunitContext _ctx = null!;
     private IRenderedComponent<Table>? _component;
 
     protected override Task GivenAsync()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
         return Task.CompletedTask;
     }
 
@@ -64,7 +64,7 @@ public class SC01_TableRenders : Scenario
     public async Task UAC03_ShouldHaveSubcomponents()
     {
         // Simply verify that the components can be instantiated
-        using var ctx = new TestContext();
+        using var ctx = new BunitContext();
         
         // Test TableHeader
         var header = ctx.Render<TableHeader>();
@@ -96,7 +96,7 @@ public class SC01_TableRenders : Scenario
     [Trait(Spec.UAC, "04")]
     public async Task UAC04_ShouldRenderSemanticElements()
     {
-        using var ctx = new TestContext();
+        using var ctx = new BunitContext();
         
         // Verify TableHeader renders thead
         var header = ctx.Render<TableHeader>();
@@ -123,7 +123,7 @@ public class SC01_TableRenders : Scenario
     [Trait(Spec.UAC, "05")]
     public async Task UAC05_ShouldMergeClasses()
     {
-        using var ctx = new TestContext();
+        using var ctx = new BunitContext();
         var component = ctx.Render<Table>(parameters => parameters
             .Add(p => p.Class, "custom-table-class")
         );

@@ -9,11 +9,11 @@ namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US10.MudCompone
 [Trait(Spec.SC, "03")]
 public class SC03_TimelineRenders : Scenario
 {
-    private TestContext _ctx = null!;
+    private BunitContext _ctx = null!;
 
     protected override Task GivenAsync()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
         return Task.CompletedTask;
     }
 
@@ -68,11 +68,11 @@ public class SC03_TimelineRenders : Scenario
     {
         await ArrangeAndActAsync();
         
-        using var ctx1 = new TestContext();
+        using var ctx1 = new BunitContext();
         var vertical = ctx1.Render<Timeline>(parameters => parameters.Add(p => p.Orientation, "vertical"));
         vertical.Find(".timeline").ClassList.ShouldContain("timeline-vertical");
 
-        using var ctx2 = new TestContext();
+        using var ctx2 = new BunitContext();
         var horizontal = ctx2.Render<Timeline>(parameters => parameters.Add(p => p.Orientation, "horizontal"));
         horizontal.Find(".timeline").ClassList.ShouldContain("timeline-horizontal");
     }
@@ -83,15 +83,15 @@ public class SC03_TimelineRenders : Scenario
     {
         await ArrangeAndActAsync();
         
-        using var ctx1 = new TestContext();
+        using var ctx1 = new BunitContext();
         var start = ctx1.Render<TimelineItem>(parameters => parameters.Add(p => p.Align, "start"));
         start.Find(".timeline-item").ClassList.ShouldContain("timeline-start");
 
-        using var ctx2 = new TestContext();
+        using var ctx2 = new BunitContext();
         var center = ctx2.Render<TimelineItem>(parameters => parameters.Add(p => p.Align, "center"));
         center.Find(".timeline-item").ClassList.ShouldContain("timeline-center");
 
-        using var ctx3 = new TestContext();
+        using var ctx3 = new BunitContext();
         var end = ctx3.Render<TimelineItem>(parameters => parameters.Add(p => p.Align, "end"));
         end.Find(".timeline-item").ClassList.ShouldContain("timeline-end");
     }

@@ -22,10 +22,8 @@
     private ElementReference _contentRef;
     private Tooltip? _tooltip;
     private TooltipTrigger? _trigger;
-    private PositionUtils? _positionUtils;
     private string _tooltipId = $"tooltip-{Guid.NewGuid():N}";
     private string _triggerId = $"trigger-{Guid.NewGuid():N}";
-    private PositionResult? _position;
 
     [CascadingParameter] private Tooltip? CascadingTooltip { get; set; }
     [CascadingParameter] private TooltipTrigger? CascadingTrigger { get; set; }
@@ -53,12 +51,7 @@
                 // Get trigger element ID (we need to add it to TooltipTrigger)
                 var triggerElement = _trigger.GetTriggerElement();
                 
-                // Create position utils if needed
-                if (_positionUtils == null)
-                {
-                    // For now, calculate position without utils (simplified)
-                    // In production, you'd use PositionUtils properly
-                }
+                // TODO: Implement dynamic positioning with PositionUtils
 
                 StateHasChanged();
             }
@@ -77,18 +70,12 @@
 
     private string GetStyles()
     {
-        if (_position != null)
-        {
-            return $"position: fixed; top: {_position.Top}px; left: {_position.Left}px;";
-        }
+        // TODO: Implement dynamic positioning
         return "position: fixed;";
     }
 
-    public async ValueTask DisposeAsync()
+    public ValueTask DisposeAsync()
     {
-        if (_positionUtils != null)
-        {
-            await _positionUtils.DisposeAsync();
-        }
+        return ValueTask.CompletedTask;
     }
 }

@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <NpmWorkingDirectory>$(MSBuildProjectDirectory)\wwwroot</NpmWorkingDirectory>
+    <!-- Suppress BL0007: false positive for EventCallback pattern with backing fields -->
+    <NoWarn>$(NoWarn);BL0007</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

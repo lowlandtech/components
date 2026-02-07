@@ -25,9 +25,7 @@
     private ElementReference _contentRef;
     private Popover? _popover;
     private PopoverTrigger? _trigger;
-    private PositionUtils? _positionUtils;
     private string _popoverId = $"popover-{Guid.NewGuid():N}";
-    private PositionResult? _position;
 
     [CascadingParameter] private Popover? CascadingPopover { get; set; }
     [CascadingParameter] private PopoverTrigger? CascadingTrigger { get; set; }
@@ -114,10 +112,6 @@
 
     private string GetStyles()
     {
-        if (_position != null)
-        {
-            return $"position: fixed; top: {_position.Top}px; left: {_position.Left}px;";
-        }
         return "position: fixed;";
     }
 
@@ -128,9 +122,5 @@
 
     public async ValueTask DisposeAsync()
     {
-        if (_positionUtils != null)
-        {
-            await _positionUtils.DisposeAsync();
-        }
     }
 }

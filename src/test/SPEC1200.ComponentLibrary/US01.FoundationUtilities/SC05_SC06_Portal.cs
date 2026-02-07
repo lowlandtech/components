@@ -18,12 +18,12 @@ namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US01.Foundation
 [Trait(Spec.SC, "05")]
 public class SC05_SC06_Portal : IDisposable
 {
-    private readonly TestContext _testContext;
+    private readonly BunitContext _testContext;
     private readonly Mock<IJSRuntime> _mockJsRuntime;
 
     public SC05_SC06_Portal()
     {
-        _testContext = new TestContext();
+        _testContext = new BunitContext();
         _mockJsRuntime = new Mock<IJSRuntime>();
         _testContext.Services.AddSingleton(_mockJsRuntime.Object);
     }

@@ -9,11 +9,11 @@ namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US10.MudCompone
 [Trait(Spec.SC, "06")]
 public class SC06_StepperRenders : Scenario
 {
-    private TestContext _ctx = null!;
+    private BunitContext _ctx = null!;
 
     protected override Task GivenAsync()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
         return Task.CompletedTask;
     }
 
@@ -89,11 +89,11 @@ public class SC06_StepperRenders : Scenario
     {
         await ArrangeAndActAsync();
         
-        using var ctx1 = new TestContext();
+        using var ctx1 = new BunitContext();
         var completed = ctx1.Render<Step>(parameters => parameters.Add(p => p.Completed, true));
         completed.Find(".step").ClassList.ShouldContain("step-complete");
 
-        using var ctx2 = new TestContext();
+        using var ctx2 = new BunitContext();
         var disabled = ctx2.Render<Step>(parameters => parameters.Add(p => p.Disabled, true));
         disabled.Find(".step").ClassList.ShouldContain("step-disabled");
     }

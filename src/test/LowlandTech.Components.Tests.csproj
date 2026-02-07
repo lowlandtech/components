@@ -6,6 +6,8 @@
 		<IsPackable>false</IsPackable>
 		<AssemblyName>LowlandTech.Components.Tests</AssemblyName>
 		<RootNamespace>LowlandTech.Components.Tests</RootNamespace>
+		<!-- Suppress nullable warnings in test code -->
+		<NoWarn>$(NoWarn);CS8604;CS4014</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>

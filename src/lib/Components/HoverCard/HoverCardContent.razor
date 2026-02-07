@@ -25,9 +25,7 @@
     private ElementReference _contentRef;
     private HoverCard? _hoverCard;
     private HoverCardTrigger? _trigger;
-    private PositionUtils? _positionUtils;
     private string _hoverCardId = $"hover-card-{Guid.NewGuid():N}";
-    private PositionResult? _position;
 
     [CascadingParameter] private HoverCard? CascadingHoverCard { get; set; }
     [CascadingParameter] private HoverCardTrigger? CascadingTrigger { get; set; }
@@ -117,18 +115,13 @@
 
     private string GetStyles()
     {
-        if (_position != null)
-        {
-            return $"position: fixed; top: {_position.Top}px; left: {_position.Left}px;";
-        }
+        // TODO: Implement dynamic positioning using PositionUtils
+        // For now using simple fixed positioning
         return "position: fixed;";
     }
 
     public async ValueTask DisposeAsync()
     {
-        if (_positionUtils != null)
-        {
-            await _positionUtils.DisposeAsync();
-        }
+        // TODO: Cleanup if positioning utilities are implemented
     }
 }

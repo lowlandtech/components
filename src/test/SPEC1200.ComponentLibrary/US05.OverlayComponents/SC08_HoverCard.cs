@@ -19,12 +19,12 @@ namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US05.OverlayCom
 [Trait(Spec.SC, "08")]
 public class SC08_HoverCard : IDisposable
 {
-    private readonly TestContext _testContext;
+    private readonly BunitContext _testContext;
     private readonly Mock<IJSRuntime> _mockJsRuntime;
 
     public SC08_HoverCard()
     {
-        _testContext = new TestContext();
+        _testContext = new BunitContext();
         _mockJsRuntime = new Mock<IJSRuntime>();
         _testContext.Services.AddSingleton(_mockJsRuntime.Object);
 

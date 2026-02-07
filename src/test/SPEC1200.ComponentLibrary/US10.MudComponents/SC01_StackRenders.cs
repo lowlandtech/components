@@ -9,12 +9,12 @@ namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US10.MudCompone
 [Trait(Spec.SC, "01")]
 public class SC01_StackRenders : Scenario
 {
-    private TestContext _ctx = null!;
+    private BunitContext _ctx = null!;
     private IRenderedComponent<Stack>? _component;
 
     protected override Task GivenAsync()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
         return Task.CompletedTask;
     }
 
@@ -57,7 +57,7 @@ public class SC01_StackRenders : Scenario
     [Trait(Spec.UAC, "03")]
     public async Task UAC03_ShouldApplyRowDirectionWhenRowTrue()
     {
-        using var ctx = new TestContext();
+        using var ctx = new BunitContext();
         var component = ctx.Render<Stack>(parameters => parameters
             .Add(p => p.Row, true)
         );
@@ -82,7 +82,7 @@ public class SC01_StackRenders : Scenario
     [Trait(Spec.UAC, "05")]
     public async Task UAC05_ShouldApplyCustomSpacing()
     {
-        using var ctx = new TestContext();
+        using var ctx = new BunitContext();
         var component = ctx.Render<Stack>(parameters => parameters
             .Add(p => p.Spacing, 4)
         );
@@ -95,7 +95,7 @@ public class SC01_StackRenders : Scenario
     [Trait(Spec.UAC, "06")]
     public async Task UAC06_ShouldMergeCustomClass()
     {
-        using var ctx = new TestContext();
+        using var ctx = new BunitContext();
         var component = ctx.Render<Stack>(parameters => parameters
             .Add(p => p.Class, "custom-class")
         );
@@ -109,7 +109,7 @@ public class SC01_StackRenders : Scenario
     [Trait(Spec.UAC, "07")]
     public async Task UAC07_ShouldForwardAdditionalAttributes()
     {
-        using var ctx = new TestContext();
+        using var ctx = new BunitContext();
         var component = ctx.Render<Stack>(parameters => parameters
             .AddUnmatched("data-testid", "my-stack")
         );
@@ -122,7 +122,7 @@ public class SC01_StackRenders : Scenario
     [Trait(Spec.UAC, "08")]
     public async Task UAC08_ShouldRenderChildContent()
     {
-        using var ctx = new TestContext();
+        using var ctx = new BunitContext();
         var component = ctx.Render<Stack>(parameters => parameters
             .AddChildContent("<div class=\"child-item\">Item 1</div><div class=\"child-item\">Item 2</div>")
         );

@@ -12,12 +12,12 @@ namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US02.CoreCompon
 [Trait(Spec.SC, "01")]
 public class SC01_ButtonRenders : Scenario
 {
-    private TestContext _ctx = null!;
+    private BunitContext _ctx = null!;
     private IRenderedComponent<Button>? _component;
 
     protected override Task GivenAsync()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
         return Task.CompletedTask;
     }
 
@@ -61,42 +61,42 @@ public class SC01_ButtonRenders : Scenario
     public async Task UAC03_ShouldSupportVariantClasses()
     {
         // Test default variant
-        using var ctx1 = new TestContext();
+        using var ctx1 = new BunitContext();
         var defaultBtn = ctx1.Render<Button>(parameters => parameters
             .Add(p => p.Variant, ButtonVariant.Default)
         );
         defaultBtn.Find("button").ClassList.ShouldContain("btn-default");
 
         // Test secondary variant
-        using var ctx2 = new TestContext();
+        using var ctx2 = new BunitContext();
         var secondaryBtn = ctx2.Render<Button>(parameters => parameters
             .Add(p => p.Variant, ButtonVariant.Secondary)
         );
         secondaryBtn.Find("button").ClassList.ShouldContain("btn-secondary");
 
         // Test outline variant
-        using var ctx3 = new TestContext();
+        using var ctx3 = new BunitContext();
         var outlineBtn = ctx3.Render<Button>(parameters => parameters
             .Add(p => p.Variant, ButtonVariant.Outline)
         );
         outlineBtn.Find("button").ClassList.ShouldContain("btn-outline");
 
         // Test ghost variant
-        using var ctx4 = new TestContext();
+        using var ctx4 = new BunitContext();
         var ghostBtn = ctx4.Render<Button>(parameters => parameters
             .Add(p => p.Variant, ButtonVariant.Ghost)
         );
         ghostBtn.Find("button").ClassList.ShouldContain("btn-ghost");
 
         // Test link variant
-        using var ctx5 = new TestContext();
+        using var ctx5 = new BunitContext();
         var linkBtn = ctx5.Render<Button>(parameters => parameters
             .Add(p => p.Variant, ButtonVariant.Link)
         );
         linkBtn.Find("button").ClassList.ShouldContain("btn-link");
 
         // Test destructive variant
-        using var ctx6 = new TestContext();
+        using var ctx6 = new BunitContext();
         var destructiveBtn = ctx6.Render<Button>(parameters => parameters
             .Add(p => p.Variant, ButtonVariant.Destructive)
         );
@@ -108,21 +108,21 @@ public class SC01_ButtonRenders : Scenario
     public async Task UAC04_ShouldSupportSizeClasses()
     {
         // Test small size
-        using var ctx1 = new TestContext();
+        using var ctx1 = new BunitContext();
         var smallBtn = ctx1.Render<Button>(parameters => parameters
             .Add(p => p.Size, ButtonSize.Small)
         );
         smallBtn.Find("button").ClassList.ShouldContain("btn-sm");
 
         // Test large size
-        using var ctx2 = new TestContext();
+        using var ctx2 = new BunitContext();
         var largeBtn = ctx2.Render<Button>(parameters => parameters
             .Add(p => p.Size, ButtonSize.Large)
         );
         largeBtn.Find("button").ClassList.ShouldContain("btn-lg");
 
         // Test icon size
-        using var ctx3 = new TestContext();
+        using var ctx3 = new BunitContext();
         var iconBtn = ctx3.Render<Button>(parameters => parameters
             .Add(p => p.Size, ButtonSize.Icon)
         );
@@ -133,7 +133,7 @@ public class SC01_ButtonRenders : Scenario
     [Trait(Spec.UAC, "05")]
     public async Task UAC05_ShouldMergeCustomClass()
     {
-        using var ctx = new TestContext();
+        using var ctx = new BunitContext();
         var component = ctx.Render<Button>(parameters => parameters
             .Add(p => p.Class, "custom-class another-class")
         );
@@ -149,7 +149,7 @@ public class SC01_ButtonRenders : Scenario
     [Trait(Spec.UAC, "06")]
     public async Task UAC06_ShouldForwardUnmatchedAttributes()
     {
-        using var ctx = new TestContext();
+        using var ctx = new BunitContext();
         var component = ctx.Render<Button>(parameters => parameters
             .AddUnmatched("data-testid", "my-button")
             .AddUnmatched("aria-label", "Submit form")

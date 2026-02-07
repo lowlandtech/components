@@ -14,12 +14,12 @@ namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US02.CoreCompon
 [Trait(Spec.SC, "04")]
 public class SC04_SeparatorRenders : Scenario
 {
-    private TestContext _ctx = null!;
+    private BunitContext _ctx = null!;
     private IRenderedComponent<SeparatorComponent>? _separator;
 
     protected override Task GivenAsync()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
         return Task.CompletedTask;
     }
 
@@ -39,7 +39,7 @@ public class SC04_SeparatorRenders : Scenario
     [Trait(Spec.UAC, "15")]
     public async Task UAC15_ShouldRenderDivElement()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
 
         _separator = _ctx.Render<SeparatorComponent>();
         _separator.ShouldNotBeNull();
@@ -52,7 +52,7 @@ public class SC04_SeparatorRenders : Scenario
     [Trait(Spec.UAC, "16")]
     public async Task UAC16_ShouldApplyBaseClass()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
 
         _separator = _ctx.Render<SeparatorComponent>();
         _separator.ShouldNotBeNull();
@@ -65,7 +65,7 @@ public class SC04_SeparatorRenders : Scenario
     [Trait(Spec.UAC, "17")]
     public async Task UAC17_ShouldSupportOrientation()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
 
         var horizontal = _ctx.Render<SeparatorComponent>(parameters => parameters
             .Add(p => p.Orientation, SeparatorOrientation.Horizontal)
@@ -82,7 +82,7 @@ public class SC04_SeparatorRenders : Scenario
     [Trait(Spec.UAC, "18")]
     public async Task UAC18_ShouldBeAriaHidden()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
 
         _separator = _ctx.Render<SeparatorComponent>();
         _separator.ShouldNotBeNull();
@@ -95,7 +95,7 @@ public class SC04_SeparatorRenders : Scenario
     [Trait(Spec.UAC, "19")]
     public async Task UAC19_ShouldMergeClassParameter()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
 
         _separator = _ctx.Render<SeparatorComponent>(parameters => parameters
             .Add(p => p.Class, "custom-class")

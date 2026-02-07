@@ -9,11 +9,11 @@ namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US10.MudCompone
 [Trait(Spec.SC, "05")]
 public class SC05_SkeletonRenders : Scenario
 {
-    private TestContext _ctx = null!;
+    private BunitContext _ctx = null!;
 
     protected override Task GivenAsync()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
         return Task.CompletedTask;
     }
 
@@ -61,15 +61,15 @@ public class SC05_SkeletonRenders : Scenario
     {
         await ArrangeAndActAsync();
         
-        using var ctx1 = new TestContext();
+        using var ctx1 = new BunitContext();
         var text = ctx1.Render<Skeleton>(parameters => parameters.Add(p => p.Variant, "text"));
         text.Find(".skeleton").ClassList.ShouldContain("skeleton-text");
 
-        using var ctx2 = new TestContext();
+        using var ctx2 = new BunitContext();
         var rect = ctx2.Render<Skeleton>(parameters => parameters.Add(p => p.Variant, "rect"));
         rect.Find(".skeleton").ClassList.ShouldContain("skeleton-rect");
 
-        using var ctx3 = new TestContext();
+        using var ctx3 = new BunitContext();
         var circle = ctx3.Render<Skeleton>(parameters => parameters.Add(p => p.Variant, "circle"));
         circle.Find(".skeleton").ClassList.ShouldContain("skeleton-circle");
     }
@@ -80,15 +80,15 @@ public class SC05_SkeletonRenders : Scenario
     {
         await ArrangeAndActAsync();
         
-        using var ctx1 = new TestContext();
+        using var ctx1 = new BunitContext();
         var pulse = ctx1.Render<Skeleton>(parameters => parameters.Add(p => p.Animation, "pulse"));
         pulse.Find(".skeleton").ClassList.ShouldContain("skeleton-pulse");
 
-        using var ctx2 = new TestContext();
+        using var ctx2 = new BunitContext();
         var wave = ctx2.Render<Skeleton>(parameters => parameters.Add(p => p.Animation, "wave"));
         wave.Find(".skeleton").ClassList.ShouldContain("skeleton-wave");
 
-        using var ctx3 = new TestContext();
+        using var ctx3 = new BunitContext();
         var none = ctx3.Render<Skeleton>(parameters => parameters.Add(p => p.Animation, "none"));
         none.Find(".skeleton").ClassList.ShouldNotContain("skeleton-none");
     }

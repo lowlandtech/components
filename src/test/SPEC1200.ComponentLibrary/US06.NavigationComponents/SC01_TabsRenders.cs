@@ -13,12 +13,12 @@ namespace LowlandTech.Components.Tests.SPEC1200.ComponentLibrary.US06.Navigation
 [Trait(Spec.SC, "01")]
 public class SC01_TabsRenders : Scenario
 {
-    private TestContext _ctx = null!;
+    private BunitContext _ctx = null!;
     private IRenderedComponent<Tabs>? _component;
 
     protected override Task GivenAsync()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
         return Task.CompletedTask;
     }
 
@@ -46,19 +46,19 @@ public class SC01_TabsRenders : Scenario
         tabsContainer.ShouldNotBeNull();
         
         // Test TabsList
-        using var ctx1 = new TestContext();
+        using var ctx1 = new BunitContext();
         var tabsList = ctx1.Render<TabsList>();
         tabsList.ShouldNotBeNull();
         tabsList.Find(".tabs-list").ShouldNotBeNull();
         
         // Test TabsTrigger
-        using var ctx2 = new TestContext();
+        using var ctx2 = new BunitContext();
         var trigger = ctx2.Render<TabsTrigger>(p => p.Add(x => x.Value, "tab1"));
         trigger.ShouldNotBeNull();
         trigger.Find(".tabs-trigger").ShouldNotBeNull();
         
         // Test TabsContent
-        using var ctx3 = new TestContext();
+        using var ctx3 = new BunitContext();
         var content = ctx3.Render<TabsContent>(p => p.Add(x => x.Value, "tab1"));
         content.ShouldNotBeNull();
     }
@@ -67,7 +67,7 @@ public class SC01_TabsRenders : Scenario
     [Trait(Spec.UAC, "02")]
     public async Task UAC02_ShouldSupportDefaultActiveTab()
     {
-        using var ctx = new TestContext();
+        using var ctx = new BunitContext();
         var component = ctx.Render<Tabs>(parameters => parameters
             .Add(p => p.DefaultValue, "tab1")
         );
@@ -82,7 +82,7 @@ public class SC01_TabsRenders : Scenario
     {
         var activeTab = "tab1";
         
-        using var ctx = new TestContext();
+        using var ctx = new BunitContext();
         var component = ctx.Render<Tabs>(parameters => parameters
             .Add(p => p.Value, activeTab)
             .Add(p => p.ValueChanged, EventCallback.Factory.Create<string?>(
@@ -105,7 +105,7 @@ public class SC01_TabsRenders : Scenario
     [Trait(Spec.UAC, "04")]
     public async Task UAC04_ShouldRenderOnlyActiveContent()
     {
-        using var ctx = new TestContext();
+        using var ctx = new BunitContext();
         
         // Create a Tabs component with DefaultValue
         var tabs = ctx.Render<Tabs>(p => p.Add(x => x.DefaultValue, "tab1"));
@@ -138,7 +138,7 @@ public class SC01_TabsRenders : Scenario
     [Trait(Spec.UAC, "05")]
     public async Task UAC05_ShouldUseARIARoles()
     {
-        using var ctx = new TestContext();
+        using var ctx = new BunitContext();
         
         // Verify TabsList has tablist role
         var tabsList = ctx.Render<TabsList>();
