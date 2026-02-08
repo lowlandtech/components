@@ -44,6 +44,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\lib\LowlandTech.Components.csproj" />
+		<ProjectReference Include="..\theme\LandlandTech.Theme.csproj" />
 	</ItemGroup>
 
 </Project>

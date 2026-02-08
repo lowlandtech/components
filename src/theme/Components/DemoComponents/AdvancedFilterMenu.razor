@@ -1,4 +1,4 @@
-@namespace LowlandTech.Theme
+@namespace LandlandTech.Theme.DemoComponents
 
 @using LowlandTech.Components.Badge
 
@@ -37,42 +37,45 @@
                     <div class="flex items-center gap-3 flex-grow">
                         <div class="flex-grow">
                             <p class="text-sm font-medium text-foreground">@GetFilterTitle(filter.Type)</p>
-                            <p class="text-xs text-muted-foreground">@GetFilterDescription(filter)</p>
+                            <p class="text-xs text-muted-foreground">@GetFilterDescription(filter.Type)</p>
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="text-xs text-muted-foreground">Column:</span>
                             <select class="input text-sm" @bind="filter.Column">
-                                @GetColumnOptions(filter.Type)
+                                @foreach (var col in GetColumnOptions(filter.Type))
+                                {
+                                    <option value="@col">@col</option>
+                                }
                             </select>
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="text-xs text-muted-foreground">Value:</span>
                             @if (filter.Type == "string")
                             {
-                                <input type="text" class="input text-sm" @bind="filter.Value" placeholder="Enter value..." />
+                                <input type="text" class="input text-sm" @bind="filter.StringValue" placeholder="Enter value..." />
                             }
                             else if (filter.Type == "number")
                             {
-                                <input type="number" class="input text-sm" @bind="filter.Value" placeholder="0" />
+                                <input type="number" class="input text-sm" @bind="filter.NumberValue" placeholder="0" />
                             }
                             else if (filter.Type == "boolean")
                             {
                                 <div class="flex items-center gap-2">
-                                    <input type="checkbox" class="checkbox" @bind="filter.Value" />
-                                    <span class="text-sm text-foreground">@(filter.Value ? "True" : "False")</span>
+                                    <input type="checkbox" class="checkbox" @bind="filter.BoolValue" />
+                                    <span class="text-sm text-foreground">@(filter.BoolValue ? "True" : "False")</span>
                                 </div>
                             }
                             else if (filter.Type == "date")
                             {
-                                <input type="date" class="input text-sm" @bind="filter.Value" />
+                                <input type="date" class="input text-sm" @bind="filter.DateValue" />
                             }
                         </div>
                     </div>
-                    <button class="btn btn-outline btn-sm" @onclick="() => RemoveFilter(filter)">
+                    <button class="btn btn-outline btn-sm" @onclick="@(() => RemoveFilter(filter))">
                         <span>✕</span>
                     </button>
                 </div>
-            </div>
+            }
         </div>
     }
 </div>
@@ -110,7 +113,7 @@
             "string" => "String Contains",
             "number" => "Number Range",
             "boolean" => "Boolean Equals",
-            "date" => "Date Range"
+            "date" => "Date Range",
             _ => "Custom Filter"
         };
     }
@@ -131,11 +134,11 @@
     {
         return filterType switch
         {
-            "string" => new[] { "Name", "Email", "Category", "Status" },
-            "number" => new[] { "Age", "Count", "Score" },
-            "boolean" => new[] { "Active", "Verified", "Deleted" },
-            "date" => new[] { "Created", "Updated", "Expiry" },
-            _ => new[] { "Custom" }
+            "string" => ["Name", "Email", "Category", "Status"],
+            "number" => ["Age", "Count", "Score"],
+            "boolean" => ["Active", "Verified", "Deleted"],
+            "date" => ["Created", "Updated", "Expiry"],
+            _ => ["Custom"]
         };
     }
 
@@ -143,6 +146,9 @@
     {
         public string Type { get; set; } = string.Empty;
         public string? Column { get; set; }
-        public object? Value { get; set; }
+        public string? StringValue { get; set; }
+        public int? NumberValue { get; set; }
+        public bool BoolValue { get; set; }
+        public DateTime? DateValue { get; set; }
     }
 }

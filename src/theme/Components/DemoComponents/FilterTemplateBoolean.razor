@@ -1,4 +1,4 @@
-@namespace LowlandTech.Theme
+@namespace LandlandTech.Theme.DemoComponents
 
 @using LowlandTech.Components.Badge
 
@@ -9,17 +9,19 @@
             <span class="text-sm text-muted-foreground">Column:</span>
             <select class="input" @bind="SelectedColumn">
                 @foreach (var option in ColumnOptions)
-                    {
-                        <option value="@option">@option</option>
-                    }
-                </select>
-            </div>
+                {
+                    <option value="@option">@option</option>
+                }
+            </select>
         </div>
         <div class="flex-grow">
             <div class="flex items-center gap-2">
                 <input type="checkbox" class="checkbox" @bind="Value" />
             </div>
         </div>
+    </div>
+    <div class="flex justify-end mt-6">
+        <button class="btn btn-default">Apply Filter</button>
     </div>
 </div>
 
@@ -37,9 +39,9 @@
     public string? SelectedColumn { get; set; }
 
     [Parameter]
-    public bool? Value { get; set; }
+    public bool Value { get; set; }
 
-    private static string[] ColumnOptions { get; } = new() { "Active", "Verified", "Deleted" };
+    private static string[] ColumnOptions { get; } = ["Active", "Verified", "Deleted"];
 
     private static string GetTemplateType()
     {

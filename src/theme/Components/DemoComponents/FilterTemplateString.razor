@@ -1,4 +1,4 @@
-@namespace LowlandTech.Theme
+@namespace LandlandTech.Theme.DemoComponents
 
 @using LowlandTech.Components.Badge
 
@@ -30,11 +30,10 @@
                 </select>
             </div>
             <div class="flex-grow">
-                <input type="text" class="input" placeholder="Value..." @bind="Value" />
+                <input type="text" class="input" placeholder="Value..." @bind="StringValue" />
             </div>
-        </div>
-    }
-    @if (GetTemplateType() == "number")
+        }
+        @if (GetTemplateType() == "number")
         {
             <div class="flex items-center gap-3">
                 <span class="text-sm text-muted-foreground">Column:</span>
@@ -53,9 +52,8 @@
                     <input type="number" class="input" placeholder="100" @bind="ToValue" />
                 </div>
             </div>
-        </div>
-    }
-    @if (GetTemplateType() == "boolean")
+        }
+        @if (GetTemplateType() == "boolean")
         {
             <div class="flex items-center gap-3">
                 <span class="text-sm text-muted-foreground">Column:</span>
@@ -67,11 +65,10 @@
                 </select>
             </div>
             <div class="flex items-center">
-                <input type="checkbox" class="checkbox" @bind="Value" />
+                <input type="checkbox" class="checkbox" @bind="BoolValue" />
             </div>
-        </div>
-    }
-    @if (GetTemplateType() == "date")
+        }
+        @if (GetTemplateType() == "date")
         {
             <div class="flex items-center gap-3">
                 <span class="text-sm text-muted-foreground">Column:</span>
@@ -85,11 +82,11 @@
             <div class="space-y-3">
                 <div class="flex items-center gap-3">
                     <span class="text-sm text-muted-foreground">From:</span>
-                    <input type="date" class="input" @bind="FromValue" />
+                    <input type="date" class="input" @bind="FromDateValue" />
                 </div>
                 <div class="flex items-center gap-3">
                     <span class="text-xs text-muted-foreground">To:</span>
-                    <input type="date" class="input" @bind="ToValue" />
+                    <input type="date" class="input" @bind="ToDateValue" />
                 </div>
             </div>
         }
@@ -107,13 +104,13 @@
     public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
     [Parameter]
-    public string TemplateType { get; set; }
+    public string TemplateType { get; set; } = "custom";
 
     [Parameter]
     public string? SelectedColumn { get; set; }
 
     [Parameter]
-    public object? StringValue { get; set; }
+    public string? StringValue { get; set; }
 
     [Parameter]
     public string? SelectedOperator { get; set; }
@@ -124,9 +121,18 @@
     [Parameter]
     public int? ToValue { get; set; }
 
-    private static string[] ColumnOptions { get; } = new() { "Name", "Email", "Category", "Status" };
+    [Parameter]
+    public bool BoolValue { get; set; }
 
-    private static string GetTemplateType()
+    [Parameter]
+    public DateTime? FromDateValue { get; set; }
+
+    [Parameter]
+    public DateTime? ToDateValue { get; set; }
+
+    private static string[] ColumnOptions { get; } = ["Name", "Email", "Category", "Status"];
+
+    private string GetTemplateType()
     {
         return TemplateType ?? "custom";
     }

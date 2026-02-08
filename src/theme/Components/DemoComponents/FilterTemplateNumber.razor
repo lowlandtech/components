@@ -1,4 +1,4 @@
-@namespace LowlandTech.Theme
+@namespace LandlandTech.Theme.DemoComponents
 
 @using LowlandTech.Components.Badge
 
@@ -9,22 +9,24 @@
             <span class="text-sm text-muted-foreground">Column:</span>
             <select class="input" @bind="SelectedColumn">
                 @foreach (var option in ColumnOptions)
-                    {
-                        <option value="@option">@option</option>
-                    }
-                </select>
+                {
+                    <option value="@option">@option</option>
+                }
+            </select>
+        </div>
+        <div class="space-y-3">
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-muted-foreground">From:</span>
+                <input type="number" class="input" placeholder="0" @bind="FromValue" />
             </div>
-            <div class="space-y-3">
-                <div class="flex items-center gap-3">
-                    <span class="text-sm text-muted-foreground">From:</span>
-                    <input type="number" class="input" placeholder="0" @bind="FromValue" />
-                </div>
-                <div class="flex items-center gap-3">
-                    <span class="text-xs text-muted-foreground">To:</span>
-                    <input type="number" class="input" placeholder="100" @bind="ToValue" />
-                </div>
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-muted-foreground">To:</span>
+                <input type="number" class="input" placeholder="100" @bind="ToValue" />
             </div>
         </div>
+    </div>
+    <div class="flex justify-end mt-6">
+        <button class="btn btn-default">Apply Filter</button>
     </div>
 </div>
 
@@ -47,7 +49,7 @@
     [Parameter]
     public int? ToValue { get; set; }
 
-    private static string[] ColumnOptions { get; } = new() { "Age", "Count", "Score" };
+    private static string[] ColumnOptions { get; } = ["Age", "Count", "Score"];
 
     private static string GetTemplateType()
     {
