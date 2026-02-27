@@ -1,0 +1,22 @@
+@namespace LowlandTech.Components.Accordion
+@inherits LtComponentBase
+
+<CascadingValue Value="_itemContext" IsFixed="true">
+    <div data-slot="accordion-item"
+         data-state="@(_isOpen ? "open" : "closed")"
+         data-disabled="@(Disabled ? "true" : null)"
+         class="accordion-item @Class"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    private bool _isOpen => AccordionState?.IsOpen(Value ?? "") ?? false;
+    private AccordionItemContext _itemContext = default!;
+
+    protected override void OnInitialized()
+    {
+        _itemContext = new AccordionItemContext(this);
+    }
+}

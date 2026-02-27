@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Sidebar
+@inherits LtComponentBase
+
+<button data-slot="sidebar-trigger"
+        class="sidebar-trigger @Class"
+        @onclick="OnClick"
+        @attributes="AdditionalAttributes">
+    @if (ChildContent != null)
+    {
+        @ChildContent
+    }
+</button>

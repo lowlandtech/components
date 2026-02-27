@@ -1,0 +1,8 @@
+@namespace LowlandTech.Components.Accordion
+@inherits LtComponentBase
+
+<CascadingValue Value="State" IsFixed="false">
+    <div data-slot="accordion" data-type="@Type" class="accordion @Class" @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>

@@ -1,0 +1,38 @@
+using Bunit;
+using CalendarSut = LowlandTech.Components.Calendar.Calendar;
+using LowlandTech.Components.Tests.Infrastructure;
+
+namespace LowlandTech.Components.Tests.SPEC1009.Calendar.US01.View;
+
+[Trait(Spec.SPEC, "1009")]
+[Trait(Spec.SC, "01")]
+[UserStory("01", "Render Calendar component")]
+public class SC01_RenderCalendar : ViewScenario
+{
+    [Fact(DisplayName = "UAC01: Calendar renders data-slot attribute")]
+    [Trait(Spec.UAC, "01")]
+    [Then("the rendered markup contains data-slot")]
+    public void UAC01_RendersDataSlot()
+    {
+        var cut = Ctx.Render<CalendarSut>();
+        cut.Find("[data-slot='calendar']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC02: Calendar renders ChildContent")]
+    [Trait(Spec.UAC, "02")]
+    [Then("the rendered markup contains child content")]
+    public void UAC02_RendersChildContent()
+    {
+        var cut = Ctx.Render<CalendarSut>(p => p.AddChildContent("Hello"));
+        cut.Markup.ShouldContain("Hello");
+    }
+
+    [Fact(DisplayName = "UAC03: Calendar renders Class parameter")]
+    [Trait(Spec.UAC, "03")]
+    [Then("the rendered markup contains the CSS class")]
+    public void UAC03_RendersClass()
+    {
+        var cut = Ctx.Render<CalendarSut>(p => p.Add(x => x.Class, "test-class"));
+        cut.Find("[data-slot='calendar']").ClassList.ShouldContain("test-class");
+    }
+}

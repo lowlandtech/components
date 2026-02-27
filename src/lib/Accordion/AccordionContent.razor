@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Accordion
+@inherits LtComponentBase
+
+@if (ItemContext?.IsOpen == true)
+{
+    <div data-slot="accordion-content"
+         data-state="open"
+         class="accordion-content @Class"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+}

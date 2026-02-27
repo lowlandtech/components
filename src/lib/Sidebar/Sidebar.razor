@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Sidebar
+@inherits LtComponentBase
+
+<aside data-slot="sidebar"
+       data-state="@(SidebarState?.State ?? "expanded")"
+       data-side="@Side"
+       data-variant="@Variant"
+       data-collapsible="@Collapsible"
+       class="app-sidebar @Class"
+       @attributes="AdditionalAttributes">
+    @ChildContent
+</aside>

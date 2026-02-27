@@ -1,0 +1,16 @@
+@inherits LayoutComponentBase
+<div class="relative flex min-h-screen flex-col md:flex-row">
+    <div class="sidebar w-full md:w-64 md:sticky md:top-0 md:h-screen shrink-0 bg-sidebar-background border-r border-sidebar-border">
+        <NavMenu />
+    </div>
+
+    <main class="flex-1">
+        <div class="sticky top-0 z-10 flex h-14 items-center justify-end border-b border-border bg-background px-4 md:px-8">
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank" class="text-sm text-muted-foreground hover:text-foreground hover:underline">About</a>
+        </div>
+
+        <article class="p-4 md:px-8">
+            @Body
+        </article>
+    </main>
+</div>

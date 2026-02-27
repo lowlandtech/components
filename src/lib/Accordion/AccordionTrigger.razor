@@ -1,0 +1,11 @@
+@namespace LowlandTech.Components.Accordion
+@inherits LtComponentBase
+
+<button data-slot="accordion-trigger"
+        data-state="@(ItemContext?.IsOpen == true ? "open" : "closed")"
+        class="accordion-trigger @Class"
+        disabled="@(ItemContext?.Disabled == true)"
+        @onclick="OnClick"
+        @attributes="AdditionalAttributes">
+    @ChildContent
+</button>

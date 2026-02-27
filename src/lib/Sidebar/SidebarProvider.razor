@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Sidebar
+@inherits LtComponentBase
+@implements IDisposable
+
+<CascadingValue Value="_state" IsFixed="false">
+    <div data-slot="sidebar-provider"
+         style="--sidebar-width: @Width; --sidebar-width-mobile: @MobileWidth;"
+         class="@Class"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>

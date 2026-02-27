@@ -1,0 +1,33 @@
+@namespace LowlandTech.Components.SelectInput
+@typeparam TValue
+
+<div class="select-root">
+    <button type="button" class="select-trigger" @onclick="Toggle" @onclick:stopPropagation>
+        <span class="select-value @(string.IsNullOrEmpty(DisplayValue) ? "select-placeholder" : "")">
+            @(string.IsNullOrEmpty(DisplayValue) ? Placeholder : DisplayValue)
+        </span>
+        @if (!string.IsNullOrEmpty(ChevronDownIcon))
+        {
+            <Icon Paths="@ChevronDownIcon" Size="14" Class="select-chevron" />
+        }
+    </button>
+
+    @if (_open)
+    {
+        <div class="select-backdrop" @onclick="Close" @onclick:stopPropagation></div>
+        <div class="select-content">
+            @foreach (var opt in Options)
+            {
+                var isSelected = EqualityComparer<TValue>.Default.Equals(opt.Value, Value);
+                <div class="select-item @(isSelected ? "selected" : "")"
+                     @onclick="() => SelectOption(opt.Value)" @onclick:stopPropagation>
+                    <span>@opt.Label</span>
+                    @if (isSelected && !string.IsNullOrEmpty(CheckIcon))
+                    {
+                        <Icon Paths="@CheckIcon" Size="14" Class="select-check" />
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>

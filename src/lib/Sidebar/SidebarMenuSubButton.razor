@@ -1,0 +1,6 @@
+@namespace LowlandTech.Components.Sidebar
+@inherits LtComponentBase
+
+<a data-slot="sidebar-menu-sub-button" data-active="@(IsActive ? "true" : null)" class="sidebar-menu-sub-button @Class" @attributes="AdditionalAttributes">
+    @ChildContent
+</a>

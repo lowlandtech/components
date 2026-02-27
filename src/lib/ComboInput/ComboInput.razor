@@ -1,0 +1,20 @@
+@namespace LowlandTech.Components.ComboInput
+
+<div class="select-root">
+    <input type="text" class="input" value="@Text"
+           @oninput="OnInput" @onfocus="Open" @onkeydown="OnKeyDown" @onkeydown:stopPropagation
+           placeholder="@Placeholder" />
+
+    @if (_open && _filtered.Any())
+    {
+        <div class="select-backdrop" @onclick="Close" @onclick:stopPropagation></div>
+        <div class="select-content">
+            @foreach (var option in _filtered)
+            {
+                <div class="select-item" @onclick="() => SelectOption(option)" @onclick:stopPropagation>
+                    <span>@option</span>
+                </div>
+            }
+        </div>
+    }
+</div>
