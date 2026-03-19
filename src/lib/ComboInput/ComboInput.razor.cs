@@ -24,7 +24,7 @@ public partial class ComboInput
 
     private void Open()
     {
-        Filter();
+        _filtered = Options.Take(20).ToList();
         _open = _filtered.Any();
     }
 
