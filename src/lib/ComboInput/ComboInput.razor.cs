@@ -9,7 +9,10 @@ public partial class ComboInput
     [Parameter] public EventCallback<string> TextChanged { get; set; }
     [Parameter] public List<string> Options { get; set; } = [];
     [Parameter] public string Placeholder { get; set; } = string.Empty;
+    [Parameter] public Func<string, string>? DisplaySelector { get; set; }
     [Parameter] public EventCallback OnEnter { get; set; }
+
+    private string Display(string option) => DisplaySelector?.Invoke(option) ?? option;
 
     private bool _open;
     private List<string> _filtered = [];
@@ -24,7 +27,7 @@ public partial class ComboInput
 
     private void Open()
     {
-        _filtered = Options.Take(20).ToList();
+        _filtered = Options.Take(100).ToList();
         _open = _filtered.Any();
     }
 
@@ -33,9 +36,9 @@ public partial class ComboInput
     private void Filter()
     {
         _filtered = string.IsNullOrWhiteSpace(Text)
-            ? Options.Take(20).ToList()
-            : Options.Where(o => o.Contains(Text, StringComparison.OrdinalIgnoreCase))
-                     .Take(20).ToList();
+            ? Options.Take(100).ToList()
+            : Options.Where(o => Display(o).Contains(Text, StringComparison.OrdinalIgnoreCase))
+                     .Take(100).ToList();
     }
 
     private async Task SelectOption(string option)

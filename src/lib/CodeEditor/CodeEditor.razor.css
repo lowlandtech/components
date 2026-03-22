@@ -1,0 +1,55 @@
+.code-editor {
+    position: relative;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 0.75rem;
+    line-height: 1.5;
+}
+
+.code-editor-highlights,
+.code-editor-input {
+    padding: 0.5rem 0.75rem;
+    margin: 0;
+    font: inherit;
+    line-height: inherit;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    tab-size: 2;
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: calc(var(--radius) - 2px);
+}
+
+.code-editor-input {
+    display: block;
+    resize: vertical;
+    color: transparent !important;
+    caret-color: var(--foreground) !important;
+    background: var(--input) !important;
+    border: 1px solid var(--border) !important;
+}
+
+.code-editor-input:focus {
+    outline: none;
+    border-color: var(--ring) !important;
+    box-shadow: 0 0 0 1px var(--ring);
+}
+
+.code-editor-input::placeholder {
+    color: var(--muted-foreground);
+    opacity: 0.5;
+}
+
+.code-editor-highlights {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    color: var(--muted-foreground);
+    background: transparent;
+    border: 1px solid transparent;
+    overflow: hidden;
+    z-index: 2;
+}

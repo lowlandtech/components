@@ -1,0 +1,43 @@
+@namespace LowlandTech.Components.CodeEditor
+
+<div class="code-editor @Class" style="@Style">
+    <pre class="code-editor-highlights" aria-hidden="true">@((MarkupString)HighlightedHtml)&#10;</pre>
+    <textarea class="code-editor-input"
+              rows="@Rows"
+              placeholder="@Placeholder"
+              @bind="Value"
+              @bind:event="oninput"
+              @bind:after="OnInput"
+              spellcheck="false"></textarea>
+</div>
+
+@code {
+    [Parameter] public string Value { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public string Placeholder { get; set; } = string.Empty;
+    [Parameter] public int Rows { get; set; } = 4;
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? Style { get; set; }
+
+    private string HighlightedHtml => Highlight(Value ?? "");
+
+    private async Task OnInput()
+    {
+        await ValueChanged.InvokeAsync(Value);
+    }
+
+    private static string Highlight(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return "";
+
+        var escaped = text
+            .Replace("&", "&amp;")
+            .Replace("<", "&lt;")
+            .Replace(">", "&gt;");
+
+        return System.Text.RegularExpressions.Regex.Replace(
+            escaped,
+            @"\$\{([^}]*)\}",
+            """<span style="color:var(--primary);font-weight:700">${$1}</span>""");
+    }
+}

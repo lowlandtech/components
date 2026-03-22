@@ -12,7 +12,7 @@
             @foreach (var option in _filtered)
             {
                 <div class="select-item" @onclick="() => SelectOption(option)" @onclick:stopPropagation>
-                    <span>@option</span>
+                    <span>@Display(option)</span>
                 </div>
             }
         </div>
