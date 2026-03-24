@@ -1,7 +1,6 @@
-
 @namespace LowlandTech.Components.Popover
 @inherits LtComponentBase
 
-<div data-slot="popover" class="@Class" @attributes="AdditionalAttributes">
+<div id="@($"popover-anchor-{_id}")" data-slot="popover" class="@Class" @attributes="AdditionalAttributes">
     @ChildContent
 </div>
