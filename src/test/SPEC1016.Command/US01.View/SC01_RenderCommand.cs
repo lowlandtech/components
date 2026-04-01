@@ -1,5 +1,5 @@
 using Bunit;
-using CommandSut = LowlandTech.Components.Command.Command;
+using CommandSut = LowlandTech.Components.Command.CommandContainer;
 using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1016.Command.US01.View;

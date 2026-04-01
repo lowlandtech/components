@@ -1,0 +1,38 @@
+@namespace LowlandTech.Components.Command
+@inherits LtComponentBase
+
+<div data-slot="command-input-wrapper" class="flex h-9 items-center gap-2 border-b px-3">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 shrink-0 opacity-50">
+        <circle cx="11" cy="11" r="8"></circle>
+        <path d="m21 21-4.3-4.3"></path>
+    </svg>
+    <input 
+        data-slot="command-input"
+        type="text"
+        class="@GetClass()"
+        placeholder="@Placeholder"
+        value="@Value"
+        @oninput="OnInputChange"
+        @attributes="AdditionalAttributes" />
+</div>
+
+@code {
+    [Parameter] public string Placeholder { get; set; } = "Type a command or search...";
+    [Parameter] public string Value { get; set; } = "";
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public EventCallback<string> OnValueChange { get; set; }
+
+    private string GetClass()
+    {
+        var baseClass = "flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private async Task OnInputChange(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString() ?? "";
+        Value = value;
+        await ValueChanged.InvokeAsync(value);
+        await OnValueChange.InvokeAsync(value);
+    }
+}

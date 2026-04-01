@@ -1,0 +1,193 @@
+@namespace LowlandTech.Components.Command
+@inherits LtComponentBase
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+<div class="relative">
+    @* Trigger Button *@
+    @if (Trigger != null)
+    {
+        <div @onclick="Open">
+            @Trigger
+        </div>
+    }
+
+    @* Dialog Overlay *@
+    @if (_isOpen)
+    {
+        <div class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm transition-opacity" 
+             @onclick="Close">
+        </div>
+
+        @* Dialog Content *@
+        <div class="fixed left-1/2 top-[15%] z-50 w-full max-w-[calc(100%-2rem)] -translate-x-1/2 sm:max-w-lg">
+            <div class="dialog-ring overflow-hidden rounded-xl p-0">
+                <div class="sr-only">
+                    <h2>@Title</h2>
+                    <p>@Description</p>
+                </div>
+                <CommandContainer class="@GetCommandClass()">
+                    @ChildContent
+                </CommandContainer>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private bool _isOpen;
+    private string _id = Guid.NewGuid().ToString("N");
+
+    [Parameter] public string Title { get; set; } = "Command Palette";
+    [Parameter] public string Description { get; set; } = "Search for a command to run...";
+    [Parameter] public RenderFragment? Trigger { get; set; }
+    [Parameter] public EventCallback<bool> IsOpenChanged { get; set; }
+    [Parameter] public bool IsOpen
+    {
+        get => _isOpen;
+        set
+        {
+            if (_isOpen != value)
+            {
+                _isOpen = value;
+                if (_isOpen)
+                {
+                    _ = OnOpenedAsync();
+                }
+            }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Register this component with the static registry
+            CommandDialogRegistry.Register(_id, this);
+            
+            // Set up keyboard handlers in JavaScript
+            await JSRuntime.InvokeVoidAsync("eval", $@"
+                (function() {{
+                    window.commandMenu = window.commandMenu || {{}};
+                    if (!window.commandMenu['{_id}']) {{
+                        window.commandMenu['{_id}'] = {{}};
+                    }}
+                    window.commandMenu['{_id}'].handleKeyDown = function(e) {{
+                        if ((e.key === 'k' && (e.metaKey || e.ctrlKey)) || e.key === '/') {{
+                            if (
+                                (e.target instanceof HTMLElement && e.target.isContentEditable) ||
+                                e.target instanceof HTMLInputElement ||
+                                e.target instanceof HTMLTextAreaElement ||
+                                e.target instanceof HTMLSelectElement
+                            ) {{
+                                return;
+                            }}
+                            e.preventDefault();
+                            DotNet.invokeMethodAsync('LowlandTech.Components', 'CommandDialogToggle', '{_id}');
+                        }}
+                    }};
+                    document.addEventListener('keydown', window.commandMenu['{_id}'].handleKeyDown);
+                }})();
+            ");
+        }
+    }
+
+    [JSInvokable]
+    public static void CommandDialogToggle(string id)
+    {
+        if (CommandDialogRegistry.TryGet(id, out var component))
+        {
+            component.Toggle();
+        }
+    }
+
+    private async Task OnOpenedAsync()
+    {
+        await JSRuntime.InvokeVoidAsync("eval", $@"
+            setTimeout(() => {{
+                const input = document.querySelector('[data-slot=""command-input""]');
+                if (input) input.focus();
+            }}, 10);
+        ");
+    }
+
+    public void Toggle()
+    {
+        _isOpen = !_isOpen;
+        IsOpenChanged.InvokeAsync(_isOpen);
+        StateHasChanged();
+    }
+
+    public void Open()
+    {
+        if (!_isOpen)
+        {
+            _isOpen = true;
+            _ = OnOpenedAsync();
+            IsOpenChanged.InvokeAsync(true);
+            StateHasChanged();
+        }
+    }
+
+    public void Close()
+    {
+        if (_isOpen)
+        {
+            _isOpen = false;
+            IsOpenChanged.InvokeAsync(false);
+            StateHasChanged();
+        }
+    }
+
+    private string GetCommandClass()
+    {
+        return "**:[data-slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5";
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        CommandDialogRegistry.Unregister(_id);
+        
+        // JS interop may not be available during prerendering
+        try
+        {
+            _ = JSRuntime.InvokeVoidAsync("eval", $@"
+                (function() {{
+                    if (window.commandMenu && window.commandMenu['{_id}']) {{
+                        if (window.commandMenu['{_id}'].handleKeyDown) {{
+                            document.removeEventListener('keydown', window.commandMenu['{_id}'].handleKeyDown);
+                        }}
+                        delete window.commandMenu['{_id}'];
+                    }}
+                }})();
+            ");
+        }
+        catch (InvalidOperationException)
+        {
+            // JS interop not available (prerendering), ignore
+        }
+        
+        return ValueTask.CompletedTask;
+    }
+
+    // Static registry for JS interop
+    private static class CommandDialogRegistry
+    {
+        private static readonly Dictionary<string, CommandDialog> _components = new();
+
+        public static void Register(string id, CommandDialog component)
+        {
+            _components[id] = component;
+        }
+
+        public static void Unregister(string id)
+        {
+            _components.Remove(id);
+        }
+
+        public static bool TryGet(string id, out CommandDialog component)
+        {
+            return _components.TryGetValue(id, out component!);
+        }
+    }
+}

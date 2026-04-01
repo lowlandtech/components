@@ -1,0 +1,351 @@
+@namespace LowlandTech.Components.Command
+@inherits LtComponentBase
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+<div class="@GetContainerClass()">
+    @* Search Trigger Button *@
+    <button type="button"
+            class="@GetTriggerClass()"
+            @onclick="Open"
+            title="Search (Ctrl+K or /)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 shrink-0 text-muted-foreground">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.3-4.3"></path>
+        </svg>
+        <span class="hidden xl:inline-flex text-muted-foreground">@Placeholder</span>
+        <span class="inline-flex xl:hidden text-muted-foreground">Search...</span>
+        <kbd class="@GetKbdClass()">
+            <span class="text-xs">⌘</span>K
+        </kbd>
+    </button>
+
+    @* Command Dialog *@
+    @if (_isOpen)
+    {
+        <div class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity" 
+             @onclick="Close">
+        </div>
+
+        <div class="fixed left-1/2 top-[20%] z-50 w-full max-w-lg -translate-x-1/2 px-4">
+            <div class="overflow-hidden rounded-xl border bg-popover shadow-2xl">
+                <CommandContainer>
+                    @* Search Input - integrated like chadcn *@
+                    <div class="flex items-center border-b border-border px-4 py-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 shrink-0 text-muted-foreground mr-2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.3-4.3"></path>
+                        </svg>
+                        <input 
+                            type="text"
+                            class="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+                            placeholder="Type a command or search..."
+                            @bind="_searchQuery"
+                            @bind:event="oninput" />
+                        @if (_isLoading)
+                        {
+                            <div class="ml-2 size-4 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-muted-foreground"></div>
+                        }
+                    </div>
+
+                    @* Command List *@
+                    <div class="max-h-[300px] overflow-y-auto py-2">
+                        
+                        @* Empty State *@
+                        @if (!string.IsNullOrEmpty(_searchQuery) && !HasResults())
+                        {
+                            <div class="py-6 text-center text-sm text-muted-foreground">
+                                No results found.
+                            </div>
+                        }
+
+                        @* Suggestions Group *@
+                        @if (ShouldShowSuggestions())
+                        {
+                            <CommandGroup Heading="Suggestions">
+                                @foreach (var item in FilteredSuggestions.Take(MaxResults))
+                                {
+                                    <CommandItem Value="@item.Value" OnSelect="() => ExecuteAction(item)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 text-muted-foreground mr-2">
+                                            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+                                            <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+                                        </svg>
+                                        <span class="flex-1">@item.Label</span>
+                                        @if (!string.IsNullOrEmpty(item.Shortcut))
+                                        {
+                                            <kbd class="ml-auto text-xs tracking-widest text-muted-foreground border rounded px-1.5 py-0.5">@item.Shortcut</kbd>
+                                        }
+                                    </CommandItem>
+                                }
+                            </CommandGroup>
+                        }
+
+                        @* Pages Group *@
+                        @if (ShouldShowPages())
+                        {
+                            @if (ShouldShowSuggestions())
+                            {
+                                <CommandSeparator />
+                            }
+                            <CommandGroup Heading="Pages">
+                                @foreach (var pageItem in FilteredPages.Take(MaxResults))
+                                {
+                                    <CommandItem Value="@pageItem.Value" OnSelect="() => NavigateTo(pageItem.Url)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 text-muted-foreground mr-2">
+                                            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+                                            <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+                                        </svg>
+                                        <span class="flex-1">@pageItem.Label</span>
+                                    </CommandItem>
+                                }
+                            </CommandGroup>
+                        }
+
+                        @* Actions Group *@
+                        @if (ShouldShowActions())
+                        {
+                            @if (ShouldShowSuggestions() || ShouldShowPages())
+                            {
+                                <CommandSeparator />
+                            }
+                            <CommandGroup Heading="Actions">
+                                @foreach (var action in FilteredActions.Take(MaxResults))
+                                {
+                                    <CommandItem Value="@action.Value" OnSelect="() => ExecuteAction(action)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 text-muted-foreground mr-2">
+                                            <path d="M12 2v4"/>
+                                            <path d="m16.2 7.8 2.9-2.9"/>
+                                            <path d="M18 12h4"/>
+                                            <path d="m16.2 16.2 2.9 2.9"/>
+                                            <path d="M12 18v4"/>
+                                            <path d="m4.9 19.1 2.9-2.9"/>
+                                            <path d="M2 12h4"/>
+                                            <path d="m4.9 4.9 2.9 2.9"/>
+                                        </svg>
+                                        <span class="flex-1">@action.Label</span>
+                                        @if (!string.IsNullOrEmpty(action.Shortcut))
+                                        {
+                                            <kbd class="ml-auto text-xs tracking-widest text-muted-foreground border rounded px-1.5 py-0.5">@action.Shortcut</kbd>
+                                        }
+                                    </CommandItem>
+                                }
+                            </CommandGroup>
+                        }
+                    </div>
+                </CommandContainer>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private bool _isOpen;
+    private string _searchQuery = "";
+    private bool _isLoading;
+
+    [Parameter] public string Placeholder { get; set; } = "Search pages, settings, and actions...";
+    [Parameter] public int MaxResults { get; set; } = 5;
+    [Parameter] public List<CommandSearchItem> Suggestions { get; set; } = new();
+    [Parameter] public List<CommandSearchItem> Pages { get; set; } = new();
+    [Parameter] public List<CommandSearchItem> Actions { get; set; } = new();
+    [Parameter] public EventCallback<CommandSearchItem> OnItemSelected { get; set; }
+
+    // Default suggestions
+    private List<CommandSearchItem> DefaultSuggestions => new()
+    {
+        new("home", "Home", "/", "Go to home page"),
+        new("dashboard", "Dashboard", "/dashboard", "View dashboard"),
+        new("settings", "Settings", "/settings", "Open settings"),
+        new("profile", "Profile", "/profile", "View your profile"),
+    };
+
+    // Default pages
+    private List<CommandSearchItem> DefaultPages => new()
+    {
+        new("workspaces", "Workspaces", "/workspaces", "Manage workspaces"),
+        new("templates", "Templates", "/templates", "Browse templates"),
+        new("flows", "Flows", "/flows", "Manage workflows"),
+        new("tools", "Tools", "/tools", "View tools"),
+        new("packages", "Packages", "/packages", "Browse packages"),
+    };
+
+    // Default actions
+    private List<CommandSearchItem> DefaultActions => new()
+    {
+        new("toggle-theme", "Toggle Theme", null, "Switch between light and dark mode", null, "⌘T"),
+        new("toggle-sidebar", "Toggle Sidebar", null, "Show or hide the sidebar", null, "⌘B"),
+    };
+
+    private List<CommandSearchItem> AllSuggestions => Suggestions.Any() ? Suggestions : DefaultSuggestions;
+    private List<CommandSearchItem> AllPages => Pages.Any() ? Pages : DefaultPages;
+    private List<CommandSearchItem> AllActions => Actions.Any() ? Actions : DefaultActions;
+
+    private IEnumerable<CommandSearchItem> FilteredSuggestions => FilterItems(AllSuggestions);
+    private IEnumerable<CommandSearchItem> FilteredPages => FilterItems(AllPages);
+    private IEnumerable<CommandSearchItem> FilteredActions => FilterItems(AllActions);
+
+    protected override void OnInitialized()
+    {
+        _searchQuery = "";
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var id = GetHashCode().ToString();
+            CommandSearchRegistry.Register(id, this);
+            
+            await JSRuntime.InvokeVoidAsync("eval", $@"
+                (function() {{
+                    window.commandSearch = window.commandSearch || {{}};
+                    if (!window.commandSearch['{id}']) {{
+                        window.commandSearch['{id}'] = {{}};
+                    }}
+                    window.commandSearch['{id}'].handleKeyDown = function(e) {{
+                        if ((e.key === 'k' && (e.metaKey || e.ctrlKey)) || e.key === '/') {{
+                            if (
+                                (e.target instanceof HTMLElement && e.target.isContentEditable) ||
+                                e.target instanceof HTMLInputElement ||
+                                e.target instanceof HTMLTextAreaElement ||
+                                e.target instanceof HTMLSelectElement
+                            ) {{
+                                return;
+                            }}
+                            e.preventDefault();
+                            DotNet.invokeMethodAsync('LowlandTech.Components', 'CommandSearchToggle', '{id}');
+                        }}
+                        if (e.key === 'Escape') {{
+                            e.preventDefault();
+                            DotNet.invokeMethodAsync('LowlandTech.Components', 'CommandSearchClose', '{id}');
+                        }}
+                    }};
+                    document.addEventListener('keydown', window.commandSearch['{id}'].handleKeyDown);
+                }})();
+            ");
+        }
+    }
+
+    [JSInvokable]
+    public static void CommandSearchToggle(string id)
+    {
+        if (CommandSearchRegistry.TryGet(id, out var component))
+            component.Toggle();
+    }
+
+    [JSInvokable]
+    public static void CommandSearchClose(string id)
+    {
+        if (CommandSearchRegistry.TryGet(id, out var component))
+            component.Close();
+    }
+
+    public void Toggle()
+    {
+        if (_isOpen) Close(); else Open();
+    }
+
+    public void Open()
+    {
+        _isOpen = true;
+        _searchQuery = "";
+        _ = FocusInputAsync();
+        StateHasChanged();
+    }
+
+    public void Close()
+    {
+        _isOpen = false;
+        StateHasChanged();
+    }
+
+    private async Task FocusInputAsync()
+    {
+        await JSRuntime.InvokeVoidAsync("eval", $@"
+            setTimeout(() => {{
+                const input = document.querySelector('input[type=""text""]');
+                if (input) input.focus();
+            }}, 50);
+        ");
+    }
+
+    private IEnumerable<CommandSearchItem> FilterItems(List<CommandSearchItem> items)
+    {
+        if (string.IsNullOrWhiteSpace(_searchQuery))
+            return items;
+
+        var query = _searchQuery.ToLowerInvariant();
+        return items.Where(item =>
+            item.Label.ToLowerInvariant().Contains(query) ||
+            item.Value.ToLowerInvariant().Contains(query) ||
+            (!string.IsNullOrEmpty(item.Description) && item.Description.ToLowerInvariant().Contains(query))
+        );
+    }
+
+    private bool HasResults() => FilteredSuggestions.Any() || FilteredPages.Any() || FilteredActions.Any();
+    private bool ShouldShowSuggestions() => FilteredSuggestions.Any();
+    private bool ShouldShowPages() => FilteredPages.Any();
+    private bool ShouldShowActions() => FilteredActions.Any();
+
+    private void NavigateTo(string? url)
+    {
+        if (!string.IsNullOrEmpty(url))
+        {
+            Close();
+            NavigationManager.NavigateTo(url);
+        }
+    }
+
+    private async Task ExecuteAction(CommandSearchItem item)
+    {
+        await OnItemSelected.InvokeAsync(item);
+
+        if (item.Value == "toggle-theme")
+            await JSRuntime.InvokeVoidAsync("eval", "window.toggleTheme && window.toggleTheme()");
+        else if (item.Value == "toggle-sidebar")
+            await JSRuntime.InvokeVoidAsync("eval", "window.toggleSidebarCollapse && window.toggleSidebarCollapse()");
+        else if (!string.IsNullOrEmpty(item.Url))
+        {
+            NavigateTo(item.Url);
+            return;
+        }
+
+        Close();
+    }
+
+    private string GetContainerClass() => string.IsNullOrEmpty(Class) ? "relative" : $"relative {Class}";
+    private string GetTriggerClass() => "relative h-8 w-full justify-between rounded-lg border border-input bg-background/50 px-3 py-2 text-sm font-normal shadow-none hover:bg-accent hover:text-accent-foreground flex items-center gap-2 md:w-40 lg:w-64 xl:w-80 transition-colors";
+    private string GetKbdClass() => "pointer-events-none absolute right-2 top-1/2 hidden h-5 -translate-y-1/2 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex";
+
+    public ValueTask DisposeAsync()
+    {
+        var id = GetHashCode().ToString();
+        CommandSearchRegistry.Unregister(id);
+        
+        try
+        {
+            _ = JSRuntime.InvokeVoidAsync("eval", $@"
+                (function() {{
+                    if (window.commandSearch && window.commandSearch['{id}']) {{
+                        if (window.commandSearch['{id}'].handleKeyDown) {{
+                            document.removeEventListener('keydown', window.commandSearch['{id}'].handleKeyDown);
+                        }}
+                        delete window.commandSearch['{id}'];
+                    }}
+                }})();
+            ");
+        }
+        catch (InvalidOperationException) { }
+        
+        return ValueTask.CompletedTask;
+    }
+
+    private static class CommandSearchRegistry
+    {
+        private static readonly Dictionary<string, CommandSearch> _components = new();
+        public static void Register(string id, CommandSearch component) => _components[id] = component;
+        public static void Unregister(string id) => _components.Remove(id);
+        public static bool TryGet(string id, out CommandSearch component) => _components.TryGetValue(id, out component!);
+    }
+}
