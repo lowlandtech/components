@@ -1,7 +1,65 @@
-
 @namespace LowlandTech.Components.Select
 @inherits LtComponentBase
 
-<div data-slot="select" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
-</div>
+<CascadingValue Value="this">
+    <div data-slot="select" class="@GetClass()" @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    /// <summary>
+    /// The currently selected value.
+    /// </summary>
+    [Parameter] public string? Value { get; set; }
+
+    /// <summary>
+    /// Event callback when value changes.
+    /// </summary>
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+
+    /// <summary>
+    /// Whether the select is open.
+    /// </summary>
+    internal bool IsOpen { get; set; }
+
+    /// <summary>
+    /// The current selected item text.
+    /// </summary>
+    internal string? SelectedText { get; set; }
+
+    /// <summary>
+    /// Toggles the select dropdown.
+    /// </summary>
+    internal void Toggle()
+    {
+        IsOpen = !IsOpen;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Closes the select dropdown.
+    /// </summary>
+    internal void Close()
+    {
+        IsOpen = false;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Selects an item.
+    /// </summary>
+    internal async Task SelectItem(string value, string text)
+    {
+        Value = value;
+        SelectedText = text;
+        await ValueChanged.InvokeAsync(Value);
+        Close();
+    }
+
+    private string GetClass()
+    {
+        var baseClass = "cn-select relative";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

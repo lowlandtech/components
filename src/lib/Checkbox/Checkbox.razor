@@ -1,7 +1,20 @@
-
 @namespace LowlandTech.Components.Checkbox
 @inherits LtComponentBase
 
-<input data-slot="checkbox" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
-</input>
+<button data-slot="checkbox"
+        class="@GetClass()"
+        @attributes="AdditionalAttributes">
+    <span data-slot="checkbox-indicator" class="cn-checkbox-indicator grid place-content-center text-current transition-none">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cn-checkbox-indicator-icon pointer-events-none">
+            <path d="M20 6 9 17l-5-5" />
+        </svg>
+    </span>
+</button>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "cn-checkbox peer relative shrink-0 outline-none after:absolute after:-inset-x-3 after:-inset-y-2 disabled:cursor-not-allowed disabled:opacity-50";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

@@ -1,0 +1,103 @@
+@namespace LowlandTech.Components.Combobox
+@inherits LtComponentBase
+
+<InputGroup class="@GetClass()">
+    <input data-slot="combobox-input"
+           type="text"
+           value="@GetDisplayText()"
+           @oninput="OnInput"
+           @onfocus="OnFocus"
+           disabled="@Disabled"
+           class="cn-combobox-input w-full min-w-0 outline-none" />
+    <InputGroupAddon Align="inline-end">
+        @if (ShowTrigger)
+        {
+            <button type="button"
+                    data-slot="input-group-button"
+                    class="cn-combobox-trigger group-has-data-[slot=combobox-clear]/input-group:hidden"
+                    @onclick="OnTriggerClick"
+                    disabled="@Disabled">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cn-combobox-trigger-icon pointer-events-none">
+                    <path d="m6 9 6 6 6-6" />
+                </svg>
+            </button>
+        }
+        @if (ShowClear && !string.IsNullOrEmpty(Parent?.Value))
+        {
+            <button type="button"
+                    data-slot="combobox-clear"
+                    class="cn-combobox-clear"
+                    @onclick="OnClear"
+                    disabled="@Disabled">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cn-combobox-clear-icon pointer-events-none">
+                    <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+                </svg>
+            </button>
+        }
+    </InputGroupAddon>
+</InputGroup>
+
+@code {
+    [CascadingParameter] private Combobox? Parent { get; set; }
+
+    /// <summary>
+    /// Whether to show the trigger button.
+    /// </summary>
+    [Parameter] public bool ShowTrigger { get; set; } = true;
+
+    /// <summary>
+    /// Whether to show the clear button.
+    /// </summary>
+    [Parameter] public bool ShowClear { get; set; } = false;
+
+    /// <summary>
+    /// Whether the input is disabled.
+    /// </summary>
+    [Parameter] public bool Disabled { get; set; }
+
+    /// <summary>
+    /// Placeholder text.
+    /// </summary>
+    [Parameter] public string? Placeholder { get; set; }
+
+    private string? GetDisplayText()
+    {
+        return Parent?.InputText ?? Parent?.Value ?? Placeholder;
+    }
+
+    private void OnInput(ChangeEventArgs e)
+    {
+        if (Parent != null)
+        {
+            Parent.InputText = e.Value?.ToString();
+            Parent.IsOpen = true;
+            Parent.Refresh();
+        }
+    }
+
+    private void OnFocus()
+    {
+        Parent?.Toggle();
+    }
+
+    private void OnTriggerClick()
+    {
+        Parent?.Toggle();
+    }
+
+    private async Task OnClear()
+    {
+        if (Parent != null)
+        {
+            await Parent.ValueChanged.InvokeAsync(null);
+            Parent.InputText = null;
+            Parent.Refresh();
+        }
+    }
+
+    private string GetClass()
+    {
+        var baseClass = "cn-combobox-input w-auto";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

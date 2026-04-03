@@ -1,7 +1,17 @@
-
 @namespace LowlandTech.Components.Avatar
 @inherits LtComponentBase
 
-<span data-slot="avatar" class="@Class" @attributes="AdditionalAttributes">
+<span data-slot="avatar"
+      data-size="@Size"
+      class="@GetClass()"
+      @attributes="AdditionalAttributes">
     @ChildContent
 </span>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "cn-avatar group/avatar relative flex shrink-0 select-none after:absolute after:inset-0 after:border after:border-border after:mix-blend-darken dark:after:mix-blend-lighten";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

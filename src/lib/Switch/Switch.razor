@@ -1,7 +1,17 @@
-
 @namespace LowlandTech.Components.Switch
 @inherits LtComponentBase
 
-<button data-slot="switch" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
+<button data-slot="switch"
+        data-size="@Size"
+        class="@GetClass()"
+        @attributes="AdditionalAttributes">
+    <span data-slot="switch-thumb" class="cn-switch-thumb pointer-events-none block ring-0 transition-transform"></span>
 </button>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "cn-switch peer group/switch relative inline-flex items-center transition-all outline-none after:absolute after:-inset-x-3 after:-inset-y-2 data-disabled:cursor-not-allowed data-disabled:opacity-50";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

@@ -1,0 +1,33 @@
+@namespace LowlandTech.Components.Select
+@inherits LtComponentBase
+
+@if (Parent?.IsOpen == true)
+{
+    <div data-slot="select-content"
+         class="@GetClass()"
+         @attributes="AdditionalAttributes">
+        <div class="cn-select-scroll-up-button top-0 w-full flex justify-center py-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m18 15-6-6-6 6" />
+            </svg>
+        </div>
+        <div class="cn-select-list">
+            @ChildContent
+        </div>
+        <div class="cn-select-scroll-down-button bottom-0 w-full flex justify-center py-1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m6 9 6 6 6-6" />
+            </svg>
+        </div>
+    </div>
+}
+
+@code {
+    [CascadingParameter] private Select? Parent { get; set; }
+
+    private string GetClass()
+    {
+        var baseClass = "cn-select-content cn-select-content-logical cn-menu-target cn-menu-translucent absolute isolate z-50 max-h-(--available-height) w-(--anchor-width) origin-(--transform-origin) overflow-x-hidden overflow-y-auto data-[align-trigger=true]:animate-none";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

@@ -1,6 +1,16 @@
 @namespace LowlandTech.Components.Card
 @inherits LtComponentBase
 
-<p data-slot="card-description" class="card-description @Class" @attributes="AdditionalAttributes">
+<div data-slot="card-description"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
     @ChildContent
-</p>
+</div>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "cn-card-description";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

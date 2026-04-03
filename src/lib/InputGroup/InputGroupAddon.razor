@@ -1,0 +1,22 @@
+@namespace LowlandTech.Components.InputGroup
+@inherits LtComponentBase
+
+<div data-slot="input-group-addon"
+     data-align="@Align"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    /// <summary>
+    /// The alignment of the addon.
+    /// </summary>
+    [Parameter] public string Align { get; set; } = "inline-end";
+
+    private string GetClass()
+    {
+        var baseClass = "cn-input-group-addon";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

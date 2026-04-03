@@ -1,0 +1,26 @@
+@namespace LowlandTech.Components.Select
+@inherits LtComponentBase
+
+<span data-slot="select-value" class="@GetClass()" @attributes="AdditionalAttributes">
+    @GetDisplayText()
+</span>
+
+@code {
+    [CascadingParameter] private Select? Parent { get; set; }
+
+    /// <summary>
+    /// The placeholder text when no value is selected.
+    /// </summary>
+    [Parameter] public string? Placeholder { get; set; }
+
+    private string? GetDisplayText()
+    {
+        return Parent?.SelectedText ?? Placeholder;
+    }
+
+    private string GetClass()
+    {
+        var baseClass = "cn-select-value";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

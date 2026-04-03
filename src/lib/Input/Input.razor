@@ -1,7 +1,20 @@
-
 @namespace LowlandTech.Components.Input
 @inherits LtComponentBase
 
-<input data-slot="input" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
-</input>
+<input data-slot="input"
+       type="@Type"
+       class="@GetClass()"
+       @attributes="AdditionalAttributes" />
+
+@code {
+    /// <summary>
+    /// The type of the input element.
+    /// </summary>
+    [Parameter] public string Type { get; set; } = "text";
+
+    private string GetClass()
+    {
+        var baseClass = "cn-input w-full min-w-0 outline-none file:inline-flex file:border-0 file:bg-transparent file:text-foreground placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

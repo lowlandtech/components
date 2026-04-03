@@ -1,0 +1,16 @@
+@namespace LowlandTech.Components.Combobox
+@inherits LtComponentBase
+
+<div data-slot="combobox-label"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "cn-combobox-label";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

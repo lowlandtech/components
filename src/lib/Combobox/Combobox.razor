@@ -1,7 +1,73 @@
-
 @namespace LowlandTech.Components.Combobox
 @inherits LtComponentBase
 
-<div data-slot="combobox" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
-</div>
+<CascadingValue Value="this">
+    <div data-slot="combobox" class="@GetClass()" @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    /// <summary>
+    /// The currently selected value.
+    /// </summary>
+    [Parameter] public string? Value { get; set; }
+
+    /// <summary>
+    /// Event callback when value changes.
+    /// </summary>
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+
+    /// <summary>
+    /// Whether the combobox is open.
+    /// </summary>
+    internal bool IsOpen { get; set; }
+
+    /// <summary>
+    /// The current input text.
+    /// </summary>
+    internal string? InputText { get; set; }
+
+    /// <summary>
+    /// Toggles the combobox dropdown.
+    /// </summary>
+    internal void Toggle()
+    {
+        IsOpen = !IsOpen;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Closes the combobox dropdown.
+    /// </summary>
+    internal void Close()
+    {
+        IsOpen = false;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Requests a refresh of the component state.
+    /// </summary>
+    internal void Refresh()
+    {
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Selects an item.
+    /// </summary>
+    internal async Task SelectItem(string value)
+    {
+        Value = value;
+        InputText = value;
+        await ValueChanged.InvokeAsync(Value);
+        Close();
+    }
+
+    private string GetClass()
+    {
+        var baseClass = "cn-combobox relative";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

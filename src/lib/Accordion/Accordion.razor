@@ -1,8 +1,19 @@
 @namespace LowlandTech.Components.Accordion
 @inherits LtComponentBase
 
-<CascadingValue Value="State" IsFixed="false">
-    <div data-slot="accordion" data-type="@Type" class="accordion @Class" @attributes="AdditionalAttributes">
+<CascadingValue Value="State">
+    <div data-slot="accordion"
+         data-type="@Type"
+         class="@GetClass()"
+         @attributes="AdditionalAttributes">
         @ChildContent
     </div>
 </CascadingValue>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "cn-accordion flex w-full flex-col";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

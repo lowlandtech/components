@@ -1,7 +1,18 @@
-
 @namespace LowlandTech.Components.Button
 @inherits LtComponentBase
 
-<button data-slot="button" class="@Class" @attributes="AdditionalAttributes">
+<button data-slot="button"
+        data-variant="@Variant"
+        data-size="@Size"
+        class="@GetClass()"
+        @attributes="AdditionalAttributes">
     @ChildContent
 </button>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "cn-button group/button inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

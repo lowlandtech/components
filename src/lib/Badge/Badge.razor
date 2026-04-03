@@ -1,7 +1,17 @@
-
 @namespace LowlandTech.Components.Badge
 @inherits LtComponentBase
 
-<span data-slot="badge" class="@Class" @attributes="AdditionalAttributes">
+<span data-slot="badge"
+      data-variant="@Variant"
+      class="@GetClass()"
+      @attributes="AdditionalAttributes">
     @ChildContent
 </span>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "cn-badge group/badge inline-flex w-fit shrink-0 items-center justify-center overflow-hidden whitespace-nowrap focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

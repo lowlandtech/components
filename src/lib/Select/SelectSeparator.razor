@@ -1,0 +1,13 @@
+@namespace LowlandTech.Components.Select
+@inherits LtComponentBase
+
+<div data-slot="select-separator" class="@GetClass()" @attributes="AdditionalAttributes">
+</div>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "cn-select-separator pointer-events-none";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

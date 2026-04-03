@@ -2,9 +2,13 @@ using Microsoft.AspNetCore.Components;
 
 namespace LowlandTech.Components.Card;
 
-// This file extends the auto-generated Card partial class.
-// Add custom parameters, methods, and lifecycle overrides here.
+/// <summary>
+/// Extends the auto-generated Card partial class.
+/// </summary>
 public partial class Card
 {
-    [Parameter] public string? Size { get; set; }
+    /// <summary>
+    /// The size of the card.
+    /// </summary>
+    [Parameter] public string Size { get; set; } = "default";
 }

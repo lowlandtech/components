@@ -1,0 +1,16 @@
+@namespace LowlandTech.Components.Breadcrumb
+@inherits LtComponentBase
+
+<li data-slot="breadcrumb-item"
+    class="@GetClass()"
+    @attributes="AdditionalAttributes">
+    @ChildContent
+</li>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "cn-breadcrumb-item inline-flex items-center";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}
