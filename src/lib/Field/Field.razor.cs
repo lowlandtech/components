@@ -8,5 +8,4 @@ namespace LowlandTech.Components.Field;
 
 public partial class Field : LtComponentBase
 {
-    [Parameter] public string? orientation { get; set; }
 }

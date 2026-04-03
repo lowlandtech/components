@@ -35,4 +35,20 @@ public class SC01_RenderItem : ViewScenario
         var cut = Ctx.Render<ItemSut>(p => p.Add(x => x.Class, "test-class"));
         cut.Find("[data-slot='item']").ClassList.ShouldContain("test-class");
     }
+
+    [Fact(DisplayName = "UAC04: Item renders variant parameter")]
+    [Trait(Spec.UAC, "04")]
+    public void UAC04_RendersVariant()
+    {
+        var cut = Ctx.Render<ItemSut>(p => p.Add(x => x.Variant, "primary"));
+        cut.Find("[data-slot='item']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC05: Item renders size parameter")]
+    [Trait(Spec.UAC, "05")]
+    public void UAC05_RendersSize()
+    {
+        var cut = Ctx.Render<ItemSut>(p => p.Add(x => x.Size, "lg"));
+        cut.Find("[data-slot='item']").ShouldNotBeNull();
+    }
 }

@@ -8,5 +8,4 @@ namespace LowlandTech.Components.Switch;
 
 public partial class Switch : LtComponentBase
 {
-    [Parameter] public string? size { get; set; }
 }

@@ -35,4 +35,20 @@ public class SC01_RenderField : ViewScenario
         var cut = Ctx.Render<FieldSut>(p => p.Add(x => x.Class, "test-class"));
         cut.Find("[data-slot='field']").ClassList.ShouldContain("test-class");
     }
+
+    [Fact(DisplayName = "UAC04: Field renders with Orientation parameter")]
+    [Trait(Spec.UAC, "04")]
+    public void UAC04_RendersWithOrientation()
+    {
+        var cut = Ctx.Render<FieldSut>(p => p.Add(x => x.Orientation, "horizontal"));
+        cut.Find("[data-orientation='horizontal']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC05: Field has group role")]
+    [Trait(Spec.UAC, "05")]
+    public void UAC05_HasGroupRole()
+    {
+        var cut = Ctx.Render<FieldSut>();
+        cut.Find("[role='group']").ShouldNotBeNull();
+    }
 }

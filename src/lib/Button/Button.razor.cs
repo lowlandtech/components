@@ -8,6 +8,4 @@ namespace LowlandTech.Components.Button;
 
 public partial class Button : LtComponentBase
 {
-    [Parameter] public string? variant { get; set; }
-    [Parameter] public string? size { get; set; }
 }

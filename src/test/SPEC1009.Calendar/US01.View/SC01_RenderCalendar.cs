@@ -35,4 +35,36 @@ public class SC01_RenderCalendar : ViewScenario
         var cut = Ctx.Render<CalendarSut>(p => p.Add(x => x.Class, "test-class"));
         cut.Find("[data-slot='calendar']").ClassList.ShouldContain("test-class");
     }
+
+    [Fact(DisplayName = "UAC04: Calendar renders month and year caption")]
+    [Trait(Spec.UAC, "04")]
+    public void UAC04_RendersMonthAndYearCaption()
+    {
+        var cut = Ctx.Render<CalendarSut>();
+        cut.Find(".cn-calendar-caption").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC05: Calendar renders navigation buttons")]
+    [Trait(Spec.UAC, "05")]
+    public void UAC05_RendersNavigationButtons()
+    {
+        var cut = Ctx.Render<CalendarSut>();
+        cut.FindAll(".cn-calendar-nav-button").Count.ShouldBe(2);
+    }
+
+    [Fact(DisplayName = "UAC06: Calendar renders weekday headers")]
+    [Trait(Spec.UAC, "06")]
+    public void UAC06_RendersWeekdayHeaders()
+    {
+        var cut = Ctx.Render<CalendarSut>();
+        cut.FindAll(".cn-calendar-weekday").Count.ShouldBe(7);
+    }
+
+    [Fact(DisplayName = "UAC07: Calendar renders day buttons")]
+    [Trait(Spec.UAC, "07")]
+    public void UAC07_RendersDayButtons()
+    {
+        var cut = Ctx.Render<CalendarSut>();
+        cut.FindAll(".cn-calendar-day-button").Count.ShouldBe(42); // 6 weeks
+    }
 }

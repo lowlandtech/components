@@ -1,7 +1,7 @@
 @namespace LowlandTech.Components.ContextMenu
 @inherits LtComponentBase
 
-@if (Parent?.IsOpen == true)
+@if (Parent == null || Parent.IsOpen)
 {
     <div data-slot="context-menu-content"
          class="@GetClass()"

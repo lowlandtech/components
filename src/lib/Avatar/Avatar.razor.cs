@@ -8,5 +8,4 @@ namespace LowlandTech.Components.Avatar;
 
 public partial class Avatar : LtComponentBase
 {
-    [Parameter] public string? size { get; set; }
 }

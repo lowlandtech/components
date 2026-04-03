@@ -35,4 +35,12 @@ public class SC01_RenderCollapsible : ViewScenario
         var cut = Ctx.Render<CollapsibleSut>(p => p.Add(x => x.Class, "test-class"));
         cut.Find("[data-slot='collapsible']").ClassList.ShouldContain("test-class");
     }
+
+    [Fact(DisplayName = "UAC04: Collapsible renders IsOpen state")]
+    [Trait(Spec.UAC, "04")]
+    public void UAC04_RendersIsOpenState()
+    {
+        var cut = Ctx.Render<CollapsibleSut>(p => p.Add(x => x.IsOpen, true));
+        cut.Instance.IsOpen.ShouldBeTrue();
+    }
 }

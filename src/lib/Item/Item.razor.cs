@@ -8,6 +8,4 @@ namespace LowlandTech.Components.Item;
 
 public partial class Item : LtComponentBase
 {
-    [Parameter] public string? variant { get; set; }
-    [Parameter] public string? size { get; set; }
 }

@@ -1,5 +1,6 @@
 using Bunit;
 using TableSut = LowlandTech.Components.Table.Table;
+using LowlandTech.Components.Table;
 using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1049.Table.US01.View;
@@ -34,5 +35,13 @@ public class SC01_RenderTable : ViewScenario
     {
         var cut = Ctx.Render<TableSut>(p => p.Add(x => x.Class, "test-class"));
         cut.Find("[data-slot='table']").ClassList.ShouldContain("test-class");
+    }
+
+    [Fact(DisplayName = "UAC04: Table has proper HTML structure")]
+    [Trait(Spec.UAC, "04")]
+    public void UAC04_HasProperHtmlStructure()
+    {
+        var cut = Ctx.Render<TableSut>();
+        cut.Find("table").ShouldNotBeNull();
     }
 }

@@ -8,5 +8,4 @@ namespace LowlandTech.Components.Alert;
 
 public partial class Alert : LtComponentBase
 {
-    [Parameter] public string? variant { get; set; }
 }

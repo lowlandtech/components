@@ -35,4 +35,20 @@ public class SC01_RenderDrawer : ViewScenario
         var cut = Ctx.Render<DrawerSut>(p => p.Add(x => x.Class, "test-class"));
         cut.Find("[data-slot='drawer']").ClassList.ShouldContain("test-class");
     }
+
+    [Fact(DisplayName = "UAC04: Drawer renders with IsOpen parameter")]
+    [Trait(Spec.UAC, "04")]
+    public void UAC04_RendersWithIsOpen()
+    {
+        var cut = Ctx.Render<DrawerSut>(p => p.Add(x => x.IsOpen, false));
+        cut.Instance.IsOpen.ShouldBeFalse();
+    }
+
+    [Fact(DisplayName = "UAC05: Drawer renders with Direction parameter")]
+    [Trait(Spec.UAC, "05")]
+    public void UAC05_RendersWithDirection()
+    {
+        var cut = Ctx.Render<DrawerSut>(p => p.Add(x => x.Direction, "right"));
+        cut.Instance.Direction.ShouldBe("right");
+    }
 }

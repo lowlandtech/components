@@ -8,5 +8,4 @@ namespace LowlandTech.Components.ButtonGroup;
 
 public partial class ButtonGroup : LtComponentBase
 {
-    [Parameter] public string? orientation { get; set; }
 }

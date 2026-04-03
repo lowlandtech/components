@@ -2,7 +2,7 @@
 @inherits LtComponentBase
 
 <a data-slot="pagination-link"
-   data-active="@IsActive"
+   data-active="@(IsActive ? "true" : null)"
    aria-current="@(IsActive ? "page" : null)"
    class="@GetClass()"
    @attributes="AdditionalAttributes">

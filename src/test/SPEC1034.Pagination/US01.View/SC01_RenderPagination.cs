@@ -35,4 +35,12 @@ public class SC01_RenderPagination : ViewScenario
         var cut = Ctx.Render<PaginationSut>(p => p.Add(x => x.Class, "test-class"));
         cut.Find("[data-slot='pagination']").ClassList.ShouldContain("test-class");
     }
+
+    [Fact(DisplayName = "UAC04: Pagination has navigation role")]
+    [Trait(Spec.UAC, "04")]
+    public void UAC04_HasNavigationRole()
+    {
+        var cut = Ctx.Render<PaginationSut>();
+        cut.Find("nav").GetAttribute("role").ShouldBe("navigation");
+    }
 }

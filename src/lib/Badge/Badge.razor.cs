@@ -8,5 +8,4 @@ namespace LowlandTech.Components.Badge;
 
 public partial class Badge : LtComponentBase
 {
-    [Parameter] public string? variant { get; set; }
 }
