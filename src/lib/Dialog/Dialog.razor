@@ -1,7 +1,34 @@
-
 @namespace LowlandTech.Components.Dialog
 @inherits LtComponentBase
 
-<div data-slot="dialog" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
-</div>
+<CascadingValue Value="this">
+    <div data-slot="dialog" class="@Class" @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback<bool> IsOpenChanged { get; set; }
+
+    internal async Task Open()
+    {
+        IsOpen = true;
+        await IsOpenChanged.InvokeAsync(IsOpen);
+        StateHasChanged();
+    }
+
+    internal async Task Close()
+    {
+        IsOpen = false;
+        await IsOpenChanged.InvokeAsync(IsOpen);
+        StateHasChanged();
+    }
+
+    internal async Task Toggle()
+    {
+        IsOpen = !IsOpen;
+        await IsOpenChanged.InvokeAsync(IsOpen);
+        StateHasChanged();
+    }
+}
