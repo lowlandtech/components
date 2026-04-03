@@ -1,17 +1,18 @@
 @namespace LowlandTech.Components.Tabs
 @inherits LtComponentBase
 
-@if (IsActive)
-{
-    <div data-slot="tabs-content"
-         data-state="@GetState()"
-         data-orientation="@GetOrientation()"
-         class="@GetClass()"
-         role="tabpanel"
-         @attributes="AdditionalAttributes">
-        @ChildContent
-    </div>
-}
+<div data-slot="tabs-content"
+     data-state="@GetState()"
+     data-orientation="@GetOrientation()"
+     class="@GetClass()"
+     role="tabpanel"
+     id="@GetId()"
+     aria-labelledby="@GetTriggerId()"
+     tabindex="0"
+     hidden="@(!IsActive)"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
 
 @code {
     [CascadingParameter] private Tabs? Parent { get; set; }
@@ -20,6 +21,9 @@
     private bool IsActive => Parent?.ActiveTab == Value;
     private string GetState() => IsActive ? "active" : "inactive";
     private string GetOrientation() => Parent?.Orientation ?? "horizontal";
+    
+    private string GetId() => $"tabs-content-{Value}";
+    private string GetTriggerId() => $"tabs-trigger-{Value}";
     
     private string GetClass()
     {

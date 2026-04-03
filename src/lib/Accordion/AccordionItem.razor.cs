@@ -2,17 +2,18 @@ using Microsoft.AspNetCore.Components;
 
 namespace LowlandTech.Components.Accordion;
 
-public partial class AccordionItem : LtComponentBase
+public partial class AccordionItem : LtComponentBase, IDisposable
 {
-    [CascadingParameter] public AccordionState? AccordionState { get; set; }
-    [Parameter] public string? Value { get; set; }
-    [Parameter] public bool Disabled { get; set; }
 }
 
-public class AccordionItemContext(AccordionItem item)
+public class AccordionItemContext(AccordionItem item, Accordion? parentAccordion = null)
 {
     public string? Value => item.Value;
     public bool Disabled => item.Disabled;
     public AccordionState? AccordionState => item.AccordionState;
     public bool IsOpen => AccordionState?.IsOpen(Value ?? "") ?? false;
+    public string TriggerId => item.TriggerId;
+    public string ContentId => item.ContentId;
+    public AccordionItem Item => item;
+    public Accordion? ParentAccordion => parentAccordion;
 }

@@ -4,7 +4,7 @@
 @if (Parent?.IsOpen == true)
 {
     <div data-slot="drawer-content"
-         data-direction="@Parent?.Direction"
+         data-direction="@GetDirection()"
          class="@GetClass()"
          @attributes="AdditionalAttributes">
         <div class="cn-drawer-handle mx-auto hidden shrink-0"></div>
@@ -15,9 +15,27 @@
 @code {
     [CascadingParameter] private Drawer? Parent { get; set; }
 
+    private string GetDirection()
+    {
+        return Parent?.Direction ?? "right";
+    }
+
+    private string GetDirectionClasses()
+    {
+        var direction = GetDirection();
+        return direction switch
+        {
+            "left" => "fixed left-0 top-0 h-full w-3/4 sm:w-1/2 md:w-1/3",
+            "right" => "fixed right-0 top-0 h-full w-3/4 sm:w-1/2 md:w-1/3",
+            "top" => "fixed top-0 left-0 w-full h-1/2 sm:h-1/3",
+            "bottom" => "fixed bottom-0 left-0 w-full h-1/2 sm:h-1/3",
+            _ => "fixed right-0 top-0 h-full w-3/4 sm:w-1/2 md:w-1/3"
+        };
+    }
+
     private string GetClass()
     {
-        var baseClass = "cn-drawer-content group/drawer-content fixed z-50";
+        var baseClass = $"cn-drawer-content group/drawer-content z-50 bg-white flex flex-col {GetDirectionClasses()}";
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
 }

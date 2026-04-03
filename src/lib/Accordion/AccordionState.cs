@@ -40,5 +40,14 @@ public class AccordionState
         OnChange?.Invoke();
     }
 
+    public void CloseAll()
+    {
+        if (_openItems.Count > 0)
+        {
+            _openItems.Clear();
+            OnChange?.Invoke();
+        }
+    }
+
     public IReadOnlySet<string> OpenItems => _openItems;
 }

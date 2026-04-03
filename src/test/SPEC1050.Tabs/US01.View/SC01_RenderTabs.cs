@@ -58,4 +58,20 @@ public class SC01_RenderTabs : ViewScenario
         // DefaultValue is used to set initial active tab
         cut.Markup.ShouldNotBeNull();
     }
+
+    [Fact(DisplayName = "UAC07: Tabs renders with default automatic keyboard activation")]
+    [Trait(Spec.UAC, "07")]
+    public void UAC07_RendersWithDefaultAutomaticKeyboardActivation()
+    {
+        var cut = Ctx.Render<TabsSut>();
+        cut.Find("[data-activation='automatic']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC08: Tabs renders with manual keyboard activation")]
+    [Trait(Spec.UAC, "08")]
+    public void UAC08_RendersWithManualKeyboardActivation()
+    {
+        var cut = Ctx.Render<TabsSut>(p => p.Add(x => x.KeyboardActivation, "manual"));
+        cut.Find("[data-activation='manual']").ShouldNotBeNull();
+    }
 }

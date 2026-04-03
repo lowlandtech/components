@@ -2,6 +2,11 @@
 @namespace LowlandTech.Components.Separator
 @inherits LtComponentBase
 
-<div data-slot="separator" class="@Class" @attributes="AdditionalAttributes">
+<div data-slot="separator"
+     role="separator"
+     data-orientation="@OrientationValue"
+     aria-orientation="@OrientationValue"
+     class="@CssClass"
+     @attributes="AdditionalAttributes">
     @ChildContent
 </div>

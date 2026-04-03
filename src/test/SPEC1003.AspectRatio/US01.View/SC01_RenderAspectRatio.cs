@@ -35,4 +35,17 @@ public class SC01_RenderAspectRatio : ViewScenario
         var cut = Ctx.Render<AspectRatioSut>(p => p.Add(x => x.Class, "test-class"));
         cut.Find("[data-slot='aspect-ratio']").ClassList.ShouldContain("test-class");
     }
+
+    [Fact(DisplayName = "UAC04: AspectRatio applies sample default classes and ratio style")]
+    [Trait(Spec.UAC, "04")]
+    [Then("the rendered markup contains aspect ratio styling")]
+    public void UAC04_AppliesRatioStyling()
+    {
+        var cut = Ctx.Render<AspectRatioSut>(p => p.Add(x => x.ratio, "4 / 3"));
+        var element = cut.Find("[data-slot='aspect-ratio']");
+
+        element.ClassList.ShouldContain("relative");
+        element.ClassList.ShouldContain("aspect-(--ratio)");
+        element.GetAttribute("style").ShouldContain("--ratio: 4 / 3");
+    }
 }

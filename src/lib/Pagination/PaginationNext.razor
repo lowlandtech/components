@@ -4,6 +4,8 @@
 <a data-slot="pagination-next"
    aria-label="Go to next page"
    class="@GetClass()"
+   @onclick="OnClick"
+   @onclick:preventDefault
    @attributes="AdditionalAttributes">
     <span class="cn-pagination-next-text hidden sm:block">@Text</span>
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-icon="inline-end" class="cn-rtl-flip ml-2">
@@ -12,14 +14,28 @@
 </a>
 
 @code {
+    [CascadingParameter] private Pagination? Parent { get; set; }
+    
     /// <summary>
     /// The text to display.
     /// </summary>
     [Parameter] public string Text { get; set; } = "Next";
-
+    
+    private async Task OnClick()
+    {
+        if (Parent != null)
+        {
+            await Parent.GoToNext();
+        }
+    }
+    
     private string GetClass()
     {
-        var baseClass = "cn-pagination-next inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent";
+        var baseClass = "cn-pagination-next inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent cursor-pointer";
+        if (Parent?.Page >= Parent?.Count)
+        {
+            baseClass += " pointer-events-none opacity-50";
+        }
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
 }

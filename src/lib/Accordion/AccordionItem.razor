@@ -15,14 +15,46 @@
     private bool _isOpen => AccordionState?.IsOpen(Value ?? "") ?? false;
     private AccordionItemContext _itemContext = default!;
 
+    [CascadingParameter] public Accordion? ParentAccordion { get; set; }
+    [CascadingParameter] public AccordionState? AccordionState { get; set; }
+    [Parameter, EditorRequired] public string? Value { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+
+    public bool IsExpanded => _isOpen;
+    internal string TriggerId { get; private set; } = default!;
+    internal string ContentId { get; private set; } = default!;
+    internal ElementReference? TriggerElement { get; set; }
+
     protected override void OnInitialized()
     {
-        _itemContext = new AccordionItemContext(this);
+        TriggerId = $"accordion-trigger-{Guid.NewGuid():N}";
+        ContentId = $"accordion-content-{Guid.NewGuid():N}";
+        _itemContext = new AccordionItemContext(this, ParentAccordion);
+        ParentAccordion?.RegisterItem(this);
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (string.IsNullOrEmpty(Value))
+        {
+            throw new InvalidOperationException("AccordionItem requires a Value parameter.");
+        }
     }
 
     private string GetClass()
     {
         var baseClass = "cn-accordion-item accordion-item";
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    internal void FocusTrigger()
+    {
+        // Focus will be handled via JS interop when needed
+        // For now, we store the element reference for potential use
+    }
+
+    public void Dispose()
+    {
+        ParentAccordion?.UnregisterItem(this);
     }
 }

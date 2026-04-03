@@ -56,4 +56,22 @@ public class SC01_RenderKbd : ViewScenario
         var cut = Ctx.Render<KbdSut>(p => p.AddChildContent("Ctrl + Shift + K"));
         cut.Markup.ShouldContain("Ctrl + Shift + K");
     }
+
+    [Fact(DisplayName = "UAC07: Kbd renders data-size attribute")]
+    [Trait(Spec.UAC, "07")]
+    public void UAC07_RendersDataSize()
+    {
+        var cut = Ctx.Render<KbdSut>(p => p.Add(x => x.Size, "md"));
+        var kbd = cut.Find("[data-slot='kbd']");
+        kbd.GetAttribute("data-size").ShouldBe("md");
+    }
+
+    [Fact(DisplayName = "UAC08: Kbd default size is md")]
+    [Trait(Spec.UAC, "08")]
+    public void UAC08_DefaultSizeIsMd()
+    {
+        var cut = Ctx.Render<KbdSut>();
+        var kbd = cut.Find("[data-slot='kbd']");
+        kbd.GetAttribute("data-size").ShouldBe("md");
+    }
 }

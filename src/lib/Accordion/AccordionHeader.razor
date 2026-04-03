@@ -1,0 +1,16 @@
+@namespace LowlandTech.Components.Accordion
+@inherits LtComponentBase
+
+<h3 data-slot="accordion-header"
+    class="@GetClass()"
+    @attributes="AdditionalAttributes">
+    @ChildContent
+</h3>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "cn-accordion-header accordion-header flex";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

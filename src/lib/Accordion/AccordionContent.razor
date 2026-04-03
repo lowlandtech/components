@@ -4,12 +4,27 @@
 @if (ItemContext?.IsOpen == true)
 {
     <div data-slot="accordion-content"
+         id="@(ItemContext?.ContentId)"
          data-state="open"
+         role="region"
+         aria-labelledby="@(ItemContext?.TriggerId)"
          class="@GetClass()"
          @attributes="AdditionalAttributes">
         <div class="cn-accordion-content-inner h-(--accordion-panel-height) data-ending-style:h-0 data-starting-style:h-0 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4">
             @ChildContent
         </div>
+    </div>
+}
+else
+{
+    <div data-slot="accordion-content"
+         id="@(ItemContext?.ContentId)"
+         data-state="closed"
+         role="region"
+         aria-labelledby="@(ItemContext?.TriggerId)"
+         class="@GetClass()"
+         style="display: none;"
+         @attributes="AdditionalAttributes">
     </div>
 }
 

@@ -2,6 +2,7 @@
 @inherits LtComponentBase
 
 <kbd data-slot="kbd"
+     data-size="@Size"
      class="@GetClass()"
      @attributes="AdditionalAttributes">
     @ChildContent
@@ -10,7 +11,14 @@
 @code {
     private string GetClass()
     {
-        var baseClass = "cn-kbd pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100";
+        var sizeClasses = Size switch
+        {
+            "sm" => "text-[10px] px-1.5 h-4",
+            "lg" => "text-sm px-2.5 h-6",
+            _ => "text-xs px-2 h-5" // md (default)
+        };
+
+        var baseClass = $"cn-kbd pointer-events-none inline-flex select-none items-center gap-1 rounded border bg-muted font-mono font-medium text-muted-foreground opacity-100 {sizeClasses}";
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
 }

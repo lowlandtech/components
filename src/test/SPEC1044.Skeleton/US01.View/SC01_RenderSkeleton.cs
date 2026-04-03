@@ -35,4 +35,16 @@ public class SC01_RenderSkeleton : ViewScenario
         var cut = Ctx.Render<SkeletonSut>(p => p.Add(x => x.Class, "test-class"));
         cut.Find("[data-slot='skeleton']").ClassList.ShouldContain("test-class");
     }
+
+    [Fact(DisplayName = "UAC04: Skeleton includes sample default styling")]
+    [Trait(Spec.UAC, "04")]
+    [Then("the rendered markup contains skeleton default classes")]
+    public void UAC04_IncludesDefaultClasses()
+    {
+        var cut = Ctx.Render<SkeletonSut>();
+        var element = cut.Find("[data-slot='skeleton']");
+
+        element.ClassList.ShouldContain("cn-skeleton");
+        element.ClassList.ShouldContain("animate-pulse");
+    }
 }

@@ -4,6 +4,7 @@
 <CascadingValue Value="this">
     <div data-slot="tabs"
          data-orientation="@Orientation"
+         data-activation="@KeyboardActivation"
          class="@GetClass()"
          @attributes="AdditionalAttributes">
         @ChildContent
@@ -13,18 +14,60 @@
 @code {
     [Parameter] public string Orientation { get; set; } = "horizontal";
     [Parameter] public string DefaultValue { get; set; } = "";
+    [Parameter] public string KeyboardActivation { get; set; } = "automatic";
     
     internal string? ActiveTab { get; set; }
+    internal int FocusedTabIndex { get; set; } = -1;
+    internal List<TabsTrigger> Triggers { get; } = new();
     
     protected override void OnInitialized()
     {
         ActiveTab = DefaultValue;
     }
     
+    internal void RegisterTrigger(TabsTrigger trigger)
+    {
+        if (!Triggers.Contains(trigger))
+        {
+            Triggers.Add(trigger);
+            if (FocusedTabIndex == -1 && trigger.Value == ActiveTab)
+            {
+                FocusedTabIndex = Triggers.Count - 1;
+            }
+        }
+    }
+    
+    internal void UnregisterTrigger(TabsTrigger trigger)
+    {
+        Triggers.Remove(trigger);
+    }
+    
     internal void ActivateTab(string value)
     {
         ActiveTab = value;
+        var index = Triggers.FindIndex(t => t.Value == value);
+        if (index >= 0)
+        {
+            FocusedTabIndex = index;
+        }
         StateHasChanged();
+    }
+    
+    internal void FocusTab(int index)
+    {
+        if (index >= 0 && index < Triggers.Count)
+        {
+            FocusedTabIndex = index;
+            if (KeyboardActivation == "automatic")
+            {
+                var trigger = Triggers[index];
+                if (!trigger.Disabled)
+                {
+                    ActivateTab(trigger.Value);
+                }
+            }
+            StateHasChanged();
+        }
     }
     
     private string GetClass()

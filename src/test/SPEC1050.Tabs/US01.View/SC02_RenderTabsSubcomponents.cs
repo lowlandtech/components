@@ -118,4 +118,112 @@ public class SC02_RenderTabsSubcomponents : ViewScenario
         var button = cut.Find("[data-slot='tabs-trigger']");
         button.HasAttribute("disabled").ShouldBeTrue("disabled attribute should be present");
     }
+
+    [Fact(DisplayName = "UAC11: TabsTrigger has id attribute")]
+    [Trait(Spec.UAC, "11")]
+    public void UAC11_TabsTriggerHasId()
+    {
+        var cut = Ctx.Render<TabsTrigger>(p => p.Add(x => x.Value, "my-tab"));
+        var trigger = cut.Find("[data-slot='tabs-trigger']");
+        trigger.GetAttribute("id").ShouldBe("tabs-trigger-my-tab");
+    }
+
+    [Fact(DisplayName = "UAC12: TabsTrigger has aria-controls attribute")]
+    [Trait(Spec.UAC, "12")]
+    public void UAC12_TabsTriggerHasAriaControls()
+    {
+        var cut = Ctx.Render<TabsTrigger>(p => p.Add(x => x.Value, "my-tab"));
+        var trigger = cut.Find("[data-slot='tabs-trigger']");
+        trigger.GetAttribute("aria-controls").ShouldBe("tabs-content-my-tab");
+    }
+
+    [Fact(DisplayName = "UAC13: TabsContent has id matching trigger aria-controls")]
+    [Trait(Spec.UAC, "13")]
+    public void UAC13_TabsContentHasId()
+    {
+        var cut = Ctx.Render<TabsSut>(p =>
+        {
+            p.Add(x => x.DefaultValue, "tab1");
+            p.AddChildContent<TabsContent>(cp =>
+            {
+                cp.Add(x => x.Value, "tab1");
+            });
+        });
+        var content = cut.Find("[data-slot='tabs-content']");
+        content.GetAttribute("id").ShouldBe("tabs-content-tab1");
+    }
+
+    [Fact(DisplayName = "UAC14: TabsContent has aria-labelledby attribute")]
+    [Trait(Spec.UAC, "14")]
+    public void UAC14_TabsContentHasAriaLabelledBy()
+    {
+        var cut = Ctx.Render<TabsSut>(p =>
+        {
+            p.Add(x => x.DefaultValue, "tab1");
+            p.AddChildContent<TabsContent>(cp =>
+            {
+                cp.Add(x => x.Value, "tab1");
+            });
+        });
+        var content = cut.Find("[data-slot='tabs-content']");
+        content.GetAttribute("aria-labelledby").ShouldBe("tabs-trigger-tab1");
+    }
+
+    [Fact(DisplayName = "UAC15: TabsContent has tabindex 0")]
+    [Trait(Spec.UAC, "15")]
+    public void UAC15_TabsContentHasTabindex()
+    {
+        var cut = Ctx.Render<TabsSut>(p =>
+        {
+            p.Add(x => x.DefaultValue, "tab1");
+            p.AddChildContent<TabsContent>(cp =>
+            {
+                cp.Add(x => x.Value, "tab1");
+            });
+        });
+        var content = cut.Find("[data-slot='tabs-content']");
+        content.GetAttribute("tabindex").ShouldBe("0");
+    }
+
+    [Fact(DisplayName = "UAC16: Active trigger has tabindex 0")]
+    [Trait(Spec.UAC, "16")]
+    public void UAC16_ActiveTriggerHasTabindexZero()
+    {
+        var cut = Ctx.Render<TabsSut>(p =>
+        {
+            p.Add(x => x.DefaultValue, "tab1");
+            p.AddChildContent<TabsList>(list =>
+            {
+                list.AddChildContent<TabsTrigger>(trigger =>
+                {
+                    trigger.Add(x => x.Value, "tab1");
+                });
+            });
+        });
+        var trigger = cut.Find("[data-slot='tabs-trigger']");
+        trigger.GetAttribute("tabindex").ShouldBe("0");
+    }
+
+    [Fact(DisplayName = "UAC17: Inactive trigger has tabindex -1")]
+    [Trait(Spec.UAC, "17")]
+    public void UAC17_InactiveTriggerHasTabindexNegativeOne()
+    {
+        var cut = Ctx.Render<TabsSut>(p =>
+        {
+            p.Add(x => x.DefaultValue, "tab1");
+            p.AddChildContent<TabsList>(list =>
+            {
+                list.AddChildContent<TabsTrigger>(trigger =>
+                {
+                    trigger.Add(x => x.Value, "tab1");
+                });
+                list.AddChildContent<TabsTrigger>(trigger =>
+                {
+                    trigger.Add(x => x.Value, "tab2");
+                });
+            });
+        });
+        var triggers = cut.FindAll("[data-slot='tabs-trigger']");
+        triggers[1].GetAttribute("tabindex").ShouldBe("-1");
+    }
 }

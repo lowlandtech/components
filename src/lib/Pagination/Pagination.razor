@@ -1,15 +1,23 @@
 @namespace LowlandTech.Components.Pagination
 @inherits LtComponentBase
 
-<nav data-slot="pagination"
-     role="navigation"
-     aria-label="pagination"
-     class="@GetClass()"
-     @attributes="AdditionalAttributes">
-    @ChildContent
-</nav>
+<CascadingValue Value="this">
+    <nav data-slot="pagination"
+         role="navigation"
+         aria-label="pagination"
+         class="@GetClass()"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </nav>
+</CascadingValue>
 
 @code {
+    [Parameter] public int Count { get; set; } = 1;
+    [Parameter] public int Page { get; set; } = 1;
+    [Parameter] public int SiblingCount { get; set; } = 1;
+    [Parameter] public int BoundaryCount { get; set; } = 1;
+    [Parameter] public EventCallback<int> OnPageChange { get; set; }
+    
     private string GetClass()
     {
         var baseClass = "cn-pagination mx-auto flex w-full justify-center";

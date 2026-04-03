@@ -35,4 +35,29 @@ public class SC01_RenderSpinner : ViewScenario
         var cut = Ctx.Render<SpinnerSut>(p => p.Add(x => x.Class, "test-class"));
         cut.Find("[data-slot='spinner']").ClassList.ShouldContain("test-class");
     }
+
+    [Fact(DisplayName = "UAC04: Spinner includes loading accessibility semantics")]
+    [Trait(Spec.UAC, "04")]
+    [Then("the rendered markup contains status semantics")]
+    public void UAC04_IncludesAccessibilitySemantics()
+    {
+        var cut = Ctx.Render<SpinnerSut>();
+        var element = cut.Find("[data-slot='spinner']");
+
+        element.GetAttribute("role").ShouldBe("status");
+        element.GetAttribute("aria-label").ShouldBe("Loading");
+    }
+
+    [Fact(DisplayName = "UAC05: Spinner includes sample default classes and glyph")]
+    [Trait(Spec.UAC, "05")]
+    [Then("the rendered markup contains spinner styling and svg glyph")]
+    public void UAC05_IncludesDefaultClassesAndGlyph()
+    {
+        var cut = Ctx.Render<SpinnerSut>();
+        var element = cut.Find("[data-slot='spinner']");
+
+        element.ClassList.ShouldContain("size-4");
+        element.ClassList.ShouldContain("animate-spin");
+        cut.Find("[data-slot='spinner'] svg").ShouldNotBeNull();
+    }
 }

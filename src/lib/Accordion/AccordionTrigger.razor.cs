@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace LowlandTech.Components.Accordion;
 
@@ -12,5 +13,57 @@ public partial class AccordionTrigger : LtComponentBase
         {
             ItemContext.AccordionState?.Toggle(ItemContext.Value);
         }
+    }
+
+    private void OnKeyDown(KeyboardEventArgs e)
+    {
+        if (ItemContext?.Item == null || ItemContext.ParentAccordion == null)
+            return;
+
+        var accordion = ItemContext.ParentAccordion;
+
+        switch (e.Key)
+        {
+            case "ArrowDown":
+                FocusNextItem(accordion);
+                break;
+            case "ArrowUp":
+                FocusPreviousItem(accordion);
+                break;
+            case "Home":
+                FocusFirstItem(accordion);
+                break;
+            case "End":
+                FocusLastItem(accordion);
+                break;
+        }
+    }
+
+    private void FocusNextItem(Accordion accordion)
+    {
+        var next = accordion.GetNextItem(ItemContext!.Item);
+        if (next != null)
+            accordion.FocusItem(next);
+    }
+
+    private void FocusPreviousItem(Accordion accordion)
+    {
+        var prev = accordion.GetPreviousItem(ItemContext!.Item);
+        if (prev != null)
+            accordion.FocusItem(prev);
+    }
+
+    private void FocusFirstItem(Accordion accordion)
+    {
+        var first = accordion.GetFirstItem();
+        if (first != null)
+            accordion.FocusItem(first);
+    }
+
+    private void FocusLastItem(Accordion accordion)
+    {
+        var last = accordion.GetLastItem();
+        if (last != null)
+            accordion.FocusItem(last);
     }
 }

@@ -5,6 +5,7 @@
      data-orientation="@GetOrientation()"
      class="@GetClass()"
      role="tablist"
+     @onkeydown="HandleKeyDown"
      @attributes="AdditionalAttributes">
     @ChildContent
 </div>
@@ -13,6 +14,62 @@
     [CascadingParameter] private Tabs? Parent { get; set; }
     
     private string GetOrientation() => Parent?.Orientation ?? "horizontal";
+    private bool IsVertical => GetOrientation() == "vertical";
+    
+    private void HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (Parent == null) return;
+        
+        var triggers = Parent.Triggers.Where(t => !t.Disabled).ToList();
+        if (triggers.Count == 0) return;
+        
+        var currentIndex = Parent.FocusedTabIndex;
+        var enabledIndices = Parent.Triggers
+            .Select((t, i) => new { t, i })
+            .Where(x => !x.t.Disabled)
+            .Select(x => x.i)
+            .ToList();
+        
+        var currentEnabledIndex = enabledIndices.IndexOf(currentIndex);
+        if (currentEnabledIndex == -1) currentEnabledIndex = 0;
+        
+        switch (e.Key)
+        {
+            case "ArrowRight" when !IsVertical:
+            case "ArrowDown" when IsVertical:
+                var nextIndex = (currentEnabledIndex + 1) % enabledIndices.Count;
+                Parent.FocusTab(enabledIndices[nextIndex]);
+                break;
+                
+            case "ArrowLeft" when !IsVertical:
+            case "ArrowUp" when IsVertical:
+                var prevIndex = (currentEnabledIndex - 1 + enabledIndices.Count) % enabledIndices.Count;
+                Parent.FocusTab(enabledIndices[prevIndex]);
+                break;
+                
+            case "Home":
+                if (enabledIndices.Count > 0)
+                    Parent.FocusTab(enabledIndices[0]);
+                break;
+                
+            case "End":
+                if (enabledIndices.Count > 0)
+                    Parent.FocusTab(enabledIndices[enabledIndices.Count - 1]);
+                break;
+                
+            case "Enter":
+            case " ":
+                if (currentIndex >= 0 && currentIndex < Parent.Triggers.Count)
+                {
+                    var trigger = Parent.Triggers[currentIndex];
+                    if (!trigger.Disabled)
+                    {
+                        Parent.ActivateTab(trigger.Value);
+                    }
+                }
+                break;
+        }
+    }
     
     private string GetClass()
     {

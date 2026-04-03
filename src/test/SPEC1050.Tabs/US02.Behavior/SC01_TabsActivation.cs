@@ -2,6 +2,7 @@ using Bunit;
 using TabsSut = LowlandTech.Components.Tabs.Tabs;
 using LowlandTech.Components.Tabs;
 using LowlandTech.Components.Tests.Infrastructure;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace LowlandTech.Components.Tests.SPEC1050.Tabs.US02.Behavior;
 
@@ -137,9 +138,11 @@ public class SC01_TabsActivation : ViewScenario
         // Try clicking disabled trigger
         cut.FindAll("[data-slot='tabs-trigger']")[1].Click();
 
-        // Should still show content 1
+        // Should still show content 1 (tab1 still active because tab2 is disabled)
         cut.Markup.ShouldContain("Content 1");
-        cut.Markup.ShouldNotContain("Content 2");
+        // Tab 1 content should still be active
+        var content1 = cut.Find("[data-slot='tabs-content'][data-state='active']");
+        content1.TextContent.ShouldContain("Content 1");
     }
 
     [Fact(DisplayName = "UAC05: Content shows active state")]
@@ -158,5 +161,51 @@ public class SC01_TabsActivation : ViewScenario
 
         var content = cut.Find("[data-slot='tabs-content']");
         content.GetAttribute("data-state").ShouldBe("active");
+    }
+
+    [Fact(DisplayName = "UAC06: Inactive content has data-state inactive")]
+    [Trait(Spec.UAC, "06")]
+    public void UAC06_InactiveContentHasDataStateInactive()
+    {
+        var cut = Ctx.Render<TabsSut>(p =>
+        {
+            p.Add(x => x.DefaultValue, "tab1");
+            p.AddChildContent<TabsContent>(content =>
+            {
+                content.Add(x => x.Value, "tab1");
+                content.AddChildContent("Content 1");
+            });
+            p.AddChildContent<TabsContent>(content =>
+            {
+                content.Add(x => x.Value, "tab2");
+                content.AddChildContent("Content 2");
+            });
+        });
+
+        var contents = cut.FindAll("[data-slot='tabs-content']");
+        contents[1].GetAttribute("data-state").ShouldBe("inactive");
+    }
+
+    [Fact(DisplayName = "UAC07: Content is hidden when inactive")]
+    [Trait(Spec.UAC, "07")]
+    public void UAC07_ContentIsHiddenWhenInactive()
+    {
+        var cut = Ctx.Render<TabsSut>(p =>
+        {
+            p.Add(x => x.DefaultValue, "tab1");
+            p.AddChildContent<TabsContent>(content =>
+            {
+                content.Add(x => x.Value, "tab1");
+                content.AddChildContent("Content 1");
+            });
+            p.AddChildContent<TabsContent>(content =>
+            {
+                content.Add(x => x.Value, "tab2");
+                content.AddChildContent("Content 2");
+            });
+        });
+
+        var contents = cut.FindAll("[data-slot='tabs-content']");
+        contents[1].HasAttribute("hidden").ShouldBeTrue();
     }
 }

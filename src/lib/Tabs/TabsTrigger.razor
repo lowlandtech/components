@@ -7,7 +7,10 @@
         disabled="@Disabled"
         class="@GetClass()"
         role="tab"
+        id="@GetId()"
+        tabindex="@GetTabIndex()"
         aria-selected="@IsActive.ToString().ToLower()"
+        aria-controls="@GetContentId()"
         @onclick="OnClick"
         @attributes="AdditionalAttributes">
     @ChildContent
@@ -19,9 +22,38 @@
     [Parameter] public bool Disabled { get; set; }
     
     private bool IsActive => Parent?.ActiveTab == Value;
+    private int TabIndex => Parent?.Triggers.IndexOf(this) ?? -1;
+    
+    protected override void OnInitialized()
+    {
+        Parent?.RegisterTrigger(this);
+    }
+    
+    public void Dispose()
+    {
+        Parent?.UnregisterTrigger(this);
+    }
     
     private string GetState() => IsActive ? "active" : "inactive";
     private string GetOrientation() => Parent?.Orientation ?? "horizontal";
+    
+    private string GetId() => $"tabs-trigger-{Value}";
+    private string GetContentId() => $"tabs-content-{Value}";
+    
+    private int GetTabIndex()
+    {
+        if (Parent == null) return -1;
+        // In automatic mode, the active tab is tabbable
+        // In manual mode, the focused tab is tabbable
+        if (Parent.KeyboardActivation == "automatic")
+        {
+            return IsActive ? 0 : -1;
+        }
+        else
+        {
+            return Parent.FocusedTabIndex == TabIndex ? 0 : -1;
+        }
+    }
     
     private void OnClick()
     {

@@ -2,9 +2,13 @@
 @inherits LtComponentBase
 
 <button data-slot="accordion-trigger"
+        id="@(ItemContext?.TriggerId)"
         data-state="@(ItemContext?.IsOpen == true ? "open" : "closed")"
+        aria-expanded="@(ItemContext?.IsOpen == true ? "true" : "false")"
+        aria-controls="@(ItemContext?.IsOpen == true ? ItemContext?.ContentId : null)"
         class="@GetClass()"
         @onclick="OnClick"
+        @onkeydown="OnKeyDown"
         disabled="@(ItemContext?.Disabled == true)"
         @attributes="AdditionalAttributes">
     @ChildContent
