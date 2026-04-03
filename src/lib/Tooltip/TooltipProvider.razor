@@ -1,0 +1,8 @@
+@namespace LowlandTech.Components.Tooltip
+@inherits LtComponentBase
+
+<div data-slot="tooltip-provider"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>

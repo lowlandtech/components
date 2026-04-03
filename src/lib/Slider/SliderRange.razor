@@ -1,0 +1,36 @@
+@namespace LowlandTech.Components.Slider
+@inherits LtComponentBase
+
+<div data-slot="slider-range"
+     data-orientation="@GetOrientation()"
+     class="@GetClass()"
+     style="@GetStyle()"
+     @attributes="AdditionalAttributes">
+</div>
+
+@code {
+    [CascadingParameter] private Slider? Parent { get; set; }
+
+    private string GetOrientation() => Parent?.Orientation ?? "horizontal";
+
+    private string GetClass()
+    {
+        var baseClass = "cn-slider-range absolute bg-primary data-[orientation=vertical]:w-full";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private string GetStyle()
+    {
+        if (Parent == null) return "";
+
+        var orientation = GetOrientation();
+        var percentage = Parent.GetPercentage(Parent.Value);
+
+        if (orientation == "vertical")
+        {
+            return $"height: {percentage}%; bottom: 0;";
+        }
+
+        return $"width: {percentage}%; left: 0;";
+    }
+}

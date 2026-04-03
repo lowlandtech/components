@@ -1,7 +1,10 @@
-
 @namespace LowlandTech.Components.Tooltip
 @inherits LtComponentBase
 
-<div data-slot="tooltip-provider" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
-</div>
+<CascadingValue Value="this">
+    <div data-slot="tooltip"
+         class="@GetClass()"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>

@@ -1,0 +1,24 @@
+@namespace LowlandTech.Components.AlertDialog
+@inherits LtComponentBase
+
+<button data-slot="alert-dialog-cancel"
+        class="@GetClass()"
+        @onclick="OnClick"
+        @attributes="AdditionalAttributes">
+    @ChildContent
+</button>
+
+@code {
+    [CascadingParameter] private AlertDialog? Parent { get; set; }
+
+    private void OnClick()
+    {
+        Parent?.Close();
+    }
+
+    private string GetClass()
+    {
+        var baseClass = "cn-alert-dialog-cancel inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

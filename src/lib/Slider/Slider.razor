@@ -1,7 +1,66 @@
-
 @namespace LowlandTech.Components.Slider
 @inherits LtComponentBase
 
-<div data-slot="slider" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
-</div>
+<CascadingValue Value="this">
+    <div data-slot="slider"
+         data-orientation="@Orientation"
+         data-disabled="@Disabled"
+         class="@GetClass()"
+         role="slider"
+         aria-valuemin="@Min"
+         aria-valuemax="@Max"
+         aria-valuenow="@GetCurrentValue()"
+         aria-disabled="@Disabled.ToString().ToLower()"
+         aria-orientation="@Orientation"
+         tabindex="@GetTabIndex()"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    [Parameter] public double Min { get; set; } = 0;
+    [Parameter] public double Max { get; set; } = 100;
+    [Parameter] public double Step { get; set; } = 1;
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public string Orientation { get; set; } = "horizontal";
+    [Parameter] public double Value { get; set; }
+    [Parameter] public EventCallback<double> ValueChanged { get; set; }
+    [Parameter] public double[]? ValueRange { get; set; }
+    [Parameter] public EventCallback<double[]> ValueRangeChanged { get; set; }
+
+    private string GetClass()
+    {
+        var baseClass = "cn-slider relative flex touch-none select-none items-center data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1.5 data-[orientation=vertical]:flex-col data-[disabled]:pointer-events-none data-[disabled]:opacity-50";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private string GetCurrentValue()
+    {
+        return ValueRange != null && ValueRange.Length > 0
+            ? string.Join(",", ValueRange)
+            : Value.ToString();
+    }
+
+    private string GetTabIndex() => Disabled ? "-1" : "0";
+
+    internal async Task UpdateValueAsync(double newValue)
+    {
+        if (Disabled) return;
+
+        var clampedValue = Math.Clamp(newValue, Min, Max);
+        var steppedValue = Math.Round((clampedValue - Min) / Step) * Step + Min;
+
+        if (Math.Abs(Value - steppedValue) > 0.0001)
+        {
+            Value = steppedValue;
+            await ValueChanged.InvokeAsync(Value);
+            StateHasChanged();
+        }
+    }
+
+    internal double GetPercentage(double value)
+    {
+        return ((value - Min) / (Max - Min)) * 100;
+    }
+}

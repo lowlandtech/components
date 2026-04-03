@@ -1,0 +1,80 @@
+@namespace LowlandTech.Components.Slider
+@inherits LtComponentBase
+
+<div data-slot="slider-thumb"
+     data-orientation="@GetOrientation()"
+     class="@GetClass()"
+     style="@GetStyle()"
+     role="slider"
+     tabindex="@GetTabIndex()"
+     aria-valuemin="@GetMin()"
+     aria-valuemax="@GetMax()"
+     aria-valuenow="@GetValue()"
+     aria-disabled="@IsDisabled().ToString().ToLower()"
+     @onkeydown="HandleKeyDown"
+     @attributes="AdditionalAttributes">
+</div>
+
+@code {
+    [CascadingParameter] private Slider? Parent { get; set; }
+
+    private string GetOrientation() => Parent?.Orientation ?? "horizontal";
+    private double GetMin() => Parent?.Min ?? 0;
+    private double GetMax() => Parent?.Max ?? 100;
+    private double GetValue() => Parent?.Value ?? 0;
+    private bool IsDisabled() => Parent?.Disabled ?? false;
+    private string GetTabIndex() => IsDisabled() ? "-1" : "0";
+
+    private string GetClass()
+    {
+        var baseClass = "cn-slider-thumb block h-4 w-4 rounded-full border border-primary/50 bg-background shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 cursor-grab active:cursor-grabbing";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private string GetStyle()
+    {
+        if (Parent == null) return "";
+
+        var orientation = GetOrientation();
+        var percentage = Parent.GetPercentage(Parent.Value);
+
+        if (orientation == "vertical")
+        {
+            return $"bottom: {percentage}%; transform: translateY(50%);";
+        }
+
+        return $"left: {percentage}%; transform: translateX(-50%);";
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (Parent == null || IsDisabled()) return;
+
+        var step = Parent.Step;
+        var currentValue = GetValue();
+
+        switch (e.Key)
+        {
+            case "ArrowRight":
+            case "ArrowUp":
+                await Parent.UpdateValueAsync(currentValue + step);
+                break;
+            case "ArrowLeft":
+            case "ArrowDown":
+                await Parent.UpdateValueAsync(currentValue - step);
+                break;
+            case "Home":
+                await Parent.UpdateValueAsync(GetMin());
+                break;
+            case "End":
+                await Parent.UpdateValueAsync(GetMax());
+                break;
+            case "PageUp":
+                await Parent.UpdateValueAsync(currentValue + (step * 10));
+                break;
+            case "PageDown":
+                await Parent.UpdateValueAsync(currentValue - (step * 10));
+                break;
+        }
+    }
+}

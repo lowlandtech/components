@@ -1,7 +1,41 @@
-
 @namespace LowlandTech.Components.AlertDialog
 @inherits LtComponentBase
 
-<div data-slot="alert-dialog" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
-</div>
+<CascadingValue Value="this">
+    <div data-slot="alert-dialog" class="@Class" @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    /// <summary>
+    /// Whether the alert dialog is open.
+    /// </summary>
+    [Parameter] public bool IsOpen { get; set; }
+
+    /// <summary>
+    /// Event callback when the open state changes.
+    /// </summary>
+    [Parameter] public EventCallback<bool> IsOpenChanged { get; set; }
+
+    internal async Task Open()
+    {
+        IsOpen = true;
+        await IsOpenChanged.InvokeAsync(IsOpen);
+        StateHasChanged();
+    }
+
+    internal async Task Close()
+    {
+        IsOpen = false;
+        await IsOpenChanged.InvokeAsync(IsOpen);
+        StateHasChanged();
+    }
+
+    internal async Task Toggle()
+    {
+        IsOpen = !IsOpen;
+        await IsOpenChanged.InvokeAsync(IsOpen);
+        StateHasChanged();
+    }
+}

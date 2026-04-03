@@ -1,0 +1,21 @@
+@namespace LowlandTech.Components.Slider
+@inherits LtComponentBase
+
+<div data-slot="slider-track"
+     data-orientation="@GetOrientation()"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    [CascadingParameter] private Slider? Parent { get; set; }
+
+    private string GetOrientation() => Parent?.Orientation ?? "horizontal";
+
+    private string GetClass()
+    {
+        var baseClass = "cn-slider-track relative grow overflow-hidden rounded-full bg-secondary data-[orientation=vertical]:w-full";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

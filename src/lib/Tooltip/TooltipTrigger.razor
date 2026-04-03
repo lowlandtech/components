@@ -1,0 +1,13 @@
+@namespace LowlandTech.Components.Tooltip
+@inherits LtComponentBase
+
+<button data-slot="tooltip-trigger"
+        type="button"
+        class="@GetClass()"
+        @onmouseenter="OnMouseEnter"
+        @onmouseleave="OnMouseLeave"
+        @onfocus="OnFocus"
+        @onblur="OnBlur"
+        @attributes="AdditionalAttributes">
+    @ChildContent
+</button>

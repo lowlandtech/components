@@ -1,7 +1,47 @@
-
 @namespace LowlandTech.Components.RadioGroup
 @inherits LtComponentBase
 
-<div data-slot="radio-group" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
-</div>
+<CascadingValue Value="this">
+    <div data-slot="radio-group"
+         data-orientation="@Orientation"
+         data-required="@Required"
+         class="@GetClass()"
+         role="radiogroup"
+         aria-required="@Required.ToString().ToLower()"
+         aria-disabled="@Disabled.ToString().ToLower()"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    [Parameter] public string? Name { get; set; }
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public bool Required { get; set; }
+    [Parameter] public string Orientation { get; set; } = "vertical";
+
+    private string GetClass()
+    {
+        var baseClass = "cn-radio-group flex data-[orientation=horizontal]:flex-row data-[orientation=horizontal]:gap-4 data-[orientation=vertical]:flex-col data-[orientation=vertical]:gap-2";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    internal string? GetName() => Name;
+    internal bool IsDisabled() => Disabled;
+
+    internal async Task SelectValueAsync(string? value)
+    {
+        if (Disabled) return;
+
+        if (Value != value)
+        {
+            Value = value;
+            await ValueChanged.InvokeAsync(Value);
+            StateHasChanged();
+        }
+    }
+
+    internal bool IsSelected(string? value) => Value == value;
+}

@@ -1,0 +1,71 @@
+@namespace LowlandTech.Components.RadioGroup
+@inherits LtComponentBase
+
+<div data-slot="radio-group-item"
+     data-state="@GetState()"
+     data-orientation="@GetOrientation()"
+     data-disabled="@IsDisabled().ToString().ToLower()"
+     class="@GetClass()"
+     @onclick="OnClick"
+     @attributes="AdditionalAttributes">
+    <input type="radio"
+           name="@GetName()"
+           value="@Value"
+           checked="@IsChecked()"
+           disabled="@IsDisabled()"
+           required="@GetRequired()"
+           class="cn-radio-group-item-input sr-only"
+           @onchange="OnChange"
+           @attributes="InputAttributes" />
+    <span data-slot="radio-group-item-indicator"
+          class="cn-radio-group-item-indicator flex items-center justify-center">
+        @if (IsChecked())
+        {
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 width="24"
+                 height="24"
+                 viewBox="0 0 24 24"
+                 fill="currentColor"
+                 class="cn-radio-group-item-indicator-icon h-2.5 w-2.5 text-current">
+                <circle cx="12" cy="12" r="10" />
+            </svg>
+        }
+    </span>
+    @ChildContent
+</div>
+
+@code {
+    [CascadingParameter] private RadioGroup? Parent { get; set; }
+    [Parameter, EditorRequired] public string Value { get; set; } = "";
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public Dictionary<string, object>? InputAttributes { get; set; }
+
+    private string GetState() => IsChecked() ? "checked" : "unchecked";
+    private string GetOrientation() => Parent?.Orientation ?? "vertical";
+    private string? GetName() => Parent?.GetName();
+    private bool IsDisabled() => Disabled || (Parent?.IsDisabled() ?? false);
+    private bool GetRequired() => Parent?.Required ?? false;
+    private bool IsChecked() => Parent?.IsSelected(Value) ?? false;
+
+    private string GetClass()
+    {
+        var baseClass = "cn-radio-group-item peer relative flex aspect-square h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-full border border-primary text-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private async Task OnClick()
+    {
+        if (!IsDisabled())
+        {
+            await Parent?.SelectValueAsync(Value)!;
+        }
+    }
+
+    private async Task OnChange(ChangeEventArgs e)
+    {
+        if (!IsDisabled())
+        {
+            await Parent?.SelectValueAsync(Value)!;
+        }
+    }
+}

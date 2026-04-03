@@ -2,8 +2,15 @@
 @inherits LtComponentBase
 
 <input data-slot="input"
+       data-variant="@Variant"
+       data-size="@Size"
        type="@Type"
        class="@GetClass()"
+       placeholder="@Placeholder"
+       disabled="@Disabled"
+       readonly="@ReadOnly"
+       value="@Value"
+       @oninput="HandleInput"
        @attributes="AdditionalAttributes" />
 
 @code {
@@ -14,7 +21,28 @@
 
     private string GetClass()
     {
-        var baseClass = "cn-input w-full min-w-0 outline-none file:inline-flex file:border-0 file:bg-transparent file:text-foreground placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50";
-        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+        var baseClass = "cn-input flex w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm";
+
+        var sizeClass = Size switch
+        {
+            "sm" => " h-8",
+            "lg" => " h-10",
+            _ => " h-9"
+        };
+
+        var variantClass = Variant switch
+        {
+            "destructive" => " border-destructive focus-visible:ring-destructive",
+            _ => ""
+        };
+
+        var result = $"{baseClass}{sizeClass}{variantClass}";
+        return string.IsNullOrEmpty(Class) ? result : $"{result} {Class}";
+    }
+
+    private async Task HandleInput(ChangeEventArgs e)
+    {
+        Value = e.Value?.ToString();
+        await ValueChanged.InvokeAsync(Value);
     }
 }

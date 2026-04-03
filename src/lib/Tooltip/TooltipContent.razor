@@ -1,0 +1,14 @@
+@namespace LowlandTech.Components.Tooltip
+@inherits LtComponentBase
+
+@if (Parent?.IsOpen == true)
+{
+    <div data-slot="tooltip-content"
+         data-side="@Side"
+         data-align="@Align"
+         role="tooltip"
+         class="@GetClass()"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+}

@@ -1,7 +1,20 @@
-
 @namespace LowlandTech.Components.Progress
 @inherits LtComponentBase
 
-<div data-slot="progress" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
+<div data-slot="progress"
+     role="progressbar"
+     aria-valuemin="0"
+     aria-valuemax="@Max"
+     aria-valuenow="@GetAriaValueNow()"
+     aria-valuetext="@GetAriaValueText()"
+     aria-busy="@IsIndeterminate.ToString().ToLowerInvariant()"
+     data-value="@GetValuePercent()"
+     data-max="@Max"
+     data-state="@GetState()"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
+    <div data-slot="progress-indicator"
+         class="cn-progress-indicator h-full w-full flex-1 bg-primary transition-all duration-200"
+         style="@GetIndicatorStyle()">
+    </div>
 </div>
