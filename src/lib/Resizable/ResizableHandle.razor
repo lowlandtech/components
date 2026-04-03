@@ -1,0 +1,40 @@
+@namespace LowlandTech.Components.Resizable
+@inherits LtComponentBase
+
+<div data-slot="resizable-handle"
+      data-orientation="@GetOrientation()"
+      class="@GetClass()"
+      role="separator"
+      tabindex="0"
+      @attributes="AdditionalAttributes">
+    @if (ChildContent is not null)
+    {
+        @ChildContent
+    }
+    else
+    {
+        <div class="resizable-handle-indicator"></div>
+    }
+</div>
+
+@code {
+    [CascadingParameter] private Resizable? Parent { get; set; }
+    [Parameter] public bool WithHandle { get; set; }
+    
+    private string GetOrientation() => Parent?.Direction ?? "horizontal";
+    
+    private string GetClass()
+    {
+        var isHorizontal = GetOrientation() == "horizontal";
+        var baseClass = isHorizontal
+            ? "cn-resizable-handle relative flex w-[4px] shrink-0 cursor-col-resize items-center justify-center bg-border after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1"
+            : "cn-resizable-handle relative flex h-[4px] shrink-0 cursor-row-resize items-center justify-center bg-border after:absolute after:inset-x-0 after:top-1/2 after:h-1 after:-translate-y-1/2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1";
+        
+        if (WithHandle)
+            baseClass += isHorizontal
+                ? " w-4 rounded-full bg-muted"
+                : " h-4 rounded-full bg-muted";
+        
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

@@ -1,0 +1,41 @@
+@namespace LowlandTech.Components.Resizable
+@inherits LtComponentBase
+
+<div data-slot="resizable-panel"
+     data-orientation="@GetOrientation()"
+     data-panel="@PanelId"
+     style="@GetStyle()"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    [CascadingParameter] private Resizable? Parent { get; set; }
+    [Parameter] public int DefaultSize { get; set; } = 50;
+    [Parameter] public int MinSize { get; set; } = 10;
+    [Parameter] public int MaxSize { get; set; } = 100;
+    
+    private string PanelId { get; } = Guid.NewGuid().ToString("N")[..8];
+    internal int CurrentSize { get; set; }
+    
+    protected override void OnInitialized()
+    {
+        CurrentSize = DefaultSize;
+        Parent?.RegisterPanel(this);
+    }
+    
+    private string GetOrientation() => Parent?.Direction ?? "horizontal";
+    
+    private string GetStyle()
+    {
+        var size = CurrentSize > 0 ? CurrentSize : DefaultSize;
+        return $"flex-basis: calc({size}% - var(--resizable-handle-size, 4px));";
+    }
+    
+    private string GetClass()
+    {
+        var baseClass = "cn-resizable-panel relative flex min-w-0 min-h-0";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

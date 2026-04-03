@@ -1,0 +1,46 @@
+@namespace LowlandTech.Components.Tabs
+@inherits LtComponentBase
+
+<button data-slot="tabs-trigger"
+        data-state="@GetState()"
+        data-orientation="@GetOrientation()"
+        disabled="@Disabled"
+        class="@GetClass()"
+        role="tab"
+        aria-selected="@IsActive.ToString().ToLower()"
+        @onclick="OnClick"
+        @attributes="AdditionalAttributes">
+    @ChildContent
+</button>
+
+@code {
+    [CascadingParameter] private Tabs? Parent { get; set; }
+    [Parameter, EditorRequired] public string Value { get; set; } = "";
+    [Parameter] public bool Disabled { get; set; }
+    
+    private bool IsActive => Parent?.ActiveTab == Value;
+    
+    private string GetState() => IsActive ? "active" : "inactive";
+    private string GetOrientation() => Parent?.Orientation ?? "horizontal";
+    
+    private void OnClick()
+    {
+        if (!Disabled)
+            Parent?.ActivateTab(Value);
+    }
+    
+    private string GetClass()
+    {
+        var isVertical = GetOrientation() == "vertical";
+        var baseClass = isVertical
+            ? "cn-tabs-trigger inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+            : "cn-tabs-trigger inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
+        
+        if (IsActive)
+            baseClass += isVertical
+                ? " bg-background text-foreground shadow-sm"
+                : " bg-background text-foreground shadow";
+        
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

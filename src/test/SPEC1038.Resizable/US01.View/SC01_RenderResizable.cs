@@ -11,7 +11,6 @@ public class SC01_RenderResizable : ViewScenario
 {
     [Fact(DisplayName = "UAC01: Resizable renders data-slot attribute")]
     [Trait(Spec.UAC, "01")]
-    [Then("the rendered markup contains data-slot")]
     public void UAC01_RendersDataSlot()
     {
         var cut = Ctx.Render<ResizableSut>();
@@ -20,7 +19,6 @@ public class SC01_RenderResizable : ViewScenario
 
     [Fact(DisplayName = "UAC02: Resizable renders ChildContent")]
     [Trait(Spec.UAC, "02")]
-    [Then("the rendered markup contains child content")]
     public void UAC02_RendersChildContent()
     {
         var cut = Ctx.Render<ResizableSut>(p => p.AddChildContent("Hello"));
@@ -29,10 +27,25 @@ public class SC01_RenderResizable : ViewScenario
 
     [Fact(DisplayName = "UAC03: Resizable renders Class parameter")]
     [Trait(Spec.UAC, "03")]
-    [Then("the rendered markup contains the CSS class")]
     public void UAC03_RendersClass()
     {
         var cut = Ctx.Render<ResizableSut>(p => p.Add(x => x.Class, "test-class"));
         cut.Find("[data-slot='resizable-panel-group']").ClassList.ShouldContain("test-class");
+    }
+
+    [Fact(DisplayName = "UAC04: Resizable renders with default horizontal direction")]
+    [Trait(Spec.UAC, "04")]
+    public void UAC04_RendersWithDefaultHorizontalDirection()
+    {
+        var cut = Ctx.Render<ResizableSut>();
+        cut.Find("[data-orientation='horizontal']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC05: Resizable renders with vertical direction")]
+    [Trait(Spec.UAC, "05")]
+    public void UAC05_RendersWithVerticalDirection()
+    {
+        var cut = Ctx.Render<ResizableSut>(p => p.Add(x => x.Direction, "vertical"));
+        cut.Find("[data-orientation='vertical']").ShouldNotBeNull();
     }
 }

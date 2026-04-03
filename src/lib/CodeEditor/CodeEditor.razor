@@ -1,14 +1,21 @@
 @namespace LowlandTech.Components.CodeEditor
+@inherits LtComponentBase
 
-<div class="code-editor @Class" style="@Style">
+<div data-slot="code-editor"
+     class="@GetClass()"
+     
+     @attributes="AdditionalAttributes">
     <pre class="code-editor-highlights" aria-hidden="true">@((MarkupString)HighlightedHtml)&#10;</pre>
-    <textarea class="code-editor-input"
+    <textarea data-slot="code-editor-input"
+              class="code-editor-input"
               rows="@Rows"
               placeholder="@Placeholder"
+              disabled="@Disabled"
+              readonly="@ReadOnly"
+              spellcheck="false"
               @bind="Value"
               @bind:event="oninput"
-              @bind:after="OnInput"
-              spellcheck="false"></textarea>
+              @bind:after="OnInput"></textarea>
 </div>
 
 @code {
@@ -16,16 +23,16 @@
     [Parameter] public EventCallback<string> ValueChanged { get; set; }
     [Parameter] public string Placeholder { get; set; } = string.Empty;
     [Parameter] public int Rows { get; set; } = 4;
-    [Parameter] public string? Class { get; set; }
-    [Parameter] public string? Style { get; set; }
-
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public bool ReadOnly { get; set; }
+    
     private string HighlightedHtml => Highlight(Value ?? "");
-
+    
     private async Task OnInput()
     {
         await ValueChanged.InvokeAsync(Value);
     }
-
+    
     private static string Highlight(string text)
     {
         if (string.IsNullOrEmpty(text)) return "";
@@ -39,5 +46,11 @@
             escaped,
             @"\$\{([^}]*)\}",
             """<span style="color:var(--primary);font-weight:700">${$1}</span>""");
+    }
+    
+    private string GetClass()
+    {
+        var baseClass = "cn-code-editor relative font-mono text-sm";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
 }

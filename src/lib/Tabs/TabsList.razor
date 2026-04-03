@@ -1,0 +1,25 @@
+@namespace LowlandTech.Components.Tabs
+@inherits LtComponentBase
+
+<div data-slot="tabs-list"
+     data-orientation="@GetOrientation()"
+     class="@GetClass()"
+     role="tablist"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    [CascadingParameter] private Tabs? Parent { get; set; }
+    
+    private string GetOrientation() => Parent?.Orientation ?? "horizontal";
+    
+    private string GetClass()
+    {
+        var isVertical = GetOrientation() == "vertical";
+        var baseClass = isVertical
+            ? "cn-tabs-list flex flex-col gap-1 rounded-md bg-muted p-1"
+            : "cn-tabs-list inline-flex h-9 w-full items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

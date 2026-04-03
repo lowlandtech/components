@@ -1,7 +1,37 @@
-
 @namespace LowlandTech.Components.Tabs
 @inherits LtComponentBase
 
-<div data-slot="tabs" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
-</div>
+<CascadingValue Value="this">
+    <div data-slot="tabs"
+         data-orientation="@Orientation"
+         class="@GetClass()"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    [Parameter] public string Orientation { get; set; } = "horizontal";
+    [Parameter] public string DefaultValue { get; set; } = "";
+    
+    internal string? ActiveTab { get; set; }
+    
+    protected override void OnInitialized()
+    {
+        ActiveTab = DefaultValue;
+    }
+    
+    internal void ActivateTab(string value)
+    {
+        ActiveTab = value;
+        StateHasChanged();
+    }
+    
+    private string GetClass()
+    {
+        var baseClass = "cn-tabs flex flex-col gap-2";
+        if (Orientation == "vertical")
+            baseClass = "cn-tabs flex flex-row gap-2";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

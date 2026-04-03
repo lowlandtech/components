@@ -8,5 +8,4 @@ namespace LowlandTech.Components.Tabs;
 
 public partial class Tabs : LtComponentBase
 {
-    [Parameter] public string? orientation { get; set; }
 }

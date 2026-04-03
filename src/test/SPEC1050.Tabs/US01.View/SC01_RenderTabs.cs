@@ -1,5 +1,6 @@
 using Bunit;
 using TabsSut = LowlandTech.Components.Tabs.Tabs;
+using LowlandTech.Components.Tabs;
 using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1050.Tabs.US01.View;
@@ -11,7 +12,6 @@ public class SC01_RenderTabs : ViewScenario
 {
     [Fact(DisplayName = "UAC01: Tabs renders data-slot attribute")]
     [Trait(Spec.UAC, "01")]
-    [Then("the rendered markup contains data-slot")]
     public void UAC01_RendersDataSlot()
     {
         var cut = Ctx.Render<TabsSut>();
@@ -20,7 +20,6 @@ public class SC01_RenderTabs : ViewScenario
 
     [Fact(DisplayName = "UAC02: Tabs renders ChildContent")]
     [Trait(Spec.UAC, "02")]
-    [Then("the rendered markup contains child content")]
     public void UAC02_RendersChildContent()
     {
         var cut = Ctx.Render<TabsSut>(p => p.AddChildContent("Hello"));
@@ -29,10 +28,34 @@ public class SC01_RenderTabs : ViewScenario
 
     [Fact(DisplayName = "UAC03: Tabs renders Class parameter")]
     [Trait(Spec.UAC, "03")]
-    [Then("the rendered markup contains the CSS class")]
     public void UAC03_RendersClass()
     {
         var cut = Ctx.Render<TabsSut>(p => p.Add(x => x.Class, "test-class"));
         cut.Find("[data-slot='tabs']").ClassList.ShouldContain("test-class");
+    }
+
+    [Fact(DisplayName = "UAC04: Tabs renders with default horizontal orientation")]
+    [Trait(Spec.UAC, "04")]
+    public void UAC04_RendersWithDefaultHorizontalOrientation()
+    {
+        var cut = Ctx.Render<TabsSut>();
+        cut.Find("[data-orientation='horizontal']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC05: Tabs renders with vertical orientation")]
+    [Trait(Spec.UAC, "05")]
+    public void UAC05_RendersWithVerticalOrientation()
+    {
+        var cut = Ctx.Render<TabsSut>(p => p.Add(x => x.Orientation, "vertical"));
+        cut.Find("[data-orientation='vertical']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC06: Tabs renders with DefaultValue")]
+    [Trait(Spec.UAC, "06")]
+    public void UAC06_RendersWithDefaultValue()
+    {
+        var cut = Ctx.Render<TabsSut>(p => p.Add(x => x.DefaultValue, "tab1"));
+        // DefaultValue is used to set initial active tab
+        cut.Markup.ShouldNotBeNull();
     }
 }

@@ -1,7 +1,32 @@
-
 @namespace LowlandTech.Components.Resizable
 @inherits LtComponentBase
 
-<div data-slot="resizable-panel-group" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
-</div>
+<CascadingValue Value="this">
+    <div data-slot="resizable-panel-group"
+         data-orientation="@Direction"
+         class="@GetClass()"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    [Parameter] public string Direction { get; set; } = "horizontal";
+    
+    internal List<ResizablePanel> Panels { get; } = new();
+    
+    internal void RegisterPanel(ResizablePanel panel)
+    {
+        if (!Panels.Contains(panel))
+            Panels.Add(panel);
+    }
+    
+    private string GetClass()
+    {
+        var isHorizontal = Direction == "horizontal";
+        var baseClass = isHorizontal
+            ? "cn-resizable-panel-group flex h-full w-full flex-row"
+            : "cn-resizable-panel-group flex h-full w-full flex-col";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}
