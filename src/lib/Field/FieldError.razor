@@ -1,0 +1,32 @@
+@namespace LowlandTech.Components.Field
+@inherits LtComponentBase
+
+@if (!string.IsNullOrEmpty(ErrorMessage) || ChildContent != null)
+{
+    <div data-slot="field-error"
+         role="alert"
+         class="@GetClass()"
+         @attributes="AdditionalAttributes">
+        @if (ChildContent != null)
+        {
+            @ChildContent
+        }
+        else
+        {
+            @ErrorMessage
+        }
+    </div>
+}
+
+@code {
+    /// <summary>
+    /// The error message to display.
+    /// </summary>
+    [Parameter] public string? ErrorMessage { get; set; }
+
+    private string GetClass()
+    {
+        var baseClass = "cn-field-error font-normal";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

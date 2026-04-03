@@ -1,0 +1,22 @@
+@namespace LowlandTech.Components.ContextMenu
+@inherits LtComponentBase
+
+<div data-slot="context-menu-label"
+     data-inset="@Inset"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    /// <summary>
+    /// Whether the label is inset.
+    /// </summary>
+    [Parameter] public bool Inset { get; set; }
+
+    private string GetClass()
+    {
+        var baseClass = "cn-context-menu-label";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

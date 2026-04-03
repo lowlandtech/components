@@ -1,0 +1,27 @@
+@namespace LowlandTech.Components.Collapsible
+@inherits LtComponentBase
+
+<button data-slot="collapsible-trigger"
+        class="@GetClass()"
+        @onclick="OnClick"
+        @attributes="AdditionalAttributes">
+    @ChildContent
+</button>
+
+@code {
+    [CascadingParameter] private Collapsible? Parent { get; set; }
+
+    private async Task OnClick()
+    {
+        if (Parent != null)
+        {
+            await Parent.Toggle();
+        }
+    }
+
+    private string GetClass()
+    {
+        var baseClass = "cn-collapsible-trigger";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

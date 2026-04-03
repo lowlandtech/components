@@ -1,0 +1,16 @@
+@namespace LowlandTech.Components.Popover
+@inherits LtComponentBase
+
+<div data-slot="popover-title"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "cn-popover-title cn-font-heading";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

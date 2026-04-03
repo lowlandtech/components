@@ -1,7 +1,38 @@
-
 @namespace LowlandTech.Components.Collapsible
 @inherits LtComponentBase
 
-<div data-slot="collapsible" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
-</div>
+<CascadingValue Value="this">
+    <div data-slot="collapsible"
+         class="@GetClass()"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    /// <summary>
+    /// Whether the collapsible is open.
+    /// </summary>
+    [Parameter] public bool IsOpen { get; set; }
+
+    /// <summary>
+    /// Event callback when open state changes.
+    /// </summary>
+    [Parameter] public EventCallback<bool> IsOpenChanged { get; set; }
+
+    /// <summary>
+    /// Toggles the collapsible state.
+    /// </summary>
+    internal async Task Toggle()
+    {
+        IsOpen = !IsOpen;
+        await IsOpenChanged.InvokeAsync(IsOpen);
+        StateHasChanged();
+    }
+
+    private string GetClass()
+    {
+        var baseClass = "cn-collapsible";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

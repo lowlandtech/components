@@ -1,0 +1,27 @@
+@namespace LowlandTech.Components.Drawer
+@inherits LtComponentBase
+
+<button data-slot="drawer-trigger"
+        class="@GetClass()"
+        @onclick="OnClick"
+        @attributes="AdditionalAttributes">
+    @ChildContent
+</button>
+
+@code {
+    [CascadingParameter] private Drawer? Parent { get; set; }
+
+    private async Task OnClick()
+    {
+        if (Parent != null)
+        {
+            await Parent.Open();
+        }
+    }
+
+    private string GetClass()
+    {
+        var baseClass = "cn-drawer-trigger";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

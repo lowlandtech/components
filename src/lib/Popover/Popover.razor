@@ -1,6 +1,41 @@
 @namespace LowlandTech.Components.Popover
 @inherits LtComponentBase
 
-<div id="@($"popover-anchor-{_id}")" data-slot="popover" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
-</div>
+<CascadingValue Value="this">
+    <div data-slot="popover"
+         class="@GetClass()"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    /// <summary>
+    /// Whether the popover is open.
+    /// </summary>
+    internal bool IsOpen { get; set; }
+
+    /// <summary>
+    /// Toggles the popover.
+    /// </summary>
+    internal void Toggle()
+    {
+        IsOpen = !IsOpen;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Closes the popover.
+    /// </summary>
+    internal void Close()
+    {
+        IsOpen = false;
+        StateHasChanged();
+    }
+
+    private string GetClass()
+    {
+        var baseClass = "cn-popover relative";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

@@ -1,0 +1,25 @@
+@namespace LowlandTech.Components.Pagination
+@inherits LtComponentBase
+
+<a data-slot="pagination-next"
+   aria-label="Go to next page"
+   class="@GetClass()"
+   @attributes="AdditionalAttributes">
+    <span class="cn-pagination-next-text hidden sm:block">@Text</span>
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-icon="inline-end" class="cn-rtl-flip ml-2">
+        <path d="m9 18 6-6-6-6" />
+    </svg>
+</a>
+
+@code {
+    /// <summary>
+    /// The text to display.
+    /// </summary>
+    [Parameter] public string Text { get; set; } = "Next";
+
+    private string GetClass()
+    {
+        var baseClass = "cn-pagination-next inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

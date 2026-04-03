@@ -1,0 +1,17 @@
+@namespace LowlandTech.Components.Item
+@inherits LtComponentBase
+
+<div data-slot="item-group"
+     role="list"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "cn-item-group group/item-group flex w-full flex-col";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

@@ -1,0 +1,16 @@
+@namespace LowlandTech.Components.Field
+@inherits LtComponentBase
+
+<fieldset data-slot="field-set"
+          class="@GetClass()"
+          @attributes="AdditionalAttributes">
+    @ChildContent
+</fieldset>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "cn-field-set flex flex-col";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

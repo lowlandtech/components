@@ -1,7 +1,47 @@
-
 @namespace LowlandTech.Components.ContextMenu
 @inherits LtComponentBase
 
-<div data-slot="context-menu" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
-</div>
+<CascadingValue Value="this">
+    <div data-slot="context-menu"
+         class="@GetClass()"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    /// <summary>
+    /// Whether the context menu is open.
+    /// </summary>
+    internal bool IsOpen { get; set; }
+
+    /// <summary>
+    /// The position of the context menu.
+    /// </summary>
+    internal (double X, double Y) Position { get; set; }
+
+    /// <summary>
+    /// Opens the context menu at the specified position.
+    /// </summary>
+    internal void OpenAt(double x, double y)
+    {
+        Position = (x, y);
+        IsOpen = true;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Closes the context menu.
+    /// </summary>
+    internal void Close()
+    {
+        IsOpen = false;
+        StateHasChanged();
+    }
+
+    private string GetClass()
+    {
+        var baseClass = "cn-context-menu";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

@@ -1,0 +1,16 @@
+@namespace LowlandTech.Components.Field
+@inherits LtComponentBase
+
+<label data-slot="field-label"
+       class="@GetClass()"
+       @attributes="AdditionalAttributes">
+    @ChildContent
+</label>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "cn-field-label group/field-label peer/field-label flex w-fit leading-snug has-[>[data-slot=field]]:w-full has-[>[data-slot=field]]:flex-col";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

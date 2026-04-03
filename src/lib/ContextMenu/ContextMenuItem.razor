@@ -1,0 +1,42 @@
+@namespace LowlandTech.Components.ContextMenu
+@inherits LtComponentBase
+
+<div data-slot="context-menu-item"
+     data-variant="@Variant"
+     data-inset="@Inset"
+     class="@GetClass()"
+     @onclick="HandleClick"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    [CascadingParameter] private ContextMenu? Parent { get; set; }
+
+    /// <summary>
+    /// The variant of the item.
+    /// </summary>
+    [Parameter] public string Variant { get; set; } = "default";
+
+    /// <summary>
+    /// Whether the item is inset.
+    /// </summary>
+    [Parameter] public bool Inset { get; set; }
+
+    /// <summary>
+    /// Event callback when the item is clicked.
+    /// </summary>
+    [Parameter] public EventCallback OnClick { get; set; }
+
+    private async Task HandleClick()
+    {
+        Parent?.Close();
+        await OnClick.InvokeAsync();
+    }
+
+    private string GetClass()
+    {
+        var baseClass = "cn-context-menu-item group/context-menu-item relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

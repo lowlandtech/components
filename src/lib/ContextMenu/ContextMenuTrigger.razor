@@ -1,0 +1,28 @@
+@namespace LowlandTech.Components.ContextMenu
+@inherits LtComponentBase
+
+<div data-slot="context-menu-trigger"
+     class="@GetClass()"
+     @oncontextmenu="OnContextMenu"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    [CascadingParameter] private ContextMenu? Parent { get; set; }
+
+    private async Task OnContextMenu(MouseEventArgs e)
+    {
+        if (Parent != null)
+        {
+            Parent.OpenAt(e.ClientX, e.ClientY);
+        }
+        await Task.CompletedTask;
+    }
+
+    private string GetClass()
+    {
+        var baseClass = "cn-context-menu-trigger select-none";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

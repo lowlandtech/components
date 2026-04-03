@@ -1,7 +1,18 @@
-
 @namespace LowlandTech.Components.Pagination
 @inherits LtComponentBase
 
-<nav data-slot="pagination" class="@Class" @attributes="AdditionalAttributes">
+<nav data-slot="pagination"
+     role="navigation"
+     aria-label="pagination"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
     @ChildContent
 </nav>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "cn-pagination mx-auto flex w-full justify-center";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

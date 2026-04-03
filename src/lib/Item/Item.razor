@@ -1,7 +1,28 @@
-
 @namespace LowlandTech.Components.Item
 @inherits LtComponentBase
 
-<div data-slot="item" class="@Class" @attributes="AdditionalAttributes">
+<div data-slot="item"
+     data-variant="@Variant"
+     data-size="@Size"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
     @ChildContent
 </div>
+
+@code {
+    /// <summary>
+    /// The variant of the item.
+    /// </summary>
+    [Parameter] public string Variant { get; set; } = "default";
+
+    /// <summary>
+    /// The size of the item.
+    /// </summary>
+    [Parameter] public string Size { get; set; } = "default";
+
+    private string GetClass()
+    {
+        var baseClass = "cn-item group/item flex w-full flex-wrap items-center transition-colors duration-100 outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 [a]:transition-colors";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

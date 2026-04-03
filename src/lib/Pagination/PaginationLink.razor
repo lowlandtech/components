@@ -1,0 +1,25 @@
+@namespace LowlandTech.Components.Pagination
+@inherits LtComponentBase
+
+<a data-slot="pagination-link"
+   data-active="@IsActive"
+   aria-current="@(IsActive ? "page" : null)"
+   class="@GetClass()"
+   @attributes="AdditionalAttributes">
+    @ChildContent
+</a>
+
+@code {
+    /// <summary>
+    /// Whether this is the active page.
+    /// </summary>
+    [Parameter] public bool IsActive { get; set; }
+
+    private string GetClass()
+    {
+        var baseClass = IsActive
+            ? "cn-pagination-link inline-flex items-center justify-center rounded-md border border-input bg-background px-3 py-2 text-sm font-medium"
+            : "cn-pagination-link inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

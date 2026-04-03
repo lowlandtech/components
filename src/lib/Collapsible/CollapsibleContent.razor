@@ -1,0 +1,21 @@
+@namespace LowlandTech.Components.Collapsible
+@inherits LtComponentBase
+
+@if (Parent?.IsOpen == true)
+{
+    <div data-slot="collapsible-content"
+         class="@GetClass()"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+}
+
+@code {
+    [CascadingParameter] private Collapsible? Parent { get; set; }
+
+    private string GetClass()
+    {
+        var baseClass = "cn-collapsible-content";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

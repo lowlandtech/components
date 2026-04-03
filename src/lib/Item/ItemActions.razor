@@ -1,0 +1,16 @@
+@namespace LowlandTech.Components.Item
+@inherits LtComponentBase
+
+<div data-slot="item-actions"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "cn-item-actions flex items-center";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

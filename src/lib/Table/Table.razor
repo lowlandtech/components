@@ -1,7 +1,19 @@
-
 @namespace LowlandTech.Components.Table
 @inherits LtComponentBase
 
-<table data-slot="table" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
-</table>
+<div data-slot="table-container"
+     class="cn-table-container">
+    <table data-slot="table"
+           class="@GetClass()"
+           @attributes="AdditionalAttributes">
+        @ChildContent
+    </table>
+</div>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "cn-table";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

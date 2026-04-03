@@ -1,0 +1,16 @@
+@namespace LowlandTech.Components.ContextMenu
+@inherits LtComponentBase
+
+<span data-slot="context-menu-shortcut"
+      class="@GetClass()"
+      @attributes="AdditionalAttributes">
+    @ChildContent
+</span>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "cn-context-menu-shortcut";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

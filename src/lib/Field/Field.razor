@@ -1,7 +1,28 @@
-
 @namespace LowlandTech.Components.Field
 @inherits LtComponentBase
 
-<div data-slot="field" class="@Class" @attributes="AdditionalAttributes">
+<div data-slot="field"
+     data-orientation="@Orientation"
+     role="group"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
     @ChildContent
 </div>
+
+@code {
+    /// <summary>
+    /// The orientation of the field.
+    /// </summary>
+    [Parameter] public string Orientation { get; set; } = "vertical";
+
+    private string GetClass()
+    {
+        var baseClass = Orientation switch
+        {
+            "horizontal" => "cn-field group/field flex w-full flex-row items-center has-[>[data-slot=field-content]]:items-start *:data-[slot=field-label]:flex-auto has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px",
+            "responsive" => "cn-field group/field flex w-full flex-col *:w-full @md/field-group:flex-row @md/field-group:items-center @md/field-group:*:w-auto @md/field-group:has-[>[data-slot=field-content]]:items-start @md/field-group:*:data-[slot=field-label]:flex-auto [&>.sr-only]:w-auto @md/field-group:has-[>[data-slot=field-content]]:[&>[role=checkbox],[role=radio]]:mt-px",
+            _ => "cn-field group/field flex w-full flex-col *:w-full [&>.sr-only]:w-auto"
+        };
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}
