@@ -31,4 +31,9 @@ public partial class Switch
     /// The value attribute for form integration.
     /// </summary>
     [Parameter] public string? Value { get; set; }
+
+    /// <summary>
+    /// Whether the switch is disabled.
+    /// </summary>
+    [Parameter] public bool Disabled { get; set; }
 }

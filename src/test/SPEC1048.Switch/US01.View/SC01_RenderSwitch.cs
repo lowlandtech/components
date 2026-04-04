@@ -76,4 +76,22 @@ public class SC01_RenderSwitch : ViewScenario
         var button = cut.Find("[data-slot='switch']");
         button.GetAttribute("value").ShouldBe("switch-value");
     }
+
+    [Fact(DisplayName = "UAC09: Switch renders disabled attribute when Disabled=true")]
+    [Trait(Spec.UAC, "09")]
+    public void UAC09_RendersDisabledAttribute()
+    {
+        var cut = Ctx.Render<SwitchSut>(p => p.Add(x => x.Disabled, true));
+        var button = cut.Find("[data-slot='switch']");
+        button.HasAttribute("disabled").ShouldBeTrue();
+    }
+
+    [Fact(DisplayName = "UAC10: Switch renders data-disabled=true when Disabled=true")]
+    [Trait(Spec.UAC, "10")]
+    public void UAC10_RendersDataDisabled()
+    {
+        var cut = Ctx.Render<SwitchSut>(p => p.Add(x => x.Disabled, true));
+        var button = cut.Find("[data-slot='switch']");
+        button.GetAttribute("data-disabled").ShouldBe("true");
+    }
 }

@@ -1,6 +1,7 @@
 using Bunit;
 using LowlandTech.Components.Pagination;
 using LowlandTech.Components.Tests.Infrastructure;
+using PaginationComponent = LowlandTech.Components.Pagination.Pagination;
 
 namespace LowlandTech.Components.Tests.SPEC1034.Pagination.US01.View;
 
@@ -56,5 +57,31 @@ public class SC02_RenderPaginationSubcomponents : ViewScenario
     {
         var cut = Ctx.Render<PaginationEllipsis>();
         cut.Find("[data-slot='pagination-ellipsis']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC07: PaginationPrevious is disabled on first page")]
+    [Trait(Spec.UAC, "07")]
+    public void UAC07_PaginationPreviousDisabledOnFirstPage()
+    {
+        var cut = Ctx.Render<PaginationComponent>(p => p
+            .Add(x => x.Page, 1)
+            .Add(x => x.Count, 5)
+            .AddChildContent<PaginationPrevious>());
+
+        var previous = cut.Find("[data-slot='pagination-previous']");
+        previous.ClassList.ShouldContain("pointer-events-none");
+    }
+
+    [Fact(DisplayName = "UAC08: PaginationNext is disabled on last page")]
+    [Trait(Spec.UAC, "08")]
+    public void UAC08_PaginationNextDisabledOnLastPage()
+    {
+        var cut = Ctx.Render<PaginationComponent>(p => p
+            .Add(x => x.Page, 5)
+            .Add(x => x.Count, 5)
+            .AddChildContent<PaginationNext>());
+
+        var next = cut.Find("[data-slot='pagination-next']");
+        next.ClassList.ShouldContain("pointer-events-none");
     }
 }

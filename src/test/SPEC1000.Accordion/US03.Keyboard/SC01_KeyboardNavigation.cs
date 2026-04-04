@@ -54,6 +54,30 @@ public class SC01_KeyboardNavigation : ViewScenario
         triggers[0].KeyDown(new KeyboardEventArgs { Key = "End" });
     }
 
+    [Fact(DisplayName = "UAC05: Enter key toggles accordion item")]
+    [Trait(Spec.UAC, "05")]
+    public void UAC05_EnterTogglesItem()
+    {
+        var cut = RenderThreeItemAccordion();
+
+        var trigger = cut.FindAll("[data-slot='accordion-trigger']")[0];
+        trigger.KeyDown(new KeyboardEventArgs { Key = "Enter" });
+
+        trigger.GetAttribute("data-state").ShouldBe("open");
+    }
+
+    [Fact(DisplayName = "UAC06: Space key toggles accordion item")]
+    [Trait(Spec.UAC, "06")]
+    public void UAC06_SpaceTogglesItem()
+    {
+        var cut = RenderThreeItemAccordion();
+
+        var trigger = cut.FindAll("[data-slot='accordion-trigger']")[0];
+        trigger.KeyDown(new KeyboardEventArgs { Key = " " });
+
+        trigger.GetAttribute("data-state").ShouldBe("open");
+    }
+
     private IRenderedComponent<AccordionSut> RenderThreeItemAccordion()
     {
         return Ctx.Render<AccordionSut>(p => p

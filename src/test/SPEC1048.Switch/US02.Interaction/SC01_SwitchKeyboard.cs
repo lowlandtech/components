@@ -95,4 +95,40 @@ public class SC01_SwitchKeyboard : ViewScenario
         var button = cut.Find("[data-slot='switch']");
         button.GetAttribute("data-state").ShouldBe("unchecked");
     }
+
+    [Fact(DisplayName = "UAC07: Disabled switch does not toggle on click")]
+    [Trait(Spec.UAC, "07")]
+    public void UAC07_DisabledSwitchDoesNotToggleOnClick()
+    {
+        bool changed = false;
+        var cut = Ctx.Render<SwitchSut>(p =>
+        {
+            p.Add(x => x.Disabled, true);
+            p.Add(x => x.IsChecked, false);
+            p.Add(x => x.IsCheckedChanged, (bool _) => changed = true);
+        });
+
+        cut.Find("[data-slot='switch']").Click();
+
+        changed.ShouldBeFalse();
+        cut.Find("[data-slot='switch']").GetAttribute("data-state").ShouldBe("unchecked");
+    }
+
+    [Fact(DisplayName = "UAC08: Disabled switch does not toggle on Enter")]
+    [Trait(Spec.UAC, "08")]
+    public void UAC08_DisabledSwitchDoesNotToggleOnEnter()
+    {
+        bool changed = false;
+        var cut = Ctx.Render<SwitchSut>(p =>
+        {
+            p.Add(x => x.Disabled, true);
+            p.Add(x => x.IsChecked, false);
+            p.Add(x => x.IsCheckedChanged, (bool _) => changed = true);
+        });
+
+        cut.Find("[data-slot='switch']").KeyDown(new KeyboardEventArgs { Key = "Enter" });
+
+        changed.ShouldBeFalse();
+        cut.Find("[data-slot='switch']").GetAttribute("data-state").ShouldBe("unchecked");
+    }
 }

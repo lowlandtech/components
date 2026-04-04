@@ -186,9 +186,9 @@ public class SC01_TabsActivation : ViewScenario
         contents[1].GetAttribute("data-state").ShouldBe("inactive");
     }
 
-    [Fact(DisplayName = "UAC07: Content is hidden when inactive")]
+    [Fact(DisplayName = "UAC07: Inactive content is not rendered")]
     [Trait(Spec.UAC, "07")]
-    public void UAC07_ContentIsHiddenWhenInactive()
+    public void UAC07_InactiveContentIsNotRendered()
     {
         var cut = Ctx.Render<TabsSut>(p =>
         {
@@ -205,7 +205,8 @@ public class SC01_TabsActivation : ViewScenario
             });
         });
 
-        var contents = cut.FindAll("[data-slot='tabs-content']");
-        contents[1].HasAttribute("hidden").ShouldBeTrue();
+        cut.Markup.ShouldContain("Content 1");
+        cut.Markup.ShouldNotContain("Content 2");
+        cut.FindAll("[data-slot='tabs-content']").Count.ShouldBe(1);
     }
 }

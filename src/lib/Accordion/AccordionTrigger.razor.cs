@@ -20,10 +20,20 @@ public partial class AccordionTrigger : LtComponentBase
         if (ItemContext?.Item == null || ItemContext.ParentAccordion == null)
             return;
 
+        if (ItemContext.Disabled)
+            return;
+
         var accordion = ItemContext.ParentAccordion;
 
         switch (e.Key)
         {
+            case "Enter":
+            case " ":
+                if (ItemContext.Value != null)
+                {
+                    ItemContext.AccordionState?.Toggle(ItemContext.Value);
+                }
+                break;
             case "ArrowDown":
                 FocusNextItem(accordion);
                 break;

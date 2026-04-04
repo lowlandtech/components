@@ -4,10 +4,12 @@
 <button data-slot="switch"
         data-size="@Size"
         data-state="@GetState()"
+    data-disabled="@(Disabled ? "true" : null)"
         aria-checked="@IsChecked.ToString().ToLower()"
         role="switch"
         name="@Name"
         value="@Value"
+    disabled="@Disabled"
         class="@GetClass()"
         @onclick="OnClick"
         @onkeydown="OnKeyDown"
@@ -27,11 +29,16 @@
 
     private async Task OnClick()
     {
+        if (Disabled)
+            return;
         await ToggleAsync();
     }
 
     private async Task OnKeyDown(KeyboardEventArgs e)
     {
+        if (Disabled)
+            return;
+
         if (e.Key == " " || e.Key == "Enter")
         {
             await ToggleAsync();

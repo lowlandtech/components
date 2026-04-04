@@ -29,7 +29,7 @@
     /// <summary>
     /// Opens the drawer.
     /// </summary>
-    internal async Task Open()
+    public async Task Open()
     {
         IsOpen = true;
         await IsOpenChanged.InvokeAsync(IsOpen);
@@ -39,7 +39,7 @@
     /// <summary>
     /// Closes the drawer.
     /// </summary>
-    internal async Task Close()
+    public async Task Close()
     {
         IsOpen = false;
         await IsOpenChanged.InvokeAsync(IsOpen);

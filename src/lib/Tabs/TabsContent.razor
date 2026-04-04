@@ -1,18 +1,20 @@
 @namespace LowlandTech.Components.Tabs
 @inherits LtComponentBase
 
-<div data-slot="tabs-content"
-     data-state="@GetState()"
-     data-orientation="@GetOrientation()"
-     class="@GetClass()"
-     role="tabpanel"
-     id="@GetId()"
-     aria-labelledby="@GetTriggerId()"
-     tabindex="0"
-     hidden="@(!IsActive)"
-     @attributes="AdditionalAttributes">
-    @ChildContent
-</div>
+@if (IsActive)
+{
+    <div data-slot="tabs-content"
+         data-state="@GetState()"
+         data-orientation="@GetOrientation()"
+         class="@GetClass()"
+         role="tabpanel"
+         id="@GetId()"
+         aria-labelledby="@GetTriggerId()"
+         tabindex="0"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+}
 
 @code {
     [CascadingParameter] private Tabs? Parent { get; set; }
