@@ -60,10 +60,14 @@ public class SC01_KeyboardNavigation : ViewScenario
     {
         var cut = RenderThreeItemAccordion();
 
-        var trigger = cut.FindAll("[data-slot='accordion-trigger']")[0];
-        trigger.KeyDown(new KeyboardEventArgs { Key = "Enter" });
+        cut.FindAll("[data-slot='accordion-trigger']")[0]
+            .KeyDown(new KeyboardEventArgs { Key = "Enter" });
 
-        trigger.GetAttribute("data-state").ShouldBe("open");
+        cut.WaitForAssertion(() =>
+        {
+            cut.FindAll("[data-slot='accordion-trigger']")[0]
+                .GetAttribute("data-state").ShouldBe("open");
+        });
     }
 
     [Fact(DisplayName = "UAC06: Space key toggles accordion item")]
@@ -72,10 +76,14 @@ public class SC01_KeyboardNavigation : ViewScenario
     {
         var cut = RenderThreeItemAccordion();
 
-        var trigger = cut.FindAll("[data-slot='accordion-trigger']")[0];
-        trigger.KeyDown(new KeyboardEventArgs { Key = " " });
+        cut.FindAll("[data-slot='accordion-trigger']")[0]
+            .KeyDown(new KeyboardEventArgs { Key = " " });
 
-        trigger.GetAttribute("data-state").ShouldBe("open");
+        cut.WaitForAssertion(() =>
+        {
+            cut.FindAll("[data-slot='accordion-trigger']")[0]
+                .GetAttribute("data-state").ShouldBe("open");
+        });
     }
 
     private IRenderedComponent<AccordionSut> RenderThreeItemAccordion()

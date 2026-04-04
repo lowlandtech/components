@@ -1,8 +1,13 @@
 @namespace LowlandTech.Components.SelectInput
 @typeparam TValue
+@inherits LtComponentBase
 
-<div class="select-root">
-    <button type="button" class="select-trigger" @onclick="Toggle" @onclick:stopPropagation>
+<div data-slot="select-input" class="@GetRootClass()" @attributes="AdditionalAttributes">
+    <button type="button" 
+            data-slot="select-trigger"
+            class="select-trigger" 
+            @onclick="Toggle" 
+            @onclick:stopPropagation>
         <span class="select-value @(string.IsNullOrEmpty(DisplayValue) ? "select-placeholder" : "")">
             @(string.IsNullOrEmpty(DisplayValue) ? Placeholder : DisplayValue)
         </span>
@@ -14,13 +19,15 @@
 
     @if (_open)
     {
-        <div class="select-backdrop" @onclick="Close" @onclick:stopPropagation></div>
-        <div class="select-content">
+        <div data-slot="select-backdrop" class="select-backdrop" @onclick="Close" @onclick:stopPropagation></div>
+        <div data-slot="select-content" class="select-content">
             @foreach (var opt in Options)
             {
                 var isSelected = EqualityComparer<TValue>.Default.Equals(opt.Value, Value);
-                <div class="select-item @(isSelected ? "selected" : "")"
-                     @onclick="() => SelectOption(opt.Value)" @onclick:stopPropagation>
+                <div data-slot="select-item"
+                     class="select-item @(isSelected ? "selected" : "")"
+                     @onclick="() => SelectOption(opt.Value)" 
+                     @onclick:stopPropagation>
                     <span>@opt.Label</span>
                     @if (isSelected && !string.IsNullOrEmpty(CheckIcon))
                     {
@@ -31,3 +38,11 @@
         </div>
     }
 </div>
+
+@code {
+    private string GetRootClass()
+    {
+        var baseClass = "select-root relative";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

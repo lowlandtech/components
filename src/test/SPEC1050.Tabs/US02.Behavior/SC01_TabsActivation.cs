@@ -163,9 +163,9 @@ public class SC01_TabsActivation : ViewScenario
         content.GetAttribute("data-state").ShouldBe("active");
     }
 
-    [Fact(DisplayName = "UAC06: Inactive content has data-state inactive")]
+    [Fact(DisplayName = "UAC06: Only active content is rendered")]
     [Trait(Spec.UAC, "06")]
-    public void UAC06_InactiveContentHasDataStateInactive()
+    public void UAC06_OnlyActiveContentIsRendered()
     {
         var cut = Ctx.Render<TabsSut>(p =>
         {
@@ -183,7 +183,8 @@ public class SC01_TabsActivation : ViewScenario
         });
 
         var contents = cut.FindAll("[data-slot='tabs-content']");
-        contents[1].GetAttribute("data-state").ShouldBe("inactive");
+        contents.Count.ShouldBe(1);
+        contents[0].GetAttribute("data-state").ShouldBe("active");
     }
 
     [Fact(DisplayName = "UAC07: Inactive content is not rendered")]

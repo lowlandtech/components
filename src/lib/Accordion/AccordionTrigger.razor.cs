@@ -17,7 +17,7 @@ public partial class AccordionTrigger : LtComponentBase
 
     private void OnKeyDown(KeyboardEventArgs e)
     {
-        if (ItemContext?.Item == null || ItemContext.ParentAccordion == null)
+        if (ItemContext?.Item == null)
             return;
 
         if (ItemContext.Disabled)
@@ -35,15 +35,23 @@ public partial class AccordionTrigger : LtComponentBase
                 }
                 break;
             case "ArrowDown":
+                if (accordion == null)
+                    return;
                 FocusNextItem(accordion);
                 break;
             case "ArrowUp":
+                if (accordion == null)
+                    return;
                 FocusPreviousItem(accordion);
                 break;
             case "Home":
+                if (accordion == null)
+                    return;
                 FocusFirstItem(accordion);
                 break;
             case "End":
+                if (accordion == null)
+                    return;
                 FocusLastItem(accordion);
                 break;
         }

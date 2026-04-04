@@ -84,4 +84,36 @@ public class SC02_RenderPaginationSubcomponents : ViewScenario
         var next = cut.Find("[data-slot='pagination-next']");
         next.ClassList.ShouldContain("pointer-events-none");
     }
+
+    [Fact(DisplayName = "UAC09: PaginationContent renders as ul")]
+    [Trait(Spec.UAC, "09")]
+    public void UAC09_PaginationContentRendersAsUl()
+    {
+        var cut = Ctx.Render<PaginationContent>();
+        cut.Find("ul[data-slot='pagination-content']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC10: PaginationItem renders as li")]
+    [Trait(Spec.UAC, "10")]
+    public void UAC10_PaginationItemRendersAsLi()
+    {
+        var cut = Ctx.Render<PaginationItem>();
+        cut.Find("li[data-slot='pagination-item']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC11: PaginationEllipsis includes screen-reader label")]
+    [Trait(Spec.UAC, "11")]
+    public void UAC11_PaginationEllipsisHasScreenReaderLabel()
+    {
+        var cut = Ctx.Render<PaginationEllipsis>();
+        cut.Find(".sr-only").TextContent.Trim().ShouldBe("More pages");
+    }
+
+    [Fact(DisplayName = "UAC12: PaginationEllipsis icon is aria-hidden")]
+    [Trait(Spec.UAC, "12")]
+    public void UAC12_PaginationEllipsisIconIsAriaHidden()
+    {
+        var cut = Ctx.Render<PaginationEllipsis>();
+        cut.Find("[data-slot='pagination-ellipsis'] svg").GetAttribute("aria-hidden").ShouldBe("true");
+    }
 }

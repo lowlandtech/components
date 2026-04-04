@@ -226,4 +226,23 @@ public class SC02_RenderTabsSubcomponents : ViewScenario
         var triggers = cut.FindAll("[data-slot='tabs-trigger']");
         triggers[1].GetAttribute("tabindex").ShouldBe("-1");
     }
+
+    [Fact(DisplayName = "UAC18: TabsList default variant applies default data-variant")]
+    [Trait(Spec.UAC, "18")]
+    public void UAC18_TabsListDefaultVariant()
+    {
+        var cut = Ctx.Render<TabsList>();
+        var list = cut.Find("[data-slot='tabs-list']");
+        list.GetAttribute("data-variant").ShouldBe("default");
+    }
+
+    [Fact(DisplayName = "UAC19: TabsList line variant applies line styling")]
+    [Trait(Spec.UAC, "19")]
+    public void UAC19_TabsListLineVariant()
+    {
+        var cut = Ctx.Render<TabsList>(p => p.Add(x => x.Variant, "line"));
+        var list = cut.Find("[data-slot='tabs-list']");
+        list.GetAttribute("data-variant").ShouldBe("line");
+        list.ClassList.ShouldContain("bg-transparent");
+    }
 }

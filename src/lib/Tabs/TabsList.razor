@@ -3,6 +3,7 @@
 
 <div data-slot="tabs-list"
      data-orientation="@GetOrientation()"
+    data-variant="@Variant"
      class="@GetClass()"
      role="tablist"
      @onkeydown="HandleKeyDown"
@@ -12,6 +13,7 @@
 
 @code {
     [CascadingParameter] private Tabs? Parent { get; set; }
+    [Parameter] public string Variant { get; set; } = "default";
     
     private string GetOrientation() => Parent?.Orientation ?? "horizontal";
     private bool IsVertical => GetOrientation() == "vertical";
@@ -74,9 +76,16 @@
     private string GetClass()
     {
         var isVertical = GetOrientation() == "vertical";
+        var isLineVariant = string.Equals(Variant, "line", StringComparison.OrdinalIgnoreCase);
+
         var baseClass = isVertical
-            ? "cn-tabs-list flex flex-col gap-1 rounded-md bg-muted p-1"
-            : "cn-tabs-list inline-flex h-9 w-full items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground";
+            ? "cn-tabs-list flex flex-col gap-1 p-1"
+            : "cn-tabs-list inline-flex h-9 w-full items-center justify-center p-1 text-muted-foreground";
+
+        baseClass += isLineVariant
+            ? " bg-transparent border-b rounded-none"
+            : (isVertical ? " rounded-md bg-muted" : " rounded-lg bg-muted");
+
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
 }

@@ -94,4 +94,28 @@ public class SC01_RenderSwitch : ViewScenario
         var button = cut.Find("[data-slot='switch']");
         button.GetAttribute("data-disabled").ShouldBe("true");
     }
+
+    [Fact(DisplayName = "UAC11: Switch thumb reflects checked state")]
+    [Trait(Spec.UAC, "11")]
+    public void UAC11_ThumbReflectsCheckedState()
+    {
+        var cut = Ctx.Render<SwitchSut>(p => p.Add(x => x.IsChecked, true));
+        var thumb = cut.Find("[data-slot='switch-thumb']");
+        thumb.GetAttribute("data-state").ShouldBe("checked");
+        thumb.ClassList.ShouldContain("translate-x-4");
+    }
+
+    [Fact(DisplayName = "UAC12: Small switch uses compact thumb translation")]
+    [Trait(Spec.UAC, "12")]
+    public void UAC12_SmallSwitchUsesCompactThumbTranslation()
+    {
+        var cut = Ctx.Render<SwitchSut>(p =>
+        {
+            p.Add(x => x.Size, "sm");
+            p.Add(x => x.IsChecked, true);
+        });
+
+        var thumb = cut.Find("[data-slot='switch-thumb']");
+        thumb.ClassList.ShouldContain("translate-x-3");
+    }
 }

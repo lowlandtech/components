@@ -1,5 +1,6 @@
 using Bunit;
 using KbdSut = LowlandTech.Components.Kbd.Kbd;
+using KbdGroupSut = LowlandTech.Components.Kbd.KbdGroup;
 using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1029.Kbd.US01.View;
@@ -73,5 +74,27 @@ public class SC01_RenderKbd : ViewScenario
         var cut = Ctx.Render<KbdSut>();
         var kbd = cut.Find("[data-slot='kbd']");
         kbd.GetAttribute("data-size").ShouldBe("md");
+    }
+
+    [Fact(DisplayName = "UAC09: KbdGroup renders data-slot attribute")]
+    [Trait(Spec.UAC, "09")]
+    public void UAC09_KbdGroupRendersDataSlot()
+    {
+        var cut = Ctx.Render<KbdGroupSut>(p => p.AddChildContent("Group"));
+        cut.Find("[data-slot='kbd-group']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC10: KbdGroup renders separator utility classes")]
+    [Trait(Spec.UAC, "10")]
+    public void UAC10_KbdGroupRendersSeparatorUtilityClasses()
+    {
+        var cut = Ctx.Render<KbdGroupSut>(p =>
+        {
+            p.AddChildContent("<kbd>Ctrl</kbd><kbd>K</kbd>");
+        });
+
+        var group = cut.Find("[data-slot='kbd-group']");
+        var classAttr = group.GetAttribute("class") ?? string.Empty;
+        classAttr.ShouldContain("before:content-['+']");
     }
 }

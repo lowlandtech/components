@@ -29,4 +29,6 @@ public partial class SelectInput<TValue>
         _open = false;
         await ValueChanged.InvokeAsync(value);
     }
+
+
 }
