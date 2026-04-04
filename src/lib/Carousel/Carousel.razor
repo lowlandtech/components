@@ -2,6 +2,6 @@
 @namespace LowlandTech.Components.Carousel
 @inherits LtComponentBase
 
-<div data-slot="carousel" class="@Class" @attributes="AdditionalAttributes">
+<div data-slot="carousel" data-orientation="@(Orientation ?? "horizontal")" class="@Class" @attributes="AdditionalAttributes">
     @ChildContent
 </div>

@@ -34,11 +34,12 @@ public class SC01_NavigationMenuInteractions : ViewScenario
         cut.Find("[data-slot='navigation-menu-content']").ShouldNotBeNull();
     }
 
-    [Fact(DisplayName = "UAC03: NavigationMenuContent does not render when IsOpen is false")]
+    [Fact(DisplayName = "UAC03: NavigationMenuContent has closed data-state when IsOpen is false")]
     [Trait(Spec.UAC, "03")]
-    public void UAC03_NavigationMenuContentDoesNotRenderWhenIsOpenFalse()
+    public void UAC03_NavigationMenuContentHasClosedStateWhenIsOpenFalse()
     {
         var cut = Ctx.Render<NavigationMenuContent>(p => p.Add(x => x.IsOpen, false));
-        cut.FindAll("[data-slot='navigation-menu-content']").Count.ShouldBe(0);
+        var content = cut.Find("[data-slot='navigation-menu-content']");
+        content.GetAttribute("data-state").ShouldBe("closed");
     }
 }

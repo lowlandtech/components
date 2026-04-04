@@ -105,4 +105,17 @@ public class SC01_RenderCombobox : ViewScenario
         cut.Find("[data-slot='combobox']").ShouldNotBeNull();
         cut.Find("[data-slot='combobox-input']").ShouldNotBeNull();
     }
+
+    [Fact(DisplayName = "UAC12: ComboboxItem renders data-disabled when disabled")]
+    [Trait(Spec.UAC, "12")]
+    public void UAC12_ComboboxItemRendersDataDisabledWhenDisabled()
+    {
+        var cut = Ctx.Render<ComboboxItem>(p => p
+            .AddCascadingValue(new ComboboxComponent())
+            .Add(x => x.Value, "test")
+            .Add(x => x.Disabled, true)
+        );
+
+        cut.Find("[data-slot='combobox-item']").GetAttribute("data-disabled").ShouldBe("true");
+    }
 }

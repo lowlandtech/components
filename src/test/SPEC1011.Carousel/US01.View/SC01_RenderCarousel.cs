@@ -113,4 +113,28 @@ public class SC01_RenderCarousel : ViewScenario
         cut.Find("[data-slot='carousel-previous']").ShouldNotBeNull();
         cut.Find("[data-slot='carousel-next']").ShouldNotBeNull();
     }
+
+    [Fact(DisplayName = "UAC13: Carousel renders horizontal orientation")]
+    [Trait(Spec.UAC, "13")]
+    public void UAC13_CarouselRendersHorizontalOrientation()
+    {
+        var cut = Ctx.Render<CarouselComponent>(p => p.Add(x => x.Orientation, "horizontal"));
+        cut.Find("[data-slot='carousel']").GetAttribute("data-orientation").ShouldBe("horizontal");
+    }
+
+    [Fact(DisplayName = "UAC14: Carousel renders vertical orientation")]
+    [Trait(Spec.UAC, "14")]
+    public void UAC14_CarouselRendersVerticalOrientation()
+    {
+        var cut = Ctx.Render<CarouselComponent>(p => p.Add(x => x.Orientation, "vertical"));
+        cut.Find("[data-slot='carousel']").GetAttribute("data-orientation").ShouldBe("vertical");
+    }
+
+    [Fact(DisplayName = "UAC15: CarouselItem renders data-active when active")]
+    [Trait(Spec.UAC, "15")]
+    public void UAC15_CarouselItemRendersDataActiveWhenActive()
+    {
+        var cut = Ctx.Render<CarouselItem>(p => p.Add(x => x.IsActive, true));
+        cut.Find("[data-slot='carousel-item']").GetAttribute("data-active").ShouldBe("true");
+    }
 }

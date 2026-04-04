@@ -1,14 +1,13 @@
 @namespace LowlandTech.Components.NavigationMenu
 @inherits LtComponentBase
 
-@if (IsOpen)
-{
-    <div data-slot="navigation-menu-content"
-         class="@GetClass()"
-         @attributes="AdditionalAttributes">
-        @ChildContent
-    </div>
-}
+<div data-slot="navigation-menu-content"
+     data-state="@(IsOpen ? "open" : "closed")"
+     style="@(IsOpen ? null : "display: none;")"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
 
 @code {
     [Parameter] public bool IsOpen { get; set; } = true;

@@ -80,4 +80,22 @@ public class SC01_ComboboxInteractions : ViewScenario
         // Component should render with callback
         cut.Find("[data-slot='combobox']").ShouldNotBeNull();
     }
+
+    [Fact(DisplayName = "UAC07: ComboboxContent renders closed state by default")]
+    [Trait(Spec.UAC, "07")]
+    public void UAC07_ComboboxContentRendersClosedStateByDefault()
+    {
+        var cut = Ctx.Render<ComboboxSut>();
+        cut.Find("[data-slot='combobox-content']").GetAttribute("data-state").ShouldBe("closed");
+    }
+
+    [Fact(DisplayName = "UAC08: Focusing input opens ComboboxContent")]
+    [Trait(Spec.UAC, "08")]
+    public void UAC08_FocusingInputOpensComboboxContent()
+    {
+        var cut = Ctx.Render<ComboboxSut>();
+        cut.Find("[data-slot='combobox-input']").Focus();
+
+        cut.Find("[data-slot='combobox-content']").GetAttribute("data-state").ShouldBe("open");
+    }
 }

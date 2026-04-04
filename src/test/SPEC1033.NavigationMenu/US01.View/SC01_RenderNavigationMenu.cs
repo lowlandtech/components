@@ -80,12 +80,13 @@ public class SC01_RenderNavigationMenu : ViewScenario
         cut.Find("[data-slot='navigation-menu-content']").ShouldNotBeNull();
     }
 
-    [Fact(DisplayName = "UAC09: NavigationMenuContent does not render when IsOpen is false")]
+    [Fact(DisplayName = "UAC09: NavigationMenuContent renders closed state when IsOpen is false")]
     [Trait(Spec.UAC, "09")]
-    public void UAC09_NavigationMenuContentDoesNotRenderWhenIsOpenFalse()
+    public void UAC09_NavigationMenuContentRendersClosedState()
     {
         var cut = Ctx.Render<NavigationMenuContent>(p => p.Add(x => x.IsOpen, false));
-        cut.FindAll("[data-slot='navigation-menu-content']").Count.ShouldBe(0);
+        var content = cut.Find("[data-slot='navigation-menu-content']");
+        content.GetAttribute("data-state").ShouldBe("closed");
     }
 
     [Fact(DisplayName = "UAC10: NavigationMenuLink renders with data-slot attribute")]
@@ -125,5 +126,29 @@ public class SC01_RenderNavigationMenu : ViewScenario
         cut.FindAll("[data-slot='navigation-menu-trigger']").Count.ShouldBe(2);
         cut.FindAll("[data-slot='navigation-menu-content']").Count.ShouldBe(2);
         cut.FindAll("[data-slot='navigation-menu-link']").Count.ShouldBe(5);
+    }
+
+    [Fact(DisplayName = "UAC14: NavigationMenuTrigger renders data-state")]
+    [Trait(Spec.UAC, "14")]
+    public void UAC14_NavigationMenuTriggerRendersDataState()
+    {
+        var cut = Ctx.Render<NavigationMenuTrigger>(p => p.Add(x => x.IsOpen, true));
+        cut.Find("[data-slot='navigation-menu-trigger']").GetAttribute("data-state").ShouldBe("open");
+    }
+
+    [Fact(DisplayName = "UAC15: NavigationMenuViewport renders with data-slot")]
+    [Trait(Spec.UAC, "15")]
+    public void UAC15_NavigationMenuViewportRenders()
+    {
+        var cut = Ctx.Render<NavigationMenuViewport>();
+        cut.Find("[data-slot='navigation-menu-viewport']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC16: NavigationMenuIndicator renders with data-slot")]
+    [Trait(Spec.UAC, "16")]
+    public void UAC16_NavigationMenuIndicatorRenders()
+    {
+        var cut = Ctx.Render<NavigationMenuIndicator>();
+        cut.Find("[data-slot='navigation-menu-indicator']").ShouldNotBeNull();
     }
 }

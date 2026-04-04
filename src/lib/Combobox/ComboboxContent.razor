@@ -1,14 +1,13 @@
 @namespace LowlandTech.Components.Combobox
 @inherits LtComponentBase
 
-@if (Parent?.IsOpen == true)
-{
-    <div data-slot="combobox-content"
-         class="@GetClass()"
-         @attributes="AdditionalAttributes">
-        @ChildContent
-    </div>
-}
+<div data-slot="combobox-content"
+     data-state="@(Parent?.IsOpen == true ? "open" : "closed")"
+     style="@(Parent?.IsOpen == true ? null : "display: none;")"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
 
 @code {
     [CascadingParameter] private Combobox? Parent { get; set; }

@@ -1,7 +1,7 @@
 @namespace LowlandTech.Components.Carousel
 @inherits LtComponentBase
 
-<div data-slot="carousel-item" class="@GetClass()" @attributes="AdditionalAttributes">
+<div data-slot="carousel-item" data-active="@(IsActive ? "true" : null)" class="@GetClass()" @attributes="AdditionalAttributes">
     @ChildContent
 </div>
 

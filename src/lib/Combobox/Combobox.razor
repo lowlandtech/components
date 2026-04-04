@@ -38,6 +38,15 @@
     }
 
     /// <summary>
+    /// Opens the combobox dropdown.
+    /// </summary>
+    internal void Open()
+    {
+        IsOpen = true;
+        StateHasChanged();
+    }
+
+    /// <summary>
     /// Closes the combobox dropdown.
     /// </summary>
     internal void Close()

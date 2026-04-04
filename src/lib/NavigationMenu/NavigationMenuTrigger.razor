@@ -3,6 +3,7 @@
 
 <button type="button"
         data-slot="navigation-menu-trigger"
+    data-state="@(IsOpen ? "open" : "closed")"
         class="@GetClass()"
         @onclick="OnClick"
         @attributes="AdditionalAttributes">
@@ -11,6 +12,7 @@
 
 @code {
     [Parameter] public EventCallback OnClick { get; set; }
+    [Parameter] public bool IsOpen { get; set; }
 
     private string GetClass()
     {
