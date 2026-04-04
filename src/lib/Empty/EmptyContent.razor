@@ -1,0 +1,16 @@
+@namespace LowlandTech.Components.Empty
+@inherits LtComponentBase
+
+<div data-slot="empty-content"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    private string GetClass()
+    {
+        const string baseClass = "cn-empty-content flex w-full max-w-sm min-w-0 flex-col items-center text-balance";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

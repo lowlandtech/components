@@ -2,132 +2,20 @@
 @inherits LtComponentBase
 
 <div data-slot="calendar"
-     class="@GetClass()"
+     class="cn-calendar group/calendar bg-background @Class"
      @attributes="AdditionalAttributes">
-    <div class="cn-calendar-header flex items-center justify-between px-2 py-1">
-        <button type="button" class="cn-calendar-nav-button" @onclick="PreviousMonth">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cn-rtl-flip">
-                <path d="m15 18-6-6 6-6" />
-            </svg>
-        </button>
-        <span class="cn-calendar-caption font-medium">@CurrentMonthName @CurrentYear</span>
-        <button type="button" class="cn-calendar-nav-button" @onclick="NextMonth">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cn-rtl-flip">
-                <path d="m9 18 6-6-6-6" />
-            </svg>
-        </button>
-    </div>
-    <table class="cn-calendar-table w-full border-collapse">
-        <thead>
-            <tr class="cn-calendar-weekdays flex">
-                @foreach (var day in WeekDays)
-                {
-                    <th class="cn-calendar-weekday flex-1 rounded text-[0.8rem] font-normal text-muted-foreground select-none">@day</th>
-                }
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var week in GetWeeks())
-            {
-                <tr class="cn-calendar-week mt-2 flex w-full">
-                    @foreach (var day in week)
-                    {
-                        <td class="cn-calendar-day group/day relative aspect-square h-full w-full rounded p-0 text-center select-none"
-                            data-selected="@IsSelected(day)"
-                            data-today="@IsToday(day)"
-                            data-outside="@IsOutsideCurrentMonth(day)">
-                            <button type="button"
-                                    class="cn-calendar-day-button relative isolate z-10 flex aspect-square size-auto w-full min-w-8 flex-col gap-1 border-0 leading-none font-normal"
-                                    @onclick="() => SelectDate(day)">
-                                @day.Day
-                            </button>
-                        </td>
-                    }
-                </tr>
-            }
-        </tbody>
-    </table>
+    
+    <CalendarNavigation 
+        CurrentMonth="CurrentMonth"
+        OnPreviousMonth="PreviousMonth"
+        OnNextMonth="NextMonth"
+        OnPreviousYear="PreviousYear"
+        OnNextYear="NextYear" />
+    
+    <CalendarGrid 
+        Calendar="this"
+        Mode="Mode"
+        ShowOutsideDays="ShowOutsideDays" />
+    
     @ChildContent
 </div>
-
-@code {
-    /// <summary>
-    /// The selected date.
-    /// </summary>
-    [Parameter] public DateTime? SelectedDate { get; set; }
-
-    /// <summary>
-    /// Event callback when selected date changes.
-    /// </summary>
-    [Parameter] public EventCallback<DateTime?> SelectedDateChanged { get; set; }
-
-    /// <summary>
-    /// The currently displayed month.
-    /// </summary>
-    private DateTime CurrentMonth { get; set; } = DateTime.Today;
-
-    private string CurrentMonthName => CurrentMonth.ToString("MMMM");
-    private int CurrentYear => CurrentMonth.Year;
-
-    private static readonly string[] WeekDays = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-
-    private void PreviousMonth()
-    {
-        CurrentMonth = CurrentMonth.AddMonths(-1);
-    }
-
-    private void NextMonth()
-    {
-        CurrentMonth = CurrentMonth.AddMonths(1);
-    }
-
-    private async Task SelectDate(DateTime date)
-    {
-        SelectedDate = date;
-        await SelectedDateChanged.InvokeAsync(SelectedDate);
-    }
-
-    private bool IsSelected(DateTime date)
-    {
-        return SelectedDate.HasValue && SelectedDate.Value.Date == date.Date;
-    }
-
-    private bool IsToday(DateTime date)
-    {
-        return date.Date == DateTime.Today;
-    }
-
-    private bool IsOutsideCurrentMonth(DateTime date)
-    {
-        return date.Month != CurrentMonth.Month;
-    }
-
-    private List<List<DateTime>> GetWeeks()
-    {
-        var weeks = new List<List<DateTime>>();
-        var firstDayOfMonth = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 1);
-        var daysInMonth = DateTime.DaysInMonth(CurrentMonth.Year, CurrentMonth.Month);
-        var startDayOfWeek = (int)firstDayOfMonth.DayOfWeek;
-
-        var currentDay = firstDayOfMonth.AddDays(-startDayOfWeek);
-
-        for (int week = 0; week < 6; week++)
-        {
-            var weekDays = new List<DateTime>();
-            for (int day = 0; day < 7; day++)
-            {
-                weekDays.Add(currentDay);
-                currentDay = currentDay.AddDays(1);
-            }
-            weeks.Add(weekDays);
-        }
-
-        return weeks;
-    }
-
-    private string GetClass()
-    {
-        var baseClass = "cn-calendar group/calendar bg-background";
-        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
-    }
-}

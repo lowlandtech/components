@@ -49,7 +49,7 @@ public class SC01_RenderCalendar : ViewScenario
     public void UAC05_RendersNavigationButtons()
     {
         var cut = Ctx.Render<CalendarSut>();
-        cut.FindAll(".cn-calendar-nav-button").Count.ShouldBe(2);
+        cut.FindAll(".cn-calendar-nav-button").Count.ShouldBe(4);
     }
 
     [Fact(DisplayName = "UAC06: Calendar renders weekday headers")]

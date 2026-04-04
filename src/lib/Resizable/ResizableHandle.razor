@@ -1,11 +1,16 @@
 @namespace LowlandTech.Components.Resizable
 @inherits LtComponentBase
+@implements IDisposable
 
 <div data-slot="resizable-handle"
       data-orientation="@GetOrientation()"
+      data-group="@Group"
       class="@GetClass()"
       role="separator"
       tabindex="0"
+      @onpointerdown="OnPointerDown"
+      @onpointermove="OnPointerMove"
+      @onpointerup="OnPointerUp"
       @attributes="AdditionalAttributes">
     @if (ChildContent is not null)
     {
@@ -13,28 +18,215 @@
     }
     else
     {
-        <div class="resizable-handle-indicator"></div>
+        <div class="resizable-handle-indicator flex items-center justify-center">
+            @if (WithHandle)
+            {
+                <div class="@GetHandleClass()">
+                    <svg width="4" height="16" viewBox="0 0 4 16" fill="currentColor" class="text-muted-foreground">
+                        <circle cx="2" cy="2" r="1.5" />
+                        <circle cx="2" cy="8" r="1.5" />
+                        <circle cx="2" cy="14" r="1.5" />
+                    </svg>
+                </div>
+            }
+            else
+            {
+                <div class="@GetLineClass()"></div>
+            }
+        </div>
     }
 </div>
 
 @code {
     [CascadingParameter] private Resizable? Parent { get; set; }
+
     [Parameter] public bool WithHandle { get; set; }
-    
+
+    /// <summary>
+    /// Group identifier for coordinating multiple handles.
+    /// </summary>
+    [Parameter] public string? Group { get; set; }
+
+    /// <summary>
+    /// Index of this handle in the group (determines which panels it controls).
+    /// </summary>
+    [Parameter] public int HandleIndex { get; set; } = -1;
+
+    /// <summary>
+    /// The panel before this handle (auto-detected if not specified).
+    /// </summary>
+    [Parameter] public ResizablePanel? BeforePanel { get; set; }
+
+    /// <summary>
+    /// The panel after this handle (auto-detected if not specified).
+    /// </summary>
+    [Parameter] public ResizablePanel? AfterPanel { get; set; }
+
+    private bool _isDragging;
+    private double _startPosition;
+    private int _startSizeBefore;
+    private int _startSizeAfter;
+
+    protected override void OnInitialized()
+    {
+        Parent?.RegisterHandle(this);
+    }
+
+    public void Dispose()
+    {
+        Parent?.UnregisterHandle(this);
+    }
+
+    private async Task OnPointerDown(PointerEventArgs e)
+    {
+        if (Parent == null) return;
+
+        _isDragging = true;
+        Parent.ActiveHandle = this;
+
+        var (beforePanel, afterPanel) = GetPanels();
+        if (beforePanel != null)
+        {
+            _startSizeBefore = beforePanel.CurrentSize;
+            await Parent.NotifyResizeStartAsync(beforePanel);
+        }
+        if (afterPanel != null)
+        {
+            _startSizeAfter = afterPanel.CurrentSize;
+            await Parent.NotifyResizeStartAsync(afterPanel);
+        }
+
+        _startPosition = Parent.Direction == "horizontal" ? e.ClientX : e.ClientY;
+
+        // If grouped, notify other handles in the same group
+        if (!string.IsNullOrEmpty(Group))
+        {
+            var groupHandles = Parent.Handles.Where(h => h.Group == Group && h != this).ToList();
+            foreach (var handle in groupHandles)
+            {
+                // Grouped handles will coordinate their movements
+            }
+        }
+    }
+
+    private async Task OnPointerMove(PointerEventArgs e)
+    {
+        if (!_isDragging || Parent == null) return;
+
+        var currentPosition = Parent.Direction == "horizontal" ? e.ClientX : e.ClientY;
+        var delta = currentPosition - _startPosition;
+
+        var (beforePanel, afterPanel) = GetPanels();
+        if (beforePanel == null || afterPanel == null) return;
+
+        // Calculate size change based on container size
+        // This is a simplified calculation - in production, you'd measure the actual container
+        var containerSize = 1000; // Assume 1000px for percentage calculation
+        var sizeDelta = (int)((delta / containerSize) * 100);
+
+        var newSizeBefore = Math.Clamp(_startSizeBefore + sizeDelta, beforePanel.MinSize, beforePanel.MaxSize);
+        var newSizeAfter = Math.Clamp(_startSizeAfter - sizeDelta, afterPanel.MinSize, afterPanel.MaxSize);
+
+        beforePanel.UpdateSize(newSizeBefore);
+        afterPanel.UpdateSize(newSizeAfter);
+
+        // If grouped, apply proportional changes to other panels in the group
+        if (!string.IsNullOrEmpty(Group))
+        {
+            await ApplyGroupResizeAsync(sizeDelta);
+        }
+
+        await beforePanel.NotifyResizeAsync();
+        await afterPanel.NotifyResizeAsync();
+
+        StateHasChanged();
+    }
+
+    private async Task OnPointerUp(PointerEventArgs e)
+    {
+        if (!_isDragging || Parent == null) return;
+
+        _isDragging = false;
+        Parent.ActiveHandle = null;
+
+        var (beforePanel, afterPanel) = GetPanels();
+        if (beforePanel != null)
+        {
+            await Parent.NotifyResizeEndAsync(beforePanel);
+        }
+        if (afterPanel != null)
+        {
+            await Parent.NotifyResizeEndAsync(afterPanel);
+        }
+    }
+
+    private async Task ApplyGroupResizeAsync(int sizeDelta)
+    {
+        if (Parent == null || string.IsNullOrEmpty(Group)) return;
+
+        var groupPanels = Parent.Panels.Where(p => p != GetPanels().Item1 && p != GetPanels().Item2).ToList();
+
+        // Distribute the resize delta across other panels in the group proportionally
+        if (groupPanels.Count > 0)
+        {
+            var deltaPerPanel = sizeDelta / groupPanels.Count;
+            foreach (var panel in groupPanels)
+            {
+                var newSize = Math.Clamp(panel.CurrentSize - deltaPerPanel, panel.MinSize, panel.MaxSize);
+                panel.UpdateSize(newSize);
+                await panel.NotifyResizeAsync();
+            }
+        }
+    }
+
+    private (ResizablePanel? Before, ResizablePanel? After) GetPanels()
+    {
+        if (BeforePanel != null && AfterPanel != null)
+        {
+            return (BeforePanel, AfterPanel);
+        }
+
+        if (Parent == null) return (null, null);
+
+        var index = HandleIndex >= 0 ? HandleIndex : Parent.Handles.IndexOf(this);
+        if (index >= 0 && index < Parent.Panels.Count - 1)
+        {
+            return (Parent.Panels[index], Parent.Panels[index + 1]);
+        }
+
+        return (null, null);
+    }
+
     private string GetOrientation() => Parent?.Direction ?? "horizontal";
-    
+
     private string GetClass()
     {
         var isHorizontal = GetOrientation() == "horizontal";
         var baseClass = isHorizontal
             ? "cn-resizable-handle relative flex w-[4px] shrink-0 cursor-col-resize items-center justify-center bg-border after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1"
             : "cn-resizable-handle relative flex h-[4px] shrink-0 cursor-row-resize items-center justify-center bg-border after:absolute after:inset-x-0 after:top-1/2 after:h-1 after:-translate-y-1/2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1";
-        
-        if (WithHandle)
-            baseClass += isHorizontal
-                ? " w-4 rounded-full bg-muted"
-                : " h-4 rounded-full bg-muted";
-        
+
+        if (_isDragging)
+        {
+            baseClass += " data-dragging";
+        }
+
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private string GetHandleClass()
+    {
+        var isHorizontal = GetOrientation() == "horizontal";
+        return isHorizontal
+            ? "flex items-center justify-center w-4 h-8 rounded-full bg-muted border border-border"
+            : "flex items-center justify-center w-8 h-4 rounded-full bg-muted border border-border";
+    }
+
+    private string GetLineClass()
+    {
+        var isHorizontal = GetOrientation() == "horizontal";
+        return isHorizontal
+            ? "w-px h-8 bg-border"
+            : "h-px w-8 bg-border";
     }
 }

@@ -1,18 +1,43 @@
 @namespace LowlandTech.Components.ContextMenu
 @inherits LtComponentBase
 
-@if (Parent == null || Parent.IsOpen)
+@if (Parent?.IsOpen == true)
 {
+    @if (Parent.Modal)
+    {
+        <div data-slot="context-menu-overlay"
+             data-state="@GetDataState()"
+             class="cn-context-menu-overlay fixed inset-0 z-50 bg-transparent"
+             @onclick="OnOverlayClick">
+        </div>
+    }
+
     <div data-slot="context-menu-content"
-         class="@GetClass()"
-         style="@GetStyle()"
-         @attributes="AdditionalAttributes">
+          data-state="@GetDataState()"
+          class="@GetClass()"
+          style="@GetStyle()"
+          @attributes="AdditionalAttributes">
         @ChildContent
     </div>
 }
 
 @code {
     [CascadingParameter] private ContextMenu? Parent { get; set; }
+
+    /// <summary>
+    /// Whether to close the menu when clicking on the overlay.
+    /// </summary>
+    [Parameter] public bool CloseOnOverlayClick { get; set; } = true;
+
+    private async Task OnOverlayClick()
+    {
+        if (CloseOnOverlayClick && Parent != null)
+        {
+            await Parent.Close();
+        }
+    }
+
+    private string GetDataState() => Parent?.IsOpen == true ? "open" : "closed";
 
     private string GetClass()
     {

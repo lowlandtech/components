@@ -2,6 +2,11 @@
 @namespace LowlandTech.Components.Direction
 @inherits LtComponentBase
 
-<div data-slot="direction-provider" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
-</div>
+<CascadingValue Value="@DirValue" Name="Direction">
+    <div data-slot="direction-provider"
+         dir="@DirValue"
+         class="@Class"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>

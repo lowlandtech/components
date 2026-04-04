@@ -35,4 +35,22 @@ public class SC01_RenderDirection : ViewScenario
         var cut = Ctx.Render<DirectionSut>(p => p.Add(x => x.Class, "test-class"));
         cut.Find("[data-slot='direction-provider']").ClassList.ShouldContain("test-class");
     }
+
+    [Fact(DisplayName = "UAC04: Direction defaults to ltr")]
+    [Trait(Spec.UAC, "04")]
+    [Then("the dir attribute defaults to ltr")]
+    public void UAC04_DefaultsToLtr()
+    {
+        var cut = Ctx.Render<DirectionSut>();
+        cut.Find("[data-slot='direction-provider']").GetAttribute("dir").ShouldBe("ltr");
+    }
+
+    [Fact(DisplayName = "UAC05: Direction applies rtl dir attribute")]
+    [Trait(Spec.UAC, "05")]
+    [Then("the dir attribute is set to rtl")]
+    public void UAC05_RendersRtl()
+    {
+        var cut = Ctx.Render<DirectionSut>(p => p.Add(x => x.dir, "rtl"));
+        cut.Find("[data-slot='direction-provider']").GetAttribute("dir").ShouldBe("rtl");
+    }
 }

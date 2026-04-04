@@ -1,6 +1,7 @@
 using Bunit;
 using LowlandTech.Components.Sidebar;
 using LowlandTech.Components.Tests.Infrastructure;
+using Microsoft.AspNetCore.Components;
 
 namespace LowlandTech.Components.Tests.SPEC1043.Sidebar.US01.View;
 
@@ -38,5 +39,30 @@ public class SC05_RenderSidebarProvider : ViewScenario
     {
         var cut = Ctx.Render<SidebarProvider>(p => p.AddChildContent("Inner content"));
         cut.Markup.ShouldContain("Inner content");
+    }
+
+    [Fact(DisplayName = "UAC04: SidebarProvider provides cascading SidebarState")]
+    [Trait(Spec.UAC, "04")]
+    [Then("child components receive cascaded SidebarState")]
+    public void UAC04_ProvidesCascadingSidebarState()
+    {
+        SidebarState? receivedState = null;
+        
+        var cut = Ctx.Render<SidebarProvider>(p => p
+            .AddChildContent<SidebarTestConsumer>(child => 
+                child.Add(x => x.OnStateReceived, (state) => receivedState = state)));
+
+        receivedState.ShouldNotBeNull();
+    }
+
+    private class SidebarTestConsumer : ComponentBase
+    {
+        [CascadingParameter] public SidebarState? SidebarState { get; set; }
+        [Parameter] public Action<SidebarState?>? OnStateReceived { get; set; }
+
+        protected override void OnInitialized()
+        {
+            OnStateReceived?.Invoke(SidebarState);
+        }
     }
 }

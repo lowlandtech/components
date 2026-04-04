@@ -4,6 +4,7 @@
 <div data-slot="context-menu-trigger"
      class="@GetClass()"
      @oncontextmenu="OnContextMenu"
+     @oncontextmenu:preventDefault="true"
      @attributes="AdditionalAttributes">
     @ChildContent
 </div>
@@ -15,9 +16,8 @@
     {
         if (Parent != null)
         {
-            Parent.OpenAt(e.ClientX, e.ClientY);
+            await Parent.OpenAt(e.ClientX, e.ClientY);
         }
-        await Task.CompletedTask;
     }
 
     private string GetClass()

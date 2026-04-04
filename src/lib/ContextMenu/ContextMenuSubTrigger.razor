@@ -1,0 +1,59 @@
+@namespace LowlandTech.Components.ContextMenu
+@inherits LtComponentBase
+
+<div data-slot="context-menu-sub-trigger"
+     data-state="@GetDataState()"
+     aria-expanded="@IsExpanded"
+     class="@GetClass()"
+     @onmouseenter="OnMouseEnter"
+     @onmouseleave="OnMouseLeave"
+     @attributes="AdditionalAttributes">
+    <span class="cn-context-menu-sub-trigger-content">@ChildContent</span>
+    <Icon Name="chevron-right" Size="16" class="cn-context-menu-sub-trigger-icon ml-auto" />
+</div>
+
+@code {
+    [CascadingParameter] private ContextMenuSub? ParentSub { get; set; }
+    [CascadingParameter] private ContextMenu? RootMenu { get; set; }
+
+    private CancellationTokenSource? _delayCts;
+
+    private string GetDataState() => ParentSub?.IsOpen == true ? "open" : "closed";
+
+    private string IsExpanded => ParentSub?.IsOpen == true ? "true" : "false";
+
+    private async Task OnMouseEnter()
+    {
+        if (ParentSub != null)
+        {
+            _delayCts?.Cancel();
+            _delayCts = new CancellationTokenSource();
+
+            try
+            {
+                await Task.Delay(ParentSub.OpenDelay, _delayCts.Token);
+                await ParentSub.Open();
+            }
+            catch (TaskCanceledException)
+            {
+                // Ignore cancellation
+            }
+        }
+    }
+
+    private async Task OnMouseLeave()
+    {
+        _delayCts?.Cancel();
+
+        // Note: We don't close immediately on mouse leave to allow
+        // moving to the sub-menu content. The sub-menu content
+        // should handle closing when mouse leaves the entire sub area.
+        await Task.CompletedTask;
+    }
+
+    private string GetClass()
+    {
+        var baseClass = "cn-context-menu-sub-trigger cn-context-menu-item group/context-menu-item relative flex cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

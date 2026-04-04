@@ -2,6 +2,7 @@
 @inherits LtComponentBase
 
 <div data-slot="input-group-addon"
+     role="group"
      data-align="@Align"
      class="@GetClass()"
      @attributes="AdditionalAttributes">
@@ -9,14 +10,19 @@
 </div>
 
 @code {
-    /// <summary>
-    /// The alignment of the addon.
-    /// </summary>
-    [Parameter] public string Align { get; set; } = "inline-end";
+    [Parameter] public string Align { get; set; } = "inline-start";
 
     private string GetClass()
     {
-        var baseClass = "cn-input-group-addon";
-        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+        const string baseClass = "cn-input-group-addon flex cursor-text items-center justify-center select-none";
+        var alignClass = Align switch
+        {
+            "inline-end"   => "cn-input-group-addon-align-inline-end order-last",
+            "block-start"  => "cn-input-group-addon-align-block-start order-first w-full justify-start",
+            "block-end"    => "cn-input-group-addon-align-block-end order-last w-full justify-start",
+            _              => "cn-input-group-addon-align-inline-start order-first",
+        };
+        var combined = $"{baseClass} {alignClass}";
+        return string.IsNullOrEmpty(Class) ? combined : $"{combined} {Class}";
     }
 }

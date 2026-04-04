@@ -1,6 +1,9 @@
 @namespace LowlandTech.Components.Sidebar
 @inherits LtComponentBase
 
-<ul data-slot="sidebar-menu-sub" class="sidebar-menu-sub @Class" @attributes="AdditionalAttributes">
+<ul data-slot="sidebar-menu-sub"
+    data-state="@(_isOpen ? "open" : "closed")"
+    class="sidebar-menu-sub @(_isOpen ? "open" : "") @Class"
+    @attributes="AdditionalAttributes">
     @ChildContent
 </ul>

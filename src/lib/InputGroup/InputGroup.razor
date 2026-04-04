@@ -2,6 +2,9 @@
 @namespace LowlandTech.Components.InputGroup
 @inherits LtComponentBase
 
-<div data-slot="input-group" class="@Class" @attributes="AdditionalAttributes">
+<div data-slot="input-group"
+     role="group"
+     class="@CssClass"
+     @attributes="AdditionalAttributes">
     @ChildContent
 </div>

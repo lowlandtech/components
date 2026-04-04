@@ -1,0 +1,71 @@
+@namespace LowlandTech.Components.Calendar
+
+@{
+    var isOutside = Calendar.IsOutsideCurrentMonth(Date);
+    var isVisible = ShowOutsideDays || !isOutside;
+    var isDisabled = Calendar.IsDisabled(Date);
+    var isSelected = Calendar.IsSelected(Date);
+    var isToday = Calendar.IsToday(Date);
+    var isRangeStart = Calendar.IsRangeStart(Date);
+    var isRangeEnd = Calendar.IsRangeEnd(Date);
+}
+
+@if (isVisible)
+{
+    <td class="cn-calendar-day group/day relative aspect-square h-full w-full rounded p-0 text-center select-none"
+        data-slot="calendar-day"
+        data-selected="@isSelected"
+        data-disabled="@isDisabled"
+        data-today="@isToday"
+        data-outside="@isOutside"
+        data-range-start="@isRangeStart"
+        data-range-end="@isRangeEnd">
+        <button type="button"
+                disabled="@isDisabled"
+                class="cn-calendar-day-button relative isolate z-10 flex aspect-square size-auto w-full min-w-8 flex-col gap-1 border-0 leading-none font-normal items-center justify-center rounded hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed @GetSelectedClass(isSelected, isToday, isRangeStart, isRangeEnd)"
+                @onclick="OnClick">
+            @Date.Day
+        </button>
+    </td>
+}
+else
+{
+    <td class="cn-calendar-day-empty"></td>
+}
+
+@code {
+    [Parameter] public required DateTime Date { get; set; }
+    [Parameter] public required Calendar Calendar { get; set; }
+    [Parameter] public bool ShowOutsideDays { get; set; } = true;
+
+    private async Task OnClick()
+    {
+        await Calendar.SelectDateAsync(Date);
+    }
+
+    private string GetSelectedClass(bool isSelected, bool isToday, bool isRangeStart, bool isRangeEnd)
+    {
+        var classes = new List<string>();
+
+        if (isSelected)
+        {
+            classes.Add("bg-primary text-primary-foreground");
+        }
+        else if (isToday)
+        {
+            classes.Add("bg-accent text-accent-foreground");
+        }
+
+        if (isRangeStart)
+        {
+            classes.Add("rounded-l-md");
+        }
+
+        if (isRangeEnd)
+        {
+            classes.Add("rounded-r-md");
+        }
+
+        return string.Join(" ", classes);
+    }
+}

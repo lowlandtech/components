@@ -3,13 +3,38 @@
 
 @if (Parent?.IsOpen == true)
 {
-    <div data-slot="popover-content"
-         data-align="@Align"
-         data-side="@Side"
-         class="@GetClass()"
-         @attributes="AdditionalAttributes">
-        @ChildContent
-    </div>
+    @if (IsModal)
+    {
+        <div data-slot="popover-overlay"
+             class="cn-popover-overlay fixed inset-0 bg-black/50 z-40"
+             @onclick="OnOverlayClick">
+        </div>
+    }
+
+    @if (IsPortal)
+    {
+        <Portal>
+            <div data-slot="popover-content"
+                 data-state="@GetState()"
+                 data-align="@Align"
+                 data-side="@Side"
+                 class="@GetClass()"
+                 @attributes="AdditionalAttributes">
+                @ChildContent
+            </div>
+        </Portal>
+    }
+    else
+    {
+        <div data-slot="popover-content"
+             data-state="@GetState()"
+             data-align="@Align"
+             data-side="@Side"
+             class="@GetClass()"
+             @attributes="AdditionalAttributes">
+            @ChildContent
+        </div>
+    }
 }
 
 @code {
@@ -25,9 +50,33 @@
     /// </summary>
     [Parameter] public string Side { get; set; } = "bottom";
 
+    /// <summary>
+    /// Whether the popover should trap focus when open.
+    /// </summary>
+    [Parameter] public bool Modal { get; set; }
+
+    /// <summary>
+    /// Whether to render the content in a portal.
+    /// </summary>
+    [Parameter] public bool Portal { get; set; }
+
+    private bool IsModal => Modal || (Parent?.Modal ?? false);
+    private bool IsPortal => Portal || (Parent?.Portal ?? false);
+
+    private string GetState() => Parent?.IsOpen == true ? "open" : "closed";
+
     private string GetClass()
     {
         var baseClass = "cn-popover-content cn-popover-content-logical z-50 w-72 origin-(--transform-origin) outline-hidden";
+        if (IsModal)
+        {
+            baseClass += " fixed z-50";
+        }
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private void OnOverlayClick()
+    {
+        Parent?.Close();
     }
 }

@@ -1,0 +1,38 @@
+@namespace LowlandTech.Components.Calendar
+
+<div data-slot="calendar-grid" class="cn-calendar-grid">
+    <table class="cn-calendar-table w-full border-collapse">
+        <thead>
+            <tr class="cn-calendar-weekdays flex">
+                @foreach (var day in WeekDays)
+                {
+                    <th class="cn-calendar-weekday flex-1 rounded text-[0.8rem] font-normal text-muted-foreground select-none py-1">
+                        @day
+                    </th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var week in Calendar.GetWeeks())
+            {
+                <tr class="cn-calendar-week mt-2 flex w-full">
+                    @foreach (var day in week)
+                    {
+                        <CalendarDay 
+                            Date="day"
+                            Calendar="Calendar"
+                            ShowOutsideDays="ShowOutsideDays" />
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    private static readonly string[] WeekDays = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+
+    [Parameter] public required Calendar Calendar { get; set; }
+    [Parameter] public CalendarMode Mode { get; set; }
+    [Parameter] public bool ShowOutsideDays { get; set; } = true;
+}

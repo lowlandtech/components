@@ -30,7 +30,10 @@
 
     private async Task HandleClick()
     {
-        Parent?.Close();
+        if (Parent != null)
+        {
+            await Parent.Close();
+        }
         await OnClick.InvokeAsync();
     }
 

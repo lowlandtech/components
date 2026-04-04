@@ -1,0 +1,114 @@
+@namespace LowlandTech.Components.Popover
+@inherits LtComponentBase
+
+<div data-slot="popover-arrow"
+     data-side="@GetArrowSide()"
+     class="@GetClass()"
+     style="@GetStyle()"
+     @attributes="AdditionalAttributes">
+    <svg width="10" height="5" viewBox="0 0 10 5" fill="currentColor" class="text-popover fill-popover">
+        <path d="M0 5L5 0L10 5H0Z" />
+    </svg>
+</div>
+
+@code {
+    [CascadingParameter] private Popover? PopoverParent { get; set; }
+    [CascadingParameter] private PopoverContent? ContentParent { get; set; }
+
+    /// <summary>
+    /// The side where the arrow should appear. Defaults to parent Side.
+    /// </summary>
+    [Parameter] public string? Side { get; set; }
+
+    /// <summary>
+    /// The alignment of the arrow. Defaults to parent Align.
+    /// </summary>
+    [Parameter] public string? Align { get; set; }
+
+    /// <summary>
+    /// The width of the arrow in pixels.
+    /// </summary>
+    [Parameter] public int Width { get; set; } = 10;
+
+    /// <summary>
+    /// The height of the arrow in pixels.
+    /// </summary>
+    [Parameter] public int Height { get; set; } = 5;
+
+    private string EffectiveSide => Side ?? ContentParent?.Side ?? "bottom";
+    private string EffectiveAlign => Align ?? ContentParent?.Align ?? "center";
+
+    private string GetArrowSide()
+    {
+        // Arrow points opposite to the side (e.g., if content is on bottom, arrow points up from top)
+        return EffectiveSide switch
+        {
+            "top" => "bottom",
+            "bottom" => "top",
+            "left" => "right",
+            "right" => "left",
+            _ => "top"
+        };
+    }
+
+    private string GetClass()
+    {
+        var baseClass = "cn-popover-arrow absolute pointer-events-none";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private string GetStyle()
+    {
+        var side = EffectiveSide;
+        var align = EffectiveAlign;
+
+        var position = side switch
+        {
+            "top" => $"bottom: -{Height}px;",
+            "bottom" => $"top: -{Height}px;",
+            "left" => $"right: -{Width / 2}px;",
+            "right" => $"left: -{Width / 2}px;",
+            _ => $"top: -{Height}px;"
+        };
+
+        var alignment = (side, align) switch
+        {
+            ("top" or "bottom", "start") => "left: 8px; transform: none;",
+            ("top" or "bottom", "center") => "left: 50%; transform: translateX(-50%);",
+            ("top" or "bottom", "end") => "right: 8px; left: auto; transform: none;",
+            ("left" or "right", "start") => "top: 8px; transform: none;",
+            ("left" or "right", "center") => "top: 50%; transform: translateY(-50%);",
+            ("left" or "right", "end") => "bottom: 8px; top: auto; transform: none;",
+            _ => "left: 50%; transform: translateX(-50%);"
+        };
+
+        // Rotate arrow based on side
+        var rotation = side switch
+        {
+            "top" => "transform: rotate(180deg);",
+            "bottom" => "",
+            "left" => "transform: rotate(90deg);",
+            "right" => "transform: rotate(-90deg);",
+            _ => ""
+        };
+
+        // For left/right, adjust alignment to not conflict with rotation
+        if (side is "left" or "right")
+        {
+            alignment = align switch
+            {
+                "start" => "top: 8px;",
+                "center" => "top: 50%; transform: translateY(-50%);",
+                "end" => "bottom: 8px;",
+                _ => "top: 50%; transform: translateY(-50%);"
+            };
+            rotation = side == "left" ? "transform: rotate(90deg);" : "transform: rotate(-90deg);";
+            if (align == "center")
+            {
+                rotation = side == "left" ? "top: 50%; transform: translateY(-50%) rotate(90deg);" : "top: 50%; transform: translateY(-50%) rotate(-90deg);";
+            }
+        }
+
+        return $"{position} {alignment}";
+    }
+}

@@ -1,0 +1,8 @@
+@namespace LowlandTech.Components.Sidebar
+@inherits LtComponentBase
+
+<div data-slot="sidebar-menu-sub-content"
+     class="sidebar-menu-sub-content @(_isVisible ? "visible" : "") @Class"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>

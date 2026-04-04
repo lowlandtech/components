@@ -35,4 +35,16 @@ public class SC01_RenderEmpty : ViewScenario
         var cut = Ctx.Render<EmptySut>(p => p.Add(x => x.Class, "test-class"));
         cut.Find("[data-slot='empty']").ClassList.ShouldContain("test-class");
     }
+
+    [Fact(DisplayName = "UAC04: Empty has default layout classes")]
+    [Trait(Spec.UAC, "04")]
+    [Then("the element always has the cn-empty base classes")]
+    public void UAC04_HasDefaultClasses()
+    {
+        var cut = Ctx.Render<EmptySut>();
+        var el = cut.Find("[data-slot='empty']");
+        el.ClassList.ShouldContain("cn-empty");
+        el.ClassList.ShouldContain("flex-col");
+        el.ClassList.ShouldContain("items-center");
+    }
 }

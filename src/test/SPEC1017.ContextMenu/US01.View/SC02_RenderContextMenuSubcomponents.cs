@@ -1,4 +1,5 @@
 using Bunit;
+using ContextMenuSut = LowlandTech.Components.ContextMenu.ContextMenu;
 using LowlandTech.Components.ContextMenu;
 using LowlandTech.Components.Tests.Infrastructure;
 
@@ -17,11 +18,14 @@ public class SC02_RenderContextMenuSubcomponents : ViewScenario
         cut.Find("[data-slot='context-menu-trigger']").ShouldNotBeNull();
     }
 
-    [Fact(DisplayName = "UAC02: ContextMenuContent renders data-slot attribute")]
+    [Fact(DisplayName = "UAC02: ContextMenuContent renders data-slot attribute when open")]
     [Trait(Spec.UAC, "02")]
     public void UAC02_ContentRendersDataSlot()
     {
-        var cut = Ctx.Render<ContextMenuContent>();
+        // ContextMenuContent only renders when parent IsOpen is true
+        var cut = Ctx.Render<ContextMenuSut>(p => p
+            .Add(x => x.IsOpen, true)
+            .AddChildContent<ContextMenuContent>());
         cut.Find("[data-slot='context-menu-content']").ShouldNotBeNull();
     }
 

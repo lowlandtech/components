@@ -8,5 +8,4 @@ namespace LowlandTech.Components.Calendar;
 
 public partial class Calendar : LtComponentBase
 {
-    [Parameter] public bool showOutsideDays { get; set; }
 }

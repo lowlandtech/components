@@ -1,5 +1,6 @@
 using Bunit;
 using LowlandTech.Components.Popover;
+using LowlandTech.Components.Sonner;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LowlandTech.Components.Tests.Infrastructure;
@@ -12,6 +13,7 @@ public abstract class ViewScenario : IAsyncLifetime
     {
         Ctx = new BunitContext();
         Ctx.Services.AddSingleton<IPopoverService, PopoverService>();
+        Ctx.Services.AddSingleton<ISonnerService, SonnerService>();
         return ValueTask.CompletedTask;
     }
 

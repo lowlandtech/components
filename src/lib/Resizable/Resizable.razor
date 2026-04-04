@@ -12,15 +12,109 @@
 
 @code {
     [Parameter] public string Direction { get; set; } = "horizontal";
-    
+
+    /// <summary>
+    /// Callback fired when any panel is resized.
+    /// </summary>
+    [Parameter] public EventCallback<ResizeEventArgs> OnResize { get; set; }
+
+    /// <summary>
+    /// Callback fired when resize operation starts.
+    /// </summary>
+    [Parameter] public EventCallback<ResizeEventArgs> OnResizeStart { get; set; }
+
+    /// <summary>
+    /// Callback fired when resize operation ends.
+    /// </summary>
+    [Parameter] public EventCallback<ResizeEventArgs> OnResizeEnd { get; set; }
+
     internal List<ResizablePanel> Panels { get; } = new();
-    
+    internal List<ResizableHandle> Handles { get; } = new();
+
+    internal ResizableHandle? ActiveHandle { get; set; }
+    internal bool IsResizing { get; private set; }
+
     internal void RegisterPanel(ResizablePanel panel)
     {
         if (!Panels.Contains(panel))
             Panels.Add(panel);
     }
-    
+
+    internal void UnregisterPanel(ResizablePanel panel)
+    {
+        Panels.Remove(panel);
+    }
+
+    internal void RegisterHandle(ResizableHandle handle)
+    {
+        if (!Handles.Contains(handle))
+            Handles.Add(handle);
+    }
+
+    internal void UnregisterHandle(ResizableHandle handle)
+    {
+        Handles.Remove(handle);
+    }
+
+    internal async Task NotifyResizeAsync(ResizablePanel panel, int newSize)
+    {
+        var args = new ResizeEventArgs
+        {
+            PanelId = panel.PanelId,
+            Size = newSize,
+            Direction = Direction
+        };
+
+        await OnResize.InvokeAsync(args);
+    }
+
+    internal async Task NotifyResizeStartAsync(ResizablePanel panel)
+    {
+        IsResizing = true;
+        var args = new ResizeEventArgs
+        {
+            PanelId = panel.PanelId,
+            Size = panel.CurrentSize,
+            Direction = Direction
+        };
+
+        await OnResizeStart.InvokeAsync(args);
+    }
+
+    internal async Task NotifyResizeEndAsync(ResizablePanel panel)
+    {
+        IsResizing = false;
+        var args = new ResizeEventArgs
+        {
+            PanelId = panel.PanelId,
+            Size = panel.CurrentSize,
+            Direction = Direction
+        };
+
+        await OnResizeEnd.InvokeAsync(args);
+    }
+
+    /// <summary>
+    /// Sets the size of a panel by its ID (imperative API).
+    /// </summary>
+    public async Task SetPanelSizeAsync(string panelId, int size)
+    {
+        var panel = Panels.FirstOrDefault(p => p.PanelId == panelId);
+        if (panel != null)
+        {
+            await panel.SetSizeAsync(size);
+        }
+    }
+
+    /// <summary>
+    /// Gets the current size of a panel by its ID.
+    /// </summary>
+    public int GetPanelSize(string panelId)
+    {
+        var panel = Panels.FirstOrDefault(p => p.PanelId == panelId);
+        return panel?.CurrentSize ?? 0;
+    }
+
     private string GetClass()
     {
         var isHorizontal = Direction == "horizontal";

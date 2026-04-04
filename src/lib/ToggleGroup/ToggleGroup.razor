@@ -2,6 +2,15 @@
 @namespace LowlandTech.Components.ToggleGroup
 @inherits LtComponentBase
 
-<div data-slot="toggle-group" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
-</div>
+<CascadingValue Value="@GroupContext" Name="ToggleGroupContext">
+    <div data-slot="toggle-group"
+         data-variant="@VariantValue"
+         data-size="@SizeValue"
+         data-spacing="@spacing"
+         data-orientation="@OrientationValue"
+         style="@GroupStyle"
+         class="@CssClass"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>

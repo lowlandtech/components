@@ -1,0 +1,42 @@
+@namespace LowlandTech.Components.ToggleGroup
+@inherits LtComponentBase
+
+<button data-slot="toggle-group-item"
+        data-variant="@EffectiveVariant"
+        data-size="@EffectiveSize"
+        data-spacing="@EffectiveSpacing"
+        type="button"
+        aria-pressed="@Pressed.ToString().ToLowerInvariant()"
+        class="@CssClass"
+        @onclick="ToggleAsync"
+        @attributes="AdditionalAttributes">
+    @ChildContent
+</button>
+
+@code {
+    [CascadingParameter(Name = "ToggleGroupContext")]
+    private ToggleGroupContext? GroupContext { get; set; }
+
+    [Parameter] public bool Pressed { get; set; }
+    [Parameter] public EventCallback<bool> PressedChanged { get; set; }
+    [Parameter] public string? variant { get; set; }
+    [Parameter] public string? size { get; set; }
+
+    private string EffectiveVariant => GroupContext?.Variant ?? (string.IsNullOrWhiteSpace(variant) ? "default" : variant!);
+    private string EffectiveSize => GroupContext?.Size ?? (string.IsNullOrWhiteSpace(size) ? "default" : size!);
+    private int EffectiveSpacing => GroupContext?.Spacing ?? 0;
+
+    private const string BaseClass =
+        "cn-toggle-group-item cn-toggle group/toggle shrink-0 inline-flex items-center justify-center " +
+        "whitespace-nowrap outline-none hover:bg-muted focus-visible:ring-[3px] focus:z-10 " +
+        "disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0";
+
+    private string CssClass => string.IsNullOrEmpty(Class) ? BaseClass : $"{BaseClass} {Class}";
+
+    private async Task ToggleAsync()
+    {
+        Pressed = !Pressed;
+        await PressedChanged.InvokeAsync(Pressed);
+        StateHasChanged();
+    }
+}

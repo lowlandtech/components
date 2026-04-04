@@ -2,6 +2,24 @@
 @namespace LowlandTech.Components.NativeSelect
 @inherits LtComponentBase
 
-<select data-slot="native-select" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
-</select>
+<div data-slot="native-select-wrapper"
+     data-size="@SizeValue"
+     class="@WrapperClass">
+    <select data-slot="native-select"
+            data-size="@SizeValue"
+            class="cn-native-select outline-none disabled:pointer-events-none disabled:cursor-not-allowed"
+            @attributes="AdditionalAttributes">
+        @ChildContent
+    </select>
+    <svg data-slot="native-select-icon"
+         aria-hidden="true"
+         class="cn-native-select-icon pointer-events-none absolute select-none"
+         viewBox="0 0 24 24"
+         fill="none"
+         stroke="currentColor"
+         stroke-width="2"
+         stroke-linecap="round"
+         stroke-linejoin="round">
+        <path d="m6 9 6 6 6-6" />
+    </svg>
+</div>

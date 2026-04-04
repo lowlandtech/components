@@ -12,27 +12,83 @@
 
 @code {
     [CascadingParameter] private Resizable? Parent { get; set; }
+
     [Parameter] public int DefaultSize { get; set; } = 50;
     [Parameter] public int MinSize { get; set; } = 10;
     [Parameter] public int MaxSize { get; set; } = 100;
-    
-    private string PanelId { get; } = Guid.NewGuid().ToString("N")[..8];
-    internal int CurrentSize { get; set; }
-    
+
+    /// <summary>
+    /// Callback fired when this panel is resized.
+    /// </summary>
+    [Parameter] public EventCallback<ResizeEventArgs> OnResize { get; set; }
+
+    /// <summary>
+    /// A unique identifier for this panel (auto-generated if not provided).
+    /// </summary>
+    [Parameter] public string? Id { get; set; }
+
+    public string PanelId { get; private set; } = null!;
+    public int CurrentSize { get; private set; }
+
     protected override void OnInitialized()
     {
+        PanelId = Id ?? Guid.NewGuid().ToString("N")[..8];
         CurrentSize = DefaultSize;
         Parent?.RegisterPanel(this);
     }
-    
+
+    public void Dispose()
+    {
+        Parent?.UnregisterPanel(this);
+    }
+
+    /// <summary>
+    /// Sets the size of this panel programmatically.
+    /// </summary>
+    internal async Task SetSizeAsync(int size)
+    {
+        var clampedSize = Math.Clamp(size, MinSize, MaxSize);
+        if (CurrentSize != clampedSize)
+        {
+            CurrentSize = clampedSize;
+            await NotifyResizeAsync();
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Updates the size during drag operations (does not invoke callbacks for every pixel).
+    /// </summary>
+    internal void UpdateSize(int size)
+    {
+        CurrentSize = Math.Clamp(size, MinSize, MaxSize);
+    }
+
+    internal async Task NotifyResizeAsync()
+    {
+        var args = new ResizeEventArgs
+        {
+            PanelId = PanelId,
+            Size = CurrentSize,
+            Direction = Parent?.Direction ?? "horizontal"
+        };
+
+        await OnResize.InvokeAsync(args);
+        
+        if (Parent != null)
+        {
+            await Parent.NotifyResizeAsync(this, CurrentSize);
+        }
+    }
+
     private string GetOrientation() => Parent?.Direction ?? "horizontal";
-    
+
     private string GetStyle()
     {
         var size = CurrentSize > 0 ? CurrentSize : DefaultSize;
         return $"flex-basis: calc({size}% - var(--resizable-handle-size, 4px));";
     }
-    
+
     private string GetClass()
     {
         var baseClass = "cn-resizable-panel relative flex min-w-0 min-h-0";

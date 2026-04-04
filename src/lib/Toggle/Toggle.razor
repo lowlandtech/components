@@ -2,6 +2,13 @@
 @namespace LowlandTech.Components.Toggle
 @inherits LtComponentBase
 
-<button data-slot="toggle" class="@Class" @attributes="AdditionalAttributes">
+<button data-slot="toggle"
+        data-variant="@VariantValue"
+        data-size="@SizeValue"
+        type="button"
+        aria-pressed="@Pressed.ToString().ToLowerInvariant()"
+        class="@CssClass"
+        @onclick="ToggleAsync"
+        @attributes="AdditionalAttributes">
     @ChildContent
 </button>

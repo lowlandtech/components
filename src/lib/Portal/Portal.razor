@@ -1,0 +1,24 @@
+@namespace LowlandTech.Components.Portal
+@inherits LtComponentBase
+
+@if (_isInitialized)
+{
+    <div data-slot="portal" class="cn-portal @Class" @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+}
+
+@code {
+    private bool _isInitialized = false;
+
+    /// <summary>
+    /// The target element ID to render the portal content into.
+    /// If not specified, renders at the body level.
+    /// </summary>
+    [Parameter] public string? Target { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _isInitialized = true;
+    }
+}
