@@ -8,6 +8,7 @@
       class="@GetClass()"
       role="separator"
       tabindex="0"
+    @onkeydown="OnKeyDown"
       @onpointerdown="OnPointerDown"
       @onpointermove="OnPointerMove"
       @onpointerup="OnPointerUp"
@@ -158,6 +159,57 @@
         {
             await Parent.NotifyResizeEndAsync(afterPanel);
         }
+    }
+
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (Parent == null)
+        {
+            return;
+        }
+
+        var delta = GetKeyboardDelta(e.Key);
+        if (delta == 0)
+        {
+            return;
+        }
+
+        var (beforePanel, afterPanel) = GetPanels();
+        if (beforePanel == null || afterPanel == null)
+        {
+            return;
+        }
+
+        var targetSizeBefore = Math.Clamp(beforePanel.CurrentSize + delta, beforePanel.MinSize, beforePanel.MaxSize);
+        var appliedDelta = targetSizeBefore - beforePanel.CurrentSize;
+        if (appliedDelta == 0)
+        {
+            return;
+        }
+
+        var targetSizeAfter = Math.Clamp(afterPanel.CurrentSize - appliedDelta, afterPanel.MinSize, afterPanel.MaxSize);
+        appliedDelta = afterPanel.CurrentSize - targetSizeAfter;
+        if (appliedDelta == 0)
+        {
+            return;
+        }
+
+        await beforePanel.SetSizeAsync(beforePanel.CurrentSize + appliedDelta);
+        await afterPanel.SetSizeAsync(afterPanel.CurrentSize - appliedDelta);
+        StateHasChanged();
+    }
+
+    private int GetKeyboardDelta(string? key)
+    {
+        var isHorizontal = GetOrientation() == "horizontal";
+        return key switch
+        {
+            "ArrowRight" when isHorizontal => 5,
+            "ArrowLeft" when isHorizontal => -5,
+            "ArrowDown" when !isHorizontal => 5,
+            "ArrowUp" when !isHorizontal => -5,
+            _ => 0
+        };
     }
 
     private async Task ApplyGroupResizeAsync(int sizeDelta)

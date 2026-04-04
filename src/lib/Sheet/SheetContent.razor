@@ -1,0 +1,49 @@
+@namespace LowlandTech.Components.Sheet
+@inherits LtComponentBase
+
+@if (IsOpen)
+{
+    <div data-slot="sheet-overlay"
+         class="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+         @onclick="Close">
+    </div>
+
+    <div data-slot="sheet-content"
+         class="@GetContentClass()"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback<bool> IsOpenChanged { get; set; }
+    [Parameter] public string Side { get; set; } = "right"; // left, right, top, bottom
+
+    private string GetContentClass()
+    {
+        var baseClass = Side switch
+        {
+            "left" => "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm",
+            "right" => "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm",
+            "top" => "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 inset-x-0 top-0 h-auto border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
+            "bottom" => "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 inset-x-0 bottom-0 h-auto border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+            _ => "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500 inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm"
+        };
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    public void Open()
+    {
+        IsOpen = true;
+        IsOpenChanged.InvokeAsync(true);
+        StateHasChanged();
+    }
+
+    public void Close()
+    {
+        IsOpen = false;
+        IsOpenChanged.InvokeAsync(false);
+        StateHasChanged();
+    }
+}

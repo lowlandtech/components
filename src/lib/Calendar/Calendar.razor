@@ -7,10 +7,14 @@
     
     <CalendarNavigation 
         CurrentMonth="CurrentMonth"
+        ShowMonthDropdown="ShowMonthDropdown"
+        ShowYearDropdown="ShowYearDropdown"
         OnPreviousMonth="PreviousMonth"
         OnNextMonth="NextMonth"
         OnPreviousYear="PreviousYear"
-        OnNextYear="NextYear" />
+        OnNextYear="NextYear"
+        OnMonthSelected="GoToMonthNumber"
+        OnYearSelected="GoToYear" />
     
     <CalendarGrid 
         Calendar="this"

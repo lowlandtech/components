@@ -5,6 +5,8 @@
 <CascadingValue Value="_state" IsFixed="false">
     <div data-slot="sidebar-provider"
          style="--sidebar-width: @Width; --sidebar-width-mobile: @MobileWidth;"
+         tabindex="-1"
+         @onkeydown="HandleKeyDown"
          class="@Class"
          @attributes="AdditionalAttributes">
         @ChildContent

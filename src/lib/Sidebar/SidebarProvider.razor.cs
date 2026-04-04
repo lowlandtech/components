@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace LowlandTech.Components.Sidebar;
 
@@ -36,6 +37,14 @@ public partial class SidebarProvider : LtComponentBase, IDisposable
             }
             StateHasChanged();
         });
+    }
+
+    private void HandleKeyDown(KeyboardEventArgs e)
+    {
+        if ((e.CtrlKey || e.MetaKey) && string.Equals(e.Key, "b", StringComparison.OrdinalIgnoreCase))
+        {
+            _state.Toggle();
+        }
     }
 
     public void Dispose()

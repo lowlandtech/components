@@ -1,4 +1,5 @@
 @namespace LowlandTech.Components.Calendar
+@using System.Globalization
 
 <div data-slot="calendar-navigation" class="cn-calendar-header flex items-center justify-between px-2 py-1">
     <div class="flex items-center gap-1">
@@ -21,9 +22,41 @@
         </button>
     </div>
     
-    <span data-slot="calendar-caption" class="cn-calendar-caption font-medium">
-        @CurrentMonth.ToString("MMMM yyyy")
-    </span>
+    @if (ShowMonthDropdown || ShowYearDropdown)
+    {
+        <div class="flex items-center gap-2">
+            @if (ShowMonthDropdown)
+            {
+                <select data-slot="calendar-month-select"
+                        class="cn-calendar-select rounded border bg-background px-2 py-1 text-sm"
+                        value="@CurrentMonth.Month"
+                        @onchange="HandleMonthChanged">
+                    @for (var month = 1; month <= 12; month++)
+                    {
+                        <option value="@month">@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)</option>
+                    }
+                </select>
+            }
+            @if (ShowYearDropdown)
+            {
+                <select data-slot="calendar-year-select"
+                        class="cn-calendar-select rounded border bg-background px-2 py-1 text-sm"
+                        value="@CurrentMonth.Year"
+                        @onchange="HandleYearChanged">
+                    @foreach (var year in GetSelectableYears())
+                    {
+                        <option value="@year">@year</option>
+                    }
+                </select>
+            }
+        </div>
+    }
+    else
+    {
+        <span data-slot="calendar-caption" class="cn-calendar-caption font-medium">
+            @CurrentMonth.ToString("MMMM yyyy")
+        </span>
+    }
     
     <div class="flex items-center gap-1">
         <button type="button" 
@@ -48,8 +81,35 @@
 
 @code {
     [Parameter] public DateTime CurrentMonth { get; set; }
+    [Parameter] public bool ShowMonthDropdown { get; set; }
+    [Parameter] public bool ShowYearDropdown { get; set; }
     [Parameter] public EventCallback OnPreviousMonth { get; set; }
     [Parameter] public EventCallback OnNextMonth { get; set; }
     [Parameter] public EventCallback OnPreviousYear { get; set; }
     [Parameter] public EventCallback OnNextYear { get; set; }
+    [Parameter] public EventCallback<int> OnMonthSelected { get; set; }
+    [Parameter] public EventCallback<int> OnYearSelected { get; set; }
+
+    private IEnumerable<int> GetSelectableYears()
+    {
+        var startYear = CurrentMonth.Year - 50;
+        var endYear = CurrentMonth.Year + 50;
+        return Enumerable.Range(startYear, endYear - startYear + 1);
+    }
+
+    private async Task HandleMonthChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var month))
+        {
+            await OnMonthSelected.InvokeAsync(month);
+        }
+    }
+
+    private async Task HandleYearChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out var year))
+        {
+            await OnYearSelected.InvokeAsync(year);
+        }
+    }
 }

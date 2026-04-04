@@ -41,6 +41,12 @@ public enum CalendarMode
 /// </summary>
 public partial class Calendar
 {
+    private static readonly string[] MonthNames =
+    {
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    };
+
     private CalendarMode _mode = CalendarMode.Single;
     private DateTime? _selectedDate;
     private DateRange? _selectedRange;
@@ -118,6 +124,16 @@ public partial class Calendar
     [Parameter] public bool FixedWeeks { get; set; } = true;
 
     /// <summary>
+    /// Whether to render a month dropdown in the header.
+    /// </summary>
+    [Parameter] public bool ShowMonthDropdown { get; set; }
+
+    /// <summary>
+    /// Whether to render a year dropdown in the header.
+    /// </summary>
+    [Parameter] public bool ShowYearDropdown { get; set; }
+
+    /// <summary>
     /// Function to determine if a date should be disabled.
     /// </summary>
     [Parameter] public Func<DateTime, bool>? IsDateDisabled { get; set; }
@@ -175,6 +191,18 @@ public partial class Calendar
     internal void GoToMonth(DateTime month)
     {
         CurrentMonth = new DateTime(month.Year, month.Month, 1);
+        StateHasChanged();
+    }
+
+    internal void GoToMonthNumber(int month)
+    {
+        CurrentMonth = new DateTime(CurrentMonth.Year, month, 1);
+        StateHasChanged();
+    }
+
+    internal void GoToYear(int year)
+    {
+        CurrentMonth = new DateTime(year, CurrentMonth.Month, 1);
         StateHasChanged();
     }
 
@@ -316,6 +344,15 @@ public partial class Calendar
     internal bool IsDisabled(DateTime date)
     {
         return IsDateDisabled?.Invoke(date) == true;
+    }
+
+    internal IReadOnlyList<string> GetMonthNames() => MonthNames;
+
+    internal IEnumerable<int> GetSelectableYears()
+    {
+        var startYear = CurrentMonth.Year - 50;
+        var endYear = CurrentMonth.Year + 50;
+        return Enumerable.Range(startYear, endYear - startYear + 1);
     }
 
     /// <summary>

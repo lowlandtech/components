@@ -1,0 +1,14 @@
+@namespace LowlandTech.Components.Sheet
+@inherits LtComponentBase
+
+<h2 data-slot="sheet-title" class="@GetClass()" @attributes="AdditionalAttributes">
+    @ChildContent
+</h2>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "text-lg font-semibold text-foreground";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}
