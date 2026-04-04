@@ -1,0 +1,35 @@
+@namespace LowlandTech.Components.Tests.SPEC1015.Combobox
+@using LowlandTech.Components.Combobox
+
+<Combobox @bind-Value="_selectedValue">
+    <ComboboxInput Placeholder="Select an item..." ShowClear="true" />
+    <ComboboxContent>
+        <ComboboxList>
+            <ComboboxEmpty>No items found</ComboboxEmpty>
+            <ComboboxGroup>
+                <ComboboxLabel>Fruits</ComboboxLabel>
+                <ComboboxItem Value="apple">Apple</ComboboxItem>
+                <ComboboxItem Value="banana">Banana</ComboboxItem>
+                <ComboboxItem Value="orange">Orange</ComboboxItem>
+            </ComboboxGroup>
+            <ComboboxSeparator />
+            <ComboboxGroup>
+                <ComboboxLabel>Vegetables</ComboboxLabel>
+                <ComboboxItem Value="carrot">Carrot</ComboboxItem>
+                <ComboboxItem Value="broccoli">Broccoli</ComboboxItem>
+            </ComboboxGroup>
+        </ComboboxList>
+    </ComboboxContent>
+</Combobox>
+
+@code {
+    private string? _selectedValue;
+
+    [Parameter] public string? SelectedValue
+    {
+        get => _selectedValue;
+        set => _selectedValue = value;
+    }
+
+    [Parameter] public EventCallback<string?> SelectedValueChanged { get; set; }
+}
