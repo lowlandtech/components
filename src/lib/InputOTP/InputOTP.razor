@@ -1,7 +1,98 @@
-
 @namespace LowlandTech.Components.InputOTP
 @inherits LtComponentBase
 
-<div data-slot="input-otp" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
+<div data-slot="input-otp" class="@GetClass()" @attributes="AdditionalAttributes">
+    @for (int i = 0; i < Length; i++)
+    {
+        var index = i;
+        <input type="text"
+               inputmode="numeric"
+               pattern="[0-9]*"
+               maxlength="1"
+               disabled="@Disabled"
+               class="@GetInputClass()"
+               value="@GetValueAt(index)"
+               @oninput="(e) => OnInputChange(index, e)"
+               @onkeydown="(e) => OnKeyDown(index, e)"
+               @ref="_inputRefs[index]" />
+    }
 </div>
+
+@code {
+    private ElementReference[] _inputRefs = [];
+    private string[] _values = [];
+
+    [Parameter] public int Length { get; set; } = 6;
+    [Parameter] public string Value { get; set; } = "";
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _inputRefs = new ElementReference[Length];
+        _values = new string[Length];
+        
+        // Initialize from existing value
+        if (!string.IsNullOrEmpty(Value))
+        {
+            for (int i = 0; i < Math.Min(Value.Length, Length); i++)
+            {
+                _values[i] = Value[i].ToString();
+            }
+        }
+    }
+
+    private string GetValueAt(int index)
+    {
+        return _values[index] ?? "";
+    }
+
+    private async Task OnInputChange(int index, ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString() ?? "";
+        var digit = value.Length > 0 ? value[^1..] : "";
+        
+        // Only accept digits
+        if (!string.IsNullOrEmpty(digit) && !char.IsDigit(digit[0]))
+        {
+            return;
+        }
+
+        _values[index] = digit;
+        await UpdateValueAsync();
+
+        // Move to next input if current is filled and not the last
+        if (!string.IsNullOrEmpty(digit) && index < Length - 1)
+        {
+            // Focus next input would require JS interop
+        }
+    }
+
+    private async Task OnKeyDown(int index, KeyboardEventArgs e)
+    {
+        if (e.Key == "Backspace" && string.IsNullOrEmpty(_values[index]) && index > 0)
+        {
+            // Move to previous input on backspace if current is empty
+            _values[index - 1] = "";
+            await UpdateValueAsync();
+        }
+    }
+
+    private async Task UpdateValueAsync()
+    {
+        Value = string.Join("", _values);
+        await ValueChanged.InvokeAsync(Value);
+    }
+
+    private string GetClass()
+    {
+        var baseClass = "flex items-center gap-2";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private string GetInputClass()
+    {
+        var baseClass = "h-10 w-10 rounded-md border border-input bg-background text-center text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
+        return baseClass;
+    }
+}
