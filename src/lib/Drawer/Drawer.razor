@@ -3,6 +3,7 @@
 
 <CascadingValue Value="this">
     <div data-slot="drawer"
+         data-state="@(IsOpen ? "open" : "closed")"
          class="@GetClass()"
          @attributes="AdditionalAttributes">
         @ChildContent

@@ -1,0 +1,33 @@
+@namespace LowlandTech.Components.Tests.SPEC1011.Carousel
+@using LowlandTech.Components.Carousel
+
+<Carousel>
+    <CarouselContent>
+        <CarouselItem>
+            <div class="p-4 bg-muted rounded">Slide 1</div>
+        </CarouselItem>
+        <CarouselItem>
+            <div class="p-4 bg-muted rounded">Slide 2</div>
+        </CarouselItem>
+        <CarouselItem>
+            <div class="p-4 bg-muted rounded">Slide 3</div>
+        </CarouselItem>
+    </CarouselContent>
+    <CarouselPrevious OnClick="GoToPrevious" />
+    <CarouselNext OnClick="GoToNext" />
+</Carousel>
+
+@code {
+    [Parameter] public EventCallback OnPrevious { get; set; }
+    [Parameter] public EventCallback OnNext { get; set; }
+
+    private async Task GoToPrevious()
+    {
+        await OnPrevious.InvokeAsync();
+    }
+
+    private async Task GoToNext()
+    {
+        await OnNext.InvokeAsync();
+    }
+}
