@@ -1,0 +1,43 @@
+@namespace LowlandTech.Components.DropdownMenu
+@inherits LtComponentBase
+
+@if (_isOpen)
+{
+    <div data-slot="dropdown-menu-content"
+         class="@GetClass()"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+}
+
+@code {
+    private bool _isOpen = true;
+
+    [Parameter] public bool IsOpen
+    {
+        get => _isOpen;
+        set => _isOpen = value;
+    }
+
+    [Parameter] public EventCallback<bool> IsOpenChanged { get; set; }
+
+    private string GetClass()
+    {
+        var baseClass = "z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    public void Open()
+    {
+        _isOpen = true;
+        IsOpenChanged.InvokeAsync(true);
+        StateHasChanged();
+    }
+
+    public void Close()
+    {
+        _isOpen = false;
+        IsOpenChanged.InvokeAsync(false);
+        StateHasChanged();
+    }
+}

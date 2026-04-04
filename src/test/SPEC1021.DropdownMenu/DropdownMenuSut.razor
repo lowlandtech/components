@@ -1,0 +1,21 @@
+@namespace LowlandTech.Components.Tests.SPEC1021.DropdownMenu
+@using LowlandTech.Components.DropdownMenu
+
+<DropdownMenu>
+    <DropdownMenuTrigger>Menu</DropdownMenuTrigger>
+    <DropdownMenuContent>
+        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuGroup>
+            <DropdownMenuItem OnSelect="OnProfileSelect">Profile</DropdownMenuItem>
+            <DropdownMenuItem OnSelect="OnSettingsSelect">Settings</DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem OnSelect="OnLogoutSelect">Log out</DropdownMenuItem>
+    </DropdownMenuContent>
+</DropdownMenu>
+
+@code {
+    [Parameter] public EventCallback OnProfileSelect { get; set; }
+    [Parameter] public EventCallback OnSettingsSelect { get; set; }
+    [Parameter] public EventCallback OnLogoutSelect { get; set; }
+}

@@ -111,15 +111,12 @@ public class SC01_CommandInteractions : ViewScenario
         var cut = Ctx.Render<CommandItem>();
 
         var item = cut.Find("[data-slot='command-item']");
-        // Initial state - data-selected may be null, empty, or "false"
-        var initialValue = item.GetAttribute("data-selected");
-        (initialValue == null || initialValue == "" || initialValue == "false").ShouldBeTrue();
+        item.HasAttribute("data-selected").ShouldBeFalse();
 
         await item.MouseEnterAsync(new MouseEventArgs());
 
-        // After mouse enter, data-selected should be truthy ("true" or "")
-        var selectedValue = item.GetAttribute("data-selected");
-        (selectedValue == "true" || selectedValue == "").ShouldBeTrue();
+        item = cut.Find("[data-slot='command-item']");
+        item.GetAttribute("data-selected").ShouldBe("True");
     }
 
     [Fact(DisplayName = "UAC07: CommandDialog renders closed by default")]
