@@ -1,4 +1,4 @@
-using Bunit;
+﻿using Bunit;
 using InputGroupSut = LowlandTech.Components.InputGroup.InputGroup;
 using LowlandTech.Components.Tests.Infrastructure;
 
@@ -34,5 +34,40 @@ public class SC01_RenderInputGroup : ViewScenario
     {
         var cut = Ctx.Render<InputGroupSut>(p => p.Add(x => x.Class, "test-class"));
         cut.Find("[data-slot='input-group']").ClassList.ShouldContain("test-class");
+    }
+
+    [Fact(DisplayName = "UAC04: InputGroup has role='group' and cn-input-group base class")]
+    [Trait(Spec.UAC, "04")]
+    [Then("the element has role='group' and cn-input-group class")]
+    public void UAC04_HasRoleAndBaseClass()
+    {
+        var cut = Ctx.Render<InputGroupSut>();
+        var el = cut.Find("[data-slot='input-group']");
+        el.GetAttribute("role").ShouldBe("group");
+        el.ClassList.ShouldContain("cn-input-group");
+    }
+
+    [Fact(DisplayName = "UAC05: InputGroupAddon defaults to inline-start align")]
+    [Trait(Spec.UAC, "05")]
+    [Then("InputGroupAddon data-align defaults to 'inline-start'")]
+    public void UAC05_AddonDefaultAlign()
+    {
+        var cut = Ctx.Render<LowlandTech.Components.InputGroup.InputGroupAddon>();
+        var el = cut.Find("[data-slot='input-group-addon']");
+        el.GetAttribute("data-align").ShouldBe("inline-start");
+        el.ClassList.ShouldContain("cn-input-group-addon");
+        el.ClassList.ShouldContain("order-first");
+    }
+
+    [Fact(DisplayName = "UAC06: InputGroupAddon inline-end align applies correct classes")]
+    [Trait(Spec.UAC, "06")]
+    [Then("align='inline-end' gives order-last class")]
+    public void UAC06_AddonInlineEndAlign()
+    {
+        var cut = Ctx.Render<LowlandTech.Components.InputGroup.InputGroupAddon>(
+            p => p.Add(x => x.Align, "inline-end"));
+        var el = cut.Find("[data-slot='input-group-addon']");
+        el.GetAttribute("data-align").ShouldBe("inline-end");
+        el.ClassList.ShouldContain("order-last");
     }
 }

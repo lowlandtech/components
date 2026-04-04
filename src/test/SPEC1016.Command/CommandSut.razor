@@ -1,0 +1,28 @@
+@namespace LowlandTech.Components.Tests.SPEC1016.Command
+@using LowlandTech.Components.Command
+
+<CommandContainer @attributes="Attributes">
+    <CommandInput Placeholder="Search commands..." />
+    <CommandList>
+        <CommandGroup Heading="Suggestions">
+            <CommandItem Value="home" OnSelect="OnItemSelect">
+                <span>Home</span>
+            </CommandItem>
+            <CommandItem Value="settings" OnSelect="OnItemSelect">
+                <span>Settings</span>
+            </CommandItem>
+        </CommandGroup>
+        <CommandSeparator />
+        <CommandGroup Heading="Actions">
+            <CommandItem Value="copy" OnSelect="OnItemSelect">
+                <span>Copy</span>
+                <CommandShortcut>Ctrl+C</CommandShortcut>
+            </CommandItem>
+        </CommandGroup>
+    </CommandList>
+</CommandContainer>
+
+@code {
+    [Parameter] public Dictionary<string, object>? Attributes { get; set; }
+    [Parameter] public EventCallback OnItemSelect { get; set; }
+}

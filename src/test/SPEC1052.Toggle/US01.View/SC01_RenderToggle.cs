@@ -1,4 +1,4 @@
-using Bunit;
+﻿using Bunit;
 using ToggleSut = LowlandTech.Components.Toggle.Toggle;
 using LowlandTech.Components.Tests.Infrastructure;
 
@@ -34,5 +34,37 @@ public class SC01_RenderToggle : ViewScenario
     {
         var cut = Ctx.Render<ToggleSut>(p => p.Add(x => x.Class, "test-class"));
         cut.Find("[data-slot='toggle']").ClassList.ShouldContain("test-class");
+    }
+
+    [Fact(DisplayName = "UAC04: Toggle has base cn-toggle classes")]
+    [Trait(Spec.UAC, "04")]
+    [Then("the button contains the cn-toggle base class")]
+    public void UAC04_HasBaseClasses()
+    {
+        var cut = Ctx.Render<ToggleSut>();
+        cut.Find("[data-slot='toggle']").ClassList.ShouldContain("cn-toggle");
+    }
+
+    [Fact(DisplayName = "UAC05: Toggle renders default data-variant and data-size")]
+    [Trait(Spec.UAC, "05")]
+    [Then("data-variant='default' and data-size='default' by default")]
+    public void UAC05_DefaultDataAttrs()
+    {
+        var cut = Ctx.Render<ToggleSut>();
+        var el = cut.Find("[data-slot='toggle']");
+        el.GetAttribute("data-variant").ShouldBe("default");
+        el.GetAttribute("data-size").ShouldBe("default");
+    }
+
+    [Fact(DisplayName = "UAC06: Toggle aria-pressed reflects Pressed parameter")]
+    [Trait(Spec.UAC, "06")]
+    [Then("aria-pressed is false by default and true when Pressed=true")]
+    public void UAC06_AriaPressedReflectsState()
+    {
+        var cut = Ctx.Render<ToggleSut>();
+        cut.Find("[data-slot='toggle']").GetAttribute("aria-pressed").ShouldBe("false");
+
+        var cut2 = Ctx.Render<ToggleSut>(p => p.Add(x => x.Pressed, true));
+        cut2.Find("[data-slot='toggle']").GetAttribute("aria-pressed").ShouldBe("true");
     }
 }
