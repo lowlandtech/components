@@ -1,0 +1,14 @@
+@namespace LowlandTech.Components.Menubar
+@inherits LtComponentBase
+
+<div data-slot="menubar-group" class="@GetClass()" @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "";
+        return string.IsNullOrEmpty(Class) ? baseClass : Class;
+    }
+}

@@ -1,0 +1,28 @@
+@namespace LowlandTech.Components.Menubar
+@inherits LtComponentBase
+
+<div data-slot="menubar-item"
+     class="@GetClass()"
+     @onclick="HandleClick"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public EventCallback OnSelect { get; set; }
+
+    private string GetClass()
+    {
+        var baseClass = "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-accent hover:text-accent-foreground";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private async Task HandleClick()
+    {
+        if (!Disabled)
+        {
+            await OnSelect.InvokeAsync();
+        }
+    }
+}

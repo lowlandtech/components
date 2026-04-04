@@ -1,0 +1,34 @@
+@namespace LowlandTech.Components.Tests.SPEC1031.Menubar
+@using LowlandTech.Components.Menubar
+
+<Menubar>
+    <MenubarMenu>
+        <MenubarTrigger>File</MenubarTrigger>
+        <MenubarContent>
+            <MenubarItem OnSelect="OnNewSelect">New</MenubarItem>
+            <MenubarItem OnSelect="OnOpenSelect">Open</MenubarItem>
+            <MenubarSeparator />
+            <MenubarItem OnSelect="OnExitSelect">Exit</MenubarItem>
+        </MenubarContent>
+    </MenubarMenu>
+    <MenubarMenu>
+        <MenubarTrigger>Edit</MenubarTrigger>
+        <MenubarContent>
+            <MenubarGroup>
+                <MenubarLabel>Edit Actions</MenubarLabel>
+                <MenubarItem OnSelect="OnCutSelect">Cut</MenubarItem>
+                <MenubarItem OnSelect="OnCopySelect">Copy</MenubarItem>
+                <MenubarItem OnSelect="OnPasteSelect">Paste</MenubarItem>
+            </MenubarGroup>
+        </MenubarContent>
+    </MenubarMenu>
+</Menubar>
+
+@code {
+    [Parameter] public EventCallback OnNewSelect { get; set; }
+    [Parameter] public EventCallback OnOpenSelect { get; set; }
+    [Parameter] public EventCallback OnExitSelect { get; set; }
+    [Parameter] public EventCallback OnCutSelect { get; set; }
+    [Parameter] public EventCallback OnCopySelect { get; set; }
+    [Parameter] public EventCallback OnPasteSelect { get; set; }
+}
