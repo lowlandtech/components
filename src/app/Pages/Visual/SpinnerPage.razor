@@ -1,0 +1,208 @@
+@page "/visual/spinner"
+@using LowlandTech.Components.Spinner
+
+<PageTitle>Spinner - Visual Test</PageTitle>
+
+<div class="container mx-auto p-8">
+    <h1 class="text-3xl font-bold mb-8">Spinner</h1>
+
+    <div class="space-y-12">
+        <!-- Basic Spinner -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Basic Spinner</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <Spinner />
+            </div>
+        </section>
+
+        <!-- Different Sizes -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Sizes</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <div class="flex items-center gap-8">
+                    <div class="text-center">
+                        <Spinner class="size-4" />
+                        <p class="text-xs text-muted-foreground mt-2">Small (16px)</p>
+                    </div>
+                    <div class="text-center">
+                        <Spinner class="size-6" />
+                        <p class="text-xs text-muted-foreground mt-2">Medium (24px)</p>
+                    </div>
+                    <div class="text-center">
+                        <Spinner class="size-8" />
+                        <p class="text-xs text-muted-foreground mt-2">Large (32px)</p>
+                    </div>
+                    <div class="text-center">
+                        <Spinner class="size-12" />
+                        <p class="text-xs text-muted-foreground mt-2">Extra Large (48px)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- With Text -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">With Text</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <div class="flex flex-col items-center gap-4">
+                    <Spinner class="size-8" />
+                    <p class="text-sm text-muted-foreground">Loading...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- In Buttons -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">In Buttons</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <div class="flex flex-wrap gap-4">
+                    <button class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium" disabled>
+                        <Spinner class="size-4" />
+                        Loading...
+                    </button>
+                    <button class="inline-flex items-center gap-2 px-4 py-2 bg-muted text-foreground rounded-md text-sm font-medium" disabled>
+                        <Spinner class="size-4" />
+                        Saving...
+                    </button>
+                    <button class="inline-flex items-center gap-2 px-4 py-2 border border-input bg-background rounded-md text-sm font-medium" disabled>
+                        <Spinner class="size-4" />
+                        Processing...
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Full Page Loading -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Full Page Loading State</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <div class="relative h-64 border rounded-lg bg-muted/20 flex items-center justify-center">
+                    <div class="flex flex-col items-center gap-4">
+                        <Spinner class="size-12" />
+                        <p class="text-muted-foreground">Please wait while we load your content...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Card Loading State -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Card Loading State</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <div class="max-w-sm border rounded-lg p-6 space-y-4">
+                    <div class="flex items-center justify-center h-32 bg-muted rounded-md">
+                        <Spinner class="size-8" />
+                    </div>
+                    <div class="h-4 bg-muted rounded w-3/4"></div>
+                    <div class="h-3 bg-muted rounded w-full"></div>
+                    <div class="h-3 bg-muted rounded w-2/3"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- List Loading State -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">List Loading State</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <div class="max-w-md border rounded-lg divide-y">
+                    @for (var i = 0; i < 3; i++)
+                    {
+                        <div class="p-4 flex items-center gap-4">
+                            <Spinner class="size-6" />
+                            <div class="flex-1">
+                                <div class="h-4 bg-muted rounded w-32"></div>
+                                <div class="h-3 bg-muted rounded w-48 mt-2"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <!-- Table Loading State -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Table Loading State</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <div class="border rounded-lg overflow-hidden">
+                    <div class="bg-muted/50 border-b p-4">
+                        <div class="h-5 bg-muted rounded w-32"></div>
+                    </div>
+                    <div class="p-8 flex items-center justify-center">
+                        <div class="flex flex-col items-center gap-3">
+                            <Spinner class="size-8" />
+                            <p class="text-sm text-muted-foreground">Loading data...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Inline Loading -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Inline Loading</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <div class="space-y-4 max-w-md">
+                    <div class="flex items-center justify-between p-3 border rounded-md">
+                        <span class="text-sm">Uploading document.pdf</span>
+                        <Spinner class="size-4" />
+                    </div>
+                    <div class="flex items-center justify-between p-3 border rounded-md">
+                        <span class="text-sm">Processing image.png</span>
+                        <Spinner class="size-4" />
+                    </div>
+                    <div class="flex items-center justify-between p-3 border rounded-md">
+                        <span class="text-sm">Syncing data...</span>
+                        <Spinner class="size-4" />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Different Colors -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Custom Colors</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <div class="flex items-center gap-8">
+                    <div class="text-center">
+                        <Spinner class="size-8 text-primary" />
+                        <p class="text-xs text-muted-foreground mt-2">Primary</p>
+                    </div>
+                    <div class="text-center">
+                        <Spinner class="size-8 text-green-600" />
+                        <p class="text-xs text-muted-foreground mt-2">Success</p>
+                    </div>
+                    <div class="text-center">
+                        <Spinner class="size-8 text-red-600" />
+                        <p class="text-xs text-muted-foreground mt-2">Danger</p>
+                    </div>
+                    <div class="text-center">
+                        <Spinner class="size-8 text-yellow-600" />
+                        <p class="text-xs text-muted-foreground mt-2">Warning</p>
+                    </div>
+                    <div class="text-center">
+                        <Spinner class="size-8 text-blue-600" />
+                        <p class="text-xs text-muted-foreground mt-2">Info</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Centered in Container -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Centered in Various Sizes</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <div class="flex flex-wrap gap-8">
+                    <div class="w-32 h-32 border rounded-lg flex items-center justify-center bg-muted/20">
+                        <Spinner class="size-6" />
+                    </div>
+                    <div class="w-48 h-48 border rounded-lg flex items-center justify-center bg-muted/20">
+                        <Spinner class="size-10" />
+                    </div>
+                    <div class="w-64 h-32 border rounded-lg flex items-center justify-center bg-muted/20">
+                        <Spinner class="size-8" />
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>

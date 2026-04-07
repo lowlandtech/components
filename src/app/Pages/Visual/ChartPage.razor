@@ -1,0 +1,366 @@
+@page "/visual/chart"
+@using LowlandTech.Components.Chart
+@using LowlandTech.Components.Chart.Models
+
+<PageTitle>Chart - Visual Test</PageTitle>
+
+<!-- Ensure Chart.js is loaded -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<div class="space-y-8">
+    <div>
+        <h1 class="text-2xl font-bold">Chart</h1>
+        <p class="text-muted-foreground">Visual representation of data using charts with Chart.js integration.</p>
+    </div>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Bar Chart</h2>
+        <p class="text-sm text-muted-foreground">Display data as rectangular bars with tooltips and legend.</p>
+        <div class="rounded-md border p-6">
+            <ChartContainer Config="_barConfig" class="h-64">
+                <Chart Type="bar" ChartData="_barData" ChartOptions="_barOptions" />
+            </ChartContainer>
+        </div>
+    </section>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Line Chart</h2>
+        <p class="text-sm text-muted-foreground">Display data points connected by smooth lines.</p>
+        <div class="rounded-md border p-6">
+            <ChartContainer Config="_lineConfig" class="h-64">
+                <Chart Type="line" ChartData="_lineData" ChartOptions="_lineOptions" />
+            </ChartContainer>
+        </div>
+    </section>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Pie Chart</h2>
+        <p class="text-sm text-muted-foreground">Display data as proportional slices.</p>
+        <div class="rounded-md border p-6 flex justify-center">
+            <ChartContainer Config="_pieConfig" class="h-64 w-64">
+                <Chart Type="pie" ChartData="_pieData" ChartOptions="_pieOptions" />
+            </ChartContainer>
+        </div>
+    </section>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Doughnut Chart</h2>
+        <p class="text-sm text-muted-foreground">Similar to pie chart with a hollow center.</p>
+        <div class="rounded-md border p-6 flex justify-center">
+            <ChartContainer Config="_doughnutConfig" class="h-64 w-64">
+                <Chart Type="doughnut" ChartData="_doughnutData" ChartOptions="_doughnutOptions" />
+            </ChartContainer>
+        </div>
+    </section>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Area Chart</h2>
+        <p class="text-sm text-muted-foreground">Line chart with filled area below.</p>
+        <div class="rounded-md border p-6">
+            <ChartContainer Config="_areaConfig" class="h-64">
+                <Chart Type="area" ChartData="_areaData" ChartOptions="_areaOptions" />
+            </ChartContainer>
+        </div>
+    </section>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Horizontal Bar Chart</h2>
+        <p class="text-sm text-muted-foreground">Bar chart with horizontal orientation.</p>
+        <div class="rounded-md border p-6">
+            <ChartContainer Config="_horizontalBarConfig" class="h-64">
+                <Chart Type="bar" ChartData="_horizontalBarData" ChartOptions="_horizontalBarOptions" />
+            </ChartContainer>
+        </div>
+    </section>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Multi-Series Chart</h2>
+        <p class="text-sm text-muted-foreground">Multiple data series with custom legend.</p>
+        <div class="rounded-md border p-6">
+            <ChartContainer Config="_multiConfig" class="h-64">
+                <Chart Type="bar" ChartData="_multiData" ChartOptions="_multiOptions" />
+            </ChartContainer>
+            <ChartLegend Position="bottom" class="mt-4">
+                <ChartLegendContent Items="_legendItems" />
+            </ChartLegend>
+        </div>
+    </section>
+</div>
+
+@code {
+    // Bar Chart
+    private ChartConfig _barConfig = new()
+    {
+        ["sales"] = new ChartSeriesConfig { Label = "Sales", Color = "hsl(var(--chart-1))" }
+    };
+
+    private ChartData _barData = new()
+    {
+        Labels = new[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun" },
+        Datasets = new()
+        {
+            new ChartDataset
+            {
+                Label = "Sales",
+                ConfigKey = "sales",
+                Data = new[] { 12.0, 19.0, 8.0, 15.0, 22.0, 18.0 },
+                BackgroundColor = new[] { "hsl(var(--chart-1))" }
+            }
+        }
+    };
+
+    private ChartOptions _barOptions = new()
+    {
+        Responsive = true,
+        MaintainAspectRatio = false,
+        Plugins = new()
+        {
+            Legend = new() { Display = true, Position = "top" }
+        },
+        Scales = new()
+        {
+            Y = new() { Display = true },
+            X = new() { Display = true }
+        }
+    };
+
+    // Line Chart
+    private ChartConfig _lineConfig = new()
+    {
+        ["visitors"] = new ChartSeriesConfig { Label = "Visitors", Color = "hsl(var(--chart-2))" }
+    };
+
+    private ChartData _lineData = new()
+    {
+        Labels = new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" },
+        Datasets = new()
+        {
+            new ChartDataset
+            {
+                Label = "Visitors",
+                ConfigKey = "visitors",
+                Data = new[] { 150.0, 230.0, 180.0, 320.0, 290.0, 340.0, 280.0 },
+                BorderColor = new[] { "hsl(var(--chart-2))" },
+                BackgroundColor = new[] { "hsl(var(--chart-2) / 0.1)" },
+                Tension = 0.4
+            }
+        }
+    };
+
+    private ChartOptions _lineOptions = new()
+    {
+        Responsive = true,
+        MaintainAspectRatio = false,
+        Plugins = new()
+        {
+            Legend = new() { Display = true }
+        },
+        Scales = new()
+        {
+            Y = new() { Display = true },
+            X = new() { Display = true }
+        }
+    };
+
+    // Pie Chart
+    private ChartConfig _pieConfig = new()
+    {
+        ["desktop"] = new ChartSeriesConfig { Label = "Desktop", Color = "hsl(var(--chart-1))" },
+        ["mobile"] = new ChartSeriesConfig { Label = "Mobile", Color = "hsl(var(--chart-2))" },
+        ["tablet"] = new ChartSeriesConfig { Label = "Tablet", Color = "hsl(var(--chart-3))" }
+    };
+
+    private ChartData _pieData = new()
+    {
+        Labels = new[] { "Desktop", "Mobile", "Tablet" },
+        Datasets = new()
+        {
+            new ChartDataset
+            {
+                Data = new[] { 60.0, 30.0, 10.0 },
+                BackgroundColor = new[] { "hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))" }
+            }
+        }
+    };
+
+    private ChartOptions _pieOptions = new()
+    {
+        Responsive = true,
+        MaintainAspectRatio = false,
+        Plugins = new()
+        {
+            Legend = new() { Display = true, Position = "bottom" }
+        }
+    };
+
+    // Doughnut Chart
+    private ChartConfig _doughnutConfig = new()
+    {
+        ["a"] = new ChartSeriesConfig { Label = "Product A", Color = "hsl(var(--chart-1))" },
+        ["b"] = new ChartSeriesConfig { Label = "Product B", Color = "hsl(var(--chart-2))" },
+        ["c"] = new ChartSeriesConfig { Label = "Product C", Color = "hsl(var(--chart-3))" },
+        ["d"] = new ChartSeriesConfig { Label = "Product D", Color = "hsl(var(--chart-4))" }
+    };
+
+    private ChartData _doughnutData = new()
+    {
+        Labels = new[] { "Product A", "Product B", "Product C", "Product D" },
+        Datasets = new()
+        {
+            new ChartDataset
+            {
+                Data = new[] { 35.0, 25.0, 25.0, 15.0 },
+                BackgroundColor = new[] 
+                { 
+                    "hsl(var(--chart-1))", 
+                    "hsl(var(--chart-2))", 
+                    "hsl(var(--chart-3))", 
+                    "hsl(var(--chart-4))" 
+                }
+            }
+        }
+    };
+
+    private ChartOptions _doughnutOptions = new()
+    {
+        Responsive = true,
+        MaintainAspectRatio = false,
+        Plugins = new()
+        {
+            Legend = new() { Display = true, Position = "bottom" }
+        }
+    };
+
+    // Area Chart
+    private ChartConfig _areaConfig = new()
+    {
+        ["revenue"] = new ChartSeriesConfig { Label = "Revenue", Color = "hsl(var(--chart-4))" }
+    };
+
+    private ChartData _areaData = new()
+    {
+        Labels = new[] { "Q1", "Q2", "Q3", "Q4" },
+        Datasets = new()
+        {
+            new ChartDataset
+            {
+                Label = "Revenue",
+                ConfigKey = "revenue",
+                Data = new[] { 45000.0, 52000.0, 48000.0, 61000.0 },
+                BorderColor = new[] { "hsl(var(--chart-4))" },
+                BackgroundColor = new[] { "hsl(var(--chart-4) / 0.2)" },
+                Fill = true,
+                Tension = 0.4
+            }
+        }
+    };
+
+    private ChartOptions _areaOptions = new()
+    {
+        Responsive = true,
+        MaintainAspectRatio = false,
+        Plugins = new()
+        {
+            Legend = new() { Display = true }
+        },
+        Scales = new()
+        {
+            Y = new() { Display = true },
+            X = new() { Display = true }
+        }
+    };
+
+    // Horizontal Bar Chart
+    private ChartConfig _horizontalBarConfig = new()
+    {
+        ["count"] = new ChartSeriesConfig { Label = "Count", Color = "hsl(var(--chart-5))" }
+    };
+
+    private ChartData _horizontalBarData = new()
+    {
+        Labels = new[] { "Category A", "Category B", "Category C", "Category D", "Category E" },
+        Datasets = new()
+        {
+            new ChartDataset
+            {
+                Label = "Count",
+                ConfigKey = "count",
+                Data = new[] { 65.0, 45.0, 80.0, 55.0, 40.0 },
+                BackgroundColor = new[] 
+                { 
+                    "hsl(var(--chart-1))", 
+                    "hsl(var(--chart-2))", 
+                    "hsl(var(--chart-3))",
+                    "hsl(var(--chart-4))",
+                    "hsl(var(--chart-5))"
+                }
+            }
+        }
+    };
+
+    private ChartOptions _horizontalBarOptions = new()
+    {
+        Responsive = true,
+        MaintainAspectRatio = false,
+        IndexAxis = "y",
+        Plugins = new()
+        {
+            Legend = new() { Display = true }
+        },
+        Scales = new()
+        {
+            Y = new() { Display = true },
+            X = new() { Display = true }
+        }
+    };
+
+    // Multi-Series Chart with Legend
+    private ChartConfig _multiConfig = new()
+    {
+        ["desktop"] = new ChartSeriesConfig { Label = "Desktop", Color = "hsl(var(--chart-1))" },
+        ["mobile"] = new ChartSeriesConfig { Label = "Mobile", Color = "hsl(var(--chart-2))" }
+    };
+
+    private ChartData _multiData = new()
+    {
+        Labels = new[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun" },
+        Datasets = new()
+        {
+            new ChartDataset
+            {
+                Label = "Desktop",
+                ConfigKey = "desktop",
+                Data = new[] { 186.0, 205.0, 237.0, 273.0, 209.0, 214.0 },
+                BackgroundColor = new[] { "hsl(var(--chart-1))" }
+            },
+            new ChartDataset
+            {
+                Label = "Mobile",
+                ConfigKey = "mobile",
+                Data = new[] { 120.0, 150.0, 180.0, 165.0, 140.0, 175.0 },
+                BackgroundColor = new[] { "hsl(var(--chart-2))" }
+            }
+        }
+    };
+
+    private ChartOptions _multiOptions = new()
+    {
+        Responsive = true,
+        MaintainAspectRatio = false,
+        Plugins = new()
+        {
+            Legend = new() { Display = false } // Using custom legend
+        },
+        Scales = new()
+        {
+            Y = new() { Display = true },
+            X = new() { Display = true }
+        }
+    };
+
+    private List<ChartLegendItem> _legendItems = new()
+    {
+        new ChartLegendItem { Key = "desktop", Label = "Desktop", Color = "hsl(var(--chart-1))", Value = 1324 },
+        new ChartLegendItem { Key = "mobile", Label = "Mobile", Color = "hsl(var(--chart-2))", Value = 930 }
+    };
+}

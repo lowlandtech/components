@@ -1,0 +1,73 @@
+@namespace LowlandTech.Components.Chart
+@inherits LtComponentBase
+
+<div data-slot="chart-tooltip-content" class="@GetClass()" @attributes="AdditionalAttributes">
+    @if (!string.IsNullOrEmpty(Label))
+    {
+        <div class="mb-1 font-medium">@Label</div>
+    }
+    <div class="flex items-center gap-2">
+        @if (!string.IsNullOrEmpty(Color))
+        {
+            <span class="h-2 w-2 rounded-full" style="background-color: @Color"></span>
+        }
+        <span class="text-muted-foreground">@GetDisplayName():</span>
+        <span class="font-medium tabular-nums">@GetFormattedValue()</span>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public ChartConfig? Config { get; set; }
+
+    /// <summary>
+    /// The data key for looking up label and color in config.
+    /// </summary>
+    [Parameter]
+    public string? DataKey { get; set; }
+
+    /// <summary>
+    /// The raw value to display.
+    /// </summary>
+    [Parameter]
+    public double Value { get; set; }
+
+    /// <summary>
+    /// The label to display (overrides config lookup).
+    /// </summary>
+    [Parameter]
+    public string? Label { get; set; }
+
+    /// <summary>
+    /// The color to display (overrides config lookup).
+    /// </summary>
+    [Parameter]
+    public string? Color { get; set; }
+
+    /// <summary>
+    /// Optional formatter function for the value.
+    /// </summary>
+    [Parameter]
+    public Func<double, string>? Formatter { get; set; }
+
+    private string GetDisplayName()
+    {
+        if (!string.IsNullOrEmpty(Label))
+            return Label;
+        if (!string.IsNullOrEmpty(DataKey) && Config != null)
+            return Config.GetLabel(DataKey);
+        return "Value";
+    }
+
+    private string GetFormattedValue()
+    {
+        if (Formatter != null)
+            return Formatter(Value);
+        return Value.ToString("N0");
+    }
+
+    private string GetClass()
+    {
+        return $"grid gap-1.5 {Class}".Trim();
+    }
+}

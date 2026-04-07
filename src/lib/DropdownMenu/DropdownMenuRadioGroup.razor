@@ -1,0 +1,27 @@
+@namespace LowlandTech.Components.DropdownMenu
+@inherits LtComponentBase
+
+<div data-slot="dropdown-menu-radio-group"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
+    <CascadingValue Value="this">
+        @ChildContent
+    </CascadingValue>
+</div>
+
+@code {
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+
+    private string GetClass()
+    {
+        return string.IsNullOrEmpty(Class) ? "" : Class;
+    }
+
+    public async Task SelectValueAsync(string? value)
+    {
+        Value = value;
+        await ValueChanged.InvokeAsync(value);
+        StateHasChanged();
+    }
+}

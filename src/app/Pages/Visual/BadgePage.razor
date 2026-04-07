@@ -1,0 +1,66 @@
+@page "/visual/badge"
+@using LowlandTech.Components.Badge
+
+<PageTitle>Badge - Visual Test</PageTitle>
+
+<div class="space-y-8">
+    <div>
+        <h1 class="text-2xl font-bold">Badge</h1>
+        <p class="text-muted-foreground">Displays a badge or a component that looks like a badge.</p>
+    </div>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Variants</h2>
+        <div class="flex flex-wrap items-center gap-4">
+            <Badge Variant="default">Default</Badge>
+            <Badge Variant="secondary">Secondary</Badge>
+            <Badge Variant="destructive">Destructive</Badge>
+            <Badge Variant="outline">Outline</Badge>
+        </div>
+    </section>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">With Icons</h2>
+        <div class="flex flex-wrap items-center gap-4">
+            <Badge Variant="default">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                    <path d="M2 12l10 5 10-5"/>
+                </svg>
+                New
+            </Badge>
+            <Badge Variant="secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
+                </svg>
+                Secure
+            </Badge>
+            <Badge Variant="destructive">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                    <path d="M18 6 6 18"/>
+                    <path d="m6 6 12 12"/>
+                </svg>
+                Error
+            </Badge>
+        </div>
+    </section>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Status Badges</h2>
+        <div class="flex flex-wrap items-center gap-4">
+            <Badge Variant="default">Active</Badge>
+            <Badge Variant="secondary">Pending</Badge>
+            <Badge Variant="destructive">Failed</Badge>
+            <Badge Variant="outline">Draft</Badge>
+        </div>
+    </section>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Long Text</h2>
+        <div class="flex flex-wrap items-center gap-4">
+            <Badge Variant="default">Very long badge text that truncates</Badge>
+            <Badge Variant="outline">Another long text example</Badge>
+        </div>
+    </section>
+</div>

@@ -1,0 +1,8 @@
+/* Accordion chevron rotation based on data-state */
+[data-state="open"] > [data-slot="accordion-trigger-icon"] {
+  transform: rotate(180deg);
+}
+
+[data-slot="accordion-trigger-icon"] {
+  transition: transform 200ms ease;
+}

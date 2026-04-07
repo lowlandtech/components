@@ -1,0 +1,88 @@
+@page "/visual/input-group"
+@using LowlandTech.Components.Input
+@using LowlandTech.Components.InputGroup
+@using LowlandTech.Components.Button
+@using LowlandTech.Components.Icon
+
+<PageTitle>InputGroup - Visual Test</PageTitle>
+
+<div class="max-w-4xl mx-auto p-8">
+    <h1 class="text-3xl font-bold mb-8">InputGroup</h1>
+    
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">With Text Addon</h2>
+        <div class="space-y-4 p-6 border rounded-lg bg-card">
+            <InputGroup>
+                <InputGroupAddon>https://</InputGroupAddon>
+                <Input Placeholder="example.com" />
+            </InputGroup>
+            
+            <InputGroup>
+                <Input Placeholder="Username" />
+                <InputGroupAddon Align="inline-end">@@example.com</InputGroupAddon>
+            </InputGroup>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">With Icon Addon</h2>
+        <div class="space-y-4 p-6 border rounded-lg bg-card">
+            <InputGroup>
+                <InputGroupAddon><Icon Name="search" Size="16" /></InputGroupAddon>
+                <Input Placeholder="Search..." />
+            </InputGroup>
+            
+            <InputGroup>
+                <Input Type="email" Placeholder="Email" />
+                <InputGroupAddon Align="inline-end"><Icon Name="user" Size="16" /></InputGroupAddon>
+            </InputGroup>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">With Button Addon</h2>
+        <div class="space-y-4 p-6 border rounded-lg bg-card">
+            <InputGroup>
+                <Input Placeholder="Enter command..." />
+                <InputGroupAddon Align="inline-end">
+                    <Button Size="sm">Run</Button>
+                </InputGroupAddon>
+            </InputGroup>
+            
+            <InputGroup>
+                <InputGroupAddon>
+                    <Button Size="sm" Variant="outline">
+                        <Icon Name="plus" Size="16" />
+                    </Button>
+                </InputGroupAddon>
+                <Input Placeholder="Add item..." />
+            </InputGroup>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Block Alignment</h2>
+        <div class="space-y-4 p-6 border rounded-lg bg-card">
+            <InputGroup>
+                <InputGroupAddon Align="block-start">Label above</InputGroupAddon>
+                <Input Placeholder="Input with block-start addon..." />
+            </InputGroup>
+            
+            <InputGroup>
+                <Input Placeholder="Input with block-end addon..." />
+                <InputGroupAddon Align="block-end">Label below</InputGroupAddon>
+            </InputGroup>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Combined Example</h2>
+        <div class="p-6 border rounded-lg bg-card">
+            <InputGroup>
+                <InputGroupAddon>$</InputGroupAddon>
+                <Input Type="number" Placeholder="0.00" />
+                <InputGroupAddon Align="inline-end">USD</InputGroupAddon>
+            </InputGroup>
+        </div>
+    </section>
+</div>

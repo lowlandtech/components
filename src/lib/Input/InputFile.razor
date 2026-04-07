@@ -1,0 +1,211 @@
+@namespace LowlandTech.Components.Input
+@using Microsoft.AspNetCore.Components.Forms
+@inherits LtComponentBase
+
+<div data-slot="input-file"
+     data-variant="@Variant"
+     data-size="@Size"
+     data-disabled="@(Disabled ? "true" : null)"
+     class="@GetContainerClass()">
+
+    <label class="@GetLabelClass()">
+        <Microsoft.AspNetCore.Components.Forms.InputFile @key="_inputKey"
+                   @attributes="AdditionalAttributes"
+                   class="sr-only"
+                   disabled="@Disabled"
+                   multiple="@Multiple"
+                   accept="@Accept"
+                   OnChange="HandleFileChange" />
+        <Icon Name="@ButtonIcon" Size="@GetIconSize()" />
+        <span>@ButtonText</span>
+    </label>
+
+    @if (ShowSelectedFiles)
+    {
+        <div class="@GetFilesListClass()">
+            @if (_selectedFiles.Count == 0)
+            {
+                <span class="text-sm text-muted-foreground">@Placeholder</span>
+            }
+            else if (_selectedFiles.Count == 1)
+            {
+                <span class="text-sm truncate" title="@_selectedFiles[0].Name">@_selectedFiles[0].Name</span>
+                <span class="text-xs text-muted-foreground ml-2">@FormatFileSize(_selectedFiles[0].Size)</span>
+            }
+            else
+            {
+                <span class="text-sm">@_selectedFiles.Count files selected</span>
+            }
+
+            @if (_selectedFiles.Count > 0 && AllowClear)
+            {
+                <button type="button"
+                        @onclick="ClearFiles"
+                        class="ml-2 inline-flex items-center justify-center rounded-full p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                        title="Clear selection">
+                    <Icon Name="x" Size="14" />
+                </button>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<IBrowserFile> _selectedFiles = new();
+    private int _inputKey;
+
+    /// <summary>
+    /// The variant of the file input button.
+    /// </summary>
+    [Parameter] public string Variant { get; set; } = "default";
+
+    /// <summary>
+    /// The size of the file input.
+    /// </summary>
+    [Parameter] public string Size { get; set; } = "default";
+
+    /// <summary>
+    /// The text displayed on the button.
+    /// </summary>
+    [Parameter] public string ButtonText { get; set; } = "Choose File";
+
+    /// <summary>
+    /// The icon name for the button.
+    /// </summary>
+    [Parameter] public string ButtonIcon { get; set; } = "upload";
+
+    /// <summary>
+    /// The placeholder text shown when no file is selected.
+    /// </summary>
+    [Parameter] public string? Placeholder { get; set; } = "No file chosen";
+
+    /// <summary>
+    /// Whether the file input is disabled.
+    /// </summary>
+    [Parameter] public bool Disabled { get; set; }
+
+    /// <summary>
+    /// Whether to allow multiple file selection.
+    /// </summary>
+    [Parameter] public bool Multiple { get; set; }
+
+    /// <summary>
+    /// Accepted file types (e.g., ".pdf,.jpg,.png" or "image/*").
+    /// </summary>
+    [Parameter] public string? Accept { get; set; }
+
+    /// <summary>
+    /// Whether to show the selected files list.
+    /// </summary>
+    [Parameter] public bool ShowSelectedFiles { get; set; } = true;
+
+    /// <summary>
+    /// Whether to allow clearing the selection.
+    /// </summary>
+    [Parameter] public bool AllowClear { get; set; } = true;
+
+    /// <summary>
+    /// Maximum allowed file size in bytes (default 500KB).
+    /// </summary>
+    [Parameter] public long MaxFileSize { get; set; } = 512000;
+
+    /// <summary>
+    /// Callback when files are selected.
+    /// </summary>
+    [Parameter] public EventCallback<IReadOnlyList<IBrowserFile>> OnFilesSelected { get; set; }
+
+    /// <summary>
+    /// Callback when a file exceeds the maximum size.
+    /// </summary>
+    [Parameter] public EventCallback<IBrowserFile> OnFileTooLarge { get; set; }
+
+    private string GetContainerClass()
+    {
+        var baseClass = "cn-input-file relative inline-flex flex-col gap-2";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private string GetLabelClass()
+    {
+        var baseClass = "cn-button inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 cursor-pointer";
+
+        var variantClass = Variant switch
+        {
+            "outline" => " border border-input bg-background hover:bg-accent hover:text-accent-foreground shadow-sm",
+            "ghost" => " hover:bg-accent hover:text-accent-foreground",
+            "secondary" => " bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm",
+            "destructive" => " bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm",
+            _ => " bg-primary text-primary-foreground hover:bg-primary/90 shadow"
+        };
+
+        var sizeClass = Size switch
+        {
+            "sm" => " h-8 px-3",
+            "lg" => " h-10 px-6",
+            _ => " h-9 px-4"
+        };
+
+        var disabledClass = Disabled ? " opacity-50 cursor-not-allowed" : "";
+
+        return $"{baseClass}{variantClass}{sizeClass}{disabledClass}";
+    }
+
+    private string GetFilesListClass()
+    {
+        return "flex items-center gap-1 text-foreground min-h-[1.5rem]";
+    }
+
+    private int GetIconSize()
+    {
+        return Size switch
+        {
+            "sm" => 14,
+            "lg" => 20,
+            _ => 16
+        };
+    }
+
+    private async Task HandleFileChange(InputFileChangeEventArgs e)
+    {
+        _selectedFiles.Clear();
+        var validFiles = new List<IBrowserFile>();
+
+        var files = Multiple ? e.GetMultipleFiles() : new[] { e.File };
+
+        foreach (var file in files)
+        {
+            if (file.Size > MaxFileSize)
+            {
+                if (OnFileTooLarge.HasDelegate)
+                {
+                    await OnFileTooLarge.InvokeAsync(file);
+                }
+            }
+            else
+            {
+                validFiles.Add(file);
+            }
+        }
+
+        _selectedFiles.AddRange(validFiles);
+        await OnFilesSelected.InvokeAsync(_selectedFiles.AsReadOnly());
+    }
+
+    private void ClearFiles()
+    {
+        _selectedFiles.Clear();
+        _inputKey++; // Force re-render of InputFile to clear native input
+        OnFilesSelected.InvokeAsync(_selectedFiles.AsReadOnly());
+    }
+
+    private static string FormatFileSize(long bytes)
+    {
+        return bytes switch
+        {
+            < 1024 => $"{bytes} B",
+            < 1024 * 1024 => $"{bytes / 1024.0:F1} KB",
+            < 1024 * 1024 * 1024 => $"{bytes / (1024.0 * 1024.0):F1} MB",
+            _ => $"{bytes / (1024.0 * 1024.0 * 1024.0):F1} GB"
+        };
+    }
+}

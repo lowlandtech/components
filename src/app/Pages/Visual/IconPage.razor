@@ -1,0 +1,81 @@
+@page "/visual/icon"
+@using LowlandTech.Components.Icon
+
+<PageTitle>Icon - Visual Test</PageTitle>
+
+<div class="max-w-4xl mx-auto p-8">
+    <h1 class="text-3xl font-bold mb-8">Icon</h1>
+    
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Basic Icons</h2>
+        <div class="flex flex-wrap gap-4 items-center p-6 border rounded-lg bg-card">
+            <Icon Name="home" />
+            <Icon Name="user" />
+            <Icon Name="settings" />
+            <Icon Name="bell" />
+            <Icon Name="calendar" />
+            <Icon Name="search" />
+            <Icon Name="menu" />
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Action Icons</h2>
+        <div class="flex flex-wrap gap-4 items-center p-6 border rounded-lg bg-card">
+            <Icon Name="check" />
+            <Icon Name="close" />
+            <Icon Name="plus" />
+            <Icon Name="minus" />
+            <Icon Name="edit" />
+            <Icon Name="trash" />
+            <Icon Name="copy" />
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Navigation Icons</h2>
+        <div class="flex flex-wrap gap-4 items-center p-6 border rounded-lg bg-card">
+            <Icon Name="chevron-up" />
+            <Icon Name="chevron-down" />
+            <Icon Name="chevron-left" />
+            <Icon Name="chevron-right" />
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Sizes</h2>
+        <div class="flex flex-wrap gap-4 items-center p-6 border rounded-lg bg-card">
+            <Icon Name="home" Size="16" />
+            <Icon Name="home" Size="20" />
+            <Icon Name="home" Size="24" />
+            <Icon Name="home" Size="32" />
+            <Icon Name="home" Size="48" />
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Custom Styling</h2>
+        <div class="flex flex-wrap gap-4 items-center p-6 border rounded-lg bg-card">
+            <Icon Name="check" Class="text-green-500" Size="24" />
+            <Icon Name="close" Class="text-red-500" Size="24" />
+            <Icon Name="bell" Class="text-yellow-500" Size="24" />
+            <Icon Name="settings" Class="text-blue-500" Size="24" />
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">With Labels (Accessibility)</h2>
+        <div class="flex flex-wrap gap-4 items-center p-6 border rounded-lg bg-card">
+            <Icon Name="home" Label="Home icon" />
+            <Icon Name="user" Label="User profile" />
+            <Icon Name="settings" Label="Settings" />
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Custom Path</h2>
+        <div class="flex flex-wrap gap-4 items-center p-6 border rounded-lg bg-card">
+            <Icon Paths="<circle cx='12' cy='12' r='10'/><circle cx='12' cy='12' r='4'/>" Size="24" />
+        </div>
+    </section>
+</div>

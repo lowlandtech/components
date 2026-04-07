@@ -33,6 +33,11 @@ public partial class Input
     [Parameter] public bool ReadOnly { get; set; }
 
     /// <summary>
+    /// Whether the input has an invalid/error state.
+    /// </summary>
+    [Parameter] public bool Invalid { get; set; }
+
+    /// <summary>
     /// The value of the input.
     /// </summary>
     [Parameter] public string? Value { get; set; }

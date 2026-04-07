@@ -1,0 +1,333 @@
+@page "/visual/popover"
+@using LowlandTech.Components.Popover
+@using LowlandTech.Components.Button
+@using LowlandTech.Components.Input
+@using LowlandTech.Components.Label
+
+<PageTitle>Popover - Visual Test</PageTitle>
+
+<div class="max-w-5xl mx-auto p-8">
+    <h1 class="text-3xl font-bold mb-8">Popover</h1>
+    
+    @* Open State Demonstrations *@
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Open State - Basic</h2>
+        <div class="p-6 border rounded-lg bg-card min-h-[200px] flex items-center justify-center">
+            <Popover IsOpen="true">
+                <PopoverTrigger>
+                    <Button Variant="outline">Open Popover</Button>
+                </PopoverTrigger>
+                <PopoverContent>
+                    <PopoverArrow />
+                    <p class="text-sm">This is a simple popover content.</p>
+                </PopoverContent>
+            </Popover>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Open State - With Header</h2>
+        <div class="p-6 border rounded-lg bg-card min-h-[200px] flex items-center justify-center">
+            <Popover IsOpen="true">
+                <PopoverTrigger>
+                    <Button>Popover with Header</Button>
+                </PopoverTrigger>
+                <PopoverContent>
+                    <PopoverArrow />
+                    <PopoverHeader>
+                        <PopoverTitle>Notifications</PopoverTitle>
+                        <PopoverDescription>You have 3 unread messages.</PopoverDescription>
+                    </PopoverHeader>
+                </PopoverContent>
+            </Popover>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Open State - Dimensions Form (shadcn Style)</h2>
+        <div class="p-6 border rounded-lg bg-card min-h-[280px] flex items-center justify-center">
+            <Popover IsOpen="true">
+                <PopoverTrigger>
+                    <Button Variant="outline">Edit Profile</Button>
+                </PopoverTrigger>
+                <PopoverContent class="w-80" Side="bottom">
+                    <PopoverArrow />
+                    <div class="grid gap-4">
+                        <div class="space-y-2">
+                            <h4 class="font-medium leading-none">Dimensions</h4>
+                            <p class="text-sm text-muted-foreground">
+                                Set the dimensions for the layer.
+                            </p>
+                        </div>
+                        <div class="grid gap-3">
+                            <div class="grid grid-cols-3 items-center gap-4">
+                                <Label class="text-right">Width</Label>
+                                <Input class="col-span-2 h-8" Value="100%" />
+                            </div>
+                            <div class="grid grid-cols-3 items-center gap-4">
+                                <Label class="text-right">Height</Label>
+                                <Input class="col-span-2 h-8" Value="auto" />
+                            </div>
+                            <div class="grid grid-cols-3 items-center gap-4">
+                                <Label class="text-right">Max H</Label>
+                                <Input class="col-span-2 h-8" Value="none" />
+                            </div>
+                        </div>
+                        <div class="flex justify-end gap-2 mt-2">
+                            <Button Variant="outline" Size="sm">Cancel</Button>
+                            <Button Size="sm">Save</Button>
+                        </div>
+                    </div>
+                </PopoverContent>
+            </Popover>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Open State - Different Positions</h2>
+        <div class="grid grid-cols-2 gap-8 p-6 border rounded-lg bg-card min-h-[400px]">
+            <div class="flex items-end justify-center">
+                <Popover IsOpen="true">
+                    <PopoverTrigger>
+                        <Button Variant="outline" Size="sm">Top</Button>
+                    </PopoverTrigger>
+                    <PopoverContent Side="top">
+                        <PopoverArrow />
+                        <p class="text-sm">Popover on top</p>
+                    </PopoverContent>
+                </Popover>
+            </div>
+
+            <div class="flex items-start justify-center pt-20">
+                <Popover IsOpen="true">
+                    <PopoverTrigger>
+                        <Button Variant="outline" Size="sm">Bottom</Button>
+                    </PopoverTrigger>
+                    <PopoverContent Side="bottom">
+                        <PopoverArrow />
+                        <p class="text-sm">Popover on bottom</p>
+                    </PopoverContent>
+                </Popover>
+            </div>
+
+            <div class="flex items-center justify-end pr-20">
+                <Popover IsOpen="true">
+                    <PopoverTrigger>
+                        <Button Variant="outline" Size="sm">Left</Button>
+                    </PopoverTrigger>
+                    <PopoverContent Side="left">
+                        <PopoverArrow />
+                        <p class="text-sm">Popover on left</p>
+                    </PopoverContent>
+                </Popover>
+            </div>
+
+            <div class="flex items-center justify-start pl-20">
+                <Popover IsOpen="true">
+                    <PopoverTrigger>
+                        <Button Variant="outline" Size="sm">Right</Button>
+                    </PopoverTrigger>
+                    <PopoverContent Side="right">
+                        <PopoverArrow />
+                        <p class="text-sm">Popover on right</p>
+                    </PopoverContent>
+                </Popover>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Open State - Alignment</h2>
+        <div class="flex flex-wrap gap-8 p-6 border rounded-lg bg-card min-h-[200px] items-center justify-center">
+            <Popover IsOpen="true">
+                <PopoverTrigger>
+                    <Button Variant="outline" Size="sm">Start</Button>
+                </PopoverTrigger>
+                <PopoverContent Align="start">
+                    <PopoverArrow />
+                    <p class="text-sm">Aligned to start</p>
+                </PopoverContent>
+            </Popover>
+
+            <Popover IsOpen="true">
+                <PopoverTrigger>
+                    <Button Variant="outline" Size="sm">Center</Button>
+                </PopoverTrigger>
+                <PopoverContent Align="center">
+                    <PopoverArrow />
+                    <p class="text-sm">Aligned to center</p>
+                </PopoverContent>
+            </Popover>
+
+            <Popover IsOpen="true">
+                <PopoverTrigger>
+                    <Button Variant="outline" Size="sm">End</Button>
+                </PopoverTrigger>
+                <PopoverContent Align="end">
+                    <PopoverArrow />
+                    <p class="text-sm">Aligned to end</p>
+                </PopoverContent>
+            </Popover>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Open State - Modal Popover</h2>
+        <div class="p-6 border rounded-lg bg-card min-h-[200px] flex items-center justify-center">
+            <Popover IsOpen="true" Modal="true">
+                <PopoverTrigger>
+                    <Button Variant="outline">Modal Popover</Button>
+                </PopoverTrigger>
+                <PopoverContent>
+                    <PopoverArrow />
+                    <PopoverHeader>
+                        <PopoverTitle>Are you sure?</PopoverTitle>
+                        <PopoverDescription>This action cannot be undone.</PopoverDescription>
+                    </PopoverHeader>
+                    <div class="flex justify-end gap-2 mt-4">
+                        <Button Variant="outline" Size="sm">Cancel</Button>
+                        <Button Size="sm" Variant="destructive">Delete</Button>
+                    </div>
+                </PopoverContent>
+            </Popover>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Open State - Color Picker</h2>
+        <div class="p-6 border rounded-lg bg-card min-h-[250px] flex items-center justify-center">
+            <Popover IsOpen="true">
+                <PopoverTrigger>
+                    <Button Variant="outline">Pick a Color</Button>
+                </PopoverTrigger>
+                <PopoverContent class="w-64">
+                    <PopoverArrow />
+                    <PopoverHeader>
+                        <PopoverTitle>Choose Color</PopoverTitle>
+                    </PopoverHeader>
+                    <div class="grid grid-cols-4 gap-2 mt-2">
+                        <button class="w-10 h-10 rounded-full bg-red-500 hover:ring-2 ring-offset-2"></button>
+                        <button class="w-10 h-10 rounded-full bg-orange-500 hover:ring-2 ring-offset-2"></button>
+                        <button class="w-10 h-10 rounded-full bg-yellow-500 hover:ring-2 ring-offset-2"></button>
+                        <button class="w-10 h-10 rounded-full bg-green-500 hover:ring-2 ring-offset-2"></button>
+                        <button class="w-10 h-10 rounded-full bg-blue-500 hover:ring-2 ring-offset-2"></button>
+                        <button class="w-10 h-10 rounded-full bg-indigo-500 hover:ring-2 ring-offset-2"></button>
+                        <button class="w-10 h-10 rounded-full bg-purple-500 hover:ring-2 ring-offset-2"></button>
+                        <button class="w-10 h-10 rounded-full bg-pink-500 hover:ring-2 ring-offset-2"></button>
+                    </div>
+                </PopoverContent>
+            </Popover>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Open State - Rich Content</h2>
+        <div class="p-6 border rounded-lg bg-card min-h-[280px] flex items-center justify-center">
+            <Popover IsOpen="true">
+                <PopoverTrigger>
+                    <Button Variant="outline">View Details</Button>
+                </PopoverTrigger>
+                <PopoverContent class="w-80">
+                    <PopoverArrow />
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-lg">👤</div>
+                            <div>
+                                <h4 class="font-semibold">John Doe</h4>
+                                <p class="text-sm text-muted-foreground">Software Engineer</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-muted-foreground">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+                            Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                        </p>
+                        <div class="flex gap-2">
+                            <span class="px-2 py-1 text-xs bg-primary/10 rounded-full">React</span>
+                            <span class="px-2 py-1 text-xs bg-primary/10 rounded-full">TypeScript</span>
+                            <span class="px-2 py-1 text-xs bg-primary/10 rounded-full">Node.js</span>
+                        </div>
+                        <div class="flex justify-end gap-2 pt-2 border-t">
+                            <Button Variant="ghost" Size="sm">Message</Button>
+                            <Button Size="sm">Connect</Button>
+                        </div>
+                    </div>
+                </PopoverContent>
+            </Popover>
+        </div>
+    </section>
+
+    <section class="mb-10" dir="rtl">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Open State - RTL Example</h2>
+        <div class="p-6 border rounded-lg bg-card min-h-[200px] flex items-center justify-center">
+            <Popover IsOpen="true">
+                <PopoverTrigger>
+                    <Button Variant="outline">فتح القائمة</Button>
+                </PopoverTrigger>
+                <PopoverContent>
+                    <PopoverArrow />
+                    <PopoverHeader>
+                        <PopoverTitle>الإعدادات</PopoverTitle>
+                        <PopoverDescription>تخصيص إعدادات حسابك</PopoverDescription>
+                    </PopoverHeader>
+                    <div class="grid gap-2 mt-4">
+                        <div class="flex items-center justify-between">
+                            <Label>الإشعارات</Label>
+                            <input type="checkbox" checked class="rounded" />
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <Label>الوضع الداكن</Label>
+                            <input type="checkbox" class="rounded" />
+                        </div>
+                    </div>
+                    <div class="flex justify-start gap-2 mt-4">
+                        <Button Variant="outline" Size="sm">إلغاء</Button>
+                        <Button Size="sm">حفظ</Button>
+                    </div>
+                </PopoverContent>
+            </Popover>
+        </div>
+    </section>
+
+    @* Closed State Examples (Interactive) *@
+    <section class="mb-10 border-t pt-10 mt-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Interactive Examples (Click to Open)</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="p-6 border rounded-lg bg-card">
+                <h3 class="text-sm font-medium mb-4">Basic</h3>
+                <Popover>
+                    <PopoverTrigger>
+                        <Button Variant="outline">Open Popover</Button>
+                    </PopoverTrigger>
+                    <PopoverContent>
+                        <PopoverArrow />
+                        <p class="text-sm">Click outside to close.</p>
+                    </PopoverContent>
+                </Popover>
+            </div>
+
+            <div class="p-6 border rounded-lg bg-card">
+                <h3 class="text-sm font-medium mb-4">With Form</h3>
+                <Popover>
+                    <PopoverTrigger>
+                        <Button Variant="outline">Edit Dimensions</Button>
+                    </PopoverTrigger>
+                    <PopoverContent class="w-72">
+                        <PopoverArrow />
+                        <div class="grid gap-3">
+                            <h4 class="font-medium">Dimensions</h4>
+                            <div class="grid grid-cols-3 items-center gap-2">
+                                <Label class="text-right text-sm">Width</Label>
+                                <Input class="col-span-2 h-8" Value="100%" />
+                            </div>
+                            <div class="grid grid-cols-3 items-center gap-2">
+                                <Label class="text-right text-sm">Height</Label>
+                                <Input class="col-span-2 h-8" Value="auto" />
+                            </div>
+                        </div>
+                    </PopoverContent>
+                </Popover>
+            </div>
+        </div>
+    </section>
+</div>

@@ -5,6 +5,18 @@
      class="cn-calendar group/calendar bg-background @Class"
      @attributes="AdditionalAttributes">
     
+    @if (ShowPresets && Presets?.Any() == true)
+    {
+        <div class="cn-calendar-presets-container border-b p-2">
+            <CalendarPresets 
+                Items="Presets"
+                OnSelect="HandlePresetSelected"
+                Orientation="PresetsOrientation"
+                Variant="PresetsVariant"
+                Size="PresetsSize" />
+        </div>
+    }
+    
     <CalendarNavigation 
         CurrentMonth="CurrentMonth"
         ShowMonthDropdown="ShowMonthDropdown"

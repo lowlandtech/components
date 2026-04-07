@@ -1,0 +1,285 @@
+@page "/visual/tooltip"
+@using LowlandTech.Components.Tooltip
+
+<PageTitle>Tooltip - Visual Testing</PageTitle>
+
+<div class="max-w-4xl mx-auto p-8">
+    <h1 class="text-3xl font-bold mb-8">Tooltip</h1>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Default Tooltip</h2>
+        <div class="flex items-center gap-8 p-8 rounded-lg border bg-card">
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger>
+                        <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 py-2 border">Hover me</button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>This is a tooltip</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Tooltip Positions</h2>
+        <div class="flex flex-wrap items-center gap-8 p-8 rounded-lg border bg-card">
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger>
+                        <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 py-2 border">Top</button>
+                    </TooltipTrigger>
+                    <TooltipContent Side="top">
+                        <p>Tooltip on top</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger>
+                        <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 py-2 border">Bottom</button>
+                    </TooltipTrigger>
+                    <TooltipContent Side="bottom">
+                        <p>Tooltip on bottom</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger>
+                        <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 py-2 border">Left</button>
+                    </TooltipTrigger>
+                    <TooltipContent Side="left">
+                        <p>Tooltip on left</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger>
+                        <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 py-2 border">Right</button>
+                    </TooltipTrigger>
+                    <TooltipContent Side="right">
+                        <p>Tooltip on right</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Tooltip with Icons</h2>
+        <div class="flex items-center gap-8 p-8 rounded-lg border bg-card">
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger>
+                        <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 w-9 p-0 border">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                        </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <div class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                            <span>Toggle dark mode</span>
+                        </div>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger>
+                        <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 w-9 p-0 border">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/></svg>
+                        </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <div class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                            <span>Upload file</span>
+                        </div>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger>
+                        <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 w-9 p-0 border">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                        </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <div class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                            <span>Delete item</span>
+                        </div>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Tooltip with Rich Content</h2>
+        <div class="flex items-center gap-8 p-8 rounded-lg border bg-card">
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger>
+                        <span class="inline-flex items-center justify-center rounded-full h-8 w-8 bg-primary text-primary-foreground text-sm font-medium cursor-help">?</span>
+                    </TooltipTrigger>
+                    <TooltipContent Side="right" class="max-w-xs">
+                        <div class="space-y-2">
+                            <p class="font-medium">Need help?</p>
+                            <p class="text-sm text-muted-foreground">Click to open the help center or press F1 for keyboard shortcuts.</p>
+                        </div>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Multiple Tooltips in a Toolbar</h2>
+        <div class="flex items-center gap-2 p-4 rounded-lg border bg-card">
+            <TooltipProvider>
+                <div class="flex items-center gap-1">
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 w-9 p-0 hover:bg-muted">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Comment</p>
+                        </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 w-9 p-0 hover:bg-muted">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/></svg>
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Send</p>
+                        </TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 w-9 p-0 hover:bg-muted">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Share</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </div>
+            </TooltipProvider>
+        </div>
+    </section>
+
+    <!-- RTL Section -->
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">RTL (Right-to-Left) Support</h2>
+        <p class="text-sm text-muted-foreground mb-4">Arabic/Hebrew language support with proper tooltip positioning and text alignment.</p>
+        <Direction dir="rtl">
+            <div class="flex flex-wrap items-center gap-8 p-8 rounded-lg border bg-card">
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 py-2 border">مرر المؤشر</button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>هذا تلميح أدوات</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 py-2 border">أعلى</button>
+                        </TooltipTrigger>
+                        <TooltipContent Side="top">
+                            <p>تلميح في الأعلى</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 py-2 border">أسفل</button>
+                        </TooltipTrigger>
+                        <TooltipContent Side="bottom">
+                            <p>تلميح في الأسفل</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 py-2 border">يسار</button>
+                        </TooltipTrigger>
+                        <TooltipContent Side="left">
+                            <p>تلميح في اليسار</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 py-2 border">يمين</button>
+                        </TooltipTrigger>
+                        <TooltipContent Side="right">
+                            <p>تلميح في اليمين</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            </div>
+
+            <div class="flex items-center gap-8 p-8 rounded-lg border bg-card mt-4">
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 w-9 p-0 border">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <div class="flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                                <span>تبديل الوضع الداكن</span>
+                            </div>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <button class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 w-9 p-0 border">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/></svg>
+                            </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <div class="flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                                <span>رفع ملف</span>
+                            </div>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            </div>
+        </Direction>
+    </section>
+</div>

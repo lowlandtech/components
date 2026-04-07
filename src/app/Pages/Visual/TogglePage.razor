@@ -1,0 +1,89 @@
+@page "/visual/toggle"
+@using LowlandTech.Components.Toggle
+
+<PageTitle>Toggle - Visual Testing</PageTitle>
+
+<div class="max-w-4xl mx-auto p-8">
+    <h1 class="text-3xl font-bold mb-8">Toggle</h1>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Default Toggle</h2>
+        <div class="flex items-center gap-4">
+            <Toggle>Toggle</Toggle>
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">With Icons</h2>
+        <div class="flex items-center gap-4">
+            <Toggle>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+            </Toggle>
+            <Toggle>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+            </Toggle>
+            <Toggle>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+            </Toggle>
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Size Variants</h2>
+        <div class="flex items-center gap-4">
+            <Toggle size="sm">Small</Toggle>
+            <Toggle size="default">Default</Toggle>
+            <Toggle size="lg">Large</Toggle>
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Variant Styles</h2>
+        <div class="flex flex-wrap items-center gap-4">
+            <Toggle variant="default">Default</Toggle>
+            <Toggle variant="outline">Outline</Toggle>
+            <Toggle variant="ghost">Ghost</Toggle>
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Pressed State</h2>
+        <div class="flex items-center gap-4">
+            <Toggle Pressed="true">Pressed</Toggle>
+            <Toggle Pressed="false">Not Pressed</Toggle>
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Disabled</h2>
+        <div class="flex items-center gap-4">
+            <Toggle Disabled="true">Disabled</Toggle>
+            <Toggle Disabled="true" Pressed="true">Disabled Pressed</Toggle>
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Font Style Toggles</h2>
+        <div class="flex items-center gap-2 p-4 rounded-lg border bg-card">
+            <Toggle variant="outline" aria-label="Toggle bold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h8a4 4 0 0 0 0-8H6v8Z"/><path d="M6 20h10a4 4 0 0 0 0-8H6v8Z"/></svg>
+            </Toggle>
+            <Toggle variant="outline" aria-label="Toggle italic">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" x2="10" y1="4" y2="4"/><line x1="14" x2="5" y1="20" y2="20"/><line x1="15" x2="9" y1="4" y2="20"/></svg>
+            </Toggle>
+            <Toggle variant="outline" aria-label="Toggle underline">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v6a6 6 0 0 0 12 0V4"/><line x1="4" x2="20" y1="20" y2="20"/></svg>
+            </Toggle>
+            <div class="w-px h-6 bg-border mx-2"></div>
+            <Toggle variant="outline" aria-label="Align left">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" x2="3" y1="6" y2="6"/><line x1="15" x2="3" y1="12" y2="12"/><line x1="17" x2="3" y1="18" y2="18"/></svg>
+            </Toggle>
+            <Toggle variant="outline" aria-label="Align center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" x2="3" y1="6" y2="6"/><line x1="17" x2="7" y1="12" y2="12"/><line x1="19" x2="5" y1="18" y2="18"/></svg>
+            </Toggle>
+            <Toggle variant="outline" aria-label="Align right">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" x2="3" y1="6" y2="6"/><line x1="21" x2="9" y1="12" y2="12"/><line x1="21" x2="7" y1="18" y2="18"/></svg>
+            </Toggle>
+        </div>
+    </section>
+</div>

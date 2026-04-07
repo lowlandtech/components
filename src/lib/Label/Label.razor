@@ -1,7 +1,33 @@
-
 @namespace LowlandTech.Components.Label
 @inherits LtComponentBase
 
-<label data-slot="label" class="@CssClass" @attributes="AdditionalAttributes">
-    @ChildContent
-</label>
+<div class="cn-label-wrapper space-y-1">
+    <label data-slot="label"
+           for="@For"
+           class="@GetLabelClass()"
+           @attributes="AdditionalAttributes">
+        <span class="@GetSizeClass() font-medium">
+            @ChildContent
+            @if (Required)
+            {
+                <span class="cn-label-required ml-0.5 text-red-500" aria-hidden="true">*</span>
+            }
+        </span>
+    </label>
+    @if (!string.IsNullOrEmpty(Description))
+    {
+        <p data-slot="label-description" class="cn-label-description text-sm text-muted-foreground">
+            @Description
+        </p>
+    }
+</div>
+
+@code {
+    private string GetLabelClass()
+    {
+        var baseClass = "cn-label flex items-center select-none";
+        var disabledClass = Disabled ? " opacity-50 cursor-not-allowed" : "";
+        var customClass = string.IsNullOrEmpty(Class) ? "" : $" {Class}";
+        return $"{baseClass}{disabledClass}{customClass}";
+    }
+}

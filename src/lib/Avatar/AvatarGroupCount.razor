@@ -4,13 +4,25 @@
 <div data-slot="avatar-group-count"
      class="@GetClass()"
      @attributes="AdditionalAttributes">
-    @ChildContent
+    @if (Count > 0)
+    {
+        <span>+@Count</span>
+    }
+    else
+    {
+        @ChildContent
+    }
 </div>
 
 @code {
+    /// <summary>
+    /// The count to display (e.g., +5). If greater than 0, this will be displayed instead of ChildContent.
+    /// </summary>
+    [Parameter] public int Count { get; set; }
+
     private string GetClass()
     {
-        var baseClass = "cn-avatar-group-count relative flex shrink-0 items-center justify-center ring-2 ring-background";
+        var baseClass = "cn-avatar-group-count relative flex shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground text-sm font-medium ring-2 ring-background size-10";
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
 }

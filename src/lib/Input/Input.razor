@@ -4,11 +4,13 @@
 <input data-slot="input"
        data-variant="@Variant"
        data-size="@Size"
+       data-invalid="@(Invalid ? "true" : null)"
        type="@Type"
        class="@GetClass()"
        placeholder="@Placeholder"
        disabled="@Disabled"
        readonly="@ReadOnly"
+       aria-invalid="@Invalid"
        value="@Value"
        @oninput="HandleInput"
        @attributes="AdditionalAttributes" />
@@ -21,7 +23,11 @@
 
     private string GetClass()
     {
-        var baseClass = "cn-input flex w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm";
+        var baseClass = "cn-input flex w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm";
+
+        var borderClass = Invalid
+            ? " border-red-500 focus-visible:ring-red-500"
+            : " border-input focus-visible:ring-ring";
 
         var sizeClass = Size switch
         {
@@ -36,7 +42,7 @@
             _ => ""
         };
 
-        var result = $"{baseClass}{sizeClass}{variantClass}";
+        var result = $"{baseClass}{borderClass}{sizeClass}{variantClass}";
         return string.IsNullOrEmpty(Class) ? result : $"{result} {Class}";
     }
 

@@ -1,0 +1,405 @@
+@page "/visual/select"
+@using LowlandTech.Components.Select
+
+<PageTitle>Select - Visual Test</PageTitle>
+
+<div class="container mx-auto p-8">
+    <h1 class="text-3xl font-bold mb-8">Select</h1>
+
+    <div class="space-y-12">
+        <!-- Basic Select -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Basic Select</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <Select @bind-Value="_basicValue">
+                    <SelectTrigger class="w-64">
+                        <SelectValue Placeholder="Select a fruit..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem Value="apple" Text="Apple">Apple</SelectItem>
+                        <SelectItem Value="banana" Text="Banana">Banana</SelectItem>
+                        <SelectItem Value="cherry" Text="Cherry">Cherry</SelectItem>
+                        <SelectItem Value="date" Text="Date">Date</SelectItem>
+                    </SelectContent>
+                </Select>
+                <p class="mt-4 text-sm text-muted-foreground">Selected: @_basicValue</p>
+            </div>
+        </section>
+
+        <!-- With Grouping -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">With Groups</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <Select @bind-Value="_groupedValue">
+                    <SelectTrigger class="w-72">
+                        <SelectValue Placeholder="Select a timezone..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
+                            <SelectLabel>North America</SelectLabel>
+                            <SelectItem Value="est" Text="Eastern Time">Eastern Time</SelectItem>
+                            <SelectItem Value="cst" Text="Central Time">Central Time</SelectItem>
+                            <SelectItem Value="mst" Text="Mountain Time">Mountain Time</SelectItem>
+                            <SelectItem Value="pst" Text="Pacific Time">Pacific Time</SelectItem>
+                        </SelectGroup>
+                        <SelectSeparator />
+                        <SelectGroup>
+                            <SelectLabel>Europe</SelectLabel>
+                            <SelectItem Value="gmt" Text="Greenwich Mean Time">Greenwich Mean Time</SelectItem>
+                            <SelectItem Value="cet" Text="Central European Time">Central European Time</SelectItem>
+                            <SelectItem Value="eet" Text="Eastern European Time">Eastern European Time</SelectItem>
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+                <p class="mt-4 text-sm text-muted-foreground">Selected: @_groupedValue</p>
+            </div>
+        </section>
+
+        <!-- With Pre-selected Value -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Pre-selected Value</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <Select @bind-Value="_presetValue">
+                    <SelectTrigger class="w-64">
+                        <SelectValue Placeholder="Select an option..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem Value="small" Text="Small">Small</SelectItem>
+                        <SelectItem Value="medium" Text="Medium">Medium</SelectItem>
+                        <SelectItem Value="large" Text="Large">Large</SelectItem>
+                        <SelectItem Value="xlarge" Text="Extra Large">Extra Large</SelectItem>
+                    </SelectContent>
+                </Select>
+                <p class="mt-4 text-sm text-muted-foreground">Selected: @_presetValue</p>
+            </div>
+        </section>
+
+        <!-- Disabled Items -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">With Disabled Items</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <Select @bind-Value="_withDisabledValue">
+                    <SelectTrigger class="w-64">
+                        <SelectValue Placeholder="Select a plan..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem Value="free" Text="Free">Free</SelectItem>
+                        <SelectItem Value="basic" Text="Basic">Basic</SelectItem>
+                        <SelectItem Value="pro" Text="Pro">Pro</SelectItem>
+                        <SelectItem Value="enterprise" Text="Enterprise" Disabled="true">Enterprise (Contact Sales)</SelectItem>
+                    </SelectContent>
+                </Select>
+                <p class="mt-4 text-sm text-muted-foreground">Selected: @_withDisabledValue</p>
+            </div>
+        </section>
+
+        <!-- Disabled Select -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Disabled Select</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <Select @bind-Value="_disabledSelectValue">
+                    <SelectTrigger class="w-64" Disabled="true">
+                        <SelectValue Placeholder="Cannot select..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem Value="option1" Text="Option 1">Option 1</SelectItem>
+                        <SelectItem Value="option2" Text="Option 2">Option 2</SelectItem>
+                        <SelectItem Value="option3" Text="Option 3">Option 3</SelectItem>
+                    </SelectContent>
+                </Select>
+                <p class="mt-4 text-sm text-muted-foreground">This select is disabled and cannot be interacted with.</p>
+            </div>
+        </section>
+
+        <!-- Invalid Select -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Invalid Select</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <Select @bind-Value="_invalidSelectValue">
+                    <SelectTrigger class="w-64" Invalid="true">
+                        <SelectValue Placeholder="Required field..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem Value="yes" Text="Yes">Yes</SelectItem>
+                        <SelectItem Value="no" Text="No">No</SelectItem>
+                    </SelectContent>
+                </Select>
+                <p class="mt-4 text-sm text-red-500">This field is required. Please select a value.</p>
+            </div>
+        </section>
+
+        <!-- Disabled and Invalid States Combined -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">State Comparison</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="text-sm font-medium mb-2 block">Normal</label>
+                        <Select @bind-Value="_normalStateValue">
+                            <SelectTrigger class="w-full">
+                                <SelectValue Placeholder="Select..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem Value="a" Text="Option A">Option A</SelectItem>
+                                <SelectItem Value="b" Text="Option B">Option B</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium mb-2 block">Disabled</label>
+                        <Select @bind-Value="_disabledStateValue">
+                            <SelectTrigger class="w-full" Disabled="true">
+                                <SelectValue Placeholder="Disabled..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem Value="a" Text="Option A">Option A</SelectItem>
+                                <SelectItem Value="b" Text="Option B">Option B</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium mb-2 block text-red-500">Invalid</label>
+                        <Select @bind-Value="_invalidStateValue">
+                            <SelectTrigger class="w-full" Invalid="true">
+                                <SelectValue Placeholder="Invalid..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem Value="a" Text="Option A">Option A</SelectItem>
+                                <SelectItem Value="b" Text="Option B">Option B</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Multiple Selects -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Multiple Selects</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <div class="flex flex-wrap gap-4">
+                    <div>
+                        <label class="text-sm font-medium mb-2 block">Country</label>
+                        <Select @bind-Value="_countryValue">
+                            <SelectTrigger class="w-48">
+                                <SelectValue Placeholder="Select..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem Value="us" Text="United States">United States</SelectItem>
+                                <SelectItem Value="uk" Text="United Kingdom">United Kingdom</SelectItem>
+                                <SelectItem Value="ca" Text="Canada">Canada</SelectItem>
+                                <SelectItem Value="au" Text="Australia">Australia</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium mb-2 block">State/Province</label>
+                        <Select @bind-Value="_stateValue">
+                            <SelectTrigger class="w-48">
+                                <SelectValue Placeholder="Select..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem Value="ny" Text="New York">New York</SelectItem>
+                                <SelectItem Value="ca" Text="California">California</SelectItem>
+                                <SelectItem Value="tx" Text="Texas">Texas</SelectItem>
+                                <SelectItem Value="fl" Text="Florida">Florida</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium mb-2 block">City</label>
+                        <Select @bind-Value="_cityValue">
+                            <SelectTrigger class="w-48">
+                                <SelectValue Placeholder="Select..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem Value="nyc" Text="New York City">New York City</SelectItem>
+                                <SelectItem Value="la" Text="Los Angeles">Los Angeles</SelectItem>
+                                <SelectItem Value="chi" Text="Chicago">Chicago</SelectItem>
+                                <SelectItem Value="hou" Text="Houston">Houston</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+                <p class="mt-4 text-sm text-muted-foreground">Selected: @_countryValue, @_stateValue, @_cityValue</p>
+            </div>
+        </section>
+
+        <!-- Long List -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Long List</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <Select @bind-Value="_longListValue">
+                    <SelectTrigger class="w-64">
+                        <SelectValue Placeholder="Select a month..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        @foreach (var month in _months)
+                        {
+                            <SelectItem Value="@month.Value" Text="@month.Label">@month.Label</SelectItem>
+                        }
+                    </SelectContent>
+                </Select>
+                <p class="mt-4 text-sm text-muted-foreground">Selected: @_longListValue</p>
+            </div>
+        </section>
+
+        <!-- Scrollable Long List -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Scrollable Long List (Max Height)</h2>
+            <p class="text-sm text-muted-foreground mb-4">Demonstrates scrolling when content exceeds max-height. The dropdown shows a scrollbar with 30 country options.</p>
+            <div class="p-6 border rounded-lg bg-background">
+                <Select @bind-Value="_scrollableValue">
+                    <SelectTrigger class="w-72">
+                        <SelectValue Placeholder="Select a country..." />
+                    </SelectTrigger>
+                    <SelectContent class="max-h-60">
+                        @foreach (var country in _countries)
+                        {
+                            <SelectItem Value="@country.Value" Text="@country.Label">@country.Label</SelectItem>
+                        }
+                    </SelectContent>
+                </Select>
+                <p class="mt-4 text-sm text-muted-foreground">Selected: @_scrollableValue</p>
+            </div>
+        </section>
+
+        <!-- RTL Support -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">RTL (Right-to-Left) Support</h2>
+            <p class="text-sm text-muted-foreground mb-4">Arabic/Hebrew language support with proper text alignment and dropdown positioning.</p>
+            <Direction dir="rtl">
+                <div class="grid md:grid-cols-2 gap-6 p-6 border rounded-lg bg-background">
+                    <div>
+                        <label class="text-sm font-medium mb-2 block">اختر فاكهة</label>
+                        <Select @bind-Value="_rtlBasicValue">
+                            <SelectTrigger class="w-full">
+                                <SelectValue Placeholder="اختر فاكهة..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem Value="apple" Text="تفاح">تفاح</SelectItem>
+                                <SelectItem Value="banana" Text="موز">موز</SelectItem>
+                                <SelectItem Value="cherry" Text="كرز">كرز</SelectItem>
+                                <SelectItem Value="date" Text="تمر">تمر</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <p class="mt-2 text-sm text-muted-foreground">المحدد: @_rtlBasicValue</p>
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-medium mb-2 block">اختر حجماً</label>
+                        <Select @bind-Value="_rtlSizeValue">
+                            <SelectTrigger class="w-full">
+                                <SelectValue Placeholder="اختر حجماً..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem Value="small" Text="صغير">صغير</SelectItem>
+                                <SelectItem Value="medium" Text="متوسط">متوسط</SelectItem>
+                                <SelectItem Value="large" Text="كبير">كبير</SelectItem>
+                                <SelectItem Value="xlarge" Text="كبير جداً">كبير جداً</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <p class="mt-2 text-sm text-muted-foreground">المحدد: @_rtlSizeValue</p>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="text-sm font-medium mb-2 block">المنطقة الزمنية</label>
+                        <Select @bind-Value="_rtlTimezoneValue">
+                            <SelectTrigger class="w-full">
+                                <SelectValue Placeholder="اختر المنطقة الزمنية..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectLabel>الشرق الأوسط</SelectLabel>
+                                    <SelectItem Value="makkah" Text="توقيت مكة">توقيت مكة</SelectItem>
+                                    <SelectItem Value="dubai" Text="توقيت دبي">توقيت دبي</SelectItem>
+                                    <SelectItem Value="cairo" Text="توقيت القاهرة">توقيت القاهرة</SelectItem>
+                                </SelectGroup>
+                                <SelectSeparator />
+                                <SelectGroup>
+                                    <SelectLabel>أوروبا</SelectLabel>
+                                    <SelectItem Value="gmt" Text="توقيت غرينتش">توقيت غرينتش</SelectItem>
+                                    <SelectItem Value="cet" Text="توقيت وسط أوروبا">توقيت وسط أوروبا</SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                        <p class="mt-2 text-sm text-muted-foreground">المحدد: @_rtlTimezoneValue</p>
+                    </div>
+                </div>
+            </Direction>
+        </section>
+    </div>
+</div>
+
+@code {
+    private string? _basicValue;
+    private string? _groupedValue;
+    private string? _presetValue = "medium";
+    private string? _withDisabledValue;
+    private string? _disabledSelectValue;
+    private string? _invalidSelectValue;
+    private string? _normalStateValue;
+    private string? _disabledStateValue;
+    private string? _invalidStateValue;
+    private string? _countryValue;
+    private string? _stateValue;
+    private string? _cityValue;
+    private string? _longListValue;
+    private string? _scrollableValue;
+    private string? _rtlBasicValue;
+    private string? _rtlSizeValue;
+    private string? _rtlTimezoneValue;
+
+    private readonly List<MonthOption> _months = new()
+    {
+        new("1", "January"),
+        new("2", "February"),
+        new("3", "March"),
+        new("4", "April"),
+        new("5", "May"),
+        new("6", "June"),
+        new("7", "July"),
+        new("8", "August"),
+        new("9", "September"),
+        new("10", "October"),
+        new("11", "November"),
+        new("12", "December"),
+    };
+
+    private readonly List<CountryOption> _countries = new()
+    {
+        new("us", "?? United States"),
+        new("uk", "?? United Kingdom"),
+        new("ca", "?? Canada"),
+        new("au", "?? Australia"),
+        new("de", "?? Germany"),
+        new("fr", "?? France"),
+        new("jp", "?? Japan"),
+        new("in", "?? India"),
+        new("br", "?? Brazil"),
+        new("mx", "?? Mexico"),
+        new("es", "?? Spain"),
+        new("it", "?? Italy"),
+        new("nl", "?? Netherlands"),
+        new("se", "?? Sweden"),
+        new("no", "?? Norway"),
+        new("dk", "?? Denmark"),
+        new("fi", "?? Finland"),
+        new("pl", "?? Poland"),
+        new("ru", "?? Russia"),
+        new("cn", "?? China"),
+        new("kr", "?? South Korea"),
+        new("sg", "?? Singapore"),
+        new("nz", "?? New Zealand"),
+        new("za", "?? South Africa"),
+        new("eg", "?? Egypt"),
+        new("tr", "?? Turkey"),
+        new("sa", "?? Saudi Arabia"),
+        new("ae", "?? United Arab Emirates"),
+        new("id", "?? Indonesia"),
+        new("th", "?? Thailand"),
+    };
+
+    private record MonthOption(string Value, string Label);
+    private record CountryOption(string Value, string Label);
+}

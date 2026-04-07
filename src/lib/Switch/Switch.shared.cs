@@ -36,4 +36,24 @@ public partial class Switch
     /// Whether the switch is disabled.
     /// </summary>
     [Parameter] public bool Disabled { get; set; }
+
+    /// <summary>
+    /// Whether the switch has an invalid/error state.
+    /// </summary>
+    [Parameter] public bool Invalid { get; set; }
+
+    /// <summary>
+    /// Whether to render as a Choice Card pattern (bordered container with label).
+    /// </summary>
+    [Parameter] public bool ChoiceCard { get; set; }
+
+    /// <summary>
+    /// Title text for the Choice Card pattern.
+    /// </summary>
+    [Parameter] public string? Title { get; set; }
+
+    /// <summary>
+    /// Description text for the Choice Card pattern.
+    /// </summary>
+    [Parameter] public string? Description { get; set; }
 }

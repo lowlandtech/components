@@ -11,7 +11,19 @@
 @code {
     private string GetClass()
     {
-        var baseClass = "cn-avatar group/avatar relative flex shrink-0 select-none after:absolute after:inset-0 after:border after:border-border after:mix-blend-darken dark:after:mix-blend-lighten";
+        var baseClass = "cn-avatar group/avatar relative flex shrink-0 select-none overflow-hidden rounded-full after:absolute after:inset-0 after:border after:border-border after:mix-blend-darken dark:after:mix-blend-lighten";
+        
+        // Add size classes based on Size parameter
+        var sizeClass = Size?.ToLower() switch
+        {
+            "sm" => " size-8",
+            "lg" => " size-12",
+            "xl" => " size-16",
+            _ => " size-10" // default
+        };
+        
+        baseClass += sizeClass;
+        
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
 }

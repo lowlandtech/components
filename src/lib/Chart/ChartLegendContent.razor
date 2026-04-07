@@ -1,0 +1,75 @@
+@namespace LowlandTech.Components.Chart
+@inherits LtComponentBase
+
+<div data-slot="chart-legend-content" class="@GetClass()" @attributes="AdditionalAttributes">
+    @foreach (var item in Items)
+    {
+        <button type="button"
+                class="flex items-center gap-2 rounded-sm px-2 py-1 transition-colors hover:bg-muted disabled:opacity-50"
+                @onclick="() => OnItemClick(item)"
+                disabled="@item.Disabled">
+            @if (!string.IsNullOrEmpty(item.Icon) || !string.IsNullOrEmpty(item.Color))
+            {
+                <span class="flex h-2 w-2 shrink-0 items-center">
+                    @if (!string.IsNullOrEmpty(item.Icon))
+                    {
+                        <span class="text-xs">@item.Icon</span>
+                    }
+                    else if (!string.IsNullOrEmpty(item.Color))
+                    {
+                        <span class="h-2 w-2 rounded-full" style="background-color: @item.Color"></span>
+                    }
+                </span>
+            }
+            <span class="text-muted-foreground">@item.Label</span>
+            @if (item.Value.HasValue)
+            {
+                <span class="font-medium tabular-nums">@FormatValue(item.Value.Value)</span>
+            }
+        </button>
+    }
+</div>
+
+@code {
+    /// <summary>
+    /// The legend items to display.
+    /// </summary>
+    [Parameter]
+    public List<ChartLegendItem> Items { get; set; } = new();
+
+    /// <summary>
+    /// Callback when a legend item is clicked.
+    /// </summary>
+    [Parameter]
+    public EventCallback<ChartLegendItem> OnItemClicked { get; set; }
+
+    /// <summary>
+    /// Optional formatter for values.
+    /// </summary>
+    [Parameter]
+    public Func<double, string>? ValueFormatter { get; set; }
+
+    private async Task OnItemClick(ChartLegendItem item)
+    {
+        if (OnItemClicked.HasDelegate)
+        {
+            await OnItemClicked.InvokeAsync(item);
+        }
+        else
+        {
+            item.ToggleVisibility();
+        }
+    }
+
+    private string FormatValue(double value)
+    {
+        if (ValueFormatter != null)
+            return ValueFormatter(value);
+        return value.ToString("N0");
+    }
+
+    private string GetClass()
+    {
+        return $"flex flex-wrap items-center gap-4 {Class}".Trim();
+    }
+}

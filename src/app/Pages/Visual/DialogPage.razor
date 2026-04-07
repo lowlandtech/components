@@ -1,0 +1,199 @@
+@page "/visual/dialog"
+
+<PageTitle>Dialog - Visual Test</PageTitle>
+
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Dialog</h1>
+    
+    <div class="space-y-12">
+        <!-- Default Dialog -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">Default</h2>
+            <div class="p-6 border rounded-lg">
+                <Dialog @bind-IsOpen="_dialog1Open">
+                    <DialogTrigger>
+                        <Button>Edit Profile</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Edit Profile</DialogTitle>
+                            <DialogDescription>Make changes to your profile here. Click save when you're done.</DialogDescription>
+                        </DialogHeader>
+                        <div class="grid gap-4 py-4">
+                            <Field>
+                                <FieldLabel>Name</FieldLabel>
+                                <Input Value="John Doe" />
+                            </Field>
+                            <Field>
+                                <FieldLabel>Username</FieldLabel>
+                                <Input Value="@("@johndoe")" />
+                            </Field>
+                        </div>
+                        <DialogFooter>
+                            <Button Variant="outline" @onclick="() => _dialog1Open = false">Cancel</Button>
+                            <Button @onclick="() => _dialog1Open = false">Save Changes</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </div>
+        </section>
+
+        <!-- Confirmation Dialog -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">Confirmation</h2>
+            <div class="p-6 border rounded-lg">
+                <Dialog @bind-IsOpen="_dialog2Open">
+                    <DialogTrigger>
+                        <Button Variant="destructive">Delete Account</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Are you absolutely sure?</DialogTitle>
+                            <DialogDescription>This action cannot be undone. This will permanently delete your account and remove your data from our servers.</DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter class="gap-2 sm:gap-0">
+                            <Button Variant="outline" @onclick="() => _dialog2Open = false">Cancel</Button>
+                            <Button Variant="destructive" @onclick="() => _dialog2Open = false">Delete Account</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </div>
+        </section>
+
+        <!-- With Form -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">With Form</h2>
+            <div class="p-6 border rounded-lg">
+                <Dialog @bind-IsOpen="_dialog3Open">
+                    <DialogTrigger>
+                        <Button>Create Workspace</Button>
+                    </DialogTrigger>
+                    <DialogContent class="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>Create Workspace</DialogTitle>
+                            <DialogDescription>Add a new workspace to organize your projects.</DialogDescription>
+                        </DialogHeader>
+                        <div class="grid gap-4 py-4">
+                            <Field>
+                                <FieldLabel>Workspace Name</FieldLabel>
+                                <Input Placeholder="My Workspace" />
+                                <FieldDescription>This is the name that will be displayed.</FieldDescription>
+                            </Field>
+                            <Field>
+                                <FieldLabel>Description</FieldLabel>
+                                <Textarea Placeholder="Add a description..." Rows="3" />
+                            </Field>
+                            <Field class="flex-row items-center gap-2">
+                                <Checkbox />
+                                <FieldLabel>Make this workspace private</FieldLabel>
+                            </Field>
+                        </div>
+                        <DialogFooter>
+                            <Button Variant="outline" @onclick="() => _dialog3Open = false">Cancel</Button>
+                            <Button @onclick="() => _dialog3Open = false">Create Workspace</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </div>
+        </section>
+
+        <!-- Scrollable Content -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">Scrollable Content</h2>
+            <div class="p-6 border rounded-lg">
+                <Dialog @bind-IsOpen="_dialog4Open">
+                    <DialogTrigger>
+                        <Button>View Terms</Button>
+                    </DialogTrigger>
+                    <DialogContent class="sm:max-w-[525px] max-h-[85vh]">
+                        <DialogHeader>
+                            <DialogTitle>Terms of Service</DialogTitle>
+                            <DialogDescription>Please read these terms carefully.</DialogDescription>
+                        </DialogHeader>
+                        <ScrollArea class="h-[300px] pr-4 my-4 border rounded-md p-4">
+                            <div class="space-y-4 text-sm">
+                                <p><strong>1. Acceptance of Terms</strong></p>
+                                <p>By accessing and using this service, you accept and agree to be bound by the terms and provision of this agreement.</p>
+                                
+                                <p><strong>2. Use License</strong></p>
+                                <p>Permission is granted to temporarily download one copy of the materials for personal, non-commercial transitory viewing only.</p>
+                                
+                                <p><strong>3. Disclaimer</strong></p>
+                                <p>The materials on this website are provided on an 'as is' basis. We make no warranties, expressed or implied, and hereby disclaim and negate all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.</p>
+                                
+                                <p><strong>4. Limitations</strong></p>
+                                <p>In no event shall we or our suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on this website.</p>
+                                
+                                <p><strong>5. Revisions</strong></p>
+                                <p>We may revise these terms of service at any time without notice. By using this website you are agreeing to be bound by the then current version of these terms of service.</p>
+                            </div>
+                        </ScrollArea>
+                        <DialogFooter>
+                            <Button @onclick="() => _dialog4Open = false">I Agree</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </div>
+        </section>
+
+        <!-- RTL Support -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">RTL (Right-to-Left) Support</h2>
+            <p class="text-muted-foreground mb-4">Arabic/Hebrew language support with proper text alignment and layout mirroring.</p>
+            <Direction dir="rtl">
+                <div class="p-6 border rounded-lg space-y-4">
+                    <Dialog @bind-IsOpen="_dialog5Open">
+                        <DialogTrigger>
+                            <Button>تعديل الملف الشخصي</Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>تعديل الملف الشخصي</DialogTitle>
+                                <DialogDescription>قم بإجراء تغييرات على ملفك الشخصي هنا. انقر حفظ عند الانتهاء.</DialogDescription>
+                            </DialogHeader>
+                            <div class="grid gap-4 py-4">
+                                <Field>
+                                    <FieldLabel>الاسم</FieldLabel>
+                                    <Input Value="أحمد محمد" />
+                                </Field>
+                                <Field>
+                                    <FieldLabel>اسم المستخدم</FieldLabel>
+                                    <Input Value="@("@ahmed")" />
+                                </Field>
+                            </div>
+                            <DialogFooter>
+                                <Button Variant="outline" @onclick="() => _dialog5Open = false">إلغاء</Button>
+                                <Button @onclick="() => _dialog5Open = false">حفظ التغييرات</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+
+                    <Dialog @bind-IsOpen="_dialog6Open">
+                        <DialogTrigger>
+                            <Button Variant="destructive">حذف الحساب</Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>هل أنت متأكد تماماً؟</DialogTitle>
+                                <DialogDescription>لا يمكن التراجع عن هذا الإجراء. سيؤدي هذا إلى حذف حسابك بشكل دائم وإزالة بياناتك من خوادمنا.</DialogDescription>
+                            </DialogHeader>
+                            <DialogFooter class="gap-2 sm:gap-0">
+                                <Button Variant="outline" @onclick="() => _dialog6Open = false">إلغاء</Button>
+                                <Button Variant="destructive" @onclick="() => _dialog6Open = false">حذف الحساب</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </div>
+            </Direction>
+        </section>
+    </div>
+</div>
+
+@code {
+    private bool _dialog1Open = false;
+    private bool _dialog2Open = false;
+    private bool _dialog3Open = false;
+    private bool _dialog4Open = false;
+    private bool _dialog5Open = false;
+    private bool _dialog6Open = false;
+}

@@ -1,0 +1,145 @@
+@page "/visual/textarea"
+@using LowlandTech.Components.Textarea
+@using LowlandTech.Components.Label
+@using LowlandTech.Components.Button
+
+<PageTitle>Textarea - Visual Testing</PageTitle>
+
+<div class="max-w-4xl mx-auto p-8">
+    <h1 class="text-3xl font-bold mb-8">Textarea</h1>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Default Textarea</h2>
+        <div class="max-w-md">
+            <Textarea Placeholder="Type your message here..." />
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">With Value</h2>
+        <div class="max-w-md">
+            <Textarea Value="This is some pre-filled content in the textarea. It demonstrates how the component displays existing text." />
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Disabled State</h2>
+        <div class="max-w-md">
+            <Textarea Disabled="true" Placeholder="This textarea is disabled..." />
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Read Only</h2>
+        <div class="max-w-md">
+            <Textarea ReadOnly="true" Value="This textarea is read-only and cannot be edited." />
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">With Custom Rows</h2>
+        <div class="max-w-md">
+            <Textarea Rows="8" Placeholder="This textarea has 8 rows..." />
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Validation States</h2>
+        <div class="max-w-md space-y-4">
+            <div>
+                <Label Required="true">Valid Textarea</Label>
+                <Textarea Value="This content is valid and meets all requirements." />
+                <p class="text-sm text-muted-foreground mt-1">This field is valid.</p>
+            </div>
+            <div>
+                <Label Required="true">Invalid Textarea (Error)</Label>
+                <Textarea Invalid="true" Value="Too short" />
+                <p class="text-sm text-red-500 mt-1">Description must be at least 50 characters.</p>
+            </div>
+            <div>
+                <Label>Required Field Empty</Label>
+                <Textarea Invalid="true" Placeholder="Please provide a detailed description..." />
+                <p class="text-sm text-red-500 mt-1">This field is required.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">With Label (using Field component)</h2>
+        <div class="max-w-md space-y-2">
+            <label class="text-sm font-medium">Message</label>
+            <Textarea Placeholder="Enter your message..." />
+            <p class="text-xs text-muted-foreground">Your message will be sent to the support team.</p>
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">With Button</h2>
+        <div class="max-w-md space-y-2">
+            <Textarea @bind-Value="_message" Rows="4" Placeholder="Type your message here..." />
+            <div class="flex justify-end">
+                <Button OnClick="SendMessage">Send message</Button>
+            </div>
+            @if (!string.IsNullOrEmpty(_sendStatus))
+            {
+                <p class="text-sm text-muted-foreground mt-2">@_sendStatus</p>
+            }
+        </div>
+    </section>
+
+    <section class="mb-12">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Form Example with Validation</h2>
+        <div class="max-w-md space-y-4 p-4 rounded-lg border bg-card">
+            <div class="space-y-2">
+                <Label Required="true">Subject</Label>
+                <input type="text" class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm" placeholder="Enter subject..." />
+            </div>
+            <div class="space-y-2">
+                <Label Required="true" Description="Please provide as much detail as possible.">Description</Label>
+                <Textarea Invalid="@_descriptionInvalid" 
+                          Rows="5" 
+                          @bind-Value="_description"
+                          Placeholder="Describe your issue in detail..." />
+                @if (_descriptionInvalid)
+                {
+                    <p class="text-sm text-red-500">Description is required.</p>
+                }
+            </div>
+            <div class="flex justify-end gap-2">
+                <button @onclick="ClearForm" class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 py-2 border">Cancel</button>
+                <button @onclick="SubmitForm" class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 py-2 bg-primary text-primary-foreground">Submit</button>
+            </div>
+        </div>
+    </section>
+</div>
+
+@code {
+    private string? _description;
+    private bool _descriptionInvalid;
+    private string? _message;
+    private string? _sendStatus;
+
+    private void SubmitForm()
+    {
+        _descriptionInvalid = string.IsNullOrWhiteSpace(_description);
+    }
+
+    private void ClearForm()
+    {
+        _description = null;
+        _descriptionInvalid = false;
+    }
+
+    private void SendMessage()
+    {
+        if (string.IsNullOrWhiteSpace(_message))
+        {
+            _sendStatus = "Please enter a message before sending.";
+        }
+        else
+        {
+            _sendStatus = $"Message sent: {_message[..Math.Min(_message.Length, 50)]}...";
+            _message = string.Empty;
+        }
+    }
+}

@@ -75,7 +75,7 @@ public partial class Progress : LtComponentBase
 
     private string GetClass()
     {
-        var baseClass = "cn-progress relative h-2 w-full overflow-hidden rounded-full bg-primary/20";
+        var baseClass = "cn-progress relative h-2 w-full overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800";
         
         if (IsIndeterminate)
         {

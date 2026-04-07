@@ -1,0 +1,44 @@
+@namespace LowlandTech.Components.Chart
+@inherits LtComponentBase
+
+<CascadingValue Value="Config">
+    <div data-slot="chart-container" 
+         class="@GetContainerClass()"
+         style="@GetCssVariables()"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    /// <summary>
+    /// The chart configuration defining colors and labels.
+    /// </summary>
+    [Parameter]
+    public ChartConfig Config { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        Config ??= new ChartConfig();
+    }
+
+    private string GetContainerClass()
+    {
+        return $"h-full w-full {Class}".Trim();
+    }
+
+    private string GetCssVariables()
+    {
+        var variables = new List<string>();
+        
+        foreach (var (key, value) in Config)
+        {
+            if (!string.IsNullOrEmpty(value.Color))
+            {
+                variables.Add($"--color-{key}: {value.Color}");
+            }
+        }
+
+        return string.Join("; ", variables);
+    }
+}

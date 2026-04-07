@@ -1,0 +1,31 @@
+@namespace LowlandTech.Components.Menubar
+@inherits LtComponentBase
+
+<CascadingValue Value="this">
+    <div data-slot="menubar-radio-group"
+         role="group"
+         class="@GetClass()"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+
+    internal bool IsSelected(string? value) => string.Equals(Value, value, StringComparison.Ordinal);
+
+    internal async Task SelectAsync(string? value)
+    {
+        Value = value;
+        await ValueChanged.InvokeAsync(Value);
+        StateHasChanged();
+    }
+
+    private string GetClass()
+    {
+        var baseClass = "";
+        return string.IsNullOrEmpty(Class) ? baseClass : Class;
+    }
+}

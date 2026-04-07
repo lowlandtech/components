@@ -7,68 +7,15 @@
          class="@GetClass()"
          @attributes="AdditionalAttributes">
         @ChildContent
+        @Content
     </div>
 </CascadingValue>
 
 @code {
-    private bool _previousIsOpen;
-    private ElementReference _triggerElement;
-
     /// <summary>
-    /// Whether the popover is open.
+    /// The popover content (for explicit Content parameter pattern).
     /// </summary>
-    public bool IsOpen { get; set; }
-
-    /// <summary>
-    /// Whether to render the popover in modal mode (traps focus).
-    /// </summary>
-    [Parameter] public bool Modal { get; set; }
-
-    /// <summary>
-    /// Whether to render the popover in a portal (outside parent DOM).
-    /// </summary>
-    [Parameter] public bool Portal { get; set; }
-
-    /// <summary>
-    /// The trigger element reference for focus restoration.
-    /// </summary>
-    internal ElementReference TriggerElement
-    {
-        get => _triggerElement;
-        set
-        {
-            _triggerElement = value;
-            if (_previousIsOpen != IsOpen)
-            {
-                _previousIsOpen = IsOpen;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Tracks the previous IsOpen state for focus restoration.
-    /// </summary>
-    internal bool PreviousIsOpen => _previousIsOpen;
-
-    /// <summary>
-    /// Toggles the popover.
-    /// </summary>
-    internal void Toggle()
-    {
-        _previousIsOpen = IsOpen;
-        IsOpen = !IsOpen;
-        StateHasChanged();
-    }
-
-    /// <summary>
-    /// Closes the popover.
-    /// </summary>
-    internal void Close()
-    {
-        _previousIsOpen = IsOpen;
-        IsOpen = false;
-        StateHasChanged();
-    }
+    [Parameter] public RenderFragment? Content { get; set; }
 
     private string GetState() => IsOpen ? "open" : "closed";
 

@@ -1,4 +1,5 @@
 using Bunit;
+using Bunit.JSInterop;
 using ChartSut = LowlandTech.Components.Chart.Chart;
 using LowlandTech.Components.Tests.Infrastructure;
 
@@ -9,6 +10,12 @@ namespace LowlandTech.Components.Tests.SPEC1012.Chart.US01.View;
 [UserStory("01", "Render Chart component")]
 public class SC01_RenderChart : ViewScenario
 {
+    public override ValueTask InitializeAsync()
+    {
+        var result = base.InitializeAsync();
+        Ctx.JSInterop.Mode = JSRuntimeMode.Loose;
+        return result;
+    }
     [Fact(DisplayName = "UAC01: Chart renders data-slot attribute")]
     [Trait(Spec.UAC, "01")]
     [Then("the rendered markup contains data-slot")]

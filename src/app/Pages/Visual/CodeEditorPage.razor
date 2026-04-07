@@ -1,0 +1,77 @@
+@page "/visual/code-editor"
+
+<PageTitle>Code Editor - Visual Test</PageTitle>
+
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Code Editor</h1>
+    
+    <div class="space-y-12">
+        <!-- Default Code Editor -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">Default</h2>
+            <div class="p-6 border rounded-lg">
+                <CodeEditor @bind-Value="_defaultCode" Rows="6" />
+            </div>
+        </section>
+
+        <!-- With Placeholder -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">With Placeholder</h2>
+            <div class="p-6 border rounded-lg">
+                <CodeEditor @bind-Value="_emptyCode" 
+                           Placeholder="Enter your code here..."
+                           Rows="6" />
+            </div>
+        </section>
+
+        <!-- Syntax Highlighting -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">Syntax Highlighting</h2>
+            <div class="p-6 border rounded-lg">
+                <CodeEditor @bind-Value="_highlightedCode" Rows="10" />
+            </div>
+            <p class="text-sm text-muted-foreground mt-2">
+                Variables in ${...} syntax are highlighted
+            </p>
+        </section>
+
+        <!-- Read Only -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">Read Only</h2>
+            <div class="p-6 border rounded-lg">
+                <CodeEditor @bind-Value="_readOnlyCode" 
+                           ReadOnly="true"
+                           Rows="6" />
+            </div>
+        </section>
+
+        <!-- Disabled -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">Disabled</h2>
+            <div class="p-6 border rounded-lg">
+                <CodeEditor @bind-Value="_defaultCode" 
+                           Disabled="true"
+                           Rows="6" />
+            </div>
+        </section>
+
+        <!-- With Label -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">With Label</h2>
+            <div class="p-6 border rounded-lg">
+                <Field>
+                    <FieldLabel>Source Code</FieldLabel>
+                    <FieldDescription>Enter your configuration code below</FieldDescription>
+                    <CodeEditor @bind-Value="_defaultCode" Rows="6" />
+                </Field>
+            </div>
+        </section>
+    </div>
+</div>
+
+@code {
+    private string _defaultCode = "function example() {\n  return 'Hello World';\n}";
+    private string _emptyCode = "";
+    private string _highlightedCode = "const name = '${user.name}';\nconst email = '${user.email}';\nconst greeting = `Hello, ${name}!`;";
+    private string _readOnlyCode = "// This code is read-only\nconst config = {\n  version: '1.0.0',\n  debug: false\n};";
+}

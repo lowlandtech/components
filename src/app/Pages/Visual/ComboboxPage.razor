@@ -1,0 +1,140 @@
+@page "/visual/combobox"
+
+<PageTitle>Combobox - Visual Test</PageTitle>
+
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Combobox</h1>
+    
+    <div class="space-y-12">
+        <!-- Default Combobox -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">Default</h2>
+            <div class="p-6 border rounded-lg max-w-sm">
+                <Combobox @bind-Value="_selectedValue1">
+                    <ComboboxInput Placeholder="Select a framework..." />
+                    <ComboboxList>
+                        <ComboboxItem Value="next">Next.js</ComboboxItem>
+                        <ComboboxItem Value="sveltekit">SvelteKit</ComboboxItem>
+                        <ComboboxItem Value="nuxt">Nuxt.js</ComboboxItem>
+                        <ComboboxItem Value="remix">Remix</ComboboxItem>
+                        <ComboboxItem Value="astro">Astro</ComboboxItem>
+                    </ComboboxList>
+                </Combobox>
+            </div>
+            <p class="text-sm text-muted-foreground mt-2">Selected: @_selectedValue1</p>
+        </section>
+
+        <!-- With Groups -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">With Groups</h2>
+            <div class="p-6 border rounded-lg max-w-sm">
+                <Combobox @bind-Value="_selectedValue2">
+                    <ComboboxInput Placeholder="Select a timezone..." />
+                    <ComboboxList>
+                        <ComboboxGroup>
+                            <ComboboxLabel>North America</ComboboxLabel>
+                            <ComboboxItem Value="est">Eastern Standard Time (EST)</ComboboxItem>
+                            <ComboboxItem Value="cst">Central Standard Time (CST)</ComboboxItem>
+                            <ComboboxItem Value="mst">Mountain Standard Time (MST)</ComboboxItem>
+                            <ComboboxItem Value="pst">Pacific Standard Time (PST)</ComboboxItem>
+                        </ComboboxGroup>
+                        <ComboboxSeparator />
+                        <ComboboxGroup>
+                            <ComboboxLabel>Europe</ComboboxLabel>
+                            <ComboboxItem Value="gmt">Greenwich Mean Time (GMT)</ComboboxItem>
+                            <ComboboxItem Value="cet">Central European Time (CET)</ComboboxItem>
+                            <ComboboxItem Value="eet">Eastern European Time (EET)</ComboboxItem>
+                        </ComboboxGroup>
+                    </ComboboxList>
+                </Combobox>
+            </div>
+            <p class="text-sm text-muted-foreground mt-2">Selected: @_selectedValue2</p>
+        </section>
+
+        <!-- Empty State -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">Empty State</h2>
+            <div class="p-6 border rounded-lg max-w-sm">
+                <Combobox @bind-Value="_selectedValue3">
+                    <ComboboxInput Placeholder="Search for a user..." />
+                    <ComboboxList>
+                        <ComboboxEmpty>No users found.</ComboboxEmpty>
+                    </ComboboxList>
+                </Combobox>
+            </div>
+            <p class="text-sm text-muted-foreground mt-2">Type to see empty state</p>
+        </section>
+
+        <!-- With Label -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">With Label</h2>
+            <div class="p-6 border rounded-lg max-w-sm">
+                <Field>
+                    <FieldLabel>Assignee</FieldLabel>
+                    <Combobox @bind-Value="_selectedValue4">
+                        <ComboboxInput Placeholder="Select user..." />
+                        <ComboboxList>
+                            <ComboboxItem Value="john">John Doe</ComboboxItem>
+                            <ComboboxItem Value="jane">Jane Smith</ComboboxItem>
+                            <ComboboxItem Value="bob">Bob Johnson</ComboboxItem>
+                        </ComboboxList>
+                    </Combobox>
+                </Field>
+            </div>
+        </section>
+
+        <!-- Disabled Items -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">Disabled Items</h2>
+            <div class="p-6 border rounded-lg max-w-sm">
+                <Combobox @bind-Value="_selectedValue5">
+                    <ComboboxInput Placeholder="Select a plan..." />
+                    <ComboboxList>
+                        <ComboboxItem Value="free">Free Plan</ComboboxItem>
+                        <ComboboxItem Value="pro">Pro Plan</ComboboxItem>
+                        <ComboboxItem Value="enterprise" Disabled>Enterprise (Contact Sales)</ComboboxItem>
+                    </ComboboxList>
+                </Combobox>
+            </div>
+        </section>
+
+        <!-- Multi-line Items -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">With Descriptions</h2>
+            <div class="p-6 border rounded-lg max-w-sm">
+                <Combobox @bind-Value="_selectedValue6">
+                    <ComboboxInput Placeholder="Select notification..." />
+                    <ComboboxList>
+                        <ComboboxItem Value="all">
+                            <div class="flex flex-col">
+                                <span class="font-medium">All notifications</span>
+                                <span class="text-xs text-muted-foreground">Receive everything</span>
+                            </div>
+                        </ComboboxItem>
+                        <ComboboxItem Value="mentions">
+                            <div class="flex flex-col">
+                                <span class="font-medium">Mentions only</span>
+                                <span class="text-xs text-muted-foreground">Only when mentioned</span>
+                            </div>
+                        </ComboboxItem>
+                        <ComboboxItem Value="none">
+                            <div class="flex flex-col">
+                                <span class="font-medium">None</span>
+                                <span class="text-xs text-muted-foreground">Turn off notifications</span>
+                            </div>
+                        </ComboboxItem>
+                    </ComboboxList>
+                </Combobox>
+            </div>
+        </section>
+    </div>
+</div>
+
+@code {
+    private string? _selectedValue1;
+    private string? _selectedValue2;
+    private string? _selectedValue3;
+    private string? _selectedValue4;
+    private string? _selectedValue5;
+    private string? _selectedValue6;
+}

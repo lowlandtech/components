@@ -2,19 +2,26 @@
 @inherits LtComponentBase
 
 <textarea data-slot="textarea"
+          data-invalid="@(Invalid ? "true" : null)"
           class="@GetClass()"
           rows="@Rows"
           placeholder="@Placeholder"
           disabled="@Disabled"
           readonly="@ReadOnly"
+          aria-invalid="@Invalid"
           @oninput="HandleInput"
           @attributes="AdditionalAttributes">@Value</textarea>
 
 @code {
     private string GetClass()
     {
-        var baseClass = "cn-textarea flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm";
-        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+        var baseClass = "cn-textarea flex min-h-[60px] w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm";
+
+        var borderClass = Invalid
+            ? " border-red-500 focus-visible:ring-red-500"
+            : " border-input focus-visible:ring-ring";
+
+        return string.IsNullOrEmpty(Class) ? $"{baseClass}{borderClass}" : $"{baseClass}{borderClass} {Class}";
     }
 
     private async Task HandleInput(ChangeEventArgs e)

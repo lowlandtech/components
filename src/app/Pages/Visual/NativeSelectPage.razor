@@ -1,0 +1,147 @@
+@page "/visual/native-select"
+@using LowlandTech.Components.NativeSelect
+@using LowlandTech.Components.Label
+
+<PageTitle>NativeSelect - Visual Test</PageTitle>
+
+<div class="max-w-4xl mx-auto p-8">
+    <h1 class="text-3xl font-bold mb-8">NativeSelect</h1>
+    
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Basic Select</h2>
+        <div class="space-y-4 p-6 border rounded-lg bg-card">
+            <div>
+                <Label>Choose a fruit</Label>
+                <NativeSelect>
+                    <NativeSelectOption>Apple</NativeSelectOption>
+                    <NativeSelectOption>Banana</NativeSelectOption>
+                    <NativeSelectOption>Orange</NativeSelectOption>
+                    <NativeSelectOption>Mango</NativeSelectOption>
+                </NativeSelect>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Sizes</h2>
+        <div class="space-y-4 p-6 border rounded-lg bg-card">
+            <div>
+                <Label>Small</Label>
+                <NativeSelect Size="sm">
+                    <NativeSelectOption>Small option</NativeSelectOption>
+                </NativeSelect>
+            </div>
+            <div>
+                <Label>Default</Label>
+                <NativeSelect>
+                    <NativeSelectOption>Default option</NativeSelectOption>
+                </NativeSelect>
+            </div>
+            <div>
+                <Label>Large</Label>
+                <NativeSelect Size="lg">
+                    <NativeSelectOption>Large option</NativeSelectOption>
+                </NativeSelect>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">With Option Groups</h2>
+        <div class="p-6 border rounded-lg bg-card">
+            <Label>Select a car</Label>
+            <NativeSelect>
+                <NativeSelectOptGroup Label="German Cars">
+                    <NativeSelectOption>Mercedes</NativeSelectOption>
+                    <NativeSelectOption>Audi</NativeSelectOption>
+                    <NativeSelectOption>BMW</NativeSelectOption>
+                </NativeSelectOptGroup>
+                <NativeSelectOptGroup Label="Japanese Cars">
+                    <NativeSelectOption>Toyota</NativeSelectOption>
+                    <NativeSelectOption>Honda</NativeSelectOption>
+                    <NativeSelectOption>Nissan</NativeSelectOption>
+                </NativeSelectOptGroup>
+                <NativeSelectOptGroup Label="American Cars">
+                    <NativeSelectOption>Ford</NativeSelectOption>
+                    <NativeSelectOption>Chevrolet</NativeSelectOption>
+                    <NativeSelectOption>Tesla</NativeSelectOption>
+                </NativeSelectOptGroup>
+            </NativeSelect>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">With Placeholder</h2>
+        <div class="p-6 border rounded-lg bg-card">
+            <Label>Select an option</Label>
+            <NativeSelect>
+                <NativeSelectOption Value="" disabled selected>Select a country...</NativeSelectOption>
+                <NativeSelectOption>United States</NativeSelectOption>
+                <NativeSelectOption>United Kingdom</NativeSelectOption>
+                <NativeSelectOption>Canada</NativeSelectOption>
+                <NativeSelectOption>Australia</NativeSelectOption>
+                <NativeSelectOption>Germany</NativeSelectOption>
+                <NativeSelectOption>France</NativeSelectOption>
+            </NativeSelect>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Disabled State</h2>
+        <div class="space-y-4 p-6 border rounded-lg bg-card">
+            <div>
+                <Label>Disabled Select</Label>
+                <NativeSelect disabled>
+                    <NativeSelectOption>Cannot change this</NativeSelectOption>
+                </NativeSelect>
+            </div>
+            <div>
+                <Label>With Disabled Option</Label>
+                <NativeSelect>
+                    <NativeSelectOption>Enabled option</NativeSelectOption>
+                    <NativeSelectOption disabled>Disabled option</NativeSelectOption>
+                    <NativeSelectOption>Another enabled option</NativeSelectOption>
+                </NativeSelect>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Multiple Select</h2>
+        <div class="p-6 border rounded-lg bg-card">
+            <Label>Select multiple options</Label>
+            <NativeSelect multiple size="4">
+                <NativeSelectOption>Option 1</NativeSelectOption>
+                <NativeSelectOption>Option 2</NativeSelectOption>
+                <NativeSelectOption>Option 3</NativeSelectOption>
+                <NativeSelectOption>Option 4</NativeSelectOption>
+                <NativeSelectOption>Option 5</NativeSelectOption>
+            </NativeSelect>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Form Example</h2>
+        <div class="space-y-4 p-6 border rounded-lg bg-card">
+            <div>
+                <Label>Country</Label>
+                <NativeSelect>
+                    <NativeSelectOption Value="">Select your country</NativeSelectOption>
+                    <NativeSelectOption Value="us">United States</NativeSelectOption>
+                    <NativeSelectOption Value="uk">United Kingdom</NativeSelectOption>
+                    <NativeSelectOption Value="ca">Canada</NativeSelectOption>
+                    <NativeSelectOption Value="au">Australia</NativeSelectOption>
+                </NativeSelect>
+            </div>
+            <div>
+                <Label>Preferred Language</Label>
+                <NativeSelect>
+                    <NativeSelectOption Value="en">English</NativeSelectOption>
+                    <NativeSelectOption Value="es">Spanish</NativeSelectOption>
+                    <NativeSelectOption Value="fr">French</NativeSelectOption>
+                    <NativeSelectOption Value="de">German</NativeSelectOption>
+                </NativeSelect>
+            </div>
+        </div>
+    </section>
+</div>

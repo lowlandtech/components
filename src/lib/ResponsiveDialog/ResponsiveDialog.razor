@@ -1,0 +1,74 @@
+@namespace LowlandTech.Components.ResponsiveDialog
+@inherits LtComponentBase
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<CascadingValue Value="this">
+    <div data-slot="responsive-dialog" class="@Class" @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback<bool> IsOpenChanged { get; set; }
+    [Parameter] public string DrawerDirection { get; set; } = "bottom";
+    [Parameter] public int MobileBreakpoint { get; set; } = 768;
+
+    private IJSObjectReference? _module;
+    private bool _isMobile;
+    private bool _jsInitialized;
+
+    public bool IsMobile => _isMobile;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _module = await JS.InvokeAsync<IJSObjectReference>(
+                "import", "./_content/LowlandTech.Components/responsiveDialog.js");
+
+            await _module.InvokeVoidAsync("initialize", DotNetObjectReference.Create(this), MobileBreakpoint);
+            _jsInitialized = true;
+        }
+    }
+
+    [JSInvokable]
+    public void OnBreakpointChanged(bool isMobile)
+    {
+        if (_isMobile != isMobile)
+        {
+            _isMobile = isMobile;
+            StateHasChanged();
+        }
+    }
+
+    public async Task Open()
+    {
+        IsOpen = true;
+        await IsOpenChanged.InvokeAsync(IsOpen);
+        StateHasChanged();
+    }
+
+    public async Task Close()
+    {
+        IsOpen = false;
+        await IsOpenChanged.InvokeAsync(IsOpen);
+        StateHasChanged();
+    }
+
+    public async Task Toggle()
+    {
+        IsOpen = !IsOpen;
+        await IsOpenChanged.InvokeAsync(IsOpen);
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_module is not null)
+        {
+            await _module.DisposeAsync();
+        }
+    }
+}

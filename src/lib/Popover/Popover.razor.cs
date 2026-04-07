@@ -2,40 +2,92 @@ using Microsoft.AspNetCore.Components;
 
 namespace LowlandTech.Components.Popover;
 
-public partial class Popover : LtComponentBase, IDisposable
+public partial class Popover : LtComponentBase
 {
-    private Guid _id = Guid.NewGuid();
-    private bool _registered;
+    private bool _previousIsOpen;
 
-    [Parameter] public RenderFragment? PopoverContent { get; set; }
-    [Parameter] public bool Open { get; set; }
+    /// <summary>
+    /// Whether the popover is open.
+    /// </summary>
+    [Parameter]
+    public bool IsOpen { get; set; }
+
+    /// <summary>
+    /// Event callback when IsOpen changes.
+    /// </summary>
+    [Parameter]
+    public EventCallback<bool> IsOpenChanged { get; set; }
+
+    /// <summary>
+    /// Alias for IsOpen for backward compatibility.
+    /// </summary>
+    [Parameter]
+    public bool Open
+    {
+        get => IsOpen;
+        set => IsOpen = value;
+    }
+
+    /// <summary>
+    /// The placement of the popover content.
+    /// </summary>
+    [Parameter] public string? Placement { get; set; }
+
+    /// <summary>
+    /// Additional CSS class for the popover content.
+    /// </summary>
     [Parameter] public string? PopoverClass { get; set; }
-    [Parameter] public PopoverPlacement Placement { get; set; } = PopoverPlacement.BottomStart;
 
-    [Inject] private IPopoverService PopoverService { get; set; } = default!;
+    /// <summary>
+    /// Whether to render the popover in modal mode (traps focus).
+    /// </summary>
+    [Parameter] public bool Modal { get; set; }
 
-    protected override void OnInitialized()
+    /// <summary>
+    /// Whether to render the popover in a portal (outside parent DOM).
+    /// </summary>
+    [Parameter] public bool Portal { get; set; }
+
+    /// <summary>
+    /// The trigger element reference for focus restoration.
+    /// </summary>
+    internal ElementReference TriggerElement { get; set; }
+
+    /// <summary>
+    /// Tracks the previous IsOpen state for focus restoration.
+    /// </summary>
+    internal bool PreviousIsOpen => _previousIsOpen;
+
+    /// <summary>
+    /// Toggles the popover.
+    /// </summary>
+    internal async Task Toggle()
     {
-        PopoverService.Register(_id);
-        _registered = true;
+        _previousIsOpen = IsOpen;
+        IsOpen = !IsOpen;
+        await IsOpenChanged.InvokeAsync(IsOpen);
+        StateHasChanged();
     }
 
-    protected override void OnParametersSet()
+    /// <summary>
+    /// Closes the popover.
+    /// </summary>
+    internal async Task Close()
     {
-        if (_registered)
-        {
-            PopoverService.Update(_id, new PopoverState
-            {
-                Open = Open,
-                Fragment = PopoverContent,
-                CssClass = PopoverClass,
-                Placement = Placement,
-            });
-        }
+        _previousIsOpen = IsOpen;
+        IsOpen = false;
+        await IsOpenChanged.InvokeAsync(IsOpen);
+        StateHasChanged();
     }
 
-    public void Dispose()
+    /// <summary>
+    /// Opens the popover.
+    /// </summary>
+    internal async Task OpenPopover()
     {
-        PopoverService.Unregister(_id);
+        _previousIsOpen = IsOpen;
+        IsOpen = true;
+        await IsOpenChanged.InvokeAsync(IsOpen);
+        StateHasChanged();
     }
 }

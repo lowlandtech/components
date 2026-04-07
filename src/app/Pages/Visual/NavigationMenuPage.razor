@@ -1,0 +1,216 @@
+@page "/visual/navigation-menu"
+@using LowlandTech.Components.NavigationMenu
+@using LowlandTech.Components.Icon
+
+<PageTitle>NavigationMenu - Visual Test</PageTitle>
+
+<div class="max-w-4xl mx-auto p-8">
+    <h1 class="text-3xl font-bold mb-8">NavigationMenu</h1>
+    
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Basic Navigation</h2>
+        <div class="p-6 border rounded-lg bg-card">
+            <NavigationMenu>
+                <NavigationMenuList>
+                    <NavigationMenuItem>
+                        <NavigationMenuLink href="/">Home</NavigationMenuLink>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <NavigationMenuLink href="/about">About</NavigationMenuLink>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <NavigationMenuLink href="/contact">Contact</NavigationMenuLink>
+                    </NavigationMenuItem>
+                </NavigationMenuList>
+            </NavigationMenu>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">With Dropdown Menus (Animated Chevron)</h2>
+        <div class="p-6 border rounded-lg bg-card">
+            <NavigationMenu>
+                <NavigationMenuList>
+                    <NavigationMenuItem>
+                        <NavigationMenuLink href="/">Home</NavigationMenuLink>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <NavigationMenuTrigger IsOpen="@productsOpen" OnClick="() => ToggleMenu(ref productsOpen)">
+                            Products
+                            <Icon Name="chevron-down" Size="16" class="ml-1 navigation-menu-trigger-icon" data-slot="navigation-menu-trigger-icon" />
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent IsOpen="@productsOpen">
+                            <div class="p-4 w-48">
+                                <NavigationMenuLink href="/products/web">Web Development</NavigationMenuLink>
+                                <NavigationMenuLink href="/products/mobile">Mobile Apps</NavigationMenuLink>
+                                <NavigationMenuLink href="/products/design">UI/UX Design</NavigationMenuLink>
+                            </div>
+                        </NavigationMenuContent>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <NavigationMenuTrigger IsOpen="@servicesOpen" OnClick="() => ToggleMenu(ref servicesOpen)">
+                            Services
+                            <Icon Name="chevron-down" Size="16" class="ml-1 navigation-menu-trigger-icon" data-slot="navigation-menu-trigger-icon" />
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent IsOpen="@servicesOpen">
+                            <div class="p-4 w-48">
+                                <NavigationMenuLink href="/services/consulting">Consulting</NavigationMenuLink>
+                                <NavigationMenuLink href="/services/training">Training</NavigationMenuLink>
+                                <NavigationMenuLink href="/services/support">Support</NavigationMenuLink>
+                            </div>
+                        </NavigationMenuContent>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <NavigationMenuLink href="/contact">Contact</NavigationMenuLink>
+                    </NavigationMenuItem>
+                </NavigationMenuList>
+            </NavigationMenu>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">With Icons</h2>
+        <div class="p-6 border rounded-lg bg-card">
+            <NavigationMenu>
+                <NavigationMenuList>
+                    <NavigationMenuItem>
+                        <NavigationMenuLink href="/">
+                            <Icon Name="home" Size="16" class="mr-2" />
+                            Home
+                        </NavigationMenuLink>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <NavigationMenuLink href="/dashboard">
+                            <Icon Name="user" Size="16" class="mr-2" />
+                            Dashboard
+                        </NavigationMenuLink>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <NavigationMenuLink href="/settings">
+                            <Icon Name="settings" Size="16" class="mr-2" />
+                            Settings
+                        </NavigationMenuLink>
+                    </NavigationMenuItem>
+                </NavigationMenuList>
+            </NavigationMenu>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">With Animated Indicator</h2>
+        <div class="p-6 border rounded-lg bg-card">
+            <NavigationMenu>
+                <NavigationMenuList>
+                    <NavigationMenuItem>
+                        <NavigationMenuLink href="/">Overview</NavigationMenuLink>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <NavigationMenuTrigger IsOpen="@analyticsOpen" OnClick="() => ToggleMenu(ref analyticsOpen)">
+                            Analytics
+                            <Icon Name="chevron-down" Size="16" class="ml-1 navigation-menu-trigger-icon" data-slot="navigation-menu-trigger-icon" />
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent IsOpen="@analyticsOpen">
+                            <div class="p-4 w-48">
+                                <NavigationMenuLink href="/analytics/realtime">Real-time</NavigationMenuLink>
+                                <NavigationMenuLink href="/analytics/historical">Historical</NavigationMenuLink>
+                            </div>
+                        </NavigationMenuContent>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <NavigationMenuLink href="/reports">Reports</NavigationMenuLink>
+                    </NavigationMenuItem>
+                </NavigationMenuList>
+                <NavigationMenuIndicator IsVisible="@analyticsOpen" />
+            </NavigationMenu>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">With Animated Viewport</h2>
+        <div class="p-6 border rounded-lg bg-card">
+            <NavigationMenu>
+                <NavigationMenuList>
+                    <NavigationMenuItem>
+                        <NavigationMenuTrigger IsOpen="@fileOpen" OnClick="() => ToggleMenu(ref fileOpen)">
+                            File
+                            <Icon Name="chevron-down" Size="16" class="ml-1 navigation-menu-trigger-icon" data-slot="navigation-menu-trigger-icon" />
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent IsOpen="@fileOpen">
+                            <div class="p-4 w-48">
+                                <NavigationMenuLink href="/file/new">New</NavigationMenuLink>
+                                <NavigationMenuLink href="/file/open">Open</NavigationMenuLink>
+                                <NavigationMenuLink href="/file/save">Save</NavigationMenuLink>
+                            </div>
+                        </NavigationMenuContent>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <NavigationMenuTrigger IsOpen="@editOpen" OnClick="() => ToggleMenu(ref editOpen)">
+                            Edit
+                            <Icon Name="chevron-down" Size="16" class="ml-1 navigation-menu-trigger-icon" data-slot="navigation-menu-trigger-icon" />
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent IsOpen="@editOpen">
+                            <div class="p-4 w-48">
+                                <NavigationMenuLink href="/edit/undo">Undo</NavigationMenuLink>
+                                <NavigationMenuLink href="/edit/redo">Redo</NavigationMenuLink>
+                                <NavigationMenuLink href="/edit/cut">Cut</NavigationMenuLink>
+                            </div>
+                        </NavigationMenuContent>
+                    </NavigationMenuItem>
+                </NavigationMenuList>
+                <NavigationMenuViewport IsOpen="@fileOpen" />
+            </NavigationMenu>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Mega Menu Example</h2>
+        <div class="p-6 border rounded-lg bg-card">
+            <NavigationMenu>
+                <NavigationMenuList>
+                    <NavigationMenuItem>
+                        <NavigationMenuTrigger IsOpen="@solutionsOpen" OnClick="() => ToggleMenu(ref solutionsOpen)">
+                            Solutions
+                            <Icon Name="chevron-down" Size="16" class="ml-1 navigation-menu-trigger-icon" data-slot="navigation-menu-trigger-icon" />
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent IsOpen="@solutionsOpen">
+                            <div class="p-6 w-96 grid grid-cols-2 gap-4">
+                                <div>
+                                    <h4 class="font-semibold mb-2">For Business</h4>
+                                    <NavigationMenuLink href="/solutions/enterprise">Enterprise</NavigationMenuLink>
+                                    <NavigationMenuLink href="/solutions/startup">Startups</NavigationMenuLink>
+                                    <NavigationMenuLink href="/solutions/agency">Agencies</NavigationMenuLink>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold mb-2">By Industry</h4>
+                                    <NavigationMenuLink href="/industry/healthcare">Healthcare</NavigationMenuLink>
+                                    <NavigationMenuLink href="/industry/finance">Finance</NavigationMenuLink>
+                                    <NavigationMenuLink href="/industry/retail">Retail</NavigationMenuLink>
+                                </div>
+                            </div>
+                        </NavigationMenuContent>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <NavigationMenuLink href="/pricing">Pricing</NavigationMenuLink>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <NavigationMenuLink href="/docs">Documentation</NavigationMenuLink>
+                    </NavigationMenuItem>
+                </NavigationMenuList>
+            </NavigationMenu>
+        </div>
+    </section>
+</div>
+
+@code {
+    private bool productsOpen = false;
+    private bool servicesOpen = false;
+    private bool analyticsOpen = false;
+    private bool fileOpen = false;
+    private bool editOpen = false;
+    private bool solutionsOpen = false;
+
+    private void ToggleMenu(ref bool menuState)
+    {
+        menuState = !menuState;
+    }
+}

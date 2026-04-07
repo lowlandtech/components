@@ -1,0 +1,223 @@
+@page "/visual/skeleton"
+@using LowlandTech.Components.Skeleton
+
+<PageTitle>Skeleton - Visual Test</PageTitle>
+
+<div class="container mx-auto p-8">
+    <h1 class="text-3xl font-bold mb-8">Skeleton</h1>
+
+    <div class="space-y-12">
+        <!-- Basic Skeleton -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Basic Skeleton</h2>
+            <div class="p-6 border rounded-lg bg-background space-y-4">
+                <Skeleton class="h-4 w-full" />
+                <Skeleton class="h-4 w-3/4" />
+                <Skeleton class="h-4 w-1/2" />
+            </div>
+        </section>
+
+        <!-- Text Skeleton Variants -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Text Skeletons</h2>
+            <div class="p-6 border rounded-lg bg-background space-y-6">
+                <div class="space-y-2">
+                    <p class="text-sm text-muted-foreground">Heading</p>
+                    <Skeleton class="h-8 w-64 rounded-md" />
+                </div>
+                <div class="space-y-2">
+                    <p class="text-sm text-muted-foreground">Subheading</p>
+                    <Skeleton class="h-6 w-48 rounded-md" />
+                </div>
+                <div class="space-y-2">
+                    <p class="text-sm text-muted-foreground">Body Text (multiple lines)</p>
+                    <div class="space-y-2">
+                        <Skeleton class="h-4 w-full rounded-md" />
+                        <Skeleton class="h-4 w-full rounded-md" />
+                        <Skeleton class="h-4 w-2/3 rounded-md" />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Card Skeleton -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Card Skeleton</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <div class="max-w-sm border rounded-lg p-4 space-y-4">
+                    <Skeleton class="h-48 w-full rounded-md" />
+                    <Skeleton class="h-6 w-3/4 rounded-md" />
+                    <div class="space-y-2">
+                        <Skeleton class="h-4 w-full rounded-md" />
+                        <Skeleton class="h-4 w-full rounded-md" />
+                        <Skeleton class="h-4 w-1/2 rounded-md" />
+                    </div>
+                    <div class="flex gap-2 pt-2">
+                        <Skeleton class="h-9 w-24 rounded-md" />
+                        <Skeleton class="h-9 w-24 rounded-md" />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- List Skeleton -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">List Skeleton</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <div class="max-w-md space-y-4">
+                    @for (var i = 0; i < 5; i++)
+                    {
+                        <div class="flex items-center gap-4">
+                            <Skeleton class="h-12 w-12 rounded-full" />
+                            <div class="flex-1 space-y-2">
+                                <Skeleton class="h-4 w-32 rounded-md" />
+                                <Skeleton class="h-3 w-48 rounded-md" />
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <!-- Table Skeleton -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Table Skeleton</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <div class="border rounded-lg overflow-hidden">
+                    <!-- Header -->
+                    <div class="flex bg-muted/50 border-b p-4 gap-4">
+                        <Skeleton class="h-4 w-32 rounded-md" />
+                        <Skeleton class="h-4 w-32 rounded-md" />
+                        <Skeleton class="h-4 w-32 rounded-md" />
+                        <Skeleton class="h-4 w-24 rounded-md" />
+                    </div>
+                    <!-- Rows -->
+                    @for (var i = 0; i < 4; i++)
+                    {
+                        <div class="flex p-4 gap-4 border-b last:border-0">
+                            <Skeleton class="h-4 w-32 rounded-md" />
+                            <Skeleton class="h-4 w-32 rounded-md" />
+                            <Skeleton class="h-4 w-32 rounded-md" />
+                            <Skeleton class="h-4 w-24 rounded-md" />
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <!-- Profile Skeleton -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Profile Skeleton</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <div class="max-w-md border rounded-lg p-6">
+                    <div class="flex items-center gap-4">
+                        <Skeleton class="h-16 w-16 rounded-full" />
+                        <div class="space-y-2">
+                            <Skeleton class="h-5 w-40 rounded-md" />
+                            <Skeleton class="h-4 w-32 rounded-md" />
+                        </div>
+                    </div>
+                    <div class="mt-6 space-y-2">
+                        <Skeleton class="h-4 w-full rounded-md" />
+                        <Skeleton class="h-4 w-full rounded-md" />
+                        <Skeleton class="h-4 w-2/3 rounded-md" />
+                    </div>
+                    <div class="mt-6 flex gap-4">
+                        <div class="text-center">
+                            <Skeleton class="h-6 w-12 mx-auto rounded-md" />
+                            <Skeleton class="h-3 w-16 mt-1 rounded-md" />
+                        </div>
+                        <div class="text-center">
+                            <Skeleton class="h-6 w-12 mx-auto rounded-md" />
+                            <Skeleton class="h-3 w-16 mt-1 rounded-md" />
+                        </div>
+                        <div class="text-center">
+                            <Skeleton class="h-6 w-12 mx-auto rounded-md" />
+                            <Skeleton class="h-3 w-16 mt-1 rounded-md" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Skeleton -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Dashboard Skeleton</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <div class="space-y-6">
+                    <!-- Header -->
+                    <div class="flex justify-between items-center">
+                        <Skeleton class="h-8 w-48 rounded-md" />
+                        <Skeleton class="h-10 w-32 rounded-md" />
+                    </div>
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-4 gap-4">
+                        @for (var i = 0; i < 4; i++)
+                        {
+                            <div class="border rounded-lg p-4 space-y-3">
+                                <Skeleton class="h-4 w-20 rounded-md" />
+                                <Skeleton class="h-8 w-24 rounded-md" />
+                                <Skeleton class="h-3 w-16 rounded-md" />
+                            </div>
+                        }
+                    </div>
+                    <!-- Chart Area -->
+                    <div class="border rounded-lg p-4">
+                        <Skeleton class="h-6 w-32 rounded-md mb-4" />
+                        <Skeleton class="h-64 w-full rounded-md" />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Article Skeleton -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Article Skeleton</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <div class="max-w-2xl mx-auto space-y-6">
+                    <Skeleton class="h-10 w-3/4 rounded-md" />
+                    <div class="flex items-center gap-3">
+                        <Skeleton class="h-10 w-10 rounded-full" />
+                        <div class="space-y-1">
+                            <Skeleton class="h-4 w-32 rounded-md" />
+                            <Skeleton class="h-3 w-24 rounded-md" />
+                        </div>
+                    </div>
+                    <Skeleton class="h-64 w-full rounded-lg" />
+                    <div class="space-y-3">
+                        @for (var i = 0; i < 6; i++)
+                        {
+                            <Skeleton class="h-4 w-full rounded-md" />
+                        }
+                        <Skeleton class="h-4 w-2/3 rounded-md" />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Circular Skeletons -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Circular Variants</h2>
+            <div class="p-6 border rounded-lg bg-background">
+                <div class="flex items-center gap-8">
+                    <div class="text-center">
+                        <Skeleton class="h-8 w-8 rounded-full mx-auto" />
+                        <p class="text-xs text-muted-foreground mt-2">Small</p>
+                    </div>
+                    <div class="text-center">
+                        <Skeleton class="h-12 w-12 rounded-full mx-auto" />
+                        <p class="text-xs text-muted-foreground mt-2">Medium</p>
+                    </div>
+                    <div class="text-center">
+                        <Skeleton class="h-16 w-16 rounded-full mx-auto" />
+                        <p class="text-xs text-muted-foreground mt-2">Large</p>
+                    </div>
+                    <div class="text-center">
+                        <Skeleton class="h-24 w-24 rounded-full mx-auto" />
+                        <p class="text-xs text-muted-foreground mt-2">Extra Large</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>

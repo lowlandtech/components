@@ -8,8 +8,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="visual-artifacts\**" />
+    <Content Remove="visual-artifacts\**" />
+    <EmbeddedResource Remove="visual-artifacts\**" />
+    <None Remove="visual-artifacts\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\lib\LowlandTech.Components.csproj" />
   </ItemGroup>
 
 </Project>

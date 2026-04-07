@@ -15,7 +15,7 @@
 
     private string GetClass()
     {
-        var baseClass = "left-0 top-0 w-full data-[motion=from-start]:animate-in data-[motion=from-end]:animate-in data-[motion=to-start]:animate-out data-[motion=to-end]:animate-out data-[motion=from-start]:fade-in data-[motion=from-end]:fade-in data-[motion=to-start]:fade-out data-[motion=to-end]:fade-out";
+        var baseClass = "left-0 top-0 w-full origin-top-center data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95 duration-200";
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
 }

@@ -1,0 +1,133 @@
+/* NavigationMenu Animation Keyframes and Utilities */
+
+/* Entry Animation */
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Exit Animation */
+@keyframes exit {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* Fade In */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Fade Out */
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Zoom In 95% */
+@keyframes zoom-in-95 {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Zoom Out 95% */
+@keyframes zoom-out-95 {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* Animation utility classes for data-state attributes */
+[data-state="open"].animate-in,
+[data-state="visible"].animate-in {
+  animation: enter 200ms ease-out forwards;
+}
+
+[data-state="closed"].animate-out,
+[data-state="hidden"].animate-out {
+  animation: exit 150ms ease-in forwards;
+}
+
+/* Fade animations */
+[data-state="open"].fade-in-0,
+[data-state="visible"].fade-in-0 {
+  animation: fade-in 200ms ease-out forwards;
+}
+
+[data-state="closed"].fade-out-0,
+[data-state="hidden"].fade-out-0 {
+  animation: fade-out 150ms ease-in forwards;
+}
+
+/* Zoom animations */
+[data-state="open"].zoom-in-95,
+[data-state="visible"].zoom-in-95 {
+  animation: zoom-in-95 200ms ease-out forwards;
+}
+
+[data-state="closed"].zoom-out-95,
+[data-state="hidden"].zoom-out-95 {
+  animation: zoom-out-95 150ms ease-in forwards;
+}
+
+/* Combined animations for complex transitions */
+[data-state="open"].animate-in.fade-in-0.zoom-in-95,
+[data-state="visible"].animate-in.fade-in-0.zoom-in-95 {
+  animation: enter 200ms ease-out forwards;
+}
+
+[data-state="closed"].animate-out.fade-out-0.zoom-out-95,
+[data-state="hidden"].animate-out.fade-out-0.zoom-out-95 {
+  animation: exit 150ms ease-in forwards;
+}
+
+/* Chevron rotation for NavigationMenuTrigger */
+[data-slot="navigation-menu-trigger"][data-state="open"] [data-slot="navigation-menu-trigger-icon"],
+[data-slot="navigation-menu-trigger"][data-state="open"] > svg,
+[data-slot="navigation-menu-trigger"][data-state="open"] .lucide-chevron-down,
+[data-slot="navigation-menu-trigger"][data-state="open"] .navigation-menu-trigger-icon {
+  transform: rotate(180deg);
+}
+
+[data-slot="navigation-menu-trigger-icon"],
+[data-slot="navigation-menu-trigger"] > svg,
+[data-slot="navigation-menu-trigger"] .lucide-chevron-down,
+.navigation-menu-trigger-icon {
+  transition: transform 200ms ease;
+}
+
+/* Origin utility */
+.origin-top-center {
+  transform-origin: top center;
+}

@@ -3,14 +3,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "css:build": "postcss ../Styles/app.css -o css/app.css",
-    "css:watch": "postcss ../Styles/app.css -o css/app.css --watch",
+    "css:build": "copy ..\\Styles\\app.css .\\input.css && npx @tailwindcss/cli -i ./input.css -o css/app.css --minify && del input.css",
+    "css:watch": "copy ..\\Styles\\app.css .\\input.css && npx @tailwindcss/cli -i ./input.css -o css/app.css --watch",
     "visual:capture:chadcn": "node ./visual/capture-chadcn.mjs",
     "visual:capture:local": "node ./visual/capture-local.mjs",
+    "visual:capture:local:dark": "node ./visual/capture-local-dark.mjs",
     "visual:compare": "node ./visual/compare.mjs",
     "visual:test": "npm run visual:capture:chadcn; npm run visual:capture:local; npm run visual:compare"
   },
   "devDependencies": {
+    "@tailwindcss/cli": "^4.2.1",
     "@tailwindcss/postcss": "^4.2.1",
     "pixelmatch": "^7.1.0",
     "playwright": "^1.54.2",

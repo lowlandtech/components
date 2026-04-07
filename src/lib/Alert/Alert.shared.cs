@@ -16,11 +16,11 @@ public partial class Alert
     {
         var variantClass = Variant switch
         {
-            "destructive" => " cn-alert-destructive border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive",
-            _ => " bg-background text-foreground [&>svg]:text-foreground"
+            "destructive" => " cn-alert-destructive",
+            _ => ""
         };
 
-        var baseClass = $"cn-alert group/alert relative w-full rounded-lg border p-4 [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg~*]:pl-7{variantClass}";
+        var baseClass = $"cn-alert group/alert{variantClass}";
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
 }

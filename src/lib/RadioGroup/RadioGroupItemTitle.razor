@@ -1,0 +1,14 @@
+@namespace LowlandTech.Components.RadioGroup
+@inherits LtComponentBase
+
+<div data-slot="radio-group-item-title" class="@GetClass()" @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "cn-radio-group-item-title font-semibold text-foreground";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

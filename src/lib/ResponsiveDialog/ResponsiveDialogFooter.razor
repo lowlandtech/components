@@ -1,0 +1,14 @@
+@namespace LowlandTech.Components.ResponsiveDialog
+@inherits LtComponentBase
+
+<div data-slot="responsive-dialog-footer" class="@GetClass()" @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "cn-responsive-dialog-footer flex flex-col-reverse sm:flex-row sm:justify-end sm:gap-2 p-4";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

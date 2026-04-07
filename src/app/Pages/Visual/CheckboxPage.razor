@@ -1,0 +1,68 @@
+@page "/visual/checkbox"
+
+<PageTitle>Checkbox - Visual Test</PageTitle>
+
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Checkbox</h1>
+    
+    <div class="space-y-12">
+        <!-- Default Checkbox -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">Default</h2>
+            <div class="flex items-center gap-4 p-6 border rounded-lg">
+                <Checkbox />
+                <Label>Accept terms and conditions</Label>
+            </div>
+        </section>
+
+        <!-- Checked State -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">Checked State</h2>
+            <div class="flex items-center gap-4 p-6 border rounded-lg">
+                <Checkbox class="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground" />
+                <Label>Remember me</Label>
+            </div>
+        </section>
+
+        <!-- With Label -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">With Label</h2>
+            <div class="flex items-center gap-4 p-6 border rounded-lg">
+                <Field class="flex-row items-center gap-3">
+                    <Checkbox />
+                    <FieldLabel>Subscribe to newsletter</FieldLabel>
+                </Field>
+            </div>
+        </section>
+
+        <!-- Disabled State -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">Disabled</h2>
+            <div class="flex items-center gap-4 p-6 border rounded-lg">
+                <Field class="flex-row items-center gap-3">
+                    <Checkbox disabled />
+                    <FieldLabel class="text-muted-foreground">Disabled option</FieldLabel>
+                </Field>
+            </div>
+        </section>
+
+        <!-- Checkbox Group -->
+        <section>
+            <h2 class="text-xl font-semibold mb-4">Checkbox Group</h2>
+            <div class="p-6 border rounded-lg space-y-3">
+                <Field class="flex-row items-center gap-3">
+                    <Checkbox />
+                    <FieldLabel>Option One</FieldLabel>
+                </Field>
+                <Field class="flex-row items-center gap-3">
+                    <Checkbox />
+                    <FieldLabel>Option Two</FieldLabel>
+                </Field>
+                <Field class="flex-row items-center gap-3">
+                    <Checkbox />
+                    <FieldLabel>Option Three</FieldLabel>
+                </Field>
+            </div>
+        </section>
+    </div>
+</div>

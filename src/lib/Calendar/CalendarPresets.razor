@@ -1,0 +1,27 @@
+@namespace LowlandTech.Components.Calendar
+@inherits LtComponentBase
+
+<div data-slot="calendar-presets"
+     data-orientation="@Orientation"
+     class="@GetContainerClass()"
+     @attributes="AdditionalAttributes">
+    @if (Items?.Any() == true)
+    {
+        @foreach (var preset in Items)
+        {
+            <button type="button"
+                    class="@GetButtonClass()"
+                    @onclick="() => HandlePresetClick(preset)">
+                @if (!string.IsNullOrEmpty(preset.Icon))
+                {
+                    <Icon Name="@preset.Icon" class="mr-2 size-4" />
+                }
+                @preset.Label
+            </button>
+        }
+    }
+    else if (ChildContent != null)
+    {
+        @ChildContent
+    }
+</div>

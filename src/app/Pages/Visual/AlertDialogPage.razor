@@ -1,0 +1,172 @@
+@page "/visual/alert-dialog"
+@using LowlandTech.Components.AlertDialog
+@using LowlandTech.Components.Button
+@using LowlandTech.Components.Icon
+
+<PageTitle>Alert Dialog - Visual Test</PageTitle>
+
+<div class="space-y-8">
+    <div>
+        <h1 class="text-2xl font-bold">Alert Dialog</h1>
+        <p class="text-muted-foreground">A modal dialog that interrupts the user with important content and expects a response.</p>
+    </div>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Basic Alert Dialog</h2>
+        <AlertDialog @bind-IsOpen="_isOpen1">
+            <AlertDialogTrigger>
+                <Button Variant="destructive">Delete Account</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete your account and remove your data from our servers.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction>
+                        <Button Variant="destructive">Continue</Button>
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    </section>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Confirmation Dialog</h2>
+        <AlertDialog @bind-IsOpen="_isOpen2">
+            <AlertDialogTrigger>
+                <Button Variant="default">Show Confirmation</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Confirm Action</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Are you sure you want to proceed with this action? Please confirm to continue.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>No, go back</AlertDialogCancel>
+                    <AlertDialogAction>
+                        <Button>Yes, continue</Button>
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    </section>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Success Dialog</h2>
+        <AlertDialog @bind-IsOpen="_isOpen3">
+            <AlertDialogTrigger>
+                <Button Variant="secondary">Complete Setup</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Setup Complete!</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Your account has been successfully set up. You can now start using all features.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogAction>
+                        <Button>Get Started</Button>
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    </section>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Dialog with Media (Icon)</h2>
+        <AlertDialog @bind-IsOpen="_isOpen4">
+            <AlertDialogTrigger>
+                <Button Variant="outline">Share Project</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogMedia>
+                    <Icon Name="circle-fading-plus" Size="48" class="text-primary" />
+                </AlertDialogMedia>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Share Project</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Invite your team members to collaborate on this project. They will receive an email invitation.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction>
+                        <Button>Share</Button>
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    </section>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Dialog with Media (Bluetooth)</h2>
+        <AlertDialog @bind-IsOpen="_isOpen5">
+            <AlertDialogTrigger>
+                <Button Variant="outline">Connect Device</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogMedia>
+                    <div class="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                        <Icon Name="bluetooth" Size="32" class="text-blue-600 dark:text-blue-300" />
+                    </div>
+                </AlertDialogMedia>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Connect Bluetooth Device</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Pair with your Bluetooth device to start streaming audio wirelessly.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction>
+                        <Button>Connect</Button>
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    </section>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Destructive Action Dialog</h2>
+        <AlertDialog @bind-IsOpen="_isOpen6">
+            <AlertDialogTrigger>
+                <Button Variant="destructive">Delete Chat</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogMedia>
+                    <div class="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center">
+                        <Icon Name="trash" Size="32" class="text-red-600 dark:text-red-300" />
+                    </div>
+                </AlertDialogMedia>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Chat</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Are you sure you want to delete this chat? This action cannot be undone.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction>
+                        <Button Variant="destructive">Delete</Button>
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    </section>
+</div>
+
+@code {
+    private bool _isOpen1 = false;
+    private bool _isOpen2 = false;
+    private bool _isOpen3 = false;
+    private bool _isOpen4 = false;
+    private bool _isOpen5 = false;
+    private bool _isOpen6 = false;
+}

@@ -1,0 +1,47 @@
+@namespace LowlandTech.Components.Progress
+@inherits LtComponentBase
+
+<span data-slot="progress-label"
+      class="@GetClass()"
+      @attributes="AdditionalAttributes">
+    @if (ChildContent != null)
+    {
+        @ChildContent
+    }
+    else if (ShowPercentage && Value.HasValue)
+    {
+        @($"{GetPercentage():F0}%")
+    }
+</span>
+
+@code {
+    /// <summary>
+    /// The current value for percentage calculation.
+    /// </summary>
+    [Parameter] public double? Value { get; set; }
+
+    /// <summary>
+    /// The maximum value for percentage calculation.
+    /// </summary>
+    [Parameter] public double Max { get; set; } = 100;
+
+    /// <summary>
+    /// Whether to show the percentage value.
+    /// </summary>
+    [Parameter] public bool ShowPercentage { get; set; } = true;
+
+    private double GetPercentage()
+    {
+        if (!Value.HasValue)
+        {
+            return 0;
+        }
+        return Math.Min(100, Math.Max(0, (Value.Value / Max) * 100));
+    }
+
+    private string GetClass()
+    {
+        var baseClass = "cn-progress-label text-sm font-medium text-zinc-900 dark:text-zinc-50";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

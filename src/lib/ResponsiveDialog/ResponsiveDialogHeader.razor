@@ -1,0 +1,14 @@
+@namespace LowlandTech.Components.ResponsiveDialog
+@inherits LtComponentBase
+
+<div data-slot="responsive-dialog-header" class="@GetClass()" @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "cn-responsive-dialog-header grid gap-1.5 p-4 text-center sm:text-left";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

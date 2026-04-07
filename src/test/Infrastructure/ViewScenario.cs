@@ -9,7 +9,7 @@ public abstract class ViewScenario : IAsyncLifetime
 {
     protected BunitContext Ctx = null!;
 
-    public ValueTask InitializeAsync()
+    public virtual ValueTask InitializeAsync()
     {
         Ctx = new BunitContext();
         Ctx.Services.AddSingleton<IPopoverService, PopoverService>();

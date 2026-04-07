@@ -1,17 +1,26 @@
 @namespace LowlandTech.Components.HoverCard
 @inherits LtComponentBase
 
-<div data-slot="hover-card-content"
-     data-side="@SideValue"
-     data-align="@AlignValue"
-     class="@CssClass"
-     @attributes="AdditionalAttributes">
-    @ChildContent
-</div>
+@if (IsVisible)
+{
+    <div data-slot="hover-card-content"
+         data-side="@SideValue"
+         data-align="@AlignValue"
+         class="@CssClass"
+         @onmouseenter="OnMouseEnter"
+         @onmouseleave="OnMouseLeave"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+}
 
 @code {
+    [CascadingParameter] private HoverCard? ParentHoverCard { get; set; }
+
     [Parameter] public string? Side { get; set; }
     [Parameter] public string? Align { get; set; }
+
+    private bool IsVisible => ParentHoverCard?.IsVisible ?? true;
 
     private string SideValue => string.IsNullOrWhiteSpace(Side) ? "bottom" : Side!;
     private string AlignValue => string.IsNullOrWhiteSpace(Align) ? "center" : Align!;
@@ -22,9 +31,23 @@
         {
             const string baseClass =
                 "cn-hover-card-content cn-hover-card-content-logical z-50 origin-(--transform-origin) " +
-                "outline-hidden absolute invisible opacity-0 " +
-                "group-hover/hover-card:visible group-hover/hover-card:opacity-100 transition-[opacity,visibility]";
+                "outline-hidden absolute";
             return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+        }
+    }
+
+    private void OnMouseEnter()
+    {
+        // When hovering over content, cancel any pending close
+        ParentHoverCard?.CancelDelays();
+    }
+
+    private async Task OnMouseLeave()
+    {
+        // When leaving content, close the hover card
+        if (ParentHoverCard != null)
+        {
+            await ParentHoverCard.CloseAsync();
         }
     }
 }

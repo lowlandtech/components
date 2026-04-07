@@ -1,0 +1,182 @@
+@page "/visual/card"
+@using LowlandTech.Components.Card
+@using LowlandTech.Components.Button
+@using LowlandTech.Components.Badge
+
+<PageTitle>Card - Visual Test</PageTitle>
+
+<div class="space-y-8">
+    <div>
+        <h1 class="text-2xl font-bold">Card</h1>
+        <p class="text-muted-foreground">Displays a card with header, content, and footer.</p>
+    </div>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Basic Card</h2>
+        <Card class="w-full max-w-md">
+            <CardHeader>
+                <CardTitle>Card Title</CardTitle>
+                <CardDescription>Card Description</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p>Card Content</p>
+            </CardContent>
+        </Card>
+    </section>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Card with Footer</h2>
+        <Card class="w-full max-w-md">
+            <CardHeader>
+                <CardTitle>Create Project</CardTitle>
+                <CardDescription>Deploy your new project in one-click.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p class="text-sm text-muted-foreground">
+                    Your project will be created with default settings. You can customize it later.
+                </p>
+            </CardContent>
+            <CardFooter class="flex justify-between">
+                <Button Variant="ghost">Cancel</Button>
+                <Button>Deploy</Button>
+            </CardFooter>
+        </Card>
+    </section>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Card with Action</h2>
+        <Card class="w-full max-w-md">
+            <CardHeader class="grid grid-cols-[1fr_auto] items-start gap-4 space-y-0">
+                <div>
+                    <CardTitle>Notifications</CardTitle>
+                    <CardDescription>You have 3 unread messages.</CardDescription>
+                </div>
+                <Badge>3 new</Badge>
+            </CardHeader>
+            <CardContent>
+                <div class="space-y-2">
+                    <p class="text-sm font-medium">New feature available</p>
+                    <p class="text-sm text-muted-foreground">
+                        Check out the new dashboard view with real-time analytics.
+                    </p>
+                </div>
+            </CardContent>
+            <CardFooter>
+                <Button Variant="outline" class="w-full">Mark all as read</Button>
+            </CardFooter>
+        </Card>
+    </section>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Card Sizes</h2>
+        <div class="flex flex-wrap gap-4">
+            <Card Size="sm" class="w-48">
+                <CardHeader>
+                    <CardTitle>Small</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p class="text-sm">Small card content</p>
+                </CardContent>
+            </Card>
+            <Card Size="default" class="w-48">
+                <CardHeader>
+                    <CardTitle>Default</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p class="text-sm">Default card content</p>
+                </CardContent>
+            </Card>
+            <Card Size="lg" class="w-48">
+                <CardHeader>
+                    <CardTitle>Large</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p class="text-sm">Large card content</p>
+                </CardContent>
+            </Card>
+        </div>
+    </section>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Only Content</h2>
+        <Card class="w-full max-w-md">
+            <CardContent class="pt-6">
+                <p>This card only has content, no header or footer.</p>
+            </CardContent>
+        </Card>
+    </section>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Profile Card</h2>
+        <Card class="w-full max-w-md">
+            <CardHeader>
+                <div class="flex items-center gap-4">
+                    <div class="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+                        <span class="text-lg font-semibold">JD</span>
+                    </div>
+                    <div>
+                        <CardTitle class="text-base">John Doe</CardTitle>
+                        <CardDescription>john.doe@example.com</CardDescription>
+                    </div>
+                </div>
+            </CardHeader>
+            <CardContent>
+                <p class="text-sm text-muted-foreground">
+                    Software Engineer with 5+ years of experience in full-stack development.
+                </p>
+            </CardContent>
+            <CardFooter class="flex gap-2">
+                <Button Size="sm" Variant="outline">Message</Button>
+                <Button Size="sm">View Profile</Button>
+            </CardFooter>
+        </Card>
+    </section>
+
+    <!-- RTL Section -->
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">RTL (Right-to-Left) Support</h2>
+        <p class="text-sm text-muted-foreground">Arabic/Hebrew language support with proper text alignment and layout mirroring.</p>
+        <Direction dir="rtl">
+            <div class="grid md:grid-cols-2 gap-6">
+                <Card class="w-full">
+                    <CardHeader>
+                        <CardTitle>إنشاء مشروع</CardTitle>
+                        <CardDescription>انشر مشروعك الجديد بنقرة واحدة.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p class="text-sm text-muted-foreground">
+                            سيتم إنشاء مشروعك بالإعدادات الافتراضية. يمكنك تخصيصه لاحقاً.
+                        </p>
+                    </CardContent>
+                    <CardFooter class="flex justify-between">
+                        <Button Variant="ghost">إلغاء</Button>
+                        <Button>نشر</Button>
+                    </CardFooter>
+                </Card>
+
+                <Card class="w-full">
+                    <CardHeader>
+                        <div class="flex items-center gap-4">
+                            <div class="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+                                <span class="text-lg font-semibold">أم</span>
+                            </div>
+                            <div>
+                                <CardTitle class="text-base">أحمد محمد</CardTitle>
+                                <CardDescription>ahmed@example.com</CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <p class="text-sm text-muted-foreground">
+                            مهندس برمجيات بخبرة 5+ سنوات في تطوير تطبيقات الويب الشاملة.
+                        </p>
+                    </CardContent>
+                    <CardFooter class="flex gap-2">
+                        <Button Size="sm" Variant="outline">رسالة</Button>
+                        <Button Size="sm">عرض الملف</Button>
+                    </CardFooter>
+                </Card>
+            </div>
+        </Direction>
+    </section>
+</div>

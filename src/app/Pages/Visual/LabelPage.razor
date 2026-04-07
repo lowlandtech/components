@@ -1,0 +1,144 @@
+@page "/visual/label"
+@using LowlandTech.Components.Label
+@using LowlandTech.Components.Input
+@using LowlandTech.Components.Checkbox
+
+<PageTitle>Label - Visual Test</PageTitle>
+
+<div class="max-w-4xl mx-auto p-8">
+    <h1 class="text-3xl font-bold mb-8">Label</h1>
+    
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Basic Label</h2>
+        <div class="space-y-4 p-6 border rounded-lg bg-card">
+            <div>
+                <Label>Email Address</Label>
+                <Input Placeholder="Enter your email" />
+            </div>
+            <div>
+                <Label>Password</Label>
+                <Input Type="password" Placeholder="Enter your password" />
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Required Indicator</h2>
+        <div class="space-y-4 p-6 border rounded-lg bg-card">
+            <div>
+                <Label Required="true">Full Name</Label>
+                <Input Placeholder="Enter your full name" />
+            </div>
+            <div>
+                <Label Required="true">Phone Number</Label>
+                <Input Type="tel" Placeholder="Enter your phone number" />
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">With Description</h2>
+        <div class="space-y-4 p-6 border rounded-lg bg-card">
+            <div>
+                <Label Description="We'll never share your email with anyone else.">Email</Label>
+                <Input Type="email" Placeholder="you@example.com" />
+            </div>
+            <div>
+                <Label Description="Choose a strong password with at least 8 characters.">Password</Label>
+                <Input Type="password" Placeholder="••••••••" />
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Required with Description</h2>
+        <div class="space-y-4 p-6 border rounded-lg bg-card">
+            <div>
+                <Label Required="true" Description="This field is mandatory.">Username</Label>
+                <Input Placeholder="johndoe" />
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">With Checkbox</h2>
+        <div class="space-y-4 p-6 border rounded-lg bg-card">
+            <div class="flex items-center space-x-2">
+                <Checkbox Id="terms" />
+                <Label For="terms">Accept terms and conditions</Label>
+            </div>
+            <div class="flex items-center space-x-2">
+                <Checkbox Id="newsletter" />
+                <Label For="newsletter">Subscribe to newsletter</Label>
+            </div>
+            <div class="flex items-center space-x-2">
+                <Checkbox Id="marketing" />
+                <Label For="marketing">Receive marketing emails</Label>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Sizes</h2>
+        <div class="space-y-4 p-6 border rounded-lg bg-card">
+            <div>
+                <Label Size="sm">Small Label</Label>
+                <Input Size="sm" Placeholder="Small input" />
+            </div>
+            <div>
+                <Label Size="md">Medium Label (Default)</Label>
+                <Input Placeholder="Default input" />
+            </div>
+            <div>
+                <Label Size="lg">Large Label</Label>
+                <Input Size="lg" Placeholder="Large input" />
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Disabled State</h2>
+        <div class="space-y-4 p-6 border rounded-lg bg-card">
+            <div>
+                <Label Disabled="true">Disabled Label</Label>
+                <Input Disabled="true" Value="Cannot edit this" />
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Validation States</h2>
+        <div class="space-y-4 p-6 border rounded-lg bg-card">
+            <div>
+                <Label Required="true" Description="Enter your full name.">Name</Label>
+                <Input Invalid="true" Value="" Placeholder="Name is required" />
+            </div>
+            <div>
+                <Label Required="true" Description="Must be a valid email.">Email</Label>
+                <Input Type="email" Invalid="true" Value="invalid-email" />
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Complete Form Example</h2>
+        <div class="space-y-4 p-6 border rounded-lg bg-card">
+            <div>
+                <Label Required="true" Description="Your username for login.">Username</Label>
+                <Input Placeholder="johndoe" />
+            </div>
+            <div>
+                <Label Required="true">Email</Label>
+                <Input Type="email" Placeholder="john@example.com" />
+            </div>
+            <div>
+                <Label Required="true" Description="Must be at least 8 characters.">Password</Label>
+                <Input Type="password" Placeholder="Create a password" />
+            </div>
+            <div class="flex items-center space-x-2 pt-2">
+                <Checkbox Id="agree" />
+                <Label For="agree">I agree to the terms of service</Label>
+            </div>
+        </div>
+    </section>
+</div>

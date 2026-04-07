@@ -3,6 +3,7 @@
 
 <div data-slot="radio-group-item"
      data-state="@GetState()"
+     data-variant="@Variant"
      data-orientation="@GetOrientation()"
      data-disabled="@IsDisabled().ToString().ToLower()"
      class="@GetClass()"
@@ -17,27 +18,60 @@
            class="cn-radio-group-item-input sr-only"
            @onchange="OnChange"
            @attributes="InputAttributes" />
-    <span data-slot="radio-group-item-indicator"
-          class="cn-radio-group-item-indicator flex items-center justify-center">
-        @if (IsChecked())
-        {
-            <svg xmlns="http://www.w3.org/2000/svg"
-                 width="24"
-                 height="24"
-                 viewBox="0 0 24 24"
-                 fill="currentColor"
-                 class="cn-radio-group-item-indicator-icon h-2.5 w-2.5 text-current">
-                <circle cx="12" cy="12" r="10" />
-            </svg>
-        }
-    </span>
-    @ChildContent
+    
+    @if (Variant == "choice-card")
+    {
+        <div class="cn-radio-group-item-card-content">
+            <div class="cn-radio-group-item-card-header">
+                @if (ShowRadioIndicator)
+                {
+                    <span data-slot="radio-group-item-indicator"
+                          class="cn-radio-group-item-indicator flex items-center justify-center">
+                        @if (IsChecked())
+                        {
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 width="24"
+                                 height="24"
+                                 viewBox="0 0 24 24"
+                                 fill="currentColor"
+                                 class="cn-radio-group-item-indicator-icon h-2.5 w-2.5 text-current">
+                                <circle cx="12" cy="12" r="10" />
+                            </svg>
+                        }
+                    </span>
+                }
+            </div>
+            <div class="cn-radio-group-item-card-body">
+                @ChildContent
+            </div>
+        </div>
+    }
+    else
+    {
+        <span data-slot="radio-group-item-indicator"
+              class="cn-radio-group-item-indicator flex items-center justify-center">
+            @if (IsChecked())
+            {
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     width="24"
+                     height="24"
+                     viewBox="0 0 24 24"
+                     fill="currentColor"
+                     class="cn-radio-group-item-indicator-icon h-2.5 w-2.5 text-current">
+                    <circle cx="12" cy="12" r="10" />
+                </svg>
+            }
+        </span>
+        @ChildContent
+    }
 </div>
 
 @code {
     [CascadingParameter] private RadioGroup? Parent { get; set; }
     [Parameter, EditorRequired] public string Value { get; set; } = "";
     [Parameter] public bool Disabled { get; set; }
+    [Parameter] public string Variant { get; set; } = "default";
+    [Parameter] public bool ShowRadioIndicator { get; set; } = true;
     [Parameter] public Dictionary<string, object>? InputAttributes { get; set; }
 
     private string GetState() => IsChecked() ? "checked" : "unchecked";
@@ -49,8 +83,16 @@
 
     private string GetClass()
     {
-        var baseClass = "cn-radio-group-item peer relative flex aspect-square h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-full border border-primary text-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
-        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+        if (Variant == "choice-card")
+        {
+            var baseClass = "cn-radio-group-item cn-radio-group-item--choice-card relative flex cursor-pointer rounded-lg border-2 border-muted bg-popover p-4 shadow-sm transition-all hover:border-accent hover:bg-accent/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-[state=checked]:border-primary data-[state=checked]:bg-primary/5 data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50";
+            return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+        }
+        else
+        {
+            var baseClass = "cn-radio-group-item peer relative flex aspect-square h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-full border border-primary text-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
+            return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+        }
     }
 
     private async Task OnClick()

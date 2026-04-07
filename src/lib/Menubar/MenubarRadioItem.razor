@@ -1,0 +1,47 @@
+@namespace LowlandTech.Components.Menubar
+@inherits LtComponentBase
+
+<div data-slot="menubar-radio-item"
+     data-state="@(IsChecked ? "checked" : "unchecked")"
+     role="menuitemradio"
+     aria-checked="@IsChecked.ToString().ToLowerInvariant()"
+     class="@GetClass()"
+     @onclick="HandleClick"
+     @attributes="AdditionalAttributes">
+    <span data-slot="menubar-radio-indicator" class="mr-2 inline-flex w-4 items-center justify-center" aria-hidden="true">
+        @if (IsChecked)
+        {
+            <span>●</span>
+        }
+    </span>
+    @ChildContent
+</div>
+
+@code {
+    [CascadingParameter] private MenubarRadioGroup? ParentGroup { get; set; }
+
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback OnSelect { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+
+    private bool IsChecked => ParentGroup?.IsSelected(Value) == true;
+
+    private async Task HandleClick()
+    {
+        if (Disabled)
+            return;
+
+        if (ParentGroup != null)
+        {
+            await ParentGroup.SelectAsync(Value);
+        }
+
+        await OnSelect.InvokeAsync();
+    }
+
+    private string GetClass()
+    {
+        var baseClass = "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-accent hover:text-accent-foreground";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

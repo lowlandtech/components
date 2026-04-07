@@ -1,7 +1,200 @@
-
 @namespace LowlandTech.Components.Chart
 @inherits LtComponentBase
+@inject IJSRuntime JS
 
-<div data-slot="chart" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
+<div data-slot="chart" class="@GetContainerClass()" @attributes="AdditionalAttributes">
+    <div class="relative h-full w-full">
+        <canvas id="@_canvasId" class="chart-canvas"></canvas>
+        @ChildContent
+    </div>
 </div>
+
+@code {
+    private string _canvasId = $"chart-{Guid.NewGuid():N}";
+    private IJSObjectReference? _chartModule;
+    private bool _isInitialized;
+    private bool _shouldRender;
+
+    /// <summary>
+    /// The type of chart to render.
+    /// </summary>
+    [Parameter]
+    public string Type { get; set; } = "bar";
+
+    /// <summary>
+    /// The chart data (can use object for compatibility or ChartData for strongly-typed).
+    /// </summary>
+    [Parameter]
+    public object? Data { get; set; }
+
+    /// <summary>
+    /// The chart options (can use object for compatibility or ChartOptions for strongly-typed).
+    /// </summary>
+    [Parameter]
+    public object? Options { get; set; }
+
+    /// <summary>
+    /// Strongly-typed chart data.
+    /// </summary>
+    [Parameter]
+    public ChartData? ChartData { get; set; }
+
+    /// <summary>
+    /// Strongly-typed chart options.
+    /// </summary>
+    [Parameter]
+    public ChartOptions? ChartOptions { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        _shouldRender = true;
+    }
+
+    protected override bool ShouldRender() => _shouldRender;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _chartModule = await JS.InvokeAsync<IJSObjectReference>(
+                "import", "./_content/LowlandTech.Components/chart.js");
+            
+            await InitializeChartAsync();
+            _isInitialized = true;
+        }
+        else if (_isInitialized && _shouldRender)
+        {
+            await UpdateChartAsync();
+        }
+        
+        _shouldRender = false;
+    }
+
+    private async Task InitializeChartAsync()
+    {
+        if (_chartModule == null) return;
+
+        var (data, options) = GetChartDataAndOptions();
+        if (data == null) return;
+
+        await _chartModule.InvokeVoidAsync("initChart", _canvasId, Type, data, options);
+    }
+
+    private async Task UpdateChartAsync()
+    {
+        if (_chartModule == null) return;
+
+        var (data, _) = GetChartDataAndOptions();
+        if (data == null) return;
+
+        await _chartModule.InvokeVoidAsync("updateChart", _canvasId, data);
+    }
+
+    private (object? data, object? options) GetChartDataAndOptions()
+    {
+        // Use ChartData if provided, otherwise fall back to Data
+        var data = ChartData != null ? ConvertChartData(ChartData) : Data;
+        // Use ChartOptions if provided, otherwise fall back to Options
+        var options = ChartOptions != null ? ConvertChartOptions(ChartOptions) : Options;
+        return (data, options);
+    }
+
+    private object ConvertChartData(ChartData chartData)
+    {
+        return new
+        {
+            labels = chartData.Labels,
+            datasets = chartData.Datasets.Select(d => new
+            {
+                label = d.Label,
+                data = d.Data,
+                backgroundColor = d.BackgroundColor,
+                borderColor = d.BorderColor,
+                borderWidth = d.BorderWidth,
+                fill = d.Fill,
+                tension = d.Tension
+            }).ToArray()
+        };
+    }
+
+    private object ConvertChartOptions(ChartOptions options)
+    {
+        var result = new Dictionary<string, object>
+        {
+            ["responsive"] = options.Responsive,
+            ["maintainAspectRatio"] = options.MaintainAspectRatio
+        };
+
+        if (!string.IsNullOrEmpty(options.IndexAxis))
+        {
+            result["indexAxis"] = options.IndexAxis;
+        }
+
+        var plugins = new Dictionary<string, object>();
+        
+        if (options.Plugins?.Legend != null)
+        {
+            plugins["legend"] = new
+            {
+                display = options.Plugins.Legend.Display,
+                position = options.Plugins.Legend.Position
+            };
+        }
+
+        if (options.Plugins?.Tooltip != null)
+        {
+            plugins["tooltip"] = new
+            {
+                enabled = options.Plugins.Tooltip.Enabled
+            };
+        }
+
+        if (plugins.Count > 0)
+        {
+            result["plugins"] = plugins;
+        }
+
+        if (options.Scales != null)
+        {
+            var scales = new Dictionary<string, object>();
+            
+            if (options.Scales.X != null)
+            {
+                scales["x"] = new { display = options.Scales.X.Display };
+            }
+            
+            if (options.Scales.Y != null)
+            {
+                scales["y"] = new { display = options.Scales.Y.Display };
+            }
+
+            if (scales.Count > 0)
+            {
+                result["scales"] = scales;
+            }
+        }
+
+        return result;
+    }
+
+    private string GetContainerClass()
+    {
+        return $"relative h-full w-full {Class}".Trim();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_chartModule != null)
+        {
+            try
+            {
+                await _chartModule.InvokeVoidAsync("destroyChart", _canvasId);
+                await _chartModule.DisposeAsync();
+            }
+            catch
+            {
+                // Ignore disposal errors
+            }
+        }
+    }
+}

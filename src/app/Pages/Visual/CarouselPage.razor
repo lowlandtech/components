@@ -1,0 +1,176 @@
+@page "/visual/carousel"
+@using LowlandTech.Components.Carousel
+@using LowlandTech.Components.Card
+
+<PageTitle>Carousel - Visual Test</PageTitle>
+
+<div class="space-y-8">
+    <div>
+        <h1 class="text-2xl font-bold">Carousel</h1>
+        <p class="text-muted-foreground">A carousel with motion and swipe capabilities.</p>
+    </div>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Basic Carousel</h2>
+        <Carousel class="w-full max-w-md">
+            <CarouselContent>
+                <CarouselItem IsActive="true">
+                    <Card>
+                        <CardContent class="flex aspect-square items-center justify-center p-6">
+                            <span class="text-4xl font-semibold">1</span>
+                        </CardContent>
+                    </Card>
+                </CarouselItem>
+                <CarouselItem>
+                    <Card>
+                        <CardContent class="flex aspect-square items-center justify-center p-6">
+                            <span class="text-4xl font-semibold">2</span>
+                        </CardContent>
+                    </Card>
+                </CarouselItem>
+                <CarouselItem>
+                    <Card>
+                        <CardContent class="flex aspect-square items-center justify-center p-6">
+                            <span class="text-4xl font-semibold">3</span>
+                        </CardContent>
+                    </Card>
+                </CarouselItem>
+            </CarouselContent>
+            <div class="mt-4 flex justify-center gap-2">
+                <CarouselPrevious />
+                <CarouselNext />
+            </div>
+        </Carousel>
+    </section>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Image Carousel</h2>
+        <Carousel class="w-full max-w-md">
+            <CarouselContent>
+                <CarouselItem IsActive="true">
+                    <div class="aspect-video rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                        <span class="text-white text-2xl font-bold">Slide 1</span>
+                    </div>
+                </CarouselItem>
+                <CarouselItem>
+                    <div class="aspect-video rounded-lg bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center">
+                        <span class="text-white text-2xl font-bold">Slide 2</span>
+                    </div>
+                </CarouselItem>
+                <CarouselItem>
+                    <div class="aspect-video rounded-lg bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+                        <span class="text-white text-2xl font-bold">Slide 3</span>
+                    </div>
+                </CarouselItem>
+                <CarouselItem>
+                    <div class="aspect-video rounded-lg bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center">
+                        <span class="text-white text-2xl font-bold">Slide 4</span>
+                    </div>
+                </CarouselItem>
+            </CarouselContent>
+            <div class="mt-4 flex justify-between">
+                <CarouselPrevious />
+                <CarouselNext />
+            </div>
+        </Carousel>
+    </section>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Card Carousel</h2>
+        <Carousel class="w-full max-w-lg">
+            <CarouselContent class="-ml-4">
+                <CarouselItem IsActive="true" class="pl-4">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Feature One</CardTitle>
+                            <CardDescription>Amazing feature description</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <p class="text-sm text-muted-foreground">
+                                This is the first feature card with detailed information about what makes it special.
+                            </p>
+                        </CardContent>
+                    </Card>
+                </CarouselItem>
+                <CarouselItem class="pl-4">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Feature Two</CardTitle>
+                            <CardDescription>Another amazing feature</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <p class="text-sm text-muted-foreground">
+                                This is the second feature card showcasing another capability of our platform.
+                            </p>
+                        </CardContent>
+                    </Card>
+                </CarouselItem>
+                <CarouselItem class="pl-4">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Feature Three</CardTitle>
+                            <CardDescription>Yet another feature</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <p class="text-sm text-muted-foreground">
+                                This is the third feature card with comprehensive details about the offering.
+                            </p>
+                        </CardContent>
+                    </Card>
+                </CarouselItem>
+            </CarouselContent>
+            <div class="mt-4 flex justify-center gap-2">
+                <CarouselPrevious />
+                <CarouselNext />
+            </div>
+        </Carousel>
+    </section>
+
+    <section class="space-y-4">
+        <h2 class="text-lg font-semibold">Testimonial Carousel</h2>
+        <Carousel class="w-full max-w-md">
+            <CarouselContent>
+                <CarouselItem IsActive="true">
+                    <Card class="bg-muted/50">
+                        <CardContent class="pt-6">
+                            <blockquote class="space-y-2">
+                                <p class="text-muted-foreground">
+                                    "This product has completely transformed how we work. Highly recommended!"
+                                </p>
+                                <footer class="text-sm font-semibold">- Sarah Johnson</footer>
+                            </blockquote>
+                        </CardContent>
+                    </Card>
+                </CarouselItem>
+                <CarouselItem>
+                    <Card class="bg-muted/50">
+                        <CardContent class="pt-6">
+                            <blockquote class="space-y-2">
+                                <p class="text-muted-foreground">
+                                    "The best investment we've made this year. Our team productivity increased by 50%."
+                                </p>
+                                <footer class="text-sm font-semibold">- Michael Chen</footer>
+                            </blockquote>
+                        </CardContent>
+                    </Card>
+                </CarouselItem>
+                <CarouselItem>
+                    <Card class="bg-muted/50">
+                        <CardContent class="pt-6">
+                            <blockquote class="space-y-2">
+                                <p class="text-muted-foreground">
+                                    "Incredible support and amazing features. Couldn't be happier with our choice."
+                                </p>
+                                <footer class="text-sm font-semibold">- Emily Davis</footer>
+                            </blockquote>
+                        </CardContent>
+                    </Card>
+                </CarouselItem>
+            </CarouselContent>
+            <div class="mt-4 flex justify-between">
+                <CarouselPrevious />
+                <CarouselNext />
+            </div>
+        </Carousel>
+    </section>
+</div>

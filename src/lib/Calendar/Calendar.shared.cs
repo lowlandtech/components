@@ -119,6 +119,31 @@ public partial class Calendar
     [Parameter] public bool ShowOutsideDays { get; set; } = true;
 
     /// <summary>
+    /// Whether to show preset quick-select buttons.
+    /// </summary>
+    [Parameter] public bool ShowPresets { get; set; }
+
+    /// <summary>
+    /// The list of preset items to display for quick selection.
+    /// </summary>
+    [Parameter] public List<CalendarPresetItem>? Presets { get; set; }
+
+    /// <summary>
+    /// Orientation of preset buttons: "horizontal" or "vertical".
+    /// </summary>
+    [Parameter] public string PresetsOrientation { get; set; } = "vertical";
+
+    /// <summary>
+    /// Variant style for preset buttons.
+    /// </summary>
+    [Parameter] public string PresetsVariant { get; set; } = "ghost";
+
+    /// <summary>
+    /// Size of preset buttons.
+    /// </summary>
+    [Parameter] public string PresetsSize { get; set; } = "sm";
+
+    /// <summary>
     /// Whether to always show 6 weeks (fixed height).
     /// </summary>
     [Parameter] public bool FixedWeeks { get; set; } = true;
@@ -212,6 +237,20 @@ public partial class Calendar
     internal void GoToToday()
     {
         CurrentMonth = DateTime.Today;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Handle preset selection and update the calendar.
+    /// </summary>
+    public async Task HandlePresetSelected(CalendarPresetItem preset)
+    {
+        // Navigate to the preset date's month
+        CurrentMonth = new DateTime(preset.Date.Year, preset.Date.Month, 1);
+        
+        // Select the date
+        await SelectDateAsync(preset.Date);
+        
         StateHasChanged();
     }
 

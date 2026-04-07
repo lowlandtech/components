@@ -1,0 +1,28 @@
+@namespace LowlandTech.Components.Chart
+@inherits LtComponentBase
+
+<div data-slot="chart-legend" class="@GetClass()" @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    /// <summary>
+    /// The position of the legend.
+    /// </summary>
+    [Parameter]
+    public string Position { get; set; } = "bottom";
+
+    private string GetClass()
+    {
+        var positionClass = Position switch
+        {
+            "top" => "mb-4",
+            "bottom" => "mt-4",
+            "left" => "mr-4",
+            "right" => "ml-4",
+            _ => "mt-4"
+        };
+
+        return $"flex flex-wrap items-center justify-center gap-4 text-sm {positionClass} {Class}".Trim();
+    }
+}

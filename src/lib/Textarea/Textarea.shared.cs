@@ -28,6 +28,11 @@ public partial class Textarea
     [Parameter] public bool ReadOnly { get; set; }
 
     /// <summary>
+    /// Whether the textarea has an invalid/error state.
+    /// </summary>
+    [Parameter] public bool Invalid { get; set; }
+
+    /// <summary>
     /// The value of the textarea.
     /// </summary>
     [Parameter] public string? Value { get; set; }

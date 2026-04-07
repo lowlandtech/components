@@ -1,15 +1,17 @@
 @namespace LowlandTech.Components.Tabs
 @inherits LtComponentBase
 
-<div data-slot="tabs-list"
-     data-orientation="@GetOrientation()"
-    data-variant="@Variant"
-     class="@GetClass()"
-     role="tablist"
-     @onkeydown="HandleKeyDown"
-     @attributes="AdditionalAttributes">
-    @ChildContent
-</div>
+<CascadingValue Value="this">
+    <div data-slot="tabs-list"
+         data-orientation="@GetOrientation()"
+         data-variant="@Variant"
+         class="@GetClass()"
+         role="tablist"
+         @onkeydown="HandleKeyDown"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>
 
 @code {
     [CascadingParameter] private Tabs? Parent { get; set; }

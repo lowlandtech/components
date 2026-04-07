@@ -2,15 +2,18 @@
 @inherits LtComponentBase
 
 <div data-slot="navigation-menu-indicator"
+     data-state="@(IsVisible ? "visible" : "hidden")"
      class="@GetClass()"
      @attributes="AdditionalAttributes">
-    <div class="top-full relative h-1.5 w-1.5 rotate-45 rounded-tl-sm bg-border shadow-md"></div>
+    <div class="relative top-full h-2 w-2 rotate-45 rounded-tl-sm bg-border shadow-md"></div>
 </div>
 
 @code {
+    [Parameter] public bool IsVisible { get; set; } = true;
+
     private string GetClass()
     {
-        var baseClass = "cn-navigation-menu-indicator top-full z-1 flex h-1.5 items-end justify-center overflow-hidden";
+        var baseClass = "cn-navigation-menu-indicator top-full z-10 flex h-1.5 items-end justify-center overflow-hidden data-[state=visible]:animate-in data-[state=hidden]:animate-out data-[state=visible]:fade-in-0 data-[state=hidden]:fade-out-0 data-[state=visible]:zoom-in-95 data-[state=hidden]:zoom-out-95 duration-200";
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
 }

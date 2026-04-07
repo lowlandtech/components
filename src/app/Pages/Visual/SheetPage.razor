@@ -1,0 +1,555 @@
+@page "/visual/sheet"
+@using LowlandTech.Components.Sheet
+@using LowlandTech.Components.Button
+
+<PageTitle>Sheet - Visual Test</PageTitle>
+
+<div class="container mx-auto p-8">
+    <h1 class="text-3xl font-bold mb-4">Sheet</h1>
+    <p class="text-muted-foreground mb-8">A panel that slides out from the edge of the screen. Used for navigation, forms, or supplementary content.</p>
+
+    <div class="space-y-12">
+        <!-- Installation Section -->
+        <section>
+            <h2 class="text-2xl font-semibold mb-4">Installation</h2>
+            <div class="p-4 bg-muted rounded-lg border">
+                <p class="text-sm text-muted-foreground mb-2">Add the Sheet namespace to your component:</p>
+                <pre class="bg-background p-3 rounded border overflow-x-auto"><code class="text-sm">@("@using LowlandTech.Components.Sheet")</code></pre>
+                <p class="text-sm text-muted-foreground mt-4 mb-2">Or add to your <code>_Imports.razor</code> file:</p>
+                <pre class="bg-background p-3 rounded border overflow-x-auto"><code class="text-sm">@("@using LowlandTech.Components.Sheet")</code></pre>
+            </div>
+        </section>
+
+        <!-- Usage Section -->
+        <section>
+            <h2 class="text-2xl font-semibold mb-4">Usage</h2>
+            <div class="p-4 bg-muted rounded-lg border">
+                <p class="text-sm text-muted-foreground mb-2">Basic usage example:</p>
+                <pre class="bg-background p-3 rounded border overflow-x-auto"><code class="text-sm">&lt;Sheet&gt;
+    &lt;SheetTrigger&gt;
+        &lt;Button&gt;Open Sheet&lt;/Button&gt;
+    &lt;/SheetTrigger&gt;
+    &lt;SheetContent @@bind-IsOpen="_isOpen"&gt;
+        &lt;SheetHeader&gt;
+            &lt;SheetTitle&gt;Sheet Title&lt;/SheetTitle&gt;
+            &lt;SheetDescription&gt;Sheet description goes here.&lt;/SheetDescription&gt;
+        &lt;/SheetHeader&gt;
+        &lt;div class="py-4"&gt;
+            &lt;p&gt;Your content here...&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;SheetFooter&gt;
+            &lt;Button Variant="outline" @@onclick="() => _isOpen = false"&gt;Cancel&lt;/Button&gt;
+            &lt;Button @@onclick="() => _isOpen = false"&gt;Save&lt;/Button&gt;
+        &lt;/SheetFooter&gt;
+        &lt;SheetClose @@onclick="() => _isOpen = false" /&gt;
+    &lt;/SheetContent&gt;
+&lt;/Sheet&gt;
+
+@@code {
+    private bool _isOpen;
+}</code></pre>
+            </div>
+        </section>
+
+        <!-- Variants Section -->
+        <section>
+            <h2 class="text-2xl font-semibold mb-4">Variants</h2>
+            <p class="text-muted-foreground mb-4">Sheets can slide in from any edge of the screen using the <code>Side</code> parameter.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Sheet from Right (Default) -->
+                <div class="p-6 border rounded-lg bg-background">
+                    <h3 class="text-lg font-medium mb-4">Right (Default)</h3>
+                    <Sheet>
+                        <SheetTrigger>
+                            <Button Variant="default">Open Right Sheet</Button>
+                        </SheetTrigger>
+                        <SheetContent @bind-IsOpen="_rightSheetOpen">
+                            <SheetHeader>
+                                <SheetTitle>Right Sheet</SheetTitle>
+                                <SheetDescription>This sheet slides in from the right side.</SheetDescription>
+                            </SheetHeader>
+                            <div class="py-6">
+                                <p class="text-sm text-muted-foreground">
+                                    This is the default side. Right-aligned sheets are great for side panels and detail views.
+                                </p>
+                            </div>
+                            <SheetFooter>
+                                <Button Variant="outline" @onclick="() => _rightSheetOpen = false">Cancel</Button>
+                                <Button @onclick="() => _rightSheetOpen = false">Save Changes</Button>
+                            </SheetFooter>
+                            <SheetClose @onclick="() => _rightSheetOpen = false" />
+                        </SheetContent>
+                    </Sheet>
+                    <div class="mt-4 p-3 bg-muted rounded">
+                        <code class="text-xs">Side="right"</code>
+                    </div>
+                </div>
+
+                <!-- Sheet from Left -->
+                <div class="p-6 border rounded-lg bg-background">
+                    <h3 class="text-lg font-medium mb-4">Left</h3>
+                    <Sheet>
+                        <SheetTrigger>
+                            <Button Variant="default">Open Left Sheet</Button>
+                        </SheetTrigger>
+                        <SheetContent Side="left" @bind-IsOpen="_leftSheetOpen">
+                            <SheetHeader>
+                                <SheetTitle>Left Sheet</SheetTitle>
+                                <SheetDescription>This sheet slides in from the left side.</SheetDescription>
+                            </SheetHeader>
+                            <div class="py-6">
+                                <p class="text-sm text-muted-foreground">
+                                    Left-aligned sheets are great for navigation menus or filters.
+                                </p>
+                            </div>
+                            <SheetFooter>
+                                <Button Variant="outline" @onclick="() => _leftSheetOpen = false">Close</Button>
+                            </SheetFooter>
+                            <SheetClose @onclick="() => _leftSheetOpen = false" />
+                        </SheetContent>
+                    </Sheet>
+                    <div class="mt-4 p-3 bg-muted rounded">
+                        <code class="text-xs">Side="left"</code>
+                    </div>
+                </div>
+
+                <!-- Sheet from Top -->
+                <div class="p-6 border rounded-lg bg-background">
+                    <h3 class="text-lg font-medium mb-4">Top</h3>
+                    <Sheet>
+                        <SheetTrigger>
+                            <Button Variant="default">Open Top Sheet</Button>
+                        </SheetTrigger>
+                        <SheetContent Side="top" @bind-IsOpen="_topSheetOpen">
+                            <SheetHeader>
+                                <SheetTitle>Top Sheet</SheetTitle>
+                                <SheetDescription>This sheet slides in from the top.</SheetDescription>
+                            </SheetHeader>
+                            <div class="py-6">
+                                <p class="text-sm text-muted-foreground">
+                                    Top sheets work well for alerts, notifications, or quick actions.
+                                </p>
+                            </div>
+                            <SheetFooter>
+                                <Button Variant="outline" @onclick="() => _topSheetOpen = false">Dismiss</Button>
+                            </SheetFooter>
+                            <SheetClose @onclick="() => _topSheetOpen = false" />
+                        </SheetContent>
+                    </Sheet>
+                    <div class="mt-4 p-3 bg-muted rounded">
+                        <code class="text-xs">Side="top"</code>
+                    </div>
+                </div>
+
+                <!-- Sheet from Bottom -->
+                <div class="p-6 border rounded-lg bg-background">
+                    <h3 class="text-lg font-medium mb-4">Bottom</h3>
+                    <Sheet>
+                        <SheetTrigger>
+                            <Button Variant="default">Open Bottom Sheet</Button>
+                        </SheetTrigger>
+                        <SheetContent Side="bottom" @bind-IsOpen="_bottomSheetOpen">
+                            <SheetHeader>
+                                <SheetTitle>Bottom Sheet</SheetTitle>
+                                <SheetDescription>This sheet slides in from the bottom.</SheetDescription>
+                            </SheetHeader>
+                            <div class="py-6">
+                                <p class="text-sm text-muted-foreground">
+                                    Bottom sheets are commonly used on mobile for actions, pickers, or additional options.
+                                </p>
+                            </div>
+                            <SheetFooter>
+                                <Button Variant="outline" @onclick="() => _bottomSheetOpen = false">Cancel</Button>
+                                <Button @onclick="() => _bottomSheetOpen = false">Confirm</Button>
+                            </SheetFooter>
+                            <SheetClose @onclick="() => _bottomSheetOpen = false" />
+                        </SheetContent>
+                    </Sheet>
+                    <div class="mt-4 p-3 bg-muted rounded">
+                        <code class="text-xs">Side="bottom"</code>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- No Close Button Section -->
+        <section>
+            <h2 class="text-2xl font-semibold mb-4">No Close Button</h2>
+            <p class="text-muted-foreground mb-4">Omit the <code>SheetClose</code> component to hide the close button. Users must click the overlay or an action button to close.</p>
+            
+            <div class="p-6 border rounded-lg bg-background">
+                <Sheet>
+                    <SheetTrigger>
+                        <Button Variant="default">Open Sheet (No Close Button)</Button>
+                    </SheetTrigger>
+                    <SheetContent @bind-IsOpen="_noCloseSheetOpen">
+                        <SheetHeader>
+                            <SheetTitle>Confirmation Required</SheetTitle>
+                            <SheetDescription>Please confirm your action to proceed.</SheetDescription>
+                        </SheetHeader>
+                        <div class="py-6">
+                            <p class="text-sm text-muted-foreground">
+                                This sheet has no close button. You must click Cancel or Confirm to close it.
+                            </p>
+                        </div>
+                        <SheetFooter>
+                            <Button Variant="outline" @onclick="() => _noCloseSheetOpen = false">Cancel</Button>
+                            <Button @onclick="() => _noCloseSheetOpen = false">Confirm</Button>
+                        </SheetFooter>
+                        <!-- No SheetClose component -->
+                    </SheetContent>
+                </Sheet>
+                <div class="mt-4 p-3 bg-muted rounded">
+                    <p class="text-xs text-muted-foreground">Simply omit the <code>&lt;SheetClose&gt;</code> component to hide the close button.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- RTL Section -->
+        <section>
+            <h2 class="text-2xl font-semibold mb-4">RTL Support</h2>
+            <p class="text-muted-foreground mb-4">Sheets automatically adapt to right-to-left (RTL) layouts. Wrap content in a container with <code>dir="rtl"</code> attribute.</p>
+            
+            <div class="p-6 border rounded-lg bg-background" dir="rtl">
+                <div class="text-left" dir="ltr">
+                    <h3 class="text-lg font-medium mb-4">Arabic Text Example</h3>
+                </div>
+                <Sheet>
+                    <SheetTrigger>
+                        <Button Variant="default">فتح الورقة</Button>
+                    </SheetTrigger>
+                    <SheetContent @bind-IsOpen="_rtlSheetOpen">
+                        <SheetHeader>
+                            <SheetTitle>الإعدادات</SheetTitle>
+                            <SheetDescription>قم بإدارة إعدادات التطبيق الخاصة بك.</SheetDescription>
+                        </SheetHeader>
+                        <div class="py-6">
+                            <p class="text-sm text-muted-foreground">
+                                هذا مثال على استخدام الورقة في التخطيط من اليمين إلى اليسار.
+                            </p>
+                        </div>
+                        <SheetFooter>
+                            <Button Variant="outline" @onclick="() => _rtlSheetOpen = false">إلغاء</Button>
+                            <Button @onclick="() => _rtlSheetOpen = false">حفظ</Button>
+                        </SheetFooter>
+                        <SheetClose @onclick="() => _rtlSheetOpen = false" />
+                    </SheetContent>
+                </Sheet>
+            </div>
+            <div class="mt-4 p-3 bg-muted rounded">
+                <code class="text-xs">&lt;div dir="rtl"&gt;...&lt;/div&gt;</code>
+            </div>
+        </section>
+
+        <!-- Sheet with Form Section -->
+        <section>
+            <h2 class="text-2xl font-semibold mb-4">With Form</h2>
+            <p class="text-muted-foreground mb-4">Sheets are commonly used for editing data. Include form inputs directly in the sheet content.</p>
+            
+            <div class="p-6 border rounded-lg bg-background">
+                <Sheet>
+                    <SheetTrigger>
+                        <Button Variant="default">Edit Profile</Button>
+                    </SheetTrigger>
+                    <SheetContent @bind-IsOpen="_formSheetOpen">
+                        <SheetHeader>
+                            <SheetTitle>Edit Profile</SheetTitle>
+                            <SheetDescription>Make changes to your profile here. Click save when you're done.</SheetDescription>
+                        </SheetHeader>
+                        <div class="py-6 space-y-4">
+                            <div>
+                                <label class="text-sm font-medium">Name</label>
+                                <input type="text" class="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="Enter your name" />
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium">Email</label>
+                                <input type="email" class="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="Enter your email" />
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium">Bio</label>
+                                <textarea class="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm" rows="3" placeholder="Tell us about yourself"></textarea>
+                            </div>
+                        </div>
+                        <SheetFooter>
+                            <Button Variant="outline" @onclick="() => _formSheetOpen = false">Cancel</Button>
+                            <Button @onclick="() => _formSheetOpen = false">Save Changes</Button>
+                        </SheetFooter>
+                        <SheetClose @onclick="() => _formSheetOpen = false" />
+                    </SheetContent>
+                </Sheet>
+            </div>
+        </section>
+
+        <!-- Sheet with Long Content Section -->
+        <section>
+            <h2 class="text-2xl font-semibold mb-4">With Long Content</h2>
+            <p class="text-muted-foreground mb-4">Sheets support scrollable content for longer text or forms.</p>
+            
+            <div class="p-6 border rounded-lg bg-background">
+                <Sheet>
+                    <SheetTrigger>
+                        <Button Variant="default">View Terms</Button>
+                    </SheetTrigger>
+                    <SheetContent @bind-IsOpen="_longSheetOpen">
+                        <SheetHeader>
+                            <SheetTitle>Terms and Conditions</SheetTitle>
+                            <SheetDescription>Please read carefully before proceeding.</SheetDescription>
+                        </SheetHeader>
+                        <div class="py-6 space-y-4 overflow-y-auto max-h-[60vh]">
+                            @foreach (var termSection in _termsSections)
+                            {
+                                <div>
+                                    <h4 class="font-semibold mb-2">@termSection.Title</h4>
+                                    <p class="text-sm text-muted-foreground">@termSection.Content</p>
+                                </div>
+                            }
+                        </div>
+                        <SheetFooter>
+                            <Button Variant="outline" @onclick="() => _longSheetOpen = false">Decline</Button>
+                            <Button @onclick="() => _longSheetOpen = false">Accept</Button>
+                        </SheetFooter>
+                        <SheetClose @onclick="() => _longSheetOpen = false" />
+                    </SheetContent>
+                </Sheet>
+            </div>
+        </section>
+
+        <!-- Multiple Triggers Section -->
+        <section>
+            <h2 class="text-2xl font-semibold mb-4">Multiple Triggers</h2>
+            <p class="text-muted-foreground mb-4">You can have multiple sheets on the same page for different purposes.</p>
+            
+            <div class="p-6 border rounded-lg bg-background">
+                <div class="flex flex-wrap gap-4">
+                    <Sheet>
+                        <SheetTrigger>
+                            <Button Variant="outline" Size="sm">Settings</Button>
+                        </SheetTrigger>
+                        <SheetContent @bind-IsOpen="_settingsSheetOpen">
+                            <SheetHeader>
+                                <SheetTitle>Settings</SheetTitle>
+                                <SheetDescription>Manage your application settings.</SheetDescription>
+                            </SheetHeader>
+                            <div class="py-6">
+                                <p class="text-sm text-muted-foreground">Settings content goes here...</p>
+                            </div>
+                            <SheetClose @onclick="() => _settingsSheetOpen = false" />
+                        </SheetContent>
+                    </Sheet>
+
+                    <Sheet>
+                        <SheetTrigger>
+                            <Button Variant="outline" Size="sm">Help</Button>
+                        </SheetTrigger>
+                        <SheetContent @bind-IsOpen="_helpSheetOpen">
+                            <SheetHeader>
+                                <SheetTitle>Help & Support</SheetTitle>
+                                <SheetDescription>Find answers to common questions.</SheetDescription>
+                            </SheetHeader>
+                            <div class="py-6">
+                                <p class="text-sm text-muted-foreground">Help content goes here...</p>
+                            </div>
+                            <SheetClose @onclick="() => _helpSheetOpen = false" />
+                        </SheetContent>
+                    </Sheet>
+
+                    <Sheet>
+                        <SheetTrigger>
+                            <Button Variant="outline" Size="sm">Feedback</Button>
+                        </SheetTrigger>
+                        <SheetContent @bind-IsOpen="_feedbackSheetOpen">
+                            <SheetHeader>
+                                <SheetTitle>Send Feedback</SheetTitle>
+                                <SheetDescription>We'd love to hear from you.</SheetDescription>
+                            </SheetHeader>
+                            <div class="py-6">
+                                <p class="text-sm text-muted-foreground">Feedback form goes here...</p>
+                            </div>
+                            <SheetClose @onclick="() => _feedbackSheetOpen = false" />
+                        </SheetContent>
+                    </Sheet>
+                </div>
+            </div>
+        </section>
+
+        <!-- API Reference Section -->
+        <section>
+            <h2 class="text-2xl font-semibold mb-4">API Reference</h2>
+            
+            <div class="space-y-6">
+                <!-- SheetContent API -->
+                <div class="border rounded-lg overflow-hidden">
+                    <div class="bg-muted p-4 border-b">
+                        <h3 class="font-semibold">SheetContent</h3>
+                        <p class="text-sm text-muted-foreground">The main container for sheet content with overlay.</p>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-muted/50">
+                                <tr>
+                                    <th class="text-left p-3 font-medium">Parameter</th>
+                                    <th class="text-left p-3 font-medium">Type</th>
+                                    <th class="text-left p-3 font-medium">Default</th>
+                                    <th class="text-left p-3 font-medium">Description</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y">
+                                <tr>
+                                    <td class="p-3 font-mono text-xs">IsOpen</td>
+                                    <td class="p-3 text-muted-foreground">bool</td>
+                                    <td class="p-3 text-muted-foreground">false</td>
+                                    <td class="p-3">Controls the open/closed state of the sheet.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-mono text-xs">IsOpenChanged</td>
+                                    <td class="p-3 text-muted-foreground">EventCallback&lt;bool&gt;</td>
+                                    <td class="p-3 text-muted-foreground">-</td>
+                                    <td class="p-3">Callback when the open state changes. Use with <code>@("@bind-IsOpen")</code>.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-mono text-xs">Side</td>
+                                    <td class="p-3 text-muted-foreground">string</td>
+                                    <td class="p-3 text-muted-foreground">"right"</td>
+                                    <td class="p-3">The side from which the sheet slides in. Options: "left", "right", "top", "bottom".</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-mono text-xs">Class</td>
+                                    <td class="p-3 text-muted-foreground">string</td>
+                                    <td class="p-3 text-muted-foreground">-</td>
+                                    <td class="p-3">Additional CSS classes to apply to the content panel.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-mono text-xs">AdditionalAttributes</td>
+                                    <td class="p-3 text-muted-foreground">Dictionary&lt;string, object&gt;</td>
+                                    <td class="p-3 text-muted-foreground">-</td>
+                                    <td class="p-3">Additional HTML attributes to apply to the content panel.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SheetTrigger API -->
+                <div class="border rounded-lg overflow-hidden">
+                    <div class="bg-muted p-4 border-b">
+                        <h3 class="font-semibold">SheetTrigger</h3>
+                        <p class="text-sm text-muted-foreground">The button that triggers the sheet to open.</p>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-muted/50">
+                                <tr>
+                                    <th class="text-left p-3 font-medium">Parameter</th>
+                                    <th class="text-left p-3 font-medium">Type</th>
+                                    <th class="text-left p-3 font-medium">Default</th>
+                                    <th class="text-left p-3 font-medium">Description</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y">
+                                <tr>
+                                    <td class="p-3 font-mono text-xs">OnClick</td>
+                                    <td class="p-3 text-muted-foreground">EventCallback</td>
+                                    <td class="p-3 text-muted-foreground">-</td>
+                                    <td class="p-3">Callback when the trigger button is clicked.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-mono text-xs">Class</td>
+                                    <td class="p-3 text-muted-foreground">string</td>
+                                    <td class="p-3 text-muted-foreground">-</td>
+                                    <td class="p-3">Additional CSS classes to apply to the trigger button.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-mono text-xs">AdditionalAttributes</td>
+                                    <td class="p-3 text-muted-foreground">Dictionary&lt;string, object&gt;</td>
+                                    <td class="p-3 text-muted-foreground">-</td>
+                                    <td class="p-3">Additional HTML attributes to apply to the trigger button.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Subcomponents API -->
+                <div class="border rounded-lg overflow-hidden">
+                    <div class="bg-muted p-4 border-b">
+                        <h3 class="font-semibold">Subcomponents</h3>
+                        <p class="text-sm text-muted-foreground">Layout and content subcomponents for structuring the sheet.</p>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-muted/50">
+                                <tr>
+                                    <th class="text-left p-3 font-medium">Component</th>
+                                    <th class="text-left p-3 font-medium">data-slot</th>
+                                    <th class="text-left p-3 font-medium">Description</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y">
+                                <tr>
+                                    <td class="p-3 font-mono text-xs">SheetHeader</td>
+                                    <td class="p-3 text-muted-foreground">sheet-header</td>
+                                    <td class="p-3">Top section wrapper with title and description.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-mono text-xs">SheetFooter</td>
+                                    <td class="p-3 text-muted-foreground">sheet-footer</td>
+                                    <td class="p-3">Bottom section for action buttons.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-mono text-xs">SheetTitle</td>
+                                    <td class="p-3 text-muted-foreground">sheet-title</td>
+                                    <td class="p-3">Heading element for the sheet title.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-mono text-xs">SheetDescription</td>
+                                    <td class="p-3 text-muted-foreground">sheet-description</td>
+                                    <td class="p-3">Descriptive text below the title.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-mono text-xs">SheetClose</td>
+                                    <td class="p-3 text-muted-foreground">sheet-close</td>
+                                    <td class="p-3">Close button (X) positioned in the top-right corner. Omit to hide.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Common Parameters Note -->
+                <div class="p-4 bg-muted rounded-lg border">
+                    <p class="text-sm text-muted-foreground">
+                        <strong>Note:</strong> All subcomponents (SheetHeader, SheetFooter, SheetTitle, SheetDescription, SheetClose) support <code>Class</code> and <code>AdditionalAttributes</code> parameters for customization.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+@code {
+    private bool _rightSheetOpen;
+    private bool _leftSheetOpen;
+    private bool _topSheetOpen;
+    private bool _bottomSheetOpen;
+    private bool _noCloseSheetOpen;
+    private bool _rtlSheetOpen;
+    private bool _formSheetOpen;
+    private bool _longSheetOpen;
+    private bool _settingsSheetOpen;
+    private bool _helpSheetOpen;
+    private bool _feedbackSheetOpen;
+
+    private readonly List<TermSection> _termsSections = new()
+    {
+        new("1. Acceptance of Terms", "By accessing and using this service, you accept and agree to be bound by the terms and provision of this agreement."),
+        new("2. Use of Service", "You agree to use the service only for lawful purposes and in a way that does not infringe the rights of others."),
+        new("3. Privacy Policy", "Your use of the service is also subject to our Privacy Policy, which explains how we collect and use your personal information."),
+        new("4. User Accounts", "You are responsible for maintaining the confidentiality of your account and password."),
+        new("5. Intellectual Property", "All content included on this site is the property of our company and protected by copyright laws."),
+        new("6. Termination", "We may terminate or suspend your account immediately, without prior notice or liability."),
+        new("7. Limitation of Liability", "In no event shall we be liable for any indirect, incidental, or consequential damages."),
+    };
+
+    private record TermSection(string Title, string Content);
+}

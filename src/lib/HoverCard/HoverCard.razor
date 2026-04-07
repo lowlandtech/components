@@ -2,8 +2,99 @@
 @namespace LowlandTech.Components.HoverCard
 @inherits LtComponentBase
 
-<div data-slot="hover-card"
-     class="@CssClass"
-     @attributes="AdditionalAttributes">
-    @ChildContent
-</div>
+<CascadingValue Value="this">
+    <div data-slot="hover-card"
+         class="@CssClass"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</CascadingValue>
+
+@code {
+    /// <summary>
+    /// The delay in milliseconds before opening on hover.
+    /// </summary>
+    [Parameter] public int Delay { get; set; } = 0;
+
+    /// <summary>
+    /// The delay in milliseconds before closing after mouse leave.
+    /// </summary>
+    [Parameter] public int DelayHide { get; set; } = 0;
+
+    /// <summary>
+    /// Whether the hover card is currently visible.
+    /// </summary>
+    internal bool IsVisible { get; private set; }
+
+    private CancellationTokenSource? _openDelayCts;
+    private CancellationTokenSource? _closeDelayCts;
+
+    /// <summary>
+    /// Opens the hover card after the configured delay.
+    /// </summary>
+    internal async Task OpenAsync()
+    {
+        // Cancel any pending close
+        _closeDelayCts?.Cancel();
+
+        if (Delay > 0 && !IsVisible)
+        {
+            _openDelayCts?.Cancel();
+            _openDelayCts = new CancellationTokenSource();
+
+            try
+            {
+                await Task.Delay(Delay, _openDelayCts.Token);
+            }
+            catch (TaskCanceledException)
+            {
+                return;
+            }
+        }
+
+        if (!IsVisible)
+        {
+            IsVisible = true;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Closes the hover card after the configured delay.
+    /// </summary>
+    internal async Task CloseAsync()
+    {
+        // Cancel any pending open
+        _openDelayCts?.Cancel();
+
+        if (DelayHide > 0 && IsVisible)
+        {
+            _closeDelayCts?.Cancel();
+            _closeDelayCts = new CancellationTokenSource();
+
+            try
+            {
+                await Task.Delay(DelayHide, _closeDelayCts.Token);
+            }
+            catch (TaskCanceledException)
+            {
+                return;
+            }
+        }
+
+        if (IsVisible)
+        {
+            IsVisible = false;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Cancels any pending open/close delays.
+    /// </summary>
+    internal void CancelDelays()
+    {
+        _openDelayCts?.Cancel();
+        _closeDelayCts?.Cancel();
+    }
+}

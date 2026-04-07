@@ -36,11 +36,11 @@ public class SC01_RenderPopover : ViewScenario
         cut.Find("[data-slot='popover']").ClassList.ShouldContain("test-class");
     }
 
-    [Fact(DisplayName = "UAC04: Popover has Open parameter")]
+    [Fact(DisplayName = "UAC04: Popover has IsOpen property")]
     [Trait(Spec.UAC, "04")]
-    public void UAC04_HasOpenParameter()
+    public void UAC04_HasIsOpenProperty()
     {
-        var cut = Ctx.Render<PopoverSut>(p => p.Add(x => x.Open, true));
-        cut.Instance.Open.ShouldBeTrue();
+        var cut = Ctx.Render<PopoverSut>();
+        cut.Instance.IsOpen.ShouldBeFalse();
     }
 }

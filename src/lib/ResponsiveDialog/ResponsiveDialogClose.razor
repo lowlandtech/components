@@ -1,0 +1,18 @@
+@namespace LowlandTech.Components.ResponsiveDialog
+@inherits LtComponentBase
+
+<div data-slot="responsive-dialog-close" class="@Class" @onclick="OnClick" @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    [CascadingParameter] private ResponsiveDialog? Parent { get; set; }
+
+    private async Task OnClick()
+    {
+        if (Parent != null)
+        {
+            await Parent.Close();
+        }
+    }
+}

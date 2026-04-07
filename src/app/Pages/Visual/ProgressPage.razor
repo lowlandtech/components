@@ -1,0 +1,181 @@
+@page "/visual/progress"
+@using LowlandTech.Components.Progress
+@using LowlandTech.Components.Label
+
+<PageTitle>Progress - Visual Test</PageTitle>
+
+<div class="max-w-4xl mx-auto p-8">
+    <h1 class="text-3xl font-bold mb-8">Progress</h1>
+    
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Basic Progress</h2>
+        <div class="space-y-6 p-6 border rounded-lg bg-card">
+            <Progress Value="0" />
+            <Progress Value="25" />
+            <Progress Value="50" />
+            <Progress Value="75" />
+            <Progress Value="100" />
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">With Labels (Default)</h2>
+        <div class="space-y-6 p-6 border rounded-lg bg-card">
+            <div>
+                <div class="flex justify-between mb-2">
+                    <Label>Uploading file...</Label>
+                    <ProgressLabel Value="45" />
+                </div>
+                <Progress Value="45" />
+            </div>
+            <div>
+                <div class="flex justify-between mb-2">
+                    <Label>Processing data</Label>
+                    <ProgressLabel Value="78" />
+                </div>
+                <Progress Value="78" />
+            </div>
+            <div>
+                <div class="flex justify-between mb-2">
+                    <Label>Complete</Label>
+                    <ProgressLabel Value="100" />
+                </div>
+                <Progress Value="100" />
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">With Custom Labels</h2>
+        <div class="space-y-6 p-6 border rounded-lg bg-card">
+            <div>
+                <div class="flex justify-between mb-2">
+                    <Label>Storage Used</Label>
+                    <ProgressLabel Value="75" ShowPercentage="false">75 / 100 GB</ProgressLabel>
+                </div>
+                <Progress Value="75" Max="100" />
+            </div>
+            <div>
+                <div class="flex justify-between mb-2">
+                    <Label>Steps Completed</Label>
+                    <ProgressLabel Value="3" Max="5" ShowPercentage="false">Step 3 of 5</ProgressLabel>
+                </div>
+                <Progress Value="3" Max="5" />
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Different Sizes</h2>
+        <div class="space-y-6 p-6 border rounded-lg bg-card">
+            <div>
+                <div class="flex justify-between mb-2">
+                    <ProgressLabel Value="60">Small</ProgressLabel>
+                </div>
+                <Progress Value="60" class="h-1" />
+            </div>
+            <div>
+                <div class="flex justify-between mb-2">
+                    <ProgressLabel Value="60">Default</ProgressLabel>
+                </div>
+                <Progress Value="60" />
+            </div>
+            <div>
+                <div class="flex justify-between mb-2">
+                    <ProgressLabel Value="60">Large</ProgressLabel>
+                </div>
+                <Progress Value="60" class="h-4" />
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Indeterminate</h2>
+        <div class="space-y-6 p-6 border rounded-lg bg-card">
+            <div>
+                <div class="flex justify-between mb-2">
+                    <Label>Loading...</Label>
+                </div>
+                <Progress IsIndeterminate="true" />
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Color Variants (Custom)</h2>
+        <div class="space-y-6 p-6 border rounded-lg bg-card">
+            <div>
+                <div class="flex justify-between mb-2">
+                    <ProgressLabel Value="85" class="text-green-600">Success</ProgressLabel>
+                </div>
+                <Progress Value="85" class="[&>div]:bg-green-600" />
+            </div>
+            <div>
+                <div class="flex justify-between mb-2">
+                    <ProgressLabel Value="65" class="text-yellow-600">Warning</ProgressLabel>
+                </div>
+                <Progress Value="65" class="[&>div]:bg-yellow-600" />
+            </div>
+            <div>
+                <div class="flex justify-between mb-2">
+                    <ProgressLabel Value="90" class="text-red-600">Danger</ProgressLabel>
+                </div>
+                <Progress Value="90" class="[&>div]:bg-red-600" />
+            </div>
+            <div>
+                <div class="flex justify-between mb-2">
+                    <ProgressLabel Value="45" class="text-blue-600">Info</ProgressLabel>
+                </div>
+                <Progress Value="45" class="[&>div]:bg-blue-600" />
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">Multiple Progress Bars</h2>
+        <div class="space-y-4 p-6 border rounded-lg bg-card">
+            <div>
+                <div class="flex justify-between mb-2">
+                    <Label>Server 1</Label>
+                    <ProgressLabel Value="32" />
+                </div>
+                <Progress Value="32" />
+            </div>
+            <div>
+                <div class="flex justify-between mb-2">
+                    <Label>Server 2</Label>
+                    <ProgressLabel Value="67" />
+                </div>
+                <Progress Value="67" />
+            </div>
+            <div>
+                <div class="flex justify-between mb-2">
+                    <Label>Server 3</Label>
+                    <ProgressLabel Value="91" class="text-red-600" />
+                </div>
+                <Progress Value="91" class="[&>div]:bg-red-600" />
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-semibold mb-4 text-muted-foreground">File Upload Simulation</h2>
+        <div class="p-6 border rounded-lg bg-card">
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded bg-muted flex items-center justify-center">
+                            <span class="text-xs font-medium">PDF</span>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium">document.pdf</p>
+                            <p class="text-xs text-muted-foreground">2.4 MB</p>
+                        </div>
+                    </div>
+                    <ProgressLabel Value="68" />
+                </div>
+                <Progress Value="68" />
+            </div>
+        </div>
+    </section>
+</div>
