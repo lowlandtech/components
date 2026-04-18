@@ -1,0 +1,59 @@
+@attribute [DisplayName("Overlay/Drawer")]
+@inherits StoryComponent
+
+<div class="space-y-8">
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Right (default)</h2>
+        <Drawer @bind-IsOpen="_open">
+            <DrawerTrigger>
+                <Button>Open Drawer</Button>
+            </DrawerTrigger>
+            <DrawerContent>
+                <DrawerHeader>
+                    <DrawerTitle>Edit Profile</DrawerTitle>
+                    <DrawerDescription>Make changes to your profile here.</DrawerDescription>
+                </DrawerHeader>
+                <div class="p-4 space-y-3">
+                    <div class="space-y-1">
+                        <Label For="dr-name">Name</Label>
+                        <Input id="dr-name" Value="John Doe" />
+                    </div>
+                    <div class="space-y-1">
+                        <Label For="dr-email">Email</Label>
+                        <Input id="dr-email" Type="email" Value="john@example.com" />
+                    </div>
+                </div>
+                <DrawerFooter>
+                    <Button @onclick="@(() => _open = false)">Save changes</Button>
+                    <DrawerClose><Button Variant="outline">Cancel</Button></DrawerClose>
+                </DrawerFooter>
+            </DrawerContent>
+        </Drawer>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Left</h2>
+        <Drawer @bind-IsOpen="_open2" Direction="left">
+            <DrawerTrigger>
+                <Button Variant="outline">Open Left Drawer</Button>
+            </DrawerTrigger>
+            <DrawerContent>
+                <DrawerHeader>
+                    <DrawerTitle>Navigation</DrawerTitle>
+                    <DrawerDescription>Main navigation drawer.</DrawerDescription>
+                </DrawerHeader>
+                <div class="p-4">
+                    <p class="text-sm text-muted-foreground">Navigation items here.</p>
+                </div>
+                <DrawerFooter>
+                    <DrawerClose><Button Variant="outline" class="w-full">Close</Button></DrawerClose>
+                </DrawerFooter>
+            </DrawerContent>
+        </Drawer>
+    </section>
+</div>
+
+@code {
+    bool _open;
+    bool _open2;
+}

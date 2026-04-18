@@ -1,0 +1,42 @@
+@namespace LowlandTech.Components.App.Showcode
+@inject ShowcodeState State
+@implements IDisposable
+
+<Sidebar Side="left" Variant="sidebar" Collapsible="offcanvas">
+    <SidebarHeader>
+        <div class="px-2 py-1">
+            <span class="text-sm font-semibold text-sidebar-foreground">All Components</span>
+        </div>
+    </SidebarHeader>
+    <SidebarContent>
+        @foreach (var group in StoryRegistry.Root.Children)
+        {
+            <SidebarGroup>
+                <SidebarGroupLabel>@group.Name</SidebarGroupLabel>
+                <SidebarGroupContent>
+                    <SidebarMenu>
+                        @foreach (var story in group.Stories)
+                        {
+                            <SidebarMenuItem>
+                                <SidebarMenuButton IsActive="@(State.Current?.Slug == story.Slug)"
+                                                   @onclick="@(() => Select(story))">
+                                    @story.Name
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        }
+                    </SidebarMenu>
+                </SidebarGroupContent>
+            </SidebarGroup>
+        }
+    </SidebarContent>
+</Sidebar>
+
+@code {
+    protected override void OnInitialized() => State.Changed += Refresh;
+
+    private void Select(StoryMetadata story) => State.Select(story);
+
+    private void Refresh() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => State.Changed -= Refresh;
+}

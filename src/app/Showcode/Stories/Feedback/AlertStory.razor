@@ -1,0 +1,22 @@
+@attribute [DisplayName("Feedback/Alert")]
+@inherits StoryComponent
+
+<div class="space-y-4 max-w-lg">
+    <h2 class="text-base font-semibold">Variants</h2>
+
+    <Alert>
+        <AlertTitle>Default</AlertTitle>
+        <AlertDescription>This is a default alert with general information.</AlertDescription>
+    </Alert>
+
+    <Alert Variant="destructive">
+        <AlertTitle>Destructive</AlertTitle>
+        <AlertDescription>Your session has expired. Please log in again to continue.</AlertDescription>
+    </Alert>
+
+    <Alert>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-slot="alert-icon"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+        <AlertTitle>Heads up!</AlertTitle>
+        <AlertDescription>You can add components and dependencies to your app using the CLI.</AlertDescription>
+    </Alert>
+</div>

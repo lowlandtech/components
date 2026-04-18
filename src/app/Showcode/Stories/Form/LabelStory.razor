@@ -1,0 +1,26 @@
+@attribute [DisplayName("Form/Label")]
+@inherits StoryComponent
+
+<div class="space-y-8 max-w-sm">
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Default</h2>
+        <div class="space-y-1">
+            <Label For="email">Email address</Label>
+            <Input id="email" Type="email" Placeholder="you@example.com" />
+        </div>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Required</h2>
+        <div class="space-y-1">
+            <Label For="name" Required="true">Full name</Label>
+            <Input id="name" Placeholder="John Doe" />
+        </div>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">With Description</h2>
+        <Label For="bio" Description="Tell us a little bit about yourself.">Bio</Label>
+        <Textarea id="bio" Placeholder="I am a..." />
+    </section>
+</div>

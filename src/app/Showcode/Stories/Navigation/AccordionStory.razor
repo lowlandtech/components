@@ -1,0 +1,50 @@
+@attribute [DisplayName("Navigation/Accordion")]
+@inherits StoryComponent
+
+<div class="space-y-8">
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Single (collapsible)</h2>
+        <Accordion Type="single" Collapsible="true" class="w-full max-w-md">
+            <AccordionItem Value="item-1">
+                <AccordionHeader><AccordionTrigger>Is it accessible?</AccordionTrigger></AccordionHeader>
+                <AccordionContent>Yes. It adheres to the WAI-ARIA design pattern.</AccordionContent>
+            </AccordionItem>
+            <AccordionItem Value="item-2">
+                <AccordionHeader><AccordionTrigger>Is it styled?</AccordionTrigger></AccordionHeader>
+                <AccordionContent>Yes. It comes with default styles that match the other components' aesthetic.</AccordionContent>
+            </AccordionItem>
+            <AccordionItem Value="item-3">
+                <AccordionHeader><AccordionTrigger>Is it animated?</AccordionTrigger></AccordionHeader>
+                <AccordionContent>Yes. It's animated by default, but you can disable it if you prefer.</AccordionContent>
+            </AccordionItem>
+        </Accordion>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Multiple open</h2>
+        <Accordion Type="multiple" class="w-full max-w-md">
+            <AccordionItem Value="q1">
+                <AccordionHeader><AccordionTrigger>What is Foundry?</AccordionTrigger></AccordionHeader>
+                <AccordionContent>Foundry is a modular, extensible web platform built on .NET 10.</AccordionContent>
+            </AccordionItem>
+            <AccordionItem Value="q2">
+                <AccordionHeader><AccordionTrigger>Which framework is used for the UI?</AccordionTrigger></AccordionHeader>
+                <AccordionContent>Blazor Server with Interactive Server Components and Tailwind CSS 4.0.</AccordionContent>
+            </AccordionItem>
+        </Accordion>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">With disabled item</h2>
+        <Accordion Type="single" class="w-full max-w-md">
+            <AccordionItem Value="a1">
+                <AccordionHeader><AccordionTrigger>Available item</AccordionTrigger></AccordionHeader>
+                <AccordionContent>This item can be expanded.</AccordionContent>
+            </AccordionItem>
+            <AccordionItem Value="a2" Disabled="true">
+                <AccordionHeader><AccordionTrigger>Disabled item</AccordionTrigger></AccordionHeader>
+                <AccordionContent>This content is inaccessible.</AccordionContent>
+            </AccordionItem>
+        </Accordion>
+    </section>
+</div>

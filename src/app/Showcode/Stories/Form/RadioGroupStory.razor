@@ -1,0 +1,39 @@
+@attribute [DisplayName("Form/Radio Group")]
+@inherits StoryComponent
+
+<div class="space-y-8">
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Vertical (default)</h2>
+        <RadioGroup Name="plan" @bind-Value="_plan">
+            <RadioGroupItem Value="free">Free</RadioGroupItem>
+            <RadioGroupItem Value="pro">Pro</RadioGroupItem>
+            <RadioGroupItem Value="enterprise">Enterprise</RadioGroupItem>
+        </RadioGroup>
+        <p class="text-xs text-muted-foreground">Selected: @_plan</p>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Horizontal</h2>
+        <RadioGroup Name="answer" Orientation="horizontal" @bind-Value="_answer">
+            <RadioGroupItem Value="yes">Yes</RadioGroupItem>
+            <RadioGroupItem Value="no">No</RadioGroupItem>
+            <RadioGroupItem Value="maybe">Maybe</RadioGroupItem>
+        </RadioGroup>
+        <p class="text-xs text-muted-foreground">Selected: @_answer</p>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">With disabled item</h2>
+        <RadioGroup Name="tier" @bind-Value="_tier">
+            <RadioGroupItem Value="basic">Basic</RadioGroupItem>
+            <RadioGroupItem Value="standard">Standard</RadioGroupItem>
+            <RadioGroupItem Value="premium" Disabled="true">Premium (unavailable)</RadioGroupItem>
+        </RadioGroup>
+    </section>
+</div>
+
+@code {
+    string _plan = "free";
+    string _answer = "yes";
+    string _tier = "basic";
+}

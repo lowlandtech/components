@@ -1,0 +1,29 @@
+@attribute [DisplayName("Layout/Skeleton")]
+@inherits StoryComponent
+
+<div class="space-y-8 max-w-sm">
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Text lines</h2>
+        <div class="space-y-2">
+            <Skeleton class="h-4 w-full rounded" />
+            <Skeleton class="h-4 w-4/5 rounded" />
+            <Skeleton class="h-4 w-3/5 rounded" />
+        </div>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Card skeleton</h2>
+        <div class="flex items-center gap-4">
+            <Skeleton class="h-12 w-12 rounded-full" />
+            <div class="space-y-2 flex-1">
+                <Skeleton class="h-4 w-3/4 rounded" />
+                <Skeleton class="h-4 w-1/2 rounded" />
+            </div>
+        </div>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Image placeholder</h2>
+        <Skeleton class="h-40 w-full rounded-lg" />
+    </section>
+</div>

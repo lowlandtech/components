@@ -1,0 +1,32 @@
+@namespace LowlandTech.Components.App.Layout
+@inherits LayoutComponentBase
+@inject ShowcodeState State
+@implements IDisposable
+
+<SidebarProvider>
+    <div class="flex h-screen w-full overflow-hidden">
+        <ShowcodeNav />
+        <SidebarInset class="flex flex-col min-w-0">
+            <header class="flex h-12 shrink-0 items-center justify-between border-b border-border px-4 bg-background">
+                <SidebarTrigger />
+                <span class="text-sm font-semibold text-foreground tracking-tight">LowlandTech Components</span>
+                <ThemeToggle />
+            </header>
+            <main class="flex-1 overflow-y-auto bg-background p-6">
+                @Body
+            </main>
+        </SidebarInset>
+    </div>
+</SidebarProvider>
+
+@code {
+    protected override void OnInitialized()
+    {
+        State.Changed += Refresh;
+        if (State.Current is null) State.SelectFirst();
+    }
+
+    private void Refresh() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => State.Changed -= Refresh;
+}

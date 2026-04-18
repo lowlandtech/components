@@ -1,0 +1,31 @@
+@attribute [DisplayName("Layout/Aspect Ratio")]
+@inherits StoryComponent
+
+<div class="space-y-8">
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">16:9 video placeholder</h2>
+        <div class="w-full max-w-sm">
+            <AspectRatio Ratio="16/9" class="bg-muted rounded-lg overflow-hidden">
+                <div class="flex h-full items-center justify-center text-muted-foreground text-sm">16 / 9</div>
+            </AspectRatio>
+        </div>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">4:3 image placeholder</h2>
+        <div class="w-full max-w-xs">
+            <AspectRatio Ratio="4/3" class="bg-muted rounded-lg overflow-hidden">
+                <div class="flex h-full items-center justify-center text-muted-foreground text-sm">4 / 3</div>
+            </AspectRatio>
+        </div>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">1:1 square</h2>
+        <div class="w-32">
+            <AspectRatio Ratio="1/1" class="bg-muted rounded-full overflow-hidden">
+                <div class="flex h-full items-center justify-center text-muted-foreground text-sm">1:1</div>
+            </AspectRatio>
+        </div>
+    </section>
+</div>

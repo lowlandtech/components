@@ -1,0 +1,30 @@
+@attribute [DisplayName("Form/Switch")]
+@inherits StoryComponent
+
+<div class="space-y-8">
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">States</h2>
+        <div class="space-y-3">
+            <div class="flex items-center gap-3">
+                <Switch id="sw1" IsChecked="false" />
+                <Label For="sw1">Off</Label>
+            </div>
+            <div class="flex items-center gap-3">
+                <Switch id="sw2" IsChecked="true" />
+                <Label For="sw2">On</Label>
+            </div>
+            <div class="flex items-center gap-3">
+                <Switch id="sw3" Disabled="true" />
+                <Label For="sw3" class="opacity-50">Disabled</Label>
+            </div>
+        </div>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Choice Card</h2>
+        <Switch ChoiceCard="true"
+                Title="Email notifications"
+                Description="Receive emails about your account activity."
+                IsChecked="true" />
+    </section>
+</div>

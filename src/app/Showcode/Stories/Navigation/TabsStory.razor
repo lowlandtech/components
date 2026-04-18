@@ -1,0 +1,47 @@
+@attribute [DisplayName("Navigation/Tabs")]
+@inherits StoryComponent
+
+<div class="space-y-8">
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Default</h2>
+        <Tabs DefaultValue="account" class="w-full max-w-lg">
+            <TabsList>
+                <TabsTrigger Value="account">Account</TabsTrigger>
+                <TabsTrigger Value="password">Password</TabsTrigger>
+                <TabsTrigger Value="settings">Settings</TabsTrigger>
+            </TabsList>
+            <TabsContent Value="account">
+                <div class="rounded-lg border bg-card p-4 text-card-foreground">
+                    <h3 class="font-medium mb-1">Account Settings</h3>
+                    <p class="text-sm text-muted-foreground">Manage your account preferences and personal information.</p>
+                </div>
+            </TabsContent>
+            <TabsContent Value="password">
+                <div class="rounded-lg border bg-card p-4 text-card-foreground">
+                    <h3 class="font-medium mb-1">Password Settings</h3>
+                    <p class="text-sm text-muted-foreground">Update your password and security preferences.</p>
+                </div>
+            </TabsContent>
+            <TabsContent Value="settings">
+                <div class="rounded-lg border bg-card p-4 text-card-foreground">
+                    <h3 class="font-medium mb-1">General Settings</h3>
+                    <p class="text-sm text-muted-foreground">Configure application-wide settings and notifications.</p>
+                </div>
+            </TabsContent>
+        </Tabs>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">With disabled tab</h2>
+        <Tabs DefaultValue="tab1" class="w-full max-w-lg">
+            <TabsList>
+                <TabsTrigger Value="tab1">Active</TabsTrigger>
+                <TabsTrigger Value="tab2">Also Active</TabsTrigger>
+                <TabsTrigger Value="tab3" Disabled="true">Disabled</TabsTrigger>
+            </TabsList>
+            <TabsContent Value="tab1"><p class="p-2 text-sm text-muted-foreground">Tab 1 content.</p></TabsContent>
+            <TabsContent Value="tab2"><p class="p-2 text-sm text-muted-foreground">Tab 2 content.</p></TabsContent>
+            <TabsContent Value="tab3"><p class="p-2 text-sm text-muted-foreground">Unreachable content.</p></TabsContent>
+        </Tabs>
+    </section>
+</div>

@@ -1,0 +1,42 @@
+@attribute [DisplayName("Overlay/Alert Dialog")]
+@inherits StoryComponent
+
+<div class="space-y-8">
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Destructive confirm</h2>
+        <AlertDialog>
+            <AlertDialogTrigger>
+                <Button Variant="destructive">Delete item</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>This action cannot be undone. This will permanently delete this item.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction>Delete</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Continue confirm</h2>
+        <AlertDialog>
+            <AlertDialogTrigger>
+                <Button Variant="outline">Continue</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Continue with changes?</AlertDialogTitle>
+                    <AlertDialogDescription>This will apply all pending changes to your account. You can review them later in Settings.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Go back</AlertDialogCancel>
+                    <AlertDialogAction>Continue</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    </section>
+</div>

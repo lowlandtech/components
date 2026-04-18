@@ -1,0 +1,37 @@
+@attribute [DisplayName("Form/Input")]
+@inherits StoryComponent
+
+<div class="space-y-8 max-w-sm">
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Default</h2>
+        <Input Placeholder="Enter text..." />
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Types</h2>
+        <div class="space-y-2">
+            <Input Type="email" Placeholder="Email address" />
+            <Input Type="password" Placeholder="Password" />
+            <Input Type="number" Placeholder="0" />
+            <Input Type="search" Placeholder="Search..." />
+        </div>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Sizes</h2>
+        <div class="space-y-2">
+            <Input Size="sm" Placeholder="Small input" />
+            <Input Size="default" Placeholder="Default input" />
+            <Input Size="lg" Placeholder="Large input" />
+        </div>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">States</h2>
+        <div class="space-y-2">
+            <Input Placeholder="Disabled" Disabled="true" />
+            <Input Placeholder="Read only" ReadOnly="true" Value="Read-only value" />
+            <Input Placeholder="Invalid" Invalid="true" Value="bad value" />
+        </div>
+    </section>
+</div>

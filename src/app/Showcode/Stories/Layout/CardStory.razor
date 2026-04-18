@@ -1,0 +1,51 @@
+@attribute [DisplayName("Layout/Card")]
+@inherits StoryComponent
+
+<div class="space-y-8">
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Basic</h2>
+        <Card class="w-full max-w-sm">
+            <CardHeader>
+                <CardTitle>Card Title</CardTitle>
+                <CardDescription>Card description goes here.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p class="text-sm text-muted-foreground">Card content area for any content.</p>
+            </CardContent>
+        </Card>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">With footer</h2>
+        <Card class="w-full max-w-sm">
+            <CardHeader>
+                <CardTitle>Create Project</CardTitle>
+                <CardDescription>Deploy your new project in one-click.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p class="text-sm text-muted-foreground">Your project will be created with default settings. You can customize it later.</p>
+            </CardContent>
+            <CardFooter class="flex justify-between">
+                <Button Variant="ghost">Cancel</Button>
+                <Button>Deploy</Button>
+            </CardFooter>
+        </Card>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">With badge action</h2>
+        <Card class="w-full max-w-sm">
+            <CardHeader>
+                <CardTitle>Notifications</CardTitle>
+                <CardDescription>You have 3 unread messages.</CardDescription>
+                <div data-slot="card-action">
+                    <Badge>3 new</Badge>
+                </div>
+            </CardHeader>
+            <CardContent>
+                <p class="text-sm font-medium">New feature available</p>
+                <p class="text-sm text-muted-foreground">Check out the new dashboard with real-time analytics.</p>
+            </CardContent>
+        </Card>
+    </section>
+</div>

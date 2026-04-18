@@ -1,0 +1,48 @@
+@attribute [DisplayName("Overlay/Tooltip")]
+@inherits StoryComponent
+
+<div class="space-y-8">
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Default</h2>
+        <TooltipProvider>
+            <Tooltip>
+                <TooltipTrigger>
+                    <Button Variant="outline">Hover me</Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>This is a tooltip</p>
+                </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Positions</h2>
+        <div class="flex flex-wrap gap-4">
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger><Button Variant="outline" Size="sm">Top</Button></TooltipTrigger>
+                    <TooltipContent Side="top"><p>Tooltip on top</p></TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger><Button Variant="outline" Size="sm">Bottom</Button></TooltipTrigger>
+                    <TooltipContent Side="bottom"><p>Tooltip on bottom</p></TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger><Button Variant="outline" Size="sm">Left</Button></TooltipTrigger>
+                    <TooltipContent Side="left"><p>Tooltip on left</p></TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger><Button Variant="outline" Size="sm">Right</Button></TooltipTrigger>
+                    <TooltipContent Side="right"><p>Tooltip on right</p></TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        </div>
+    </section>
+</div>

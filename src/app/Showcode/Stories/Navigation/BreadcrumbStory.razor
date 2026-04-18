@@ -1,0 +1,49 @@
+@attribute [DisplayName("Navigation/Breadcrumb")]
+@inherits StoryComponent
+
+<div class="space-y-8">
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Basic</h2>
+        <LowlandTech.Components.Breadcrumb.Breadcrumb>
+            <BreadcrumbList>
+                <BreadcrumbItem><BreadcrumbLink href="/">Home</BreadcrumbLink></BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem><BreadcrumbLink href="#">Components</BreadcrumbLink></BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem><LowlandTech.Components.Breadcrumb.BreadcrumbPage>Breadcrumb</LowlandTech.Components.Breadcrumb.BreadcrumbPage></BreadcrumbItem>
+            </BreadcrumbList>
+        </LowlandTech.Components.Breadcrumb.Breadcrumb>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">With custom separator</h2>
+        <LowlandTech.Components.Breadcrumb.Breadcrumb>
+            <BreadcrumbList>
+                <BreadcrumbItem><BreadcrumbLink href="/">Home</BreadcrumbLink></BreadcrumbItem>
+                <BreadcrumbSeparator>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </BreadcrumbSeparator>
+                <BreadcrumbItem><BreadcrumbLink href="#">Products</BreadcrumbLink></BreadcrumbItem>
+                <BreadcrumbSeparator>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </BreadcrumbSeparator>
+                <BreadcrumbItem><LowlandTech.Components.Breadcrumb.BreadcrumbPage>Detail</LowlandTech.Components.Breadcrumb.BreadcrumbPage></BreadcrumbItem>
+            </BreadcrumbList>
+        </LowlandTech.Components.Breadcrumb.Breadcrumb>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">With ellipsis</h2>
+        <LowlandTech.Components.Breadcrumb.Breadcrumb>
+            <BreadcrumbList>
+                <BreadcrumbItem><BreadcrumbLink href="/">Home</BreadcrumbLink></BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem><BreadcrumbEllipsis /></BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem><BreadcrumbLink href="#">Docs</BreadcrumbLink></BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem><LowlandTech.Components.Breadcrumb.BreadcrumbPage>Components</LowlandTech.Components.Breadcrumb.BreadcrumbPage></BreadcrumbItem>
+            </BreadcrumbList>
+        </LowlandTech.Components.Breadcrumb.Breadcrumb>
+    </section>
+</div>

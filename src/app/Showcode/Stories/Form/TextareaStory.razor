@@ -1,0 +1,22 @@
+@attribute [DisplayName("Form/Textarea")]
+@inherits StoryComponent
+
+<div class="space-y-8 max-w-sm">
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Default</h2>
+        <Textarea Placeholder="Type your message here." />
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Disabled</h2>
+        <Textarea Placeholder="Disabled textarea" Disabled="true" />
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">With Label</h2>
+        <div class="space-y-1">
+            <Label For="msg">Your message</Label>
+            <Textarea id="msg" Placeholder="Leave a comment..." />
+        </div>
+    </section>
+</div>
