@@ -26,7 +26,7 @@
         if (firstRender)
         {
             _module = await JS.InvokeAsync<IJSObjectReference>(
-                "import", "./_content/LowlandTech.Components/responsiveDialog.js");
+                "import", "./_content/LowlandTech.Components/js/responsiveDialog.js");
 
             await _module.InvokeVoidAsync("initialize", DotNetObjectReference.Create(this), MobileBreakpoint);
             _jsInitialized = true;

@@ -12,7 +12,7 @@ namespace LowlandTech.Components;
 public class ExampleJsInterop(IJSRuntime jsRuntime) : IAsyncDisposable
 {
     private readonly Lazy<Task<IJSObjectReference>> moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-            "import", "./_content/LowlandTech.Components/exampleJsInterop.js").AsTask());
+            "import", "./_content/LowlandTech.Components/js/exampleJsInterop.js").AsTask());
 
     public async ValueTask<string> Prompt(string message)
     {

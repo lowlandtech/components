@@ -57,7 +57,7 @@
         if (firstRender)
         {
             _chartModule = await JS.InvokeAsync<IJSObjectReference>(
-                "import", "./_content/LowlandTech.Components/chart.js");
+                "import", "./_content/LowlandTech.Components/js/chart.js");
             
             await InitializeChartAsync();
             _isInitialized = true;
