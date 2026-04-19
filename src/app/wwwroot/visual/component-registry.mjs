@@ -13,6 +13,7 @@ const EXCLUDED_DOC_FILES = new Set(["readme", "_index", "next-components", "visu
 const CHADCN_SLUG_OVERRIDES = {
   ButtonGroup: null,
   CodeEditor: null,
+  DataGrid: null,
   Direction: null,
   Empty: null,
   Field: null,

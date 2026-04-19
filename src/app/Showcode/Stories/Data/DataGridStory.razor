@@ -1,0 +1,98 @@
+@attribute [DisplayName("Data/DataGrid")]
+@inherits StoryComponent
+
+<div class="space-y-8">
+    <section class="space-y-3">
+        <div>
+            <h2 class="text-base font-semibold">Orders</h2>
+            <p class="text-sm text-muted-foreground">Sort by any header, filter by customer or status, and move through the page set.</p>
+        </div>
+
+        <DataGrid TItem="OrderRow"
+                  Items="@Orders"
+                  AllowFiltering="true"
+                  AllowPaging="true"
+                  PageSize="4"
+                  SelectionMode="DataGridSelectionMode.Multiple"
+                  SelectedItems="@_selectedOrders"
+                  SelectedItemsChanged="OnSelectedOrdersChanged">
+            <Columns>
+                <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
+                <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
+                <DataGridColumn TItem="OrderRow" Property="Customer.Region" Title="Region" />
+                <DataGridColumn TItem="OrderRow" Property="Status" Title="Status">
+                    <Template Context="order">
+                        <Badge Variant="@GetStatusVariant(order.Status)">@order.Status</Badge>
+                    </Template>
+                </DataGridColumn>
+                <DataGridColumn TItem="OrderRow" Property="Total" Title="Total" FormatString="C0" TextAlign="DataGridTextAlign.End" />
+                <DataGridColumn TItem="OrderRow" Property="DueDate" Title="Due" FormatString="MMM d" />
+            </Columns>
+        </DataGrid>
+
+        <p class="text-sm text-muted-foreground">@_selectedOrders.Count selected</p>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Empty state</h2>
+        <DataGrid TItem="OrderRow" Items="Array.Empty<OrderRow>()">
+            <Columns>
+                <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
+                <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
+                <DataGridColumn TItem="OrderRow" Property="Status" Title="Status" />
+            </Columns>
+            <EmptyTemplate>
+                <span>No orders match this view.</span>
+            </EmptyTemplate>
+        </DataGrid>
+    </section>
+
+    <section class="space-y-3">
+        <h2 class="text-base font-semibold">Loading state</h2>
+        <DataGrid TItem="OrderRow" Items="@Orders" IsLoading="true">
+            <Columns>
+                <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
+                <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
+                <DataGridColumn TItem="OrderRow" Property="Status" Title="Status" />
+            </Columns>
+            <LoadingTemplate>
+                <span>Refreshing orders...</span>
+            </LoadingTemplate>
+        </DataGrid>
+    </section>
+</div>
+
+@code {
+    private ISet<OrderRow> _selectedOrders = new HashSet<OrderRow>();
+
+    private static readonly IReadOnlyList<OrderRow> Orders =
+    [
+        new("ORD-1042", new CustomerInfo("Brightline Studios", "West"), "Paid", 18420m, new DateOnly(2026, 4, 21)),
+        new("ORD-1043", new CustomerInfo("Northstar Labs", "North"), "Review", 9250m, new DateOnly(2026, 4, 22)),
+        new("ORD-1044", new CustomerInfo("Harbor & Finch", "East"), "Shipped", 31200m, new DateOnly(2026, 4, 23)),
+        new("ORD-1045", new CustomerInfo("Fieldstone Supply", "South"), "Paid", 7200m, new DateOnly(2026, 4, 24)),
+        new("ORD-1046", new CustomerInfo("Morrow Works", "West"), "Review", 14780m, new DateOnly(2026, 4, 25)),
+        new("ORD-1047", new CustomerInfo("Arcadia Goods", "East"), "Shipped", 22190m, new DateOnly(2026, 4, 26))
+    ];
+
+    private void OnSelectedOrdersChanged(ISet<OrderRow> selectedOrders)
+    {
+        _selectedOrders = selectedOrders;
+    }
+
+    private static string GetStatusVariant(string status)
+    {
+        return status switch
+        {
+            "Paid" => "default",
+            "Shipped" => "secondary",
+            "Review" => "outline",
+            _ => "secondary"
+        };
+    }
+
+    private sealed record CustomerInfo(string Name, string Region);
+
+    private sealed record OrderRow(string OrderNumber, CustomerInfo Customer, string Status, decimal Total, DateOnly DueDate);
+}
+

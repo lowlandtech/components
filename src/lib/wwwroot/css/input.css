@@ -381,6 +381,87 @@
     @apply mt-4 text-sm text-muted-foreground;
   }
 
+  /* DataGrid Component Styles */
+  .cn-data-grid {
+    @apply w-full space-y-2;
+  }
+
+  .cn-data-grid-table-container {
+    @apply w-full overflow-auto rounded-md border border-border;
+  }
+
+  .cn-data-grid-table {
+    @apply w-full caption-bottom border-collapse text-sm;
+  }
+
+  .cn-data-grid-header {
+    @apply border-b bg-muted/50;
+  }
+
+  .cn-data-grid-body {
+    @apply divide-y divide-border;
+  }
+
+  .cn-data-grid-row {
+    @apply border-b border-border transition-colors hover:bg-muted/50 data-[selected=true]:bg-muted;
+  }
+
+  .cn-data-grid-row:last-child {
+    @apply border-b-0;
+  }
+
+  .cn-data-grid-head {
+    @apply h-10 px-4 text-left align-middle font-medium text-muted-foreground;
+  }
+
+  .cn-data-grid-sortable-head {
+    @apply p-0;
+  }
+
+  .cn-data-grid-sort-button {
+    @apply flex h-10 w-full items-center justify-between gap-2 px-4 text-left font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
+  }
+
+  .cn-data-grid-sort-indicator {
+    @apply text-xs text-muted-foreground;
+  }
+
+  .cn-data-grid-filter-row {
+    @apply border-t border-border;
+  }
+
+  .cn-data-grid-filter-input {
+    @apply h-8 w-full rounded-md border border-input bg-transparent px-2 text-sm text-foreground shadow-sm outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring;
+  }
+
+  .cn-data-grid-cell {
+    @apply p-4 align-middle;
+  }
+
+  .cn-data-grid-selection-cell {
+    @apply w-12 text-center;
+  }
+
+  .cn-data-grid-state-cell {
+    @apply p-8 text-center text-sm text-muted-foreground;
+  }
+
+  .cn-data-grid-pager {
+    @apply flex items-center justify-between gap-3 text-sm text-muted-foreground;
+  }
+
+  .cn-data-grid-pager-actions {
+    @apply flex items-center gap-2;
+  }
+
+  .cn-data-grid-page-button {
+    @apply inline-flex h-8 items-center justify-center rounded-md border border-input bg-background px-3 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .cn-data-grid-page-summary {
+    @apply whitespace-nowrap;
+  }
+
   /* Tabs Component Styles */
   .cn-tabs-list[data-variant="line"] .cn-tabs-trigger[data-state="active"] {
     border-bottom: 2px solid currentColor;

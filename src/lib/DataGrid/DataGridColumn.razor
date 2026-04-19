@@ -1,0 +1,108 @@
+@namespace LowlandTech.Components.DataGrid
+@typeparam TItem
+@implements IDisposable
+
+@code {
+    private readonly string _generatedKey = Guid.NewGuid().ToString("N");
+
+    [CascadingParameter] internal DataGrid<TItem>? Owner { get; set; }
+
+    [Parameter] public string? Property { get; set; }
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public RenderFragment<TItem>? Template { get; set; }
+    [Parameter] public string? FormatString { get; set; }
+    [Parameter] public bool Visible { get; set; } = true;
+    [Parameter] public bool? Sortable { get; set; }
+    [Parameter] public bool? Filterable { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? HeaderClass { get; set; }
+    [Parameter] public DataGridTextAlign TextAlign { get; set; } = DataGridTextAlign.Start;
+
+    internal string Key => Property ?? Title ?? _generatedKey;
+    internal string HeaderText => Title ?? Property ?? string.Empty;
+
+    protected override void OnInitialized()
+    {
+        Owner?.RegisterColumn(this);
+    }
+
+    public void Dispose()
+    {
+        Owner?.UnregisterColumn(this);
+    }
+
+    internal object? GetValue(TItem item)
+    {
+        if (item is null || string.IsNullOrWhiteSpace(Property))
+        {
+            return null;
+        }
+
+        object? current = item;
+
+        foreach (var part in Property.Split('.', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (current is null)
+            {
+                return null;
+            }
+
+            var propertyInfo = current.GetType().GetProperty(
+                part,
+                System.Reflection.BindingFlags.Public |
+                System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.IgnoreCase);
+
+            if (propertyInfo is null)
+            {
+                return null;
+            }
+
+            current = propertyInfo.GetValue(current);
+        }
+
+        return current;
+    }
+
+    internal string FormatValue(TItem item)
+    {
+        var value = GetValue(item);
+
+        if (value is null)
+        {
+            return string.Empty;
+        }
+
+        if (!string.IsNullOrEmpty(FormatString) && value is IFormattable formattable)
+        {
+            return formattable.ToString(FormatString, System.Globalization.CultureInfo.CurrentCulture);
+        }
+
+        return value.ToString() ?? string.Empty;
+    }
+
+    internal string GetCellClass()
+    {
+        var alignClass = TextAlign switch
+        {
+            DataGridTextAlign.Center => "text-center",
+            DataGridTextAlign.End => "text-right",
+            _ => "text-left"
+        };
+
+        return string.IsNullOrWhiteSpace(Class) ? alignClass : $"{alignClass} {Class}";
+    }
+
+    internal string GetHeaderClass()
+    {
+        var alignClass = TextAlign switch
+        {
+            DataGridTextAlign.Center => "text-center",
+            DataGridTextAlign.End => "text-right",
+            _ => "text-left"
+        };
+
+        return string.IsNullOrWhiteSpace(HeaderClass) ? alignClass : $"{alignClass} {HeaderClass}";
+    }
+}
+

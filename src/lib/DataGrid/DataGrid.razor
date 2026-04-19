@@ -1,0 +1,421 @@
+@namespace LowlandTech.Components.DataGrid
+@typeparam TItem
+@inherits LtComponentBase
+
+<div data-slot="data-grid"
+     data-loading="@IsLoading.ToString().ToLowerInvariant()"
+     data-selection-mode="@SelectionMode.ToString().ToLowerInvariant()"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
+    <CascadingValue Value="this" IsFixed="true">
+        <div hidden>
+            @if (Columns is not null)
+            {
+                @Columns
+            }
+            else
+            {
+                @ChildContent
+            }
+        </div>
+
+        <div data-slot="data-grid-table-container" class="cn-data-grid-table-container">
+            <table data-slot="data-grid-table" class="cn-data-grid-table">
+                <thead data-slot="data-grid-header" class="cn-data-grid-header">
+                    <tr data-slot="data-grid-header-row" class="cn-data-grid-row">
+                        @if (SelectionMode == DataGridSelectionMode.Multiple)
+                        {
+                            <th data-slot="data-grid-header-cell" class="cn-data-grid-head cn-data-grid-selection-cell">
+                                <span class="sr-only">Select</span>
+                            </th>
+                        }
+                        @foreach (var column in VisibleColumns)
+                        {
+                            <th data-slot="data-grid-header-cell" class="@GetHeaderCellClass(column)">
+                                @if (CanSort(column))
+                                {
+                                    <button type="button"
+                                            data-slot="data-grid-sort-button"
+                                            data-sort-direction="@GetSortDirection(column).ToString().ToLowerInvariant()"
+                                            class="cn-data-grid-sort-button"
+                                            @onclick="() => ToggleSort(column)">
+                                        <span>@column.HeaderText</span>
+                                        <span aria-hidden="true" class="cn-data-grid-sort-indicator">@GetSortIndicator(column)</span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    @column.HeaderText
+                                }
+                            </th>
+                        }
+                    </tr>
+                    @if (AllowFiltering && VisibleColumns.Any(CanFilter))
+                    {
+                        <tr data-slot="data-grid-filter-row" class="cn-data-grid-filter-row">
+                            @if (SelectionMode == DataGridSelectionMode.Multiple)
+                            {
+                                <th data-slot="data-grid-filter-cell" class="cn-data-grid-head cn-data-grid-selection-cell"></th>
+                            }
+                            @foreach (var column in VisibleColumns)
+                            {
+                                <th data-slot="data-grid-filter-cell" class="@GetHeaderCellClass(column)">
+                                    @if (CanFilter(column))
+                                    {
+                                        <input data-slot="data-grid-filter-input"
+                                               class="cn-data-grid-filter-input"
+                                               value="@GetFilterValue(column)"
+                                               aria-label="Filter @column.HeaderText"
+                                               @oninput="eventArgs => UpdateFilter(column, eventArgs.Value?.ToString())" />
+                                    }
+                                </th>
+                            }
+                        </tr>
+                    }
+                </thead>
+                <tbody data-slot="data-grid-body" class="cn-data-grid-body">
+                    @if (IsLoading)
+                    {
+                        <tr data-slot="data-grid-loading-row" class="cn-data-grid-row">
+                            <td data-slot="data-grid-loading" class="cn-data-grid-state-cell" colspan="@ColumnSpan">
+                                @if (LoadingTemplate is not null)
+                                {
+                                    @LoadingTemplate
+                                }
+                                else
+                                {
+                                    <span>Loading...</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    else if (!CurrentPageItems.Any())
+                    {
+                        <tr data-slot="data-grid-empty-row" class="cn-data-grid-row">
+                            <td data-slot="data-grid-empty" class="cn-data-grid-state-cell" colspan="@ColumnSpan">
+                                @if (EmptyTemplate is not null)
+                                {
+                                    @EmptyTemplate
+                                }
+                                else
+                                {
+                                    <span>No results found.</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in CurrentPageItems)
+                        {
+                            <tr data-slot="data-grid-row"
+                                data-selected="@(IsSelected(item) ? "true" : null)"
+                                aria-selected="@(SelectionMode == DataGridSelectionMode.None ? null : IsSelected(item).ToString().ToLowerInvariant())"
+                                class="cn-data-grid-row"
+                                @onclick="() => ToggleSelection(item)">
+                                @if (SelectionMode == DataGridSelectionMode.Multiple)
+                                {
+                                    <td data-slot="data-grid-cell" class="cn-data-grid-cell cn-data-grid-selection-cell">
+                                        <input data-slot="data-grid-selection-input"
+                                               type="checkbox"
+                                               checked="@IsSelected(item)"
+                                               aria-label="Select row"
+                                               @onclick:stopPropagation="true"
+                                               @onchange="() => ToggleSelection(item)" />
+                                    </td>
+                                }
+                                @foreach (var column in VisibleColumns)
+                                {
+                                    <td data-slot="data-grid-cell" class="@GetCellClass(column)">
+                                        @if (column.Template is not null)
+                                        {
+                                            @column.Template(item)
+                                        }
+                                        else
+                                        {
+                                            @column.FormatValue(item)
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (AllowPaging && TotalItems > PageSize)
+        {
+            <div data-slot="data-grid-pager" class="cn-data-grid-pager">
+                <span data-slot="data-grid-page-summary" class="cn-data-grid-page-summary">
+                    Page @(PageIndex + 1) of @TotalPages
+                </span>
+                <div class="cn-data-grid-pager-actions">
+                    <button type="button"
+                            data-slot="data-grid-page-previous"
+                            class="cn-data-grid-page-button"
+                            disabled="@(PageIndex == 0)"
+                            @onclick="GoToPreviousPage">
+                        Previous
+                    </button>
+                    <button type="button"
+                            data-slot="data-grid-page-next"
+                            class="cn-data-grid-page-button"
+                            disabled="@(PageIndex >= TotalPages - 1)"
+                            @onclick="GoToNextPage">
+                        Next
+                    </button>
+                </div>
+            </div>
+        }
+    </CascadingValue>
+</div>
+
+@code {
+    private readonly List<DataGridColumn<TItem>> _columns = [];
+    private readonly Dictionary<string, string> _filters = new(StringComparer.Ordinal);
+    private HashSet<TItem> _selectedItems = [];
+    private DataGridColumn<TItem>? _sortColumn;
+    private DataGridSortDirection _sortDirection = DataGridSortDirection.None;
+
+    [Parameter] public IEnumerable<TItem>? Items { get; set; }
+    [Parameter] public RenderFragment? Columns { get; set; }
+    [Parameter] public RenderFragment? EmptyTemplate { get; set; }
+    [Parameter] public RenderFragment? LoadingTemplate { get; set; }
+    [Parameter] public bool AllowSorting { get; set; } = true;
+    [Parameter] public bool AllowFiltering { get; set; }
+    [Parameter] public bool AllowPaging { get; set; }
+    [Parameter] public int PageSize { get; set; } = 10;
+    [Parameter] public int PageIndex { get; set; }
+    [Parameter] public EventCallback<int> PageIndexChanged { get; set; }
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public DataGridSelectionMode SelectionMode { get; set; } = DataGridSelectionMode.None;
+    [Parameter] public ISet<TItem>? SelectedItems { get; set; }
+    [Parameter] public EventCallback<ISet<TItem>> SelectedItemsChanged { get; set; }
+    [Parameter] public TItem? SelectedItem { get; set; }
+    [Parameter] public EventCallback<TItem?> SelectedItemChanged { get; set; }
+
+    private int EffectivePageSize => Math.Max(1, PageSize);
+    private IEnumerable<DataGridColumn<TItem>> VisibleColumns => _columns.Where(column => column.Visible);
+    private int ColumnSpan => Math.Max(1, VisibleColumns.Count() + (SelectionMode == DataGridSelectionMode.Multiple ? 1 : 0));
+    private IReadOnlyList<TItem> CurrentPageItems => GetCurrentPageItems();
+    private int TotalItems => GetFilteredAndSortedItems().Count();
+    private int TotalPages => Math.Max(1, (int)Math.Ceiling(TotalItems / (double)EffectivePageSize));
+
+    protected override void OnParametersSet()
+    {
+        if (SelectedItems is not null)
+        {
+            _selectedItems = new HashSet<TItem>(SelectedItems);
+        }
+        else if (SelectionMode == DataGridSelectionMode.Single && SelectedItem is not null)
+        {
+            _selectedItems = [SelectedItem];
+        }
+    }
+
+    internal void RegisterColumn(DataGridColumn<TItem> column)
+    {
+        if (!_columns.Contains(column))
+        {
+            _columns.Add(column);
+            _ = InvokeAsync(StateHasChanged);
+        }
+    }
+
+    internal void UnregisterColumn(DataGridColumn<TItem> column)
+    {
+        if (_columns.Remove(column))
+        {
+            _ = InvokeAsync(StateHasChanged);
+        }
+
+        if (_sortColumn == column)
+        {
+            _sortColumn = null;
+            _sortDirection = DataGridSortDirection.None;
+        }
+    }
+
+    private string GetClass()
+    {
+        const string baseClass = "cn-data-grid";
+        return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private string GetHeaderCellClass(DataGridColumn<TItem> column)
+    {
+        var className = $"cn-data-grid-head {column.GetHeaderClass()}";
+        return CanSort(column) ? $"{className} cn-data-grid-sortable-head" : className;
+    }
+
+    private string GetCellClass(DataGridColumn<TItem> column)
+    {
+        return $"cn-data-grid-cell {column.GetCellClass()}";
+    }
+
+    private bool CanSort(DataGridColumn<TItem> column)
+    {
+        return AllowSorting && (column.Sortable ?? !string.IsNullOrWhiteSpace(column.Property));
+    }
+
+    private bool CanFilter(DataGridColumn<TItem> column)
+    {
+        return AllowFiltering && (column.Filterable ?? !string.IsNullOrWhiteSpace(column.Property));
+    }
+
+    private DataGridSortDirection GetSortDirection(DataGridColumn<TItem> column)
+    {
+        return _sortColumn == column ? _sortDirection : DataGridSortDirection.None;
+    }
+
+    private string GetSortIndicator(DataGridColumn<TItem> column)
+    {
+        return GetSortDirection(column) switch
+        {
+            DataGridSortDirection.Ascending => "Asc",
+            DataGridSortDirection.Descending => "Desc",
+            _ => "Sort"
+        };
+    }
+
+    private void ToggleSort(DataGridColumn<TItem> column)
+    {
+        if (_sortColumn != column)
+        {
+            _sortColumn = column;
+            _sortDirection = DataGridSortDirection.Ascending;
+        }
+        else
+        {
+            _sortDirection = _sortDirection switch
+            {
+                DataGridSortDirection.None => DataGridSortDirection.Ascending,
+                DataGridSortDirection.Ascending => DataGridSortDirection.Descending,
+                _ => DataGridSortDirection.None
+            };
+        }
+
+        if (_sortDirection == DataGridSortDirection.None)
+        {
+            _sortColumn = null;
+        }
+
+        PageIndex = 0;
+    }
+
+    private string GetFilterValue(DataGridColumn<TItem> column)
+    {
+        return _filters.TryGetValue(column.Key, out var value) ? value : string.Empty;
+    }
+
+    private void UpdateFilter(DataGridColumn<TItem> column, string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            _filters.Remove(column.Key);
+        }
+        else
+        {
+            _filters[column.Key] = value;
+        }
+
+        PageIndex = 0;
+    }
+
+    private IReadOnlyList<TItem> GetCurrentPageItems()
+    {
+        var items = GetFilteredAndSortedItems().ToList();
+
+        if (!AllowPaging)
+        {
+            return items;
+        }
+
+        var pageIndex = Math.Clamp(PageIndex, 0, TotalPages - 1);
+        return items.Skip(pageIndex * EffectivePageSize).Take(EffectivePageSize).ToList();
+    }
+
+    private IEnumerable<TItem> GetFilteredAndSortedItems()
+    {
+        var query = Items ?? Enumerable.Empty<TItem>();
+
+        foreach (var filter in _filters.Where(filter => !string.IsNullOrWhiteSpace(filter.Value)))
+        {
+            var column = VisibleColumns.FirstOrDefault(candidate => candidate.Key == filter.Key);
+
+            if (column is null)
+            {
+                continue;
+            }
+
+            query = query.Where(item => column
+                .FormatValue(item)
+                .Contains(filter.Value, StringComparison.CurrentCultureIgnoreCase));
+        }
+
+        if (_sortColumn is not null && _sortDirection != DataGridSortDirection.None)
+        {
+            query = _sortDirection == DataGridSortDirection.Ascending
+                ? query.OrderBy(item => GetComparableSortValue(_sortColumn.GetValue(item)))
+                : query.OrderByDescending(item => GetComparableSortValue(_sortColumn.GetValue(item)));
+        }
+
+        return query;
+    }
+
+    private static object? GetComparableSortValue(object? value)
+    {
+        return value is IComparable ? value : value?.ToString();
+    }
+
+    private bool IsSelected(TItem item)
+    {
+        return _selectedItems.Contains(item);
+    }
+
+    private async Task ToggleSelection(TItem item)
+    {
+        if (SelectionMode == DataGridSelectionMode.None)
+        {
+            return;
+        }
+
+        if (SelectionMode == DataGridSelectionMode.Single)
+        {
+            if (_selectedItems.Contains(item))
+            {
+                _selectedItems.Clear();
+                SelectedItem = default;
+            }
+            else
+            {
+                _selectedItems = [item];
+                SelectedItem = item;
+            }
+
+            await SelectedItemChanged.InvokeAsync(SelectedItem);
+            await SelectedItemsChanged.InvokeAsync(new HashSet<TItem>(_selectedItems));
+            return;
+        }
+
+        if (!_selectedItems.Add(item))
+        {
+            _selectedItems.Remove(item);
+        }
+
+        await SelectedItemsChanged.InvokeAsync(new HashSet<TItem>(_selectedItems));
+    }
+
+    private async Task GoToPreviousPage()
+    {
+        PageIndex = Math.Max(0, PageIndex - 1);
+        await PageIndexChanged.InvokeAsync(PageIndex);
+    }
+
+    private async Task GoToNextPage()
+    {
+        PageIndex = Math.Min(TotalPages - 1, PageIndex + 1);
+        await PageIndexChanged.InvokeAsync(PageIndex);
+    }
+}
