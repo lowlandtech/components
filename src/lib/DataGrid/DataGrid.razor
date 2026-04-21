@@ -124,18 +124,25 @@
                                                @onchange="() => ToggleSelection(item)" />
                                     </td>
                                 }
-                                @foreach (var column in VisibleColumns)
+                                @if (RowTemplate is not null)
                                 {
-                                    <td data-slot="data-grid-cell" class="@GetCellClass(column)">
-                                        @if (column.Template is not null)
-                                        {
-                                            @column.Template(item)
-                                        }
-                                        else
-                                        {
-                                            @column.FormatValue(item)
-                                        }
-                                    </td>
+                                    @RowTemplate(item)
+                                }
+                                else
+                                {
+                                    @foreach (var column in VisibleColumns)
+                                    {
+                                        <td data-slot="data-grid-cell" class="@GetCellClass(column)">
+                                            @if (column.Template is not null)
+                                            {
+                                                @column.Template(item)
+                                            }
+                                            else
+                                            {
+                                                @column.FormatValue(item)
+                                            }
+                                        </td>
+                                    }
                                 }
                             </tr>
                         }
@@ -182,6 +189,12 @@
     [Parameter] public RenderFragment? Columns { get; set; }
     [Parameter] public RenderFragment? EmptyTemplate { get; set; }
     [Parameter] public RenderFragment? LoadingTemplate { get; set; }
+    /// <summary>Per-row content override. When supplied, the DataGrid emits the
+    /// author's template inside the <c>&lt;tr&gt;</c> wrapper (so click-to-select,
+    /// data-selected, paging, and sorting all compose around the override).
+    /// When null, the default column-driven rendering runs. Ported from Radzen
+    /// DataGrid's Template pattern — see docs/pluginize/issues/block-crud-page-template.md.</summary>
+    [Parameter] public RenderFragment<TItem>? RowTemplate { get; set; }
     [Parameter] public bool AllowSorting { get; set; } = true;
     [Parameter] public bool AllowFiltering { get; set; }
     [Parameter] public bool AllowPaging { get; set; }
