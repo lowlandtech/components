@@ -30,11 +30,12 @@ namespace LowlandTech.Components.Feed;
 /// </summary>
 public abstract class BlockPageBase : BlockBase, IDisposable
 {
-    private List<Action>? _onInitialized;
-    private List<Action>? _onParametersSet;
-    private List<Action>? _onStateChanged;
-    private List<Action>? _onAfterRender;
-    private List<Action>? _onDispose;
+    private List<Action>?       _onInitialized;
+    private List<Func<Task>>?   _onInitializedAsync;
+    private List<Action>?       _onParametersSet;
+    private List<Action>?       _onStateChanged;
+    private List<Action>?       _onAfterRender;
+    private List<Action>?       _onDispose;
     private bool _hooksDiscovered;
 
     private void DiscoverHooks()
@@ -52,29 +53,42 @@ public abstract class BlockPageBase : BlockBase, IDisposable
             foreach (var m in methods)
             {
                 if (m.GetParameters().Length != 0) continue;
-                if (m.ReturnType != typeof(void)) continue;
-                if (m.GetCustomAttribute<OnInitializedAttribute>() is not null)
-                    (_onInitialized ??= []).Add(() => m.Invoke(this, null));
-                if (m.GetCustomAttribute<OnParametersSetAttribute>() is not null)
-                    (_onParametersSet ??= []).Add(() => m.Invoke(this, null));
-                if (m.GetCustomAttribute<OnStateChangedAttribute>() is not null)
-                    (_onStateChanged ??= []).Add(() => m.Invoke(this, null));
-                if (m.GetCustomAttribute<OnAfterRenderAttribute>() is not null)
-                    (_onAfterRender ??= []).Add(() => m.Invoke(this, null));
-                if (m.GetCustomAttribute<OnDisposeAttribute>() is not null)
-                    (_onDispose ??= []).Add(() => m.Invoke(this, null));
+                if (m.ReturnType == typeof(void))
+                {
+                    if (m.GetCustomAttribute<OnInitializedAttribute>() is not null)
+                        (_onInitialized ??= []).Add(() => m.Invoke(this, null));
+                    if (m.GetCustomAttribute<OnParametersSetAttribute>() is not null)
+                        (_onParametersSet ??= []).Add(() => m.Invoke(this, null));
+                    if (m.GetCustomAttribute<OnStateChangedAttribute>() is not null)
+                        (_onStateChanged ??= []).Add(() => m.Invoke(this, null));
+                    if (m.GetCustomAttribute<OnAfterRenderAttribute>() is not null)
+                        (_onAfterRender ??= []).Add(() => m.Invoke(this, null));
+                    if (m.GetCustomAttribute<OnDisposeAttribute>() is not null)
+                        (_onDispose ??= []).Add(() => m.Invoke(this, null));
+                }
+                else if (m.ReturnType == typeof(Task))
+                {
+                    if (m.GetCustomAttribute<OnInitializedAttribute>() is not null)
+                        (_onInitializedAsync ??= []).Add(() => (Task)m.Invoke(this, null)!);
+                }
             }
             type = type.BaseType;
         }
     }
 
     /// <summary>Hook wiring runs here so attributed methods see fully-set
-    /// parameters (OnInitialized runs after parameters are applied).</summary>
+    /// parameters (OnInitialized runs after parameters are applied).
+    /// Sync hooks fire inline; async hooks fire fire-and-forget via InvokeAsync
+    /// so the component can immediately continue to render while the async work
+    /// (e.g. HTTP data fetch) proceeds in the background.</summary>
     protected override void OnInitialized()
     {
         DiscoverHooks();
         base.OnInitialized();
         InvokeAll(_onInitialized);
+        if (_onInitializedAsync is not null)
+            foreach (var a in _onInitializedAsync.ToArray())
+                _ = InvokeAsync(a);
     }
 
     protected override void OnParametersSet()
