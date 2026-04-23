@@ -22,9 +22,9 @@ public sealed class BlockContext
 	public string Mode => ToLegacyMode(GetGlobalMode());
 
 	/// <summary>
-	/// Gets whether any block is currently maximized.
+	/// Gets whether any block is currently expanded.
 	/// </summary>
-	public bool IsMaximized => GetGlobalMode() == BlockMode.Maximized;
+	public bool IsMaximized => GetGlobalMode() == BlockMode.Expanded;
 
 	public BlockMode GetMode(Guid blockId)
 		=> _blockModes.TryGetValue(blockId, out var mode) ? mode : GetGlobalMode();
@@ -53,7 +53,7 @@ public sealed class BlockContext
 	/// </summary>
 	public void SetMode(bool isMaximized)
 	{
-		var mode = isMaximized ? BlockMode.Maximized : BlockMode.Normal;
+		var mode = isMaximized ? BlockMode.Expanded : BlockMode.Normal;
 
 		foreach (var subscribers in _legacySubscribers.Values)
 		{
@@ -176,14 +176,16 @@ public sealed class BlockContext
 
 	private static string ToLegacyMode(BlockMode mode) => mode switch
 	{
-		BlockMode.Maximized => "maximized",
+		BlockMode.Expanded => "maximized",
+		BlockMode.ContentOverlaid => "content-overlaid",
+		BlockMode.AppOverlaid => "app-overlaid",
 		BlockMode.Collapsed => "collapsed",
 		_ => "normal"
 	};
 
 	private BlockMode GetGlobalMode()
-		=> _blockModes.Values.Any(mode => mode == BlockMode.Maximized)
-			? BlockMode.Maximized
+		=> _blockModes.Values.Any(mode => mode == BlockMode.Expanded)
+			? BlockMode.Expanded
 			: BlockMode.Normal;
 
 	private void NotifyBlockSubscribers(Guid blockId, BlockMode mode)
