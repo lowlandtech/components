@@ -1,0 +1,124 @@
+@implements IAsyncDisposable
+@inject IJSRuntime JsRuntime
+
+<div id="@ElementId" data-slot="panel-splitter" class="splitter relative shrink-0 w-4 cursor-grab active:cursor-grabbing group z-20 -ml-2 -mr-2 touch-none">
+    <div class="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px bg-transparent group-hover:bg-primary/50 group-active:bg-primary transition-colors"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div class="flex flex-col gap-1 px-1 py-2 rounded bg-primary/10 group-hover:bg-primary/20 transition-colors">
+            <div class="w-1.5 h-1 rounded-full bg-primary/70"></div>
+            <div class="w-1.5 h-1 rounded-full bg-primary/70"></div>
+            <div class="w-1.5 h-1 rounded-full bg-primary/70"></div>
+            <div class="w-1.5 h-1 rounded-full bg-primary/70"></div>
+            <div class="w-1.5 h-1 rounded-full bg-primary/70"></div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private IJSObjectReference? _jsModule;
+    private DotNetObjectReference<PanelSplitter>? _dotNetRef;
+    private bool _disposed;
+
+    [Parameter, EditorRequired] public string ElementId { get; set; } = default!;
+    [Parameter, EditorRequired] public string StorageKey { get; set; } = default!;
+    [Parameter] public int DefaultWidth { get; set; } = 288;
+    [Parameter] public int MinWidth { get; set; } = 180;
+    [Parameter] public int MaxWidth { get; set; } = 600;
+    [Parameter] public SplitterSide Side { get; set; } = SplitterSide.Left;
+    [Parameter] public EventCallback<int> OnWidthChanged { get; set; }
+    [Parameter] public EventCallback KeyboardSave { get; set; }
+
+    public int CurrentWidth { get; private set; }
+    public bool IsDragging { get; private set; }
+
+    protected override void OnInitialized()
+    {
+        CurrentWidth = DefaultWidth;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                _dotNetRef = DotNetObjectReference.Create(this);
+                _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", Assets["./js/panel-splitter.js"]);
+
+                var saved = await JsRuntime.InvokeAsync<string?>("localStorage.getItem", StorageKey);
+                if (int.TryParse(saved, out var w) && w >= MinWidth && w <= MaxWidth)
+                {
+                    CurrentWidth = w;
+                    await OnWidthChanged.InvokeAsync(CurrentWidth);
+                }
+
+                var side = Side.ToString().ToLowerInvariant();
+                await _jsModule.InvokeVoidAsync("init", ElementId, _dotNetRef, CurrentWidth, side, MinWidth, MaxWidth);
+            }
+            catch (JSDisconnectedException) { }
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnPanelSplitterMove(int width)
+    {
+        CurrentWidth = Math.Clamp(width, MinWidth, MaxWidth);
+        IsDragging = true;
+        await OnWidthChanged.InvokeAsync(CurrentWidth);
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public async Task OnPanelSplitterRelease()
+    {
+        IsDragging = false;
+        await JsRuntime.InvokeVoidAsync("localStorage.setItem", StorageKey, CurrentWidth.ToString());
+        await OnWidthChanged.InvokeAsync(CurrentWidth);
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public async Task OnKeyboardSave()
+    {
+        await KeyboardSave.InvokeAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_disposed)
+            return;
+
+        _disposed = true;
+
+        var jsModule = _jsModule;
+        _jsModule = null;
+
+        if (jsModule is not null)
+        {
+            try
+            {
+                await jsModule.InvokeVoidAsync("dispose", ElementId);
+            }
+            catch (JSDisconnectedException) { }
+            catch (ObjectDisposedException) { }
+            catch (InvalidOperationException) { }
+
+            try
+            {
+                await jsModule.DisposeAsync();
+            }
+            catch (JSDisconnectedException) { }
+            catch (ObjectDisposedException) { }
+            catch (InvalidOperationException) { }
+        }
+
+        _dotNetRef?.Dispose();
+        _dotNetRef = null;
+    }
+
+    public enum SplitterSide
+    {
+        Left,
+        Right
+    }
+}

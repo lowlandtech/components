@@ -1,0 +1,167 @@
+@implements IAsyncDisposable
+@inject IJSRuntime JsRuntime
+@inject ILogger<ExplorerLayout> Logger
+
+<div @ref="_containerRef" class="explorer-layout flex h-[calc(100vh-3.5rem)] overflow-hidden relative" style="--panel-width: @(_panelWidth)px;" data-storage-key="@SplitterStorageKey">
+    @* ── Floating expand button (when collapsed) ── *@
+    <button class="explorer-sidebar-toggle absolute top-0.5 left-0.5 z-50 inline-flex h-7 w-7 items-center justify-center rounded hover:bg-muted transition-colors text-muted-foreground bg-background/80 backdrop-blur-sm border border-border shadow-sm"
+            @onclick="ToggleCollapse"
+            title="Expand sidebar">
+        <svg class="h-3.5 w-3.5 translate-x-px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+
+    @* ── Left Pane ── *@
+    <div class="explorer-sidebar shrink-0 border-r border-border flex flex-col bg-background @(_splitter?.IsDragging == true ? "" : "transition-[width] duration-150 ease-in-out")"
+         style="width: var(--panel-width); max-width: calc(100% - 336px);">
+        @* 336px = 16px splitter + 320px minimum right-pane width; guards against an oversized stored value before JS corrects it *@
+        @* ── Header with collapse button ── *@
+        <div class="flex items-center border-b border-border">
+            <div class="flex-1 min-w-0">
+                @if (ListHeader is not null)
+                {
+                    @ListHeader
+                }
+                else
+                {
+                    <div class="flex items-center justify-between px-3 h-9">
+                        <span class="text-sm font-semibold">@Title</span>
+                    </div>
+                }
+            </div>
+                <button class="shrink-0 p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground"
+                    @onclick="ToggleCollapse"
+                    title="Collapse sidebar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+        </div>
+
+        @* ── Scrollable List ── *@
+        <div class="flex-1 overflow-y-auto">
+            @ListContent
+        </div>
+    </div>
+
+    @* ── Splitter ── *@
+    <PanelSplitter @ref="_splitter"
+                   ElementId="@_splitterId"
+                   StorageKey="@SplitterStorageKey"
+                   DefaultWidth="DefaultWidth"
+                   MinWidth="MinWidth"
+                   MaxWidth="MaxWidth"
+                   OnWidthChanged="OnSplitterWidthChanged"
+                   KeyboardSave="OnKeyboardSave" />
+
+    @* ── Right Pane ── *@
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        @DetailContent
+
+        @if (FooterContent is not null)
+        {
+            @FooterContent
+        }
+    </div>
+
+    @ChildContent
+</div>
+
+@code {
+    private PanelSplitter? _splitter;
+    private ElementReference _containerRef;
+    private int _panelWidth = 288;
+    private bool _collapsed;
+    private string _splitterId = $"splitter-{Guid.NewGuid():N}";
+    private DotNetObjectReference<ExplorerLayout>? _dotNetRef;
+
+    [Parameter] public RenderFragment? ListHeader { get; set; }
+    [Parameter, EditorRequired] public RenderFragment ListContent { get; set; } = default!;
+    [Parameter, EditorRequired] public RenderFragment DetailContent { get; set; } = default!;
+    [Parameter] public RenderFragment? FooterContent { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string SplitterStorageKey { get; set; } = default!;
+    [Parameter] public int DefaultWidth { get; set; } = 288;
+    [Parameter] public int MinWidth { get; set; } = 180;
+    [Parameter] public int MaxWidth { get; set; } = 600;
+    [Parameter] public EventCallback OnKeyboardSave { get; set; }
+
+    public bool IsCollapsed => _collapsed;
+
+    protected override void OnInitialized()
+    {
+        _panelWidth = DefaultWidth;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _dotNetRef = DotNetObjectReference.Create(this);
+            await InitializeCollapseStateAsync();
+        }
+    }
+
+    private async Task InitializeCollapseStateAsync()
+    {
+        try
+        {
+            var isCollapsed = await JsRuntime.InvokeAsync<bool>("eval", 
+                $"localStorage.getItem('explorer-collapsed-{SplitterStorageKey}') === 'true'");
+            
+            if (_collapsed != isCollapsed)
+            {
+                _collapsed = isCollapsed;
+                await UpdateCollapseClassAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Failed to initialize collapse state");
+        }
+    }
+
+    public async Task ToggleCollapse()
+    {
+        _collapsed = !_collapsed;
+        
+        try
+        {
+            await JsRuntime.InvokeVoidAsync("eval", 
+                $"localStorage.setItem('explorer-collapsed-{SplitterStorageKey}', '{_collapsed.ToString().ToLowerInvariant()}')");
+            await UpdateCollapseClassAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Failed to save collapse state");
+        }
+        
+        StateHasChanged();
+    }
+
+    private async Task UpdateCollapseClassAsync()
+    {
+        try
+        {
+            await JsRuntime.InvokeVoidAsync("eval", $"""
+                var el = document.querySelector('[data-storage-key="{SplitterStorageKey}"]');
+                if (el) el.classList.toggle('explorer-collapsed', {_collapsed.ToString().ToLowerInvariant()});
+            """);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Failed to update collapse class");
+        }
+    }
+
+    private void OnSplitterWidthChanged(int width)
+    {
+        _panelWidth = width;
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_splitter is not null)
+            await _splitter.DisposeAsync();
+        _dotNetRef?.Dispose();
+    }
+}
