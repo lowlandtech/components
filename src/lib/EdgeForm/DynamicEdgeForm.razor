@@ -1,0 +1,85 @@
+@namespace LowlandTech.Components.EdgeForm
+
+<div data-slot="edge-form" @attributes="AdditionalAttributes">
+    @foreach (var field in Fields)
+    {
+        var fname = field.Name;
+        <div data-field="@field.Name">
+            <label data-field-label="@field.Name">@field.Label</label>
+            @switch (field.FieldType)
+            {
+                case FieldType.Text:
+                    <input type="text"
+                           data-field-input="@field.Name"
+                           placeholder="@field.Placeholder"
+                           value="@GetString(fname)"
+                           @oninput="e => HandleChange(fname, e.Value)" />
+                    break;
+                case FieldType.Number:
+                    <input type="number"
+                           data-field-input="@field.Name"
+                           placeholder="@field.Placeholder"
+                           value="@GetString(fname)"
+                           @oninput="e => HandleChange(fname, e.Value)" />
+                    break;
+                case FieldType.Date:
+                    <input type="date"
+                           data-field-input="@field.Name"
+                           value="@GetString(fname)"
+                           @oninput="e => HandleChange(fname, e.Value)" />
+                    break;
+                case FieldType.Boolean:
+                    <input type="checkbox"
+                           data-field-input="@field.Name"
+                           checked="@GetBool(fname)"
+                           @onchange="e => HandleChange(fname, e.Value)" />
+                    break;
+                case FieldType.Select:
+                    <select data-field-input="@field.Name"
+                            @onchange="e => HandleChange(fname, e.Value)">
+                        @foreach (var opt in field.Options ?? [])
+                        {
+                            <option value="@opt.Value">@opt.Label</option>
+                        }
+                    </select>
+                    break;
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<EdgeFormField> Fields { get; set; } = [];
+    [Parameter] public IReadOnlyList<IEdgeRule>? Rules { get; set; }
+    [Parameter] public EventCallback<EdgeFormResult> OnChange { get; set; }
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private readonly Dictionary<string, object?> _values = new();
+
+    private string? GetString(string name)
+        => _values.TryGetValue(name, out var v) ? v?.ToString() : null;
+
+    private bool GetBool(string name)
+        => _values.TryGetValue(name, out var v) && v is true;
+
+    private async Task HandleChange(string name, object? value)
+    {
+        _values[name] = value;
+        await EmitResult();
+    }
+
+    private async Task EmitResult()
+    {
+        var errors = new List<string>();
+        foreach (var rule in Rules ?? [])
+        {
+            if (!rule.Evaluate(_values))
+                errors.Add(rule.FailMessage);
+        }
+        await OnChange.InvokeAsync(new EdgeFormResult(
+            errors.Count == 0,
+            new Dictionary<string, object?>(_values),
+            errors));
+    }
+}
