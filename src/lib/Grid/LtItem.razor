@@ -1,0 +1,35 @@
+@namespace LowlandTech.Components.Grid
+@inherits LtComponentBase
+
+<div data-slot="grid-item"
+     class="lt-item @Class"
+     style="@ColStyle"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    /// <summary>Column span at xs (≥0px). 0 = hidden.</summary>
+    [Parameter] public int xs { get; set; } = 12;
+    /// <summary>Column span at sm (≥600px). 0 = inherit from xs.</summary>
+    [Parameter] public int sm { get; set; }
+    /// <summary>Column span at md (≥960px). 0 = inherit from previous breakpoint.</summary>
+    [Parameter] public int md { get; set; }
+    /// <summary>Column span at lg (≥1280px). 0 = inherit from previous breakpoint.</summary>
+    [Parameter] public int lg { get; set; }
+    /// <summary>Column span at xl (≥1920px). 0 = inherit from previous breakpoint.</summary>
+    [Parameter] public int xl { get; set; }
+
+    private string ColStyle
+    {
+        get
+        {
+            var parts = new List<string> { $"--lt-xs:{xs}" };
+            if (sm != 0) parts.Add($"--lt-sm:{sm}");
+            if (md != 0) parts.Add($"--lt-md:{md}");
+            if (lg != 0) parts.Add($"--lt-lg:{lg}");
+            if (xl != 0) parts.Add($"--lt-xl:{xl}");
+            return string.Join(";", parts);
+        }
+    }
+}

@@ -1,0 +1,41 @@
+@namespace LowlandTech.Components.Grid
+@inherits LtComponentBase
+
+<div data-slot="grid"
+     class="lt-grid @Class"
+     style="@GridStyle"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter] public int Spacing { get; set; } = 0;
+    [Parameter] public Justify Justify { get; set; } = Justify.Start;
+
+    private string GridStyle
+    {
+        get
+        {
+            var parts = new List<string>
+            {
+                "display:grid",
+                "grid-template-columns:repeat(12,1fr)",
+                $"justify-content:{JustifyCss(Justify)}"
+            };
+            if (Spacing > 0)
+                parts.Add($"gap:{Spacing * 4}px");
+            return string.Join(";", parts);
+        }
+    }
+
+    private static string JustifyCss(Justify j) => j switch
+    {
+        Justify.Start        => "flex-start",
+        Justify.Center       => "center",
+        Justify.End          => "flex-end",
+        Justify.SpaceBetween => "space-between",
+        Justify.SpaceAround  => "space-around",
+        Justify.SpaceEvenly  => "space-evenly",
+        _                    => "flex-start"
+    };
+}

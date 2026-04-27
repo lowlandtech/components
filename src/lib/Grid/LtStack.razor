@@ -1,0 +1,67 @@
+@namespace LowlandTech.Components.Grid
+@inherits LtComponentBase
+
+<div data-slot="stack"
+     class="@Class"
+     style="@StackStyle"
+     @attributes="AdditionalAttributes">
+    @ChildContent
+</div>
+
+@code {
+    /// <summary>Layout items horizontally when true, vertically when false.</summary>
+    [Parameter] public bool Row { get; set; }
+    /// <summary>Reverse the order of items.</summary>
+    [Parameter] public bool Reverse { get; set; }
+    /// <summary>Gap between items in 4px increments.</summary>
+    [Parameter] public int Spacing { get; set; }
+    /// <summary>Main-axis justification.</summary>
+    [Parameter] public Justify? Justify { get; set; }
+    /// <summary>Cross-axis alignment.</summary>
+    [Parameter] public AlignItems? AlignItems { get; set; }
+    /// <summary>Wrap items onto multiple lines.</summary>
+    [Parameter] public bool Wrap { get; set; }
+
+    private string StackStyle
+    {
+        get
+        {
+            var direction = (Row ? "row" : "column") + (Reverse ? "-reverse" : "");
+            var parts = new List<string>
+            {
+                "display:flex",
+                $"flex-direction:{direction}"
+            };
+            if (Spacing > 0)
+                parts.Add($"gap:{Spacing * 4}px");
+            if (Justify.HasValue)
+                parts.Add($"justify-content:{JustifyCss(Justify.Value)}");
+            if (AlignItems.HasValue)
+                parts.Add($"align-items:{AlignItemsCss(AlignItems.Value)}");
+            if (Wrap)
+                parts.Add("flex-wrap:wrap");
+            return string.Join(";", parts);
+        }
+    }
+
+    private static string JustifyCss(Justify j) => j switch
+    {
+        Grid.Justify.Start        => "flex-start",
+        Grid.Justify.Center       => "center",
+        Grid.Justify.End          => "flex-end",
+        Grid.Justify.SpaceBetween => "space-between",
+        Grid.Justify.SpaceAround  => "space-around",
+        Grid.Justify.SpaceEvenly  => "space-evenly",
+        _                         => "flex-start"
+    };
+
+    private static string AlignItemsCss(AlignItems a) => a switch
+    {
+        Grid.AlignItems.Start    => "flex-start",
+        Grid.AlignItems.Center   => "center",
+        Grid.AlignItems.End      => "flex-end",
+        Grid.AlignItems.Baseline => "baseline",
+        Grid.AlignItems.Stretch  => "stretch",
+        _                        => "stretch"
+    };
+}
