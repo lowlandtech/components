@@ -1,0 +1,17 @@
+@namespace LowlandTech.Components.ContainerGrid
+@inherits LtComponentBase
+
+<div data-slot="container-grid"
+     data-id="@Id"
+     class="lt-container-grid @Class"
+     style="@GridStyle"
+     @onclick="OnClickHandler"
+     @onclick:stopPropagation="OnClickStopPropagation"
+     @oncontextmenu="OnContextMenu"
+     @oncontextmenu:preventDefault="OnContextMenuPreventDefault"
+     @oncontextmenu:stopPropagation="OnContextMenuStopPropagation"
+     @ref="GridElement">
+    <CascadingValue Value="@this" IsFixed="true">@ChildContent</CascadingValue>
+    <div class="lt-container-grid-overlay" aria-hidden="true"></div>
+    <div class="lt-container-grid-placeholder" aria-hidden="true"></div>
+</div>

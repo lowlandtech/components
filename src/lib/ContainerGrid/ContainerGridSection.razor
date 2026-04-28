@@ -1,0 +1,23 @@
+@namespace LowlandTech.Components.ContainerGrid
+@inherits LtComponentBase
+
+<div data-slot="container-grid-section"
+     data-id="@Id"
+     @ref="ElementReference"
+     class="lt-container-grid-section @Class"
+     style="@SectionStyle"
+     @attributes="AdditionalAttributes"
+     @onclick="OnClickHandler"
+     @ondblclick="OnDblClickHandler"
+     @onclick:stopPropagation="OnClickStopPropagation"
+     @oncontextmenu="OnContextMenu"
+     @oncontextmenu:preventDefault="OnContextMenuPreventDefault"
+     @oncontextmenu:stopPropagation="OnContextMenuStopPropagation">
+    @if (Resizable)
+    {
+        <div class="lt-container-grid-handle lt-handle-se" @ref="HandleSE"></div>
+        <div class="lt-container-grid-handle lt-handle-e"  @ref="HandleE"></div>
+        <div class="lt-container-grid-handle lt-handle-s"  @ref="HandleS"></div>
+    }
+    @ChildContent
+</div>
