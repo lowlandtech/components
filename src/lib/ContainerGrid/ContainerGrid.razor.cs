@@ -43,6 +43,9 @@ public partial class ContainerGrid : IAsyncDisposable
     /// <summary>Push overlapping sections rather than blocking the move.</summary>
     [Parameter] public bool ResolveCollisions { get; set; } = true;
 
+    /// <summary>Raised after the JS drag engine commits a new layout.</summary>
+    [Parameter] public EventCallback<ContainerGridLayout> OnLayoutCommit { get; set; }
+
     /// <summary>Raised when a section is clicked.</summary>
     [Parameter] public EventCallback<MouseEventArgs> OnClick { get; set; }
 
@@ -104,6 +107,10 @@ public partial class ContainerGrid : IAsyncDisposable
         if (CompactOnDrop) Compact();
 
         await InvokeAsync(StateHasChanged);
+
+        if (OnLayoutCommit.HasDelegate)
+            await OnLayoutCommit.InvokeAsync(GetSnapshot());
+
         await Task.Delay(200);
         _layoutSuspend = false;
     }
