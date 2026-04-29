@@ -1,0 +1,87 @@
+@namespace LowlandTech.Components
+@inherits LtComponentBase
+@typeparam TField
+
+<div data-slot="property-grid"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
+
+    @if (Header is not null)
+    {
+        <div data-slot="property-grid-header" class="lt-property-grid-header">
+            @Header
+        </div>
+    }
+
+    @if (Items is null || Items.Count == 0)
+    {
+        <div data-slot="property-grid-empty" class="lt-property-grid-empty">
+            @(EmptyText ?? "No properties.")
+        </div>
+    }
+    else
+    {
+        <div data-slot="property-grid-rows" class="lt-property-grid-rows" role="list">
+            @foreach (var field in Items)
+            {
+                var label    = LabelSelector?.Invoke(field) ?? string.Empty;
+                var badge    = BadgeSelector?.Invoke(field);
+                var readOnly = IsReadOnlySelector?.Invoke(field) ?? false;
+
+                <div data-slot="property-grid-row"
+                     data-field-label="@label"
+                     data-field-badge="@badge"
+                     data-readonly="@(readOnly ? "true" : null)"
+                     class="lt-property-grid-row"
+                     role="listitem">
+
+                    <div class="lt-property-grid-label">
+                        <span>@label</span>
+                        @if (!string.IsNullOrEmpty(badge))
+                        {
+                            <span data-slot="property-grid-badge"
+                                  class="lt-property-grid-badge"
+                                  data-badge="@badge">@badge</span>
+                        }
+                    </div>
+
+                    <div class="lt-property-grid-editor">
+                        @if (EditorTemplate is not null)
+                        {
+                            @EditorTemplate(field)
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    /// <summary>Rows to render. Each row is one property.</summary>
+    [Parameter] public IReadOnlyList<TField>? Items { get; set; }
+
+    /// <summary>Returns the human-readable label for a field (left column).</summary>
+    [Parameter] public Func<TField, string>? LabelSelector { get; set; }
+
+    /// <summary>Renders the value editor for a field (right column).</summary>
+    [Parameter] public RenderFragment<TField>? EditorTemplate { get; set; }
+
+    /// <summary>Optional section header rendered above the rows.</summary>
+    [Parameter] public RenderFragment? Header { get; set; }
+
+    /// <summary>Optional badge text per row (e.g. "user", "structural").</summary>
+    [Parameter] public Func<TField, string?>? BadgeSelector { get; set; }
+
+    /// <summary>Optional read-only flag per row (greys the editor column).</summary>
+    [Parameter] public Func<TField, bool>? IsReadOnlySelector { get; set; }
+
+    /// <summary>Text to show when Items is null or empty.</summary>
+    [Parameter] public string? EmptyText { get; set; }
+
+    private string GetClass()
+    {
+        var baseClass = "lt-property-grid";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

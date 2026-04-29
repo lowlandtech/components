@@ -1,0 +1,108 @@
+/* ── PropertyGrid: data-driven two-column property editor ───────────────────
+   Renders a label/editor row per field. Used by the canvas Properties tab to
+   show ContainerItem layout fields and dynamic ContainerAttribute rows side
+   by side, but the component itself is generic over TField so any consumer
+   with a row-shaped collection can drive it.
+
+   Loaded by hosts via:
+     <link rel="stylesheet"
+           href="_content/LowlandTech.Components/css/property-grid.css" />
+*/
+
+.lt-property-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+    font-size: 13px;
+}
+
+.lt-property-grid-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border, #2f2a4f);
+    background: color-mix(in srgb, var(--muted, #1a1730) 60%, transparent);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted-foreground, #a0a3b8);
+}
+
+.lt-property-grid-empty {
+    padding: 12px;
+    color: var(--muted-foreground, #a0a3b8);
+    font-style: italic;
+}
+
+.lt-property-grid-rows {
+    display: flex;
+    flex-direction: column;
+}
+
+.lt-property-grid-row {
+    display: grid;
+    grid-template-columns: minmax(110px, 40%) 1fr;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-bottom: 1px solid color-mix(in srgb, var(--border, #2f2a4f) 50%, transparent);
+}
+
+.lt-property-grid-row:last-child {
+    border-bottom: none;
+}
+
+.lt-property-grid-row[data-readonly="true"] .lt-property-grid-editor {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.lt-property-grid-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    color: var(--muted-foreground, #a0a3b8);
+}
+
+.lt-property-grid-label > span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lt-property-grid-badge {
+    flex: 0 0 auto;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: color-mix(in srgb, var(--primary, #7e6fff) 14%, transparent);
+    color: var(--primary, #7e6fff);
+}
+
+.lt-property-grid-badge[data-badge="structural"] {
+    background: color-mix(in srgb, var(--muted, #1a1730) 70%, transparent);
+    color: var(--muted-foreground, #a0a3b8);
+}
+
+.lt-property-grid-badge[data-badge="theme"] {
+    background: color-mix(in srgb, var(--secondary, #4a4080) 18%, transparent);
+    color: var(--secondary-foreground, #d4d0ff);
+}
+
+.lt-property-grid-editor {
+    min-width: 0;
+}
+
+.lt-property-grid-editor input,
+.lt-property-grid-editor select,
+.lt-property-grid-editor textarea {
+    width: 100%;
+    box-sizing: border-box;
+}
