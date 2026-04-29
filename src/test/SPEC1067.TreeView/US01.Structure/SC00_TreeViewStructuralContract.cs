@@ -38,8 +38,11 @@ public class SC00_TreeViewStructuralContract : JsViewScenario
             {
                 builder.OpenElement(0, "div");
                 builder.AddAttribute(1, "data-id", ctx.Item.Id);
-                builder.AddAttribute(2, "data-depth", ctx.Depth);
-                builder.AddAttribute(3, "data-has-children", ctx.HasChildren);
+                builder.AddAttribute(2, "data-depth", ctx.Depth.ToString());
+                // ToString() avoids Blazor's bool-attribute behavior (false strips, true
+                // emits the bare attribute with no value). We need the literal string
+                // for the data-* round-trip assertion below.
+                builder.AddAttribute(3, "data-has-children", ctx.HasChildren.ToString());
                 builder.AddAttribute(4, "class", $"tree-node depth-{ctx.Depth}");
                 builder.AddContent(5, ctx.Item.Name);
                 builder.CloseElement();
