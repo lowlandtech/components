@@ -1,4 +1,4 @@
-@namespace LowlandTech.Components.TreeView
+@namespace LowlandTech.Components
 @typeparam TItem
 @inherits LtComponentBase
 
@@ -9,6 +9,7 @@
                   Item="item"
                   Depth="0"
                   GetChildren="GetChildren"
+                  HasChildren="HasChildren"
                   IsExpanded="IsExpanded"
                   ItemTemplate="ItemTemplate" />
     }
@@ -20,6 +21,9 @@
 
     /// <summary>Returns the children of an item. Empty enumerable = leaf.</summary>
     [Parameter, EditorRequired] public Func<TItem, IEnumerable<TItem>> GetChildren { get; set; } = default!;
+
+    /// <summary>Optional child hint for lazy-loaded trees whose children have not been fetched yet.</summary>
+    [Parameter] public Func<TItem, bool>? HasChildren { get; set; }
 
     /// <summary>Per-node markup. Receives a context with Item, Depth, IsExpanded, HasChildren.</summary>
     [Parameter, EditorRequired] public RenderFragment<TreeNodeContext<TItem>> ItemTemplate { get; set; } = default!;

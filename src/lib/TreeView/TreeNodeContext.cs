@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.TreeView;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Read-only context passed to <see cref="TreeView{TItem}.ItemTemplate"/> for
