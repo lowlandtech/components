@@ -80,12 +80,34 @@ public partial class ContainerGrid : IAsyncDisposable
         await base.OnAfterRenderAsync(firstRender);
     }
 
+    // Dispose contract — guarded by SPEC1066 / US04 / SC00.
+    // When the auth session times out (or the circuit otherwise drops) the JS
+    // runtime is gone before this disposer runs. Every JS-interop call here —
+    // including the implicit one inside IJSObjectReference.DisposeAsync — must
+    // swallow JSDisconnectedException, ObjectDisposedException,
+    // InvalidOperationException and TaskCanceledException. Removing or merging
+    // these catches will crash the app and will fail the drift test.
     public async ValueTask DisposeAsync()
     {
         if (_module is not null)
         {
-            try { await _module.InvokeVoidAsync("containerGrid.unbind", GridElement); } catch { }
-            await _module.DisposeAsync();
+            try
+            {
+                await _module.InvokeVoidAsync("containerGrid.unbind", GridElement);
+            }
+            catch (JSDisconnectedException) { }
+            catch (ObjectDisposedException) { }
+            catch (InvalidOperationException) { }
+            catch (TaskCanceledException) { }
+
+            try
+            {
+                await _module.DisposeAsync();
+            }
+            catch (JSDisconnectedException) { }
+            catch (ObjectDisposedException) { }
+            catch (InvalidOperationException) { }
+            catch (TaskCanceledException) { }
         }
     }
 
