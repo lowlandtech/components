@@ -102,11 +102,26 @@
    floating above the section that hosts the drag grip plus consumer-supplied
    actions (Properties / Delete / etc.).
 
+   The chrome lives inside .lt-bezel-host, which is `position: fixed` so it
+   escapes any parent overflow:auto / stacking context. Its top/left/width/
+   height are JS-synced to the section's bbox via ltBezel.attach (see
+   containerGrid.js → attachBezel).
+
    Visibility:
      - hover                                    → label + badges + toolbar
      - .lt-container-grid-section--selected     → label + badges + toolbar
      - default                                  → all hidden, no chrome
 */
+
+.lt-bezel-host {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    z-index: 6;
+    pointer-events: none;
+}
 
 .lt-bezel-label,
 .lt-bezel-badge,
@@ -115,7 +130,6 @@
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.12s ease;
-    z-index: 6;
     user-select: none;
 }
 

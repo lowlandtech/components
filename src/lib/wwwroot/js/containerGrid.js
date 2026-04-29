@@ -435,6 +435,51 @@ function wireResize(gridEl, itemEl, handles) {
     attach(hSE, "se");
 }
 
+// ── Bezel host positioning ─────────────────────────────────────────────────
+// The bezel host (.lt-bezel-host) is `position: fixed`, sitting in the root
+// stacking context so it doesn't get clipped by the design surface's
+// overflow:auto wrapper or layered behind sibling panels. We sync its
+// viewport-space bbox to the section's bbox on every relevant event.
+
+function syncBezelHost(sectionEl, hostEl) {
+    const r = sectionEl.getBoundingClientRect();
+    hostEl.style.top    = r.top    + "px";
+    hostEl.style.left   = r.left   + "px";
+    hostEl.style.width  = r.width  + "px";
+    hostEl.style.height = r.height + "px";
+}
+
+function attachBezel(sectionEl) {
+    const hostEl = sectionEl.querySelector(".lt-bezel-host");
+    if (!hostEl) return;
+
+    const sync = () => syncBezelHost(sectionEl, hostEl);
+    sync();
+
+    // ResizeObserver catches grid layout changes (drag/resize/collision push).
+    const ro = new ResizeObserver(sync);
+    ro.observe(sectionEl);
+
+    // Capture-phase scroll listener catches *any* scrolling ancestor (the
+    // design surface's overflow:auto wrapper, page scroll, etc.). Plain
+    // window resize handles viewport changes.
+    const onScroll = sync;
+    const onResize = sync;
+    window.addEventListener("scroll", onScroll, true);
+    window.addEventListener("resize", onResize);
+
+    sectionEl._bezelSync = { ro, onScroll, onResize };
+}
+
+function detachBezel(sectionEl) {
+    const state = sectionEl._bezelSync;
+    if (!state) return;
+    state.ro.disconnect();
+    window.removeEventListener("scroll", state.onScroll, true);
+    window.removeEventListener("resize", state.onResize);
+    delete sectionEl._bezelSync;
+}
+
 // ── Public API (matches what ContainerGrid / ContainerGridSection invoke) ──
 
 export const containerGrid = {
@@ -469,10 +514,16 @@ export const containerGrid = {
             const hSE = el.querySelector(".lt-handle-se");
             wireResize(gridEl, el, [hE, hS, hSE]);
         }
+
+        // The bezel host is `position: fixed` so it escapes any parent
+        // overflow:auto / stacking context. We sync its top/left/w/h to the
+        // section's bbox here and on scroll/resize/observe.
+        attachBezel(el);
     },
 
     unbindSection(el) {
         if (!el || !el._containerGridSection) return;
+        detachBezel(el);
         delete el._containerGridSection;
     },
 };
