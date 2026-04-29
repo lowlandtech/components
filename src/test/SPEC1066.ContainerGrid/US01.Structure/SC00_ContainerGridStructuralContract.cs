@@ -62,4 +62,27 @@ public class SC00_ContainerGridStructuralContract : JsViewScenario
             p => p.AddChildContent("<span id='test-child'>hello</span>"));
         cut.Find("#test-child").ShouldNotBeNull();
     }
+
+    // ── CSS variable contract (consumed by .lt-container-grid-overlay rasters) ──
+    // Drift guard for SPEC2100.US29 (Default Root Grid Seed).
+
+    [Fact(DisplayName = "UAC11: ContainerGrid emits --lt-grid-cols matching Columns prop")]
+    [Trait(Spec.UAC, "11")]
+    public void UAC11_EmitsGridColsCssVariable()
+    {
+        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid.ContainerGrid>(
+            p => p.Add(x => x.Columns, 12));
+        var style = cut.Find("[data-slot='container-grid']").GetAttribute("style") ?? string.Empty;
+        style.ShouldContain("--lt-grid-cols:12");
+    }
+
+    [Fact(DisplayName = "UAC12: ContainerGrid emits --lt-grid-rows matching Rows prop")]
+    [Trait(Spec.UAC, "12")]
+    public void UAC12_EmitsGridRowsCssVariable()
+    {
+        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid.ContainerGrid>(
+            p => p.Add(x => x.Rows, 8));
+        var style = cut.Find("[data-slot='container-grid']").GetAttribute("style") ?? string.Empty;
+        style.ShouldContain("--lt-grid-rows:8");
+    }
 }

@@ -1,0 +1,23 @@
+.lt-container-grid {
+    position: relative;
+    height: 100%;
+    min-height: 240px;
+    width: 100%;
+}
+
+.lt-container-grid-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+        linear-gradient(to right, var(--border, hsl(220 13% 26%)) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--border, hsl(220 13% 26%)) 1px, transparent 1px);
+    background-size:
+        calc(100% / var(--lt-grid-cols, 12)) 100%,
+        100% calc(100% / var(--lt-grid-rows, 8));
+    opacity: 0.45;
+}
+
+.lt-container-grid-placeholder {
+    pointer-events: none;
+}

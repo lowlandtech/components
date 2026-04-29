@@ -186,7 +186,9 @@ public partial class ContainerGrid : IAsyncDisposable
             {
                 "display:grid",
                 $"grid-template-columns:repeat({Columns},1fr)",
-                $"grid-template-rows:repeat({Rows},1fr)"
+                $"grid-template-rows:repeat({Rows},1fr)",
+                $"--lt-grid-cols:{Columns}",
+                $"--lt-grid-rows:{Rows}"
             };
             if (Height is not null) parts.Add($"height:{Height}");
             return string.Join(";", parts);
