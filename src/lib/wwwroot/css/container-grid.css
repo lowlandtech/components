@@ -88,45 +88,65 @@
     cursor: grabbing;
 }
 
-/* Resize handles: 12px hit areas anchored to the bottom/right edges of each
-   section. Visible only on hover so they don't compete with content. */
+/* Resize handles — 14×14 primary-colored chips that protrude half-outside
+   the section edges (translate(50%) trick). Hidden by default; revealed on
+   section hover/focus-within so they don't compete with content. Mirrors
+   the MudExGrid handle pattern from samples/MudBlazor.Extensions. */
 .lt-container-grid-handle {
     position: absolute;
-    background: transparent;
-    z-index: 2;
+    width: 14px;
+    height: 14px;
+    z-index: 5;
+    border-radius: 4px;
+    background: var(--primary, #7e6fff);
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.25),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.65);
     opacity: 0;
-    transition: opacity 0.15s ease;
+    pointer-events: none;
+    transition: opacity 0.12s ease, box-shadow 0.12s ease;
+    user-select: none;
+    touch-action: none;
 }
-.lt-container-grid-section:hover .lt-container-grid-handle {
-    opacity: 1;
+
+/* Slightly enlarged hit area so the user doesn't need pixel-perfect aim. */
+.lt-container-grid-handle::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+}
+
+.lt-container-grid-section:hover .lt-container-grid-handle,
+.lt-container-grid-section:focus-within .lt-container-grid-handle {
+    opacity: 0.95;
+    pointer-events: auto;
+}
+
+.lt-container-grid-handle:hover {
+    box-shadow:
+        0 4px 14px rgba(0, 0, 0, 0.28),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.85);
 }
 
 .lt-container-grid-handle.lt-handle-e {
-    top: 4px;
-    right: -3px;
-    bottom: 4px;
-    width: 8px;
+    right: 0;
+    top: 50%;
+    transform: translate(50%, -50%);
     cursor: ew-resize;
-    border-right: 2px solid var(--primary, #7e6fff);
 }
+
 .lt-container-grid-handle.lt-handle-s {
-    left: 4px;
-    right: 4px;
-    bottom: -3px;
-    height: 8px;
+    left: 50%;
+    bottom: 0;
+    transform: translate(-50%, 50%);
     cursor: ns-resize;
-    border-bottom: 2px solid var(--primary, #7e6fff);
 }
+
 .lt-container-grid-handle.lt-handle-se {
-    right: -3px;
-    bottom: -3px;
-    width: 12px;
-    height: 12px;
+    right: 0;
+    bottom: 0;
+    transform: translate(50%, 50%);
     cursor: nwse-resize;
-    border-right: 2px solid var(--primary, #7e6fff);
-    border-bottom: 2px solid var(--primary, #7e6fff);
-    border-bottom-right-radius: 4px;
-    z-index: 3;
 }
 
 /* Drag clone shown above the canvas during a drag/resize operation. */
