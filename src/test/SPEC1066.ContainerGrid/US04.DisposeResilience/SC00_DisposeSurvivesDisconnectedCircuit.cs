@@ -1,4 +1,4 @@
-using System.Runtime.CompilerServices;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using LowlandTech.Components.Tests.Infrastructure;
 
@@ -37,22 +37,23 @@ public class SC00_DisposeSurvivesDisconnectedCircuit
         "TaskCanceledException",
     };
 
-    private static string LibPath([CallerFilePath] string thisFile = "")
-    {
-        // thisFile = src/components/test/SPEC1066.ContainerGrid/US04.DisposeResilience/SC00_*.cs
-        // walk up four levels to reach src/components, then descend into lib/.
-        var testRoot = Path.GetDirectoryName(thisFile)!;            // US04.DisposeResilience
-        var spec = Path.GetDirectoryName(testRoot)!;                // SPEC1066.ContainerGrid
-        var test = Path.GetDirectoryName(spec)!;                    // test
-        var components = Path.GetDirectoryName(test)!;              // components
-        return Path.Combine(components, "lib", "ContainerGrid");
-    }
-
+    /// <summary>
+    /// Reads the named source file out of the test assembly's manifest
+    /// resources (see LowlandTech.Components.Tests.csproj — EmbeddedResource
+    /// rules with LogicalName=fileName). Reading from disk via
+    /// [CallerFilePath] does not survive NCrunch's shadow copy, which only
+    /// brings the test project's outputs into the workspace, not the lib
+    /// project's source tree.
+    /// </summary>
     private static string ReadSource(string fileName)
     {
-        var path = Path.Combine(LibPath(), fileName);
-        File.Exists(path).ShouldBeTrue($"Expected source file at {path}");
-        return File.ReadAllText(path);
+        var asm = typeof(SC00_DisposeSurvivesDisconnectedCircuit).Assembly;
+        using var stream = asm.GetManifestResourceStream(fileName);
+        stream.ShouldNotBeNull(
+            $"Expected '{fileName}' embedded as a manifest resource in the test assembly. " +
+            "Wire it up in LowlandTech.Components.Tests.csproj via <EmbeddedResource>.");
+        using var reader = new StreamReader(stream!);
+        return reader.ReadToEnd();
     }
 
     /// <summary>

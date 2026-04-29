@@ -34,6 +34,18 @@
 		<ProjectReference Include="..\lib\LowlandTech.Components.csproj" />
 	</ItemGroup>
 
+	<!-- Embed sources used by textual drift-guard tests so they survive NCrunch
+	     shadow-copy (which doesn't copy the lib project's source into the test
+	     workspace). Read in tests via Assembly.GetManifestResourceStream. -->
+	<ItemGroup>
+		<EmbeddedResource Include="..\lib\ContainerGrid\ContainerGrid.razor.cs">
+			<LogicalName>ContainerGrid.razor.cs</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="..\lib\ContainerGrid\ContainerGridSection.razor.cs">
+			<LogicalName>ContainerGridSection.razor.cs</LogicalName>
+		</EmbeddedResource>
+	</ItemGroup>
+
 	<!-- Exclude unfinished scaffold test files that reference unimplemented features -->
 	<ItemGroup>
 		<Compile Remove="SPEC1009.Calendar\US02.Modes\**\*.cs" />
