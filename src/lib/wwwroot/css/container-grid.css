@@ -80,6 +80,16 @@
     box-shadow: 0 0 0 1px var(--primary, #7e6fff) inset;
 }
 
+/* Selected state — applied when CanvasState.SelectedItemId matches.
+   Stronger visual than hover so the user sees the active selection
+   even when the cursor moves to the right-sidebar PropertyGrid. */
+.lt-container-grid-section.lt-container-grid-section--selected {
+    border-color: var(--primary, #7e6fff);
+    box-shadow:
+        0 0 0 2px var(--primary, #7e6fff) inset,
+        0 0 0 1px var(--primary, #7e6fff);
+}
+
 /* Dragging state — applied to the section root while a drag is in flight,
    so the source visibly dims while the clone follows the cursor. */
 .lt-container-grid-section--dragging {
