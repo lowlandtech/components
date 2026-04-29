@@ -119,6 +119,10 @@
     user-select: none;
 }
 
+/* Visibility — chrome appears on hover/focus/selected/dragging.
+   Toolbar regains pointer-events:auto so its buttons (grip + actions) are
+   clickable; the label and badges stay pointer-events:none so they never
+   block the resize handles or mouse interactions on the section body. */
 .lt-container-grid-section:hover .lt-bezel-label,
 .lt-container-grid-section:hover .lt-bezel-badge,
 .lt-container-grid-section:hover .lt-bezel-toolbar,
@@ -132,6 +136,12 @@
 .lt-container-grid-section--dragging .lt-bezel-badge,
 .lt-container-grid-section--dragging .lt-bezel-toolbar {
     opacity: 1;
+}
+
+.lt-container-grid-section:hover .lt-bezel-toolbar,
+.lt-container-grid-section:focus-within .lt-bezel-toolbar,
+.lt-container-grid-section--selected .lt-bezel-toolbar,
+.lt-container-grid-section--dragging .lt-bezel-toolbar {
     pointer-events: auto;
 }
 

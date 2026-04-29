@@ -66,8 +66,12 @@
                 @* Drag grip lives at the toolbar's left edge — its dotted
                    handle is the unambiguous press/release signal that the
                    JS drag binding watches via @ref="HandleGrip". *@
+                @* The lt-container-grid-grip class is the contract the JS
+                   drag binding queries for (containerGrid.js wireDrag). Keep
+                   it on this element even though the grip now lives inside
+                   the bezel toolbar — renaming silently breaks drag. *@
                 <button type="button"
-                        class="lt-bezel-button lt-bezel-grip"
+                        class="lt-bezel-button lt-bezel-grip lt-container-grid-grip"
                         @ref="HandleGrip"
                         title="Drag to move"
                         aria-label="Drag to move">
