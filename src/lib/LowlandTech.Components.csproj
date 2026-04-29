@@ -20,6 +20,11 @@
     <None Remove="wwwroot\node_modules\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="LowlandTech.Components.csproj.lscache" />
+    <None Remove="LowlandTech.Components.ncrunchproject" />
+  </ItemGroup>
+
   <Target Name="BuildTailwindCSS" BeforeTargets="BeforeBuild" Condition="'$(SkipTailwindBuild)' != 'true'">
     <PropertyGroup>
       <WwwRootPath>$(MSBuildProjectDirectory)\wwwroot</WwwRootPath>
