@@ -1,0 +1,29 @@
+@namespace LowlandTech.Components.TreeView
+@typeparam TItem
+@inherits LtComponentBase
+
+<div data-slot="tree-view" class="lt-tree-view @Class" @attributes="AdditionalAttributes">
+    @foreach (var item in Items)
+    {
+        <TreeNode TItem="TItem"
+                  Item="item"
+                  Depth="0"
+                  GetChildren="GetChildren"
+                  IsExpanded="IsExpanded"
+                  ItemTemplate="ItemTemplate" />
+    }
+</div>
+
+@code {
+    /// <summary>Top-level items rendered at depth 0.</summary>
+    [Parameter, EditorRequired] public IEnumerable<TItem> Items { get; set; } = default!;
+
+    /// <summary>Returns the children of an item. Empty enumerable = leaf.</summary>
+    [Parameter, EditorRequired] public Func<TItem, IEnumerable<TItem>> GetChildren { get; set; } = default!;
+
+    /// <summary>Per-node markup. Receives a context with Item, Depth, IsExpanded, HasChildren.</summary>
+    [Parameter, EditorRequired] public RenderFragment<TreeNodeContext<TItem>> ItemTemplate { get; set; } = default!;
+
+    /// <summary>Returns true when an item should be rendered expanded. Default: collapsed.</summary>
+    [Parameter] public Func<TItem, bool>? IsExpanded { get; set; }
+}

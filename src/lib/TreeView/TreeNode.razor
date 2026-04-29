@@ -1,0 +1,32 @@
+@namespace LowlandTech.Components.TreeView
+@typeparam TItem
+
+@{
+    var children = GetChildren(Item).ToList();
+    var hasChildren = children.Count > 0;
+    var expanded = IsExpanded?.Invoke(Item) ?? false;
+    var ctx = new TreeNodeContext<TItem>(Item, Depth, expanded, hasChildren);
+}
+
+@ItemTemplate(ctx)
+
+@if (expanded && hasChildren)
+{
+    @foreach (var child in children)
+    {
+        <TreeNode TItem="TItem"
+                  Item="child"
+                  Depth="@(Depth + 1)"
+                  GetChildren="GetChildren"
+                  IsExpanded="IsExpanded"
+                  ItemTemplate="ItemTemplate" />
+    }
+}
+
+@code {
+    [Parameter, EditorRequired] public TItem Item { get; set; } = default!;
+    [Parameter] public int Depth { get; set; }
+    [Parameter, EditorRequired] public Func<TItem, IEnumerable<TItem>> GetChildren { get; set; } = default!;
+    [Parameter, EditorRequired] public RenderFragment<TreeNodeContext<TItem>> ItemTemplate { get; set; } = default!;
+    [Parameter] public Func<TItem, bool>? IsExpanded { get; set; }
+}
