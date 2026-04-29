@@ -17,6 +17,25 @@
      @oncontextmenu="OnContextMenu"
      @oncontextmenu:preventDefault="OnContextMenuPreventDefault"
      @oncontextmenu:stopPropagation="OnContextMenuStopPropagation">
+    @if (Movable)
+    {
+        @* Dedicated drag grip in the top-left corner — the whole section is no
+           longer the drag target. The grip gives an unambiguous "I am pressed
+           / I let go" signal during the drag. *@
+        <div class="lt-container-grid-grip" @ref="HandleGrip" title="Drag to move">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true">
+                <circle cx="2" cy="2" r="1" />
+                <circle cx="2" cy="5" r="1" />
+                <circle cx="2" cy="8" r="1" />
+                <circle cx="5" cy="2" r="1" />
+                <circle cx="5" cy="5" r="1" />
+                <circle cx="5" cy="8" r="1" />
+                <circle cx="8" cy="2" r="1" />
+                <circle cx="8" cy="5" r="1" />
+                <circle cx="8" cy="8" r="1" />
+            </svg>
+        </div>
+    }
     @if (Resizable)
     {
         <div class="lt-container-grid-handle lt-handle-se" @ref="HandleSE"></div>

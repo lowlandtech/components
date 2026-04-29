@@ -20,7 +20,7 @@ public partial class ContainerGridSection : IAsyncDisposable
     [Inject] private IJSRuntime JS { get; set; } = default!;
     private IJSObjectReference? _module;
 
-    internal ElementReference HandleSE, HandleE, HandleS;
+    internal ElementReference HandleSE, HandleE, HandleS, HandleGrip;
 
     // ── Parameters ──────────────────────────────────────────────────────────
 

@@ -214,18 +214,32 @@ function commit(gridEl, finalProposal) {
     return dotnet.invokeMethodAsync("ContainerGrid_CommitLayout", changes);
 }
 
-function wireDrag(gridEl, itemEl) {
+function placeRect(el, rect) {
+    el.style.left = `${rect.x}px`;
+    el.style.top = `${rect.y}px`;
+    el.style.width = `${rect.w}px`;
+    el.style.height = `${rect.h}px`;
+}
+
+function wireDrag(gridEl, itemEl, gripEl) {
+    // Drag is initiated from a dedicated grip handle (.lt-container-grid-grip)
+    // rather than the whole section body — gives the user an unambiguous
+    // pressed/released signal and stops accidental drags when interacting
+    // with section content.
     const overlay = gridEl.querySelector(".lt-container-grid-overlay");
     const placeholder = gridEl.querySelector(".lt-container-grid-placeholder");
+    const handle = gripEl ?? itemEl.querySelector(".lt-container-grid-grip");
+    if (!handle) return;
+
     let start = null, ctx = null, lastProposal = null;
 
     const onDown = e => {
         const opts = readSectionOpts(itemEl);
         if (!opts.movable || e.button !== 0) return;
-        // Resize handles handle their own pointer; bail when the target is one of them.
-        if (e.target.classList.contains("lt-container-grid-handle")) return;
+        e.stopPropagation();
 
-        itemEl.setPointerCapture(e.pointerId);
+        handle.setPointerCapture(e.pointerId);
+        itemEl.classList.add("lt-container-grid-section--dragging");
         start = { x: e.clientX, y: e.clientY };
         const base = buildModel(gridEl);
         const me = base.find(x => x.el === itemEl);
@@ -234,20 +248,18 @@ function wireDrag(gridEl, itemEl) {
 
         const clone = itemEl.cloneNode(true);
         clone.classList.add("lt-container-grid-clone");
-        Object.assign(clone.style, {
-            position: "absolute", pointerEvents: "none", zIndex: 30, left: 0, top: 0,
-        });
+        clone.style.position = "absolute";
+        clone.style.pointerEvents = "none";
+        clone.style.zIndex = 30;
+        // Strip CSS-Grid placement from the clone so absolute positioning wins.
+        clone.style.gridColumn = "";
+        clone.style.gridRow = "";
         overlay.appendChild(clone);
-        const mePx = px(me, m);
-        Object.assign(clone.style, {
-            width: `${mePx.w}px`, height: `${mePx.h}px`,
-            transform: `translate(${mePx.x}px,${mePx.y}px)`,
-        });
+        placeRect(clone, px(me, m));
+
         placeholder.style.display = "block";
-        Object.assign(placeholder.style, {
-            width: `${mePx.w}px`, height: `${mePx.h}px`,
-            transform: `translate(${mePx.x}px,${mePx.y}px)`,
-        });
+        placeRect(placeholder, px(me, m));
+
         ctx = { base, me, others, m, clone };
     };
 
@@ -271,6 +283,7 @@ function wireDrag(gridEl, itemEl) {
             row: Math.max(minr, Math.min(maxr, ctx.me.row + dRow)),
             col: Math.max(minc, Math.min(maxc, ctx.me.col + dCol)),
         };
+
         const optsMap = new Map([[ctx.me.id, opts]]);
         let proposal = [target, ...ctx.others.map(o => ({ ...o }))];
         const gopts = readGridOpts(gridEl);
@@ -283,9 +296,13 @@ function wireDrag(gridEl, itemEl) {
         if (gopts.floatMode) proposal = floatUp(proposal, rows);
 
         lastProposal = proposal;
-        const tpx = px(target, ctx.m);
-        ctx.clone.style.transform = `translate(${tpx.x}px,${tpx.y}px)`;
-        placeholder.style.transform = `translate(${tpx.x}px,${tpx.y}px)`;
+        // Clone follows the cursor (raw delta), placeholder snaps to the
+        // resolved target cell so the user sees both intent + landing zone.
+        const cursorPx = { x: px(ctx.me, ctx.m).x + dx, y: px(ctx.me, ctx.m).y + dy };
+        ctx.clone.style.left = `${cursorPx.x}px`;
+        ctx.clone.style.top = `${cursorPx.y}px`;
+        placeRect(placeholder, px(target, ctx.m));
+
         for (const it of proposal) {
             const baseIt = ctx.base.find(x => x.id === it.id);
             if (!baseIt) continue;
@@ -305,15 +322,16 @@ function wireDrag(gridEl, itemEl) {
             clearTransforms(gridEl);
             ctx?.clone?.remove();
             placeholder.style.display = "none";
+            itemEl.classList.remove("lt-container-grid-section--dragging");
             start = null; ctx = null; lastProposal = null;
         };
         commit(gridEl, finalProposal).then(cleanup, cleanup);
     };
 
-    itemEl.addEventListener("pointerdown", onDown);
-    itemEl.addEventListener("pointermove", onMove);
-    itemEl.addEventListener("pointerup", onUp);
-    itemEl.addEventListener("pointercancel", onUp);
+    handle.addEventListener("pointerdown", onDown);
+    handle.addEventListener("pointermove", onMove);
+    handle.addEventListener("pointerup", onUp);
+    handle.addEventListener("pointercancel", onUp);
 }
 
 function wireResize(gridEl, itemEl, handles) {
@@ -337,20 +355,15 @@ function wireResize(gridEl, itemEl, handles) {
 
             const clone = itemEl.cloneNode(true);
             clone.classList.add("lt-container-grid-clone");
-            Object.assign(clone.style, {
-                position: "absolute", pointerEvents: "none", zIndex: 30, left: 0, top: 0,
-            });
+            clone.style.position = "absolute";
+            clone.style.pointerEvents = "none";
+            clone.style.zIndex = 30;
+            clone.style.gridColumn = "";
+            clone.style.gridRow = "";
             overlay.appendChild(clone);
-            const mePx = px(me, m);
-            Object.assign(clone.style, {
-                width: `${mePx.w}px`, height: `${mePx.h}px`,
-                transform: `translate(${mePx.x}px,${mePx.y}px)`,
-            });
+            placeRect(clone, px(me, m));
             placeholder.style.display = "block";
-            Object.assign(placeholder.style, {
-                width: `${mePx.w}px`, height: `${mePx.h}px`,
-                transform: `translate(${mePx.x}px,${mePx.y}px)`,
-            });
+            placeRect(placeholder, px(me, m));
             ctx = { base, me, others, m, clone };
         };
 
@@ -384,10 +397,8 @@ function wireResize(gridEl, itemEl, handles) {
 
             lastProposal = proposal;
             const tpx = px(target, ctx.m);
-            ctx.clone.style.width = `${tpx.w}px`;
-            ctx.clone.style.height = `${tpx.h}px`;
-            placeholder.style.width = `${tpx.w}px`;
-            placeholder.style.height = `${tpx.h}px`;
+            placeRect(ctx.clone, tpx);
+            placeRect(placeholder, tpx);
             for (const it of proposal) {
                 const baseIt = ctx.base.find(x => x.id === it.id);
                 if (!baseIt) continue;
@@ -448,7 +459,10 @@ export const containerGrid = {
         const gridEl = el.closest(".lt-container-grid");
         if (!gridEl) return;
 
-        if (options?.movable) wireDrag(gridEl, el);
+        if (options?.movable) {
+            const grip = el.querySelector(".lt-container-grid-grip");
+            wireDrag(gridEl, el, grip);
+        }
         if (options?.resizable) {
             const hE  = el.querySelector(".lt-handle-e");
             const hS  = el.querySelector(".lt-handle-s");

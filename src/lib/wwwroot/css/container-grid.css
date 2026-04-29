@@ -80,12 +80,49 @@
     box-shadow: 0 0 0 1px var(--primary, #7e6fff) inset;
 }
 
-/* Drag/resize state — sections become grabbable when their JS binding is on. */
-.lt-container-grid-section[data-options*='"movable":true'] {
-    cursor: grab;
+/* Dragging state — applied to the section root while a drag is in flight,
+   so the source visibly dims while the clone follows the cursor. */
+.lt-container-grid-section--dragging {
+    opacity: 0.4;
 }
-.lt-container-grid-section[data-options*='"movable":true']:active {
+
+/* ── Drag grip ─────────────────────────────────────────────────────────────
+   Top-left corner anchor with a 3×3 dot icon. The user grabs this handle to
+   drag — pressing/releasing it is the unambiguous start/stop signal. Hidden
+   until the section is hovered. */
+.lt-container-grid-grip {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 18px;
+    height: 18px;
+    z-index: 4;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary, #7e6fff);
+    background: color-mix(in srgb, var(--primary, #7e6fff) 14%, transparent);
+    border-radius: 4px;
+    cursor: grab;
+    opacity: 0;
+    transition: opacity 0.12s ease, background-color 0.12s ease;
+    user-select: none;
+    touch-action: none;
+}
+
+.lt-container-grid-section:hover .lt-container-grid-grip,
+.lt-container-grid-section:focus-within .lt-container-grid-grip,
+.lt-container-grid-section--dragging .lt-container-grid-grip {
+    opacity: 0.95;
+}
+
+.lt-container-grid-grip:hover {
+    background: color-mix(in srgb, var(--primary, #7e6fff) 22%, transparent);
+}
+
+.lt-container-grid-grip:active {
     cursor: grabbing;
+    background: color-mix(in srgb, var(--primary, #7e6fff) 32%, transparent);
 }
 
 /* Resize handles — 14×14 primary-colored chips that protrude half-outside
@@ -149,23 +186,26 @@
     cursor: nwse-resize;
 }
 
-/* Drag clone shown above the canvas during a drag/resize operation. */
+/* Drag clone — visual copy that follows the cursor during drag/resize.
+   left/top are set inline by containerGrid.js per pointer event. */
 .lt-container-grid-clone {
     border: 1px dashed var(--primary, #7e6fff);
     border-radius: 4px;
     background: color-mix(in srgb, var(--primary, #7e6fff) 12%, transparent);
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    transition: none;
 }
 
-/* Placeholder showing where the section will land. */
+/* Placeholder — snaps to the resolved target cell so the user sees exactly
+   where the section will land if they release now. left/top set inline by
+   containerGrid.js. */
 .lt-container-grid-placeholder {
     display: none;
     position: absolute;
-    left: 0;
-    top: 0;
     pointer-events: none;
     z-index: 5;
-    border: 1px dashed color-mix(in srgb, var(--primary, #7e6fff) 70%, transparent);
+    border: 2px dashed var(--primary, #7e6fff);
     border-radius: 4px;
-    background: color-mix(in srgb, var(--primary, #7e6fff) 6%, transparent);
+    background: color-mix(in srgb, var(--primary, #7e6fff) 12%, transparent);
+    transition: left 0.08s ease, top 0.08s ease;
 }
