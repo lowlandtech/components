@@ -93,6 +93,17 @@ public partial class ContainerGridSection : IAsyncDisposable
     [Parameter] public bool OnContextMenuPreventDefault { get; set; }
     [Parameter] public bool OnContextMenuStopPropagation { get; set; }
 
+    // ── Selection bezel ──────────────────────────────────────────────────────
+
+    /// <summary>Short tag.class label shown in the bezel's top-left chip.</summary>
+    [Parameter] public string? SelectorLabel { get; set; }
+
+    /// <summary>Whether to render the four grid-line-number badges (col-start, col-end, row-start, row-end). Default true.</summary>
+    [Parameter] public bool ShowBezelBadges { get; set; } = true;
+
+    /// <summary>Action toolbar content (Properties / Delete / etc.). Rendered after the drag grip.</summary>
+    [Parameter] public RenderFragment? ActionToolbar { get; set; }
+
     // ── Lifecycle ────────────────────────────────────────────────────────────
 
     protected override void OnInitialized()

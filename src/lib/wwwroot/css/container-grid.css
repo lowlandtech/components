@@ -96,43 +96,141 @@
     opacity: 0.4;
 }
 
-/* ── Drag grip ─────────────────────────────────────────────────────────────
-   Top-left corner anchor with a 3×3 dot icon. The user grabs this handle to
-   drag — pressing/releasing it is the unambiguous start/stop signal. Hidden
-   until the section is hovered. */
-.lt-container-grid-grip {
+/* ── Selection bezel ───────────────────────────────────────────────────────
+   Pinegrow-style chrome that surrounds a hovered/selected section: a label
+   chip (top-left), four grid-line-number badges on each edge, and a toolbar
+   floating above the section that hosts the drag grip plus consumer-supplied
+   actions (Properties / Delete / etc.).
+
+   Visibility:
+     - hover                                    → label + badges + toolbar
+     - .lt-container-grid-section--selected     → label + badges + toolbar
+     - default                                  → all hidden, no chrome
+*/
+
+.lt-bezel-label,
+.lt-bezel-badge,
+.lt-bezel-toolbar {
     position: absolute;
-    top: 6px;
-    left: 6px;
-    width: 18px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.12s ease;
+    z-index: 6;
+    user-select: none;
+}
+
+.lt-container-grid-section:hover .lt-bezel-label,
+.lt-container-grid-section:hover .lt-bezel-badge,
+.lt-container-grid-section:hover .lt-bezel-toolbar,
+.lt-container-grid-section:focus-within .lt-bezel-label,
+.lt-container-grid-section:focus-within .lt-bezel-badge,
+.lt-container-grid-section:focus-within .lt-bezel-toolbar,
+.lt-container-grid-section--selected .lt-bezel-label,
+.lt-container-grid-section--selected .lt-bezel-badge,
+.lt-container-grid-section--selected .lt-bezel-toolbar,
+.lt-container-grid-section--dragging .lt-bezel-label,
+.lt-container-grid-section--dragging .lt-bezel-badge,
+.lt-container-grid-section--dragging .lt-bezel-toolbar {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Label chip — sits below the toolbar, anchored to the section's top-left
+   inside the box so it doesn't fight the toolbar above. Truncates long
+   selectors so the label never overflows. */
+.lt-bezel-label {
+    top: 4px;
+    left: 4px;
+    max-width: calc(100% - 8px);
+    padding: 1px 6px;
+    border-radius: 3px;
+    background: var(--primary, #7e6fff);
+    color: var(--primary-foreground, #ffffff);
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 14px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
+}
+
+/* Edge badges — show the resolved CSS Grid line numbers on each side. The
+   dashed guideline you see continuing through the badge is the bezel's
+   visual cue that "this section starts/ends at line N". */
+.lt-bezel-badge {
+    min-width: 18px;
     height: 18px;
-    z-index: 4;
+    padding: 0 4px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: var(--primary, #7e6fff);
-    background: color-mix(in srgb, var(--primary, #7e6fff) 14%, transparent);
+    border-radius: 3px;
+    background: var(--primary, #7e6fff);
+    color: var(--primary-foreground, #ffffff);
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.lt-bezel-badge--col-start { top: 50%; left: 0;   transform: translate(-50%, -50%); }
+.lt-bezel-badge--col-end   { top: 50%; right: 0;  transform: translate(50%, -50%); }
+.lt-bezel-badge--row-start { left: 50%; top: 0;   transform: translate(-50%, -50%); }
+.lt-bezel-badge--row-end   { left: 50%; bottom: 0; transform: translate(-50%, 50%); }
+
+/* Action toolbar — floats above the section so it never blocks content. The
+   drag grip lives here as the leftmost chip; consumer-supplied actions
+   (Properties / Delete) follow it. */
+.lt-bezel-toolbar {
+    bottom: 100%;
+    left: 0;
+    margin-bottom: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
     border-radius: 4px;
+    background: var(--primary, #7e6fff);
+    color: var(--primary-foreground, #ffffff);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    white-space: nowrap;
+}
+
+.lt-bezel-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    border-radius: 3px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+}
+
+.lt-bezel-button:hover {
+    background: color-mix(in srgb, var(--primary-foreground, #ffffff) 18%, transparent);
+}
+
+.lt-bezel-button:active {
+    background: color-mix(in srgb, var(--primary-foreground, #ffffff) 28%, transparent);
+}
+
+/* The grip is just a styled bezel button with the grab cursor and no hover
+   tint distinct from active — pressing it should *immediately* feel like
+   the drag is engaging. */
+.lt-bezel-grip {
     cursor: grab;
-    opacity: 0;
-    transition: opacity 0.12s ease, background-color 0.12s ease;
-    user-select: none;
     touch-action: none;
 }
 
-.lt-container-grid-section:hover .lt-container-grid-grip,
-.lt-container-grid-section:focus-within .lt-container-grid-grip,
-.lt-container-grid-section--dragging .lt-container-grid-grip {
-    opacity: 0.95;
-}
-
-.lt-container-grid-grip:hover {
-    background: color-mix(in srgb, var(--primary, #7e6fff) 22%, transparent);
-}
-
-.lt-container-grid-grip:active {
+.lt-bezel-grip:active {
     cursor: grabbing;
-    background: color-mix(in srgb, var(--primary, #7e6fff) 32%, transparent);
 }
 
 /* Resize handles — 14×14 primary-colored chips that protrude half-outside

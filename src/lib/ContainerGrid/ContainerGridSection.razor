@@ -17,30 +17,75 @@
      @oncontextmenu="OnContextMenu"
      @oncontextmenu:preventDefault="OnContextMenuPreventDefault"
      @oncontextmenu:stopPropagation="OnContextMenuStopPropagation">
-    @if (Movable)
-    {
-        @* Dedicated drag grip in the top-left corner — the whole section is no
-           longer the drag target. The grip gives an unambiguous "I am pressed
-           / I let go" signal during the drag. *@
-        <div class="lt-container-grid-grip" @ref="HandleGrip" title="Drag to move">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true">
-                <circle cx="2" cy="2" r="1" />
-                <circle cx="2" cy="5" r="1" />
-                <circle cx="2" cy="8" r="1" />
-                <circle cx="5" cy="2" r="1" />
-                <circle cx="5" cy="5" r="1" />
-                <circle cx="5" cy="8" r="1" />
-                <circle cx="8" cy="2" r="1" />
-                <circle cx="8" cy="5" r="1" />
-                <circle cx="8" cy="8" r="1" />
-            </svg>
-        </div>
-    }
     @if (Resizable)
     {
         <div class="lt-container-grid-handle lt-handle-se" @ref="HandleSE"></div>
         <div class="lt-container-grid-handle lt-handle-e"  @ref="HandleE"></div>
         <div class="lt-container-grid-handle lt-handle-s"  @ref="HandleS"></div>
+    }
+
+    @* ── Selection bezel ─────────────────────────────────────────────────
+       Pinegrow-style chrome that appears on hover or when the section is
+       marked --selected. Three pieces:
+       1. selector label (top-left)        — shows tag.class or whatever the
+                                              consumer feeds in
+       2. four grid-placement badges       — col-start, col-end, row-start,
+                                              row-end (mirrors the dotted
+                                              guides in the screenshot)
+       3. action toolbar (above the box)   — drag grip on the left + any
+                                              consumer-supplied actions
+                                              (Properties / Delete / etc.) *@
+    @if (!string.IsNullOrEmpty(SelectorLabel))
+    {
+        <div data-slot="container-grid-bezel-label"
+             class="lt-bezel-label"
+             title="@SelectorLabel">@SelectorLabel</div>
+    }
+    @if (ShowBezelBadges)
+    {
+        <div data-slot="container-grid-bezel-badge"
+             data-edge="col-start"
+             class="lt-bezel-badge lt-bezel-badge--col-start">@Column</div>
+        <div data-slot="container-grid-bezel-badge"
+             data-edge="col-end"
+             class="lt-bezel-badge lt-bezel-badge--col-end">@(Column + ColSpan)</div>
+        <div data-slot="container-grid-bezel-badge"
+             data-edge="row-start"
+             class="lt-bezel-badge lt-bezel-badge--row-start">@Row</div>
+        <div data-slot="container-grid-bezel-badge"
+             data-edge="row-end"
+             class="lt-bezel-badge lt-bezel-badge--row-end">@(Row + RowSpan)</div>
+    }
+    @if (Movable || ActionToolbar is not null)
+    {
+        <div data-slot="container-grid-bezel-toolbar"
+             class="lt-bezel-toolbar"
+             @onclick:stopPropagation>
+            @if (Movable)
+            {
+                @* Drag grip lives at the toolbar's left edge — its dotted
+                   handle is the unambiguous press/release signal that the
+                   JS drag binding watches via @ref="HandleGrip". *@
+                <button type="button"
+                        class="lt-bezel-button lt-bezel-grip"
+                        @ref="HandleGrip"
+                        title="Drag to move"
+                        aria-label="Drag to move">
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true">
+                        <circle cx="2" cy="2" r="1" />
+                        <circle cx="2" cy="5" r="1" />
+                        <circle cx="2" cy="8" r="1" />
+                        <circle cx="5" cy="2" r="1" />
+                        <circle cx="5" cy="5" r="1" />
+                        <circle cx="5" cy="8" r="1" />
+                        <circle cx="8" cy="2" r="1" />
+                        <circle cx="8" cy="5" r="1" />
+                        <circle cx="8" cy="8" r="1" />
+                    </svg>
+                </button>
+            }
+            @ActionToolbar
+        </div>
     }
     @ChildContent
 </div>
