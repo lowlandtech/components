@@ -1,0 +1,81 @@
+/* ── ContainerGrid: design-surface raster + section outlines ─────────────────
+   Graph-paper style: minor grid lines on every cell, major lines every 4
+   cells. Loaded by hosts via:
+     <link rel="stylesheet"
+           href="_content/LowlandTech.Components/css/container-grid.css" />
+   Kept as a non-isolated stylesheet (rather than ContainerGrid.razor.css) so
+   the rules reach hosts that consume LowlandTech.Components by NuGet/binary
+   reference and don't aggregate library scoped CSS into their host bundle.
+
+   Inline CSS variables --lt-grid-cols / --lt-grid-rows are written by
+   ContainerGrid.razor.cs based on the Columns/Rows parameters.
+*/
+
+.lt-container-grid {
+    position: relative;
+    height: 100%;
+    min-height: 320px;
+    width: 100%;
+
+    /* Cell size = canvas dimension / track count. Used by both the overlay
+       and the minor/major guideline backgrounds. */
+    --lt-cell-w: calc(100% / var(--lt-grid-cols, 12));
+    --lt-cell-h: calc(100% / var(--lt-grid-rows, 8));
+
+    /* Faint paper background so the canvas reads as a designable surface,
+       not a void. */
+    background-color: var(--background, #0b0b15);
+}
+
+/* ── Raster overlay: minor + major guide lines ─────────────────────────────
+   Two stacked backgrounds:
+     1. Minor lines: 1px every cell (Cols+1 vertical, Rows+1 horizontal)
+     2. Major lines: 1px every 4 cells, slightly stronger
+   Drawn underneath positioned sections (z-index 0). */
+.lt-container-grid-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+
+    background-image:
+        /* Major vertical lines (every 4 columns) */
+        linear-gradient(to right,  var(--lt-major, rgba(160, 163, 184, 0.55)) 1px, transparent 1px),
+        /* Major horizontal lines (every 4 rows) */
+        linear-gradient(to bottom, var(--lt-major, rgba(160, 163, 184, 0.55)) 1px, transparent 1px),
+        /* Minor vertical lines (every column) */
+        linear-gradient(to right,  var(--lt-minor, rgba(160, 163, 184, 0.18)) 1px, transparent 1px),
+        /* Minor horizontal lines (every row) */
+        linear-gradient(to bottom, var(--lt-minor, rgba(160, 163, 184, 0.18)) 1px, transparent 1px);
+
+    background-size:
+        calc(var(--lt-cell-w) * 4) 100%,
+        100% calc(var(--lt-cell-h) * 4),
+        var(--lt-cell-w) 100%,
+        100% var(--lt-cell-h);
+
+    background-position: 0 0;
+}
+
+.lt-container-grid-placeholder {
+    pointer-events: none;
+}
+
+/* ── ContainerGridSection: framed boxes on the raster ─────────────────────
+   Border outlines positioned items as visible boxes. Transparent fill so the
+   raster underneath remains visible *inside* each section. Hover highlights
+   the selection target with the primary colour. */
+.lt-container-grid-section {
+    position: relative;
+    z-index: 1;
+    border: 1px solid var(--border, #2f2a4f);
+    border-radius: 4px;
+    background: transparent;
+    min-height: 32px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.lt-container-grid-section:hover {
+    border-color: var(--primary, #7e6fff);
+    box-shadow: 0 0 0 1px var(--primary, #7e6fff) inset;
+}
