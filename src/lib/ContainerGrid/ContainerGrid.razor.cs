@@ -195,6 +195,19 @@ public partial class ContainerGrid : IAsyncDisposable
         }
     }
 
+    /// <summary>
+    /// Grid-level options serialised onto <c>data-options</c> so containerGrid.js
+    /// can read them per pointer event without round-tripping to .NET.
+    /// </summary>
+    private string GridOptionsJson => JsonSerializer.Serialize(new
+    {
+        floatMode = FloatMode,
+        compactOnDrop = CompactOnDrop,
+        resolveCollisions = ResolveCollisions,
+    }, JsonOpts);
+
+    private static readonly JsonSerializerOptions JsonOpts = new(JsonSerializerDefaults.Web);
+
     private bool IsOccupied(ContainerGridSection? ignore, int r, int c) =>
         _childSections.Any(s => s != ignore
             && r >= s.Row && r < s.Row + s.RowSpan

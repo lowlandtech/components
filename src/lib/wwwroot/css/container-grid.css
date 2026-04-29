@@ -79,3 +79,73 @@
     border-color: var(--primary, #7e6fff);
     box-shadow: 0 0 0 1px var(--primary, #7e6fff) inset;
 }
+
+/* Drag/resize state — sections become grabbable when their JS binding is on. */
+.lt-container-grid-section[data-options*='"movable":true'] {
+    cursor: grab;
+}
+.lt-container-grid-section[data-options*='"movable":true']:active {
+    cursor: grabbing;
+}
+
+/* Resize handles: 12px hit areas anchored to the bottom/right edges of each
+   section. Visible only on hover so they don't compete with content. */
+.lt-container-grid-handle {
+    position: absolute;
+    background: transparent;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+.lt-container-grid-section:hover .lt-container-grid-handle {
+    opacity: 1;
+}
+
+.lt-container-grid-handle.lt-handle-e {
+    top: 4px;
+    right: -3px;
+    bottom: 4px;
+    width: 8px;
+    cursor: ew-resize;
+    border-right: 2px solid var(--primary, #7e6fff);
+}
+.lt-container-grid-handle.lt-handle-s {
+    left: 4px;
+    right: 4px;
+    bottom: -3px;
+    height: 8px;
+    cursor: ns-resize;
+    border-bottom: 2px solid var(--primary, #7e6fff);
+}
+.lt-container-grid-handle.lt-handle-se {
+    right: -3px;
+    bottom: -3px;
+    width: 12px;
+    height: 12px;
+    cursor: nwse-resize;
+    border-right: 2px solid var(--primary, #7e6fff);
+    border-bottom: 2px solid var(--primary, #7e6fff);
+    border-bottom-right-radius: 4px;
+    z-index: 3;
+}
+
+/* Drag clone shown above the canvas during a drag/resize operation. */
+.lt-container-grid-clone {
+    border: 1px dashed var(--primary, #7e6fff);
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--primary, #7e6fff) 12%, transparent);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+/* Placeholder showing where the section will land. */
+.lt-container-grid-placeholder {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+    z-index: 5;
+    border: 1px dashed color-mix(in srgb, var(--primary, #7e6fff) 70%, transparent);
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--primary, #7e6fff) 6%, transparent);
+}
