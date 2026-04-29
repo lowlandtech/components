@@ -46,22 +46,22 @@
 
     private static string JustifyCss(Justify j) => j switch
     {
-        Grid.Justify.Start        => "flex-start",
-        Grid.Justify.Center       => "center",
-        Grid.Justify.End          => "flex-end",
-        Grid.Justify.SpaceBetween => "space-between",
-        Grid.Justify.SpaceAround  => "space-around",
-        Grid.Justify.SpaceEvenly  => "space-evenly",
-        _                         => "flex-start"
+        LowlandTech.Components.Grid.Justify.Start        => "flex-start",
+        LowlandTech.Components.Grid.Justify.Center       => "center",
+        LowlandTech.Components.Grid.Justify.End          => "flex-end",
+        LowlandTech.Components.Grid.Justify.SpaceBetween => "space-between",
+        LowlandTech.Components.Grid.Justify.SpaceAround  => "space-around",
+        LowlandTech.Components.Grid.Justify.SpaceEvenly  => "space-evenly",
+        _                    => "flex-start"
     };
 
     private static string AlignItemsCss(AlignItems a) => a switch
     {
-        Grid.AlignItems.Start    => "flex-start",
-        Grid.AlignItems.Center   => "center",
-        Grid.AlignItems.End      => "flex-end",
-        Grid.AlignItems.Baseline => "baseline",
-        Grid.AlignItems.Stretch  => "stretch",
-        _                        => "stretch"
+        LowlandTech.Components.Grid.AlignItems.Start    => "flex-start",
+        LowlandTech.Components.Grid.AlignItems.Center   => "center",
+        LowlandTech.Components.Grid.AlignItems.End      => "flex-end",
+        LowlandTech.Components.Grid.AlignItems.Baseline => "baseline",
+        LowlandTech.Components.Grid.AlignItems.Stretch  => "stretch",
+        _                   => "stretch"
     };
 }

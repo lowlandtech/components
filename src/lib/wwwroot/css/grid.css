@@ -1,5 +1,5 @@
-/* LtGrid / LtItem responsive layout
-   LtItem sets --lt-xs through --lt-xl as CSS custom properties via inline style.
+/* LtGrid / GridItem responsive layout
+   GridItem sets --lt-xs through --lt-xl as CSS custom properties via inline style.
    Each breakpoint reads from its own var, falling back through the cascade.
    span 0 hides the item at that breakpoint via display:none. */
 
@@ -49,3 +49,5 @@
     .lt-item:where([style*="--lt-xl:0"]) { display: none; }
     .lt-item:where([style*="--lt-xl:"]:not([style*="--lt-xl:0"])) { display: block; }
 }
+
+
