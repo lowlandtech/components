@@ -3,6 +3,7 @@
 
 <button data-slot="select-trigger"
         data-size="@Size"
+        data-value="@(Parent?.Value)"
         data-invalid="@(Invalid ? "true" : null)"
         type="button"
         class="@GetClass()"
@@ -57,18 +58,22 @@
             ? " border-red-500 focus-visible:ring-red-500"
             : " border-input focus-visible:ring-ring";
 
-        // Size-aware height — was missing entirely; the trigger had no
-        // explicit height of its own, only relied on px-3 py-2 padding
-        // which gave inconsistent sizing across contexts.
+        // Size-aware geometry. "compact" matches the dense canvas style
+        // editor rows that previously hosted NativeSelect (28px tall, tight
+        // horizontal padding, xs text). The other sizes carry their own
+        // padding now too, so each variant owns its full geometry instead
+        // of relying on a shared px-3 py-2 baseline that was wrong for
+        // dense panels.
         var sizeClass = Size switch
         {
-            "sm" => " h-8 text-xs",
-            "lg" => " h-10 text-base",
-            _    => " h-9 text-sm",
+            "compact" => " h-7 px-2 text-xs",
+            "sm"      => " h-8 px-2.5 text-xs",
+            "lg"      => " h-10 px-3 py-2 text-base",
+            _         => " h-9 px-3 py-2 text-sm",
         };
 
-        // Base appearance classes (text-size moved into sizeClass).
-        var appearanceClass = " rounded-md border bg-transparent px-3 py-2 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1";
+        // Base appearance classes (height + padding moved into sizeClass).
+        var appearanceClass = " rounded-md border bg-transparent shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1";
 
         var result = $"{baseClass}{appearanceClass}{sizeClass}{borderClass}{disabledClass}";
         return string.IsNullOrEmpty(Class) ? result : $"{result} {Class}";
