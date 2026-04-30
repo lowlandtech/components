@@ -533,6 +533,46 @@ function mirrorSectionClasses(sectionEl, hostEl) {
     hostEl.dataset.sectionClasses = [...sectionEl.classList].join(" ");
 }
 
+// ── Deepest-section hover tracker ─────────────────────────────────────────
+// Per-section pointerenter / pointerleave doesn't suit nested grids: the
+// parent section receives pointerenter when its descendant is entered, so
+// hovering a child lights up BOTH the child's bezel AND the parent's,
+// stacking duplicate label / toolbar / resize-handle chrome on top of
+// each other. We replace per-section listeners with one document-level
+// pointermove listener that finds the deepest section under the cursor
+// and toggles --hovered on ONLY that section's bezel host.
+let _deepestHoveredSection = null;
+let _deepestHoverPointerHandlerInstalled = false;
+
+function setDeepestHovered(section) {
+    if (_deepestHoveredSection === section) return;
+    if (_deepestHoveredSection?._bezelSync?.hostEl) {
+        _deepestHoveredSection._bezelSync.hostEl.classList.remove("lt-bezel-host--hovered");
+    }
+    _deepestHoveredSection = section;
+    if (section?._bezelSync?.hostEl) {
+        section._bezelSync.hostEl.classList.add("lt-bezel-host--hovered");
+    }
+}
+
+function ensureDeepestHoverListener() {
+    if (_deepestHoverPointerHandlerInstalled) return;
+    _deepestHoverPointerHandlerInstalled = true;
+
+    document.addEventListener("pointermove", (e) => {
+        const target = e.target instanceof Element ? e.target : null;
+        // closest() walks up the DOM from the event target. With nested
+        // sections, the DEEPEST section is the closest ancestor — which
+        // is exactly what we want for hover chrome routing.
+        const deepest = target?.closest(".lt-container-grid-section") ?? null;
+        setDeepestHovered(deepest);
+    }, { passive: true });
+
+    // Cursor leaves the document entirely → clear the active section.
+    document.addEventListener("pointerleave", () => setDeepestHovered(null));
+    document.addEventListener("pointercancel", () => setDeepestHovered(null));
+}
+
 function attachBezel(sectionEl) {
     const hostEl = sectionEl.querySelector(".lt-bezel-host");
     if (!hostEl) return;
@@ -566,33 +606,34 @@ function attachBezel(sectionEl) {
     window.addEventListener("scroll", onScroll, true);
     window.addEventListener("resize", onResize);
 
-    // :hover / :focus-within can't traverse the portal boundary, so
-    // simulate them by listening on the section and toggling host classes
-    // that the CSS rules match against.
-    const onPointerEnter = () => hostEl.classList.add("lt-bezel-host--hovered");
-    const onPointerLeave = () => hostEl.classList.remove("lt-bezel-host--hovered");
-    const onFocusIn      = () => hostEl.classList.add("lt-bezel-host--focused");
-    const onFocusOut     = () => hostEl.classList.remove("lt-bezel-host--focused");
-    sectionEl.addEventListener("pointerenter", onPointerEnter);
-    sectionEl.addEventListener("pointerleave", onPointerLeave);
+    // Hover chrome is driven by the document-level deepest-section
+    // tracker (see ensureDeepestHoverListener); per-section pointerenter/
+    // leave would light up parent bezels when a descendant is hovered.
+    // Focus stays per-section because focusin/focusout already only fire
+    // on the actual focused element + its ancestors via :focus-within
+    // semantics — and we WANT the focused element's own bezel.
+    ensureDeepestHoverListener();
+    const onFocusIn  = () => hostEl.classList.add("lt-bezel-host--focused");
+    const onFocusOut = () => hostEl.classList.remove("lt-bezel-host--focused");
     sectionEl.addEventListener("focusin",  onFocusIn);
     sectionEl.addEventListener("focusout", onFocusOut);
 
     sectionEl._bezelSync = {
         ro, mo, onScroll, onResize,
-        onPointerEnter, onPointerLeave, onFocusIn, onFocusOut, hostEl,
+        onFocusIn, onFocusOut, hostEl,
     };
 }
 
 function detachBezel(sectionEl) {
     const state = sectionEl._bezelSync;
     if (!state) return;
+    // Clear the deepest-hover pointer if this section was tracked, so
+    // it doesn't dangle after Razor disposes the section node.
+    if (_deepestHoveredSection === sectionEl) setDeepestHovered(null);
     state.ro.disconnect();
     state.mo.disconnect();
     window.removeEventListener("scroll", state.onScroll, true);
     window.removeEventListener("resize", state.onResize);
-    sectionEl.removeEventListener("pointerenter", state.onPointerEnter);
-    sectionEl.removeEventListener("pointerleave", state.onPointerLeave);
     sectionEl.removeEventListener("focusin",  state.onFocusIn);
     sectionEl.removeEventListener("focusout", state.onFocusOut);
 
