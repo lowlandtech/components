@@ -573,14 +573,40 @@ function ensureDeepestHoverListener() {
     document.addEventListener("pointercancel", () => setDeepestHovered(null));
 }
 
+function findOrphanedHost(sectionEl) {
+    // Recover from the lifecycle-race where attachBezel ran, teleported
+    // the host into popover-provider, and then a subsequent detachBezel
+    // deleted `_bezelSync` from the section without succeeding in moving
+    // the host back (e.g. silent appendChild failure, or the host's
+    // `_bezelOriginalParent` ref pointed at a stale element). Without this
+    // recovery the section sits in the DOM with no bezel host child, the
+    // observers are gone, and the portaled host is orphaned with no
+    // mirror — so selecting the section never lights up the chrome.
+    const root = portalRoot();
+    if (!root) return null;
+    for (const candidate of root.querySelectorAll(":scope > .lt-bezel-host")) {
+        if (candidate._bezelOriginalParent === sectionEl) return candidate;
+    }
+    return null;
+}
+
 function attachBezel(sectionEl) {
-    const hostEl = sectionEl.querySelector(".lt-bezel-host");
-    if (!hostEl) return;
+    // If the section already has live observers (re-entrant attach), do
+    // nothing — we'd otherwise leak a second observer set per call.
+    if (sectionEl._bezelSync) return;
+
+    let hostEl = sectionEl.querySelector(".lt-bezel-host");
+    let alreadyPortaled = false;
+    if (!hostEl) {
+        hostEl = findOrphanedHost(sectionEl);
+        if (!hostEl) return;
+        alreadyPortaled = true;
+    }
 
     // Teleport into the popover provider portal so the host escapes any
     // overflow / transform ancestor on the section's normal DOM path.
     const root = portalRoot();
-    if (root && hostEl.parentNode !== root) {
+    if (!alreadyPortaled && root && hostEl.parentNode !== root) {
         hostEl._bezelOriginalParent = hostEl.parentNode;
         root.appendChild(hostEl);
     }
@@ -639,10 +665,24 @@ function detachBezel(sectionEl) {
 
     // Move the bezel host back to its original DOM parent so Razor's
     // diffing can dispose the node cleanly when the section unmounts.
+    // If the move fails (original parent gone) remove the host from
+    // popover-provider entirely — leaving it orphaned there with no
+    // observers turns into the "section selected but no chrome" bug
+    // because the next attachBezel can't tell apart "fresh host inside
+    // section" vs "stale orphan in popover".
     const hostEl = state.hostEl;
     const original = hostEl?._bezelOriginalParent;
-    if (hostEl && original && hostEl.parentNode !== original) {
-        try { original.appendChild(hostEl); } catch { /* parent gone */ }
+    if (hostEl) {
+        let returned = false;
+        if (original && original.isConnected && hostEl.parentNode !== original) {
+            try { original.appendChild(hostEl); returned = true; } catch { /* parent gone */ }
+        } else if (original && hostEl.parentNode === original) {
+            returned = true;
+        }
+        if (!returned && hostEl.parentNode) {
+            hostEl.parentNode.removeChild(hostEl);
+        }
+        delete hostEl._bezelOriginalParent;
     }
     delete sectionEl._bezelSync;
 }
