@@ -243,6 +243,18 @@
     border-top: none;
 }
 
+/* SPEC2100.US46 — Components-palette group title. One header per
+   [Properties].Group bucket in the Components sidebar tab. Same dense
+   look as .lt-style-subsection-title but at the palette grid scale. */
+.lt-component-palette-group-title {
+    padding: 4px 0 6px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted-foreground, #a0a3b8);
+}
+
 /* ── Empty placeholders inside section bodies ────────────────────────── */
 
 .lt-style-section-empty {
