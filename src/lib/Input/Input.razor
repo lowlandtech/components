@@ -19,7 +19,10 @@
     /// <summary>
     /// The type of the input element.
     /// </summary>
-    [Parameter] public string Type { get; set; } = "text";
+    [Parameter, PropertyGrid(Group = "Behavior", Editor = PropertyEditor.Select,
+        Options = new[] { "text", "email", "password", "number", "search", "tel", "url" },
+        Description = "HTML input type")]
+    public string Type { get; set; } = "text";
 
     private string GetClass()
     {

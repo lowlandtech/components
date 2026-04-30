@@ -1,5 +1,7 @@
 @namespace LowlandTech.Components.Select
 @inherits LtComponentBase
+@attribute [Properties(Group = "Forms", Icon = "select",
+    Description = "Dropdown — wrap a SelectTrigger + SelectContent")]
 
 <CascadingValue Value="this">
     <div data-slot="select" class="@GetClass()" @attributes="AdditionalAttributes">
