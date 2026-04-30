@@ -24,29 +24,36 @@
 
 <div data-slot="color-picker"
      data-size="@Size"
-     class="@GetWrapperClass()"
-     @attributes="AdditionalAttributes">
+     class="@GetWrapperClass()">
 
     <input type="color"
            data-slot="color-picker-swatch"
            data-input-mode="swatch"
            data-size="@Size"
+           data-css-property="@CssProperty"
            class="@GetSwatchClass()"
            value="@(NormaliseHex(Value) ?? "#000000")"
            disabled="@Disabled"
            aria-label="Colour swatch picker"
            @onchange="HandleSwatchChange" />
 
+    @* AdditionalAttributes splat onto the text input — the canonical
+       control. data-testid / role / aria-* / etc. from the consumer
+       land here so tests can target the primary input directly. The
+       swatch keeps its own markers (data-slot / data-input-mode) for
+       independent targeting. *@
     <input type="text"
            data-slot="color-picker-input"
            data-input-mode="free-text"
            data-size="@Size"
+           data-css-property="@CssProperty"
            class="@GetTextInputClass()"
            value="@Value"
            placeholder="@Placeholder"
            disabled="@Disabled"
            readonly="@ReadOnly"
-           @onchange="HandleTextChange" />
+           @onchange="HandleTextChange"
+           @attributes="AdditionalAttributes" />
 </div>
 
 @code {
@@ -68,6 +75,18 @@
 
     /// <summary>Visual sizing token: "sm" | "default" | "lg".</summary>
     [Parameter] public string Size { get; set; } = "default";
+
+    /// <summary>
+    /// Optional kebab-case CSS-property tag echoed onto BOTH inner
+    /// inputs (swatch + text) as data-css-property. Lets drift-guard
+    /// tests target a specific colour control by property name —
+    /// e.g. <c>[data-css-property='border-color']</c> finds the swatch
+    /// and text input on the Border colour row, distinct from the
+    /// Background or text-color rows. The wrapper's AdditionalAttributes
+    /// splat carries data-testid + other markers; this parameter is
+    /// specifically the property tag the test layer queries by.
+    /// </summary>
+    [Parameter] public string? CssProperty { get; set; }
 
     private async Task HandleSwatchChange(ChangeEventArgs e)
     {
