@@ -107,7 +107,11 @@
 
     private string GetWrapperClass()
     {
-        var baseClass = "cn-color-picker inline-flex items-center gap-2 w-full";
+        // group/relative so the text-input popover can absolute-position
+        // itself off the swatch without pushing layout. The wrapper itself
+        // is just the swatch's footprint by default — text input is a
+        // hover/focus-revealed bezel, not always-rendered.
+        var baseClass = "cn-color-picker group/color-picker relative inline-flex items-center";
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
 
@@ -130,7 +134,14 @@
             "lg" => "h-10 text-base",
             _    => "h-8 text-sm",
         };
-        return $"cn-color-picker-input cn-input flex-1 min-w-0 rounded-md border border-input bg-transparent px-2 py-1 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 {sizeClass}";
+        // Hidden by default — only reveals when the wrapper is hovered or
+        // contains focus. Positioned absolutely to the RIGHT of the swatch
+        // (left-full + ml-2) so the text input floats above neighbouring
+        // rows instead of stretching the parent container wider. z-50
+        // keeps it above other Properties accordion content. min-w-[16rem]
+        // gives breathing room for var(--token) / linear-gradient(...)
+        // strings without wrapping.
+        return $"cn-color-picker-input cn-input hidden group-hover/color-picker:block group-focus-within/color-picker:block absolute left-full top-1/2 -translate-y-1/2 ml-2 z-50 min-w-[16rem] rounded-md border border-input bg-popover px-2 py-1 shadow-md placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 {sizeClass}";
     }
 
     /// <summary>
