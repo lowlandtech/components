@@ -6,18 +6,8 @@
     <div data-slot="select-content"
          class="@GetClass()"
          @attributes="AdditionalAttributes">
-        <div class="cn-select-scroll-up-button top-0 w-full flex justify-center py-1">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="m18 15-6-6-6 6" />
-            </svg>
-        </div>
         <div class="cn-select-list">
             @ChildContent
-        </div>
-        <div class="cn-select-scroll-down-button bottom-0 w-full flex justify-center py-1">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="m6 9 6 6 6-6" />
-            </svg>
         </div>
     </div>
 }
@@ -27,7 +17,13 @@
 
     private string GetClass()
     {
-        var baseClass = "cn-select-content cn-select-content-logical cn-menu-target cn-menu-translucent absolute isolate z-50 max-h-(--available-height) w-(--anchor-width) origin-(--transform-origin) overflow-x-hidden overflow-y-auto data-[align-trigger=true]:animate-none";
+        // Anchored simply via top-full + min-w-full off the trigger. The
+        // original Radix port used CSS custom properties --available-height /
+        // --anchor-width / --transform-origin written by an anchor-positioning
+        // JS pass that doesn't exist here, so the popover effectively had
+        // no size or placement. Plain top-full is good enough for in-row
+        // selects in the Properties panel.
+        var baseClass = "cn-select-content absolute z-50 top-full left-0 mt-1 min-w-full max-h-60 overflow-x-hidden overflow-y-auto rounded-md border border-input bg-popover text-popover-foreground shadow-md p-1";
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
 }

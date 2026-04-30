@@ -39,6 +39,30 @@
 
     private bool IsSelected => Parent?.Value == Value;
 
+    protected override void OnParametersSet()
+    {
+        // Register so SelectValue can resolve Value → Text without
+        // waiting for the user to click. Covers the controlled-Value
+        // case where the preloaded Value has no SelectedText yet.
+        if (Parent is not null && !string.IsNullOrEmpty(Value))
+        {
+            Parent.RegisterItemText(Value, Text ?? RenderToString() ?? Value);
+        }
+    }
+
+    /// <summary>
+    /// Renders the ChildContent to a plain string for the value-to-text
+    /// map when no explicit Text parameter was passed. Returns null when
+    /// ChildContent is more than plain text (e.g. an icon + label).
+    /// </summary>
+    private string? RenderToString()
+    {
+        // ChildContent here is a RenderFragment; resolving it to a flat
+        // string isn't reliable. Callers that want the trigger label to
+        // reflect a custom render should pass Text="…" explicitly.
+        return null;
+    }
+
     private async Task OnClick()
     {
         if (!Disabled && Value != null)
@@ -49,7 +73,11 @@
 
     private string GetClass()
     {
-        var baseClass = "cn-select-item relative flex w-full cursor-default items-center outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0";
+        // Padding + rounded + hover background so items read as a real
+        // popover-menu list, not a stack of bare divs. py-1.5 pl-2 pr-8
+        // matches the shadcn cadence; the right padding leaves room for
+        // the selected-indicator check icon.
+        var baseClass = "cn-select-item relative flex w-full cursor-pointer items-center gap-2 rounded-sm py-1.5 pl-2 pr-8 text-sm outline-hidden select-none hover:bg-accent hover:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0";
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
 }

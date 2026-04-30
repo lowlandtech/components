@@ -42,7 +42,12 @@
 
     private string GetClass()
     {
-        var baseClass = "cn-select-trigger flex w-fit items-center justify-between whitespace-nowrap outline-none *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center [&_svg]:pointer-events-none [&_svg]:shrink-0";
+        // w-full so the trigger fills its host column (form rows, grid
+        // cells, flex children). Was w-fit which made the trigger
+        // content-sized — fine for "shrink to label" but broken in the
+        // canvas designer's row layouts where it needs to span the
+        // value column.
+        var baseClass = "cn-select-trigger flex w-full items-center justify-between whitespace-nowrap outline-none *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center [&_svg]:pointer-events-none [&_svg]:shrink-0";
 
         // Disabled styles
         var disabledClass = " disabled:cursor-not-allowed disabled:opacity-50 disabled:pointer-events-none";
@@ -52,10 +57,20 @@
             ? " border-red-500 focus-visible:ring-red-500"
             : " border-input focus-visible:ring-ring";
 
-        // Base appearance classes
-        var appearanceClass = " rounded-md border bg-transparent px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1";
+        // Size-aware height — was missing entirely; the trigger had no
+        // explicit height of its own, only relied on px-3 py-2 padding
+        // which gave inconsistent sizing across contexts.
+        var sizeClass = Size switch
+        {
+            "sm" => " h-8 text-xs",
+            "lg" => " h-10 text-base",
+            _    => " h-9 text-sm",
+        };
 
-        var result = $"{baseClass}{appearanceClass}{borderClass}{disabledClass}";
+        // Base appearance classes (text-size moved into sizeClass).
+        var appearanceClass = " rounded-md border bg-transparent px-3 py-2 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1";
+
+        var result = $"{baseClass}{appearanceClass}{sizeClass}{borderClass}{disabledClass}";
         return string.IsNullOrEmpty(Class) ? result : $"{result} {Class}";
     }
 }

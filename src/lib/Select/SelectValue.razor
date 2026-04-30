@@ -15,7 +15,17 @@
 
     private string? GetDisplayText()
     {
-        return Parent?.SelectedText ?? Placeholder;
+        // Three sources, in order:
+        //  1. SelectedText set by SelectItem.OnClick — the freshest source
+        //     after a user-pick.
+        //  2. Parent.GetTextForValue(Value) — looks up the text registered
+        //     by SelectItems for the controlled Value. Covers preloaded
+        //     state ("show 'Visible' on first render when state.Value is
+        //     'visible'") before the user has picked anything.
+        //  3. Placeholder — final fallback.
+        return Parent?.SelectedText
+            ?? Parent?.GetTextForValue(Parent.Value)
+            ?? Placeholder;
     }
 
     private string GetClass()

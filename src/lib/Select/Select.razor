@@ -4,6 +4,15 @@
 <CascadingValue Value="this">
     <div data-slot="select" class="@GetClass()" @attributes="AdditionalAttributes">
         @ChildContent
+        @if (IsOpen)
+        {
+            @* Click-outside catcher — fixed inset-0 sits below the open
+               content (z-40 vs content's z-50) so any click outside the
+               trigger / list dismisses the popover. *@
+            <div data-slot="select-backdrop"
+                 class="fixed inset-0 z-40"
+                 @onclick="Close"></div>
+        }
     </div>
 </CascadingValue>
 
@@ -56,6 +65,21 @@
         await ValueChanged.InvokeAsync(Value);
         Close();
     }
+
+    /// <summary>
+    /// Map of value → text registered by child SelectItems on
+    /// OnParametersSet. Lets SelectValue resolve the display text for a
+    /// preloaded Value (e.g. seeded from state on first render) before
+    /// the user has clicked anything. SelectedText is only set on
+    /// user-pick; this dictionary covers the controlled-Value case.
+    /// </summary>
+    private readonly Dictionary<string, string> _itemText = new(StringComparer.Ordinal);
+
+    internal void RegisterItemText(string value, string text)
+        => _itemText[value] = text;
+
+    internal string? GetTextForValue(string? value)
+        => value is not null && _itemText.TryGetValue(value, out var text) ? text : null;
 
     private string GetClass()
     {
