@@ -21,13 +21,13 @@
 
     @* ── Selection bezel host ────────────────────────────────────────────
        The whole chrome (resize handles, label, badges, toolbar) lives
-       inside this host div. The host is `position: fixed` (escapes any
-       parent overflow:auto / stacking context) and its top/left/width/
-       height are JS-synced to the section's bbox via ltBezel.attach.
-       Keeping the host as a DOM descendant of the section means existing
-       descendant selectors (`.lt-container-grid-section--selected
-       .lt-bezel-toolbar` etc.) still resolve, and drift-guard tests that
-       look up [data-id='…'] [data-slot='…'] still find the chrome. *@
+       inside this host div. The host is `position: absolute; inset: 0`
+       (anchored to the section's relatively-positioned box via pure CSS,
+       no JS sync). It used to be `position: fixed` with a JS attachBezel
+       routine, but `fixed` silently re-parents to any ancestor with a
+       `transform`/`filter`/`perspective`/`will-change`, which made the
+       chrome drift away from the section any time a Tailwind transform
+       utility or split-pane wrapper appeared in the ancestor chain. *@
     <div class="lt-bezel-host" @ref="BezelHost" data-slot="container-grid-bezel-host">
         @if (Resizable)
         {

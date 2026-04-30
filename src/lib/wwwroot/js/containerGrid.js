@@ -240,6 +240,12 @@ function wireDrag(gridEl, itemEl, gripEl) {
 
         handle.setPointerCapture(e.pointerId);
         itemEl.classList.add("lt-container-grid-section--dragging");
+        // Drag applies `transform: translate(…)` to sections to animate
+        // them between cells. ResizeObserver does NOT fire on transform
+        // changes, so the portaled bezel host would lag the section.
+        // Run an rAF pump for the duration of the gesture to keep every
+        // bezel host glued to its section.
+        startBezelRafSync();
         start = { x: e.clientX, y: e.clientY };
         const base = buildModel(gridEl);
         const me = base.find(x => x.el === itemEl);
@@ -324,6 +330,9 @@ function wireDrag(gridEl, itemEl, gripEl) {
             placeholder.style.display = "none";
             itemEl.classList.remove("lt-container-grid-section--dragging");
             start = null; ctx = null; lastProposal = null;
+            // Stop the rAF pump and run one final sync so chrome lands
+            // on the committed CSS-Grid placement.
+            stopBezelRafSync();
         };
         commit(gridEl, finalProposal).then(cleanup, cleanup);
     };
@@ -347,6 +356,10 @@ function wireResize(gridEl, itemEl, handles) {
             if (!opts.resizable) return;
             e.stopPropagation();
             handle.setPointerCapture(e.pointerId);
+            // Resize gestures animate sections via transform-translate
+            // (push/swap of overlapping siblings) — same RO-blind animation
+            // path as drag — so we run the same gesture-time bezel pump.
+            startBezelRafSync();
             start = { x: e.clientX, y: e.clientY };
             const base = buildModel(gridEl);
             const me = base.find(x => x.el === itemEl);
@@ -419,6 +432,7 @@ function wireResize(gridEl, itemEl, handles) {
                 ctx?.clone?.remove();
                 placeholder.style.display = "none";
                 start = null; ctx = null; lastProposal = null;
+                stopBezelRafSync();
             };
             commit(gridEl, finalProposal).then(cleanup, cleanup);
         };
@@ -435,48 +449,160 @@ function wireResize(gridEl, itemEl, handles) {
     attach(hSE, "se");
 }
 
-// ── Bezel host positioning ─────────────────────────────────────────────────
-// The bezel host (.lt-bezel-host) is `position: fixed`, sitting in the root
-// stacking context so it doesn't get clipped by the design surface's
-// overflow:auto wrapper or layered behind sibling panels. We sync its
-// viewport-space bbox to the section's bbox on every relevant event.
+// ── Bezel host portal + positioning ───────────────────────────────────────
+// The bezel host renders inside the section (so bUnit drift-guard tests
+// that query [data-id='…'] [data-slot='container-grid-bezel-…'] still
+// resolve), but on attach we *teleport* it to the root popover-provider
+// div so it escapes:
+//   1. the design pane's overflow:hidden / overflow:auto clipping (which
+//      was chopping resize handles + edge badges that protrude outside
+//      the section box via translate(50%) transforms);
+//   2. any transformed ancestor that would reparent a `position: fixed`
+//      element (Tailwind transform-gpu / split-pane wrappers / etc.) —
+//      the popover-provider sits at `<body>` level so its descendants
+//      have no transformed ancestors.
+//
+// After teleport the host loses its CSS-descendant relationship to the
+// section, so the visibility rules can no longer say
+// `.lt-container-grid-section:hover .lt-bezel-toolbar`. Instead we mirror
+// the section's class set onto the host (data-section-classes) and pipe
+// :hover/:focus-within through pointer/focus listeners as host classes
+// (lt-bezel-host--hovered / --focused). The CSS rules in container-grid.css
+// match on those instead.
+
+function portalRoot() {
+    return document.getElementById("lt-popover-provider")
+        || document.body;
+}
 
 function syncBezelHost(sectionEl, hostEl) {
     const r = sectionEl.getBoundingClientRect();
+    hostEl.style.position = "fixed";
     hostEl.style.top    = r.top    + "px";
     hostEl.style.left   = r.left   + "px";
     hostEl.style.width  = r.width  + "px";
     hostEl.style.height = r.height + "px";
 }
 
+// rAF pump — keeps every portaled bezel host bbox-synced to its section
+// while a drag/resize gesture is in flight. ResizeObserver fires on
+// dimension changes but NOT on `transform: translate(…)`, which is how
+// wireDrag.onMove animates moving sections — so without this pump the
+// chrome lags behind the section the moment the user starts dragging.
+// Capture-phase scroll + window resize already cover idle bbox drift;
+// this pump is purely the gesture-time supplement.
+let _bezelRafHandle = 0;
+let _bezelRafActive = 0;
+
+function syncAllBezels() {
+    document
+        .querySelectorAll(".lt-container-grid-section")
+        .forEach(sec => {
+            const state = sec._bezelSync;
+            if (state && state.hostEl) {
+                syncBezelHost(sec, state.hostEl);
+            }
+        });
+}
+
+function startBezelRafSync() {
+    _bezelRafActive++;
+    if (_bezelRafHandle) return;
+    const tick = () => {
+        syncAllBezels();
+        _bezelRafHandle = requestAnimationFrame(tick);
+    };
+    _bezelRafHandle = requestAnimationFrame(tick);
+}
+
+function stopBezelRafSync() {
+    _bezelRafActive = Math.max(0, _bezelRafActive - 1);
+    if (_bezelRafActive > 0) return;
+    if (_bezelRafHandle) {
+        cancelAnimationFrame(_bezelRafHandle);
+        _bezelRafHandle = 0;
+    }
+    // Final sync after the gesture ends so the chrome lands on the
+    // committed bbox (the transforms get cleared in clearTransforms,
+    // and the section snaps to its CSS-Grid placement — we want the
+    // chrome to follow that final landing).
+    syncAllBezels();
+}
+
+function mirrorSectionClasses(sectionEl, hostEl) {
+    hostEl.dataset.sectionClasses = [...sectionEl.classList].join(" ");
+}
+
 function attachBezel(sectionEl) {
     const hostEl = sectionEl.querySelector(".lt-bezel-host");
     if (!hostEl) return;
 
-    const sync = () => syncBezelHost(sectionEl, hostEl);
-    sync();
+    // Teleport into the popover provider portal so the host escapes any
+    // overflow / transform ancestor on the section's normal DOM path.
+    const root = portalRoot();
+    if (root && hostEl.parentNode !== root) {
+        hostEl._bezelOriginalParent = hostEl.parentNode;
+        root.appendChild(hostEl);
+    }
 
-    // ResizeObserver catches grid layout changes (drag/resize/collision push).
+    const sync = () => syncBezelHost(sectionEl, hostEl);
+    const mirror = () => mirrorSectionClasses(sectionEl, hostEl);
+    sync();
+    mirror();
+
+    // Resize/layout changes on the section → re-sync bbox.
     const ro = new ResizeObserver(sync);
     ro.observe(sectionEl);
 
-    // Capture-phase scroll listener catches *any* scrolling ancestor (the
-    // design surface's overflow:auto wrapper, page scroll, etc.). Plain
-    // window resize handles viewport changes.
+    // Class changes on the section (e.g. --selected toggling) → mirror to host.
+    const mo = new MutationObserver(mirror);
+    mo.observe(sectionEl, { attributes: true, attributeFilter: ["class"] });
+
+    // Capture-phase scroll catches *any* scrolling ancestor (the design
+    // pane's overflow:auto wrapper, page scroll, etc.). window resize
+    // catches viewport changes.
     const onScroll = sync;
     const onResize = sync;
     window.addEventListener("scroll", onScroll, true);
     window.addEventListener("resize", onResize);
 
-    sectionEl._bezelSync = { ro, onScroll, onResize };
+    // :hover / :focus-within can't traverse the portal boundary, so
+    // simulate them by listening on the section and toggling host classes
+    // that the CSS rules match against.
+    const onPointerEnter = () => hostEl.classList.add("lt-bezel-host--hovered");
+    const onPointerLeave = () => hostEl.classList.remove("lt-bezel-host--hovered");
+    const onFocusIn      = () => hostEl.classList.add("lt-bezel-host--focused");
+    const onFocusOut     = () => hostEl.classList.remove("lt-bezel-host--focused");
+    sectionEl.addEventListener("pointerenter", onPointerEnter);
+    sectionEl.addEventListener("pointerleave", onPointerLeave);
+    sectionEl.addEventListener("focusin",  onFocusIn);
+    sectionEl.addEventListener("focusout", onFocusOut);
+
+    sectionEl._bezelSync = {
+        ro, mo, onScroll, onResize,
+        onPointerEnter, onPointerLeave, onFocusIn, onFocusOut, hostEl,
+    };
 }
 
 function detachBezel(sectionEl) {
     const state = sectionEl._bezelSync;
     if (!state) return;
     state.ro.disconnect();
+    state.mo.disconnect();
     window.removeEventListener("scroll", state.onScroll, true);
     window.removeEventListener("resize", state.onResize);
+    sectionEl.removeEventListener("pointerenter", state.onPointerEnter);
+    sectionEl.removeEventListener("pointerleave", state.onPointerLeave);
+    sectionEl.removeEventListener("focusin",  state.onFocusIn);
+    sectionEl.removeEventListener("focusout", state.onFocusOut);
+
+    // Move the bezel host back to its original DOM parent so Razor's
+    // diffing can dispose the node cleanly when the section unmounts.
+    const hostEl = state.hostEl;
+    const original = hostEl?._bezelOriginalParent;
+    if (hostEl && original && hostEl.parentNode !== original) {
+        try { original.appendChild(hostEl); } catch { /* parent gone */ }
+    }
     delete sectionEl._bezelSync;
 }
 
@@ -515,9 +641,8 @@ export const containerGrid = {
             wireResize(gridEl, el, [hE, hS, hSE]);
         }
 
-        // The bezel host is `position: fixed` so it escapes any parent
-        // overflow:auto / stacking context. We sync its top/left/w/h to the
-        // section's bbox here and on scroll/resize/observe.
+        // Portal the bezel host into the root popover-provider div and
+        // wire bbox sync + class mirroring. See attachBezel for rationale.
         attachBezel(el);
     },
 

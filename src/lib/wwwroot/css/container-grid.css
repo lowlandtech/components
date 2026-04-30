@@ -69,25 +69,29 @@
     position: relative;
     z-index: 1;
     border: 1px solid var(--border, #2f2a4f);
-    border-radius: 4px;
+    border-radius: 0;
     background: transparent;
     min-height: 32px;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, backdrop-filter 0.15s ease;
 }
 
 .lt-container-grid-section:hover {
-    border-color: var(--primary, #7e6fff);
-    box-shadow: 0 0 0 1px var(--primary, #7e6fff) inset;
+    border-color: rgba(160, 163, 184, 0.55);
+    box-shadow: 0 0 0 1px rgba(160, 163, 184, 0.35) inset;
 }
 
 /* Selected state — applied when CanvasState.SelectedItemId matches.
-   Stronger visual than hover so the user sees the active selection
-   even when the cursor moves to the right-sidebar PropertyGrid. */
+   Glasslike chrome: a translucent border in the raster line colour with a
+   subtle frosted-glass inset. Reads as "framed by the grid itself" rather
+   than a saturated primary halo, so it stays visible against any item
+   background without fighting it. */
 .lt-container-grid-section.lt-container-grid-section--selected {
-    border-color: var(--primary, #7e6fff);
+    border-color: rgba(200, 205, 230, 0.7);
     box-shadow:
-        0 0 0 2px var(--primary, #7e6fff) inset,
-        0 0 0 1px var(--primary, #7e6fff);
+        0 0 0 1px rgba(200, 205, 230, 0.45) inset,
+        0 0 0 1px rgba(160, 163, 184, 0.35),
+        0 0 12px rgba(160, 163, 184, 0.18);
+    backdrop-filter: blur(0.5px) saturate(110%);
 }
 
 /* Dragging state — applied to the section root while a drag is in flight,
@@ -113,13 +117,25 @@
      - default                                  → all hidden, no chrome
 */
 
+/* Bezel host — rendered inside the section in markup (so the bUnit drift
+   guard tests still resolve `[data-id='…'] [data-slot='container-grid-
+   bezel-…']`), but JS-portaled at runtime into the root popover-provider
+   div and given `position: fixed` with bbox synced to the section.
+   That portal escapes two clipping/positioning failure modes that
+   `position: absolute; inset: 0` (or unported `position: fixed`) hit:
+     1. `overflow: hidden` / `overflow: auto` on canvas-pane ancestors
+        clipping the resize handles + edge badges that protrude outside
+        the section box via translate(50%) transforms;
+     2. transformed ancestors reparenting `position: fixed` (Tailwind's
+        transform-gpu, split-pane wrappers, etc.).
+   Initial markup style is `position: absolute; inset: 0` so the host
+   still anchors correctly during the brief window between Razor render
+   and JS attachBezel. The JS overrides position/top/left/width/height
+   on attach. */
 .lt-bezel-host {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 0;
-    height: 0;
-    z-index: 6;
+    position: absolute;
+    inset: 0;
+    z-index: 9999;
     pointer-events: none;
 }
 
@@ -134,28 +150,38 @@
 }
 
 /* Visibility — chrome appears on hover/focus/selected/dragging.
-   Toolbar regains pointer-events:auto so its buttons (grip + actions) are
-   clickable; the label and badges stay pointer-events:none so they never
-   block the resize handles or mouse interactions on the section body. */
-.lt-container-grid-section:hover .lt-bezel-label,
-.lt-container-grid-section:hover .lt-bezel-badge,
-.lt-container-grid-section:hover .lt-bezel-toolbar,
-.lt-container-grid-section:focus-within .lt-bezel-label,
-.lt-container-grid-section:focus-within .lt-bezel-badge,
-.lt-container-grid-section:focus-within .lt-bezel-toolbar,
-.lt-container-grid-section--selected .lt-bezel-label,
-.lt-container-grid-section--selected .lt-bezel-badge,
-.lt-container-grid-section--selected .lt-bezel-toolbar,
-.lt-container-grid-section--dragging .lt-bezel-label,
-.lt-container-grid-section--dragging .lt-bezel-badge,
-.lt-container-grid-section--dragging .lt-bezel-toolbar {
+   After the JS-portal teleport (containerGrid.js → attachBezel) the host
+   is no longer a DOM descendant of the section, so the original
+   descendant selectors `.lt-container-grid-section:hover .lt-bezel-…`
+   stop matching. We mirror the section's class list onto the host as
+   `data-section-classes="..."` and pipe :hover / :focus-within through
+   pointer/focus listeners as `lt-bezel-host--hovered` /
+   `lt-bezel-host--focused` host classes. CSS matches on those so the
+   chrome reveals exactly when it used to.
+
+   Toolbar regains pointer-events:auto so its buttons (grip + actions)
+   are clickable; the label and badges stay pointer-events:none so they
+   never block the resize handles or mouse interactions on the section
+   body. */
+.lt-bezel-host.lt-bezel-host--hovered .lt-bezel-label,
+.lt-bezel-host.lt-bezel-host--hovered .lt-bezel-badge,
+.lt-bezel-host.lt-bezel-host--hovered .lt-bezel-toolbar,
+.lt-bezel-host.lt-bezel-host--focused .lt-bezel-label,
+.lt-bezel-host.lt-bezel-host--focused .lt-bezel-badge,
+.lt-bezel-host.lt-bezel-host--focused .lt-bezel-toolbar,
+.lt-bezel-host[data-section-classes~="lt-container-grid-section--selected"] .lt-bezel-label,
+.lt-bezel-host[data-section-classes~="lt-container-grid-section--selected"] .lt-bezel-badge,
+.lt-bezel-host[data-section-classes~="lt-container-grid-section--selected"] .lt-bezel-toolbar,
+.lt-bezel-host[data-section-classes~="lt-container-grid-section--dragging"] .lt-bezel-label,
+.lt-bezel-host[data-section-classes~="lt-container-grid-section--dragging"] .lt-bezel-badge,
+.lt-bezel-host[data-section-classes~="lt-container-grid-section--dragging"] .lt-bezel-toolbar {
     opacity: 1;
 }
 
-.lt-container-grid-section:hover .lt-bezel-toolbar,
-.lt-container-grid-section:focus-within .lt-bezel-toolbar,
-.lt-container-grid-section--selected .lt-bezel-toolbar,
-.lt-container-grid-section--dragging .lt-bezel-toolbar {
+.lt-bezel-host.lt-bezel-host--hovered .lt-bezel-toolbar,
+.lt-bezel-host.lt-bezel-host--focused .lt-bezel-toolbar,
+.lt-bezel-host[data-section-classes~="lt-container-grid-section--selected"] .lt-bezel-toolbar,
+.lt-bezel-host[data-section-classes~="lt-container-grid-section--dragging"] .lt-bezel-toolbar {
     pointer-events: auto;
 }
 
@@ -285,8 +311,11 @@
     inset: -6px;
 }
 
-.lt-container-grid-section:hover .lt-container-grid-handle,
-.lt-container-grid-section:focus-within .lt-container-grid-handle {
+/* Handles also live in the portaled host now, so they follow the same
+   mirrored-state pattern as the toolbar/label/badges above. */
+.lt-bezel-host.lt-bezel-host--hovered .lt-container-grid-handle,
+.lt-bezel-host.lt-bezel-host--focused .lt-container-grid-handle,
+.lt-bezel-host[data-section-classes~="lt-container-grid-section--selected"] .lt-container-grid-handle {
     opacity: 0.95;
     pointer-events: auto;
 }

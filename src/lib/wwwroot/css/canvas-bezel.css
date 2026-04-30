@@ -1,0 +1,119 @@
+/* ── Canvas pane bezel ──────────────────────────────────────────────────
+   Neumorphic frame around the designer's center pane (Design / View /
+   Markup / Code tabs). Replaces a borderless layout where the undo/redo
+   toolbar sat as `position: absolute` over the design surface and got
+   visually trapped behind the section chrome.
+
+   Loaded by hosts via:
+     <link rel="stylesheet"
+           href="_content/LowlandTech.Components/css/canvas-bezel.css" />
+*/
+
+.lt-canvas-bezel {
+    margin: 8px;
+    border-radius: 12px;
+    /* Cancel the cn-tabs default `gap-2` (8px) so the header sits flush
+       against the body — the bezel reads as one continuous frame, not
+       two stacked panels. */
+    gap: 0 !important;
+    background: color-mix(in srgb, var(--card, #14112a) 92%, transparent);
+    /* Neumorphic — soft outer raise + a hairline inner highlight (top)
+       and inner shade (bottom) to give the surface a touch of depth
+       without the candy-coated overdone look. */
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.30),
+        0 1px 0 rgba(0, 0, 0, 0.30),
+        0 8px 24px rgba(0, 0, 0, 0.35);
+    border: 1px solid color-mix(in srgb, var(--border, #2f2a4f) 80%, transparent);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Header bar — taller than the old one-line tabs strip so it can host
+   a row of tool buttons (undo / redo / save / etc.) at the left and
+   keep the tab triggers running across. */
+.lt-canvas-bezel-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 48px;
+    padding: 8px 12px;
+    border-bottom: 1px solid color-mix(in srgb, var(--border, #2f2a4f) 60%, transparent);
+    background: color-mix(in srgb, var(--background, #0b0b15) 40%, transparent);
+    /* Subtle inset top highlight to read as a separate "rim" from the
+       body, neumorphic-style. */
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.18);
+    flex-shrink: 0;
+}
+
+.lt-canvas-bezel-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+/* Tool button — flat by default, raised on hover, pressed-in on active.
+   Sized to match the .lt-bezel-button geometry on selection chrome so
+   the visual rhythm matches across the page. */
+.lt-canvas-bezel-tool {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted-foreground, #a0a3b8);
+    cursor: pointer;
+    transition: background-color 0.12s ease, color 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.lt-canvas-bezel-tool:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--muted, #1a1730) 70%, transparent);
+    color: var(--foreground, #e5e7eb);
+    border-color: color-mix(in srgb, var(--border, #2f2a4f) 80%, transparent);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.06),
+        0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.lt-canvas-bezel-tool:active:not(:disabled) {
+    box-shadow:
+        inset 0 1px 2px rgba(0, 0, 0, 0.35);
+    background: color-mix(in srgb, var(--muted, #1a1730) 90%, transparent);
+}
+
+.lt-canvas-bezel-tool:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Tabs spacer — pushes the centre tabs into the available middle space,
+   undo/redo on the left and the dirty badge / right-hand tools to the
+   right. */
+.lt-canvas-bezel-tabs {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 1 auto;
+}
+
+.lt-canvas-bezel-spacer {
+    flex: 1 1 auto;
+}
+
+/* Body — fills remaining height under the header. Tabs panel content
+   (design canvas / view / markup / code) renders inside. */
+.lt-canvas-bezel-body {
+    flex: 1 1 auto;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
