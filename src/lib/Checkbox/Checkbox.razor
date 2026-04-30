@@ -2,9 +2,15 @@
 @inherits LtComponentBase
 
 <button data-slot="checkbox"
+        type="button"
+        role="checkbox"
+        aria-checked="@Checked"
+        data-state="@(Checked ? "checked" : "unchecked")"
+        disabled="@Disabled"
         class="@GetClass()"
+        @onclick="ToggleChecked"
         @attributes="AdditionalAttributes">
-    <span data-slot="checkbox-indicator" class="cn-checkbox-indicator grid place-content-center text-current transition-none">
+    <span data-slot="checkbox-indicator" class="@GetIndicatorClass()">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cn-checkbox-indicator-icon pointer-events-none">
             <path d="M20 6 9 17l-5-5" />
         </svg>
@@ -14,7 +20,24 @@
 @code {
     private string GetClass()
     {
-        var baseClass = "cn-checkbox peer relative shrink-0 outline-none after:absolute after:-inset-x-3 after:-inset-y-2 disabled:cursor-not-allowed disabled:opacity-50";
+        var baseClass = "cn-checkbox peer relative inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border border-input bg-background text-primary outline-none transition-colors after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground";
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private string GetIndicatorClass()
+    {
+        var visibleClass = Checked ? "opacity-100" : "opacity-0";
+        return $"cn-checkbox-indicator grid place-content-center text-current transition-opacity {visibleClass}";
+    }
+
+    private async Task ToggleChecked()
+    {
+        if (Disabled)
+        {
+            return;
+        }
+
+        Checked = !Checked;
+        await CheckedChanged.InvokeAsync(Checked);
     }
 }

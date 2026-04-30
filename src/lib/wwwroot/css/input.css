@@ -392,7 +392,7 @@
   }
 
   .cn-data-grid-table {
-    @apply w-full caption-bottom border-collapse text-sm;
+    @apply w-full caption-bottom border-collapse text-xs;
   }
 
   .cn-data-grid-header {
@@ -412,7 +412,7 @@
   }
 
   .cn-data-grid-head {
-    @apply h-10 px-4 text-left align-middle font-medium text-muted-foreground;
+    @apply h-8 px-3 text-left align-middle font-medium text-muted-foreground;
   }
 
   .cn-data-grid-sortable-head {
@@ -420,7 +420,7 @@
   }
 
   .cn-data-grid-sort-button {
-    @apply flex h-10 w-full items-center justify-between gap-2 px-4 text-left font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
+    @apply flex h-8 w-full items-center justify-between gap-1.5 px-3 text-left font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
   }
 
   .cn-data-grid-sort-indicator {
@@ -436,7 +436,7 @@
   }
 
   .cn-data-grid-cell {
-    @apply p-4 align-middle;
+    @apply px-3 py-2 align-middle;
   }
 
   .cn-data-grid-selection-cell {

@@ -7,4 +7,7 @@ namespace LowlandTech.Components.Checkbox;
 /// </summary>
 public partial class Checkbox
 {
+    [Parameter] public bool Checked { get; set; }
+    [Parameter] public EventCallback<bool> CheckedChanged { get; set; }
+    [Parameter] public bool Disabled { get; set; }
 }
