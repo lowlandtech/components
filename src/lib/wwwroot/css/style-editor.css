@@ -224,6 +224,25 @@
     box-shadow: 0 0 0 1px var(--primary, #7e6fff);
 }
 
+/* SPEC2100.US45 — sub-section title inside the reflective Parameters
+   panel. Each <PropertyGrid>.Group becomes one labelled bucket with
+   this title above its rows. Distinct from .lt-style-section-header
+   (which is the panel-level toggle) — these are passive labels inside
+   an already-expanded panel body. */
+.lt-style-subsection-title {
+    padding: 8px 12px 4px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted-foreground, #a0a3b8);
+    border-top: 1px solid color-mix(in srgb, var(--border, #2f2a4f) 30%, transparent);
+}
+
+.lt-style-subsection-title:first-child {
+    border-top: none;
+}
+
 /* ── Empty placeholders inside section bodies ────────────────────────── */
 
 .lt-style-section-empty {
