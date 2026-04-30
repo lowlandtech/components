@@ -229,3 +229,50 @@
 .lt-style-section-empty {
     padding: 8px 12px;
 }
+
+/* ── Attributes row delete affordance ────────────────────────────────── */
+/* Each row in the canvas-property-grid-attributes editor has a hidden ✕
+   button revealed on hover/focus-within. Originally written with
+   Tailwind v4 named-group classes (`group/attr` + `group-hover/attr:…`)
+   but the extractor wasn't reliably picking them up from the Razor
+   template, so the button stayed permanently invisible. Plain CSS
+   descendant selectors are immune to extractor drift. */
+.lt-attr-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+}
+
+.lt-attr-input {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.lt-attr-delete.cn-button {
+    flex: 0 0 auto;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--muted-foreground, #a0a3b8);
+    font-size: 12px;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.12s ease, background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+/* Reveal on row hover OR when any descendant input has focus, so tabbing
+   into the row's input slides the button in without needing the cursor. */
+.lt-attr-row:hover .lt-attr-delete.cn-button,
+.lt-attr-row:focus-within .lt-attr-delete.cn-button {
+    opacity: 1;
+}
+
+.lt-attr-delete.cn-button:hover {
+    background: color-mix(in srgb, var(--destructive, #ef4444) 14%, transparent);
+    border-color: color-mix(in srgb, var(--destructive, #ef4444) 50%, transparent);
+    color: var(--destructive, #ef4444);
+}
