@@ -117,3 +117,70 @@
     display: flex;
     flex-direction: column;
 }
+
+/* SPEC2100.US47 — DevTools-style viewport switcher. Sits in the right
+   action cluster of the bezel header next to the dirty badge. Compact
+   geometry to match the rest of the header chrome. */
+.lt-viewport-switcher {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 4px;
+}
+
+.lt-viewport-switcher-rotate {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid color-mix(in srgb, var(--border, #2f2a4f) 60%, transparent);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--muted-foreground, #a0a3b8);
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.lt-viewport-switcher-rotate:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--muted, #1a1730) 70%, transparent);
+    color: var(--foreground, #e5e7eb);
+}
+
+.lt-viewport-switcher-rotate:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.lt-viewport-switcher-size {
+    font-size: 11px;
+    color: var(--muted-foreground, #a0a3b8);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* Viewport clip — constrains the design surface to the active viewport
+   width/height when a fixed-size preset is selected. The host
+   TabsContent has overflow:auto so anything wider scrolls. The clip
+   wrapper itself uses an inline style to set the actual width/height,
+   so the CSS here is just the framing chrome (border + shadow that
+   read like a device frame). */
+.lt-canvas-viewport-clip {
+    position: relative;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+    border: 1px solid color-mix(in srgb, var(--border, #2f2a4f) 60%, transparent);
+    background: var(--background, #0b0b15);
+    overflow: hidden;
+}
+
+/* Responsive viewport (no clip applied) — let the surface stretch to
+   the full pane and skip the device-frame chrome. */
+.lt-canvas-viewport-clip[data-breakpoint="responsive"] {
+    width: 100%;
+    height: 100%;
+    box-shadow: none;
+    border: none;
+}
