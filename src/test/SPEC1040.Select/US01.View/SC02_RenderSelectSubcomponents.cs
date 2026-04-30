@@ -232,4 +232,21 @@ public class SC02_RenderSelectSubcomponents : ViewScenario
         cut.Find("[data-slot='select-item']").Click();
         cut.Instance.IsOpen.ShouldBeFalse();
     }
+
+    [Fact(DisplayName = "UAC21: SelectContent supports top-side placement")]
+    [Trait(Spec.UAC, "21")]
+    public void UAC21_ContentSupportsTopSidePlacement()
+    {
+        var cut = Ctx.Render<SelectSut>(p =>
+        {
+            p.Add(x => x.IsOpen, true);
+            p.AddChildContent<SelectContent>(cp =>
+                cp.Add(x => x.Side, "top")
+                  .AddChildContent("Content"));
+        });
+
+        var content = cut.Find("[data-slot='select-content']");
+        content.GetAttribute("data-side").ShouldBe("top");
+        content.ClassList.ShouldContain("bottom-full");
+    }
 }

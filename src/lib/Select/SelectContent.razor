@@ -4,6 +4,8 @@
 @if (Parent?.IsOpen == true)
 {
     <div data-slot="select-content"
+         data-state="open"
+         data-side="@Side"
          class="@GetClass()"
          @attributes="AdditionalAttributes">
         <div class="cn-select-list">
@@ -15,15 +17,12 @@
 @code {
     [CascadingParameter] private Select? Parent { get; set; }
 
+    [Parameter] public string Side { get; set; } = "bottom";
+
     private string GetClass()
     {
-        // Anchored simply via top-full + min-w-full off the trigger. The
-        // original Radix port used CSS custom properties --available-height /
-        // --anchor-width / --transform-origin written by an anchor-positioning
-        // JS pass that doesn't exist here, so the popover effectively had
-        // no size or placement. Plain top-full is good enough for in-row
-        // selects in the Properties panel.
-        var baseClass = "cn-select-content absolute z-50 top-full left-0 mt-1 min-w-full max-h-60 overflow-x-hidden overflow-y-auto rounded-md border border-input bg-popover text-popover-foreground shadow-md p-1";
+        var sideClass = string.Equals(Side, "top", StringComparison.OrdinalIgnoreCase) ? "bottom-full mb-1" : "top-full mt-1";
+        var baseClass = $"cn-select-content absolute z-50 {sideClass} left-0 min-w-full max-h-60 overflow-x-hidden overflow-y-auto rounded-md border border-input bg-popover text-popover-foreground shadow-md p-1";
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
 }
