@@ -89,16 +89,25 @@
 .lt-style-row input,
 .lt-style-row select,
 .lt-style-row .cn-input,
-.lt-style-row .cn-native-select {
+.lt-style-row .cn-native-select,
+.lt-style-row .cn-native-select-wrapper {
     width: 100%;
     box-sizing: border-box;
 }
 
-/* Compact size for the inputs in this dense panel. */
-.lt-style-row input.cn-input,
+/* Compact size for the inputs in this dense panel. cn-native-select
+   carries its own height via the component's Size= variants — we only
+   override the text input here since the component-library default is
+   h-9 (36px) which feels heavy in this context. */
+.lt-style-row input.cn-input {
+    height: 28px;
+    font-size: 12px;
+}
+
 .lt-style-row select.cn-native-select {
     height: 28px;
     font-size: 12px;
+    padding-right: 28px; /* room for the chevron */
 }
 
 /* ── Spacing block (margin / padding / border-width / border-radius) ──── */
