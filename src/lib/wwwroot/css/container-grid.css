@@ -80,6 +80,16 @@
     height: 100%;
     width: 100%;
     pointer-events: auto;
+    transition: box-shadow 0.12s ease, background-color 0.12s ease;
+}
+
+/* Active nested-grid drop target — set when the user drags a palette
+   component into a nested grid. Shows a clear highlight so the user
+   sees WHICH grid will receive the dropped item before they release. */
+.lt-container-grid-section--grid-host[data-drop-active="true"] {
+    box-shadow: inset 0 0 0 2px var(--primary, #7e6fff),
+                inset 0 0 0 4px color-mix(in srgb, var(--primary, #7e6fff) 25%, transparent);
+    background-color: color-mix(in srgb, var(--primary, #7e6fff) 6%, transparent);
 }
 
 /* Inner grid raster — slightly dimmer than the outer raster so users
