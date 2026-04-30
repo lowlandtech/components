@@ -1,0 +1,213 @@
+/* ── CanvasStyleEditor (SPEC2100.US43) ────────────────────────────────────
+   Dense label-left, value-right rows organised into collapsible
+   sub-sections. Mirrors property-grid.css's row geometry so the Style
+   accordion shares visual rhythm with the Layout / Item / Placement /
+   Visibility accordions in the Properties panel.
+
+   Loaded by hosts via:
+     <link rel="stylesheet"
+           href="_content/LowlandTech.Components/css/style-editor.css" />
+*/
+
+.lt-style-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+    font-size: 13px;
+}
+
+/* ── Section (collapsible group) ──────────────────────────────────────── */
+
+.lt-style-section {
+    border-bottom: 1px solid color-mix(in srgb, var(--border, #2f2a4f) 50%, transparent);
+}
+
+.lt-style-section:last-child {
+    border-bottom: none;
+}
+
+/* Section header is a Button — override its default cn-button styling so
+   it reads like a section bar (full-width, flat, between-flex). */
+.lt-style-section-header.cn-button {
+    width: 100%;
+    justify-content: space-between;
+    padding: 8px 12px;
+    height: auto;
+    border: none;
+    border-radius: 0;
+    background: color-mix(in srgb, var(--muted, #1a1730) 60%, transparent);
+    color: var(--muted-foreground, #a0a3b8);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.lt-style-section-header.cn-button:hover {
+    background: color-mix(in srgb, var(--muted, #1a1730) 80%, transparent);
+}
+
+.lt-style-section-title {
+    flex: 1;
+    text-align: left;
+}
+
+.lt-style-section-chevron {
+    flex: 0 0 auto;
+    font-size: 10px;
+    opacity: 0.7;
+}
+
+.lt-style-section-body {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── Row (label-left, control-right) ───────────────────────────────────── */
+
+.lt-style-row {
+    display: grid;
+    grid-template-columns: minmax(110px, 40%) 1fr;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    min-height: 36px;
+}
+
+.lt-style-row-label {
+    color: var(--muted-foreground, #a0a3b8);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Inputs / selects inside a row fill the value column. The component
+   library's cn-input / cn-native-select classes already handle visual
+   styling; we only need to fight the default `width: auto` so they
+   stretch the way the layout expects. */
+.lt-style-row input,
+.lt-style-row select,
+.lt-style-row .cn-input,
+.lt-style-row .cn-native-select {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Compact size for the inputs in this dense panel. */
+.lt-style-row input.cn-input,
+.lt-style-row select.cn-native-select {
+    height: 28px;
+    font-size: 12px;
+}
+
+/* ── Spacing block (margin / padding / border-width / border-radius) ──── */
+
+.lt-style-spacing-block {
+    padding: 6px 12px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Override the row layout *inside* a spacing block — the row contains
+   only the label + link toggle, no value column. */
+.lt-style-spacing-block > .lt-style-row {
+    grid-template-columns: 1fr auto;
+    padding: 0;
+    min-height: 24px;
+}
+
+.lt-style-spacing-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+}
+
+/* Make the four-side inputs even more compact than regular row inputs. */
+.lt-style-spacing-grid input.cn-input {
+    height: 26px;
+    font-size: 11px;
+    text-align: center;
+}
+
+/* ── Link toggle (small icon button) ─────────────────────────────────── */
+
+.lt-style-link-toggle.cn-button {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    background: transparent;
+    color: var(--muted-foreground, #a0a3b8);
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-size: 11px;
+}
+
+.lt-style-link-toggle.cn-button:hover {
+    background: color-mix(in srgb, var(--muted, #1a1730) 70%, transparent);
+    color: var(--foreground, #e5e7eb);
+}
+
+.lt-style-link-toggle.cn-button[data-linked="true"] {
+    color: var(--primary, #7e6fff);
+    border-color: color-mix(in srgb, var(--primary, #7e6fff) 30%, transparent);
+}
+
+/* ── Shadow preset chips ─────────────────────────────────────────────── */
+
+.lt-style-shadow-chip.cn-button {
+    height: 24px;
+    padding: 0 8px;
+    font-size: 11px;
+    border: 1px solid var(--border, #2f2a4f);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--muted-foreground, #a0a3b8);
+}
+
+.lt-style-shadow-chip.cn-button:hover {
+    background: color-mix(in srgb, var(--primary, #7e6fff) 14%, transparent);
+    border-color: color-mix(in srgb, var(--primary, #7e6fff) 60%, transparent);
+    color: var(--primary, #7e6fff);
+}
+
+/* ── Native range slider (opacity etc.) ──────────────────────────────── */
+
+.lt-style-row input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: var(--border, #2f2a4f);
+    border-radius: 2px;
+    outline: none;
+    padding: 0;
+}
+
+.lt-style-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--primary, #7e6fff);
+    cursor: pointer;
+    border: 2px solid var(--background, #0b0b15);
+    box-shadow: 0 0 0 1px var(--primary, #7e6fff);
+}
+
+.lt-style-row input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--primary, #7e6fff);
+    cursor: pointer;
+    border: 2px solid var(--background, #0b0b15);
+    box-shadow: 0 0 0 1px var(--primary, #7e6fff);
+}
+
+/* ── Empty placeholders inside section bodies ────────────────────────── */
+
+.lt-style-section-empty {
+    padding: 8px 12px;
+}
