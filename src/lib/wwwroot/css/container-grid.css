@@ -61,6 +61,40 @@
     pointer-events: none;
 }
 
+/* ── Nested grid (grid-inside-a-grid) ──────────────────────────────────
+   When a ContainerItem has IsGrid=true, the canvas designer renders an
+   inner ContainerGrid inside that item's section so the user can see
+   the nested layout with its own raster overlay.
+
+   The wrapper compensates for two things the section's body normally
+   suppresses:
+     1. pointer-events: the section's CanvasItemBody normally sets
+        pointer-events:none on its body so the section's drag/click
+        chrome stays interactive — but a grid HOST needs its inner
+        sections to receive their own pointer events.
+     2. fill: the inner grid needs `position: relative; height: 100%;
+        width: 100%` to fill its containing section so the raster
+        overlay aligns with the section bounds. */
+.lt-container-grid-section--grid-host {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    pointer-events: auto;
+}
+
+/* Inner grid raster — slightly dimmer than the outer raster so users
+   read the nesting at a glance ("the brighter raster is the canvas;
+   the dimmer one is a sub-grid I'm authoring"). Set as overrides on
+   the overlay variables. */
+.lt-container-grid--nested {
+    --lt-major: rgba(160, 163, 184, 0.40);
+    --lt-minor: rgba(160, 163, 184, 0.10);
+    /* Subtle border so the nested grid reads as a distinct surface
+       even when its parent section has no background fill. */
+    border: 1px solid color-mix(in srgb, var(--border, #2f2a4f) 50%, transparent);
+    border-radius: 0;
+}
+
 /* ── ContainerGridSection: framed boxes on the raster ─────────────────────
    Border outlines positioned items as visible boxes. Transparent fill so the
    raster underneath remains visible *inside* each section. Hover highlights
