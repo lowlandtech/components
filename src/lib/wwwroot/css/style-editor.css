@@ -230,6 +230,136 @@
     padding: 8px 12px;
 }
 
+/* ── SPEC2100.US44 — Configurable Property Grid Panels ────────────────── */
+/* The Properties tab is a flex column container so each <section>'s
+   inline `style="order: N"` (set from the user's saved Order) reorders
+   them without DOM rewrites. A panel marked Hidden via the gear menu
+   collapses to display:none — still in the DOM (cheap to restore via
+   the toolbar at the top) but invisible. */
+
+.lt-property-panel-stack {
+    display: flex;
+    flex-direction: column;
+}
+
+.lt-style-section[data-panel-hidden="true"] {
+    display: none;
+}
+
+/* Each <section> is position:relative already (inherits from the markup
+   stack). The gear button anchors absolutely to the right of the
+   section-header bar, hidden by default and revealed on section hover
+   so it never competes with the title at idle. The `:hover` on .lt-
+   style-section catches the whole panel — the user doesn't have to
+   pixel-aim at the header.  */
+
+.lt-style-section {
+    position: relative;
+}
+
+.lt-property-panel-gear {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--muted-foreground, #a0a3b8);
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.12s ease, background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+    z-index: 2;
+}
+
+.lt-style-section:hover .lt-property-panel-gear,
+.lt-style-section:focus-within .lt-property-panel-gear {
+    opacity: 1;
+}
+
+.lt-property-panel-gear:hover {
+    background: color-mix(in srgb, var(--muted, #1a1730) 70%, transparent);
+    border-color: color-mix(in srgb, var(--border, #2f2a4f) 80%, transparent);
+    color: var(--foreground, #e5e7eb);
+}
+
+/* Gear menu popover — sits below the gear, anchored to the section.
+   Right-aligned because the gear is at the right of the header. */
+.lt-property-panel-gear-menu {
+    position: absolute;
+    top: 30px;
+    right: 6px;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px;
+    min-width: 180px;
+    border-radius: 6px;
+    border: 1px solid var(--border, #2f2a4f);
+    background: var(--popover, #14112a);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.lt-property-panel-menu-item.cn-button {
+    width: 100%;
+    height: 28px;
+    padding: 0 8px;
+    justify-content: flex-start;
+    font-size: 12px;
+    background: transparent;
+    border: none;
+    color: var(--foreground, #e5e7eb);
+}
+
+.lt-property-panel-menu-item.cn-button:hover {
+    background: color-mix(in srgb, var(--muted, #1a1730) 80%, transparent);
+}
+
+/* Toolbar at the top of the Properties tab — appears only when the user
+   has hidden one or more panels OR has reordered them. Provides a
+   "restore hidden" button per hidden panel + a Reset-all button. */
+
+.lt-property-panel-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    border-bottom: 1px solid color-mix(in srgb, var(--border, #2f2a4f) 50%, transparent);
+    background: color-mix(in srgb, var(--muted, #1a1730) 30%, transparent);
+}
+
+.lt-property-panel-hidden-count {
+    font-size: 11px;
+    color: var(--muted-foreground, #a0a3b8);
+    margin-right: 4px;
+}
+
+.lt-property-panel-restore.cn-button,
+.lt-property-panel-reset.cn-button {
+    height: 22px;
+    padding: 0 8px;
+    font-size: 11px;
+    background: transparent;
+    color: var(--muted-foreground, #a0a3b8);
+    border: 1px solid color-mix(in srgb, var(--border, #2f2a4f) 60%, transparent);
+    border-radius: 4px;
+}
+
+.lt-property-panel-restore.cn-button:hover,
+.lt-property-panel-reset.cn-button:hover {
+    background: color-mix(in srgb, var(--muted, #1a1730) 70%, transparent);
+    color: var(--foreground, #e5e7eb);
+}
+
 /* ── Attributes row delete affordance ────────────────────────────────── */
 /* Each row in the canvas-property-grid-attributes editor has a hidden ✕
    button revealed on hover/focus-within. Originally written with
