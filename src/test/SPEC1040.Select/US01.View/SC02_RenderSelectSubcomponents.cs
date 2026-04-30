@@ -192,17 +192,14 @@ public class SC02_RenderSelectSubcomponents : ViewScenario
         cut.Instance.IsOpen.ShouldBeTrue();
     }
 
-    [Fact(DisplayName = "UAC18: SelectContent renders scroll buttons when open")]
-    [Trait(Spec.UAC, "18")]
-    public void UAC18_ContentRendersScrollButtons()
-    {
-        var cut = Ctx.Render<SelectSut>(p =>
-        {
-            p.Add(x => x.IsOpen, true);
-            p.AddChildContent<SelectContent>();
-        });
-        cut.FindAll("[data-slot='select-content'] svg").Count.ShouldBe(2); // 2 scroll buttons in content
-    }
+    // UAC18 — SelectContent renders scroll buttons — was retired in
+    // commit ae792178. The original Radix port used inert ScrollUp /
+    // ScrollDown chevron SVGs that depended on Radix's virtualised
+    // viewport for actual scroll behaviour. Without that JS the
+    // chevrons added zero value, so SelectContent was simplified to
+    // max-h-60 + overflow-y-auto which gives a proper native scrollbar
+    // when the option list overflows. The decorative chevrons no
+    // longer render — and their absence is the desired behaviour.
 
     [Fact(DisplayName = "UAC19: SelectItem sets Value when clicked")]
     [Trait(Spec.UAC, "19")]
