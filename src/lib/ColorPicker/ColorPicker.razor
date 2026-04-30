@@ -1,0 +1,135 @@
+@namespace LowlandTech.Components.ColorPicker
+@inherits LtComponentBase
+
+@*
+    Composes a native colour swatch picker with a free-text input so the
+    user can pick a hex value visually OR type any CSS colour expression
+    (var(--token), rgba(...), named colour, gradient, etc.). The swatch
+    auto-coerces to a 6-digit hex when the value is parseable; for any
+    other shape the swatch falls back to its default and the text input
+    stays canonical. The ChildContent slot is unused — the component is
+    fully self-rendering.
+
+    Wire up:
+      <ColorPicker Value="@Read("background")"
+                   ValueChanged="v => CommitAsync('background', v)"
+                   Placeholder="#fff or var(--card)"
+                   data-testid="canvas-style-control"
+                   data-css-property="background" />
+
+    The single `data-input-mode` attribute lets drift-guard tests target
+    the swatch ("swatch") or the free-text input ("free-text")
+    independently when needed.
+*@
+
+<div data-slot="color-picker"
+     data-size="@Size"
+     class="@GetWrapperClass()"
+     @attributes="AdditionalAttributes">
+
+    <input type="color"
+           data-slot="color-picker-swatch"
+           data-input-mode="swatch"
+           data-size="@Size"
+           class="@GetSwatchClass()"
+           value="@(NormaliseHex(Value) ?? "#000000")"
+           disabled="@Disabled"
+           aria-label="Colour swatch picker"
+           @onchange="HandleSwatchChange" />
+
+    <input type="text"
+           data-slot="color-picker-input"
+           data-input-mode="free-text"
+           data-size="@Size"
+           class="@GetTextInputClass()"
+           value="@Value"
+           placeholder="@Placeholder"
+           disabled="@Disabled"
+           readonly="@ReadOnly"
+           @onchange="HandleTextChange" />
+</div>
+
+@code {
+    /// <summary>Current authored value — any CSS colour expression.</summary>
+    [Parameter] public string? Value { get; set; }
+
+    /// <summary>
+    /// Fires on a successful commit (blur of either input). Receives the
+    /// canonical string the user authored (raw — not a hex-coerced
+    /// roundtrip), so var(--token) survives a swatch round-trip.
+    /// </summary>
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+
+    /// <summary>Placeholder for the free-text input.</summary>
+    [Parameter] public string Placeholder { get; set; } = "#ffffff or var(--…)";
+
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public bool ReadOnly { get; set; }
+
+    /// <summary>Visual sizing token: "sm" | "default" | "lg".</summary>
+    [Parameter] public string Size { get; set; } = "default";
+
+    private async Task HandleSwatchChange(ChangeEventArgs e)
+    {
+        var hex = e.Value?.ToString();
+        if (string.IsNullOrEmpty(hex)) return;
+        // The swatch only emits 6-digit hex — pass it through as-is so
+        // the user's literal authored value gets that hex.
+        Value = hex;
+        await ValueChanged.InvokeAsync(hex);
+    }
+
+    private async Task HandleTextChange(ChangeEventArgs e)
+    {
+        var raw = e.Value?.ToString() ?? string.Empty;
+        Value = raw;
+        await ValueChanged.InvokeAsync(raw);
+    }
+
+    private string GetWrapperClass()
+    {
+        var baseClass = "cn-color-picker inline-flex items-center gap-2 w-full";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private string GetSwatchClass()
+    {
+        var sizeClass = Size switch
+        {
+            "sm" => "w-7 h-7",
+            "lg" => "w-12 h-10",
+            _    => "w-9 h-8",
+        };
+        return $"cn-color-picker-swatch {sizeClass} cursor-pointer rounded border border-input bg-transparent shrink-0 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50";
+    }
+
+    private string GetTextInputClass()
+    {
+        var sizeClass = Size switch
+        {
+            "sm" => "h-7 text-xs",
+            "lg" => "h-10 text-base",
+            _    => "h-8 text-sm",
+        };
+        return $"cn-color-picker-input cn-input flex-1 min-w-0 rounded-md border border-input bg-transparent px-2 py-1 placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 {sizeClass}";
+    }
+
+    /// <summary>
+    /// Coerces a CSS colour string to an &lt;input type="color"&gt;-compatible
+    /// 6-digit hex. Returns null for theme tokens / named colours / rgba —
+    /// the picker falls back to its default in those cases. The text
+    /// input next to it remains the canonical authored value.
+    /// </summary>
+    private static string? NormaliseHex(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return null;
+        var s = raw.Trim();
+        if (s.StartsWith('#') && (s.Length == 7 || s.Length == 4))
+        {
+            return s.Length == 7
+                ? s.ToLowerInvariant()
+                : "#" + s[1] + s[1] + s[2] + s[2] + s[3] + s[3];
+        }
+        return null;
+    }
+}
