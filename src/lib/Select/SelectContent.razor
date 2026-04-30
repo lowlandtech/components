@@ -7,6 +7,7 @@
          data-state="open"
          data-side="@Side"
          class="@GetClass()"
+         @onclick:stopPropagation="true"
          @attributes="AdditionalAttributes">
         <div class="cn-select-list">
             @ChildContent

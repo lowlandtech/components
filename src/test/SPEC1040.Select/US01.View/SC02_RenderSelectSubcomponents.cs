@@ -231,6 +231,7 @@ public class SC02_RenderSelectSubcomponents : ViewScenario
         });
         cut.Find("[data-slot='select-item']").Click();
         cut.Instance.IsOpen.ShouldBeFalse();
+        cut.FindAll("[data-slot='select-content']").Count.ShouldBe(0);
     }
 
     [Fact(DisplayName = "UAC21: SelectContent supports top-side placement")]
@@ -248,5 +249,22 @@ public class SC02_RenderSelectSubcomponents : ViewScenario
         var content = cut.Find("[data-slot='select-content']");
         content.GetAttribute("data-side").ShouldBe("top");
         content.ClassList.ShouldContain("bottom-full");
+    }
+
+    [Fact(DisplayName = "UAC22: Backdrop closes dropdown when clicked")]
+    [Trait(Spec.UAC, "22")]
+    public void UAC22_BackdropClosesDropdownWhenClicked()
+    {
+        var cut = Ctx.Render<SelectSut>(p =>
+        {
+            p.Add(x => x.IsOpen, true);
+            p.AddChildContent<SelectContent>(cp => cp.AddChildContent("Content"));
+        });
+
+        cut.Find("[data-slot='select-backdrop']").Click();
+
+        cut.Instance.IsOpen.ShouldBeFalse();
+        cut.FindAll("[data-slot='select-content']").Count.ShouldBe(0);
+        cut.FindAll("[data-slot='select-backdrop']").Count.ShouldBe(0);
     }
 }
