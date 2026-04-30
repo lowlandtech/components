@@ -1,4 +1,5 @@
 using Bunit;
+using Microsoft.AspNetCore.Components;
 using SelectSut = LowlandTech.Components.Select.Select;
 using LowlandTech.Components.Select;
 using LowlandTech.Components.Tests.Infrastructure;
@@ -266,5 +267,28 @@ public class SC02_RenderSelectSubcomponents : ViewScenario
         cut.Instance.IsOpen.ShouldBeFalse();
         cut.FindAll("[data-slot='select-content']").Count.ShouldBe(0);
         cut.FindAll("[data-slot='select-backdrop']").Count.ShouldBe(0);
+    }
+
+    [Fact(DisplayName = "UAC23: SelectItem closes before ValueChanged callback")]
+    [Trait(Spec.UAC, "23")]
+    public void UAC23_ItemClosesBeforeValueChangedCallback()
+    {
+        IRenderedComponent<SelectSut>? cut = null;
+        bool? openDuringCallback = null;
+
+        cut = Ctx.Render<SelectSut>(p =>
+        {
+            p.Add(x => x.IsOpen, true);
+            p.Add(x => x.ValueChanged, EventCallback.Factory.Create<string?>(this, _ => openDuringCallback = cut!.Instance.IsOpen));
+            p.AddChildContent<SelectContent>(cp =>
+                cp.AddChildContent<SelectItem>(ip =>
+                    ip.Add(x => x.Value, "1").AddChildContent("Item 1")));
+        });
+
+        cut.Find("[data-slot='select-item']").Click();
+
+        openDuringCallback.ShouldBe(false);
+        cut.Instance.IsOpen.ShouldBeFalse();
+        cut.FindAll("[data-slot='select-content']").Count.ShouldBe(0);
     }
 }

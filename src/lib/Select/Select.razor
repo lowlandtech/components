@@ -12,7 +12,8 @@
                trigger / list dismisses the popover. *@
             <div data-slot="select-backdrop"
                  class="fixed inset-0 z-40"
-                 @onclick="Close"></div>
+                  @onclick="Close"
+                  @onclick:preventDefault="true"></div>
         }
         @ChildContent
     </div>
@@ -64,8 +65,8 @@
     {
         Value = value;
         SelectedText = text;
-        await ValueChanged.InvokeAsync(Value);
         Close();
+        await ValueChanged.InvokeAsync(Value);
     }
 
     /// <summary>
