@@ -59,6 +59,20 @@ public class SC02_RenderSelectSubcomponents : ViewScenario
         cut.Markup.ShouldContain("Choose an option");
     }
 
+    [Fact(DisplayName = "UAC06b: SelectValue falls back to controlled value before items render")]
+    [Trait(Spec.UAC, "06b")]
+    public void UAC06b_ValueFallsBackToControlledValueBeforeItemsRender()
+    {
+        var cut = Ctx.Render<SelectSut>(p =>
+        {
+            p.Add(x => x.Value, "25");
+            p.AddChildContent<SelectTrigger>(tp =>
+                tp.AddChildContent<SelectValue>());
+        });
+
+        cut.Find("[data-slot='select-value']").TextContent.ShouldBe("25");
+    }
+
     [Fact(DisplayName = "UAC07: SelectContent renders when IsOpen is true")]
     [Trait(Spec.UAC, "07")]
     public void UAC07_ContentRendersWhenOpen()

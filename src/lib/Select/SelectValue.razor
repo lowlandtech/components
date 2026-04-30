@@ -22,9 +22,12 @@
         //     by SelectItems for the controlled Value. Covers preloaded
         //     state ("show 'Visible' on first render when state.Value is
         //     'visible'") before the user has picked anything.
-        //  3. Placeholder — final fallback.
+        //  3. Parent.Value — covers closed controlled selects where items
+        //     have not rendered yet, such as compact page-size selectors.
+        //  4. Placeholder — final fallback.
         return Parent?.SelectedText
             ?? Parent?.GetTextForValue(Parent.Value)
+            ?? (!string.IsNullOrEmpty(Parent?.Value) ? Parent.Value : null)
             ?? Placeholder;
     }
 
