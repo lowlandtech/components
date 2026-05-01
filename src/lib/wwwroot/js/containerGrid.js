@@ -243,7 +243,11 @@ function wireDrag(gridEl, itemEl, gripEl) {
     // with section content.
     const overlay = gridEl.querySelector(".lt-container-grid-overlay");
     const placeholder = gridEl.querySelector(".lt-container-grid-placeholder");
-    const handle = gripEl ?? itemEl.querySelector(".lt-container-grid-grip");
+    // Fallback resolution mirrors bindSection's :scope > .lt-bezel-host
+    // logic — a plain descendant query for the grip would walk through
+    // nested children's bezel hosts first when the section has IsGrid=true.
+    const handle = gripEl
+        ?? itemEl.querySelector(":scope > .lt-bezel-host .lt-container-grid-grip");
     if (!handle) return;
 
     let start = null, ctx = null, lastProposal = null;
@@ -734,14 +738,25 @@ export const containerGrid = {
         const gridEl = el.closest(".lt-container-grid");
         if (!gridEl) return;
 
+        // Resolve the section's OWN bezel host BEFORE attachBezel portals it
+        // away. ContainerGridSection.razor renders the bezel host as a
+        // sibling AFTER @ChildContent, so a plain
+        // el.querySelector(".lt-handle-e") would walk descendant order and
+        // return a NESTED child section's handle first (its bezel host
+        // appears earlier in document order than the parent's). The drag
+        // and resize listeners would bind to the wrong handles, and the
+        // user's gestures on the parent would do nothing — same root cause
+        // as US42.SC04.UAC26 (attachBezel host mispairing).
+        const ownHost = el.querySelector(":scope > .lt-bezel-host");
+
         if (options?.movable) {
-            const grip = el.querySelector(".lt-container-grid-grip");
+            const grip = ownHost?.querySelector(".lt-container-grid-grip");
             wireDrag(gridEl, el, grip);
         }
         if (options?.resizable) {
-            const hE  = el.querySelector(".lt-handle-e");
-            const hS  = el.querySelector(".lt-handle-s");
-            const hSE = el.querySelector(".lt-handle-se");
+            const hE  = ownHost?.querySelector(".lt-handle-e");
+            const hS  = ownHost?.querySelector(".lt-handle-s");
+            const hSE = ownHost?.querySelector(".lt-handle-se");
             wireResize(gridEl, el, [hE, hS, hSE]);
         }
 
