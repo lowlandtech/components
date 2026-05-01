@@ -17,9 +17,15 @@
      @oncontextmenu="OnContextMenu"
      @oncontextmenu:preventDefault="OnContextMenuPreventDefault"
      @oncontextmenu:stopPropagation="OnContextMenuStopPropagation">
-    @ChildContent
-
     @* ── Selection bezel host ────────────────────────────────────────────
+       SPIKE 2026-05-02 (issue-03): host renders BEFORE @ChildContent so
+       a plain descendant query `el.querySelector('.lt-bezel-host')`
+       resolves the section's OWN host first by document order. Previously
+       the host rendered as a sibling AFTER ChildContent, which put a
+       nested child's host earlier in document order than the parent's
+       own — every JS query had to use `:scope > .lt-bezel-host` to avoid
+       binding to a child's host.
+
        The whole chrome (resize handles, label, badges, toolbar) lives
        inside this host div. The host is `position: absolute; inset: 0`
        (anchored to the section's relatively-positioned box via pure CSS,
@@ -88,4 +94,5 @@
             </div>
         }
     </div>
+    @ChildContent
 </div>
