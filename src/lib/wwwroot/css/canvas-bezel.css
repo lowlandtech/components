@@ -10,43 +10,40 @@
 */
 
 .lt-canvas-bezel {
-    margin: 8px;
-    border-radius: 12px;
+    /* Flat, flush with the surrounding left/right panels so the header
+       reads as one continuous strip across the canvas page. The previous
+       margin+border-radius+drop-shadow framing made the center pane look
+       like a floating card inside a card; now it matches the explorer
+       sidebars on either side. The body still gets its own background
+       below for surface separation. */
+    margin: 0;
+    border-radius: 0;
     /* Cancel the cn-tabs default `gap-2` (8px) so the header sits flush
-       against the body — the bezel reads as one continuous frame, not
-       two stacked panels. */
+       against the body — they read as one continuous panel, not stacked. */
     gap: 0 !important;
-    background: color-mix(in srgb, var(--card, #14112a) 92%, transparent);
-    /* Neumorphic — soft outer raise + a hairline inner highlight (top)
-       and inner shade (bottom) to give the surface a touch of depth
-       without the candy-coated overdone look. */
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.05),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.30),
-        0 1px 0 rgba(0, 0, 0, 0.30),
-        0 8px 24px rgba(0, 0, 0, 0.35);
-    border: 1px solid color-mix(in srgb, var(--border, #2f2a4f) 80%, transparent);
+    /* Inherit `bg-background` from the explorer-layout container, matching
+       the left + right sidebars. The grid inside the body sets its own
+       darker designable-canvas tone via `.lt-container-grid` so the
+       designer surface still reads as distinct from the chrome around it. */
+    background: transparent;
+    border: none;
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
 
-/* Header bar — taller than the old one-line tabs strip so it can host
-   a row of tool buttons (undo / redo / save / etc.) at the left and
-   keep the tab triggers running across. */
+/* Header bar — `height: 36px` matches `h-9` on the left "Canvases" header
+   and the right line-variant TabsList, so the three headers form ONE
+   continuous bar across the canvas page. Tool buttons + viewport switcher
+   sized to fit inside that 36px row (28x28 + 24x24 respectively). */
 .lt-canvas-bezel-header {
     display: flex;
     align-items: center;
     gap: 12px;
-    min-height: 48px;
-    padding: 8px 12px;
-    border-bottom: 1px solid color-mix(in srgb, var(--border, #2f2a4f) 60%, transparent);
-    background: color-mix(in srgb, var(--background, #0b0b15) 40%, transparent);
-    /* Subtle inset top highlight to read as a separate "rim" from the
-       body, neumorphic-style. */
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.04),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.18);
+    height: 36px;
+    padding: 0 8px;
+    border-bottom: 1px solid var(--border, #2f2a4f);
+    background: transparent;
     flex-shrink: 0;
 }
 
@@ -64,8 +61,10 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
+    /* 28x28 fits cleanly inside the 36px header row with 4px each side.
+       Was 30x30 when the header was 48px tall. */
+    width: 28px;
+    height: 28px;
     padding: 0;
     border: 1px solid transparent;
     border-radius: 6px;
