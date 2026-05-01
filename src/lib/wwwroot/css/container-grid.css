@@ -153,9 +153,30 @@
 }
 
 /* Dragging state — applied to the section root while a drag is in flight,
-   so the source visibly dims while the clone follows the cursor. */
+   so the source visibly dims while the clone follows the cursor.
+   `will-change: transform` pre-promotes the section onto its own GPU
+   compositor layer at gesture start so the first frame of drag isn't
+   janky while the browser figures out layers. Toggled off on cleanup
+   (via class removal) — `will-change` retains memory while present, so
+   keeping it on every section globally would be a memory leak. */
 .lt-container-grid-section--dragging {
     opacity: 0.4;
+    will-change: transform;
+}
+
+/* Drag-time chrome suppression — during a drag/resize gesture, hide bezel
+   chrome on every NON-dragging section. Without this, `setDeepestHovered`
+   keeps lighting up `lt-bezel-host--hovered` on whichever section the
+   cursor crosses, producing a label/badge/toolbar flicker storm at 3+
+   levels of nesting. The dragged section's own chrome stays visible
+   because its data-section-classes carries `--dragging` and matches the
+   :not() exclusion below. The body flag is set/cleared by wireDrag /
+   wireResize in containerGrid.js. */
+body[data-canvas-dragging="true"] .lt-bezel-host:not([data-section-classes~="lt-container-grid-section--dragging"]) .lt-bezel-label,
+body[data-canvas-dragging="true"] .lt-bezel-host:not([data-section-classes~="lt-container-grid-section--dragging"]) .lt-bezel-badge,
+body[data-canvas-dragging="true"] .lt-bezel-host:not([data-section-classes~="lt-container-grid-section--dragging"]) .lt-bezel-toolbar {
+    opacity: 0 !important;
+    pointer-events: none !important;
 }
 
 /* ── Selection bezel ───────────────────────────────────────────────────────

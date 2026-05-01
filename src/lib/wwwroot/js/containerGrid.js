@@ -259,7 +259,13 @@ function wireDrag(gridEl, itemEl, gripEl) {
 
         handle.setPointerCapture(e.pointerId);
         itemEl.classList.add("lt-container-grid-section--dragging");
-        // Drag applies `transform: translate(…)` to sections to animate
+        // Body-level drag flag — drives a CSS rule that suppresses bezel
+        // chrome on every NON-dragging section for the duration of the
+        // gesture. Without it, `setDeepestHovered` keeps lighting up
+        // `--hovered` on each section the cursor crosses, producing a
+        // chrome flicker storm at 3+ levels of nesting.
+        document.body.dataset.canvasDragging = "true";
+        // Drag applies `transform: translate3d(…)` to sections to animate
         // them between cells. ResizeObserver does NOT fire on transform
         // changes, so the portaled bezel host would lag the section.
         // Run an rAF pump for the duration of the gesture to keep every
@@ -333,7 +339,11 @@ function wireDrag(gridEl, itemEl, gripEl) {
             if (!baseIt) continue;
             const src = px(baseIt, ctx.m), dst = px(it, ctx.m);
             it.el.style.transition = "transform 70ms ease";
-            it.el.style.transform = `translate(${dst.x - src.x}px,${dst.y - src.y}px)`;
+            // translate3d (rather than 2D translate) forces the browser to
+            // promote the section onto its own GPU compositor layer so the
+            // section + its bezel composite without re-rasterising every
+            // frame — biggest single perceptual smoothness win for drag.
+            it.el.style.transform = `translate3d(${dst.x - src.x}px,${dst.y - src.y}px,0)`;
         }
     };
 
@@ -348,6 +358,7 @@ function wireDrag(gridEl, itemEl, gripEl) {
             ctx?.clone?.remove();
             placeholder.style.display = "none";
             itemEl.classList.remove("lt-container-grid-section--dragging");
+            delete document.body.dataset.canvasDragging;
             start = null; ctx = null; lastProposal = null;
             // Stop the rAF pump and run one final sync so chrome lands
             // on the committed CSS-Grid placement.
@@ -375,7 +386,10 @@ function wireResize(gridEl, itemEl, handles) {
             if (!opts.resizable) return;
             e.stopPropagation();
             handle.setPointerCapture(e.pointerId);
-            // Resize gestures animate sections via transform-translate
+            // Same body-level drag flag as wireDrag.onDown — suppresses
+            // chrome flicker on non-dragging sections during the gesture.
+            document.body.dataset.canvasDragging = "true";
+            // Resize gestures animate sections via transform-translate3d
             // (push/swap of overlapping siblings) — same RO-blind animation
             // path as drag — so we run the same gesture-time bezel pump.
             startBezelRafSync();
@@ -436,7 +450,11 @@ function wireResize(gridEl, itemEl, handles) {
                 if (!baseIt) continue;
                 const src = px(baseIt, ctx.m), dst = px(it, ctx.m);
                 it.el.style.transition = "transform 70ms ease";
-                it.el.style.transform = `translate(${dst.x - src.x}px,${dst.y - src.y}px)`;
+                // translate3d (rather than 2D translate) forces the browser to
+            // promote the section onto its own GPU compositor layer so the
+            // section + its bezel composite without re-rasterising every
+            // frame — biggest single perceptual smoothness win for drag.
+            it.el.style.transform = `translate3d(${dst.x - src.x}px,${dst.y - src.y}px,0)`;
             }
         };
 
@@ -450,6 +468,7 @@ function wireResize(gridEl, itemEl, handles) {
                 clearTransforms(gridEl);
                 ctx?.clone?.remove();
                 placeholder.style.display = "none";
+                delete document.body.dataset.canvasDragging;
                 start = null; ctx = null; lastProposal = null;
                 stopBezelRafSync();
             };
