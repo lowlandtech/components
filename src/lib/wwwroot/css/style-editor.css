@@ -437,3 +437,17 @@
     border-color: color-mix(in srgb, var(--destructive, #ef4444) 50%, transparent);
     color: var(--destructive, #ef4444);
 }
+
+/* SPEC2100.US47 step 2 — Placement accordion breakpoint badge. */
+.lt-placement-breakpoint-badge {
+    margin-left: 0.5rem;
+    padding: 0 0.4rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    line-height: 1.4;
+    border-radius: 0.25rem;
+    background: color-mix(in srgb, var(--primary, #3b82f6) 14%, transparent);
+    color: var(--primary, #3b82f6);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
