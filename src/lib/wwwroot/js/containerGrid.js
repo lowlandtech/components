@@ -36,8 +36,20 @@ function readSection(el) {
     };
 }
 
+function ownSections(gridEl) {
+    // Walks every section descendant but keeps only those whose NEAREST
+    // .lt-container-grid ancestor is this grid. Without this filter a
+    // grid-host item (IsGrid=true) renders an inner ContainerGrid whose
+    // sections also match `.lt-container-grid-section`, and the outer
+    // grid would treat the inner grid's children + grandchildren as if
+    // they were its own siblings — breaking buildModel + clearTransforms
+    // + the rAF bezel pump at every level past the first.
+    return [...gridEl.querySelectorAll(".lt-container-grid-section")]
+        .filter(sec => sec.closest(".lt-container-grid") === gridEl);
+}
+
 function buildModel(gridEl) {
-    return [...gridEl.querySelectorAll(".lt-container-grid-section")].map(readSection);
+    return ownSections(gridEl).map(readSection);
 }
 
 function measure(gridEl) {
@@ -197,7 +209,10 @@ function nearestFree(layout, moving, rows, cols) {
 }
 
 function clearTransforms(gridEl) {
-    gridEl.querySelectorAll(".lt-container-grid-section").forEach(el => {
+    // Only clear transforms on sections that BELONG to this grid — clearing
+    // a nested grid's transforms while a parent gesture is in flight would
+    // snap the nested layout out from under the user.
+    ownSections(gridEl).forEach(el => {
         el.style.transform = "";
         el.style.transition = "";
     });
