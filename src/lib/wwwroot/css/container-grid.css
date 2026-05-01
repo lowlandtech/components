@@ -38,6 +38,18 @@
     pointer-events: none;
     z-index: 0;
 
+    /* Clip the drag clone (`.lt-container-grid-clone`) to the grid's bounds.
+       The clone follows the cursor's UNCLAMPED delta (so the user can drag
+       freely from any grip position) but committed col/row stays within
+       the grid via wireDrag/wireResize's bounds clamping. Without overflow
+       clipping, the clone visibly escapes the parent grid during drag —
+       deeply confusing in nested layouts where the user thinks they can
+       drop the child into a different parent. Sections paint freely
+       outside the overlay (they're siblings, not children); bezel chrome
+       is portaled to #lt-popover-provider after attachBezel and is
+       unaffected by this rule. */
+    overflow: hidden;
+
     background-image:
         /* Major vertical lines (every 4 columns) */
         linear-gradient(to right,  var(--lt-major, rgba(160, 163, 184, 0.55)) 1px, transparent 1px),
