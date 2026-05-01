@@ -1,0 +1,33 @@
+/* ==================== ExplorerLayout responsive contract ====================
+   Owns the viewport-reactive behavior of LowlandTech.Components.Explorer.ExplorerLayout.
+   Loaded by every host app via _content/LowlandTech.Components/css/explorer-layout.css.
+
+   Drift guard: src/components/test/SPEC1069.ExplorerLayout/US01.ResponsiveStacking
+   ============================================================================ */
+
+/* Narrow viewports: stack list above detail, drop the splitter and width constraints. */
+@media (max-width: 1024px) {
+  .explorer-layout {
+    flex-direction: column;
+    height: auto;
+    min-height: calc(100vh - 3.5rem);
+    overflow-y: auto;
+  }
+
+  .explorer-layout .explorer-sidebar {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    flex: 0 0 auto;
+  }
+
+  .explorer-layout [data-slot="panel-splitter"] {
+    display: none;
+  }
+
+  .explorer-layout .explorer-detail {
+    flex: 1 1 auto;
+    overflow: visible;
+  }
+}

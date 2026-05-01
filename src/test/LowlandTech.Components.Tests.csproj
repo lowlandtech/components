@@ -44,6 +44,21 @@
 		<EmbeddedResource Include="..\lib\ContainerGrid\ContainerGridSection.razor.cs">
 			<LogicalName>ContainerGridSection.razor.cs</LogicalName>
 		</EmbeddedResource>
+		<EmbeddedResource Include="..\lib\wwwroot\css\explorer-layout.css">
+			<LogicalName>explorer-layout.css</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="..\lib\Explorer\ExplorerLayout.razor">
+			<LogicalName>ExplorerLayout.razor</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="..\..\web\Components\App.razor">
+			<LogicalName>web.App.razor</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="..\..\shell\Components\App.razor">
+			<LogicalName>shell.App.razor</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="..\..\app\Components\App.razor">
+			<LogicalName>app.App.razor</LogicalName>
+		</EmbeddedResource>
 	</ItemGroup>
 
 	<!-- Exclude unfinished scaffold test files that reference unimplemented features -->
