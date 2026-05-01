@@ -99,6 +99,11 @@
 .lt-container-grid--nested {
     --lt-major: rgba(160, 163, 184, 0.40);
     --lt-minor: rgba(160, 163, 184, 0.10);
+    /* Transparent fill so the parent CanvasItemBody's authored
+       style.background-color shows through. The outer (root) grid keeps
+       its paper background to read as the designable canvas surface;
+       nested grids must respect their containing section's paint. */
+    background-color: transparent;
     /* Subtle border so the nested grid reads as a distinct surface
        even when its parent section has no background fill. */
     border: 1px solid color-mix(in srgb, var(--border, #2f2a4f) 50%, transparent);
