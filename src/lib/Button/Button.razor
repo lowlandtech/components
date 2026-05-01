@@ -12,7 +12,13 @@
 @code {
     private string GetClass()
     {
-        var baseClass = "cn-button group/button inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-all outline-none select-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0";
-        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+        var parts = new[]
+        {
+            "btn",
+            VariantClass(Variant ?? "default"),
+            SizeClass(Size ?? "default"),
+            Class ?? string.Empty
+        };
+        return string.Join(" ", parts.Where(p => !string.IsNullOrEmpty(p)));
     }
 }

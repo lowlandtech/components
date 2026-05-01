@@ -2,7 +2,7 @@
 @inject IJSRuntime JsRuntime
 @inject ILogger<ExplorerLayout> Logger
 
-<div @ref="_containerRef" class="explorer-layout flex h-[calc(100vh-3.5rem)] overflow-hidden relative" style="--panel-width: @(_panelWidth)px;" data-storage-key="@SplitterStorageKey">
+<div @ref="_containerRef" class="explorer-layout flex h-[calc(100vh-3.5rem)] overflow-hidden relative" style="--panel-width: @(_panelWidth)px;" data-storage-key="@SplitterStorageKey" @attributes="AdditionalAttributes">
     @* ── Floating expand button (when collapsed) ── *@
     <button class="explorer-sidebar-toggle absolute top-0.5 left-0.5 z-50 inline-flex h-7 w-7 items-center justify-center rounded hover:bg-muted transition-colors text-muted-foreground bg-background/80 backdrop-blur-sm border border-border shadow-sm"
             @onclick="ToggleCollapse"
@@ -71,6 +71,9 @@
     private bool _collapsed;
     private string _splitterId = $"splitter-{Guid.NewGuid():N}";
     private DotNetObjectReference<ExplorerLayout>? _dotNetRef;
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
 
     [Parameter] public RenderFragment? ListHeader { get; set; }
     [Parameter, EditorRequired] public RenderFragment ListContent { get; set; } = default!;
