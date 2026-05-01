@@ -610,7 +610,15 @@ function attachBezel(sectionEl) {
     // nothing — we'd otherwise leak a second observer set per call.
     if (sectionEl._bezelSync) return;
 
-    let hostEl = sectionEl.querySelector(".lt-bezel-host");
+    // `:scope > .lt-bezel-host` matches the section's OWN bezel host only.
+    // ContainerGridSection.razor renders the bezel host as a sibling AFTER
+    // @ChildContent, so for an IsGrid item a plain `.lt-bezel-host` query
+    // walks descendant order and returns the FIRST nested-section's host
+    // (which sits earlier in the source than the parent's own). The
+    // resulting mismatch makes selection chrome paint at the wrong bbox —
+    // the user reports "Hero is selected but the handles show on
+    // SomeStrip". Direct-child scope is the deterministic fix.
+    let hostEl = sectionEl.querySelector(":scope > .lt-bezel-host");
     let alreadyPortaled = false;
     if (!hostEl) {
         hostEl = findOrphanedHost(sectionEl);
