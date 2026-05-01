@@ -10,6 +10,16 @@ public static class ButtonVariant
     public const string Outline     = "outline";
     public const string Ghost       = "ghost";
     public const string Link        = "link";
+    /// <summary>
+    /// Opt out of variant-level bg/height/padding. The button still gets the
+    /// `.btn` base (typography, transitions, focus ring, disabled state)
+    /// but no `btn-default` / `btn-secondary` / etc. visual chrome. Use this
+    /// when the consumer applies its own full styling via a `class="..."`
+    /// (e.g. the canvas Property Grid's `lt-style-section-header` / `lt-
+    /// property-panel-menu-item` rules) and the default variant's
+    /// `bg-primary h-9 px-4 py-2` would fight those rules.
+    /// </summary>
+    public const string Unstyled   = "unstyled";
 }
 
 /// <summary>Size preset constants for the Button component.</summary>
@@ -32,6 +42,7 @@ public partial class Button
         "secondary"   => "btn-secondary",
         "ghost"       => "btn-ghost",
         "link"        => "btn-link",
+        "unstyled"    => string.Empty,
         _             => "btn-default"
     };
 

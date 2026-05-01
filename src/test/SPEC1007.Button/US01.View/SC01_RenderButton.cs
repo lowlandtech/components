@@ -100,4 +100,36 @@ public class SC01_RenderButton : ViewScenario
         var link = Ctx.Render<ButtonSut>(p => p.Add(x => x.Variant, ButtonVariant.Link));
         link.Find("[data-slot='button']").ClassList.ShouldContain("btn-link");
     }
+
+    [Fact(DisplayName = "UAC11: Button Unstyled variant emits .btn but no btn-* variant class")]
+    [Trait(Spec.UAC, "11")]
+    public void UAC11_UnstyledVariantOmitsBtnVariantClass()
+    {
+        // Unstyled is the opt-out for consumers that fully style via a
+        // custom class (e.g. canvas Property Grid's lt-style-section-header
+        // and lt-property-panel-menu-item rules). The button still gets the
+        // base `.btn` typography/transitions, but no `btn-default` /
+        // `btn-secondary` / etc. visual chrome that would fight the consumer's
+        // own styles. Reverting the switch arm silently re-introduces the
+        // chunky bg-primary look on every section header / menu item.
+        var cut = Ctx.Render<ButtonSut>(p => p.Add(x => x.Variant, ButtonVariant.Unstyled));
+        var el = cut.Find("[data-slot='button']");
+        el.ClassList.ShouldContain("btn",
+            customMessage:
+                "Unstyled buttons must still get the base `.btn` class — " +
+                "that's where typography, focus ring, transitions, and " +
+                "disabled state live. Drop those and unstyled buttons stop " +
+                "feeling like buttons.");
+        el.ClassList.ShouldNotContain("btn-default",
+            customMessage:
+                "Unstyled MUST NOT emit btn-default. The whole point of this " +
+                "variant is to suppress the default's bg-primary / h-9 / " +
+                "px-4 py-2 chrome so the consumer's class fully controls " +
+                "visuals (e.g. the canvas Property Grid section bars).");
+        el.ClassList.ShouldNotContain("btn-secondary");
+        el.ClassList.ShouldNotContain("btn-ghost");
+        el.ClassList.ShouldNotContain("btn-outline");
+        el.ClassList.ShouldNotContain("btn-link");
+        el.ClassList.ShouldNotContain("btn-destructive");
+    }
 }
