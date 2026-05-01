@@ -13,7 +13,7 @@ public partial class Button
     /// The variant of the button.
     /// </summary>
     [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Select,
-        Options = new[] { "default", "destructive", "outline", "secondary", "ghost", "link" })]
+        Options = new[] { "default", "destructive", "outline", "secondary", "ghost", "link", "unstyled" })]
     public string Variant { get; set; } = "default";
 
     /// <summary>
