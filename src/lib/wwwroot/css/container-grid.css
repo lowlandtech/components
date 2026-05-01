@@ -131,6 +131,16 @@
     background: transparent;
     min-height: 32px;
     transition: border-color 0.15s ease, box-shadow 0.15s ease, backdrop-filter 0.15s ease;
+
+    /* SPEC2100.US24 perf #4 — paint isolation. `contain: layout style` tells
+       the browser that any layout/style changes inside this section don't
+       escape the section's bounding box. At deep nesting (3+ levels) this
+       cuts style recalc cost — toggling --selected on one section can't
+       invalidate sibling sections' style. We deliberately exclude `paint`
+       from the contain value because the bezel host (label, toolbar, edge
+       badges) uses `transform: translate(50%)` to protrude OUTSIDE the
+       section, and `paint` containment would clip those. */
+    contain: layout style;
 }
 
 .lt-container-grid-section:hover {
@@ -155,10 +165,10 @@
 /* Dragging state — applied to the section root while a drag is in flight,
    so the source visibly dims while the clone follows the cursor.
    `will-change: transform` pre-promotes the section onto its own GPU
-   compositor layer at gesture start so the first frame of drag isn't
-   janky while the browser figures out layers. Toggled off on cleanup
-   (via class removal) — `will-change` retains memory while present, so
-   keeping it on every section globally would be a memory leak. */
+   compositor layer at gesture start so the first frame of drag isn't janky
+   while the browser figures out layers. Toggled off on cleanup via class
+   removal — `will-change` retains memory while present, so leaving it on
+   every section globally would be a memory leak. */
 .lt-container-grid-section--dragging {
     opacity: 0.4;
     will-change: transform;

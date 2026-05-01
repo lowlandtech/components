@@ -241,8 +241,19 @@ function wireDrag(gridEl, itemEl, gripEl) {
     // rather than the whole section body — gives the user an unambiguous
     // pressed/released signal and stops accidental drags when interacting
     // with section content.
-    const overlay = gridEl.querySelector(".lt-container-grid-overlay");
-    const placeholder = gridEl.querySelector(".lt-container-grid-placeholder");
+    //
+    // `:scope >` discipline (same family as attachBezel UAC26 / bindSection UAC29):
+    // gridEl contains its own .lt-container-grid-overlay and .lt-container-grid-
+    // placeholder as DIRECT children. Plain descendant queries return the FIRST
+    // matching element in document order — for a grid containing IsGrid sections,
+    // that's the FIRST nested child grid's overlay, not gridEl's own. Result:
+    // wireDrag manipulates the wrong (nested) overlay's coordinate space, so the
+    // placeholder ghost paints far from the cursor (visibly worse the further
+    // the cursor is from the offset of that nested overlay's offsetParent). Pin
+    // the direct-child relationship so a future Razor edit can't reintroduce
+    // this.
+    const overlay = gridEl.querySelector(":scope > .lt-container-grid-overlay");
+    const placeholder = gridEl.querySelector(":scope > .lt-container-grid-placeholder");
     // Fallback resolution mirrors bindSection's :scope > .lt-bezel-host
     // logic — a plain descendant query for the grip would walk through
     // nested children's bezel hosts first when the section has IsGrid=true.
@@ -374,8 +385,12 @@ function wireDrag(gridEl, itemEl, gripEl) {
 }
 
 function wireResize(gridEl, itemEl, handles) {
-    const overlay = gridEl.querySelector(".lt-container-grid-overlay");
-    const placeholder = gridEl.querySelector(".lt-container-grid-placeholder");
+    // `:scope >` discipline — same reasoning as wireDrag above. wireResize
+    // manipulates the same overlay + placeholder elements as wireDrag, so it
+    // needs the same direct-child scoping or the resize ghost mispaints by
+    // the same amount.
+    const overlay = gridEl.querySelector(":scope > .lt-container-grid-overlay");
+    const placeholder = gridEl.querySelector(":scope > .lt-container-grid-placeholder");
 
     const attach = (handle, mode) => {
         if (!handle) return;
