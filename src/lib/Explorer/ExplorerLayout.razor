@@ -2,64 +2,90 @@
 @inject IJSRuntime JsRuntime
 @inject ILogger<ExplorerLayout> Logger
 
-<div @ref="_containerRef" class="explorer-layout flex h-[calc(100vh-3.5rem)] overflow-hidden relative" style="--panel-width: @(_panelWidth)px;" data-storage-key="@SplitterStorageKey" @attributes="AdditionalAttributes">
+<div @ref="_containerRef" class="explorer-layout @ViewModeClass flex h-[calc(100vh-3.5rem)] overflow-hidden relative" style="--panel-width: @(_panelWidth)px;" data-storage-key="@SplitterStorageKey" data-view-mode="@ViewMode.ToString().ToLowerInvariant()" @attributes="AdditionalAttributes">
     @* ── Floating expand button (when collapsed) ── *@
-    <button class="explorer-sidebar-toggle absolute top-0.5 left-0.5 z-50 inline-flex h-7 w-7 items-center justify-center rounded hover:bg-muted transition-colors text-muted-foreground bg-background/80 backdrop-blur-sm border border-border shadow-sm"
-            @onclick="ToggleCollapse"
-            title="Expand sidebar">
-        <svg class="h-3.5 w-3.5 translate-x-px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-    </button>
+    @if (ShowLeftPane)
+    {
+        <button class="explorer-sidebar-toggle absolute top-0.5 left-0.5 z-50 inline-flex h-7 w-7 items-center justify-center rounded hover:bg-muted transition-colors text-muted-foreground bg-background/80 backdrop-blur-sm border border-border shadow-sm"
+                @onclick="ToggleCollapse"
+                title="Expand sidebar">
+            <svg class="h-3.5 w-3.5 translate-x-px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+    }
 
-    @* ── Left Pane ── *@
-    <div class="explorer-sidebar shrink-0 border-r border-border flex flex-col bg-background @(_splitter?.IsDragging == true ? "" : "transition-[width] duration-150 ease-in-out")"
-         style="width: var(--panel-width); max-width: calc(100% - 336px);">
-        @* 336px = 16px splitter + 320px minimum right-pane width; guards against an oversized stored value before JS corrects it *@
-        @* ── Header with collapse button ── *@
-        <div class="flex items-center border-b border-border">
-            <div class="flex-1 min-w-0">
-                @if (ListHeader is not null)
-                {
-                    @ListHeader
-                }
-                else
-                {
-                    <div class="flex items-center justify-between px-3 h-9">
-                        <span class="text-sm font-semibold">@Title</span>
+    @* ── Stacked modes: LeftOnTop renders left above right; LeftOnBottom renders right above left ── *@
+    @if (ViewMode is ExplorerViewMode.LeftOnTop or ExplorerViewMode.LeftOnBottom)
+    {
+        var leftFirst = ViewMode == ExplorerViewMode.LeftOnTop;
+        var firstPane  = leftFirst ? ListFragment  : DetailFragment;
+        var secondPane = leftFirst ? DetailFragment : ListFragment;
+        @firstPane
+        @secondPane
+    }
+    else
+    {
+        @* ── Left Pane ── *@
+        @if (ShowLeftPane)
+        {
+            <div class="explorer-sidebar @(ViewMode == ExplorerViewMode.LeftOnly ? "flex-1" : "shrink-0 border-r border-border") flex flex-col bg-background @(_splitter?.IsDragging == true ? "" : "transition-[width] duration-150 ease-in-out")"
+                 style="@(ViewMode == ExplorerViewMode.LeftOnly ? "" : $"width: var(--panel-width); max-width: calc(100% - 336px);")">
+                @* ── Header with collapse button ── *@
+                <div class="flex items-center border-b border-border">
+                    <div class="flex-1 min-w-0">
+                        @if (ListHeader is not null)
+                        {
+                            @ListHeader
+                        }
+                        else
+                        {
+                            <div class="flex items-center justify-between px-3 h-9">
+                                <span class="text-sm font-semibold">@Title</span>
+                            </div>
+                        }
                     </div>
+                    @if (ViewMode != ExplorerViewMode.LeftOnly)
+                    {
+                        <button class="shrink-0 p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground"
+                                @onclick="ToggleCollapse"
+                                title="Collapse sidebar">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                        </button>
+                    }
+                </div>
+
+                @* ── Scrollable List ── *@
+                <div class="flex-1 overflow-y-auto">
+                    @ListContent
+                </div>
+            </div>
+        }
+
+        @* ── Splitter (only in side-by-side mode) ── *@
+        @if (ShowLeftPane && ShowRightPane)
+        {
+            <PanelSplitter @ref="_splitter"
+                           ElementId="@_splitterId"
+                           StorageKey="@SplitterStorageKey"
+                           DefaultWidth="DefaultWidth"
+                           MinWidth="MinWidth"
+                           MaxWidth="MaxWidth"
+                           OnWidthChanged="OnSplitterWidthChanged"
+                           KeyboardSave="OnKeyboardSave" />
+        }
+
+        @* ── Right Pane ── *@
+        @if (ShowRightPane)
+        {
+            <div class="explorer-detail flex-1 flex flex-col min-w-0 overflow-hidden">
+                @DetailContent
+
+                @if (FooterContent is not null)
+                {
+                    @FooterContent
                 }
             </div>
-                <button class="shrink-0 p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground"
-                    @onclick="ToggleCollapse"
-                    title="Collapse sidebar">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-            </button>
-        </div>
-
-        @* ── Scrollable List ── *@
-        <div class="flex-1 overflow-y-auto">
-            @ListContent
-        </div>
-    </div>
-
-    @* ── Splitter ── *@
-    <PanelSplitter @ref="_splitter"
-                   ElementId="@_splitterId"
-                   StorageKey="@SplitterStorageKey"
-                   DefaultWidth="DefaultWidth"
-                   MinWidth="MinWidth"
-                   MaxWidth="MaxWidth"
-                   OnWidthChanged="OnSplitterWidthChanged"
-                   KeyboardSave="OnKeyboardSave" />
-
-    @* ── Right Pane ── *@
-    <div class="explorer-detail flex-1 flex flex-col min-w-0 overflow-hidden">
-        @DetailContent
-
-        @if (FooterContent is not null)
-        {
-            @FooterContent
         }
-    </div>
+    }
 
     @ChildContent
 </div>
@@ -86,6 +112,44 @@
     [Parameter] public int MinWidth { get; set; } = 180;
     [Parameter] public int MaxWidth { get; set; } = 600;
     [Parameter] public EventCallback OnKeyboardSave { get; set; }
+    [Parameter] public ExplorerViewMode ViewMode { get; set; } = ExplorerViewMode.SideBySide;
+
+    private bool ShowLeftPane  => ViewMode is ExplorerViewMode.SideBySide or ExplorerViewMode.LeftOnly or ExplorerViewMode.LeftOnTop or ExplorerViewMode.LeftOnBottom;
+    private bool ShowRightPane => ViewMode is ExplorerViewMode.SideBySide or ExplorerViewMode.RightOnly or ExplorerViewMode.LeftOnTop or ExplorerViewMode.LeftOnBottom;
+
+    private string ViewModeClass => ViewMode switch
+    {
+        ExplorerViewMode.RightOnly    => "explorer-right-only",
+        ExplorerViewMode.LeftOnTop    => "explorer-stacked flex-col",
+        ExplorerViewMode.LeftOnBottom => "explorer-stacked flex-col",
+        _                             => string.Empty,
+    };
+
+    private RenderFragment ListFragment => __builder =>
+    {
+        <div class="explorer-sidebar flex flex-col bg-background border-b border-border">
+            <div class="flex items-center border-b border-border">
+                <div class="flex-1 min-w-0">
+                    @if (ListHeader is not null) { @ListHeader }
+                    else
+                    {
+                        <div class="flex items-center justify-between px-3 h-9">
+                            <span class="text-sm font-semibold">@Title</span>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto">@ListContent</div>
+        </div>
+    };
+
+    private RenderFragment DetailFragment => __builder =>
+    {
+        <div class="explorer-detail flex-1 flex flex-col min-w-0 overflow-hidden">
+            @DetailContent
+            @if (FooterContent is not null) { @FooterContent }
+        </div>
+    };
 
     public bool IsCollapsed => _collapsed;
 
