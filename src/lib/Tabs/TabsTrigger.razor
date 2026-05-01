@@ -72,13 +72,18 @@
             ? "cn-tabs-trigger inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
             : "cn-tabs-trigger inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
         
-        // For line variant, don't add background/shadow - CSS handles the underline
+        // For line variant, the active indicator is a primary-coloured bottom border
+        // that sits flush with the TabsList's own `border-b`. `-mb-px` pulls the
+        // trigger 1px down so its 2px border visually punches through the list's
+        // 1px border at the active tab's position — the classic shadcn line-tab
+        // pattern. `rounded-none` overrides the trigger base's `rounded-md` so
+        // the bottom border draws a straight line, not rounded corners.
         if (IsActive && !isLineVariant)
             baseClass += isVertical
                 ? " bg-background text-foreground shadow-sm"
                 : " bg-background text-foreground shadow";
         else if (IsActive && isLineVariant)
-            baseClass += " text-foreground";
+            baseClass += " text-foreground border-b-2 border-primary -mb-px rounded-none";
         
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }

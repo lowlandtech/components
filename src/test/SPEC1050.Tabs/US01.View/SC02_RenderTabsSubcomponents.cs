@@ -245,4 +245,45 @@ public class SC02_RenderTabsSubcomponents : ViewScenario
         list.GetAttribute("data-variant").ShouldBe("line");
         list.ClassList.ShouldContain("bg-transparent");
     }
+
+    [Fact(DisplayName = "UAC20: TabsTrigger active in line variant gets primary underline indicator")]
+    [Trait(Spec.UAC, "20")]
+    public void UAC20_LineVariantActiveTriggerHasUnderlineIndicator()
+    {
+        // Line variant flattens the TabsList background to transparent so it
+        // matches a peer flat header (e.g. the canvas designer's left "Canvases"
+        // header). Without a strong active-state indicator, the active tab is
+        // indistinguishable from the inactive tab — the user can't tell which
+        // panel they're looking at. This UAC pins the primary-colored bottom
+        // border that signals the active tab in line mode.
+        var cut = Ctx.Render<TabsSut>(p => p
+            .Add(x => x.Value, "first")
+            .AddChildContent<TabsList>(list => list
+                .Add(l => l.Variant, "line")
+                .AddChildContent<TabsTrigger>(t => t
+                    .Add(tt => tt.Value, "first")
+                    .AddChildContent("First"))
+                .AddChildContent<TabsTrigger>(t => t
+                    .Add(tt => tt.Value, "second")
+                    .AddChildContent("Second"))));
+
+        var triggers = cut.FindAll("[data-slot='tabs-trigger']");
+        var activeClasses = triggers[0].ClassList;
+        var inactiveClasses = triggers[1].ClassList;
+
+        activeClasses.ShouldContain("border-b-2",
+            customMessage:
+                "Active line-variant trigger must carry a 2px bottom border " +
+                "to draw the underline indicator. Drop it and the active tab " +
+                "is indistinguishable from inactive in line mode.");
+        activeClasses.ShouldContain("border-primary",
+            customMessage:
+                "Underline indicator must use the primary brand colour so it " +
+                "reads as the active accent against the muted-foreground text " +
+                "of inactive triggers.");
+        inactiveClasses.ShouldNotContain("border-primary",
+            customMessage:
+                "Inactive triggers must NOT carry the primary indicator — " +
+                "otherwise every tab looks active.");
+    }
 }
