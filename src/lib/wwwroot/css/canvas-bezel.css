@@ -32,15 +32,15 @@
     overflow: hidden;
 }
 
-/* Header bar — `height: 36px` matches `h-9` on the left "Canvases" header
+/* Header bar — `height: 2.25rem` matches `h-9` on the left "Canvases" header
    and the right line-variant TabsList, so the three headers form ONE
    continuous bar across the canvas page. Tool buttons + viewport switcher
-   sized to fit inside that 36px row (28x28 + 24x24 respectively). */
+   sized to fit inside that row (28x28 + 24x24 respectively). */
 .lt-canvas-bezel-header {
     display: flex;
     align-items: center;
     gap: 12px;
-    height: 36px;
+    height: 2.25rem;
     padding: 0 8px;
     border-bottom: 1px solid var(--border, #2f2a4f);
     background: transparent;
@@ -61,7 +61,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    /* 28x28 fits cleanly inside the 36px header row with 4px each side.
+    /* 28x28 fits cleanly inside the 2.25rem header row with 4px each side.
        Was 30x30 when the header was 48px tall. */
     width: 28px;
     height: 28px;
