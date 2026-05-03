@@ -11,6 +11,8 @@ public sealed class BlockContext
 	private readonly Dictionary<Guid, List<Action<string>>> _legacySubscribers = new();
 	private readonly Dictionary<Guid, List<Action<BlockMode>>> _blockSubscribers = new();
 	private readonly Dictionary<Guid, JsonElement> _entityData = new();
+	private readonly Dictionary<Guid, bool> _blockValidity = new();
+	private readonly Dictionary<Guid, List<Action<bool>>> _validitySubscribers = new();
 
 	public event Func<Guid, BlockMode, Task>? OnBlockModeChanged;
 
@@ -172,6 +174,84 @@ public sealed class BlockContext
 	{
 		_entityData.Remove(blockId);
 		Context.Remove(blockId);
+	}
+
+	// ── Validity channel ──
+	// A block's BlockBase.IsValid value is published here on render and consumed
+	// by session-level observers (or other blocks) that need to react to validity
+	// without knowing how the block computes it. Default: true (a block is valid
+	// until proven otherwise).
+
+	/// <summary>
+	/// Returns the last published validity for <paramref name="blockId"/>, or
+	/// <c>true</c> if nothing has been published yet — consumers should treat
+	/// "unknown" as "valid" so a block that doesn't validate (e.g. a chat
+	/// thread) doesn't trip session-wide gates.
+	/// </summary>
+	public bool GetValid(Guid blockId)
+		=> !_blockValidity.TryGetValue(blockId, out var v) || v;
+
+	/// <summary>
+	/// Publishes <paramref name="isValid"/> for <paramref name="blockId"/>.
+	/// Notifies subscribers only when the value actually changes — repeated
+	/// publishes of the same value are deduped.
+	/// </summary>
+	public void SetValid(Guid blockId, bool isValid)
+	{
+		var current = GetValid(blockId);
+		_blockValidity[blockId] = isValid;
+		if (current == isValid) return;
+		NotifyValiditySubscribers(blockId, isValid);
+	}
+
+	/// <summary>
+	/// Subscribes to validity changes for <paramref name="blockId"/>. The
+	/// callback is invoked immediately with the current value (matching the
+	/// mode-channel pattern), then once per subsequent change.
+	/// </summary>
+	public void SubscribeValid(Guid blockId, Action<bool> onValidityChanged)
+	{
+		if (!_validitySubscribers.ContainsKey(blockId))
+			_validitySubscribers[blockId] = new List<Action<bool>>();
+
+		_validitySubscribers[blockId].Add(onValidityChanged);
+		onValidityChanged(GetValid(blockId));
+	}
+
+	public void UnsubscribeValid(Guid blockId, Action<bool> onValidityChanged)
+	{
+		if (_validitySubscribers.TryGetValue(blockId, out var callbacks))
+		{
+			callbacks.Remove(onValidityChanged);
+			if (callbacks.Count == 0)
+				_validitySubscribers.Remove(blockId);
+		}
+	}
+
+	/// <summary>Drops cached validity + subscribers for <paramref name="blockId"/>.
+	/// Call when a block unmounts to avoid stale state for its id.</summary>
+	public void ClearValid(Guid blockId)
+	{
+		_blockValidity.Remove(blockId);
+		_validitySubscribers.Remove(blockId);
+	}
+
+	private void NotifyValiditySubscribers(Guid blockId, bool isValid)
+	{
+		if (!_validitySubscribers.TryGetValue(blockId, out var callbacks))
+			return;
+
+		foreach (var callback in callbacks.ToList())
+		{
+			try
+			{
+				callback(isValid);
+			}
+			catch
+			{
+				// Ignore subscriber errors — match the existing pattern.
+			}
+		}
 	}
 
 	private static string ToLegacyMode(BlockMode mode) => mode switch

@@ -8,12 +8,51 @@ public abstract class BlockBase : ComponentBase, IBlock
     [Parameter] public string? Name { get; set; }
     [Parameter] public string? ParentNodeId { get; set; }
     [Parameter] public Guid MessageId { get; set; }
+    [Parameter] public Guid BlockId { get; set; }
     [Parameter] public EventCallback<Guid> OnDeleted { get; set; }
     [CascadingParameter(Name = "SessionSettings")] protected IReadOnlyDictionary<string, string>? SessionSettings { get; set; }
+
+    /// <summary>
+    /// Optional injection — the validity channel BlockBase uses to publish
+    /// <see cref="IsValid"/> changes keyed by <see cref="BlockId"/>. Hosts
+    /// without BlockContext registered (rare) just won't get publications.
+    /// </summary>
+    [Inject] protected BlockContext? BlockContext { get; set; }
+
+    private bool? _lastPublishedValid;
+
     protected string BlockSpacing => SessionBlockSpacingOptions.Normalize(
         SessionSettings?.GetValueOrDefault(SessionBlockSpacingOptions.SettingKey));
 
     public virtual bool SupportsActivationToggle => true;
+
+    /// <summary>
+    /// Override to expose validation state. Default <c>true</c> — a block with
+    /// no rules is always valid. The block can use FluentValidation or any
+    /// other strategy under the hood; consumers read the result through
+    /// <see cref="Feed.BlockContext.GetValid"/> /
+    /// <see cref="Feed.BlockContext.SubscribeValid"/> keyed by
+    /// <see cref="BlockId"/>.
+    /// </summary>
+    public virtual bool IsValid => true;
+
+    /// <summary>
+    /// Publishes <see cref="IsValid"/> to <see cref="BlockContext"/> when its
+    /// value changes. Runs after every render, deduped by the last published
+    /// value, so blocks that flip between valid/invalid as the user types
+    /// notify subscribers exactly on transitions.
+    /// </summary>
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (BlockContext is null || BlockId == Guid.Empty) return;
+
+        var current = IsValid;
+        if (_lastPublishedValid == current) return;
+
+        _lastPublishedValid = current;
+        BlockContext.SetValid(BlockId, current);
+    }
 
     protected string InactiveBannerClass => "flex items-center gap-2 border-b border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-amber-700";
 
