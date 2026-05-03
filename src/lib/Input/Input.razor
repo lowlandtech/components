@@ -12,7 +12,9 @@
        readonly="@ReadOnly"
        aria-invalid="@Invalid"
        value="@Value"
+    @ref="_inputRef"
        @oninput="HandleInput"
+       @onkeyup="HandleKeyUp"
        @attributes="AdditionalAttributes" />
 
 @code {
