@@ -1,4 +1,5 @@
 using System.Text.Json;
+using LowlandTech.Core.Graph;
 
 namespace LowlandTech.Components.Feed;
 
@@ -13,6 +14,8 @@ public sealed class BlockContext
 	private readonly Dictionary<Guid, JsonElement> _entityData = new();
 	private readonly Dictionary<Guid, bool> _blockValidity = new();
 	private readonly Dictionary<Guid, List<Action<bool>>> _validitySubscribers = new();
+	private readonly Dictionary<Guid, Func<IReadOnlyList<BlockIntent>>> _intentSurfaces = new();
+	private readonly Dictionary<Guid, Func<string, IReadOnlyDictionary<string, object?>?, CancellationToken, Task<BlockIntentDispatchResult>>> _intentDispatchers = new();
 
 	public event Func<Guid, BlockMode, Task>? OnBlockModeChanged;
 
@@ -174,6 +177,60 @@ public sealed class BlockContext
 	{
 		_entityData.Remove(blockId);
 		Context.Remove(blockId);
+	}
+
+	// ── Intent executor channel ──
+	// Blocks register a semantic intent surface plus a block-local dispatch
+	// function keyed by BlockId. Hosts and agents invoke this boundary without
+	// reaching into foreign reducers or constructing foreign actions.
+
+	public void RegisterIntent(
+		Guid blockId,
+		Func<IReadOnlyList<BlockIntent>> getSurface,
+		Func<string, IReadOnlyDictionary<string, object?>?, CancellationToken, Task<BlockIntentDispatchResult>> dispatchAsync)
+	{
+		_intentSurfaces[blockId] = getSurface;
+		_intentDispatchers[blockId] = dispatchAsync;
+	}
+
+	public IReadOnlyList<BlockIntent> GetIntentSurface(Guid blockId)
+	{
+		if (!_intentSurfaces.TryGetValue(blockId, out var getSurface))
+			return [];
+
+		try
+		{
+			return getSurface() ?? [];
+		}
+		catch
+		{
+			return [];
+		}
+	}
+
+	public async Task<BlockIntentDispatchResult> DispatchIntentAsync(
+		Guid blockId,
+		string key,
+		IReadOnlyDictionary<string, object?>? payload = null,
+		CancellationToken ct = default)
+	{
+		if (!_intentDispatchers.TryGetValue(blockId, out var dispatchAsync))
+			return new BlockIntentDispatchResult.Unsupported(key);
+
+		try
+		{
+			return await dispatchAsync(key, payload, ct);
+		}
+		catch (Exception ex)
+		{
+			return new BlockIntentDispatchResult.Failure(ex.Message);
+		}
+	}
+
+	public void UnregisterIntent(Guid blockId)
+	{
+		_intentSurfaces.Remove(blockId);
+		_intentDispatchers.Remove(blockId);
 	}
 
 	// ── Validity channel ──

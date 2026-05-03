@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Components;
+using LowlandTech.Core.Graph;
 
 namespace LowlandTech.Components.Feed;
 
-public abstract class BlockBase : ComponentBase, IBlock
+public abstract class BlockBase : ComponentBase, IBlock, IDisposable
 {
     [Parameter] public string? NodeId { get; set; }
     [Parameter] public string? Name { get; set; }
@@ -25,6 +26,7 @@ public abstract class BlockBase : ComponentBase, IBlock
         SessionSettings?.GetValueOrDefault(SessionBlockSpacingOptions.SettingKey));
 
     public virtual bool SupportsActivationToggle => true;
+    public virtual IReadOnlyList<BlockIntent> IntentSurface => [];
 
     /// <summary>
     /// Override to expose validation state. Default <c>true</c> — a block with
@@ -35,6 +37,25 @@ public abstract class BlockBase : ComponentBase, IBlock
     /// <see cref="BlockId"/>.
     /// </summary>
     public virtual bool IsValid => true;
+
+    /// <summary>
+    /// Override to map a semantic intent key + payload to the block's own store
+    /// actions. Default is unsupported.
+    /// </summary>
+    public virtual Task<BlockIntentDispatchResult> DispatchIntentAsync(
+        string key,
+        IReadOnlyDictionary<string, object?>? payload,
+        CancellationToken ct = default)
+        => Task.FromResult<BlockIntentDispatchResult>(new BlockIntentDispatchResult.Unsupported(key));
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        if (BlockContext is null || BlockId == Guid.Empty)
+            return;
+
+        BlockContext.RegisterIntent(BlockId, () => IntentSurface, DispatchIntentAsync);
+    }
 
     /// <summary>
     /// Publishes <see cref="IsValid"/> to <see cref="BlockContext"/> when its
@@ -101,4 +122,13 @@ public abstract class BlockBase : ComponentBase, IBlock
 
     protected bool ShowInactiveState(bool isActive)
         => !isActive;
+
+    public virtual void Dispose()
+    {
+        if (BlockContext is null || BlockId == Guid.Empty)
+            return;
+
+        BlockContext.ClearValid(BlockId);
+        BlockContext.UnregisterIntent(BlockId);
+    }
 }

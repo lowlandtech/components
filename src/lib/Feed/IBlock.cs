@@ -1,3 +1,4 @@
+using LowlandTech.Core.Graph;
 using Microsoft.AspNetCore.Components;
 
 namespace LowlandTech.Components.Feed;
@@ -19,4 +20,20 @@ public interface IBlock
     /// is <c>true</c> (a block with no validation rules is always valid).
     /// </summary>
     bool IsValid { get; }
+
+    /// <summary>
+    /// Semantic actions the block currently supports. This is block-local state
+    /// derived from the block's own reducer or view model.
+    /// </summary>
+    IReadOnlyList<BlockIntent> IntentSurface { get; }
+
+    /// <summary>
+    /// Maps a semantic intent key plus optional payload into the block's own
+    /// store actions. Hosts call this boundary by <see cref="BlockId"/>; they do
+    /// not dispatch foreign reducer actions directly.
+    /// </summary>
+    Task<BlockIntentDispatchResult> DispatchIntentAsync(
+        string key,
+        IReadOnlyDictionary<string, object?>? payload,
+        CancellationToken ct = default);
 }
