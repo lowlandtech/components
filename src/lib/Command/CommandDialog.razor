@@ -144,14 +144,14 @@
         return "**:[data-slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5";
     }
 
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         CommandDialogRegistry.Unregister(_id);
         
-        // JS interop may not be available during prerendering
+        // JS interop may not be available during prerendering or teardown
         try
         {
-            _ = JSRuntime.InvokeVoidAsync("eval", $@"
+            await JSRuntime.InvokeVoidAsync("eval", $@"
                 (function() {{
                     if (window.commandMenu && window.commandMenu['{_id}']) {{
                         if (window.commandMenu['{_id}'].handleKeyDown) {{
@@ -162,12 +162,10 @@
                 }})();
             ");
         }
-        catch (InvalidOperationException)
+        catch (Exception)
         {
-            // JS interop not available (prerendering), ignore
+            // Ignore teardown-time JS failures.
         }
-        
-        return ValueTask.CompletedTask;
     }
 
     // Static registry for JS interop

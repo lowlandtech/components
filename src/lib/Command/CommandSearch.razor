@@ -318,14 +318,14 @@
     private string GetTriggerClass() => "relative h-8 w-full justify-between rounded-lg border border-input bg-background/50 px-3 py-2 text-sm font-normal shadow-none hover:bg-accent hover:text-accent-foreground flex items-center gap-2 md:w-40 lg:w-64 xl:w-80 transition-colors";
     private string GetKbdClass() => "pointer-events-none absolute right-2 top-1/2 hidden h-5 -translate-y-1/2 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex";
 
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         var id = GetHashCode().ToString();
         CommandSearchRegistry.Unregister(id);
         
         try
         {
-            _ = JSRuntime.InvokeVoidAsync("eval", $@"
+            await JSRuntime.InvokeVoidAsync("eval", $@"
                 (function() {{
                     if (window.commandSearch && window.commandSearch['{id}']) {{
                         if (window.commandSearch['{id}'].handleKeyDown) {{
@@ -336,9 +336,7 @@
                 }})();
             ");
         }
-        catch (InvalidOperationException) { }
-        
-        return ValueTask.CompletedTask;
+        catch (Exception) { }
     }
 
     private static class CommandSearchRegistry
