@@ -67,8 +67,26 @@ public sealed class CliAgentSession
     /// <summary>Block-level state for UI/orchestrator queries. Owned by the block.</summary>
     public string Status { get; set; } = "idle";
 
+    public Guid? LastPromptMsgId { get; set; }
+
+    public Guid? LastReplyMsgId { get; set; }
+
+    public string BufferedOutput { get; set; } = string.Empty;
+
+    public string LastReply { get; set; } = string.Empty;
+
+    public int? LastExitCode { get; set; }
+
+    public bool StopRequested { get; set; }
+
+    public Dictionary<string, string> MessageMetadata { get; } = new(StringComparer.Ordinal);
+
+    public List<CliAgentEvent> Events { get; } = [];
+
     public DateTimeOffset StartedAt { get; init; } = DateTimeOffset.UtcNow;
 }
+
+public sealed record CliAgentEvent(string Name, int? ExitCode = null);
 
 /// <summary>
 /// Per-CLI runtime config. Captures executable name, default args, the regex

@@ -23,4 +23,6 @@ public interface IProcessRunner
     Task<bool> WriteStdinAsync(string key, string data);
 
     Task StopAsync(string key);
+
+    Task StopAsync(string key, bool soft, TimeSpan gracePeriod);
 }
