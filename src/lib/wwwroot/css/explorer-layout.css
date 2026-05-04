@@ -5,9 +5,12 @@
    Drift guard: src/components/test/SPEC1069.ExplorerLayout/US01.ResponsiveStacking
    ============================================================================ */
 
-/* Narrow viewports: stack list above detail, drop the splitter and width constraints. */
+/* Narrow viewports: stack list above detail, drop the splitter and width constraints.
+   Doubled .explorer-layout class raises specificity above Tailwind utility atoms
+   (e.g. .h-\[calc\(100vh-3\.5rem\)\] and .overflow-hidden) so the media-query
+   rules win even when Tailwind CSS is loaded later in the document. */
 @media (max-width: 1024px) {
-  .explorer-layout {
+  .explorer-layout.explorer-layout {
     flex-direction: column;
     height: auto;
     min-height: calc(100vh - 3.5rem);
