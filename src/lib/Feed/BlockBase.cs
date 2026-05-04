@@ -7,6 +7,7 @@ public abstract class BlockBase : ComponentBase, IBlock, IDisposable
 {
     [Parameter] public string? NodeId { get; set; }
     [Parameter] public string? Name { get; set; }
+    [Parameter] public string? BlockType { get; set; }
     [Parameter] public string? ParentNodeId { get; set; }
     [Parameter] public Guid MessageId { get; set; }
     [Parameter] public Guid BlockId { get; set; }
@@ -48,15 +49,6 @@ public abstract class BlockBase : ComponentBase, IBlock, IDisposable
         CancellationToken ct = default)
         => Task.FromResult<BlockIntentDispatchResult>(new BlockIntentDispatchResult.Unsupported(key));
 
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-        if (BlockContext is null || BlockId == Guid.Empty)
-            return;
-
-        BlockContext.RegisterIntent(BlockId, () => IntentSurface, DispatchIntentAsync);
-    }
-
     /// <summary>
     /// Publishes <see cref="IsValid"/> to <see cref="BlockContext"/> when its
     /// value changes. Runs after every render, deduped by the last published
@@ -67,6 +59,9 @@ public abstract class BlockBase : ComponentBase, IBlock, IDisposable
     {
         base.OnAfterRender(firstRender);
         if (BlockContext is null || BlockId == Guid.Empty) return;
+
+        if (firstRender)
+            BlockContext.RegisterIntent(BlockId, () => IntentSurface, DispatchIntentAsync);
 
         var current = IsValid;
         if (_lastPublishedValid == current) return;

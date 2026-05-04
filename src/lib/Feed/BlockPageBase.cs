@@ -113,9 +113,10 @@ public abstract class BlockPageBase : BlockBase, IDisposable
         InvokeAsync(StateHasChanged);
     }
 
-    public virtual void Dispose()
+    public override void Dispose()
     {
         InvokeAll(_onDispose);
+        base.Dispose();
         GC.SuppressFinalize(this);
     }
 
