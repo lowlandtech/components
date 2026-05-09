@@ -4,6 +4,12 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>true</IsPackable>
+    <PackageId>LowlandTech.Components</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>LowlandTech</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Description>Blazor component library for the Foundry platform.</Description>
   </PropertyGroup>
 
 
@@ -15,9 +21,18 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.7" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\core\LowlandTech.Core.csproj" />
-  </ItemGroup>
+  <Choose>
+    <When Condition="Exists('$(MSBuildThisFileDirectory)..\..\core\LowlandTech.Core.csproj')">
+      <ItemGroup>
+        <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\core\LowlandTech.Core.csproj" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="LowlandTech.Core" Version="*" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
 
   <ItemGroup>
     <Content Remove="wwwroot\node_modules\**" />

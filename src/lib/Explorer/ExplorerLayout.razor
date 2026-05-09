@@ -30,22 +30,22 @@
             <div class="explorer-sidebar @(ViewMode == ExplorerViewMode.LeftOnly ? "flex-1" : "shrink-0 border-r border-border") flex flex-col bg-background @(_splitter?.IsDragging == true ? "" : "transition-[width] duration-150 ease-in-out")"
                  style="@(ViewMode == ExplorerViewMode.LeftOnly ? "" : $"width: var(--panel-width); max-width: calc(100% - 336px);")">
                 @* ── Header with collapse button ── *@
-                <div class="flex items-center border-b border-border">
-                    <div class="flex-1 min-w-0">
+                <div class="explorer-sidebar-header flex h-9 items-center border-b border-border pr-1.5">
+                    <div class="explorer-sidebar-header-slot flex-1 min-w-0">
                         @if (ListHeader is not null)
                         {
                             @ListHeader
                         }
                         else
                         {
-                            <div class="flex items-center justify-between px-3 h-9">
-                                <span class="text-sm font-semibold">@Title</span>
+                            <div class="explorer-sidebar-default-header flex items-center justify-between px-3 h-9">
+                                <span class="explorer-sidebar-default-title text-sm font-semibold">@Title</span>
                             </div>
                         }
                     </div>
                     @if (ViewMode != ExplorerViewMode.LeftOnly)
                     {
-                        <button class="shrink-0 p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground"
+                        <button class="explorer-sidebar-collapse-btn shrink-0 p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground"
                                 @onclick="ToggleCollapse"
                                 title="Collapse sidebar">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
@@ -54,7 +54,7 @@
                 </div>
 
                 @* ── Scrollable List ── *@
-                <div class="flex-1 overflow-y-auto">
+                <div class="explorer-sidebar-list flex-1 overflow-y-auto">
                     @ListContent
                 </div>
             </div>
