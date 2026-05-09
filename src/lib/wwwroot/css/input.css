@@ -384,7 +384,7 @@
 
   /* DataGrid Component Styles */
   .cn-data-grid {
-    @apply w-full space-y-2 p-2;
+    @apply w-full space-y-2;
   }
 
   .cn-data-grid-table-container {
