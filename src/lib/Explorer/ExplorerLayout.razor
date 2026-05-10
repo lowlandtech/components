@@ -2,7 +2,7 @@
 @inject IJSRuntime JsRuntime
 @inject ILogger<ExplorerLayout> Logger
 
-<div @ref="_containerRef" class="explorer-layout @ViewModeClass flex h-[calc(100vh-3.5rem)] overflow-hidden relative" style="--panel-width: @(_panelWidth)px;" data-storage-key="@SplitterStorageKey" data-view-mode="@ViewMode.ToString().ToLowerInvariant()" @attributes="AdditionalAttributes">
+<div @ref="_containerRef" class="explorer-layout @ViewModeClass flex @(string.IsNullOrWhiteSpace(HeightClass) ? "h-[calc(100vh-3.5rem)]" : HeightClass) overflow-hidden relative" style="--panel-width: @(_panelWidth)px;" data-storage-key="@SplitterStorageKey" data-view-mode="@ViewMode.ToString().ToLowerInvariant()" @attributes="AdditionalAttributes">
     @* ── Floating expand button (when collapsed) ── *@
     @if (ShowLeftPane)
     {
@@ -112,6 +112,7 @@
     [Parameter] public int MinWidth { get; set; } = 180;
     [Parameter] public int MaxWidth { get; set; } = 600;
     [Parameter] public EventCallback OnKeyboardSave { get; set; }
+    [Parameter] public string? HeightClass { get; set; }
     [Parameter] public ExplorerViewMode ViewMode { get; set; } = ExplorerViewMode.SideBySide;
 
     private bool ShowLeftPane  => ViewMode is ExplorerViewMode.SideBySide or ExplorerViewMode.LeftOnly or ExplorerViewMode.LeftOnTop or ExplorerViewMode.LeftOnBottom;
