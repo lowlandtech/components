@@ -1,0 +1,21 @@
+@namespace LowlandTech.Components
+@inject IJSRuntime JS
+
+<button class="@CssClass"
+        @onclick="ToggleAsync"
+        aria-label="@AriaLabel"
+        title="@AriaLabel"
+        type="button">
+    <span class="theme-icon-sun"><Icon Paths="@Icons.Sun" Size="@IconSize" /></span>
+    <span class="theme-icon-moon"><Icon Paths="@Icons.Moon" Size="@IconSize" /></span>
+</button>
+
+@code {
+    [Parameter] public string CssClass { get; set; } = "icon-button";
+    [Parameter] public string AriaLabel { get; set; } = "Toggle theme";
+    [Parameter] public int IconSize { get; set; } = 20;
+    [Parameter] public string JsFunction { get; set; } = "window.toggleTheme";
+
+    private async Task ToggleAsync() =>
+        await JS.InvokeVoidAsync(JsFunction);
+}
