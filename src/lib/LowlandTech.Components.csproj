@@ -49,8 +49,8 @@
       <WwwRootPath>$(MSBuildProjectDirectory)\wwwroot</WwwRootPath>
       <NodeModulesPath>$(WwwRootPath)\node_modules</NodeModulesPath>
     </PropertyGroup>
-    <Exec Command="npm install" WorkingDirectory="$(WwwRootPath)" Condition="!Exists('$(NodeModulesPath)')" ConsoleToMSBuild="true" IgnoreExitCode="false" />
-    <Exec Command="npm run build:css" WorkingDirectory="$(WwwRootPath)" ConsoleToMSBuild="true" IgnoreExitCode="false" />
+    <Exec Command="set PATH=$(VisualStudioNodeJsPath);%PATH% &amp;&amp; $(NpmCommand) install" WorkingDirectory="$(WwwRootPath)" Condition="!Exists('$(NodeModulesPath)')" ConsoleToMSBuild="true" IgnoreExitCode="false" />
+    <Exec Command="set PATH=$(VisualStudioNodeJsPath);%PATH% &amp;&amp; $(NpmCommand) run build:css" WorkingDirectory="$(WwwRootPath)" ConsoleToMSBuild="true" IgnoreExitCode="false" />
   </Target>
 
 </Project>
