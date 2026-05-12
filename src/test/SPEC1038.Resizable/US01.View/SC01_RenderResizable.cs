@@ -1,6 +1,5 @@
 using Bunit;
 using ResizableSut = LowlandTech.Components.Resizable.Resizable;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1038.Resizable.US01.View;
 

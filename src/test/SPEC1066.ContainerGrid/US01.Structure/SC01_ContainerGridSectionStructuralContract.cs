@@ -1,6 +1,4 @@
 using LowlandTech.Components.ContainerGrid;
-using LowlandTech.Components.Tests.Infrastructure;
-using Microsoft.AspNetCore.Components;
 
 namespace LowlandTech.Components.Tests.SPEC1066.ContainerGrid.US01.Structure;
 

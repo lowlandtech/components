@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Bunit;
 using LowlandTech.Components.ContainerGrid;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1066.ContainerGrid.US03.DragResize;
 

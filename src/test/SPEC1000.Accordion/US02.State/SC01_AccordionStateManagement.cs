@@ -1,5 +1,4 @@
 using LowlandTech.Components.Accordion;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1000.Accordion.US02.State;
 

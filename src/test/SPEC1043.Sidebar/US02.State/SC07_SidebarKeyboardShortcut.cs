@@ -1,6 +1,5 @@
 using Bunit;
 using LowlandTech.Components.Sidebar;
-using LowlandTech.Components.Tests.Infrastructure;
 using Microsoft.AspNetCore.Components.Web;
 using SidebarSut = LowlandTech.Components.Sidebar.Sidebar;
 

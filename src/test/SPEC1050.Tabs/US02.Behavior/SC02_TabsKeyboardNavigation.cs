@@ -1,7 +1,6 @@
 using Bunit;
 using TabsSut = LowlandTech.Components.Tabs.Tabs;
 using LowlandTech.Components.Tabs;
-using LowlandTech.Components.Tests.Infrastructure;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace LowlandTech.Components.Tests.SPEC1050.Tabs.US02.Behavior;

@@ -1,7 +1,6 @@
 using Bunit;
 using CarouselComponent = LowlandTech.Components.Carousel.Carousel;
 using LowlandTech.Components.Carousel;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1011.Carousel.US01.View;
 

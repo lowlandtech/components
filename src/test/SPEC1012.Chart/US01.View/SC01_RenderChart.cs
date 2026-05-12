@@ -1,7 +1,6 @@
 using Bunit;
 using Bunit.JSInterop;
 using ChartSut = LowlandTech.Components.Chart.Chart;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1012.Chart.US01.View;
 

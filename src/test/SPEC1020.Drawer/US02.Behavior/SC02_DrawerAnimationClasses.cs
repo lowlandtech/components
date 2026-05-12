@@ -1,7 +1,6 @@
 using Bunit;
 using DrawerComponent = LowlandTech.Components.Drawer.Drawer;
 using LowlandTech.Components.Drawer;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1020.Drawer.US02.Behavior;
 

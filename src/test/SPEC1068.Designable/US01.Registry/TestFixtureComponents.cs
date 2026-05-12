@@ -1,5 +1,4 @@
 using LowlandTech.Components;
-using Microsoft.AspNetCore.Components;
 
 namespace LowlandTech.Components.Tests.SPEC1068.Designable.US01.Registry;
 

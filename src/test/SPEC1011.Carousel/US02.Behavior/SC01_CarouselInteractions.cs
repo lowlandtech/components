@@ -1,7 +1,5 @@
 using Bunit;
-using Microsoft.AspNetCore.Components;
 using LowlandTech.Components.Carousel;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1011.Carousel.US02.Behavior;
 

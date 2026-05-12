@@ -1,6 +1,5 @@
 using Bunit;
 using BadgeSut = LowlandTech.Components.Badge.Badge;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1005.Badge.US01.View;
 

@@ -1,7 +1,5 @@
 using Bunit;
-using Microsoft.AspNetCore.Components;
 using InputOTPComponent = LowlandTech.Components.InputOTP.InputOTP;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1027.InputOTP.US02.Behavior;
 

@@ -1,6 +1,5 @@
 using Bunit;
 using LowlandTech.Components.Sonner;
-using LowlandTech.Components.Tests.Infrastructure;
 using SonnerSut = LowlandTech.Components.Sonner.Sonner;
 
 namespace LowlandTech.Components.Tests.SPEC1046.Sonner.US01.View;

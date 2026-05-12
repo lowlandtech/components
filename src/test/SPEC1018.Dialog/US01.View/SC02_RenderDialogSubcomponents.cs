@@ -1,7 +1,6 @@
 using Bunit;
 using DialogSut = LowlandTech.Components.Dialog.Dialog;
 using LowlandTech.Components.Dialog;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1018.Dialog.US01.View;
 

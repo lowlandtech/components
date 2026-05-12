@@ -1,6 +1,5 @@
 using Bunit;
 using CalendarSut = LowlandTech.Components.Calendar.Calendar;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1009.Calendar.US01.View;
 

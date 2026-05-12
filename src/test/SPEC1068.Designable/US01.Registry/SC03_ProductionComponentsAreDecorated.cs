@@ -1,5 +1,4 @@
 using LowlandTech.Components;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1068.Designable.US01.Registry;
 

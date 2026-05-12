@@ -1,6 +1,5 @@
 using Bunit;
 using ButtonSut = LowlandTech.Components.Button.Button;
-using LowlandTech.Components.Tests.Infrastructure;
 using LowlandTech.Components.Button;
 
 namespace LowlandTech.Components.Tests.SPEC1007.Button.US02.Variant;

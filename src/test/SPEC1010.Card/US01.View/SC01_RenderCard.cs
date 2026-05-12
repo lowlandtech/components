@@ -1,6 +1,5 @@
 using Bunit;
 using CardSut = LowlandTech.Components.Card.Card;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1010.Card.US01.View;
 

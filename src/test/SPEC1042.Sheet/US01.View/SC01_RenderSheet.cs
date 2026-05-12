@@ -1,7 +1,6 @@
 using Bunit;
 using SheetComponent = LowlandTech.Components.Sheet.Sheet;
 using LowlandTech.Components.Sheet;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1042.Sheet.US01.View;
 

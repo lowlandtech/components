@@ -1,8 +1,5 @@
 using Bunit;
-using Microsoft.AspNetCore.Components;
 using SelectSut = LowlandTech.Components.Select.Select;
-using LowlandTech.Components.Select;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1040.Select.US01.View;
 

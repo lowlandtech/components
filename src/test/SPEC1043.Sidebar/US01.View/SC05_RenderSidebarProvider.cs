@@ -1,7 +1,5 @@
 using Bunit;
 using LowlandTech.Components.Sidebar;
-using LowlandTech.Components.Tests.Infrastructure;
-using Microsoft.AspNetCore.Components;
 
 namespace LowlandTech.Components.Tests.SPEC1043.Sidebar.US01.View;
 

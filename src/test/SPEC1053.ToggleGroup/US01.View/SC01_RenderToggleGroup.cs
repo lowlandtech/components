@@ -1,6 +1,5 @@
 ﻿using Bunit;
 using ToggleGroupSut = LowlandTech.Components.ToggleGroup.ToggleGroup;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1053.ToggleGroup.US01.View;
 

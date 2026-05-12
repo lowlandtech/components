@@ -1,6 +1,5 @@
 using Bunit;
 using TextareaSut = LowlandTech.Components.Textarea.Textarea;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1051.Textarea.US01.View;
 

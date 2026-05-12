@@ -1,7 +1,6 @@
 using Bunit;
 using LowlandTech.Components;
 using LowlandTech.Components.SelectInput;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1061.SelectInput.US01.View;
 

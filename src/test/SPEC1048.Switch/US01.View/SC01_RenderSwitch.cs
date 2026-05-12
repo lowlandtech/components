@@ -1,6 +1,5 @@
 using Bunit;
 using SwitchSut = LowlandTech.Components.Switch.Switch;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1048.Switch.US01.View;
 

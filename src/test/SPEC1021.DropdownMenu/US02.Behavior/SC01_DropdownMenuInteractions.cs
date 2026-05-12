@@ -1,7 +1,5 @@
 using Bunit;
-using Microsoft.AspNetCore.Components;
 using LowlandTech.Components.DropdownMenu;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1021.DropdownMenu.US02.Behavior;
 

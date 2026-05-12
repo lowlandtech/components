@@ -1,5 +1,4 @@
 using LowlandTech.Components.Sidebar;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1043.Sidebar.US02.State;
 

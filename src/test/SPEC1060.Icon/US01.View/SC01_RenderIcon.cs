@@ -1,6 +1,5 @@
 using Bunit;
 using IconSut = LowlandTech.Components.Icon.Icon;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1060.Icon.US01.View;
 

@@ -1,6 +1,5 @@
 ﻿using Bunit;
 using HoverCardSut = LowlandTech.Components.HoverCard.HoverCard;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1024.HoverCard.US01.View;
 

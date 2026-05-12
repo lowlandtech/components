@@ -1,6 +1,5 @@
 using Bunit;
 using CollapsibleSut = LowlandTech.Components.Collapsible.Collapsible;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1014.Collapsible.US01.View;
 

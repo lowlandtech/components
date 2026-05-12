@@ -1,6 +1,5 @@
 using Bunit;
 using LowlandTech.Components.Table;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1049.Table.US01.View;
 

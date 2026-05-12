@@ -1,6 +1,5 @@
 using Bunit;
 using ItemSut = LowlandTech.Components.Item.Item;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1028.Item.US01.View;
 

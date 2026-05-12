@@ -2,7 +2,6 @@ using Bunit;
 using Microsoft.AspNetCore.Components.Web;
 using AccordionSut = LowlandTech.Components.Accordion.Accordion;
 using LowlandTech.Components.Accordion;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1000.Accordion.US03.Keyboard;
 

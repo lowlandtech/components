@@ -1,6 +1,5 @@
 using Bunit;
 using LowlandTech.Components.Popover;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1035.Popover.US01.View;
 

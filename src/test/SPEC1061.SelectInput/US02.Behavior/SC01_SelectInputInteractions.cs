@@ -1,8 +1,6 @@
 using Bunit;
-using Microsoft.AspNetCore.Components;
 using LowlandTech.Components;
 using LowlandTech.Components.SelectInput;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1061.SelectInput.US02.Behavior;
 

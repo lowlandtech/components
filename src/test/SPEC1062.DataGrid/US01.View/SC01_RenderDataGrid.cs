@@ -1,7 +1,5 @@
 using Bunit;
 using LowlandTech.Components.DataGrid;
-using LowlandTech.Components.Tests.Infrastructure;
-using Microsoft.AspNetCore.Components;
 using DataGridSut = LowlandTech.Components.DataGrid.DataGrid<LowlandTech.Components.Tests.SPEC1062.DataGrid.DataGridPerson>;
 
 namespace LowlandTech.Components.Tests.SPEC1062.DataGrid.US01.View;

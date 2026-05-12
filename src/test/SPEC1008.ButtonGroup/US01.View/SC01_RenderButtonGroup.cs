@@ -1,6 +1,5 @@
 using Bunit;
 using ButtonGroupSut = LowlandTech.Components.ButtonGroup.ButtonGroup;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1008.ButtonGroup.US01.View;
 

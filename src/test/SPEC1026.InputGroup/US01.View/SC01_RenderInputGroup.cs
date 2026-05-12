@@ -1,6 +1,5 @@
 ﻿using Bunit;
 using InputGroupSut = LowlandTech.Components.InputGroup.InputGroup;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1026.InputGroup.US01.View;
 

@@ -1,9 +1,7 @@
 using Bunit;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using TooltipSut = LowlandTech.Components.Tooltip.Tooltip;
 using LowlandTech.Components.Tooltip;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1054.Tooltip.US01.View;
 

@@ -1,6 +1,5 @@
 using Bunit;
 using AccordionSut = LowlandTech.Components.Accordion.Accordion;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1000.Accordion.US01.View;
 

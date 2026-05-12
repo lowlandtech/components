@@ -1,6 +1,5 @@
 using Bunit;
 using CheckboxSut = LowlandTech.Components.Checkbox.Checkbox;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1013.Checkbox.US01.View;
 

@@ -1,6 +1,5 @@
 ﻿using Bunit;
 using ToggleSut = LowlandTech.Components.Toggle.Toggle;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1052.Toggle.US01.View;
 

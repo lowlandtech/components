@@ -1,6 +1,5 @@
 using Bunit;
 using LowlandTech.Components.Card;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1010.Card.US01.View;
 

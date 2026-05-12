@@ -1,7 +1,5 @@
 using Bunit;
-using Microsoft.AspNetCore.Components;
 using LowlandTech.Components.NavigationMenu;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1033.NavigationMenu.US02.Behavior;
 

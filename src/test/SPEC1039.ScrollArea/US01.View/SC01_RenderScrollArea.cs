@@ -1,6 +1,5 @@
 ﻿using Bunit;
 using ScrollAreaSut = LowlandTech.Components.ScrollArea.ScrollArea;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1039.ScrollArea.US01.View;
 

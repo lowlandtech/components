@@ -1,7 +1,6 @@
 using Bunit;
 using KbdSut = LowlandTech.Components.Kbd.Kbd;
 using KbdGroupSut = LowlandTech.Components.Kbd.KbdGroup;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1029.Kbd.US01.View;
 

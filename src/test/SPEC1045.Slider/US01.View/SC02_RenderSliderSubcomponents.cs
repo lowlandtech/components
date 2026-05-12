@@ -1,7 +1,6 @@
 using Bunit;
 using SliderSut = LowlandTech.Components.Slider.Slider;
 using LowlandTech.Components.Slider;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1045.Slider.US01.View;
 

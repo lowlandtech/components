@@ -1,6 +1,5 @@
 using Bunit;
 using EmptySut = LowlandTech.Components.Empty.Empty;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1022.Empty.US01.View;
 

@@ -1,7 +1,5 @@
 using Bunit;
-using Microsoft.AspNetCore.Components;
 using LowlandTech.Components.Menubar;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1031.Menubar.US02.Behavior;
 

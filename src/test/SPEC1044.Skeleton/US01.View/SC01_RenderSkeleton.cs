@@ -1,6 +1,5 @@
 using Bunit;
 using SkeletonSut = LowlandTech.Components.Skeleton.Skeleton;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1044.Skeleton.US01.View;
 

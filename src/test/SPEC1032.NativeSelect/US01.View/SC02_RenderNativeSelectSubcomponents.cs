@@ -1,6 +1,5 @@
 using Bunit;
 using LowlandTech.Components.NativeSelect;
-using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1032.NativeSelect.US01.View;
 
