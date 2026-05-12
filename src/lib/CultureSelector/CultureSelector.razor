@@ -2,20 +2,20 @@
 @inject NavigationManager Navigation
 
 <Select Value="@GetCurrentCulture()" ValueChanged="OnLocaleChangedFromSelect" data-testid="locale-switcher">
-    <SelectTrigger Size="sm" Class="w-20">
+    <SelectTrigger Size="sm" Class="w-28">
         <SelectValue />
     </SelectTrigger>
     <SelectContent>
-        <SelectItem Value="en">EN</SelectItem>
-        <SelectItem Value="de">DE</SelectItem>
-        <SelectItem Value="fr">FR</SelectItem>
-        <SelectItem Value="es">ES</SelectItem>
-        <SelectItem Value="it">IT</SelectItem>
-        <SelectItem Value="nl">NL</SelectItem>
-        <SelectItem Value="pt">PT</SelectItem>
-        <SelectItem Value="pl">PL</SelectItem>
-        <SelectItem Value="sv">SV</SelectItem>
-        <SelectItem Value="da">DA</SelectItem>
+        <SelectItem Value="en" Text="English">English</SelectItem>
+        <SelectItem Value="de" Text="Deutsch">Deutsch</SelectItem>
+        <SelectItem Value="fr" Text="Français">Français</SelectItem>
+        <SelectItem Value="es" Text="Español">Español</SelectItem>
+        <SelectItem Value="it" Text="Italiano">Italiano</SelectItem>
+        <SelectItem Value="nl" Text="Nederlands">Nederlands</SelectItem>
+        <SelectItem Value="pt" Text="Português">Português</SelectItem>
+        <SelectItem Value="pl" Text="Polski">Polski</SelectItem>
+        <SelectItem Value="sv" Text="Svenska">Svenska</SelectItem>
+        <SelectItem Value="da" Text="Dansk">Dansk</SelectItem>
     </SelectContent>
 </Select>
 

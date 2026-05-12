@@ -1,5 +1,6 @@
 @namespace LowlandTech.Components.Select
 @inherits LtComponentBase
+@implements IDisposable
 
 <span data-slot="select-value" class="@GetClass()" @attributes="AdditionalAttributes">
     @if (ChildContent is not null)
@@ -19,6 +20,26 @@
     /// The placeholder text when no value is selected.
     /// </summary>
     [Parameter] public string? Placeholder { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (Parent is not null)
+        {
+            Parent.ItemsRegistered -= OnItemsRegistered;
+            Parent.ItemsRegistered += OnItemsRegistered;
+        }
+    }
+
+    private void OnItemsRegistered()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        if (Parent is not null)
+            Parent.ItemsRegistered -= OnItemsRegistered;
+    }
 
     private string? GetDisplayText()
     {

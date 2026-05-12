@@ -1,6 +1,13 @@
 @namespace LowlandTech.Components.Select
 @inherits LtComponentBase
 
+@* Items are always rendered (hidden) so SelectItem.OnParametersSet fires
+   on first load and registers value→text in the parent's lookup map.
+   The visible popover is only shown when the select is open. *@
+<div hidden style="display:none">
+    @ChildContent
+</div>
+
 @if (Parent?.IsOpen == true)
 {
     <div data-slot="select-content"

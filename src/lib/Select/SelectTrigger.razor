@@ -13,7 +13,7 @@
         @onclick:stopPropagation="true"
         @attributes="AdditionalAttributes">
     @ChildContent
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cn-select-trigger-icon pointer-events-none">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cn-select-trigger-icon pointer-events-none ml-2 opacity-0 transition-opacity group-hover:opacity-100">
         <path d="m6 9 6 6 6-6" />
     </svg>
 </button>
@@ -49,7 +49,7 @@
         // content-sized — fine for "shrink to label" but broken in the
         // canvas designer's row layouts where it needs to span the
         // value column.
-        var baseClass = "cn-select-trigger flex w-full items-center justify-between whitespace-nowrap outline-none *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center [&_svg]:pointer-events-none [&_svg]:shrink-0";
+        var baseClass = "cn-select-trigger group flex w-full items-center justify-between whitespace-nowrap outline-none *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center [&_svg]:pointer-events-none [&_svg]:shrink-0";
 
         // Disabled styles
         var disabledClass = " disabled:cursor-not-allowed disabled:opacity-50 disabled:pointer-events-none";

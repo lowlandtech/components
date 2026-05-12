@@ -78,8 +78,15 @@
     /// </summary>
     private readonly Dictionary<string, string> _itemText = new(StringComparer.Ordinal);
 
+    internal event Action? ItemsRegistered;
+
     internal void RegisterItemText(string value, string text)
-        => _itemText[value] = text;
+    {
+        if (_itemText.TryGetValue(value, out var existing) && existing == text)
+            return;
+        _itemText[value] = text;
+        ItemsRegistered?.Invoke();
+    }
 
     internal string? GetTextForValue(string? value)
         => value is not null && _itemText.TryGetValue(value, out var text) ? text : null;
