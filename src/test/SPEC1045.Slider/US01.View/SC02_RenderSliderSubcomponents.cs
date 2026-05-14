@@ -88,7 +88,7 @@ public class SC02_RenderSliderSubcomponents : ViewScenario
             });
         });
         var range = cut.Find("[data-slot='slider-range']");
-        range.GetAttribute("style").ShouldContain("width: 50%");
+        range.GetAttribute("style")!.ShouldContain("width: 50%");
     }
 
     [Fact(DisplayName = "UAC07: SliderRange renders with height style for vertical orientation")]
@@ -105,7 +105,7 @@ public class SC02_RenderSliderSubcomponents : ViewScenario
             });
         });
         var range = cut.Find("[data-slot='slider-range']");
-        range.GetAttribute("style").ShouldContain("height: 75%");
+        range.GetAttribute("style")!.ShouldContain("height: 75%");
     }
 
     [Fact(DisplayName = "UAC08: SliderThumb renders data-slot attribute")]

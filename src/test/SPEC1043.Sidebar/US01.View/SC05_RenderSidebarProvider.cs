@@ -25,7 +25,7 @@ public class SC05_RenderSidebarProvider : ViewScenario
         var cut = Ctx.Render<SidebarProvider>(p => p
             .Add(x => x.Width, "20rem")
             .Add(x => x.MobileWidth, "22rem"));
-        var style = cut.Find("[data-slot='sidebar-provider']").GetAttribute("style");
+        var style = cut.Find("[data-slot='sidebar-provider']").GetAttribute("style")!;
         style.ShouldContain("--sidebar-width: 20rem");
         style.ShouldContain("--sidebar-width-mobile: 22rem");
     }

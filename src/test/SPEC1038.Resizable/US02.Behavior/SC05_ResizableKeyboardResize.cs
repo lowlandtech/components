@@ -23,7 +23,7 @@ public class SC05_ResizableKeyboardResize : ViewScenario
         handle.KeyDown(new KeyboardEventArgs { Key = "ArrowRight" });
 
         var panels = cut.FindAll("[data-slot='resizable-panel']");
-        panels[0].GetAttribute("style").ShouldContain("55%");
-        panels[1].GetAttribute("style").ShouldContain("45%");
+        panels[0].GetAttribute("style")!.ShouldContain("55%");
+        panels[1].GetAttribute("style")!.ShouldContain("45%");
     }
 }

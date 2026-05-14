@@ -81,6 +81,6 @@ public class SC01_RenderSonner : ViewScenario
     public void UAC07_CssVariablesPresent()
     {
         var cut = Ctx.Render<SonnerSut>();
-        cut.Find("[data-slot='sonner-toaster']").GetAttribute("style").ShouldContain("--normal-bg");
+        cut.Find("[data-slot='sonner-toaster']").GetAttribute("style")!.ShouldContain("--normal-bg");
     }
 }

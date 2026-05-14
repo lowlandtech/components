@@ -29,7 +29,7 @@ public class SC02_RenderGridItem : ViewScenario
     public void UAC03_SetsXsVariable()
     {
         var cut = Ctx.Render<GridItem>(p => p.Add(x => x.xs, 8));
-        cut.Find("[data-slot='grid-item']").GetAttribute("style").ShouldContain("--lt-xs:8");
+        cut.Find("[data-slot='grid-item']").GetAttribute("style")!.ShouldContain("--lt-xs:8");
     }
 
     [Fact(DisplayName = "UAC04: GridItem md=4 sets --lt-md CSS variable")]
@@ -49,7 +49,7 @@ public class SC02_RenderGridItem : ViewScenario
     public void UAC05_ZeroSmNotSet()
     {
         var cut = Ctx.Render<GridItem>(p => p.Add(x => x.xs, 12));
-        cut.Find("[data-slot='grid-item']").GetAttribute("style").ShouldNotContain("--lt-sm");
+        cut.Find("[data-slot='grid-item']").GetAttribute("style")!.ShouldNotContain("--lt-sm");
     }
 
     [Fact(DisplayName = "UAC06: GridItem sets all explicit breakpoints")]
@@ -91,6 +91,6 @@ public class SC02_RenderGridItem : ViewScenario
     public void UAC09_DefaultXsIs12()
     {
         var cut = Ctx.Render<GridItem>();
-        cut.Find("[data-slot='grid-item']").GetAttribute("style").ShouldContain("--lt-xs:12");
+        cut.Find("[data-slot='grid-item']").GetAttribute("style")!.ShouldContain("--lt-xs:12");
     }
 }

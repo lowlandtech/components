@@ -45,6 +45,6 @@ public class SC01_RenderAspectRatio : ViewScenario
 
         element.ClassList.ShouldContain("relative");
         element.ClassList.ShouldContain("aspect-(--ratio)");
-        element.GetAttribute("style").ShouldContain("--ratio: 4 / 3");
+        element.GetAttribute("style")!.ShouldContain("--ratio: 4 / 3");
     }
 }

@@ -30,7 +30,7 @@ public class SC01_ContainerGridSectionStructuralContract : JsViewScenario
             .Add(x => x.Column, 3)
             .Add(x => x.ColSpan, 4));
 
-        var style = cut.Find("[data-slot='container-grid-section']").GetAttribute("style");
+        var style = cut.Find("[data-slot='container-grid-section']").GetAttribute("style")!;
         style.ShouldContain("grid-column:3 / span 4");
     }
 
@@ -43,7 +43,7 @@ public class SC01_ContainerGridSectionStructuralContract : JsViewScenario
             .Add(x => x.Row, 2)
             .Add(x => x.RowSpan, 2));
 
-        var style = cut.Find("[data-slot='container-grid-section']").GetAttribute("style");
+        var style = cut.Find("[data-slot='container-grid-section']").GetAttribute("style")!;
         style.ShouldContain("grid-row:2 / span 2");
     }
 

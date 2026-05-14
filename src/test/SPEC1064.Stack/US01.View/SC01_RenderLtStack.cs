@@ -39,7 +39,7 @@ public class SC01_RenderBlock : ViewScenario
     public void UAC04_RowIsFlexRow()
     {
         var cut = Ctx.Render<Block>(p => p.Add(x => x.Row, true));
-        cut.Find("[data-slot='stack']").GetAttribute("style").ShouldContain("flex-direction:row");
+        cut.Find("[data-slot='stack']").GetAttribute("style")!.ShouldContain("flex-direction:row");
     }
 
     [Fact(DisplayName = "UAC05: Block Row=true Reverse=true renders row-reverse")]
@@ -49,7 +49,7 @@ public class SC01_RenderBlock : ViewScenario
         var cut = Ctx.Render<Block>(p =>
             p.Add(x => x.Row, true)
              .Add(x => x.Reverse, true));
-        cut.Find("[data-slot='stack']").GetAttribute("style").ShouldContain("flex-direction:row-reverse");
+        cut.Find("[data-slot='stack']").GetAttribute("style")!.ShouldContain("flex-direction:row-reverse");
     }
 
     [Fact(DisplayName = "UAC06: Block Reverse=true (column) renders column-reverse")]
@@ -57,7 +57,7 @@ public class SC01_RenderBlock : ViewScenario
     public void UAC06_ColumnReverseIsColumnReverse()
     {
         var cut = Ctx.Render<Block>(p => p.Add(x => x.Reverse, true));
-        cut.Find("[data-slot='stack']").GetAttribute("style").ShouldContain("flex-direction:column-reverse");
+        cut.Find("[data-slot='stack']").GetAttribute("style")!.ShouldContain("flex-direction:column-reverse");
     }
 
     [Fact(DisplayName = "UAC07: Block Spacing=3 applies 12px gap")]
@@ -65,7 +65,7 @@ public class SC01_RenderBlock : ViewScenario
     public void UAC07_SpacingAppliesGap()
     {
         var cut = Ctx.Render<Block>(p => p.Add(x => x.Spacing, 3));
-        cut.Find("[data-slot='stack']").GetAttribute("style").ShouldContain("gap:12px");
+        cut.Find("[data-slot='stack']").GetAttribute("style")!.ShouldContain("gap:12px");
     }
 
     [Fact(DisplayName = "UAC08: Block Spacing=0 emits no gap style")]
@@ -73,7 +73,7 @@ public class SC01_RenderBlock : ViewScenario
     public void UAC08_ZeroSpacingNoGap()
     {
         var cut = Ctx.Render<Block>(p => p.Add(x => x.Spacing, 0));
-        cut.Find("[data-slot='stack']").GetAttribute("style").ShouldNotContain("gap");
+        cut.Find("[data-slot='stack']").GetAttribute("style")!.ShouldNotContain("gap");
     }
 
     [Fact(DisplayName = "UAC09: Block Justify.Center applies justify-content:center")]
@@ -81,7 +81,7 @@ public class SC01_RenderBlock : ViewScenario
     public void UAC09_JustifyCenter()
     {
         var cut = Ctx.Render<Block>(p => p.Add(x => x.Justify, (Justify?)Justify.Center));
-        cut.Find("[data-slot='stack']").GetAttribute("style").ShouldContain("justify-content:center");
+        cut.Find("[data-slot='stack']").GetAttribute("style")!.ShouldContain("justify-content:center");
     }
 
     [Fact(DisplayName = "UAC10: Block Justify.SpaceBetween applies justify-content:space-between")]
@@ -89,7 +89,7 @@ public class SC01_RenderBlock : ViewScenario
     public void UAC10_JustifySpaceBetween()
     {
         var cut = Ctx.Render<Block>(p => p.Add(x => x.Justify, (Justify?)Justify.SpaceBetween));
-        cut.Find("[data-slot='stack']").GetAttribute("style").ShouldContain("justify-content:space-between");
+        cut.Find("[data-slot='stack']").GetAttribute("style")!.ShouldContain("justify-content:space-between");
     }
 
     [Fact(DisplayName = "UAC11: Block AlignItems.Center applies align-items:center")]
@@ -97,7 +97,7 @@ public class SC01_RenderBlock : ViewScenario
     public void UAC11_AlignItemsCenter()
     {
         var cut = Ctx.Render<Block>(p => p.Add(x => x.AlignItems, (AlignItems?)AlignItems.Center));
-        cut.Find("[data-slot='stack']").GetAttribute("style").ShouldContain("align-items:center");
+        cut.Find("[data-slot='stack']").GetAttribute("style")!.ShouldContain("align-items:center");
     }
 
     [Fact(DisplayName = "UAC12: Block AlignItems.Baseline applies align-items:baseline")]
@@ -105,7 +105,7 @@ public class SC01_RenderBlock : ViewScenario
     public void UAC12_AlignItemsBaseline()
     {
         var cut = Ctx.Render<Block>(p => p.Add(x => x.AlignItems, (AlignItems?)AlignItems.Baseline));
-        cut.Find("[data-slot='stack']").GetAttribute("style").ShouldContain("align-items:baseline");
+        cut.Find("[data-slot='stack']").GetAttribute("style")!.ShouldContain("align-items:baseline");
     }
 
     [Fact(DisplayName = "UAC13: Block Wrap=true applies flex-wrap:wrap")]
@@ -113,7 +113,7 @@ public class SC01_RenderBlock : ViewScenario
     public void UAC13_WrapAppliesFlexWrap()
     {
         var cut = Ctx.Render<Block>(p => p.Add(x => x.Wrap, true));
-        cut.Find("[data-slot='stack']").GetAttribute("style").ShouldContain("flex-wrap:wrap");
+        cut.Find("[data-slot='stack']").GetAttribute("style")!.ShouldContain("flex-wrap:wrap");
     }
 
     [Fact(DisplayName = "UAC14: Block without Wrap emits no flex-wrap")]
@@ -121,7 +121,7 @@ public class SC01_RenderBlock : ViewScenario
     public void UAC14_NoWrapByDefault()
     {
         var cut = Ctx.Render<Block>();
-        cut.Find("[data-slot='stack']").GetAttribute("style").ShouldNotContain("flex-wrap");
+        cut.Find("[data-slot='stack']").GetAttribute("style")!.ShouldNotContain("flex-wrap");
     }
 
     [Fact(DisplayName = "UAC15: Block applies additional CSS class")]

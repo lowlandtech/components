@@ -110,6 +110,6 @@ public class SC01_PopoverModal : ViewScenario
         // When rendered with Modal=true, content should have fixed and z-50 classes
         var content = cut.Find("[data-slot='popover-content']");
         content.ShouldNotBeNull();
-        content.ClassName.ShouldContain("fixed");
+        content.ClassName!.ShouldContain("fixed");
     }
 }

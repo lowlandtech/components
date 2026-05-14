@@ -31,7 +31,7 @@ public class SC01_RenderGrid : ViewScenario
     public void UAC03_AppliesGridStyle()
     {
         var cut = Ctx.Render<GridComponent>();
-        cut.Find("[data-slot='grid']").GetAttribute("style").ShouldContain("display:grid");
+        cut.Find("[data-slot='grid']").GetAttribute("style")!.ShouldContain("display:grid");
     }
 
     [Fact(DisplayName = "UAC04: Grid applies 12-column template via inline style")]
@@ -39,7 +39,7 @@ public class SC01_RenderGrid : ViewScenario
     public void UAC04_Applies12Columns()
     {
         var cut = Ctx.Render<GridComponent>();
-        cut.Find("[data-slot='grid']").GetAttribute("style").ShouldContain("grid-template-columns:repeat(12,1fr)");
+        cut.Find("[data-slot='grid']").GetAttribute("style")!.ShouldContain("grid-template-columns:repeat(12,1fr)");
     }
 
     [Fact(DisplayName = "UAC05: Grid with Spacing applies gap style")]
@@ -47,7 +47,7 @@ public class SC01_RenderGrid : ViewScenario
     public void UAC05_AppliesSpacingGap()
     {
         var cut = Ctx.Render<GridComponent>(p => p.Add(x => x.Spacing, 4));
-        cut.Find("[data-slot='grid']").GetAttribute("style").ShouldContain("gap:16px");
+        cut.Find("[data-slot='grid']").GetAttribute("style")!.ShouldContain("gap:16px");
     }
 
     [Fact(DisplayName = "UAC06: Grid with Spacing=0 emits no gap style")]
@@ -55,7 +55,7 @@ public class SC01_RenderGrid : ViewScenario
     public void UAC06_ZeroSpacingNoGap()
     {
         var cut = Ctx.Render<GridComponent>(p => p.Add(x => x.Spacing, 0));
-        cut.Find("[data-slot='grid']").GetAttribute("style").ShouldNotContain("gap");
+        cut.Find("[data-slot='grid']").GetAttribute("style")!.ShouldNotContain("gap");
     }
 
     [Fact(DisplayName = "UAC07: Grid applies Justify.Center")]
@@ -63,7 +63,7 @@ public class SC01_RenderGrid : ViewScenario
     public void UAC07_AppliesJustifyCenter()
     {
         var cut = Ctx.Render<GridComponent>(p => p.Add(x => x.Justify, Justify.Center));
-        cut.Find("[data-slot='grid']").GetAttribute("style").ShouldContain("justify-content:center");
+        cut.Find("[data-slot='grid']").GetAttribute("style")!.ShouldContain("justify-content:center");
     }
 
     [Fact(DisplayName = "UAC08: Grid applies Justify.SpaceBetween")]
@@ -71,7 +71,7 @@ public class SC01_RenderGrid : ViewScenario
     public void UAC08_AppliesJustifySpaceBetween()
     {
         var cut = Ctx.Render<GridComponent>(p => p.Add(x => x.Justify, Justify.SpaceBetween));
-        cut.Find("[data-slot='grid']").GetAttribute("style").ShouldContain("justify-content:space-between");
+        cut.Find("[data-slot='grid']").GetAttribute("style")!.ShouldContain("justify-content:space-between");
     }
 
     [Fact(DisplayName = "UAC09: Grid applies additional CSS class")]
