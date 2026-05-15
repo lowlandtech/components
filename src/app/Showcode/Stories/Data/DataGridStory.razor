@@ -12,7 +12,7 @@
         new(
             "orders",
             "Orders",
-            @<div class="w-full space-y-3">
+            @<div class="w-full space-y-3 p-1">
                 <DataGrid TItem="OrderRow"
                           Items="@Orders"
                           AllowFiltering="true"
@@ -43,7 +43,7 @@
         new(
             "empty",
             "Empty",
-            @<DataGrid TItem="OrderRow" Items="Array.Empty<OrderRow>()">
+            @<div class="p-1"><DataGrid TItem="OrderRow" Items="Array.Empty<OrderRow>()">
                 <Columns>
                     <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
                     <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
@@ -52,14 +52,14 @@
                 <EmptyTemplate>
                     <span>No orders match this view.</span>
                 </EmptyTemplate>
-            </DataGrid>,
+            </DataGrid></div>,
             [
                 new StoryCard.CodeTab("empty-razor", "DataGridStory.razor", EmptyRazor)
             ]),
         new(
             "loading",
             "Loading",
-            @<DataGrid TItem="OrderRow" Items="@Orders" IsLoading="true">
+            @<div class="p-1"><DataGrid TItem="OrderRow" Items="@Orders" IsLoading="true">
                 <Columns>
                     <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
                     <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
@@ -68,7 +68,7 @@
                 <LoadingTemplate>
                     <span>Refreshing orders...</span>
                 </LoadingTemplate>
-            </DataGrid>,
+            </DataGrid></div>,
             [
                 new StoryCard.CodeTab("loading-razor", "DataGridStory.razor", LoadingRazor)
             ])
