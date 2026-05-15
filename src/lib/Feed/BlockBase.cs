@@ -23,6 +23,7 @@ public abstract class BlockBase : ComponentBase, IBlock, IDisposable
     [Inject] protected BlockContext? BlockContext { get; set; }
 
     private bool? _lastPublishedValid;
+    private Action<BlockMode>? _onBlockModeChanged;
 
     protected string BlockSpacing => SessionBlockSpacingOptions.Normalize(
         SessionSettings?.GetValueOrDefault(SessionBlockSpacingOptions.SettingKey));
@@ -56,6 +57,21 @@ public abstract class BlockBase : ComponentBase, IBlock, IDisposable
     /// value, so blocks that flip between valid/invalid as the user types
     /// notify subscribers exactly on transitions.
     /// </summary>
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        SubscribeToBlockMode();
+    }
+
+    private void SubscribeToBlockMode()
+    {
+        if (BlockContext is null || BlockId == Guid.Empty || _onBlockModeChanged is not null)
+            return;
+
+        _onBlockModeChanged = _ => { InvokeAsync(StateHasChanged); };
+        BlockContext.Subscribe(BlockId, _onBlockModeChanged);
+    }
+
     protected override void OnAfterRender(bool firstRender)
     {
         base.OnAfterRender(firstRender);
@@ -83,19 +99,21 @@ public abstract class BlockBase : ComponentBase, IBlock, IDisposable
         ? "rounded-none"
         : SessionBlockSpacingOptions.IsEnabled(BlockSpacing) ? "rounded-lg" : "rounded-none";
 
-    private bool IsBlockModeExpanded()
+    protected BlockMode GetCascadedBlockMode()
     {
-        if (ParentBlockMode is BlockMode.Expanded or BlockMode.ContentOverlaid or BlockMode.AppOverlaid)
-            return true;
+        if (ParentBlockMode is { } cascaded)
+            return cascaded;
 
         if (BlockContext is not null && BlockId != Guid.Empty)
-        {
-            var mode = BlockContext.GetMode(BlockId);
-            if (mode is BlockMode.Expanded or BlockMode.ContentOverlaid or BlockMode.AppOverlaid)
-                return true;
-        }
+            return BlockContext.GetMode(BlockId);
 
-        return false;
+        return BlockMode.Normal;
+    }
+
+    protected bool IsBlockModeExpanded()
+    {
+        var mode = GetCascadedBlockMode();
+        return mode is BlockMode.Expanded or BlockMode.ContentOverlaid or BlockMode.AppOverlaid;
     }
 
     /// <summary>
@@ -140,6 +158,9 @@ public abstract class BlockBase : ComponentBase, IBlock, IDisposable
 
     public virtual void Dispose()
     {
+        if (BlockContext is not null && BlockId != Guid.Empty && _onBlockModeChanged is not null)
+            BlockContext.Unsubscribe(BlockId, _onBlockModeChanged);
+
         if (BlockContext is null || BlockId == Guid.Empty)
             return;
 
