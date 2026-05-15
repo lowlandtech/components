@@ -455,4 +455,84 @@
   .cn-tabs-list[data-variant="line"] .cn-tabs-trigger[data-state="active"] {
     @apply text-foreground;
   }
+
+  /* ============================================
+     Showcode StoryCard documentation surface
+     ============================================ */
+
+  .story-card-pill-tabs {
+    @apply inline-flex h-9 items-center gap-1 rounded-full border border-border bg-muted p-1;
+  }
+
+  .story-card-pill-tab {
+    @apply h-7 rounded-full px-3 text-sm font-medium text-muted-foreground transition-colors;
+  }
+
+  .story-card-pill-tab[data-state="active"] {
+    @apply bg-background text-foreground shadow-sm;
+  }
+
+  .story-card-code-tabs {
+    @apply inline-flex h-8 items-center gap-1 rounded-full bg-zinc-950 p-1;
+  }
+
+  .story-card-code-tab {
+    @apply h-6 gap-1.5 rounded-full px-2.5 font-mono text-xs text-zinc-400 transition-colors;
+  }
+
+  .story-card-code-tab[data-state="active"] {
+    @apply bg-zinc-800 text-zinc-50 shadow-none;
+  }
+
+  .story-card-file-dot {
+    @apply size-1.5 rounded-full bg-zinc-500;
+  }
+
+  .story-card-file-dot[data-language="razor"] {
+    @apply bg-primary;
+  }
+
+  .story-card-file-dot[data-language="csharp"] {
+    @apply bg-green-500;
+  }
+
+  .story-card-code-editor {
+    @apply max-h-96 overflow-auto bg-zinc-950 py-3 font-mono text-sm leading-6 text-zinc-100;
+  }
+
+  .story-card-code-line {
+    @apply grid min-w-max grid-cols-[3.5rem_1fr] px-4;
+  }
+
+  .story-card-code-line:hover {
+    @apply bg-zinc-900/70;
+  }
+
+  .story-card-line-number {
+    @apply select-none pr-4 text-right text-zinc-600;
+  }
+
+  .story-card-line-code {
+    @apply whitespace-pre pr-6;
+  }
+
+  .story-card-token-punctuation {
+    @apply text-zinc-500;
+  }
+
+  .story-card-token-tag {
+    @apply text-sky-300;
+  }
+
+  .story-card-token-string {
+    @apply text-amber-300;
+  }
+
+  .story-card-token-keyword {
+    @apply text-violet-300;
+  }
+
+  .story-card-token-type {
+    @apply text-teal-300;
+  }
 }

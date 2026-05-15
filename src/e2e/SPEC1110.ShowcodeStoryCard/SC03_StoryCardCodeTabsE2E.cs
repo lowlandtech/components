@@ -8,10 +8,11 @@ namespace LowlandTech.Components.E2E.SPEC1110.ShowcodeStoryCard;
 [Trait(Spec.SC, "01")]
 public sealed class SC03_StoryCardCodeTabsE2E(ShowcodeCollection collection) : ShowcodeScenario(collection)
 {
-    [Fact(DisplayName = "UAC01-03: Selecting provider code reveals provider source")]
+    [Fact(DisplayName = "UAC01-04: Selecting provider code reveals highlighted provider source")]
     [Trait(Spec.UAC, "01")]
     [Trait(Spec.UAC, "02")]
     [Trait(Spec.UAC, "03")]
+    [Trait(Spec.UAC, "04")]
     public async Task UAC01_SwitchesCodeTabsForSelectedState()
     {
         await Showcode.GoToStoryAsync("Popover");
@@ -32,8 +33,9 @@ public sealed class SC03_StoryCardCodeTabsE2E(ShowcodeCollection collection) : S
 
         (await providerTab.GetAttributeAsync("data-state")).ShouldBe("active");
 
-        var activeCode = card.Locator("[data-slot='tabs-content'][data-state='active'] pre code").First;
+        var activeCode = card.Locator("[data-slot='tabs-content'][data-state='active'] .story-card-code-editor").First;
         await Assertions.Expect(activeCode).ToContainTextAsync("<PopoverProvider />");
         await Assertions.Expect(activeCode).Not.ToContainTextAsync("<Input id=\"pop-w\"");
+        await Assertions.Expect(activeCode.Locator(".story-card-token-tag").First).ToHaveTextAsync("PopoverProvider");
     }
 }

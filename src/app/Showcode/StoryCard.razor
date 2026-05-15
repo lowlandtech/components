@@ -6,7 +6,7 @@
     <section data-slot="story-card" class="@GetClass()">
         @if (!string.IsNullOrWhiteSpace(Title) || !string.IsNullOrWhiteSpace(Description))
         {
-            <div class="space-y-1">
+            <div class="space-y-1 p-4 pb-2">
                 @if (!string.IsNullOrWhiteSpace(Title))
                 {
                     <h2 class="text-base font-semibold text-foreground">@Title</h2>
@@ -21,11 +21,11 @@
         <Tabs DefaultValue="@DefaultStateValue" class="w-full">
             @if (States.Count > 1)
             {
-                <div class="flex items-center border-b px-4 pt-3">
-                    <TabsList Variant="line" class="h-9 justify-start gap-3 bg-transparent p-0">
+                <div class="flex items-center px-4 pb-3">
+                    <TabsList class="story-card-pill-tabs">
                         @foreach (var state in States)
                         {
-                            <TabsTrigger Value="@state.Value" class="h-9 px-0 text-sm">
+                            <TabsTrigger Value="@state.Value" class="story-card-pill-tab">
                                 @state.Name
                             </TabsTrigger>
                         }
@@ -36,18 +36,19 @@
             @foreach (var state in States)
             {
                 <TabsContent Value="@state.Value" class="mt-0">
-                    <div class="relative flex min-h-72 items-center justify-center p-10">
+                    <div class="relative mx-4 flex min-h-72 items-center justify-center rounded-lg border border-border/70 bg-background p-10">
                         @state.Preview
                     </div>
 
                     @if (state.CodeTabs.Count > 0)
                     {
-                        <Tabs DefaultValue="@state.CodeTabs[0].Value" class="border-t bg-muted/20">
-                            <div class="flex min-h-11 items-center justify-between gap-3 border-b px-4">
-                                <TabsList Variant="line" class="h-11 justify-start gap-3 bg-transparent p-0">
+                        <Tabs DefaultValue="@state.CodeTabs[0].Value" class="mx-4 mb-4 mt-4 overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950 text-zinc-100 shadow-sm">
+                            <div class="flex min-h-12 items-center justify-between gap-3 border-b border-zinc-800 bg-zinc-900/80 px-3">
+                                <TabsList class="story-card-code-tabs">
                                     @foreach (var codeTab in state.CodeTabs)
                                     {
-                                        <TabsTrigger Value="@codeTab.Value" class="h-11 px-0 font-mono text-xs">
+                                        <TabsTrigger Value="@codeTab.Value" class="story-card-code-tab">
+                                            <span class="story-card-file-dot" data-language="@codeTab.Language"></span>
                                             @codeTab.Name
                                         </TabsTrigger>
                                     }
@@ -57,15 +58,27 @@
                             @foreach (var codeTab in state.CodeTabs)
                             {
                                 <TabsContent Value="@codeTab.Value" class="relative mt-0">
+                                    <div class="flex h-9 items-center gap-2 border-b border-zinc-800 bg-zinc-950 px-4 font-mono text-xs text-zinc-400">
+                                        <span>@codeTab.Name</span>
+                                        <span class="rounded bg-zinc-800 px-1.5 py-0.5 uppercase tracking-wider text-zinc-300">@codeTab.Language</span>
+                                    </div>
                                     <Button Variant="ghost"
                                             Size="icon-sm"
-                                            class="absolute right-3 top-3 z-10 bg-background/80 text-muted-foreground hover:text-foreground"
+                                            class="absolute right-3 top-2 z-10 bg-zinc-900/80 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
                                             title="@($"Copy {codeTab.Name} code")"
                                             @onclick="() => CopyCode(codeTab)">
                                         <Icon Name="@(CopiedValue == codeTab.Value ? "check" : "copy")" Size="14" />
                                         <span class="sr-only">Copy @codeTab.Name code</span>
                                     </Button>
-                                    <pre class="max-h-96 overflow-auto p-4 pr-12 text-sm leading-6 text-foreground"><code>@codeTab.Code</code></pre>
+                                    <div class="story-card-code-editor" data-language="@codeTab.Language">
+                                        @foreach (var line in GetHighlightedLines(codeTab))
+                                        {
+                                            <div class="story-card-code-line">
+                                                <span class="story-card-line-number">@line.Number</span>
+                                                <code class="story-card-line-code">@((MarkupString)line.Html)</code>
+                                            </div>
+                                        }
+                                    </div>
                                 </TabsContent>
                             }
                         </Tabs>
@@ -108,5 +121,96 @@
     public sealed record CodeTab(
         string Value,
         string Name,
-        string Code);
+        string Code,
+        string Language = "razor");
+
+    private static IReadOnlyList<CodeLine> GetHighlightedLines(CodeTab codeTab)
+    {
+        var normalized = codeTab.Code.Replace("\r\n", "\n").TrimEnd('\n');
+        return normalized.Split('\n')
+            .Select((line, index) => new CodeLine(index + 1, HighlightLine(line, codeTab.Language)))
+            .ToList();
+    }
+
+    private static string HighlightLine(string line, string language)
+    {
+        return language.Equals("csharp", StringComparison.OrdinalIgnoreCase)
+            ? HighlightCSharpLine(line)
+            : HighlightMarkupLine(line);
+    }
+
+    private static string HighlightMarkupLine(string line)
+    {
+        var encoded = Encode(line);
+        encoded = HighlightStrings(encoded);
+
+        foreach (var tag in new[] { "PopoverProvider", "PopoverTrigger", "PopoverContent", "Popover", "Button", "Icon", "Label", "Input", "div", "p" })
+        {
+            encoded = encoded.Replace($"&lt;{tag}", $"&lt;<span class=\"story-card-token-tag\">{tag}</span>", StringComparison.Ordinal);
+            encoded = encoded.Replace($"&lt;/{tag}", $"&lt;/<span class=\"story-card-token-tag\">{tag}</span>", StringComparison.Ordinal);
+        }
+
+        encoded = HighlightMarkupToken(encoded, "&lt;/", "story-card-token-punctuation");
+        encoded = HighlightMarkupToken(encoded, "&lt;", "story-card-token-punctuation");
+        encoded = HighlightMarkupToken(encoded, "/&gt;", "story-card-token-punctuation");
+        encoded = HighlightMarkupToken(encoded, "&gt;", "story-card-token-punctuation");
+
+        return encoded;
+    }
+
+    private static string HighlightCSharpLine(string line)
+    {
+        var encoded = HighlightStrings(Encode(line));
+        foreach (var keyword in new[] { "public", "interface", "event", "void" })
+        {
+            encoded = encoded.Replace(keyword, $"<span class=\"story-card-token-keyword\">{keyword}</span>", StringComparison.Ordinal);
+        }
+
+        foreach (var type in new[] { "IReadOnlyCollection", "PopoverReference", "PopoverState", "Action", "IPopoverService" })
+        {
+            encoded = encoded.Replace(type, $"<span class=\"story-card-token-type\">{type}</span>", StringComparison.Ordinal);
+        }
+
+        return encoded;
+    }
+
+    private static string HighlightStrings(string encoded)
+    {
+        var parts = encoded.Split('"');
+        if (parts.Length < 3)
+        {
+            return encoded;
+        }
+
+        var result = new List<string>();
+        for (var i = 0; i < parts.Length; i++)
+        {
+            if (i % 2 == 1)
+            {
+                result.Add($"<span class=\"story-card-token-string\">&quot;{parts[i]}&quot;</span>");
+            }
+            else
+            {
+                result.Add(parts[i]);
+            }
+        }
+
+        return string.Join(string.Empty, result);
+    }
+
+    private static string HighlightMarkupToken(string encoded, string token, string cssClass)
+    {
+        return encoded.Replace(token, $"<span class=\"{cssClass}\">{token}</span>", StringComparison.Ordinal);
+    }
+
+    private static string Encode(string value)
+    {
+        return value
+            .Replace("&", "&amp;", StringComparison.Ordinal)
+            .Replace("<", "&lt;", StringComparison.Ordinal)
+            .Replace(">", "&gt;", StringComparison.Ordinal)
+            .Replace("\"", "&quot;", StringComparison.Ordinal);
+    }
+
+    private sealed record CodeLine(int Number, string Html);
 }

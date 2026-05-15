@@ -8,11 +8,13 @@ namespace LowlandTech.Components.E2E.SPEC1110.ShowcodeStoryCard;
 [Trait(Spec.SC, "01")]
 public sealed class SC01_StoryCardRenderingE2E(ShowcodeCollection collection) : ShowcodeScenario(collection)
 {
-    [Fact(DisplayName = "UAC01-04: StoryCard renders chrome, active preview, and code")]
+    [Fact(DisplayName = "UAC01-06: StoryCard renders chrome, active preview, and editor code")]
     [Trait(Spec.UAC, "01")]
     [Trait(Spec.UAC, "02")]
     [Trait(Spec.UAC, "03")]
     [Trait(Spec.UAC, "04")]
+    [Trait(Spec.UAC, "05")]
+    [Trait(Spec.UAC, "06")]
     public async Task UAC01_RendersStoryCardChromePreviewAndCode()
     {
         await Showcode.GoToStoryAsync("Popover");
@@ -20,7 +22,7 @@ public sealed class SC01_StoryCardRenderingE2E(ShowcodeCollection collection) : 
         var card = Showcode.Page.Locator("main [data-slot='story-card']").First;
         await Assertions.Expect(card).ToBeVisibleAsync();
 
-        await Assertions.Expect(card.GetByText("Popover", new LocatorGetByTextOptions { Exact = true })).ToBeVisibleAsync();
+        await Assertions.Expect(card.Locator("h2").Filter(new LocatorFilterOptions { HasText = "Popover" }).First).ToBeVisibleAsync();
 
         var trigger = card.Locator("[data-slot='popover-trigger']").First;
         await Assertions.Expect(trigger).ToBeVisibleAsync();
@@ -31,6 +33,9 @@ public sealed class SC01_StoryCardRenderingE2E(ShowcodeCollection collection) : 
         }).First;
         await Assertions.Expect(codeTab).ToBeVisibleAsync();
 
-        await Assertions.Expect(card.Locator("pre code").First).ToContainTextAsync("<Popover>");
+        var editor = card.Locator(".story-card-code-editor").First;
+        await Assertions.Expect(editor).ToContainTextAsync("<Popover>");
+        (await editor.GetAttributeAsync("data-language")).ShouldBe("razor");
+        await Assertions.Expect(card.Locator(".story-card-line-number").First).ToHaveTextAsync("1");
     }
 }
