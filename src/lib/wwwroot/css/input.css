@@ -99,8 +99,66 @@
   content: var(--blazor-load-percentage-text, "Loading");
 }
 
-/* ToggleGroup Component Styles */
+/* Toggle Component Styles */
 @layer components {
+  .cn-toggle {
+    @apply rounded-md text-sm font-medium cursor-pointer
+           ring-offset-background transition-colors
+           border border-transparent bg-transparent
+           hover:bg-muted hover:text-muted-foreground
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
+           disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .cn-toggle[aria-pressed="true"] {
+    @apply bg-accent text-accent-foreground;
+  }
+
+  .cn-toggle[data-size="sm"] {
+    @apply h-8 px-2 text-xs gap-1;
+  }
+
+  .cn-toggle[data-size="default"] {
+    @apply h-9 px-3 gap-2;
+  }
+
+  .cn-toggle[data-size="lg"] {
+    @apply h-10 px-4 text-base gap-2;
+  }
+
+  .cn-toggle[data-variant="default"] {
+    @apply bg-transparent;
+  }
+
+  .cn-toggle[data-variant="default"][aria-pressed="true"] {
+    @apply bg-accent text-accent-foreground;
+  }
+
+  .cn-toggle[data-variant="outline"] {
+    @apply border-border bg-transparent shadow-sm;
+  }
+
+  .cn-toggle[data-variant="outline"][aria-pressed="true"] {
+    @apply bg-background text-foreground border-foreground/20;
+  }
+
+  .cn-toggle svg {
+    @apply pointer-events-none shrink-0;
+  }
+
+  .cn-toggle[data-size="sm"] svg {
+    @apply h-3.5 w-3.5;
+  }
+
+  .cn-toggle[data-size="default"] svg {
+    @apply h-4 w-4;
+  }
+
+  .cn-toggle[data-size="lg"] svg {
+    @apply h-5 w-5;
+  }
+
+  /* ToggleGroup Component Styles */
   /* Button Component Styles */
   .btn {
     @apply inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50;
