@@ -1,22 +1,67 @@
 @attribute [DisplayName("Feedback/Alert")]
 @inherits StoryComponent
 
-<div class="space-y-4 max-w-lg">
-    <h2 class="text-base font-semibold">Variants</h2>
+<StoryCard Title="Alert"
+           Description="Alert states demonstrate default, destructive, and icon-supported feedback patterns."
+           States="@States" />
 
-    <Alert>
-        <AlertTitle>Default</AlertTitle>
-        <AlertDescription>This is a default alert with general information.</AlertDescription>
-    </Alert>
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "default",
+            "Default",
+            @<Alert class="max-w-lg">
+                <AlertTitle>Default</AlertTitle>
+                <AlertDescription>This is a default alert with general information.</AlertDescription>
+            </Alert>,
+            [
+                new StoryCard.CodeTab("default-razor", "AlertStory.razor", DefaultRazor)
+            ]),
+        new(
+            "destructive",
+            "Destructive",
+            @<Alert Variant="destructive" class="max-w-lg">
+                <AlertTitle>Destructive</AlertTitle>
+                <AlertDescription>Your session has expired. Please log in again to continue.</AlertDescription>
+            </Alert>,
+            [
+                new StoryCard.CodeTab("destructive-razor", "AlertStory.razor", DestructiveRazor)
+            ]),
+        new(
+            "with-icon",
+            "With icon",
+            @<Alert class="max-w-lg">
+                <Icon Name="circle-alert" Size="16" data-slot="alert-icon" />
+                <AlertTitle>Heads up!</AlertTitle>
+                <AlertDescription>You can add components and dependencies to your app using the CLI.</AlertDescription>
+            </Alert>,
+            [
+                new StoryCard.CodeTab("icon-razor", "AlertStory.razor", IconRazor)
+            ])
+    ];
 
-    <Alert Variant="destructive">
-        <AlertTitle>Destructive</AlertTitle>
-        <AlertDescription>Your session has expired. Please log in again to continue.</AlertDescription>
-    </Alert>
+    private const string DefaultRazor =
+        """
+        <Alert>
+            <AlertTitle>Default</AlertTitle>
+            <AlertDescription>This is a default alert with general information.</AlertDescription>
+        </Alert>
+        """;
 
-    <Alert>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-slot="alert-icon"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
-        <AlertTitle>Heads up!</AlertTitle>
-        <AlertDescription>You can add components and dependencies to your app using the CLI.</AlertDescription>
-    </Alert>
-</div>
+    private const string DestructiveRazor =
+        """
+        <Alert Variant="destructive">
+            <AlertTitle>Destructive</AlertTitle>
+            <AlertDescription>Your session has expired. Please log in again to continue.</AlertDescription>
+        </Alert>
+        """;
+
+    private const string IconRazor =
+        """
+        <Alert>
+            <Icon Name="circle-alert" Size="16" data-slot="alert-icon" />
+            <AlertTitle>Heads up!</AlertTitle>
+            <AlertDescription>You can add components and dependencies to your app using the CLI.</AlertDescription>
+        </Alert>
+        """;
+}

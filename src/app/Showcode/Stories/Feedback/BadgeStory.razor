@@ -1,19 +1,67 @@
 @attribute [DisplayName("Feedback/Badge")]
 @inherits StoryComponent
 
-<div class="space-y-8">
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Variants</h2>
+<StoryCard Title="Badge"
+           Description="Badge states demonstrate semantic variants, status labels, and compact icon composition."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "variants",
+            "Variants",
+            @<div class="flex flex-wrap items-center justify-center gap-3">
+                <Badge Variant="default">Default</Badge>
+                <Badge Variant="secondary">Secondary</Badge>
+                <Badge Variant="destructive">Destructive</Badge>
+                <Badge Variant="outline">Outline</Badge>
+            </div>,
+            [
+                new StoryCard.CodeTab("variants-razor", "BadgeStory.razor", VariantsRazor)
+            ]),
+        new(
+            "status",
+            "In context",
+            @<div class="flex flex-wrap items-center justify-center gap-3">
+                <span class="text-sm font-medium">Status:</span>
+                <Badge Variant="default">Active</Badge>
+                <Badge Variant="secondary">Pending</Badge>
+                <Badge Variant="destructive">Rejected</Badge>
+                <Badge Variant="outline">Draft</Badge>
+            </div>,
+            [
+                new StoryCard.CodeTab("status-razor", "BadgeStory.razor", StatusRazor)
+            ]),
+        new(
+            "with-icon",
+            "With icon",
+            @<div class="flex flex-wrap items-center justify-center gap-3">
+                <Badge>
+                    <Icon Name="check" Size="12" />
+                    Verified
+                </Badge>
+                <Badge Variant="secondary">
+                    <Icon Name="circle-alert" Size="12" />
+                    New
+                </Badge>
+            </div>,
+            [
+                new StoryCard.CodeTab("icon-razor", "BadgeStory.razor", IconRazor)
+            ])
+    ];
+
+    private const string VariantsRazor =
+        """
         <div class="flex flex-wrap gap-3">
             <Badge Variant="default">Default</Badge>
             <Badge Variant="secondary">Secondary</Badge>
             <Badge Variant="destructive">Destructive</Badge>
             <Badge Variant="outline">Outline</Badge>
         </div>
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">In context</h2>
+    private const string StatusRazor =
+        """
         <div class="flex flex-wrap items-center gap-3">
             <span class="text-sm font-medium">Status:</span>
             <Badge Variant="default">Active</Badge>
@@ -21,19 +69,19 @@
             <Badge Variant="destructive">Rejected</Badge>
             <Badge Variant="outline">Draft</Badge>
         </div>
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">With icon</h2>
+    private const string IconRazor =
+        """
         <div class="flex flex-wrap gap-3">
             <Badge>
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="M20 6 9 17l-5-5"/></svg>
+                <Icon Name="check" Size="12" />
                 Verified
             </Badge>
             <Badge Variant="secondary">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+                <Icon Name="circle-alert" Size="12" />
                 New
             </Badge>
         </div>
-    </section>
-</div>
+        """;
+}
