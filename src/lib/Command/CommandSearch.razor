@@ -142,7 +142,7 @@
 @code {
     private bool _isOpen;
     private string _searchQuery = "";
-    private bool _isLoading;
+    private bool _isLoading = false;
 
     [Parameter] public string Placeholder { get; set; } = "Search pages, settings, and actions...";
     [Parameter] public int MaxResults { get; set; } = 5;

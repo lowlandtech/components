@@ -23,7 +23,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (firstRender && !_jsInitialized)
         {
             _module = await JS.InvokeAsync<IJSObjectReference>(
                 "import", "./_content/LowlandTech.Components/js/responsiveDialog.js");

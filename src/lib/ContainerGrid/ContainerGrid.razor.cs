@@ -154,7 +154,9 @@ public partial class ContainerGrid : IAsyncDisposable
         {
             int r = s.Row;
             while (r > 1 && CanPlace(s, r - 1, s.Column, s.RowSpan, s.ColSpan)) r--;
+#pragma warning disable BL0005
             s.Row = r;
+#pragma warning restore BL0005
         }
     }
 

@@ -34,6 +34,7 @@ public partial class ContainerGridSection : IAsyncDisposable
     [CascadingParameter] public ContainerGrid Grid { get; set; } = default!;
 
     /// <summary>One-based column start position. Default is 1.</summary>
+#pragma warning disable BL0007
     [Parameter]
     public int Column
     {
@@ -64,6 +65,7 @@ public partial class ContainerGridSection : IAsyncDisposable
         get => _committedLayout?.RowSpan ?? _rowSpan;
         set => SetParam(ref _rowSpan, value, v => RowSpanChanged.InvokeAsync(v));
     }
+#pragma warning restore BL0007
 
     [Parameter] public EventCallback<int> ColumnChanged { get; set; }
     [Parameter] public EventCallback<int> ColSpanChanged { get; set; }

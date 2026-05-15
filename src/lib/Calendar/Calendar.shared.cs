@@ -96,12 +96,14 @@ public partial class Calendar
     /// <summary>
     /// The selected dates in multiple mode.
     /// </summary>
+#pragma warning disable BL0007
     [Parameter]
     public List<DateTime> SelectedDates
     {
         get => _selectedDates;
         set => _selectedDates = value ?? new List<DateTime>();
     }
+#pragma warning restore BL0007
 
     /// <summary>
     /// Event callback when selected dates change in multiple mode.
@@ -302,7 +304,7 @@ public partial class Calendar
         else
         {
             // Complete range
-            if (date < _rangeStart.Value)
+            if (date < _rangeStart!.Value)
             {
                 SelectedRange = new DateRange { Start = date, End = _rangeStart.Value };
             }
