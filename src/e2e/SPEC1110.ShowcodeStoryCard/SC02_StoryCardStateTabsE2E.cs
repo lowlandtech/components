@@ -31,13 +31,16 @@ public sealed class SC02_StoryCardStateTabsE2E(ShowcodeCollection collection) : 
             HasText = "Open outlined popover"
         }).First;
         await Assertions.Expect(outlineButton).ToBeVisibleAsync();
+        var triggerBoxBeforeOpen = await outlineButton.BoundingBoxAsync();
         await outlineButton.ClickAsync();
+        var triggerBoxAfterOpen = await outlineButton.BoundingBoxAsync();
 
         var popoverContent = card.Locator("[data-slot='popover-content']").First;
         await Assertions.Expect(popoverContent).ToBeVisibleAsync();
         (await popoverContent.GetAttributeAsync("data-variant")).ShouldBe("outline");
         await ExpectVisibleBorderAsync(outlineButton);
         await ExpectVisibleBorderAsync(popoverContent);
+        AssertSamePosition(triggerBoxBeforeOpen, triggerBoxAfterOpen);
 
         var stateTab = card.Locator("[data-slot='tabs-trigger']").Filter(new LocatorFilterOptions
         {
@@ -63,5 +66,14 @@ public sealed class SC02_StoryCardStateTabsE2E(ShowcodeCollection collection) : 
 
         borderWidth.ShouldNotBe("0px");
         borderStyle.ShouldNotBe("none");
+    }
+
+    private static void AssertSamePosition(LocatorBoundingBoxResult? before, LocatorBoundingBoxResult? after)
+    {
+        before.ShouldNotBeNull();
+        after.ShouldNotBeNull();
+
+        Math.Abs(after.X - before.X).ShouldBeLessThan(1);
+        Math.Abs(after.Y - before.Y).ShouldBeLessThan(1);
     }
 }

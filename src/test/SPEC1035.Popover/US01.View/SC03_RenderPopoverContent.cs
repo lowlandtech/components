@@ -68,4 +68,25 @@ public class SC03_RenderPopoverContent : ViewScenario
         content.GetAttribute("data-variant").ShouldBe("outline");
         content.ClassList.ShouldContain("cn-popover-content-outline");
     }
+
+    [Fact(DisplayName = "UAC06: PopoverContent is positioned without changing trigger layout")]
+    [Trait(Spec.UAC, "06")]
+    public void UAC06_PositionsContentOutOfFlow()
+    {
+        var cut = Ctx.Render<PopoverSut>(p =>
+        {
+            p.Add(x => x.IsOpen, true);
+            p.AddChildContent<PopoverContent>(content =>
+            {
+                content.AddChildContent("Content");
+            });
+        });
+
+        var content = cut.Find("[data-slot='popover-content']");
+        var style = content.GetAttribute("style");
+
+        style.ShouldNotBeNull();
+        style!.ShouldContain("position:absolute");
+        style.ShouldContain("top:calc(100% + 0.5rem)");
+    }
 }
