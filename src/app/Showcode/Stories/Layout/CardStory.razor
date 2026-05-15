@@ -1,10 +1,70 @@
 @attribute [DisplayName("Layout/Card")]
 @inherits StoryComponent
 
-<div class="space-y-8">
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Basic</h2>
-        <Card class="w-full max-w-sm">
+<StoryCard Title="Card"
+           Description="Card states demonstrate standard sections, footer actions, and header-side actions."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "basic",
+            "Basic",
+            @<Card class="w-full max-w-sm">
+                <CardHeader>
+                    <CardTitle>Card Title</CardTitle>
+                    <CardDescription>Card description goes here.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <p class="text-sm text-muted-foreground">Card content area for any content.</p>
+                </CardContent>
+            </Card>,
+            [
+                new StoryCard.CodeTab("basic-razor", "CardStory.razor", BasicRazor)
+            ]),
+        new(
+            "with-footer",
+            "With footer",
+            @<Card class="w-full max-w-sm">
+                <CardHeader>
+                    <CardTitle>Create Project</CardTitle>
+                    <CardDescription>Deploy your new project in one-click.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <p class="text-sm text-muted-foreground">Your project will be created with default settings.</p>
+                </CardContent>
+                <CardFooter class="flex justify-between">
+                    <Button Variant="ghost">Cancel</Button>
+                    <Button>Deploy</Button>
+                </CardFooter>
+            </Card>,
+            [
+                new StoryCard.CodeTab("footer-razor", "CardStory.razor", FooterRazor)
+            ]),
+        new(
+            "with-action",
+            "With action",
+            @<Card class="w-full max-w-sm">
+                <CardHeader>
+                    <CardTitle>Notifications</CardTitle>
+                    <CardDescription>You have 3 unread messages.</CardDescription>
+                    <CardAction>
+                        <Badge>3 new</Badge>
+                    </CardAction>
+                </CardHeader>
+                <CardContent>
+                    <p class="text-sm font-medium">New feature available</p>
+                    <p class="text-sm text-muted-foreground">Check out the new dashboard with real-time analytics.</p>
+                </CardContent>
+            </Card>,
+            [
+                new StoryCard.CodeTab("action-razor", "CardStory.razor", ActionRazor)
+            ])
+    ];
+
+    private const string BasicRazor =
+        """
+        <Card>
             <CardHeader>
                 <CardTitle>Card Title</CardTitle>
                 <CardDescription>Card description goes here.</CardDescription>
@@ -13,39 +73,39 @@
                 <p class="text-sm text-muted-foreground">Card content area for any content.</p>
             </CardContent>
         </Card>
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">With footer</h2>
-        <Card class="w-full max-w-sm">
+    private const string FooterRazor =
+        """
+        <Card>
             <CardHeader>
                 <CardTitle>Create Project</CardTitle>
                 <CardDescription>Deploy your new project in one-click.</CardDescription>
             </CardHeader>
             <CardContent>
-                <p class="text-sm text-muted-foreground">Your project will be created with default settings. You can customize it later.</p>
+                <p class="text-sm text-muted-foreground">Your project will be created with default settings.</p>
             </CardContent>
             <CardFooter class="flex justify-between">
                 <Button Variant="ghost">Cancel</Button>
                 <Button>Deploy</Button>
             </CardFooter>
         </Card>
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">With badge action</h2>
-        <Card class="w-full max-w-sm">
+    private const string ActionRazor =
+        """
+        <Card>
             <CardHeader>
                 <CardTitle>Notifications</CardTitle>
                 <CardDescription>You have 3 unread messages.</CardDescription>
-                <div data-slot="card-action">
+                <CardAction>
                     <Badge>3 new</Badge>
-                </div>
+                </CardAction>
             </CardHeader>
             <CardContent>
                 <p class="text-sm font-medium">New feature available</p>
-                <p class="text-sm text-muted-foreground">Check out the new dashboard with real-time analytics.</p>
+                <p class="text-sm text-muted-foreground">Check out the new dashboard.</p>
             </CardContent>
         </Card>
-    </section>
-</div>
+        """;
+}

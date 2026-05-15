@@ -1,29 +1,69 @@
 @attribute [DisplayName("Layout/Skeleton")]
 @inherits StoryComponent
 
-<div class="space-y-8 max-w-sm">
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Text lines</h2>
+<StoryCard Title="Skeleton"
+           Description="Skeleton states demonstrate text, media, and card-placeholder loading layouts."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "text-lines",
+            "Text lines",
+            @<div class="w-full max-w-sm space-y-2">
+                <Skeleton class="h-4 w-full rounded" />
+                <Skeleton class="h-4 w-4/5 rounded" />
+                <Skeleton class="h-4 w-3/5 rounded" />
+            </div>,
+            [
+                new StoryCard.CodeTab("text-razor", "SkeletonStory.razor", TextRazor)
+            ]),
+        new(
+            "profile",
+            "Profile",
+            @<div class="flex w-full max-w-sm items-center gap-4">
+                <Skeleton class="h-12 w-12 rounded-full" />
+                <div class="flex-1 space-y-2">
+                    <Skeleton class="h-4 w-3/4 rounded" />
+                    <Skeleton class="h-4 w-1/2 rounded" />
+                </div>
+            </div>,
+            [
+                new StoryCard.CodeTab("profile-razor", "SkeletonStory.razor", ProfileRazor)
+            ]),
+        new(
+            "media",
+            "Media",
+            @<div class="w-full max-w-sm">
+                <Skeleton class="h-40 w-full rounded-lg" />
+            </div>,
+            [
+                new StoryCard.CodeTab("media-razor", "SkeletonStory.razor", MediaRazor)
+            ])
+    ];
+
+    private const string TextRazor =
+        """
         <div class="space-y-2">
             <Skeleton class="h-4 w-full rounded" />
             <Skeleton class="h-4 w-4/5 rounded" />
             <Skeleton class="h-4 w-3/5 rounded" />
         </div>
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Card skeleton</h2>
+    private const string ProfileRazor =
+        """
         <div class="flex items-center gap-4">
             <Skeleton class="h-12 w-12 rounded-full" />
-            <div class="space-y-2 flex-1">
+            <div class="flex-1 space-y-2">
                 <Skeleton class="h-4 w-3/4 rounded" />
                 <Skeleton class="h-4 w-1/2 rounded" />
             </div>
         </div>
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Image placeholder</h2>
+    private const string MediaRazor =
+        """
         <Skeleton class="h-40 w-full rounded-lg" />
-    </section>
-</div>
+        """;
+}

@@ -1,42 +1,76 @@
 @attribute [DisplayName("Feedback/Spinner")]
 @inherits StoryComponent
 
-<div class="space-y-8">
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Sizes</h2>
-        <div class="flex flex-wrap items-end gap-6">
-            <div class="flex flex-col items-center gap-2">
-                <Spinner class="size-4" />
-                <span class="text-xs text-muted-foreground">size-4</span>
-            </div>
-            <div class="flex flex-col items-center gap-2">
-                <Spinner class="size-6" />
-                <span class="text-xs text-muted-foreground">size-6</span>
-            </div>
-            <div class="flex flex-col items-center gap-2">
-                <Spinner class="size-8" />
-                <span class="text-xs text-muted-foreground">size-8</span>
-            </div>
-            <div class="flex flex-col items-center gap-2">
-                <Spinner class="size-12" />
-                <span class="text-xs text-muted-foreground">size-12</span>
-            </div>
-        </div>
-    </section>
+<StoryCard Title="Spinner"
+           Description="Spinner states demonstrate sizing, inline labels, and disabled button loading affordances."
+           States="@States" />
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">With label</h2>
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "sizes",
+            "Sizes",
+            @<div class="flex flex-wrap items-end justify-center gap-6">
+                <div class="flex flex-col items-center gap-2">
+                    <Spinner class="size-4" />
+                    <span class="text-xs text-muted-foreground">size-4</span>
+                </div>
+                <div class="flex flex-col items-center gap-2">
+                    <Spinner class="size-6" />
+                    <span class="text-xs text-muted-foreground">size-6</span>
+                </div>
+                <div class="flex flex-col items-center gap-2">
+                    <Spinner class="size-8" />
+                    <span class="text-xs text-muted-foreground">size-8</span>
+                </div>
+            </div>,
+            [
+                new StoryCard.CodeTab("sizes-razor", "SpinnerStory.razor", SizesRazor)
+            ]),
+        new(
+            "with-label",
+            "With label",
+            @<div class="flex items-center gap-2 text-sm text-muted-foreground">
+                <Spinner class="size-4" />
+                Loading...
+            </div>,
+            [
+                new StoryCard.CodeTab("label-razor", "SpinnerStory.razor", LabelRazor)
+            ]),
+        new(
+            "inside-button",
+            "Inside button",
+            @<Button Variant="outline" disabled>
+                <Spinner class="size-4" />
+                Processing
+            </Button>,
+            [
+                new StoryCard.CodeTab("button-razor", "SpinnerStory.razor", ButtonRazor)
+            ])
+    ];
+
+    private const string SizesRazor =
+        """
+        <div class="flex flex-wrap items-end gap-6">
+            <Spinner class="size-4" />
+            <Spinner class="size-6" />
+            <Spinner class="size-8" />
+        </div>
+        """;
+
+    private const string LabelRazor =
+        """
         <div class="flex items-center gap-2 text-sm text-muted-foreground">
             <Spinner class="size-4" />
             Loading...
         </div>
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Inside button</h2>
+    private const string ButtonRazor =
+        """
         <Button Variant="outline" disabled>
             <Spinner class="size-4" />
             Processing
         </Button>
-    </section>
-</div>
+        """;
+}

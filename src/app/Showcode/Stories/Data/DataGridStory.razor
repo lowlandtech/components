@@ -1,69 +1,78 @@
 @attribute [DisplayName("Data/DataGrid")]
 @inherits StoryComponent
 
-<div class="space-y-8">
-    <section class="space-y-3">
-        <div>
-            <h2 class="text-base font-semibold">Orders</h2>
-            <p class="text-sm text-muted-foreground">Sort by any header, filter by customer or status, and move through the page set.</p>
-        </div>
-
-        <DataGrid TItem="OrderRow"
-                  Items="@Orders"
-                  AllowFiltering="true"
-                  AllowPaging="true"
-                  PageSize="4"
-                  SelectionMode="DataGridSelectionMode.Multiple"
-                  SelectedItems="@_selectedOrders"
-                  SelectedItemsChanged="OnSelectedOrdersChanged">
-            <Columns>
-                <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
-                <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
-                <DataGridColumn TItem="OrderRow" Property="Customer.Region" Title="Region" />
-                <DataGridColumn TItem="OrderRow" Property="Status" Title="Status">
-                    <Template Context="order">
-                        <Badge Variant="@GetStatusVariant(order.Status)">@order.Status</Badge>
-                    </Template>
-                </DataGridColumn>
-                <DataGridColumn TItem="OrderRow" Property="Total" Title="Total" FormatString="C0" TextAlign="DataGridTextAlign.End" />
-                <DataGridColumn TItem="OrderRow" Property="DueDate" Title="Due" FormatString="MMM d" />
-            </Columns>
-        </DataGrid>
-
-        <p class="text-sm text-muted-foreground">@_selectedOrders.Count selected</p>
-    </section>
-
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Empty state</h2>
-        <DataGrid TItem="OrderRow" Items="Array.Empty<OrderRow>()">
-            <Columns>
-                <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
-                <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
-                <DataGridColumn TItem="OrderRow" Property="Status" Title="Status" />
-            </Columns>
-            <EmptyTemplate>
-                <span>No orders match this view.</span>
-            </EmptyTemplate>
-        </DataGrid>
-    </section>
-
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Loading state</h2>
-        <DataGrid TItem="OrderRow" Items="@Orders" IsLoading="true">
-            <Columns>
-                <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
-                <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
-                <DataGridColumn TItem="OrderRow" Property="Status" Title="Status" />
-            </Columns>
-            <LoadingTemplate>
-                <span>Refreshing orders...</span>
-            </LoadingTemplate>
-        </DataGrid>
-    </section>
-</div>
+<StoryCard Title="DataGrid"
+           Description="DataGrid states demonstrate filterable paged rows, empty templates, and loading templates."
+           States="@States" />
 
 @code {
     private ISet<OrderRow> _selectedOrders = new HashSet<OrderRow>();
+
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "orders",
+            "Orders",
+            @<div class="w-full space-y-3">
+                <DataGrid TItem="OrderRow"
+                          Items="@Orders"
+                          AllowFiltering="true"
+                          AllowPaging="true"
+                          PageSize="4"
+                          SelectionMode="DataGridSelectionMode.Multiple"
+                          SelectedItems="@_selectedOrders"
+                          SelectedItemsChanged="OnSelectedOrdersChanged">
+                    <Columns>
+                        <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
+                        <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
+                        <DataGridColumn TItem="OrderRow" Property="Customer.Region" Title="Region" />
+                        <DataGridColumn TItem="OrderRow" Property="Status" Title="Status">
+                            <Template Context="order">
+                                <Badge Variant="@GetStatusVariant(order.Status)">@order.Status</Badge>
+                            </Template>
+                        </DataGridColumn>
+                        <DataGridColumn TItem="OrderRow" Property="Total" Title="Total" FormatString="C0" TextAlign="DataGridTextAlign.End" />
+                        <DataGridColumn TItem="OrderRow" Property="DueDate" Title="Due" FormatString="MMM d" />
+                    </Columns>
+                </DataGrid>
+                <p class="text-sm text-muted-foreground">@_selectedOrders.Count selected</p>
+            </div>,
+            [
+                new StoryCard.CodeTab("orders-razor", "DataGridStory.razor", OrdersRazor),
+                new StoryCard.CodeTab("orders-model", "OrderRow.cs", ModelCode, "csharp")
+            ]),
+        new(
+            "empty",
+            "Empty",
+            @<DataGrid TItem="OrderRow" Items="Array.Empty<OrderRow>()">
+                <Columns>
+                    <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
+                    <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
+                    <DataGridColumn TItem="OrderRow" Property="Status" Title="Status" />
+                </Columns>
+                <EmptyTemplate>
+                    <span>No orders match this view.</span>
+                </EmptyTemplate>
+            </DataGrid>,
+            [
+                new StoryCard.CodeTab("empty-razor", "DataGridStory.razor", EmptyRazor)
+            ]),
+        new(
+            "loading",
+            "Loading",
+            @<DataGrid TItem="OrderRow" Items="@Orders" IsLoading="true">
+                <Columns>
+                    <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
+                    <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
+                    <DataGridColumn TItem="OrderRow" Property="Status" Title="Status" />
+                </Columns>
+                <LoadingTemplate>
+                    <span>Refreshing orders...</span>
+                </LoadingTemplate>
+            </DataGrid>,
+            [
+                new StoryCard.CodeTab("loading-razor", "DataGridStory.razor", LoadingRazor)
+            ])
+    ];
 
     private static readonly IReadOnlyList<OrderRow> Orders =
     [
@@ -94,5 +103,64 @@
     private sealed record CustomerInfo(string Name, string Region);
 
     private sealed record OrderRow(string OrderNumber, CustomerInfo Customer, string Status, decimal Total, DateOnly DueDate);
-}
 
+    private const string OrdersRazor =
+        """
+        <DataGrid TItem="OrderRow"
+                  Items="@Orders"
+                  AllowFiltering="true"
+                  AllowPaging="true"
+                  PageSize="4"
+                  SelectionMode="DataGridSelectionMode.Multiple">
+            <Columns>
+                <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
+                <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
+                <DataGridColumn TItem="OrderRow" Property="Status" Title="Status">
+                    <Template Context="order">
+                        <Badge Variant="@GetStatusVariant(order.Status)">@order.Status</Badge>
+                    </Template>
+                </DataGridColumn>
+            </Columns>
+        </DataGrid>
+        """;
+
+    private const string EmptyRazor =
+        """
+        <DataGrid TItem="OrderRow" Items="Array.Empty<OrderRow>()">
+            <Columns>
+                <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
+                <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
+                <DataGridColumn TItem="OrderRow" Property="Status" Title="Status" />
+            </Columns>
+            <EmptyTemplate>
+                <span>No orders match this view.</span>
+            </EmptyTemplate>
+        </DataGrid>
+        """;
+
+    private const string LoadingRazor =
+        """
+        <DataGrid TItem="OrderRow" Items="@Orders" IsLoading="true">
+            <Columns>
+                <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
+                <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
+                <DataGridColumn TItem="OrderRow" Property="Status" Title="Status" />
+            </Columns>
+            <LoadingTemplate>
+                <span>Refreshing orders...</span>
+            </LoadingTemplate>
+        </DataGrid>
+        """;
+
+    private const string ModelCode =
+        """
+        private sealed record CustomerInfo(string Name, string Region);
+
+        private sealed record OrderRow(
+            string OrderNumber,
+            CustomerInfo Customer,
+            string Status,
+            decimal Total,
+            DateOnly DueDate);
+        """;
+}

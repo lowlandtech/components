@@ -1,27 +1,73 @@
 @attribute [DisplayName("Layout/Empty")]
 @inherits StoryComponent
 
-<div class="space-y-8">
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Default</h2>
-        <div class="h-48 border border-dashed rounded-lg">
-            <Empty>
-                <svg xmlns="http://www.w3.org/2000/svg" class="size-10 text-muted-foreground mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
-                <p class="text-sm font-medium">No results found</p>
-                <p class="text-xs text-muted-foreground mt-1">Try adjusting your search or filters.</p>
-            </Empty>
-        </div>
-    </section>
+<StoryCard Title="Empty"
+           Description="Empty states demonstrate quiet no-result messaging and actionable first-run guidance."
+           States="@States" />
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">With action</h2>
-        <div class="h-56 border border-dashed rounded-lg">
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "default",
+            "Default",
+            @<div class="h-48 w-full max-w-md rounded-lg border border-dashed">
+                <Empty>
+                    <EmptyMedia Variant="icon">
+                        <Icon Name="circle-alert" Size="40" />
+                    </EmptyMedia>
+                    <EmptyTitle>No results found</EmptyTitle>
+                    <EmptyDescription>Try adjusting your search or filters.</EmptyDescription>
+                </Empty>
+            </div>,
+            [
+                new StoryCard.CodeTab("default-razor", "EmptyStory.razor", DefaultRazor)
+            ]),
+        new(
+            "with-action",
+            "With action",
+            @<div class="h-56 w-full max-w-md rounded-lg border border-dashed">
+                <Empty>
+                    <EmptyMedia Variant="icon">
+                        <Icon Name="file-plus" Size="40" />
+                    </EmptyMedia>
+                    <EmptyTitle>No documents yet</EmptyTitle>
+                    <EmptyDescription>Create your first document to get started.</EmptyDescription>
+                    <EmptyContent>
+                        <Button Size="sm">Create document</Button>
+                    </EmptyContent>
+                </Empty>
+            </div>,
+            [
+                new StoryCard.CodeTab("action-razor", "EmptyStory.razor", ActionRazor)
+            ])
+    ];
+
+    private const string DefaultRazor =
+        """
+        <div class="h-48 rounded-lg border border-dashed">
             <Empty>
-                <svg xmlns="http://www.w3.org/2000/svg" class="size-10 text-muted-foreground mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
-                <p class="text-sm font-medium">No documents yet</p>
-                <p class="text-xs text-muted-foreground mt-1 mb-3">Create your first document to get started.</p>
-                <Button Size="sm">Create document</Button>
+                <EmptyMedia Variant="icon">
+                    <Icon Name="circle-alert" Size="40" />
+                </EmptyMedia>
+                <EmptyTitle>No results found</EmptyTitle>
+                <EmptyDescription>Try adjusting your search or filters.</EmptyDescription>
             </Empty>
         </div>
-    </section>
-</div>
+        """;
+
+    private const string ActionRazor =
+        """
+        <div class="h-56 rounded-lg border border-dashed">
+            <Empty>
+                <EmptyMedia Variant="icon">
+                    <Icon Name="file-plus" Size="40" />
+                </EmptyMedia>
+                <EmptyTitle>No documents yet</EmptyTitle>
+                <EmptyDescription>Create your first document to get started.</EmptyDescription>
+                <EmptyContent>
+                    <Button Size="sm">Create document</Button>
+                </EmptyContent>
+            </Empty>
+        </div>
+        """;
+}
