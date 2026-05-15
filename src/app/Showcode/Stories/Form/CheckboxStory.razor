@@ -30,13 +30,13 @@
         new(
             "terms",
             "Terms",
-            @<div class="flex max-w-sm items-start gap-2">
-                <Checkbox id="terms" />
+            @<label class="flex max-w-sm cursor-pointer items-start gap-3 rounded-lg border border-border p-4 transition-colors has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
+                <Checkbox id="terms" @bind-Checked="_termsChecked" />
                 <div class="flex flex-col gap-1">
-                    <Label For="terms">Accept terms and conditions</Label>
+                    <span class="text-sm font-medium leading-none">Accept terms and conditions</span>
                     <p class="text-sm text-muted-foreground">You agree to our Terms of Service and Privacy Policy.</p>
                 </div>
-            </div>,
+            </label>,
             [
                 new StoryCard.CodeTab("terms-razor", "CheckboxStory.razor", TermsRazor)
             ]),
@@ -70,15 +70,17 @@
         </div>
         """;
 
+    private bool _termsChecked;
+
     private const string TermsRazor =
         """
-        <div class="flex items-start gap-2">
-            <Checkbox id="terms" />
+        <label class="flex max-w-sm cursor-pointer items-start gap-3 rounded-lg border border-border p-4 transition-colors has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5">
+            <Checkbox id="terms" @bind-Checked="_termsChecked" />
             <div class="flex flex-col gap-1">
-                <Label For="terms">Accept terms and conditions</Label>
+                <span class="text-sm font-medium leading-none">Accept terms and conditions</span>
                 <p class="text-sm text-muted-foreground">You agree to our Terms of Service and Privacy Policy.</p>
             </div>
-        </div>
+        </label>
         """;
 
     private const string CheckedRazor =

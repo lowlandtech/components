@@ -536,4 +536,75 @@
   .story-card-token-type {
     @apply text-teal-300;
   }
+
+  /* ButtonGroup Component Styles */
+  /* ButtonGroup Component Styles */
+  .cn-button-group {
+    @apply flex w-fit items-stretch;
+  }
+
+  .cn-button-group[data-orientation="vertical"] {
+    @apply flex-col;
+  }
+
+  /* ButtonGroupText — adornment/icon container */
+  .cn-button-group-text {
+    @apply flex items-center border border-input bg-background px-3 text-sm text-muted-foreground;
+  }
+
+  .cn-button-group:not([data-orientation="vertical"]) > [data-slot="button"]:not(:only-child):first-child,
+  .cn-button-group:not([data-orientation="vertical"]) > [data-slot="select-trigger"]:not(:only-child):first-child,
+  .cn-button-group:not([data-orientation="vertical"]) > [data-slot="button-group-text"]:not(:only-child):first-child,
+  .cn-button-group:not([data-orientation="vertical"]) > [data-slot="input"]:not(:only-child):first-child {
+    @apply rounded-r-none;
+  }
+
+  .cn-button-group:not([data-orientation="vertical"]) > [data-slot="button"]:not(:only-child):last-child,
+  .cn-button-group:not([data-orientation="vertical"]) > [data-slot="select-trigger"]:not(:only-child):last-child,
+  .cn-button-group:not([data-orientation="vertical"]) > [data-slot="button-group-text"]:not(:only-child):last-child,
+  .cn-button-group:not([data-orientation="vertical"]) > [data-slot="input"]:not(:only-child):last-child {
+    @apply rounded-l-none;
+  }
+
+  .cn-button-group:not([data-orientation="vertical"]) > [data-slot="button"]:not(:first-child):not(:last-child),
+  .cn-button-group:not([data-orientation="vertical"]) > [data-slot="select-trigger"]:not(:first-child):not(:last-child),
+  .cn-button-group:not([data-orientation="vertical"]) > [data-slot="button-group-text"]:not(:first-child):not(:last-child),
+  .cn-button-group:not([data-orientation="vertical"]) > [data-slot="input"]:not(:first-child):not(:last-child) {
+    @apply rounded-none;
+  }
+
+  .cn-button-group:not([data-orientation="vertical"]) > [data-slot="button"]:not(:last-child),
+  .cn-button-group:not([data-orientation="vertical"]) > [data-slot="select-trigger"]:not(:last-child),
+  .cn-button-group:not([data-orientation="vertical"]) > [data-slot="button-group-text"]:not(:last-child),
+  .cn-button-group:not([data-orientation="vertical"]) > [data-slot="input"]:not(:last-child) {
+    @apply border-r-0;
+  }
+
+  .cn-button-group[data-orientation="vertical"] > [data-slot="button"]:not(:only-child):first-child {
+    @apply rounded-b-none;
+  }
+
+  .cn-button-group[data-orientation="vertical"] > [data-slot="button"]:not(:only-child):last-child {
+    @apply rounded-t-none;
+  }
+
+  .cn-button-group[data-orientation="vertical"] > [data-slot="button"]:not(:first-child):not(:last-child) {
+    @apply rounded-none;
+  }
+
+  .cn-button-group[data-orientation="vertical"] > [data-slot="button"]:not(:last-child) {
+    @apply border-b-0;
+  }
+
+  .cn-button-group-separator {
+    @apply self-stretch bg-border;
+  }
+
+  .cn-button-group-separator[data-orientation="horizontal"] {
+    @apply w-px;
+  }
+
+  .cn-button-group-separator[data-orientation="vertical"] {
+    @apply h-px w-full;
+  }
 }
