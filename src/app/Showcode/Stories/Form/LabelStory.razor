@@ -1,26 +1,83 @@
 @attribute [DisplayName("Form/Label")]
 @inherits StoryComponent
 
-<div class="space-y-8 max-w-sm">
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Default</h2>
+<StoryCard Title="Label"
+           Description="Label states demonstrate field association, required markers, disabled labels, and helper descriptions."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "default",
+            "Default",
+            @<div class="w-full max-w-sm space-y-1">
+                <Label For="email">Email address</Label>
+                <Input id="email" Type="email" Placeholder="you@example.com" />
+            </div>,
+            [
+                new StoryCard.CodeTab("default-razor", "LabelStory.razor", DefaultRazor)
+            ]),
+        new(
+            "required",
+            "Required",
+            @<div class="w-full max-w-sm space-y-1">
+                <Label For="name" Required="true">Full name</Label>
+                <Input id="name" Placeholder="John Doe" />
+            </div>,
+            [
+                new StoryCard.CodeTab("required-razor", "LabelStory.razor", RequiredRazor)
+            ]),
+        new(
+            "description",
+            "Description",
+            @<div class="w-full max-w-sm">
+                <Label For="bio" Description="Tell us a little bit about yourself.">Bio</Label>
+                <Textarea id="bio" Placeholder="I am a..." />
+            </div>,
+            [
+                new StoryCard.CodeTab("description-razor", "LabelStory.razor", DescriptionRazor)
+            ]),
+        new(
+            "disabled",
+            "Disabled",
+            @<div class="w-full max-w-sm space-y-1">
+                <Label For="disabled-email" Disabled="true">Email address</Label>
+                <Input id="disabled-email" Placeholder="Disabled" Disabled="true" />
+            </div>,
+            [
+                new StoryCard.CodeTab("disabled-razor", "LabelStory.razor", DisabledRazor)
+            ])
+    ];
+
+    private const string DefaultRazor =
+        """
         <div class="space-y-1">
             <Label For="email">Email address</Label>
             <Input id="email" Type="email" Placeholder="you@example.com" />
         </div>
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Required</h2>
+    private const string RequiredRazor =
+        """
         <div class="space-y-1">
             <Label For="name" Required="true">Full name</Label>
             <Input id="name" Placeholder="John Doe" />
         </div>
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">With Description</h2>
-        <Label For="bio" Description="Tell us a little bit about yourself.">Bio</Label>
-        <Textarea id="bio" Placeholder="I am a..." />
-    </section>
-</div>
+    private const string DescriptionRazor =
+        """
+        <div>
+            <Label For="bio" Description="Tell us a little bit about yourself.">Bio</Label>
+            <Textarea id="bio" Placeholder="I am a..." />
+        </div>
+        """;
+
+    private const string DisabledRazor =
+        """
+        <div class="space-y-1">
+            <Label For="disabled-email" Disabled="true">Email address</Label>
+            <Input id="disabled-email" Placeholder="Disabled" Disabled="true" />
+        </div>
+        """;
+}

@@ -1,37 +1,87 @@
 @attribute [DisplayName("Form/Input")]
 @inherits StoryComponent
 
-<div class="space-y-8 max-w-sm">
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Default</h2>
-        <Input Placeholder="Enter text..." />
-    </section>
+<StoryCard Title="Input"
+           Description="Input states demonstrate common HTML types, sizes, and disabled/read-only/invalid affordances."
+           States="@States" />
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Types</h2>
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "default",
+            "Default",
+            @<div class="w-full max-w-sm">
+                <Input Placeholder="Enter text..." />
+            </div>,
+            [
+                new StoryCard.CodeTab("default-razor", "InputStory.razor", DefaultRazor)
+            ]),
+        new(
+            "types",
+            "Types",
+            @<div class="w-full max-w-sm space-y-2">
+                <Input Type="email" Placeholder="Email address" />
+                <Input Type="password" Placeholder="Password" />
+                <Input Type="number" Placeholder="0" />
+                <Input Type="search" Placeholder="Search..." />
+            </div>,
+            [
+                new StoryCard.CodeTab("types-razor", "InputStory.razor", TypesRazor)
+            ]),
+        new(
+            "sizes",
+            "Sizes",
+            @<div class="w-full max-w-sm space-y-2">
+                <Input Size="sm" Placeholder="Small input" />
+                <Input Size="default" Placeholder="Default input" />
+                <Input Size="lg" Placeholder="Large input" />
+            </div>,
+            [
+                new StoryCard.CodeTab("sizes-razor", "InputStory.razor", SizesRazor)
+            ]),
+        new(
+            "states",
+            "States",
+            @<div class="w-full max-w-sm space-y-2">
+                <Input Placeholder="Disabled" Disabled="true" />
+                <Input Placeholder="Read only" ReadOnly="true" Value="Read-only value" />
+                <Input Placeholder="Invalid" Invalid="true" Value="bad value" />
+            </div>,
+            [
+                new StoryCard.CodeTab("states-razor", "InputStory.razor", StatesRazor)
+            ])
+    ];
+
+    private const string DefaultRazor =
+        """
+        <Input Placeholder="Enter text..." />
+        """;
+
+    private const string TypesRazor =
+        """
         <div class="space-y-2">
             <Input Type="email" Placeholder="Email address" />
             <Input Type="password" Placeholder="Password" />
             <Input Type="number" Placeholder="0" />
             <Input Type="search" Placeholder="Search..." />
         </div>
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Sizes</h2>
+    private const string SizesRazor =
+        """
         <div class="space-y-2">
             <Input Size="sm" Placeholder="Small input" />
             <Input Size="default" Placeholder="Default input" />
             <Input Size="lg" Placeholder="Large input" />
         </div>
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">States</h2>
+    private const string StatesRazor =
+        """
         <div class="space-y-2">
             <Input Placeholder="Disabled" Disabled="true" />
             <Input Placeholder="Read only" ReadOnly="true" Value="Read-only value" />
             <Input Placeholder="Invalid" Invalid="true" Value="bad value" />
         </div>
-    </section>
-</div>
+        """;
+}

@@ -1,33 +1,91 @@
 @attribute [DisplayName("Form/Checkbox")]
 @inherits StoryComponent
 
-<div class="space-y-8">
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">States</h2>
-        <div class="space-y-2">
+<StoryCard Title="Checkbox"
+           Description="Checkbox states demonstrate checked, unchecked, disabled, and label-description compositions."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "states",
+            "States",
+            @<div class="space-y-3">
+                <div class="flex items-center gap-2">
+                    <Checkbox id="cb1" />
+                    <Label For="cb1">Unchecked</Label>
+                </div>
+                <div class="flex items-center gap-2">
+                    <Checkbox id="cb2" Checked="true" />
+                    <Label For="cb2">Checked</Label>
+                </div>
+                <div class="flex items-center gap-2">
+                    <Checkbox id="cb3" Disabled="true" />
+                    <Label For="cb3" Disabled="true">Disabled</Label>
+                </div>
+            </div>,
+            [
+                new StoryCard.CodeTab("states-razor", "CheckboxStory.razor", StatesRazor)
+            ]),
+        new(
+            "terms",
+            "Terms",
+            @<div class="flex max-w-sm items-start gap-2">
+                <Checkbox id="terms" />
+                <div class="flex flex-col gap-1">
+                    <Label For="terms">Accept terms and conditions</Label>
+                    <p class="text-sm text-muted-foreground">You agree to our Terms of Service and Privacy Policy.</p>
+                </div>
+            </div>,
+            [
+                new StoryCard.CodeTab("terms-razor", "CheckboxStory.razor", TermsRazor)
+            ]),
+        new(
+            "checked",
+            "Checked",
+            @<div class="flex items-center gap-2">
+                <Checkbox id="notifications" Checked="true" />
+                <Label For="notifications">Send product updates</Label>
+            </div>,
+            [
+                new StoryCard.CodeTab("checked-razor", "CheckboxStory.razor", CheckedRazor)
+            ])
+    ];
+
+    private const string StatesRazor =
+        """
+        <div class="space-y-3">
             <div class="flex items-center gap-2">
-                <Checkbox id="cb1" aria-checked="false" />
+                <Checkbox id="cb1" />
                 <Label For="cb1">Unchecked</Label>
             </div>
             <div class="flex items-center gap-2">
-                <Checkbox id="cb2" aria-checked="true" />
+                <Checkbox id="cb2" Checked="true" />
                 <Label For="cb2">Checked</Label>
             </div>
             <div class="flex items-center gap-2">
-                <Checkbox id="cb3" disabled aria-checked="false" />
-                <Label For="cb3" class="opacity-50">Disabled</Label>
+                <Checkbox id="cb3" Disabled="true" />
+                <Label For="cb3" Disabled="true">Disabled</Label>
             </div>
         </div>
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Terms & Conditions</h2>
+    private const string TermsRazor =
+        """
         <div class="flex items-start gap-2">
-            <Checkbox id="terms" aria-checked="false" />
+            <Checkbox id="terms" />
             <div class="flex flex-col gap-1">
                 <Label For="terms">Accept terms and conditions</Label>
                 <p class="text-sm text-muted-foreground">You agree to our Terms of Service and Privacy Policy.</p>
             </div>
         </div>
-    </section>
-</div>
+        """;
+
+    private const string CheckedRazor =
+        """
+        <div class="flex items-center gap-2">
+            <Checkbox id="notifications" Checked="true" />
+            <Label For="notifications">Send product updates</Label>
+        </div>
+        """;
+}

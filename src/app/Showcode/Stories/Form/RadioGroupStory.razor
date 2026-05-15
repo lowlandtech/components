@@ -1,39 +1,122 @@
 @attribute [DisplayName("Form/Radio Group")]
 @inherits StoryComponent
 
-<div class="space-y-8">
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Vertical (default)</h2>
+<StoryCard Title="Radio Group"
+           Description="RadioGroup states demonstrate vertical, horizontal, disabled, and choice-card selection layouts."
+           States="@States" />
+
+@code {
+    private string _plan = "free";
+    private string _answer = "yes";
+    private string _tier = "basic";
+    private string _billing = "team";
+
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "vertical",
+            "Vertical",
+            @<div class="space-y-3">
+                <RadioGroup Name="plan" @bind-Value="_plan">
+                    <RadioGroupItem Value="free">Free</RadioGroupItem>
+                    <RadioGroupItem Value="pro">Pro</RadioGroupItem>
+                    <RadioGroupItem Value="enterprise">Enterprise</RadioGroupItem>
+                </RadioGroup>
+                <p class="text-xs text-muted-foreground">Selected: @_plan</p>
+            </div>,
+            [
+                new StoryCard.CodeTab("vertical-razor", "RadioGroupStory.razor", VerticalRazor)
+            ]),
+        new(
+            "horizontal",
+            "Horizontal",
+            @<div class="space-y-3">
+                <RadioGroup Name="answer" Orientation="horizontal" @bind-Value="_answer">
+                    <RadioGroupItem Value="yes">Yes</RadioGroupItem>
+                    <RadioGroupItem Value="no">No</RadioGroupItem>
+                    <RadioGroupItem Value="maybe">Maybe</RadioGroupItem>
+                </RadioGroup>
+                <p class="text-xs text-muted-foreground">Selected: @_answer</p>
+            </div>,
+            [
+                new StoryCard.CodeTab("horizontal-razor", "RadioGroupStory.razor", HorizontalRazor)
+            ]),
+        new(
+            "disabled",
+            "Disabled",
+            @<RadioGroup Name="tier" @bind-Value="_tier">
+                <RadioGroupItem Value="basic">Basic</RadioGroupItem>
+                <RadioGroupItem Value="standard">Standard</RadioGroupItem>
+                <RadioGroupItem Value="premium" Disabled="true">Premium (unavailable)</RadioGroupItem>
+            </RadioGroup>,
+            [
+                new StoryCard.CodeTab("disabled-razor", "RadioGroupStory.razor", DisabledRazor)
+            ]),
+        new(
+            "choice-card",
+            "Choice card",
+            @<RadioGroup Name="billing" class="w-full max-w-lg" @bind-Value="_billing">
+                <RadioGroupItem Value="solo" Variant="choice-card">
+                    <div class="space-y-1">
+                        <RadioGroupItemTitle>Solo</RadioGroupItemTitle>
+                        <RadioGroupItemDescription>One workspace for personal projects.</RadioGroupItemDescription>
+                    </div>
+                </RadioGroupItem>
+                <RadioGroupItem Value="team" Variant="choice-card">
+                    <div class="space-y-1">
+                        <RadioGroupItemTitle>Team</RadioGroupItemTitle>
+                        <RadioGroupItemDescription>Shared workspaces and billing controls.</RadioGroupItemDescription>
+                    </div>
+                </RadioGroupItem>
+            </RadioGroup>,
+            [
+                new StoryCard.CodeTab("choice-card-razor", "RadioGroupStory.razor", ChoiceCardRazor)
+            ])
+    ];
+
+    private const string VerticalRazor =
+        """
         <RadioGroup Name="plan" @bind-Value="_plan">
             <RadioGroupItem Value="free">Free</RadioGroupItem>
             <RadioGroupItem Value="pro">Pro</RadioGroupItem>
             <RadioGroupItem Value="enterprise">Enterprise</RadioGroupItem>
         </RadioGroup>
         <p class="text-xs text-muted-foreground">Selected: @_plan</p>
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Horizontal</h2>
+    private const string HorizontalRazor =
+        """
         <RadioGroup Name="answer" Orientation="horizontal" @bind-Value="_answer">
             <RadioGroupItem Value="yes">Yes</RadioGroupItem>
             <RadioGroupItem Value="no">No</RadioGroupItem>
             <RadioGroupItem Value="maybe">Maybe</RadioGroupItem>
         </RadioGroup>
         <p class="text-xs text-muted-foreground">Selected: @_answer</p>
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">With disabled item</h2>
+    private const string DisabledRazor =
+        """
         <RadioGroup Name="tier" @bind-Value="_tier">
             <RadioGroupItem Value="basic">Basic</RadioGroupItem>
             <RadioGroupItem Value="standard">Standard</RadioGroupItem>
             <RadioGroupItem Value="premium" Disabled="true">Premium (unavailable)</RadioGroupItem>
         </RadioGroup>
-    </section>
-</div>
+        """;
 
-@code {
-    string _plan = "free";
-    string _answer = "yes";
-    string _tier = "basic";
+    private const string ChoiceCardRazor =
+        """
+        <RadioGroup Name="billing" @bind-Value="_billing">
+            <RadioGroupItem Value="solo" Variant="choice-card">
+                <div class="space-y-1">
+                    <RadioGroupItemTitle>Solo</RadioGroupItemTitle>
+                    <RadioGroupItemDescription>One workspace for personal projects.</RadioGroupItemDescription>
+                </div>
+            </RadioGroupItem>
+            <RadioGroupItem Value="team" Variant="choice-card">
+                <div class="space-y-1">
+                    <RadioGroupItemTitle>Team</RadioGroupItemTitle>
+                    <RadioGroupItemDescription>Shared workspaces and billing controls.</RadioGroupItemDescription>
+                </div>
+            </RadioGroupItem>
+        </RadioGroup>
+        """;
 }
