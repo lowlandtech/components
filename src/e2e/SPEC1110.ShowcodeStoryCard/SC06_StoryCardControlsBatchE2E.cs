@@ -77,8 +77,13 @@ public sealed class SC06_StoryCardControlsBatchE2E(ShowcodeCollection collection
         var card = CurrentStoryCard;
         await SelectStateAsync(card, "Indeterminate");
 
-        await Assertions.Expect(card.Locator("[data-slot='progress'][data-state='indeterminate']").First).ToBeVisibleAsync();
+        var progress = card.Locator("[data-slot='progress'][data-state='indeterminate']").First;
+        await Assertions.Expect(progress).ToBeVisibleAsync();
         await Assertions.Expect(ActiveCodeEditor(card)).ToContainTextAsync("<Progress IsIndeterminate=\"true\" />");
+
+        var trackColor = await progress.EvaluateAsync<string>("element => getComputedStyle(element).backgroundColor");
+        var indicatorColor = await progress.Locator("[data-slot='progress-indicator']").First.EvaluateAsync<string>("element => getComputedStyle(element).backgroundColor");
+        indicatorColor.ShouldNotBe(trackColor);
     }
 
     private ILocator CurrentStoryCard => Showcode.Page.Locator("main [data-slot='story-card']").First;
