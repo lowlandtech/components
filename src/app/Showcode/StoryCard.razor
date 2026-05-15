@@ -144,7 +144,7 @@
         var encoded = Encode(line);
         encoded = HighlightStrings(encoded);
 
-        foreach (var tag in new[] { "PopoverProvider", "PopoverTrigger", "PopoverContent", "Popover", "RadioGroupItemDescription", "RadioGroupItemTitle", "RadioGroupItem", "RadioGroup", "ButtonGroupSeparator", "ButtonGroupText", "ButtonGroup", "AlertDescription", "AlertTitle", "Alert", "Checkbox", "Textarea", "Badge", "TabsTrigger", "TabsContent", "TabsList", "Tabs", "Button", "Icon", "Label", "Input", "span", "div", "h3", "p" })
+        foreach (var tag in new[] { "PopoverProvider", "PopoverTrigger", "PopoverContent", "Popover", "RadioGroupItemDescription", "RadioGroupItemTitle", "RadioGroupItem", "RadioGroup", "ButtonGroupSeparator", "ButtonGroupText", "ButtonGroup", "SliderTrack", "SliderRange", "SliderThumb", "Slider", "AlertDescription", "AlertTitle", "Alert", "Checkbox", "Textarea", "Progress", "Switch", "Toggle", "Badge", "TabsTrigger", "TabsContent", "TabsList", "Tabs", "Button", "Icon", "Label", "Input", "span", "div", "h3", "p" })
         {
             encoded = encoded.Replace($"&lt;{tag}", $"&lt;<span class=\"story-card-token-tag\">{tag}</span>", StringComparison.Ordinal);
             encoded = encoded.Replace($"&lt;/{tag}", $"&lt;/<span class=\"story-card-token-tag\">{tag}</span>", StringComparison.Ordinal);

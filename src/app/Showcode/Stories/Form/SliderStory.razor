@@ -1,19 +1,109 @@
 @attribute [DisplayName("Form/Slider")]
 @inherits StoryComponent
 
-<div class="space-y-8 max-w-sm">
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Default</h2>
-        <Slider Value="40" Min="0" Max="100" />
-    </section>
+<StoryCard Title="Slider"
+           Description="Slider states demonstrate default, stepped, disabled, and vertical range control compositions."
+           States="@States" />
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">With Steps</h2>
-        <Slider Value="50" Min="0" Max="100" Step="10" />
-    </section>
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "default",
+            "Default",
+            @<div class="w-full max-w-sm">
+                <Slider Value="40" Min="0" Max="100">
+                    <SliderTrack class="h-2">
+                        <SliderRange class="h-full" />
+                    </SliderTrack>
+                    <SliderThumb />
+                </Slider>
+            </div>,
+            [
+                new StoryCard.CodeTab("default-razor", "SliderStory.razor", DefaultRazor)
+            ]),
+        new(
+            "steps",
+            "Steps",
+            @<div class="w-full max-w-sm">
+                <Slider Value="50" Min="0" Max="100" Step="10">
+                    <SliderTrack class="h-2">
+                        <SliderRange class="h-full" />
+                    </SliderTrack>
+                    <SliderThumb />
+                </Slider>
+            </div>,
+            [
+                new StoryCard.CodeTab("steps-razor", "SliderStory.razor", StepsRazor)
+            ]),
+        new(
+            "disabled",
+            "Disabled",
+            @<div class="w-full max-w-sm">
+                <Slider Value="30" Disabled="true">
+                    <SliderTrack class="h-2">
+                        <SliderRange class="h-full" />
+                    </SliderTrack>
+                    <SliderThumb />
+                </Slider>
+            </div>,
+            [
+                new StoryCard.CodeTab("disabled-razor", "SliderStory.razor", DisabledRazor)
+            ]),
+        new(
+            "vertical",
+            "Vertical",
+            @<div class="flex h-48 items-center justify-center">
+                <Slider Value="65" Orientation="vertical">
+                    <SliderTrack class="h-full w-2">
+                        <SliderRange />
+                    </SliderTrack>
+                    <SliderThumb />
+                </Slider>
+            </div>,
+            [
+                new StoryCard.CodeTab("vertical-razor", "SliderStory.razor", VerticalRazor)
+            ])
+    ];
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Disabled</h2>
-        <Slider Value="30" Disabled="true" />
-    </section>
-</div>
+    private const string DefaultRazor =
+        """
+        <Slider Value="40" Min="0" Max="100">
+            <SliderTrack class="h-2">
+                <SliderRange class="h-full" />
+            </SliderTrack>
+            <SliderThumb />
+        </Slider>
+        """;
+
+    private const string StepsRazor =
+        """
+        <Slider Value="50" Min="0" Max="100" Step="10">
+            <SliderTrack class="h-2">
+                <SliderRange class="h-full" />
+            </SliderTrack>
+            <SliderThumb />
+        </Slider>
+        """;
+
+    private const string DisabledRazor =
+        """
+        <Slider Value="30" Disabled="true">
+            <SliderTrack class="h-2">
+                <SliderRange class="h-full" />
+            </SliderTrack>
+            <SliderThumb />
+        </Slider>
+        """;
+
+    private const string VerticalRazor =
+        """
+        <div class="flex h-48 items-center justify-center">
+            <Slider Value="65" Orientation="vertical">
+                <SliderTrack class="h-full w-2">
+                    <SliderRange />
+                </SliderTrack>
+                <SliderThumb />
+            </Slider>
+        </div>
+        """;
+}

@@ -1,22 +1,63 @@
 @attribute [DisplayName("Form/Textarea")]
 @inherits StoryComponent
 
-<div class="space-y-8 max-w-sm">
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Default</h2>
+<StoryCard Title="Textarea"
+           Description="Textarea states demonstrate default, labeled, disabled, read-only, and invalid multiline fields."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "default",
+            "Default",
+            @<div class="w-full max-w-sm">
+                <Textarea Placeholder="Type your message here." />
+            </div>,
+            [
+                new StoryCard.CodeTab("default-razor", "TextareaStory.razor", DefaultRazor)
+            ]),
+        new(
+            "with-label",
+            "With label",
+            @<div class="w-full max-w-sm space-y-1">
+                <Label For="msg">Your message</Label>
+                <Textarea id="msg" Placeholder="Leave a comment..." />
+            </div>,
+            [
+                new StoryCard.CodeTab("label-razor", "TextareaStory.razor", LabelRazor)
+            ]),
+        new(
+            "states",
+            "States",
+            @<div class="w-full max-w-sm space-y-2">
+                <Textarea Placeholder="Disabled textarea" Disabled="true" />
+                <Textarea ReadOnly="true" Value="Read-only note" />
+                <Textarea Invalid="true" Value="This needs a little more detail." />
+            </div>,
+            [
+                new StoryCard.CodeTab("states-razor", "TextareaStory.razor", StatesRazor)
+            ])
+    ];
+
+    private const string DefaultRazor =
+        """
         <Textarea Placeholder="Type your message here." />
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Disabled</h2>
-        <Textarea Placeholder="Disabled textarea" Disabled="true" />
-    </section>
-
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">With Label</h2>
+    private const string LabelRazor =
+        """
         <div class="space-y-1">
             <Label For="msg">Your message</Label>
             <Textarea id="msg" Placeholder="Leave a comment..." />
         </div>
-    </section>
-</div>
+        """;
+
+    private const string StatesRazor =
+        """
+        <div class="space-y-2">
+            <Textarea Placeholder="Disabled textarea" Disabled="true" />
+            <Textarea ReadOnly="true" Value="Read-only note" />
+            <Textarea Invalid="true" Value="This needs a little more detail." />
+        </div>
+        """;
+}

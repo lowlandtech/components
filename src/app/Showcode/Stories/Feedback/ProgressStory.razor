@@ -1,34 +1,85 @@
 @attribute [DisplayName("Feedback/Progress")]
 @inherits StoryComponent
 
-<div class="space-y-8 max-w-sm">
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Values</h2>
+<StoryCard Title="Progress"
+           Description="Progress states demonstrate value ranges, completion, compact sizing, and indeterminate loading."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "values",
+            "Values",
+            @<div class="w-full max-w-sm space-y-4">
+                <div class="space-y-1">
+                    <span class="text-sm text-muted-foreground">33%</span>
+                    <Progress Value="33" Max="100" />
+                </div>
+                <div class="space-y-1">
+                    <span class="text-sm text-muted-foreground">66%</span>
+                    <Progress Value="66" Max="100" />
+                </div>
+                <div class="space-y-1">
+                    <span class="text-sm text-muted-foreground">100%</span>
+                    <Progress Value="100" Max="100" />
+                </div>
+            </div>,
+            [
+                new StoryCard.CodeTab("values-razor", "ProgressStory.razor", ValuesRazor)
+            ]),
+        new(
+            "indeterminate",
+            "Indeterminate",
+            @<div class="w-full max-w-sm space-y-2">
+                <span class="text-sm text-muted-foreground">Loading workspace</span>
+                <Progress IsIndeterminate="true" />
+            </div>,
+            [
+                new StoryCard.CodeTab("indeterminate-razor", "ProgressStory.razor", IndeterminateRazor)
+            ]),
+        new(
+            "custom-max",
+            "Custom max",
+            @<div class="w-full max-w-sm space-y-2">
+                <span class="text-sm text-muted-foreground">3 of 8 steps</span>
+                <Progress Value="3" Max="8" />
+            </div>,
+            [
+                new StoryCard.CodeTab("custom-max-razor", "ProgressStory.razor", CustomMaxRazor)
+            ])
+    ];
+
+    private const string ValuesRazor =
+        """
         <div class="space-y-4">
             <div class="space-y-1">
-                <div class="flex justify-between text-sm">
-                    <span class="text-muted-foreground">0%</span>
-                </div>
-                <Progress Value="0" Max="100" />
-            </div>
-            <div class="space-y-1">
-                <div class="flex justify-between text-sm">
-                    <span class="text-muted-foreground">33%</span>
-                </div>
+                <span class="text-sm text-muted-foreground">33%</span>
                 <Progress Value="33" Max="100" />
             </div>
             <div class="space-y-1">
-                <div class="flex justify-between text-sm">
-                    <span class="text-muted-foreground">66%</span>
-                </div>
+                <span class="text-sm text-muted-foreground">66%</span>
                 <Progress Value="66" Max="100" />
             </div>
             <div class="space-y-1">
-                <div class="flex justify-between text-sm">
-                    <span class="text-muted-foreground">100%</span>
-                </div>
+                <span class="text-sm text-muted-foreground">100%</span>
                 <Progress Value="100" Max="100" />
             </div>
         </div>
-    </section>
-</div>
+        """;
+
+    private const string IndeterminateRazor =
+        """
+        <div class="space-y-2">
+            <span class="text-sm text-muted-foreground">Loading workspace</span>
+            <Progress IsIndeterminate="true" />
+        </div>
+        """;
+
+    private const string CustomMaxRazor =
+        """
+        <div class="space-y-2">
+            <span class="text-sm text-muted-foreground">3 of 8 steps</span>
+            <Progress Value="3" Max="8" />
+        </div>
+        """;
+}
