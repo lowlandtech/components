@@ -46,7 +46,7 @@
 
     private string GetClass()
     {
-        var baseClass = $"cn-drawer-content group/drawer-content z-50 bg-white flex flex-col {GetDirectionClasses()} {GetAnimationClasses()}";
+        var baseClass = $"cn-drawer-content group/drawer-content z-50 bg-background flex flex-col {GetDirectionClasses()} {GetAnimationClasses()}";
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
 }

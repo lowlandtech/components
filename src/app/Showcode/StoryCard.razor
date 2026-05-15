@@ -18,7 +18,7 @@
             </div>
         }
 
-        <Tabs DefaultValue="@DefaultStateValue" class="w-full">
+        <Tabs Value="@_activeState" ValueChanged="@((v) => _activeState = v)" class="w-full">
             @if (States.Count > 1)
             {
                 <div class="flex items-center px-4 pb-3">
@@ -99,6 +99,10 @@
     private string? CopiedValue { get; set; }
 
     private string DefaultStateValue => DefaultState ?? States[0].Value;
+
+    private string _activeState = "";
+
+    protected override void OnInitialized() => _activeState = DefaultStateValue;
 
     private string GetClass()
     {

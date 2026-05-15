@@ -20,13 +20,15 @@ public class SC01_CollapsibleToggle : ViewScenario
         });
         
         // Initially closed
-        cut.Markup.ShouldNotContain("Content");
+        var content = cut.Find("[data-slot='collapsible-content']");
+        content.ClassList.ShouldContain("grid-rows-[0fr]");
         
         // Click trigger
         cut.Find("[data-slot='collapsible-trigger']").Click();
         
-        // Content should be visible
-        cut.Markup.ShouldContain("Content");
+        // Content should be expanded
+        content = cut.Find("[data-slot='collapsible-content']");
+        content.ClassList.ShouldContain("grid-rows-[1fr]");
     }
 
     [Fact(DisplayName = "UAC02: IsOpenChanged event is fired on toggle")]

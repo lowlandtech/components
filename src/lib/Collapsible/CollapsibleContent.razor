@@ -1,14 +1,13 @@
 @namespace LowlandTech.Components.Collapsible
 @inherits LtComponentBase
 
-@if (Parent?.IsOpen == true)
-{
-    <div data-slot="collapsible-content"
-         class="@GetClass()"
-         @attributes="AdditionalAttributes">
+<div data-slot="collapsible-content"
+     class="@GetClass() grid transition-all duration-300 ease-in-out @(Parent?.IsOpen == true ? "grid-rows-[1fr]" : "grid-rows-[0fr]")"
+     @attributes="AdditionalAttributes">
+    <div class="min-h-0 overflow-hidden">
         @ChildContent
     </div>
-}
+</div>
 
 @code {
     [CascadingParameter] private Collapsible? Parent { get; set; }
