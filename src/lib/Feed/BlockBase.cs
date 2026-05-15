@@ -76,10 +76,27 @@ public abstract class BlockBase : ComponentBase, IBlock, IDisposable
     /// <summary>
     /// Gets the rounded corner class based on block spacing setting.
     /// Returns "rounded-lg" when spacing is on, "rounded-none" when off.
+    /// Also returns "rounded-none" when the block is rendered inside an expanded
+    /// or overlaid card (detected via cascaded BlockMode or BlockContext).
     /// </summary>
-    protected string BlockRoundedClass => ParentBlockMode is BlockMode.Expanded or BlockMode.ContentOverlaid or BlockMode.AppOverlaid
+    protected string BlockRoundedClass => IsBlockModeExpanded()
         ? "rounded-none"
         : SessionBlockSpacingOptions.IsEnabled(BlockSpacing) ? "rounded-lg" : "rounded-none";
+
+    private bool IsBlockModeExpanded()
+    {
+        if (ParentBlockMode is BlockMode.Expanded or BlockMode.ContentOverlaid or BlockMode.AppOverlaid)
+            return true;
+
+        if (BlockContext is not null && BlockId != Guid.Empty)
+        {
+            var mode = BlockContext.GetMode(BlockId);
+            if (mode is BlockMode.Expanded or BlockMode.ContentOverlaid or BlockMode.AppOverlaid)
+                return true;
+        }
+
+        return false;
+    }
 
     /// <summary>
     /// Gets the background class based on block spacing setting.
