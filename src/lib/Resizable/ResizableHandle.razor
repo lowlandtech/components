@@ -10,10 +10,7 @@
       role="separator"
       tabindex="0"
       @ref="_element"
-    @onkeydown="OnKeyDown"
-      @onpointerdown="OnPointerDown"
-      @onpointermove="OnPointerMove"
-      @onpointerup="OnPointerUp"
+      @onkeydown="OnKeyDown"
       @attributes="AdditionalAttributes">
     @if (ChildContent is not null)
     {
@@ -44,31 +41,15 @@
     [CascadingParameter] private Resizable? Parent { get; set; }
 
     [Parameter] public bool WithHandle { get; set; }
-
-    /// <summary>
-    /// Group identifier for coordinating multiple handles.
-    /// </summary>
     [Parameter] public string? Group { get; set; }
-
-    /// <summary>
-    /// Index of this handle in the group (determines which panels it controls).
-    /// </summary>
     [Parameter] public int HandleIndex { get; set; } = -1;
-
-    /// <summary>
-    /// The panel before this handle (auto-detected if not specified).
-    /// </summary>
     [Parameter] public ResizablePanel? BeforePanel { get; set; }
-
-    /// <summary>
-    /// The panel after this handle (auto-detected if not specified).
-    /// </summary>
     [Parameter] public ResizablePanel? AfterPanel { get; set; }
 
     private ElementReference _element;
     private IJSObjectReference? _jsModule;
+    private DotNetObjectReference<ResizableHandle>? _dotNetRef;
     private bool _isDragging;
-    private double _startPosition;
     private int _startSizeBefore;
     private int _startSizeAfter;
     private double _containerSize;
@@ -78,12 +59,45 @@
         Parent?.RegisterHandle(this);
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                _jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/LowlandTech.Components/js/resizable.js");
+                _dotNetRef = DotNetObjectReference.Create(this);
+                await _jsModule.InvokeVoidAsync("init", _element, _dotNetRef, GetOrientation());
+            }
+            catch (JSDisconnectedException)
+            {
+                // Ignore
+            }
+            catch
+            {
+                // JS interop may not be available in test environments
+            }
+        }
+    }
+
     public void Dispose()
     {
         Parent?.UnregisterHandle(this);
+        _dotNetRef?.Dispose();
+
+        try
+        {
+            _jsModule?.InvokeVoidAsync("dispose", _element);
+            _jsModule?.DisposeAsync();
+        }
+        catch (JSDisconnectedException)
+        {
+            // Ignore
+        }
     }
 
-    private async Task OnPointerDown(PointerEventArgs e)
+    [JSInvokable]
+    public async Task OnPointerDownJs()
     {
         if (Parent == null) return;
 
@@ -102,17 +116,14 @@
             await Parent.NotifyResizeStartAsync(afterPanel);
         }
 
-        _startPosition = Parent.Direction == "horizontal" ? e.ClientX : e.ClientY;
-
         try
         {
-            _jsModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/LowlandTech.Components/js/slider.js");
-            await _jsModule.InvokeVoidAsync("setPointerCapture", _element, e.PointerId);
-
-            var rect = await _jsModule.InvokeAsync<ContainerRect>("getBoundingClientRect", Parent.ElementReference);
-            if (rect != null)
+            if (_jsModule != null)
             {
-                _containerSize = Parent.Direction == "horizontal" ? rect.Width : rect.Height;
+                var rect = await _jsModule.InvokeAsync<ContainerRect>("getBoundingClientRect", Parent.ElementReference);
+                _containerSize = rect != null
+                    ? (Parent.Direction == "horizontal" ? rect.Width : rect.Height)
+                    : 1000;
             }
             else
             {
@@ -124,23 +135,13 @@
             _containerSize = 1000;
         }
 
-        // If grouped, notify other handles in the same group
-        if (!string.IsNullOrEmpty(Group))
-        {
-            var groupHandles = Parent.Handles.Where(h => h.Group == Group && h != this).ToList();
-            foreach (var handle in groupHandles)
-            {
-                // Grouped handles will coordinate their movements
-            }
-        }
+        StateHasChanged();
     }
 
-    private async Task OnPointerMove(PointerEventArgs e)
+    [JSInvokable]
+    public async Task OnPointerMoveJs(double delta)
     {
         if (!_isDragging || Parent == null) return;
-
-        var currentPosition = Parent.Direction == "horizontal" ? e.ClientX : e.ClientY;
-        var delta = currentPosition - _startPosition;
 
         var (beforePanel, afterPanel) = GetPanels();
         if (beforePanel == null || afterPanel == null) return;
@@ -154,7 +155,6 @@
         beforePanel.UpdateSize(newSizeBefore);
         afterPanel.UpdateSize(newSizeAfter);
 
-        // If grouped, apply proportional changes to other panels in the group
         if (!string.IsNullOrEmpty(Group))
         {
             await ApplyGroupResizeAsync(sizeDelta);
@@ -166,24 +166,13 @@
         StateHasChanged();
     }
 
-    private async Task OnPointerUp(PointerEventArgs e)
+    [JSInvokable]
+    public async Task OnPointerUpJs()
     {
         if (!_isDragging || Parent == null) return;
 
         _isDragging = false;
         Parent.ActiveHandle = null;
-
-        try
-        {
-            if (_jsModule != null)
-            {
-                await _jsModule.InvokeVoidAsync("releasePointerCapture", _element, e.PointerId);
-            }
-        }
-        catch (JSDisconnectedException)
-        {
-            // Ignore
-        }
 
         var (beforePanel, afterPanel) = GetPanels();
         if (beforePanel != null)
@@ -194,40 +183,27 @@
         {
             await Parent.NotifyResizeEndAsync(afterPanel);
         }
+
+        StateHasChanged();
     }
 
     private async Task OnKeyDown(KeyboardEventArgs e)
     {
-        if (Parent == null)
-        {
-            return;
-        }
+        if (Parent == null) return;
 
         var delta = GetKeyboardDelta(e.Key);
-        if (delta == 0)
-        {
-            return;
-        }
+        if (delta == 0) return;
 
         var (beforePanel, afterPanel) = GetPanels();
-        if (beforePanel == null || afterPanel == null)
-        {
-            return;
-        }
+        if (beforePanel == null || afterPanel == null) return;
 
         var targetSizeBefore = Math.Clamp(beforePanel.CurrentSize + delta, beforePanel.MinSize, beforePanel.MaxSize);
         var appliedDelta = targetSizeBefore - beforePanel.CurrentSize;
-        if (appliedDelta == 0)
-        {
-            return;
-        }
+        if (appliedDelta == 0) return;
 
         var targetSizeAfter = Math.Clamp(afterPanel.CurrentSize - appliedDelta, afterPanel.MinSize, afterPanel.MaxSize);
         appliedDelta = afterPanel.CurrentSize - targetSizeAfter;
-        if (appliedDelta == 0)
-        {
-            return;
-        }
+        if (appliedDelta == 0) return;
 
         await beforePanel.SetSizeAsync(beforePanel.CurrentSize + appliedDelta);
         await afterPanel.SetSizeAsync(afterPanel.CurrentSize - appliedDelta);
@@ -253,7 +229,6 @@
 
         var groupPanels = Parent.Panels.Where(p => p != GetPanels().Item1 && p != GetPanels().Item2).ToList();
 
-        // Distribute the resize delta across other panels in the group proportionally
         if (groupPanels.Count > 0)
         {
             var deltaPerPanel = sizeDelta / groupPanels.Count;
@@ -295,7 +270,7 @@
 
         if (_isDragging)
         {
-            baseClass += " data-dragging";
+            baseClass += " data-[dragging]";
         }
 
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";

@@ -61,7 +61,12 @@
     /// </summary>
     internal void UpdateSize(int size)
     {
-        CurrentSize = Math.Clamp(size, MinSize, MaxSize);
+        var clamped = Math.Clamp(size, MinSize, MaxSize);
+        if (CurrentSize != clamped)
+        {
+            CurrentSize = clamped;
+            StateHasChanged();
+        }
     }
 
     internal async Task NotifyResizeAsync()
