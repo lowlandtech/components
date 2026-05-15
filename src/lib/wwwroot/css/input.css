@@ -100,6 +100,51 @@
 
 /* ToggleGroup Component Styles */
 @layer components {
+  /* Button Component Styles */
+  .btn {
+    @apply inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .btn-default {
+    @apply bg-primary text-primary-foreground shadow hover:bg-primary/90;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/90;
+  }
+
+  .btn-destructive {
+    @apply bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90;
+  }
+
+  .btn-outline {
+    @apply border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground;
+  }
+
+  .btn-ghost {
+    @apply hover:bg-accent hover:text-accent-foreground;
+  }
+
+  .btn-link {
+    @apply h-auto px-0 py-0 text-primary underline-offset-4 hover:underline;
+  }
+
+  .btn-sm {
+    @apply h-8 rounded-md px-3 text-xs;
+  }
+
+  .btn-lg {
+    @apply h-10 rounded-md px-8;
+  }
+
+  .btn-icon {
+    @apply size-9 px-0 py-0;
+  }
+
+  .btn-icon-sm {
+    @apply size-8 px-0 py-0;
+  }
+
   .cn-toggle-group {
     @apply flex items-center gap-1;
   }
@@ -477,5 +522,14 @@
 
   .cn-tabs-list[data-variant="line"] .cn-tabs-trigger[data-state="active"] {
     @apply text-foreground;
+  }
+
+  /* Popover Component Styles */
+  .cn-popover-content-outline {
+    @apply rounded-md border border-border bg-popover p-4 text-popover-foreground shadow-md;
+  }
+
+  .cn-popover-content-none {
+    @apply text-popover-foreground;
   }
 }

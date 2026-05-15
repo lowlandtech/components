@@ -47,5 +47,25 @@ public class SC03_RenderPopoverContent : ViewScenario
         var cut = Ctx.Render<PopoverContent>();
         cut.Instance.Align.ShouldBe("center");
         cut.Instance.Side.ShouldBe("bottom");
+        cut.Instance.Variant.ShouldBe("none");
+    }
+
+    [Fact(DisplayName = "UAC05: PopoverContent renders outline variant")]
+    [Trait(Spec.UAC, "05")]
+    public void UAC05_RendersOutlineVariant()
+    {
+        var cut = Ctx.Render<PopoverSut>(p =>
+        {
+            p.Add(x => x.IsOpen, true);
+            p.AddChildContent<PopoverContent>(content =>
+            {
+                content.Add(x => x.Variant, "outline");
+                content.AddChildContent("Content");
+            });
+        });
+
+        var content = cut.Find("[data-slot='popover-content']");
+        content.GetAttribute("data-variant").ShouldBe("outline");
+        content.ClassList.ShouldContain("cn-popover-content-outline");
     }
 }

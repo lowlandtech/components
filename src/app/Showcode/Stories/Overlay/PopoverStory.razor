@@ -23,6 +23,21 @@
                 new StoryCard.CodeTab("basic-service", "PopoverService.cs", PopoverServiceCode, "csharp")
             ]),
         new(
+            "outlined",
+            "Outlined",
+            @<Popover>
+                <PopoverTrigger>
+                    <Button Variant="outline">Open outlined popover</Button>
+                </PopoverTrigger>
+                <PopoverContent Variant="outline">
+                    <p class="text-sm">This popover uses the outline variant so its border and surface are visible.</p>
+                </PopoverContent>
+            </Popover>,
+            [
+                new StoryCard.CodeTab("outlined-razor", "PopoverStory.razor", OutlinedRazor),
+                new StoryCard.CodeTab("outlined-service", "PopoverService.cs", PopoverServiceCode, "csharp")
+            ]),
+        new(
             "form",
             "With form",
             @<Popover>
@@ -32,7 +47,7 @@
                         Dimensions
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent class="w-64">
+                <PopoverContent Variant="outline" class="w-64">
                     <div class="space-y-3">
                         <p class="text-sm font-medium">Dimensions</p>
                         <div class="space-y-1">
@@ -64,6 +79,18 @@
         </Popover>
         """;
 
+    private const string OutlinedRazor =
+        """
+        <Popover>
+            <PopoverTrigger>
+                <Button Variant="outline">Open outlined popover</Button>
+            </PopoverTrigger>
+            <PopoverContent Variant="outline">
+                <p class="text-sm">This popover uses the outline variant so its border and surface are visible.</p>
+            </PopoverContent>
+        </Popover>
+        """;
+
     private const string FormRazor =
         """
         <Popover>
@@ -73,7 +100,7 @@
                     Dimensions
                 </Button>
             </PopoverTrigger>
-            <PopoverContent class="w-64">
+            <PopoverContent Variant="outline" class="w-64">
                 <div class="space-y-3">
                     <p class="text-sm font-medium">Dimensions</p>
                     <div class="space-y-1">

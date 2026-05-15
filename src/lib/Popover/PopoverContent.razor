@@ -16,6 +16,7 @@
         <Portal>
             <div data-slot="popover-content"
                  data-state="@GetState()"
+                 data-variant="@Variant"
                  data-align="@Align"
                  data-side="@Side"
                  class="@GetClass()"
@@ -28,6 +29,7 @@
     {
         <div data-slot="popover-content"
              data-state="@GetState()"
+             data-variant="@Variant"
              data-align="@Align"
              data-side="@Side"
              class="@GetClass()"
@@ -39,6 +41,11 @@
 
 @code {
     [CascadingParameter] private Popover? Parent { get; set; }
+
+    /// <summary>
+    /// The visual treatment of the popover content.
+    /// </summary>
+    [Parameter] public string Variant { get; set; } = "none";
 
     /// <summary>
     /// The alignment of the popover content.
@@ -67,12 +74,19 @@
 
     private string GetClass()
     {
-        var baseClass = "cn-popover-content cn-popover-content-logical z-50 w-72 origin-(--transform-origin) outline-hidden";
+        var baseClass = $"cn-popover-content cn-popover-content-logical {GetVariantClass()} z-50 w-72 origin-(--transform-origin) outline-hidden";
         if (IsModal)
         {
             baseClass += " fixed z-50";
         }
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private string GetVariantClass()
+    {
+        return Variant.Equals("outline", StringComparison.OrdinalIgnoreCase)
+            ? "cn-popover-content-outline"
+            : "cn-popover-content-none";
     }
 
     private void OnOverlayClick()
