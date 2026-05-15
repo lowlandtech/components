@@ -653,4 +653,18 @@
   .cn-button-group-separator[data-orientation="vertical"] {
     @apply h-px w-full;
   }
+
+  /* ScrollArea Component Styles */
+  .cn-scroll-area-viewport {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .cn-scroll-area-viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cn-scroll-area-scrollbar {
+    padding: 2px;
+  }
 }
