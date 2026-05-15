@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "../wwwroot/css/variables.css";
+@import "../../lib/wwwroot/css/sidebar.css";
 
 @source "../**/*.razor";
 @source "../**/*.html";

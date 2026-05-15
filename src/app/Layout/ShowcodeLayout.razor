@@ -3,24 +3,22 @@
 @inject ShowcodeState State
 @implements IDisposable
 
-<SidebarProvider>
-    <div class="flex h-screen w-full overflow-hidden">
-        <ShowcodeNav />
-        <SidebarInset class="flex flex-col min-w-0">
-            <header class="flex h-12 shrink-0 items-center justify-between border-b border-border px-4 bg-background">
-                <SidebarTrigger />
-                <span class="text-sm font-semibold text-foreground tracking-tight">LowlandTech Components</span>
-                <ThemeToggle />
-            </header>
-            <main class="flex-1 overflow-y-auto bg-background">
-                <div class="grid min-h-full" style="grid-template-columns: 1fr min(860px, 100%) 1fr;">
-                    <div class="col-start-2 py-8 px-6">
-                        @Body
-                    </div>
+<SidebarProvider class="group/sidebar-wrapper flex min-h-svh w-full">
+    <ShowcodeNav />
+    <SidebarInset>
+        <header class="flex h-12 shrink-0 items-center justify-between border-b border-border px-4 bg-background">
+            <SidebarTrigger />
+            <span class="text-sm font-semibold text-foreground tracking-tight">LowlandTech Components</span>
+            <ThemeToggle />
+        </header>
+        <main class="flex-1 overflow-y-auto bg-background">
+            <div class="grid min-h-full" style="grid-template-columns: 1fr min(860px, 100%) 1fr;">
+                <div class="col-start-2 py-8 px-6">
+                    @Body
                 </div>
-            </main>
-        </SidebarInset>
-    </div>
+            </div>
+        </main>
+    </SidebarInset>
 </SidebarProvider>
 
 @code {
