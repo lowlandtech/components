@@ -43,7 +43,7 @@
             try
             {
                 _dotNetRef = DotNetObjectReference.Create(this);
-                _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", Assets["./js/panel-splitter.js"]);
+                _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/LowlandTech.Components/js/panel-splitter.js");
                 if (_jsModule is null) return;
 
                 var saved = await JsRuntime.InvokeAsync<string?>("localStorage.getItem", StorageKey);

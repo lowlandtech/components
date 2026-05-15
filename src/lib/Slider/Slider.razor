@@ -82,7 +82,7 @@
         if (Disabled) return;
 
         _isDragging = true;
-        _jsModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", Assets["./js/slider.js"]);
+        _jsModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/LowlandTech.Components/js/slider.js");
         await _jsModule.InvokeVoidAsync("setPointerCapture", _element, e.PointerId);
 
         var rect = await _jsModule.InvokeAsync<TrackRect>("getBoundingClientRect", _element);
