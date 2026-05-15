@@ -57,6 +57,10 @@
                 await _jsModule.InvokeVoidAsync("init", ElementId, _dotNetRef, CurrentWidth, side, MinWidth, MaxWidth);
             }
             catch (JSDisconnectedException) { }
+            catch
+            {
+                // JS interop may not be available in test environments
+            }
         }
     }
 

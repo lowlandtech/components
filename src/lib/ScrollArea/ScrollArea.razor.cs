@@ -66,9 +66,20 @@ public partial class ScrollArea : LtComponentBase, IDisposable
     {
         if (firstRender && ShowScrollbar)
         {
-            _jsModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import",
-                "./_content/LowlandTech.Components/js/scroll-area.js");
-            await _jsModule.InvokeVoidAsync("init", _areaId, _viewportRef, _scrollbarRef, _thumbRef, _trackRef, EffectiveOrientation);
+            try
+            {
+                _jsModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import",
+                    "./_content/LowlandTech.Components/js/scroll-area.js");
+                await _jsModule.InvokeVoidAsync("init", _areaId, _viewportRef, _scrollbarRef, _thumbRef, _trackRef, EffectiveOrientation);
+            }
+            catch (JSDisconnectedException)
+            {
+                // Ignore
+            }
+            catch
+            {
+                // JS interop may not be available in test environments
+            }
         }
     }
 

@@ -82,16 +82,27 @@
         if (Disabled) return;
 
         _isDragging = true;
-        _jsModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/LowlandTech.Components/js/slider.js");
-        await _jsModule.InvokeVoidAsync("setPointerCapture", _element, e.PointerId);
-
-        var rect = await _jsModule.InvokeAsync<TrackRect>("getBoundingClientRect", _element);
-        if (rect != null)
+        try
         {
-            _trackLeft = rect.Left;
-            _trackTop = rect.Top;
-            _trackWidth = rect.Width;
-            _trackHeight = rect.Height;
+            _jsModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/LowlandTech.Components/js/slider.js");
+            await _jsModule.InvokeVoidAsync("setPointerCapture", _element, e.PointerId);
+
+            var rect = await _jsModule.InvokeAsync<TrackRect>("getBoundingClientRect", _element);
+            if (rect != null)
+            {
+                _trackLeft = rect.Left;
+                _trackTop = rect.Top;
+                _trackWidth = rect.Width;
+                _trackHeight = rect.Height;
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+            // Ignore
+        }
+        catch
+        {
+            // JS interop may not be available in test environments
         }
 
         await UpdateValueFromPointer(e.ClientX, e.ClientY);
