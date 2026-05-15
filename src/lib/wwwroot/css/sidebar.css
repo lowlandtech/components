@@ -1,0 +1,258 @@
+/* ============================================================
+   Sidebar layout — mirrors shadcn/ui sidebar data-slot pattern
+   ============================================================ */
+
+/* Provider wrapper: flex row, full width, min full viewport height */
+[data-slot="sidebar-provider"] {
+    display: flex;
+    min-height: 100svh;
+    width: 100%;
+}
+
+/* Has inset variant → sidebar background fills the wrapper */
+[data-slot="sidebar-provider"]:has([data-variant="inset"]) {
+    background-color: var(--sidebar);
+}
+
+/* ── Sidebar outer peer (desktop gap element) ────────────── */
+/* The <aside> itself is the "group peer" that drives data-attribute queries */
+[data-slot="sidebar"] {
+    position: relative;
+    width: var(--sidebar-width, 16rem);
+    flex-shrink: 0;
+    transition: width 200ms ease-linear;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Collapsed offcanvas: zero gap */
+[data-slot="sidebar"][data-state="collapsed"][data-collapsible="offcanvas"] {
+    width: 0;
+    overflow: hidden;
+}
+
+/* ── Sidebar inner container (fixed panel) ───────────────── */
+[data-slot="sidebar-provider"] .app-sidebar {
+    position: fixed;
+    inset-block: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    width: var(--sidebar-width, 16rem);
+    height: 100svh;
+    background-color: var(--sidebar);
+    color: var(--sidebar-foreground);
+    transition: left 200ms ease-linear, right 200ms ease-linear, width 200ms ease-linear;
+    overflow: hidden;
+}
+
+/* Left side (default) */
+[data-slot="sidebar-provider"] .app-sidebar[data-side="left"],
+[data-slot="sidebar-provider"] .app-sidebar:not([data-side="right"]) {
+    left: 0;
+    border-right: 1px solid var(--sidebar-border);
+}
+
+/* Left side collapsed offcanvas → slide off-screen */
+[data-slot="sidebar-provider"] .app-sidebar[data-side="left"][data-state="collapsed"][data-collapsible="offcanvas"],
+[data-slot="sidebar-provider"] .app-sidebar:not([data-side="right"])[data-state="collapsed"][data-collapsible="offcanvas"] {
+    left: calc(var(--sidebar-width, 16rem) * -1);
+}
+
+/* Right side */
+[data-slot="sidebar-provider"] .app-sidebar[data-side="right"] {
+    right: 0;
+    left: auto;
+    border-left: 1px solid var(--sidebar-border);
+}
+
+[data-slot="sidebar-provider"] .app-sidebar[data-side="right"][data-state="collapsed"][data-collapsible="offcanvas"] {
+    right: calc(var(--sidebar-width, 16rem) * -1);
+}
+
+/* Inset / floating variants */
+[data-slot="sidebar-provider"] .app-sidebar[data-variant="floating"],
+[data-slot="sidebar-provider"] .app-sidebar[data-variant="inset"] {
+    padding: 0.5rem;
+    border: none;
+}
+
+/* ── Sidebar internal sub-components ─────────────────────── */
+[data-slot="sidebar-header"] {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    flex-shrink: 0;
+}
+
+[data-slot="sidebar-footer"] {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    flex-shrink: 0;
+}
+
+[data-slot="sidebar-content"] {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 0.5rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+}
+
+/* Collapsed icon mode — hide overflow */
+[data-slot="sidebar-provider"] .app-sidebar[data-collapsible="icon"] [data-slot="sidebar-content"] {
+    overflow: hidden;
+}
+
+[data-slot="sidebar-group"] {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+    padding: 0.5rem;
+}
+
+[data-slot="sidebar-group-label"] {
+    display: flex;
+    height: 2rem;
+    align-items: center;
+    border-radius: 0.375rem;
+    padding-inline: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: color-mix(in oklab, var(--sidebar-foreground) 70%, transparent);
+    outline: none;
+    transition: margin 200ms ease-linear, opacity 200ms ease-linear;
+    flex-shrink: 0;
+}
+
+/* Collapsed icon mode — collapse label */
+[data-slot="sidebar-provider"] .app-sidebar[data-collapsible="icon"] [data-slot="sidebar-group-label"] {
+    margin-top: -2rem;
+    opacity: 0;
+    overflow: hidden;
+}
+
+[data-slot="sidebar-group-content"] {
+    width: 100%;
+    font-size: 0.875rem;
+}
+
+[data-slot="sidebar-menu"] {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+[data-slot="sidebar-menu-item"] {
+    position: relative;
+}
+
+[data-slot="sidebar-menu-button"] {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 0.5rem;
+    overflow: hidden;
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+    text-align: left;
+    font-size: 0.875rem;
+    color: var(--sidebar-foreground);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background-color 150ms, color 150ms, width 200ms ease-linear, height 200ms ease-linear, padding 200ms ease-linear;
+    outline: none;
+    text-decoration: none;
+}
+
+[data-slot="sidebar-menu-button"]:hover {
+    background-color: var(--sidebar-accent);
+    color: var(--sidebar-accent-foreground);
+}
+
+[data-slot="sidebar-menu-button"][data-active="true"] {
+    background-color: var(--sidebar-accent);
+    color: var(--sidebar-accent-foreground);
+    font-weight: 500;
+}
+
+[data-slot="sidebar-menu-button"]:focus-visible {
+    outline: 2px solid var(--sidebar-ring);
+    outline-offset: 2px;
+}
+
+/* Collapsed icon mode — icon-only button */
+[data-slot="sidebar-provider"] .app-sidebar[data-collapsible="icon"] [data-slot="sidebar-menu-button"] {
+    width: 2rem !important;
+    height: 2rem !important;
+    padding: 0.5rem !important;
+    justify-content: center;
+}
+
+/* ── SidebarTrigger ──────────────────────────────────────── */
+[data-slot="sidebar-trigger"],
+.sidebar-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.375rem;
+    border: none;
+    background: transparent;
+    color: var(--sidebar-foreground, var(--foreground));
+    cursor: pointer;
+    transition: background-color 150ms, color 150ms;
+    outline: none;
+    flex-shrink: 0;
+}
+
+[data-slot="sidebar-trigger"]:hover,
+.sidebar-trigger:hover {
+    background-color: var(--sidebar-accent, var(--accent));
+    color: var(--sidebar-accent-foreground, var(--accent-foreground));
+}
+
+[data-slot="sidebar-trigger"]:focus-visible,
+.sidebar-trigger:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+}
+[data-slot="sidebar-provider"] .sidebar-inset {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    background-color: var(--background);
+    /* Push content right by sidebar width so it sits beside the fixed sidebar */
+    margin-left: var(--sidebar-width, 16rem);
+    transition: margin-left 200ms ease-linear;
+}
+
+/* When sidebar collapses offcanvas on the left, reclaim that space */
+[data-slot="sidebar"][data-state="collapsed"][data-collapsible="offcanvas"] ~ [data-slot="sidebar-provider"] .sidebar-inset,
+[data-slot="sidebar-provider"]:has(.app-sidebar[data-state="collapsed"][data-collapsible="offcanvas"]:not([data-side="right"])) .sidebar-inset {
+    margin-left: 0;
+}
+
+/* Inset variant: slight margin + rounded card appearance */
+[data-slot="sidebar-provider"]:has([data-variant="inset"]) .sidebar-inset {
+    margin: 0.5rem 0.5rem 0.5rem 0;
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-sm);
+}
