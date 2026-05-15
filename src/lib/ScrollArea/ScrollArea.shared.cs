@@ -6,7 +6,7 @@ public partial class ScrollArea
     {
         get
         {
-            const string baseClass = "cn-scroll-area relative";
+            const string baseClass = "cn-scroll-area relative overflow-hidden";
             return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
         }
     }

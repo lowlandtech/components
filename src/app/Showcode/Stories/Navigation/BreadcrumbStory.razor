@@ -1,40 +1,98 @@
 @attribute [DisplayName("Navigation/Breadcrumb")]
 @inherits StoryComponent
 
-<div class="space-y-8">
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Basic</h2>
-        <LowlandTech.Components.Breadcrumb.Breadcrumb>
+<StoryCard Title="Breadcrumb"
+           Description="Hierarchical navigation trail with separator variants and ellipsis truncation."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "basic",
+            "Basic",
+            @<LowlandTech.Components.Breadcrumb.Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem><BreadcrumbLink href="/">Home</BreadcrumbLink></BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem><BreadcrumbLink href="#">Components</BreadcrumbLink></BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem><LowlandTech.Components.Breadcrumb.BreadcrumbPage>Breadcrumb</LowlandTech.Components.Breadcrumb.BreadcrumbPage></BreadcrumbItem>
+                </BreadcrumbList>
+            </LowlandTech.Components.Breadcrumb.Breadcrumb>,
+            [
+                new StoryCard.CodeTab("basic-razor", "BreadcrumbStory.razor", BasicRazor)
+            ]),
+        new(
+            "custom-separator",
+            "Custom separator",
+            @<LowlandTech.Components.Breadcrumb.Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem><BreadcrumbLink href="/">Home</BreadcrumbLink></BreadcrumbItem>
+                    <BreadcrumbSeparator>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </BreadcrumbSeparator>
+                    <BreadcrumbItem><BreadcrumbLink href="#">Products</BreadcrumbLink></BreadcrumbItem>
+                    <BreadcrumbSeparator>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </BreadcrumbSeparator>
+                    <BreadcrumbItem><LowlandTech.Components.Breadcrumb.BreadcrumbPage>Detail</LowlandTech.Components.Breadcrumb.BreadcrumbPage></BreadcrumbItem>
+                </BreadcrumbList>
+            </LowlandTech.Components.Breadcrumb.Breadcrumb>,
+            [
+                new StoryCard.CodeTab("separator-razor", "BreadcrumbStory.razor", CustomSeparatorRazor)
+            ]),
+        new(
+            "with-ellipsis",
+            "With ellipsis",
+            @<LowlandTech.Components.Breadcrumb.Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem><BreadcrumbLink href="/">Home</BreadcrumbLink></BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem><BreadcrumbEllipsis /></BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem><BreadcrumbLink href="#">Docs</BreadcrumbLink></BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem><LowlandTech.Components.Breadcrumb.BreadcrumbPage>Components</LowlandTech.Components.Breadcrumb.BreadcrumbPage></BreadcrumbItem>
+                </BreadcrumbList>
+            </LowlandTech.Components.Breadcrumb.Breadcrumb>,
+            [
+                new StoryCard.CodeTab("ellipsis-razor", "BreadcrumbStory.razor", EllipsisRazor)
+            ])
+    ];
+
+    private const string BasicRazor =
+        """
+        <Breadcrumb>
             <BreadcrumbList>
                 <BreadcrumbItem><BreadcrumbLink href="/">Home</BreadcrumbLink></BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem><BreadcrumbLink href="#">Components</BreadcrumbLink></BreadcrumbItem>
                 <BreadcrumbSeparator />
-                <BreadcrumbItem><LowlandTech.Components.Breadcrumb.BreadcrumbPage>Breadcrumb</LowlandTech.Components.Breadcrumb.BreadcrumbPage></BreadcrumbItem>
+                <BreadcrumbItem><BreadcrumbPage>Breadcrumb</BreadcrumbPage></BreadcrumbItem>
             </BreadcrumbList>
-        </LowlandTech.Components.Breadcrumb.Breadcrumb>
-    </section>
+        </Breadcrumb>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">With custom separator</h2>
-        <LowlandTech.Components.Breadcrumb.Breadcrumb>
+    private const string CustomSeparatorRazor =
+        """
+        <Breadcrumb>
             <BreadcrumbList>
                 <BreadcrumbItem><BreadcrumbLink href="/">Home</BreadcrumbLink></BreadcrumbItem>
                 <BreadcrumbSeparator>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    <svg ...arrow icon... />
                 </BreadcrumbSeparator>
                 <BreadcrumbItem><BreadcrumbLink href="#">Products</BreadcrumbLink></BreadcrumbItem>
                 <BreadcrumbSeparator>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    <svg ...arrow icon... />
                 </BreadcrumbSeparator>
-                <BreadcrumbItem><LowlandTech.Components.Breadcrumb.BreadcrumbPage>Detail</LowlandTech.Components.Breadcrumb.BreadcrumbPage></BreadcrumbItem>
+                <BreadcrumbItem><BreadcrumbPage>Detail</BreadcrumbPage></BreadcrumbItem>
             </BreadcrumbList>
-        </LowlandTech.Components.Breadcrumb.Breadcrumb>
-    </section>
+        </Breadcrumb>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">With ellipsis</h2>
-        <LowlandTech.Components.Breadcrumb.Breadcrumb>
+    private const string EllipsisRazor =
+        """
+        <Breadcrumb>
             <BreadcrumbList>
                 <BreadcrumbItem><BreadcrumbLink href="/">Home</BreadcrumbLink></BreadcrumbItem>
                 <BreadcrumbSeparator />
@@ -42,8 +100,8 @@
                 <BreadcrumbSeparator />
                 <BreadcrumbItem><BreadcrumbLink href="#">Docs</BreadcrumbLink></BreadcrumbItem>
                 <BreadcrumbSeparator />
-                <BreadcrumbItem><LowlandTech.Components.Breadcrumb.BreadcrumbPage>Components</LowlandTech.Components.Breadcrumb.BreadcrumbPage></BreadcrumbItem>
+                <BreadcrumbItem><BreadcrumbPage>Components</BreadcrumbPage></BreadcrumbItem>
             </BreadcrumbList>
-        </LowlandTech.Components.Breadcrumb.Breadcrumb>
-    </section>
-</div>
+        </Breadcrumb>
+        """;
+}

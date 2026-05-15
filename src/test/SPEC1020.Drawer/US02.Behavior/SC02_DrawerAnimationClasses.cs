@@ -23,8 +23,7 @@ public class SC02_DrawerAnimationClasses : ViewScenario
     {
         var cut = RenderWithDirection("right");
         var content = cut.Find("[data-slot='drawer-content']");
-        content.ClassList.ShouldContain("data-[state=open]:slide-in-from-right");
-        content.ClassList.ShouldContain("data-[state=closed]:slide-out-to-right");
+        content.ClassList.ShouldContain("slide-in-from-right");
     }
 
     [Fact(DisplayName = "UAC02: Left drawer content has slide-in-from-left class")]
@@ -33,8 +32,7 @@ public class SC02_DrawerAnimationClasses : ViewScenario
     {
         var cut = RenderWithDirection("left");
         var content = cut.Find("[data-slot='drawer-content']");
-        content.ClassList.ShouldContain("data-[state=open]:slide-in-from-left");
-        content.ClassList.ShouldContain("data-[state=closed]:slide-out-to-left");
+        content.ClassList.ShouldContain("slide-in-from-left");
     }
 
     [Fact(DisplayName = "UAC03: Top drawer content has slide-in-from-top class")]
@@ -43,8 +41,7 @@ public class SC02_DrawerAnimationClasses : ViewScenario
     {
         var cut = RenderWithDirection("top");
         var content = cut.Find("[data-slot='drawer-content']");
-        content.ClassList.ShouldContain("data-[state=open]:slide-in-from-top");
-        content.ClassList.ShouldContain("data-[state=closed]:slide-out-to-top");
+        content.ClassList.ShouldContain("slide-in-from-top");
     }
 
     [Fact(DisplayName = "UAC04: Bottom drawer content has slide-in-from-bottom class")]
@@ -53,8 +50,7 @@ public class SC02_DrawerAnimationClasses : ViewScenario
     {
         var cut = RenderWithDirection("bottom");
         var content = cut.Find("[data-slot='drawer-content']");
-        content.ClassList.ShouldContain("data-[state=open]:slide-in-from-bottom");
-        content.ClassList.ShouldContain("data-[state=closed]:slide-out-to-bottom");
+        content.ClassList.ShouldContain("slide-in-from-bottom");
     }
 
     [Fact(DisplayName = "UAC05: DrawerOverlay has fade-in-0 animation class")]
@@ -67,8 +63,8 @@ public class SC02_DrawerAnimationClasses : ViewScenario
             p.AddChildContent<DrawerOverlay>();
         });
         var overlay = cut.Find("[data-slot='drawer-overlay']");
-        overlay.ClassList.ShouldContain("data-[state=open]:fade-in-0");
-        overlay.ClassList.ShouldContain("data-[state=closed]:fade-out-0");
+        overlay.ClassList.ShouldContain("fade-in-0");
+        overlay.ClassList.ShouldContain("duration-200");
     }
 
     [Fact(DisplayName = "UAC06: All directions include animate-in and animate-out base classes")]
@@ -79,8 +75,8 @@ public class SC02_DrawerAnimationClasses : ViewScenario
         {
             var cut = RenderWithDirection(direction);
             var content = cut.Find("[data-slot='drawer-content']");
-            content.ClassList.ShouldContain("data-[state=open]:animate-in");
-            content.ClassList.ShouldContain("data-[state=closed]:animate-out");
+            content.ClassList.ShouldContain("animate-in");
+            content.ClassList.ShouldContain("duration-300");
         }
     }
 }

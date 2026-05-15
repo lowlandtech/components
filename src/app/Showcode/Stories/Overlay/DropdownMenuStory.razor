@@ -1,0 +1,209 @@
+@attribute [DisplayName("Overlay/Dropdown Menu")]
+@inherits StoryComponent
+
+<StoryCard Title="Dropdown Menu"
+           Description="Dropdown menu displays a toggleable list of actions, links, and form controls with full property and event binding."
+           States="@States" />
+
+@code {
+    private bool _isOpen = true;
+    private bool _showStatusBar = true;
+    private bool _showActivityBar = false;
+    private bool _showPanel = true;
+    private string? _selectedAlignment = "start";
+    private string? _lastAction;
+
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "basic",
+            "Basic",
+            @<DropdownMenu>
+                <DropdownMenuTrigger><Button Variant="outline">Open menu</Button></DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    <DropdownMenuItem>Back</DropdownMenuItem>
+                    <DropdownMenuItem Disabled="true">Forward</DropdownMenuItem>
+                    <DropdownMenuItem>Reload</DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                        <span>Bookmark</span>
+                        <DropdownMenuShortcut>⌘D</DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                        <span>Print</span>
+                        <DropdownMenuShortcut>⌘P</DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>,
+            [
+                new StoryCard.CodeTab("basic-razor", "DropdownMenuStory.razor", BasicRazor)
+            ]),
+        new(
+            "controlled",
+            "Controlled open",
+            @<div class="flex flex-col items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm text-muted-foreground">IsOpen:</span>
+                    <Switch @bind-Checked="_isOpen" />
+                    <span class="text-sm font-mono">@(_isOpen ? "true" : "false")</span>
+                </div>
+                <DropdownMenu>
+                    <DropdownMenuTrigger><Button Variant="outline">Controlled menu</Button></DropdownMenuTrigger>
+                    <DropdownMenuContent @bind-IsOpen="_isOpen">
+                        <DropdownMenuItem @onclick="() => _isOpen = false">Close menu</DropdownMenuItem>
+                        <DropdownMenuItem>Stay open</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem @onclick="() => _isOpen = false">Save and close</DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>,
+            [
+                new StoryCard.CodeTab("controlled-razor", "DropdownMenuStory.razor", ControlledRazor)
+            ]),
+        new(
+            "checkbox",
+            "Checkbox items",
+            @<div class="flex flex-col items-center gap-4">
+                <div class="rounded-md border bg-muted/40 px-3 py-2 text-xs font-mono">
+                    StatusBar: @_showStatusBar, ActivityBar: @_showActivityBar, Panel: @_showPanel
+                </div>
+                <DropdownMenu>
+                    <DropdownMenuTrigger><Button Variant="outline">View options</Button></DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <DropdownMenuLabel>Appearance</DropdownMenuLabel>
+                        <DropdownMenuCheckboxItem @bind-Checked="_showStatusBar">Status Bar</DropdownMenuCheckboxItem>
+                        <DropdownMenuCheckboxItem @bind-Checked="_showActivityBar">Activity Bar</DropdownMenuCheckboxItem>
+                        <DropdownMenuCheckboxItem @bind-Checked="_showPanel">Panel</DropdownMenuCheckboxItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>,
+            [
+                new StoryCard.CodeTab("checkbox-razor", "DropdownMenuStory.razor", CheckboxRazor)
+            ]),
+        new(
+            "radio",
+            "Radio group",
+            @<div class="flex flex-col items-center gap-4">
+                <div class="rounded-md border bg-muted/40 px-3 py-2 text-xs font-mono">
+                    Selected: @_selectedAlignment
+                </div>
+                <DropdownMenu>
+                    <DropdownMenuTrigger><Button Variant="outline">Alignment: @_selectedAlignment</Button></DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <DropdownMenuLabel>Text alignment</DropdownMenuLabel>
+                        <DropdownMenuRadioGroup @bind-Value="_selectedAlignment">
+                            <DropdownMenuRadioItem Value="start">Start</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem Value="center">Center</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem Value="end">End</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem Value="justify" Disabled="true">Justify</DropdownMenuRadioItem>
+                        </DropdownMenuRadioGroup>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>,
+            [
+                new StoryCard.CodeTab("radio-razor", "DropdownMenuStory.razor", RadioRazor)
+            ]),
+        new(
+            "events",
+            "Event binding",
+            @<div class="flex flex-col items-center gap-4">
+                <div class="h-8 rounded-md border bg-muted/40 px-3 py-1.5 text-xs font-mono">
+                    @(string.IsNullOrEmpty(_lastAction) ? "Click an item..." : $"Last action: {_lastAction}")
+                </div>
+                <DropdownMenu>
+                    <DropdownMenuTrigger><Button Variant="outline">Actions</Button></DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <DropdownMenuGroup>
+                            <DropdownMenuLabel>File</DropdownMenuLabel>
+                            <DropdownMenuItem OnSelect='() => _lastAction = "new-file"'>New file</DropdownMenuItem>
+                            <DropdownMenuItem OnSelect='() => _lastAction = "copy"'>Copy</DropdownMenuItem>
+                            <DropdownMenuItem OnSelect='() => _lastAction = "paste"'>Paste</DropdownMenuItem>
+                        </DropdownMenuGroup>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuGroup>
+                            <DropdownMenuLabel>Edit</DropdownMenuLabel>
+                            <DropdownMenuItem OnSelect='() => _lastAction = "undo"'>Undo</DropdownMenuItem>
+                            <DropdownMenuItem OnSelect='() => _lastAction = "redo"'>Redo</DropdownMenuItem>
+                            <DropdownMenuItem OnSelect='() => _lastAction = "cut"' Disabled="true">Cut</DropdownMenuItem>
+                        </DropdownMenuGroup>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem OnSelect='() => _lastAction = "delete"' class="text-destructive focus:text-destructive">
+                            Delete
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>,
+            [
+                new StoryCard.CodeTab("events-razor", "DropdownMenuStory.razor", EventsRazor)
+            ])
+    ];
+
+    private const string BasicRazor =
+        """
+        <DropdownMenu>
+            <DropdownMenuTrigger><Button Variant="outline">Open menu</Button></DropdownMenuTrigger>
+            <DropdownMenuContent>
+                <DropdownMenuItem>Back</DropdownMenuItem>
+                <DropdownMenuItem Disabled="true">Forward</DropdownMenuItem>
+                <DropdownMenuItem>Reload</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                    <span>Bookmark</span>
+                    <DropdownMenuShortcut>⌘D</DropdownMenuShortcut>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+        """;
+
+    private const string ControlledRazor =
+        """
+        <DropdownMenu>
+            <DropdownMenuTrigger><Button Variant="outline">Controlled menu</Button></DropdownMenuTrigger>
+            <DropdownMenuContent @bind-IsOpen="_isOpen">
+                <DropdownMenuItem @onclick="() => _isOpen = false">Close menu</DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+
+        @code {
+            private bool _isOpen = true;
+        }
+        """;
+
+    private const string CheckboxRazor =
+        """
+        <DropdownMenuCheckboxItem @bind-Checked="_showStatusBar">Status Bar</DropdownMenuCheckboxItem>
+        <DropdownMenuCheckboxItem @bind-Checked="_showActivityBar">Activity Bar</DropdownMenuCheckboxItem>
+        <DropdownMenuCheckboxItem @bind-Checked="_showPanel">Panel</DropdownMenuCheckboxItem>
+
+        @code {
+            private bool _showStatusBar = true;
+            private bool _showActivityBar = false;
+            private bool _showPanel = true;
+        }
+        """;
+
+    private const string RadioRazor =
+        """
+        <DropdownMenuRadioGroup @bind-Value="_selectedAlignment">
+            <DropdownMenuRadioItem Value="start">Start</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem Value="center">Center</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem Value="end">End</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem Value="justify" Disabled="true">Justify</DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
+
+        @code {
+            private string? _selectedAlignment = "start";
+        }
+        """;
+
+    private const string EventsRazor =
+        """
+        <DropdownMenuItem OnSelect="() => _lastAction = "new-file"">New file</DropdownMenuItem>
+        <DropdownMenuItem OnSelect="() => _lastAction = "copy"">Copy</DropdownMenuItem>
+        <DropdownMenuItem OnSelect="() => _lastAction = "paste"">Paste</DropdownMenuItem>
+        <DropdownMenuItem OnSelect="() => _lastAction = "delete"" class="text-destructive">Delete</DropdownMenuItem>
+
+        @code {
+            private string? _lastAction;
+        }
+        """;
+}

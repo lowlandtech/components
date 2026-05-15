@@ -1,0 +1,390 @@
+@attribute [DisplayName("Layout/Sidebar")]
+@inherits StoryComponent
+
+<StoryCard Title="Sidebar"
+           Description="A collapsible navigation sidebar with groups, sub-menus, badges, and controlled open state."
+           States="@States" />
+
+@code {
+    bool _open4 = true;
+    bool _subExpanded;
+
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "basic",
+            "Basic",
+            @<div class="h-96 w-full border border-border rounded-lg overflow-hidden flex">
+                <SidebarProvider DefaultOpen="true">
+                    <Sidebar>
+                        <SidebarHeader>
+                            <span class="px-2 text-sm font-semibold">MyApp</span>
+                        </SidebarHeader>
+                        <SidebarContent>
+                            <SidebarGroup>
+                                <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+                                <SidebarGroupContent>
+                                    <SidebarMenu>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton>Dashboard</SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton>Projects</SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton>Reports</SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    </SidebarMenu>
+                                </SidebarGroupContent>
+                            </SidebarGroup>
+                            <SidebarGroup>
+                                <SidebarGroupLabel>Account</SidebarGroupLabel>
+                                <SidebarGroupContent>
+                                    <SidebarMenu>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton>Profile</SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton>Settings</SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    </SidebarMenu>
+                                </SidebarGroupContent>
+                            </SidebarGroup>
+                        </SidebarContent>
+                        <SidebarFooter>
+                            <span class="px-2 text-xs text-muted-foreground">© 2025 MyApp</span>
+                        </SidebarFooter>
+                    </Sidebar>
+                    <SidebarInset>
+                        <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
+                            <SidebarTrigger class="h-7 w-7" />
+                            <span class="text-sm font-medium">Dashboard</span>
+                        </header>
+                        <div class="p-4">
+                            <p class="text-sm text-muted-foreground">Main content area. Click the trigger to collapse the sidebar.</p>
+                        </div>
+                    </SidebarInset>
+                </SidebarProvider>
+            </div>,
+            [
+                new StoryCard.CodeTab("basic-razor", "SidebarStory.razor", BasicRazor)
+            ]),
+        new(
+            "active-badge",
+            "Active & Badge",
+            @<div class="h-96 w-full border border-border rounded-lg overflow-hidden flex">
+                <SidebarProvider DefaultOpen="true">
+                    <Sidebar>
+                        <SidebarHeader>
+                            <span class="px-2 text-sm font-semibold">MyApp</span>
+                        </SidebarHeader>
+                        <SidebarContent>
+                            <SidebarGroup>
+                                <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+                                <SidebarGroupContent>
+                                    <SidebarMenu>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton IsActive="true">Dashboard</SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton>Inbox</SidebarMenuButton>
+                                            <SidebarMenuBadge>12</SidebarMenuBadge>
+                                        </SidebarMenuItem>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton>Notifications</SidebarMenuButton>
+                                            <SidebarMenuBadge>3</SidebarMenuBadge>
+                                        </SidebarMenuItem>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton>Projects</SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    </SidebarMenu>
+                                </SidebarGroupContent>
+                            </SidebarGroup>
+                        </SidebarContent>
+                    </Sidebar>
+                    <SidebarInset>
+                        <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
+                            <SidebarTrigger class="h-7 w-7" />
+                            <span class="text-sm font-medium">Dashboard</span>
+                        </header>
+                        <div class="p-4">
+                            <p class="text-sm text-muted-foreground">The active item is highlighted. Badges show notification counts.</p>
+                        </div>
+                    </SidebarInset>
+                </SidebarProvider>
+            </div>,
+            [
+                new StoryCard.CodeTab("active-badge-razor", "SidebarStory.razor", ActiveBadgeRazor)
+            ]),
+        new(
+            "sub-menu",
+            "Sub-menu",
+            @<div class="h-96 w-full border border-border rounded-lg overflow-hidden flex">
+                <SidebarProvider DefaultOpen="true">
+                    <Sidebar>
+                        <SidebarHeader>
+                            <span class="px-2 text-sm font-semibold">MyApp</span>
+                        </SidebarHeader>
+                        <SidebarContent>
+                            <SidebarGroup>
+                                <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+                                <SidebarGroupContent>
+                                    <SidebarMenu>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton>Dashboard</SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuSubTrigger IsExpanded="_subExpanded" OnToggle="@(() => _subExpanded = !_subExpanded)">
+                                                Settings
+                                            </SidebarMenuSubTrigger>
+                                            <SidebarMenuSub IsOpen="_subExpanded">
+                                                <SidebarMenuSubContent IsVisible="_subExpanded">
+                                                    <SidebarMenuSubItem>
+                                                        <SidebarMenuSubButton>General</SidebarMenuSubButton>
+                                                    </SidebarMenuSubItem>
+                                                    <SidebarMenuSubItem>
+                                                        <SidebarMenuSubButton>Security</SidebarMenuSubButton>
+                                                    </SidebarMenuSubItem>
+                                                    <SidebarMenuSubItem>
+                                                        <SidebarMenuSubButton IsActive="true">Notifications</SidebarMenuSubButton>
+                                                    </SidebarMenuSubItem>
+                                                </SidebarMenuSubContent>
+                                            </SidebarMenuSub>
+                                        </SidebarMenuItem>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton>Profile</SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    </SidebarMenu>
+                                </SidebarGroupContent>
+                            </SidebarGroup>
+                        </SidebarContent>
+                    </Sidebar>
+                    <SidebarInset>
+                        <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
+                            <SidebarTrigger class="h-7 w-7" />
+                            <span class="text-sm font-medium">Settings</span>
+                        </header>
+                        <div class="p-4">
+                            <p class="text-sm text-muted-foreground">Click "Settings" to expand the sub-menu.</p>
+                        </div>
+                    </SidebarInset>
+                </SidebarProvider>
+            </div>,
+            [
+                new StoryCard.CodeTab("sub-menu-razor", "SidebarStory.razor", SubMenuRazor)
+            ]),
+        new(
+            "controlled",
+            "Controlled open",
+            @<div class="h-96 w-full border border-border rounded-lg overflow-hidden flex">
+                <SidebarProvider @bind-Open="_open4">
+                    <Sidebar>
+                        <SidebarHeader>
+                            <SidebarInput placeholder="Search..." />
+                        </SidebarHeader>
+                        <SidebarContent>
+                            <SidebarGroup>
+                                <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+                                <SidebarGroupContent>
+                                    <SidebarMenu>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton>Dashboard</SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton>Analytics</SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuButton>Settings</SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    </SidebarMenu>
+                                </SidebarGroupContent>
+                            </SidebarGroup>
+                        </SidebarContent>
+                    </Sidebar>
+                    <SidebarInset>
+                        <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
+                            <SidebarTrigger class="h-7 w-7" />
+                            <span class="text-sm font-medium">Dashboard</span>
+                        </header>
+                        <div class="p-4 space-y-3">
+                            <p class="text-sm text-muted-foreground">
+                                State: <span class="font-semibold text-foreground">@(_open4 ? "Open" : "Closed")</span>
+                            </p>
+                            <div class="flex gap-2">
+                                <Button Variant="outline" Size="sm" @onclick="@(() => _open4 = true)">Open</Button>
+                                <Button Variant="outline" Size="sm" @onclick="@(() => _open4 = false)">Close</Button>
+                            </div>
+                        </div>
+                    </SidebarInset>
+                </SidebarProvider>
+            </div>,
+            [
+                new StoryCard.CodeTab("controlled-razor", "SidebarStory.razor", ControlledRazor)
+            ])
+    ];
+
+    private const string BasicRazor =
+        """
+        <SidebarProvider DefaultOpen="true">
+            <Sidebar>
+                <SidebarHeader>
+                    <span class="px-2 text-sm font-semibold">MyApp</span>
+                </SidebarHeader>
+                <SidebarContent>
+                    <SidebarGroup>
+                        <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton>Dashboard</SidebarMenuButton>
+                                </SidebarMenuItem>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton>Projects</SidebarMenuButton>
+                                </SidebarMenuItem>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton>Reports</SidebarMenuButton>
+                                </SidebarMenuItem>
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                    <SidebarGroup>
+                        <SidebarGroupLabel>Account</SidebarGroupLabel>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton>Profile</SidebarMenuButton>
+                                </SidebarMenuItem>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton>Settings</SidebarMenuButton>
+                                </SidebarMenuItem>
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                </SidebarContent>
+                <SidebarFooter>
+                    <span class="px-2 text-xs text-muted-foreground">© 2025 MyApp</span>
+                </SidebarFooter>
+            </Sidebar>
+            <SidebarInset>
+                <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
+                    <SidebarTrigger class="h-7 w-7" />
+                    <span class="text-sm font-medium">Dashboard</span>
+                </header>
+                <div class="p-4">
+                    <p class="text-sm text-muted-foreground">Main content area.</p>
+                </div>
+            </SidebarInset>
+        </SidebarProvider>
+        """;
+
+    private const string ActiveBadgeRazor =
+        """
+        <SidebarProvider DefaultOpen="true">
+            <Sidebar>
+                <SidebarContent>
+                    <SidebarGroup>
+                        <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton IsActive="true">Dashboard</SidebarMenuButton>
+                                </SidebarMenuItem>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton>Inbox</SidebarMenuButton>
+                                    <SidebarMenuBadge>12</SidebarMenuBadge>
+                                </SidebarMenuItem>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton>Notifications</SidebarMenuButton>
+                                    <SidebarMenuBadge>3</SidebarMenuBadge>
+                                </SidebarMenuItem>
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                </SidebarContent>
+            </Sidebar>
+            <SidebarInset>
+                <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
+                    <SidebarTrigger class="h-7 w-7" />
+                </header>
+            </SidebarInset>
+        </SidebarProvider>
+        """;
+
+    private const string SubMenuRazor =
+        """
+        <SidebarProvider DefaultOpen="true">
+            <Sidebar>
+                <SidebarContent>
+                    <SidebarGroup>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton>Dashboard</SidebarMenuButton>
+                                </SidebarMenuItem>
+                                <SidebarMenuItem>
+                                    <SidebarMenuSubTrigger IsExpanded="_subExpanded"
+                                                           OnToggle="@(() => _subExpanded = !_subExpanded)">
+                                        Settings
+                                    </SidebarMenuSubTrigger>
+                                    <SidebarMenuSub IsOpen="_subExpanded">
+                                        <SidebarMenuSubContent IsVisible="_subExpanded">
+                                            <SidebarMenuSubItem>
+                                                <SidebarMenuSubButton>General</SidebarMenuSubButton>
+                                            </SidebarMenuSubItem>
+                                            <SidebarMenuSubItem>
+                                                <SidebarMenuSubButton IsActive="true">Notifications</SidebarMenuSubButton>
+                                            </SidebarMenuSubItem>
+                                        </SidebarMenuSubContent>
+                                    </SidebarMenuSub>
+                                </SidebarMenuItem>
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                </SidebarContent>
+            </Sidebar>
+            <SidebarInset>
+                <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
+                    <SidebarTrigger class="h-7 w-7" />
+                </header>
+            </SidebarInset>
+        </SidebarProvider>
+
+        @code {
+            bool _subExpanded;
+        }
+        """;
+
+    private const string ControlledRazor =
+        """
+        <SidebarProvider @bind-Open="_open">
+            <Sidebar>
+                <SidebarHeader>
+                    <SidebarInput placeholder="Search..." />
+                </SidebarHeader>
+                <SidebarContent>
+                    <SidebarGroup>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton>Dashboard</SidebarMenuButton>
+                                </SidebarMenuItem>
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                </SidebarContent>
+            </Sidebar>
+            <SidebarInset>
+                <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
+                    <SidebarTrigger class="h-7 w-7" />
+                </header>
+                <div class="p-4 space-y-3">
+                    <p class="text-sm">State: @(_open ? "Open" : "Closed")</p>
+                    <Button Variant="outline" Size="sm" @onclick="@(() => _open = !_open)">Toggle</Button>
+                </div>
+            </SidebarInset>
+        </SidebarProvider>
+
+        @code {
+            bool _open = true;
+        }
+        """;
+}

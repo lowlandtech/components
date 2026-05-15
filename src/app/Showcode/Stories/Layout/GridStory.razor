@@ -1,0 +1,126 @@
+@attribute [DisplayName("Layout/Grid")]
+@inherits StoryComponent
+
+<StoryCard Title="Grid"
+           Description="A 12-column responsive grid system with breakpoint-aware span control and Block flex/stack helpers."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "responsive",
+            "Responsive columns",
+            @<div class="w-full">
+                <Grid Spacing="4">
+                    <GridItem xs="12" md="6" lg="4">
+                        <div class="rounded-md bg-muted p-3 text-center text-sm">xs:12 md:6 lg:4</div>
+                    </GridItem>
+                    <GridItem xs="12" md="6" lg="4">
+                        <div class="rounded-md bg-muted p-3 text-center text-sm">xs:12 md:6 lg:4</div>
+                    </GridItem>
+                    <GridItem xs="12" md="12" lg="4">
+                        <div class="rounded-md bg-muted p-3 text-center text-sm">xs:12 md:12 lg:4</div>
+                    </GridItem>
+                </Grid>
+            </div>,
+            [
+                new StoryCard.CodeTab("responsive-razor", "GridStory.razor", ResponsiveRazor)
+            ]),
+        new(
+            "mixed-spans",
+            "Mixed spans",
+            @<div class="w-full">
+                <Grid Spacing="4">
+                    <GridItem xs="8">
+                        <div class="rounded-md bg-primary/10 border border-primary/20 p-3 text-center text-sm">span 8</div>
+                    </GridItem>
+                    <GridItem xs="4">
+                        <div class="rounded-md bg-muted p-3 text-center text-sm">span 4</div>
+                    </GridItem>
+                    <GridItem xs="4">
+                        <div class="rounded-md bg-muted p-3 text-center text-sm">span 4</div>
+                    </GridItem>
+                    <GridItem xs="4">
+                        <div class="rounded-md bg-muted p-3 text-center text-sm">span 4</div>
+                    </GridItem>
+                    <GridItem xs="4">
+                        <div class="rounded-md bg-muted p-3 text-center text-sm">span 4</div>
+                    </GridItem>
+                    <GridItem xs="12">
+                        <div class="rounded-md bg-muted p-3 text-center text-sm">span 12</div>
+                    </GridItem>
+                </Grid>
+            </div>,
+            [
+                new StoryCard.CodeTab("mixed-razor", "GridStory.razor", MixedSpansRazor)
+            ]),
+        new(
+            "block-stack",
+            "Block & Stack",
+            @<div class="w-full space-y-4">
+                <div>
+                    <p class="mb-2 text-xs text-muted-foreground font-medium">Row (horizontal)</p>
+                    <Block Row="true" Spacing="2">
+                        <div class="rounded-md bg-muted px-3 py-2 text-sm">Item A</div>
+                        <div class="rounded-md bg-muted px-3 py-2 text-sm">Item B</div>
+                        <div class="rounded-md bg-muted px-3 py-2 text-sm">Item C</div>
+                    </Block>
+                </div>
+                <div>
+                    <p class="mb-2 text-xs text-muted-foreground font-medium">Stack (vertical)</p>
+                    <Block Spacing="2">
+                        <div class="rounded-md bg-muted px-3 py-2 text-sm">Item A</div>
+                        <div class="rounded-md bg-muted px-3 py-2 text-sm">Item B</div>
+                        <div class="rounded-md bg-muted px-3 py-2 text-sm">Item C</div>
+                    </Block>
+                </div>
+            </div>,
+            [
+                new StoryCard.CodeTab("block-razor", "GridStory.razor", BlockRazor)
+            ])
+    ];
+
+    private const string ResponsiveRazor =
+        """
+        <Grid Spacing="4">
+            <GridItem xs="12" md="6" lg="4">
+                <div class="rounded-md bg-muted p-3">xs:12 md:6 lg:4</div>
+            </GridItem>
+            <GridItem xs="12" md="6" lg="4">
+                <div class="rounded-md bg-muted p-3">xs:12 md:6 lg:4</div>
+            </GridItem>
+            <GridItem xs="12" md="12" lg="4">
+                <div class="rounded-md bg-muted p-3">xs:12 md:12 lg:4</div>
+            </GridItem>
+        </Grid>
+        """;
+
+    private const string MixedSpansRazor =
+        """
+        <Grid Spacing="4">
+            <GridItem xs="8"><div>span 8</div></GridItem>
+            <GridItem xs="4"><div>span 4</div></GridItem>
+            <GridItem xs="4"><div>span 4</div></GridItem>
+            <GridItem xs="4"><div>span 4</div></GridItem>
+            <GridItem xs="4"><div>span 4</div></GridItem>
+            <GridItem xs="12"><div>span 12</div></GridItem>
+        </Grid>
+        """;
+
+    private const string BlockRazor =
+        """
+        @* Horizontal row *@
+        <Block Row="true" Spacing="2">
+            <div>Item A</div>
+            <div>Item B</div>
+            <div>Item C</div>
+        </Block>
+
+        @* Vertical stack *@
+        <Block Spacing="2">
+            <div>Item A</div>
+            <div>Item B</div>
+            <div>Item C</div>
+        </Block>
+        """;
+}

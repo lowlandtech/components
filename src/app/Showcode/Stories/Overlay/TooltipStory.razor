@@ -1,9 +1,80 @@
 @attribute [DisplayName("Overlay/Tooltip")]
 @inherits StoryComponent
 
-<div class="space-y-8">
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Default</h2>
+<StoryCard Title="Tooltip"
+           Description="Tooltip displays contextual information on hover with configurable position, alignment, and delays."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "default",
+            "Default",
+            @<TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger>
+                        <Button Variant="outline">Hover me</Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>This is a tooltip</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>,
+            [
+                new StoryCard.CodeTab("default-razor", "TooltipStory.razor", DefaultRazor)
+            ]),
+        new(
+            "positions",
+            "Positions",
+            @<div class="flex flex-wrap gap-4">
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger><Button Variant="outline" Size="sm">Top</Button></TooltipTrigger>
+                        <TooltipContent Side="top"><p>Tooltip on top</p></TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger><Button Variant="outline" Size="sm">Bottom</Button></TooltipTrigger>
+                        <TooltipContent Side="bottom"><p>Tooltip on bottom</p></TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger><Button Variant="outline" Size="sm">Left</Button></TooltipTrigger>
+                        <TooltipContent Side="left"><p>Tooltip on left</p></TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger><Button Variant="outline" Size="sm">Right</Button></TooltipTrigger>
+                        <TooltipContent Side="right"><p>Tooltip on right</p></TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            </div>,
+            [
+                new StoryCard.CodeTab("positions-razor", "TooltipStory.razor", PositionsRazor)
+            ]),
+        new(
+            "delay",
+            "With delay",
+            @<TooltipProvider>
+                <Tooltip Delay="1000" DelayHide="500">
+                    <TooltipTrigger>
+                        <Button Variant="outline">Delayed tooltip</Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>Shows after 1s, hides after 500ms</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>,
+            [
+                new StoryCard.CodeTab("delay-razor", "TooltipStory.razor", DelayRazor)
+            ])
+    ];
+
+    private const string DefaultRazor =
+        """
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger>
@@ -14,35 +85,29 @@
                 </TooltipContent>
             </Tooltip>
         </TooltipProvider>
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Positions</h2>
-        <div class="flex flex-wrap gap-4">
-            <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger><Button Variant="outline" Size="sm">Top</Button></TooltipTrigger>
-                    <TooltipContent Side="top"><p>Tooltip on top</p></TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
-            <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger><Button Variant="outline" Size="sm">Bottom</Button></TooltipTrigger>
-                    <TooltipContent Side="bottom"><p>Tooltip on bottom</p></TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
-            <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger><Button Variant="outline" Size="sm">Left</Button></TooltipTrigger>
-                    <TooltipContent Side="left"><p>Tooltip on left</p></TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
-            <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger><Button Variant="outline" Size="sm">Right</Button></TooltipTrigger>
-                    <TooltipContent Side="right"><p>Tooltip on right</p></TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
-        </div>
-    </section>
-</div>
+    private const string PositionsRazor =
+        """
+        <TooltipProvider>
+            <Tooltip>
+                <TooltipTrigger><Button Variant="outline" Size="sm">Top</Button></TooltipTrigger>
+                <TooltipContent Side="top"><p>Tooltip on top</p></TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
+        """;
+
+    private const string DelayRazor =
+        """
+        <TooltipProvider>
+            <Tooltip Delay="1000" DelayHide="500">
+                <TooltipTrigger>
+                    <Button Variant="outline">Delayed tooltip</Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>Shows after 1s, hides after 500ms</p>
+                </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
+        """;
+}

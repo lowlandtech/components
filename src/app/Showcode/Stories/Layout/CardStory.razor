@@ -59,6 +59,51 @@
             </Card>,
             [
                 new StoryCard.CodeTab("action-razor", "CardStory.razor", ActionRazor)
+            ]),
+        new(
+            "outlined",
+            "Outlined",
+            @<Card Variant="outlined" class="w-full max-w-sm">
+                <CardHeader>
+                    <CardTitle>Outlined Card</CardTitle>
+                    <CardDescription>No shadow, just a border.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <p class="text-sm text-muted-foreground">Use outlined cards for secondary content or nested panels.</p>
+                </CardContent>
+            </Card>,
+            [
+                new StoryCard.CodeTab("outlined-razor", "CardStory.razor", OutlinedRazor)
+            ]),
+        new(
+            "elevation",
+            "Elevation",
+            @<Card Elevation="8" class="w-full max-w-sm">
+                <CardHeader>
+                    <CardTitle>Elevated Card</CardTitle>
+                    <CardDescription>High elevation for emphasis.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <p class="text-sm text-muted-foreground">Higher elevation creates stronger visual hierarchy.</p>
+                </CardContent>
+            </Card>,
+            [
+                new StoryCard.CodeTab("elevation-razor", "CardStory.razor", ElevationRazor)
+            ]),
+        new(
+            "square",
+            "Square",
+            @<Card Square="true" class="w-full max-w-sm">
+                <CardHeader>
+                    <CardTitle>Square Card</CardTitle>
+                    <CardDescription>No border radius.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <p class="text-sm text-muted-foreground">Square corners for dense UIs or dashboard tiles.</p>
+                </CardContent>
+            </Card>,
+            [
+                new StoryCard.CodeTab("square-razor", "CardStory.razor", SquareRazor)
             ])
     ];
 
@@ -105,6 +150,45 @@
             <CardContent>
                 <p class="text-sm font-medium">New feature available</p>
                 <p class="text-sm text-muted-foreground">Check out the new dashboard.</p>
+            </CardContent>
+        </Card>
+        """;
+
+    private const string OutlinedRazor =
+        """
+        <Card Variant="outlined">
+            <CardHeader>
+                <CardTitle>Outlined Card</CardTitle>
+                <CardDescription>No shadow, just a border.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p class="text-sm text-muted-foreground">Use outlined cards for secondary content.</p>
+            </CardContent>
+        </Card>
+        """;
+
+    private const string ElevationRazor =
+        """
+        <Card Elevation="8">
+            <CardHeader>
+                <CardTitle>Elevated Card</CardTitle>
+                <CardDescription>High elevation for emphasis.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p class="text-sm text-muted-foreground">Higher elevation creates stronger visual hierarchy.</p>
+            </CardContent>
+        </Card>
+        """;
+
+    private const string SquareRazor =
+        """
+        <Card Square="true">
+            <CardHeader>
+                <CardTitle>Square Card</CardTitle>
+                <CardDescription>No border radius.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p class="text-sm text-muted-foreground">Square corners for dense UIs or dashboard tiles.</p>
             </CardContent>
         </Card>
         """;

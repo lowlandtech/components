@@ -1,6 +1,7 @@
 @namespace LowlandTech.Components.Resizable
 @inherits LtComponentBase
 @implements IDisposable
+@inject IJSRuntime JSRuntime
 
 <div data-slot="resizable-handle"
       data-orientation="@GetOrientation()"
@@ -8,6 +9,7 @@
       class="@GetClass()"
       role="separator"
       tabindex="0"
+      @ref="_element"
     @onkeydown="OnKeyDown"
       @onpointerdown="OnPointerDown"
       @onpointermove="OnPointerMove"
@@ -63,10 +65,13 @@
     /// </summary>
     [Parameter] public ResizablePanel? AfterPanel { get; set; }
 
+    private ElementReference _element;
+    private IJSObjectReference? _jsModule;
     private bool _isDragging;
     private double _startPosition;
     private int _startSizeBefore;
     private int _startSizeAfter;
+    private double _containerSize;
 
     protected override void OnInitialized()
     {
@@ -99,6 +104,26 @@
 
         _startPosition = Parent.Direction == "horizontal" ? e.ClientX : e.ClientY;
 
+        try
+        {
+            _jsModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", Assets["./js/slider.js"]);
+            await _jsModule.InvokeVoidAsync("setPointerCapture", _element, e.PointerId);
+
+            var rect = await _jsModule.InvokeAsync<ContainerRect>("getBoundingClientRect", Parent.ElementReference);
+            if (rect != null)
+            {
+                _containerSize = Parent.Direction == "horizontal" ? rect.Width : rect.Height;
+            }
+            else
+            {
+                _containerSize = 1000;
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+            _containerSize = 1000;
+        }
+
         // If grouped, notify other handles in the same group
         if (!string.IsNullOrEmpty(Group))
         {
@@ -120,9 +145,7 @@
         var (beforePanel, afterPanel) = GetPanels();
         if (beforePanel == null || afterPanel == null) return;
 
-        // Calculate size change based on container size
-        // This is a simplified calculation - in production, you'd measure the actual container
-        var containerSize = 1000; // Assume 1000px for percentage calculation
+        var containerSize = _containerSize > 0 ? _containerSize : 1000;
         var sizeDelta = (int)((delta / containerSize) * 100);
 
         var newSizeBefore = Math.Clamp(_startSizeBefore + sizeDelta, beforePanel.MinSize, beforePanel.MaxSize);
@@ -149,6 +172,18 @@
 
         _isDragging = false;
         Parent.ActiveHandle = null;
+
+        try
+        {
+            if (_jsModule != null)
+            {
+                await _jsModule.InvokeVoidAsync("releasePointerCapture", _element, e.PointerId);
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+            // Ignore
+        }
 
         var (beforePanel, afterPanel) = GetPanels();
         if (beforePanel != null)
@@ -255,8 +290,8 @@
     {
         var isHorizontal = GetOrientation() == "horizontal";
         var baseClass = isHorizontal
-            ? "cn-resizable-handle relative flex w-[4px] shrink-0 cursor-col-resize items-center justify-center bg-border after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1"
-            : "cn-resizable-handle relative flex h-[4px] shrink-0 cursor-row-resize items-center justify-center bg-border after:absolute after:inset-x-0 after:top-1/2 after:h-1 after:-translate-y-1/2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1";
+            ? "cn-resizable-handle relative flex w-[4px] shrink-0 cursor-col-resize touch-none select-none items-center justify-center bg-border after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1"
+            : "cn-resizable-handle relative flex h-[4px] shrink-0 cursor-row-resize touch-none select-none items-center justify-center bg-border after:absolute after:inset-x-0 after:top-1/2 after:h-1 after:-translate-y-1/2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1";
 
         if (_isDragging)
         {
@@ -280,5 +315,13 @@
         return isHorizontal
             ? "w-px h-8 bg-border"
             : "h-px w-8 bg-border";
+    }
+
+    private class ContainerRect
+    {
+        public double Left { get; set; }
+        public double Top { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
     }
 }

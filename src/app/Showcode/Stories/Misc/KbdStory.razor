@@ -1,9 +1,62 @@
 @attribute [DisplayName("Misc/Kbd")]
 @inherits StoryComponent
 
-<div class="space-y-8">
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Modifier keys</h2>
+<StoryCard Title="Kbd"
+           Description="Kbd states demonstrate modifier keys, shortcut combos, and size variants."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "modifiers",
+            "Modifier keys",
+            @<div class="flex flex-wrap gap-2">
+                <Kbd>Ctrl</Kbd>
+                <Kbd>Alt</Kbd>
+                <Kbd>Shift</Kbd>
+                <Kbd>Cmd</Kbd>
+                <Kbd>Tab</Kbd>
+                <Kbd>Enter</Kbd>
+                <Kbd>Esc</Kbd>
+            </div>,
+            [
+                new StoryCard.CodeTab("modifiers-razor", "KbdStory.razor", ModifiersRazor)
+            ]),
+        new(
+            "shortcuts",
+            "Shortcut combos",
+            @<div class="space-y-2 text-sm">
+                <div class="flex items-center gap-2">
+                    <span class="text-muted-foreground w-32">Save</span>
+                    <div class="flex gap-1"><Kbd>Ctrl</Kbd><span>+</span><Kbd>S</Kbd></div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-muted-foreground w-32">Copy</span>
+                    <div class="flex gap-1"><Kbd>Ctrl</Kbd><span>+</span><Kbd>C</Kbd></div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-muted-foreground w-32">Command palette</span>
+                    <div class="flex gap-1"><Kbd>Ctrl</Kbd><span>+</span><Kbd>K</Kbd></div>
+                </div>
+            </div>,
+            [
+                new StoryCard.CodeTab("shortcuts-razor", "KbdStory.razor", ShortcutsRazor)
+            ]),
+        new(
+            "sizes",
+            "Sizes",
+            @<div class="flex flex-wrap items-center gap-3">
+                <Kbd Size="sm">sm</Kbd>
+                <Kbd Size="md">md</Kbd>
+                <Kbd Size="lg">lg</Kbd>
+            </div>,
+            [
+                new StoryCard.CodeTab("sizes-razor", "KbdStory.razor", SizesRazor)
+            ])
+    ];
+
+    private const string ModifiersRazor =
+        """
         <div class="flex flex-wrap gap-2">
             <Kbd>Ctrl</Kbd>
             <Kbd>Alt</Kbd>
@@ -13,10 +66,10 @@
             <Kbd>Enter</Kbd>
             <Kbd>Esc</Kbd>
         </div>
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Shortcut combos</h2>
+    private const string ShortcutsRazor =
+        """
         <div class="space-y-2 text-sm">
             <div class="flex items-center gap-2">
                 <span class="text-muted-foreground w-32">Save</span>
@@ -31,14 +84,14 @@
                 <div class="flex gap-1"><Kbd>Ctrl</Kbd><span>+</span><Kbd>K</Kbd></div>
             </div>
         </div>
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Sizes</h2>
+    private const string SizesRazor =
+        """
         <div class="flex flex-wrap items-center gap-3">
             <Kbd Size="sm">sm</Kbd>
             <Kbd Size="md">md</Kbd>
             <Kbd Size="lg">lg</Kbd>
         </div>
-    </section>
-</div>
+        """;
+}

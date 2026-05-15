@@ -1,9 +1,69 @@
 @attribute [DisplayName("Navigation/Pagination")]
 @inherits StoryComponent
 
-<div class="space-y-8">
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Basic (page 1 of 10)</h2>
+<StoryCard Title="Pagination"
+           Description="Page navigation with previous/next controls, page links, and ellipsis for large ranges."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "first-page",
+            "First page (1 of 10)",
+            @<Pagination Count="10" Page="1">
+                <PaginationContent>
+                    <PaginationItem><PaginationPrevious href="#" /></PaginationItem>
+                    <PaginationItem><PaginationLink href="#" IsActive="true">1</PaginationLink></PaginationItem>
+                    <PaginationItem><PaginationLink href="#">2</PaginationLink></PaginationItem>
+                    <PaginationItem><PaginationLink href="#">3</PaginationLink></PaginationItem>
+                    <PaginationItem><PaginationEllipsis /></PaginationItem>
+                    <PaginationItem><PaginationLink href="#">10</PaginationLink></PaginationItem>
+                    <PaginationItem><PaginationNext href="#" /></PaginationItem>
+                </PaginationContent>
+            </Pagination>,
+            [
+                new StoryCard.CodeTab("first-razor", "PaginationStory.razor", FirstPageRazor)
+            ]),
+        new(
+            "middle-page",
+            "Middle page (5 of 20)",
+            @<Pagination Count="20" Page="5">
+                <PaginationContent>
+                    <PaginationItem><PaginationPrevious href="#" /></PaginationItem>
+                    <PaginationItem><PaginationLink href="#">1</PaginationLink></PaginationItem>
+                    <PaginationItem><PaginationEllipsis /></PaginationItem>
+                    <PaginationItem><PaginationLink href="#">4</PaginationLink></PaginationItem>
+                    <PaginationItem><PaginationLink href="#" IsActive="true">5</PaginationLink></PaginationItem>
+                    <PaginationItem><PaginationLink href="#">6</PaginationLink></PaginationItem>
+                    <PaginationItem><PaginationEllipsis /></PaginationItem>
+                    <PaginationItem><PaginationLink href="#">20</PaginationLink></PaginationItem>
+                    <PaginationItem><PaginationNext href="#" /></PaginationItem>
+                </PaginationContent>
+            </Pagination>,
+            [
+                new StoryCard.CodeTab("middle-razor", "PaginationStory.razor", MiddlePageRazor)
+            ]),
+        new(
+            "last-page",
+            "Last page (10 of 10)",
+            @<Pagination Count="10" Page="10">
+                <PaginationContent>
+                    <PaginationItem><PaginationPrevious href="#" /></PaginationItem>
+                    <PaginationItem><PaginationLink href="#">1</PaginationLink></PaginationItem>
+                    <PaginationItem><PaginationEllipsis /></PaginationItem>
+                    <PaginationItem><PaginationLink href="#">8</PaginationLink></PaginationItem>
+                    <PaginationItem><PaginationLink href="#">9</PaginationLink></PaginationItem>
+                    <PaginationItem><PaginationLink href="#" IsActive="true">10</PaginationLink></PaginationItem>
+                    <PaginationItem><PaginationNext href="#" /></PaginationItem>
+                </PaginationContent>
+            </Pagination>,
+            [
+                new StoryCard.CodeTab("last-razor", "PaginationStory.razor", LastPageRazor)
+            ])
+    ];
+
+    private const string FirstPageRazor =
+        """
         <Pagination Count="10" Page="1">
             <PaginationContent>
                 <PaginationItem><PaginationPrevious href="#" /></PaginationItem>
@@ -15,10 +75,10 @@
                 <PaginationItem><PaginationNext href="#" /></PaginationItem>
             </PaginationContent>
         </Pagination>
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Middle page (5 of 20)</h2>
+    private const string MiddlePageRazor =
+        """
         <Pagination Count="20" Page="5">
             <PaginationContent>
                 <PaginationItem><PaginationPrevious href="#" /></PaginationItem>
@@ -32,5 +92,20 @@
                 <PaginationItem><PaginationNext href="#" /></PaginationItem>
             </PaginationContent>
         </Pagination>
-    </section>
-</div>
+        """;
+
+    private const string LastPageRazor =
+        """
+        <Pagination Count="10" Page="10">
+            <PaginationContent>
+                <PaginationItem><PaginationPrevious href="#" /></PaginationItem>
+                <PaginationItem><PaginationLink href="#">1</PaginationLink></PaginationItem>
+                <PaginationItem><PaginationEllipsis /></PaginationItem>
+                <PaginationItem><PaginationLink href="#">8</PaginationLink></PaginationItem>
+                <PaginationItem><PaginationLink href="#">9</PaginationLink></PaginationItem>
+                <PaginationItem><PaginationLink href="#" IsActive="true">10</PaginationLink></PaginationItem>
+                <PaginationItem><PaginationNext href="#" /></PaginationItem>
+            </PaginationContent>
+        </Pagination>
+        """;
+}

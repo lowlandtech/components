@@ -1,31 +1,71 @@
 @attribute [DisplayName("Layout/Aspect Ratio")]
 @inherits StoryComponent
 
-<div class="space-y-8">
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">16:9 video placeholder</h2>
+<StoryCard Title="Aspect Ratio"
+           Description="AspectRatio states demonstrate 16:9, 4:3, and 1:1 responsive ratio containers."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "16-9",
+            "16:9",
+            @<div class="w-full max-w-sm">
+                <AspectRatio Ratio="16/9" class="bg-muted rounded-lg overflow-hidden">
+                    <div class="flex h-full items-center justify-center text-muted-foreground text-sm">16 / 9</div>
+                </AspectRatio>
+            </div>,
+            [
+                new StoryCard.CodeTab("16-9-razor", "AspectRatioStory.razor", Ratio169Razor)
+            ]),
+        new(
+            "4-3",
+            "4:3",
+            @<div class="w-full max-w-xs">
+                <AspectRatio Ratio="4/3" class="bg-muted rounded-lg overflow-hidden">
+                    <div class="flex h-full items-center justify-center text-muted-foreground text-sm">4 / 3</div>
+                </AspectRatio>
+            </div>,
+            [
+                new StoryCard.CodeTab("4-3-razor", "AspectRatioStory.razor", Ratio43Razor)
+            ]),
+        new(
+            "1-1",
+            "1:1",
+            @<div class="w-32">
+                <AspectRatio Ratio="1/1" class="bg-muted rounded-full overflow-hidden">
+                    <div class="flex h-full items-center justify-center text-muted-foreground text-sm">1:1</div>
+                </AspectRatio>
+            </div>,
+            [
+                new StoryCard.CodeTab("1-1-razor", "AspectRatioStory.razor", Ratio11Razor)
+            ])
+    ];
+
+    private const string Ratio169Razor =
+        """
         <div class="w-full max-w-sm">
             <AspectRatio Ratio="16/9" class="bg-muted rounded-lg overflow-hidden">
                 <div class="flex h-full items-center justify-center text-muted-foreground text-sm">16 / 9</div>
             </AspectRatio>
         </div>
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">4:3 image placeholder</h2>
+    private const string Ratio43Razor =
+        """
         <div class="w-full max-w-xs">
             <AspectRatio Ratio="4/3" class="bg-muted rounded-lg overflow-hidden">
                 <div class="flex h-full items-center justify-center text-muted-foreground text-sm">4 / 3</div>
             </AspectRatio>
         </div>
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">1:1 square</h2>
+    private const string Ratio11Razor =
+        """
         <div class="w-32">
             <AspectRatio Ratio="1/1" class="bg-muted rounded-full overflow-hidden">
                 <div class="flex h-full items-center justify-center text-muted-foreground text-sm">1:1</div>
             </AspectRatio>
         </div>
-    </section>
-</div>
+        """;
+}

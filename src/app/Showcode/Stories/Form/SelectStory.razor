@@ -1,0 +1,247 @@
+@attribute [DisplayName("Form/Select")]
+@inherits StoryComponent
+
+<StoryCard Title="Select"
+           Description="Select states demonstrate default dropdown, grouped items, trigger sizes, and disabled/invalid affordances."
+           States="@States" />
+
+@code {
+    private string _fruit = "apple";
+    private string _role = "admin";
+    private string _sizeDemo = "md";
+    private string _disabledDemo = "opt1";
+    private string _invalidDemo = "";
+
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "default",
+            "Default",
+            @<div class="w-full max-w-sm">
+                <Select @bind-Value="_fruit">
+                    <SelectTrigger>
+                        <SelectValue Placeholder="Pick a fruit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem Value="apple" Text="Apple">Apple</SelectItem>
+                        <SelectItem Value="banana" Text="Banana">Banana</SelectItem>
+                        <SelectItem Value="blueberry" Text="Blueberry">Blueberry</SelectItem>
+                        <SelectItem Value="grapes" Text="Grapes">Grapes</SelectItem>
+                        <SelectItem Value="pineapple" Text="Pineapple">Pineapple</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>,
+            [
+                new StoryCard.CodeTab("default-razor", "SelectStory.razor", DefaultRazor)
+            ]),
+        new(
+            "groups",
+            "With groups",
+            @<div class="w-full max-w-sm">
+                <Select @bind-Value="_role">
+                    <SelectTrigger>
+                        <SelectValue Placeholder="Select a role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectGroup>
+                            <SelectLabel>Product</SelectLabel>
+                            <SelectItem Value="owner" Text="Owner">Owner</SelectItem>
+                            <SelectItem Value="admin" Text="Admin">Admin</SelectItem>
+                            <SelectItem Value="member" Text="Member">Member</SelectItem>
+                        </SelectGroup>
+                        <SelectSeparator />
+                        <SelectGroup>
+                            <SelectLabel>Billing</SelectLabel>
+                            <SelectItem Value="billing" Text="Billing Manager">Billing Manager</SelectItem>
+                            <SelectItem Value="viewer" Text="Viewer">Viewer</SelectItem>
+                        </SelectGroup>
+                    </SelectContent>
+                </Select>
+            </div>,
+            [
+                new StoryCard.CodeTab("groups-razor", "SelectStory.razor", GroupsRazor)
+            ]),
+        new(
+            "sizes",
+            "Sizes",
+            @<div class="w-full max-w-sm space-y-2">
+                <Select @bind-Value="_sizeDemo">
+                    <SelectTrigger Size="compact">
+                        <SelectValue Placeholder="Compact" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem Value="sm" Text="Small">Small</SelectItem>
+                        <SelectItem Value="md" Text="Medium">Medium</SelectItem>
+                        <SelectItem Value="lg" Text="Large">Large</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Select @bind-Value="_sizeDemo">
+                    <SelectTrigger Size="sm">
+                        <SelectValue Placeholder="Small" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem Value="sm" Text="Small">Small</SelectItem>
+                        <SelectItem Value="md" Text="Medium">Medium</SelectItem>
+                        <SelectItem Value="lg" Text="Large">Large</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Select @bind-Value="_sizeDemo">
+                    <SelectTrigger Size="default">
+                        <SelectValue Placeholder="Default" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem Value="sm" Text="Small">Small</SelectItem>
+                        <SelectItem Value="md" Text="Medium">Medium</SelectItem>
+                        <SelectItem Value="lg" Text="Large">Large</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Select @bind-Value="_sizeDemo">
+                    <SelectTrigger Size="lg">
+                        <SelectValue Placeholder="Large" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem Value="sm" Text="Small">Small</SelectItem>
+                        <SelectItem Value="md" Text="Medium">Medium</SelectItem>
+                        <SelectItem Value="lg" Text="Large">Large</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>,
+            [
+                new StoryCard.CodeTab("sizes-razor", "SelectStory.razor", SizesRazor)
+            ]),
+        new(
+            "states",
+            "States",
+            @<div class="w-full max-w-sm space-y-2">
+                <Select @bind-Value="_disabledDemo">
+                    <SelectTrigger Disabled="true">
+                        <SelectValue Placeholder="Disabled" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem Value="opt1" Text="Option 1">Option 1</SelectItem>
+                        <SelectItem Value="opt2" Text="Option 2">Option 2</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Select @bind-Value="_invalidDemo">
+                    <SelectTrigger Invalid="true">
+                        <SelectValue Placeholder="Invalid state" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem Value="opt1" Text="Option 1">Option 1</SelectItem>
+                        <SelectItem Value="opt2" Text="Option 2">Option 2</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>,
+            [
+                new StoryCard.CodeTab("states-razor", "SelectStory.razor", StatesRazor)
+            ])
+    ];
+
+    private const string DefaultRazor =
+        """
+        <Select @bind-Value="_fruit">
+            <SelectTrigger>
+                <SelectValue Placeholder="Pick a fruit" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectItem Value="apple" Text="Apple">Apple</SelectItem>
+                <SelectItem Value="banana" Text="Banana">Banana</SelectItem>
+                <SelectItem Value="blueberry" Text="Blueberry">Blueberry</SelectItem>
+                <SelectItem Value="grapes" Text="Grapes">Grapes</SelectItem>
+                <SelectItem Value="pineapple" Text="Pineapple">Pineapple</SelectItem>
+            </SelectContent>
+        </Select>
+        """;
+
+    private const string GroupsRazor =
+        """
+        <Select @bind-Value="_role">
+            <SelectTrigger>
+                <SelectValue Placeholder="Select a role" />
+            </SelectTrigger>
+            <SelectContent>
+                <SelectGroup>
+                    <SelectLabel>Product</SelectLabel>
+                    <SelectItem Value="owner" Text="Owner">Owner</SelectItem>
+                    <SelectItem Value="admin" Text="Admin">Admin</SelectItem>
+                    <SelectItem Value="member" Text="Member">Member</SelectItem>
+                </SelectGroup>
+                <SelectSeparator />
+                <SelectGroup>
+                    <SelectLabel>Billing</SelectLabel>
+                    <SelectItem Value="billing" Text="Billing Manager">Billing Manager</SelectItem>
+                    <SelectItem Value="viewer" Text="Viewer">Viewer</SelectItem>
+                </SelectGroup>
+            </SelectContent>
+        </Select>
+        """;
+
+    private const string SizesRazor =
+        """
+        <div class="space-y-2">
+            <Select @bind-Value="_sizeDemo">
+                <SelectTrigger Size="compact">
+                    <SelectValue Placeholder="Compact" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem Value="sm" Text="Small">Small</SelectItem>
+                    <SelectItem Value="md" Text="Medium">Medium</SelectItem>
+                    <SelectItem Value="lg" Text="Large">Large</SelectItem>
+                </SelectContent>
+            </Select>
+            <Select @bind-Value="_sizeDemo">
+                <SelectTrigger Size="sm">
+                    <SelectValue Placeholder="Small" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem Value="sm" Text="Small">Small</SelectItem>
+                    <SelectItem Value="md" Text="Medium">Medium</SelectItem>
+                    <SelectItem Value="lg" Text="Large">Large</SelectItem>
+                </SelectContent>
+            </Select>
+            <Select @bind-Value="_sizeDemo">
+                <SelectTrigger Size="default">
+                    <SelectValue Placeholder="Default" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem Value="sm" Text="Small">Small</SelectItem>
+                    <SelectItem Value="md" Text="Medium">Medium</SelectItem>
+                    <SelectItem Value="lg" Text="Large">Large</SelectItem>
+                </SelectContent>
+            </Select>
+            <Select @bind-Value="_sizeDemo">
+                <SelectTrigger Size="lg">
+                    <SelectValue Placeholder="Large" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem Value="sm" Text="Small">Small</SelectItem>
+                    <SelectItem Value="md" Text="Medium">Medium</SelectItem>
+                    <SelectItem Value="lg" Text="Large">Large</SelectItem>
+                </SelectContent>
+            </Select>
+        </div>
+        """;
+
+    private const string StatesRazor =
+        """
+        <div class="space-y-2">
+            <Select @bind-Value="_disabledDemo">
+                <SelectTrigger Disabled="true">
+                    <SelectValue Placeholder="Disabled" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem Value="opt1" Text="Option 1">Option 1</SelectItem>
+                    <SelectItem Value="opt2" Text="Option 2">Option 2</SelectItem>
+                </SelectContent>
+            </Select>
+            <Select @bind-Value="_invalidDemo">
+                <SelectTrigger Invalid="true">
+                    <SelectValue Placeholder="Invalid state" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem Value="opt1" Text="Option 1">Option 1</SelectItem>
+                    <SelectItem Value="opt2" Text="Option 2">Option 2</SelectItem>
+                </SelectContent>
+            </Select>
+        </div>
+        """;
+}

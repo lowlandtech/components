@@ -1,57 +1,145 @@
 @attribute [DisplayName("Overlay/Dialog")]
 @inherits StoryComponent
 
-<div class="space-y-8">
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Edit profile</h2>
-        <Dialog @bind-IsOpen="_open">
+<StoryCard Title="Dialog"
+           Description="Dialog overlays the page with a modal window for forms, confirmations, or custom content."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "edit-profile",
+            "Edit profile",
+            @<Dialog>
+                <DialogTrigger>
+                    <Button>Edit Profile</Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Edit Profile</DialogTitle>
+                        <DialogDescription>Make changes to your profile here. Click save when you are done.</DialogDescription>
+                    </DialogHeader>
+                    <div class="grid gap-4 py-4">
+                        <div class="space-y-1">
+                            <Label For="dlg-name">Name</Label>
+                            <Input id="dlg-name" Value="John Doe" />
+                        </div>
+                        <div class="space-y-1">
+                            <Label For="dlg-user">Username</Label>
+                            <Input id="dlg-user" Value="@("@johndoe")" />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button Variant="ghost">Cancel</Button>
+                        <Button>Save changes</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>,
+            [
+                new StoryCard.CodeTab("edit-profile-razor", "DialogStory.razor", EditProfileRazor)
+            ]),
+        new(
+            "confirm",
+            "Confirm",
+            @<Dialog>
+                <DialogTrigger>
+                    <Button Variant="destructive">Delete account</Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Are you absolutely sure?</DialogTitle>
+                        <DialogDescription>This action cannot be undone. This will permanently delete your account and remove your data from our servers.</DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button Variant="ghost">Cancel</Button>
+                        <Button Variant="destructive">Delete</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>,
+            [
+                new StoryCard.CodeTab("confirm-razor", "DialogStory.razor", ConfirmRazor)
+            ]),
+        new(
+            "no-overlay-close",
+            "No overlay close",
+            @<Dialog>
+                <DialogTrigger>
+                    <Button Variant="outline">Modal only</Button>
+                </DialogTrigger>
+                <DialogContent CloseOnOverlayClick="false">
+                    <DialogHeader>
+                        <DialogTitle>Close via X only</DialogTitle>
+                        <DialogDescription>This dialog can only be closed by clicking the X button or the action buttons.</DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button>Got it</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>,
+            [
+                new StoryCard.CodeTab("no-overlay-close-razor", "DialogStory.razor", NoOverlayCloseRazor)
+            ])
+    ];
+
+    private const string EditProfileRazor =
+        """
+        <Dialog>
             <DialogTrigger>
                 <Button>Edit Profile</Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Edit Profile</DialogTitle>
-                    <DialogDescription>Make changes to your profile here. Click save when you're done.</DialogDescription>
+                    <DialogDescription>Make changes to your profile here.</DialogDescription>
                 </DialogHeader>
                 <div class="grid gap-4 py-4">
                     <div class="space-y-1">
                         <Label For="dlg-name">Name</Label>
                         <Input id="dlg-name" Value="John Doe" />
                     </div>
-                    <div class="space-y-1">
-                        <Label For="dlg-user">Username</Label>
-                        <Input id="dlg-user" Value="@("@johndoe")" />
-                    </div>
                 </div>
                 <DialogFooter>
-                    <Button Variant="ghost" @onclick="@(() => _open = false)">Cancel</Button>
-                    <Button @onclick="@(() => _open = false)">Save changes</Button>
+                    <Button Variant="ghost">Cancel</Button>
+                    <Button>Save changes</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Confirm action</h2>
-        <Dialog @bind-IsOpen="_open2">
+    private const string ConfirmRazor =
+        """
+        <Dialog>
             <DialogTrigger>
                 <Button Variant="destructive">Delete account</Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Are you absolutely sure?</DialogTitle>
-                    <DialogDescription>This action cannot be undone. This will permanently delete your account and remove your data from our servers.</DialogDescription>
+                    <DialogDescription>This action cannot be undone.</DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                    <Button Variant="ghost" @onclick="@(() => _open2 = false)">Cancel</Button>
-                    <Button Variant="destructive" @onclick="@(() => _open2 = false)">Delete</Button>
+                    <Button Variant="ghost">Cancel</Button>
+                    <Button Variant="destructive">Delete</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
-    </section>
-</div>
+        """;
 
-@code {
-    bool _open;
-    bool _open2;
+    private const string NoOverlayCloseRazor =
+        """
+        <Dialog>
+            <DialogTrigger>
+                <Button Variant="outline">Modal only</Button>
+            </DialogTrigger>
+            <DialogContent CloseOnOverlayClick="false">
+                <DialogHeader>
+                    <DialogTitle>Close via X only</DialogTitle>
+                    <DialogDescription>Can only be closed by the X button.</DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                    <Button>Got it</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+        """;
 }

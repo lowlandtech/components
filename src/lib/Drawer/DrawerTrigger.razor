@@ -15,7 +15,10 @@
     {
         if (Parent != null)
         {
-            await Parent.Open();
+            if (Parent.IsOpen)
+                await Parent.Close();
+            else
+                await Parent.Open();
         }
     }
 

@@ -1,5 +1,6 @@
 @namespace LowlandTech.Components.Slider
 @inherits LtComponentBase
+@inject IJSRuntime JSRuntime
 
 <CascadingValue Value="this">
     <div data-slot="slider"
@@ -13,6 +14,10 @@
          aria-disabled="@Disabled.ToString().ToLower()"
          aria-orientation="@Orientation"
          tabindex="@GetTabIndex()"
+         @ref="_element"
+         @onpointerdown="OnPointerDown"
+         @onpointermove="OnPointerMove"
+         @onpointerup="OnPointerUp"
          @attributes="AdditionalAttributes">
         @ChildContent
     </div>
@@ -28,6 +33,14 @@
     [Parameter] public EventCallback<double> ValueChanged { get; set; }
     [Parameter] public double[]? ValueRange { get; set; }
     [Parameter] public EventCallback<double[]> ValueRangeChanged { get; set; }
+
+    private ElementReference _element;
+    private IJSObjectReference? _jsModule;
+    private bool _isDragging;
+    private double _trackLeft;
+    private double _trackTop;
+    private double _trackWidth;
+    private double _trackHeight;
 
     private string GetClass()
     {
@@ -62,5 +75,65 @@
     internal double GetPercentage(double value)
     {
         return ((value - Min) / (Max - Min)) * 100;
+    }
+
+    private async Task OnPointerDown(PointerEventArgs e)
+    {
+        if (Disabled) return;
+
+        _isDragging = true;
+        _jsModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", Assets["./js/slider.js"]);
+        await _jsModule.InvokeVoidAsync("setPointerCapture", _element, e.PointerId);
+
+        var rect = await _jsModule.InvokeAsync<TrackRect>("getBoundingClientRect", _element);
+        if (rect != null)
+        {
+            _trackLeft = rect.Left;
+            _trackTop = rect.Top;
+            _trackWidth = rect.Width;
+            _trackHeight = rect.Height;
+        }
+
+        await UpdateValueFromPointer(e.ClientX, e.ClientY);
+    }
+
+    private async Task OnPointerMove(PointerEventArgs e)
+    {
+        if (!_isDragging) return;
+        await UpdateValueFromPointer(e.ClientX, e.ClientY);
+    }
+
+    private async Task OnPointerUp(PointerEventArgs e)
+    {
+        if (!_isDragging) return;
+        _isDragging = false;
+        if (_jsModule != null)
+        {
+            await _jsModule.InvokeVoidAsync("releasePointerCapture", _element, e.PointerId);
+        }
+    }
+
+    private async Task UpdateValueFromPointer(double clientX, double clientY)
+    {
+        double percentage;
+        if (Orientation == "vertical")
+        {
+            percentage = _trackHeight > 0 ? (_trackTop + _trackHeight - clientY) / _trackHeight * 100 : 0;
+        }
+        else
+        {
+            percentage = _trackWidth > 0 ? (clientX - _trackLeft) / _trackWidth * 100 : 0;
+        }
+
+        var newValue = Min + (percentage / 100) * (Max - Min);
+        await UpdateValueAsync(newValue);
+    }
+
+    private class TrackRect
+    {
+        public double Left { get; set; }
+        public double Top { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
     }
 }

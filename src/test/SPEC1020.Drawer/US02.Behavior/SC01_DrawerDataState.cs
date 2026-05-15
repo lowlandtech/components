@@ -40,17 +40,17 @@ public class SC01_DrawerDataState : ViewScenario
         cut.Find("[data-slot='drawer-content']").GetAttribute("data-state").ShouldBe("open");
     }
 
-    [Fact(DisplayName = "UAC04: DrawerContent has data-state=closed when parent IsOpen is false")]
+    [Fact(DisplayName = "UAC04: DrawerContent is not rendered when parent IsOpen is false")]
     [Trait(Spec.UAC, "04")]
-    [Then("DrawerContent has data-state='closed'")]
-    public void UAC04_DrawerContentHasDataStateClosed()
+    [Then("DrawerContent is absent")]
+    public void UAC04_DrawerContentNotRenderedWhenClosed()
     {
         var cut = Ctx.Render<DrawerComponent>(p =>
         {
             p.Add(x => x.IsOpen, false);
             p.AddChildContent<DrawerContent>();
         });
-        cut.Find("[data-slot='drawer-content']").GetAttribute("data-state").ShouldBe("closed");
+        cut.FindAll("[data-slot='drawer-content']").Count.ShouldBe(0);
     }
 
     [Fact(DisplayName = "UAC05: DrawerOverlay has data-state=open when parent IsOpen is true")]
@@ -66,17 +66,17 @@ public class SC01_DrawerDataState : ViewScenario
         cut.Find("[data-slot='drawer-overlay']").GetAttribute("data-state").ShouldBe("open");
     }
 
-    [Fact(DisplayName = "UAC06: DrawerOverlay has data-state=closed when parent IsOpen is false")]
+    [Fact(DisplayName = "UAC06: DrawerOverlay is not rendered when parent IsOpen is false")]
     [Trait(Spec.UAC, "06")]
-    [Then("DrawerOverlay has data-state='closed'")]
-    public void UAC06_DrawerOverlayHasDataStateClosed()
+    [Then("DrawerOverlay is absent")]
+    public void UAC06_DrawerOverlayNotRenderedWhenClosed()
     {
         var cut = Ctx.Render<DrawerComponent>(p =>
         {
             p.Add(x => x.IsOpen, false);
             p.AddChildContent<DrawerOverlay>();
         });
-        cut.Find("[data-slot='drawer-overlay']").GetAttribute("data-state").ShouldBe("closed");
+        cut.FindAll("[data-slot='drawer-overlay']").Count.ShouldBe(0);
     }
 
     [Fact(DisplayName = "UAC07: data-state updates to open after Drawer.Open() is called")]
@@ -90,7 +90,7 @@ public class SC01_DrawerDataState : ViewScenario
             p.AddChildContent<DrawerContent>();
         });
 
-        cut.Find("[data-slot='drawer-content']").GetAttribute("data-state").ShouldBe("closed");
+        cut.FindAll("[data-slot='drawer-content']").Count.ShouldBe(0);
 
         await cut.InvokeAsync(() => cut.Instance.Open());
 
@@ -112,6 +112,6 @@ public class SC01_DrawerDataState : ViewScenario
 
         await cut.InvokeAsync(() => cut.Instance.Close());
 
-        cut.Find("[data-slot='drawer-content']").GetAttribute("data-state").ShouldBe("closed");
+        cut.FindAll("[data-slot='drawer-content']").Count.ShouldBe(0);
     }
 }

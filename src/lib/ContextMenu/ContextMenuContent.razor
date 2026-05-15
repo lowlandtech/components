@@ -41,13 +41,13 @@
 
     private string GetClass()
     {
-        var baseClass = "cn-context-menu-content cn-context-menu-content-logical cn-menu-target cn-menu-translucent z-50 max-h-(--available-height) origin-(--transform-origin) overflow-x-hidden overflow-y-auto outline-hidden";
+        var baseClass = "cn-context-menu-content z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md outline-hidden animate-in fade-in-0 zoom-in-95 duration-100";
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
 
     private string GetStyle()
     {
         if (Parent == null) return "";
-        return $"position: fixed; left: {Parent.Position.X}px; top: {Parent.Position.Y}px;";
+        return $"position: absolute; left: {Parent.Position.X}px; top: {Parent.Position.Y}px;";
     }
 }

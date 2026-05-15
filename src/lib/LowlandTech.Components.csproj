@@ -35,7 +35,11 @@
   </Choose>
 
   <ItemGroup>
+    <Compile Remove="artifacts\**" />
+    <Content Remove="artifacts\**" />
     <Content Remove="wwwroot\node_modules\**" />
+    <EmbeddedResource Remove="artifacts\**" />
+    <None Remove="artifacts\**" />
     <None Remove="wwwroot\node_modules\**" />
   </ItemGroup>
 

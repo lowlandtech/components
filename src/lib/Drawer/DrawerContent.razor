@@ -1,19 +1,20 @@
 @namespace LowlandTech.Components.Drawer
 @inherits LtComponentBase
 
-<div data-slot="drawer-content"
-     data-state="@GetState()"
-     data-direction="@GetDirection()"
-     class="@GetClass()"
-     @attributes="AdditionalAttributes">
-    <div class="cn-drawer-handle mx-auto hidden shrink-0"></div>
-    @ChildContent
-</div>
+@if (Parent?.IsOpen == true)
+{
+    <div data-slot="drawer-content"
+         data-state="open"
+         data-direction="@GetDirection()"
+         class="@GetClass()"
+         @attributes="AdditionalAttributes">
+        <div class="cn-drawer-handle mx-auto hidden shrink-0"></div>
+        @ChildContent
+    </div>
+}
 
 @code {
     [CascadingParameter] private Drawer? Parent { get; set; }
-
-    private string GetState() => Parent?.IsOpen == true ? "open" : "closed";
 
     private string GetDirection() => Parent?.Direction ?? "right";
 
@@ -22,11 +23,11 @@
         var direction = GetDirection();
         return direction switch
         {
-            "left"   => "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:slide-in-from-left data-[state=closed]:slide-out-to-left",
-            "right"  => "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right",
-            "top"    => "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:slide-in-from-top data-[state=closed]:slide-out-to-top",
-            "bottom" => "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom",
-            _        => "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:slide-in-from-right data-[state=closed]:slide-out-to-right"
+            "left"   => "animate-in slide-in-from-left duration-300",
+            "right"  => "animate-in slide-in-from-right duration-300",
+            "top"    => "animate-in slide-in-from-top duration-300",
+            "bottom" => "animate-in slide-in-from-bottom duration-300",
+            _        => "animate-in slide-in-from-right duration-300"
         };
     }
 

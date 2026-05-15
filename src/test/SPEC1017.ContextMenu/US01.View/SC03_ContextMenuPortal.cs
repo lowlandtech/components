@@ -45,9 +45,9 @@ public class SC03_ContextMenuPortal : ViewScenario
         content.TextContent.ShouldContain("Menu Content");
     }
 
-    [Fact(DisplayName = "UAC03: ContextMenu content has fixed positioning for portal-like behavior")]
+    [Fact(DisplayName = "UAC03: ContextMenu content has absolute positioning anchored to trigger")]
     [Trait(Spec.UAC, "03")]
-    public void UAC03_ContentHasFixedPositioning()
+    public void UAC03_ContentHasAbsolutePositioning()
     {
         // Arrange
         var cut = Ctx.Render<ContextMenuSut>(p => p
@@ -56,13 +56,13 @@ public class SC03_ContextMenuPortal : ViewScenario
 
         // Act
         var trigger = cut.Find("[data-slot='context-menu-trigger']");
-        trigger.ContextMenu(new MouseEventArgs { ClientX = 150, ClientY = 250 });
+        trigger.ContextMenu(new MouseEventArgs { OffsetX = 150, OffsetY = 250 });
 
         // Assert
         var content = cut.Find("[data-slot='context-menu-content']");
         var style = content.GetAttribute("style");
         style.ShouldNotBeNull();
-        style!.ShouldContain("position: fixed");
+        style!.ShouldContain("position: absolute");
         style.ShouldContain("left: 150px");
         style.ShouldContain("top: 250px");
     }

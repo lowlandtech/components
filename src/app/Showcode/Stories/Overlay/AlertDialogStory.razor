@@ -1,9 +1,78 @@
 @attribute [DisplayName("Overlay/Alert Dialog")]
 @inherits StoryComponent
 
-<div class="space-y-8">
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Destructive confirm</h2>
+<StoryCard Title="Alert Dialog"
+           Description="Alert dialog interrupts the user with a critical confirmation that requires a decision."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "destructive",
+            "Destructive",
+            @<AlertDialog>
+                <AlertDialogTrigger>
+                    <Button Variant="destructive">Delete item</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>This action cannot be undone. This will permanently delete this item.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction>Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>,
+            [
+                new StoryCard.CodeTab("destructive-razor", "AlertDialogStory.razor", DestructiveRazor)
+            ]),
+        new(
+            "continue",
+            "Continue",
+            @<AlertDialog>
+                <AlertDialogTrigger>
+                    <Button Variant="outline">Continue</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Continue with changes?</AlertDialogTitle>
+                        <AlertDialogDescription>This will apply all pending changes to your account. You can review them later in Settings.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Go back</AlertDialogCancel>
+                        <AlertDialogAction>Continue</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>,
+            [
+                new StoryCard.CodeTab("continue-razor", "AlertDialogStory.razor", ContinueRazor)
+            ]),
+        new(
+            "overlay-close",
+            "Overlay close",
+            @<AlertDialog>
+                <AlertDialogTrigger>
+                    <Button Variant="secondary">Click overlay to close</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent CloseOnOverlayClick="true">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Click outside</AlertDialogTitle>
+                        <AlertDialogDescription>This dialog closes when you click the overlay background.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Close</AlertDialogCancel>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>,
+            [
+                new StoryCard.CodeTab("overlay-close-razor", "AlertDialogStory.razor", OverlayCloseRazor)
+            ])
+    ];
+
+    private const string DestructiveRazor =
+        """
         <AlertDialog>
             <AlertDialogTrigger>
                 <Button Variant="destructive">Delete item</Button>
@@ -11,7 +80,7 @@
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                    <AlertDialogDescription>This action cannot be undone. This will permanently delete this item.</AlertDialogDescription>
+                    <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -19,10 +88,10 @@
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
-    </section>
+        """;
 
-    <section class="space-y-3">
-        <h2 class="text-base font-semibold">Continue confirm</h2>
+    private const string ContinueRazor =
+        """
         <AlertDialog>
             <AlertDialogTrigger>
                 <Button Variant="outline">Continue</Button>
@@ -30,7 +99,7 @@
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Continue with changes?</AlertDialogTitle>
-                    <AlertDialogDescription>This will apply all pending changes to your account. You can review them later in Settings.</AlertDialogDescription>
+                    <AlertDialogDescription>This will apply pending changes.</AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Go back</AlertDialogCancel>
@@ -38,5 +107,23 @@
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
-    </section>
-</div>
+        """;
+
+    private const string OverlayCloseRazor =
+        """
+        <AlertDialog>
+            <AlertDialogTrigger>
+                <Button Variant="secondary">Click overlay to close</Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent CloseOnOverlayClick="true">
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Click outside</AlertDialogTitle>
+                    <AlertDialogDescription>Closes when overlay is clicked.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Close</AlertDialogCancel>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+        """;
+}
