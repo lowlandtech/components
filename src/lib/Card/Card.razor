@@ -3,6 +3,9 @@
 
 <div data-slot="card"
      data-size="@Size"
+     data-variant="@Variant"
+     data-elevation="@Elevation"
+     data-square="@(Square ? "true" : null)"
      class="@GetClass()"
      @attributes="AdditionalAttributes">
     @ChildContent
@@ -11,7 +14,24 @@
 @code {
     private string GetClass()
     {
-        var baseClass = "cn-card card group/card flex flex-col";
+        var baseClass = "cn-card card group/card";
+
+        if (Variant != "outlined")
+        {
+            baseClass += " " + GetShadowClass(Elevation);
+        }
+
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private static string GetShadowClass(int elevation)
+    {
+        if (elevation <= 0) return "shadow-none";
+        if (elevation <= 1) return "shadow-sm";
+        if (elevation <= 2) return "shadow";
+        if (elevation <= 3) return "shadow-md";
+        if (elevation <= 5) return "shadow-lg";
+        if (elevation <= 8) return "shadow-xl";
+        return "shadow-2xl";
     }
 }

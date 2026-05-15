@@ -15,4 +15,23 @@ public partial class Card
     [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Select,
         Options = new[] { "sm", "default", "lg" })]
     public string Size { get; set; } = "default";
+
+    /// <summary>
+    /// The visual variant of the card.
+    /// </summary>
+    [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Select,
+        Options = new[] { "default", "outlined" })]
+    public string Variant { get; set; } = "default";
+
+    /// <summary>
+    /// The elevation (shadow depth) of the card. Ignored when <see cref="Variant"/> is "outlined".
+    /// </summary>
+    [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Number)]
+    public int Elevation { get; set; } = 1;
+
+    /// <summary>
+    /// Whether the card should have square corners (no border-radius).
+    /// </summary>
+    [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Switch)]
+    public bool Square { get; set; }
 }

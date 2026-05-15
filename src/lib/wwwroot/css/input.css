@@ -533,4 +533,45 @@
   .cn-popover-content-none {
     @apply text-popover-foreground;
   }
+
+  /* Card Component Styles */
+  .cn-card {
+    @apply flex flex-col gap-6 py-6 bg-card text-card-foreground;
+  }
+
+  .cn-card:not([data-square="true"]) {
+    @apply rounded-xl;
+  }
+
+  .cn-card[data-variant="default"] {
+    @apply border;
+  }
+
+  .cn-card[data-variant="outlined"] {
+    @apply border border-border bg-background;
+  }
+
+  .cn-card-header {
+    @apply gap-1.5 px-6;
+  }
+
+  .cn-card-title {
+    @apply text-2xl font-semibold leading-none tracking-tight;
+  }
+
+  .cn-card-description {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .cn-card-action {
+    @apply col-start-2 row-span-2 row-start-1 self-start justify-self-end;
+  }
+
+  .cn-card-content {
+    @apply px-6;
+  }
+
+  .cn-card-footer {
+    @apply px-6 gap-2;
+  }
 }
