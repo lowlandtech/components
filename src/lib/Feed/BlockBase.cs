@@ -13,6 +13,7 @@ public abstract class BlockBase : ComponentBase, IBlock, IDisposable
     [Parameter] public Guid BlockId { get; set; }
     [Parameter] public EventCallback<Guid> OnDeleted { get; set; }
     [CascadingParameter(Name = "SessionSettings")] protected IReadOnlyDictionary<string, string>? SessionSettings { get; set; }
+    [CascadingParameter(Name = "BlockMode")] protected BlockMode? ParentBlockMode { get; set; }
 
     /// <summary>
     /// Optional injection — the validity channel BlockBase uses to publish
@@ -76,7 +77,9 @@ public abstract class BlockBase : ComponentBase, IBlock, IDisposable
     /// Gets the rounded corner class based on block spacing setting.
     /// Returns "rounded-lg" when spacing is on, "rounded-none" when off.
     /// </summary>
-    protected string BlockRoundedClass => SessionBlockSpacingOptions.IsEnabled(BlockSpacing) ? "rounded-lg" : "rounded-none";
+    protected string BlockRoundedClass => ParentBlockMode is BlockMode.Expanded or BlockMode.ContentOverlaid or BlockMode.AppOverlaid
+        ? "rounded-none"
+        : SessionBlockSpacingOptions.IsEnabled(BlockSpacing) ? "rounded-lg" : "rounded-none";
 
     /// <summary>
     /// Gets the background class based on block spacing setting.
