@@ -1,0 +1,112 @@
+@namespace LowlandTech.Components.App.Showcode
+@inject IJSRuntime JS
+
+@if (States.Count > 0)
+{
+    <section data-slot="story-card" class="@GetClass()">
+        @if (!string.IsNullOrWhiteSpace(Title) || !string.IsNullOrWhiteSpace(Description))
+        {
+            <div class="space-y-1">
+                @if (!string.IsNullOrWhiteSpace(Title))
+                {
+                    <h2 class="text-base font-semibold text-foreground">@Title</h2>
+                }
+                @if (!string.IsNullOrWhiteSpace(Description))
+                {
+                    <p class="max-w-2xl text-sm text-muted-foreground">@Description</p>
+                }
+            </div>
+        }
+
+        <Tabs DefaultValue="@DefaultStateValue" class="w-full">
+            @if (States.Count > 1)
+            {
+                <div class="flex items-center border-b px-4 pt-3">
+                    <TabsList Variant="line" class="h-9 justify-start gap-3 bg-transparent p-0">
+                        @foreach (var state in States)
+                        {
+                            <TabsTrigger Value="@state.Value" class="h-9 px-0 text-sm">
+                                @state.Name
+                            </TabsTrigger>
+                        }
+                    </TabsList>
+                </div>
+            }
+
+            @foreach (var state in States)
+            {
+                <TabsContent Value="@state.Value" class="mt-0">
+                    <div class="relative flex min-h-72 items-center justify-center p-10">
+                        @state.Preview
+                    </div>
+
+                    @if (state.CodeTabs.Count > 0)
+                    {
+                        <Tabs DefaultValue="@state.CodeTabs[0].Value" class="border-t bg-muted/20">
+                            <div class="flex min-h-11 items-center justify-between gap-3 border-b px-4">
+                                <TabsList Variant="line" class="h-11 justify-start gap-3 bg-transparent p-0">
+                                    @foreach (var codeTab in state.CodeTabs)
+                                    {
+                                        <TabsTrigger Value="@codeTab.Value" class="h-11 px-0 font-mono text-xs">
+                                            @codeTab.Name
+                                        </TabsTrigger>
+                                    }
+                                </TabsList>
+                            </div>
+
+                            @foreach (var codeTab in state.CodeTabs)
+                            {
+                                <TabsContent Value="@codeTab.Value" class="relative mt-0">
+                                    <Button Variant="ghost"
+                                            Size="icon-sm"
+                                            class="absolute right-3 top-3 z-10 bg-background/80 text-muted-foreground hover:text-foreground"
+                                            title="@($"Copy {codeTab.Name} code")"
+                                            @onclick="() => CopyCode(codeTab)">
+                                        <Icon Name="@(CopiedValue == codeTab.Value ? "check" : "copy")" Size="14" />
+                                        <span class="sr-only">Copy @codeTab.Name code</span>
+                                    </Button>
+                                    <pre class="max-h-96 overflow-auto p-4 pr-12 text-sm leading-6 text-foreground"><code>@codeTab.Code</code></pre>
+                                </TabsContent>
+                            }
+                        </Tabs>
+                    }
+                </TabsContent>
+            }
+        </Tabs>
+    </section>
+}
+
+@code {
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public string? Description { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public string? DefaultState { get; set; }
+    [Parameter, EditorRequired] public IReadOnlyList<State> States { get; set; } = [];
+
+    private string? CopiedValue { get; set; }
+
+    private string DefaultStateValue => DefaultState ?? States[0].Value;
+
+    private string GetClass()
+    {
+        var baseClass = "overflow-hidden rounded-xl border bg-card text-card-foreground";
+        return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private async Task CopyCode(CodeTab codeTab)
+    {
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", codeTab.Code);
+        CopiedValue = codeTab.Value;
+    }
+
+    public sealed record State(
+        string Value,
+        string Name,
+        RenderFragment Preview,
+        IReadOnlyList<CodeTab> CodeTabs);
+
+    public sealed record CodeTab(
+        string Value,
+        string Name,
+        string Code);
+}
