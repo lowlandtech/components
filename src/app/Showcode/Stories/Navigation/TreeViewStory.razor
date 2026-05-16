@@ -79,6 +79,7 @@
                           GetChildren="f => f.Children"
                           GetKey="f => f.Id"
                           HasChildren="f => f.Children.Count > 0"
+                          GetText="f => f.Name"
                           ExpandedKeys="_expandedKeysStory"
                           class="space-y-1" />
             </div>,
@@ -93,6 +94,7 @@
                           GetChildren="f => f.Children"
                           GetKey="f => f.Id"
                           HasChildren="f => f.Children.Count > 0"
+                          GetText="f => f.Name"
                           SelectionMode="TreeViewSelectionMode.Single"
                           SelectedKeys="_selectedKeys"
                           SelectedKeysChanged="keys => _selectedKeys = keys.ToList()"
@@ -110,6 +112,7 @@
                           GetChildren="f => f.Children"
                           GetKey="f => f.Id"
                           HasChildren="f => f.Children.Count > 0"
+                          GetText="f => f.Name"
                           CheckMode="TreeViewCheckMode.Checkbox"
                           CheckedKeys="_checkedKeys"
                           CheckedKeysChanged="keys => _checkedKeys = keys.ToList()"
@@ -127,6 +130,7 @@
                           GetChildren="f => f.Children"
                           GetKey="f => f.Id"
                           HasChildren="f => f.Children.Count > 0"
+                          GetText="f => f.Name"
                           CheckMode="TreeViewCheckMode.TriState"
                           CheckedKeys="_checkedKeys"
                           CheckedKeysChanged="keys => _checkedKeys = keys.ToList()"
