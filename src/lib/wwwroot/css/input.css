@@ -644,6 +644,60 @@
   }
 
   /* Tabs Component Styles */
+  .cn-tabs {
+    min-width: 0;
+  }
+
+  .cn-tabs-list-shell {
+    min-width: 0;
+  }
+
+  .cn-tabs-list-viewport {
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+  }
+
+  .cn-tabs-list-viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cn-tabs-scroll-button {
+    @apply inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
+  }
+
+  .cn-tabs-trigger-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cn-tabs-trigger-action {
+    @apply inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring;
+  }
+
+  .cn-tabs-trigger[data-pinned="true"] .cn-tabs-trigger-action[data-slot="tabs-pin-button"] {
+    @apply text-primary;
+  }
+
+  .cn-tabs-rename-input {
+    @apply h-6 min-w-20 max-w-40 rounded-sm border border-input bg-background px-1 text-sm text-foreground outline-none focus-visible:ring-1 focus-visible:ring-ring;
+  }
+
+  .cn-tabs-list[data-variant="ide"] {
+    overflow: visible;
+  }
+
+  .cn-tabs-list[data-variant="ide"] .cn-tabs-trigger {
+    border-radius: 0;
+  }
+
+  .cn-tabs-list[data-variant="ide"] .cn-tabs-trigger[data-state="active"] {
+    box-shadow: inset 0 -1px 0 var(--background);
+  }
+
   .cn-tabs-list[data-variant="line"] .cn-tabs-trigger[data-state="active"] {
     border-bottom: 2px solid currentColor;
     background-color: transparent;

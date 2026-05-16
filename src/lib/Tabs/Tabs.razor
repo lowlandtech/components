@@ -5,8 +5,36 @@
     <div data-slot="tabs"
          data-orientation="@Orientation"
          data-activation="@KeyboardActivation"
+         data-tabs-mode="@(HasItems ? "dynamic" : "static")"
          class="@GetClass()"
          @attributes="AdditionalAttributes">
+        @if (HasItems)
+        {
+            <TabsList Variant="@DynamicVariant" ShowScrollButtons="@ShowScrollButtons">
+                @foreach (var item in OrderedItems)
+                {
+                    <TabsTrigger Value="@item.Value"
+                                 Title="@item.Title"
+                                 Disabled="@item.Disabled"
+                                 Closeable="@item.Closeable"
+                                 Pinned="@item.Pinned"
+                                 Pinnable="@item.Pinnable"
+                                 Renameable="@item.Renameable"
+                                 Draggable="@item.Draggable" />
+                }
+            </TabsList>
+
+            @foreach (var item in OrderedItems)
+            {
+                <TabsContent Value="@item.Value">
+                    @if (ItemContent is not null)
+                    {
+                        @ItemContent(item)
+                    }
+                </TabsContent>
+            }
+        }
+
         @ChildContent
     </div>
 </CascadingValue>
@@ -17,19 +45,46 @@
     [Parameter] public string? Value { get; set; }
     [Parameter] public EventCallback<string?> ValueChanged { get; set; }
     [Parameter] public string KeyboardActivation { get; set; } = "automatic";
+    [Parameter] public IReadOnlyList<TabsItem>? Items { get; set; }
+    [Parameter] public EventCallback<IReadOnlyList<TabsItem>> ItemsChanged { get; set; }
+    [Parameter] public RenderFragment<TabsItem>? ItemContent { get; set; }
+    [Parameter] public string DynamicVariant { get; set; } = "ide";
+    [Parameter] public bool ShowScrollButtons { get; set; } = true;
+    [Parameter] public EventCallback<TabsItem> TabClosed { get; set; }
+    [Parameter] public EventCallback<TabsItem> TabPinnedChanged { get; set; }
+    [Parameter] public EventCallback<TabsRenameEventArgs> TabRenamed { get; set; }
+    [Parameter] public EventCallback<TabsReorderEventArgs> TabReordered { get; set; }
     
     internal string? ActiveTab { get; set; }
     internal int FocusedTabIndex { get; set; } = -1;
     internal List<TabsTrigger> Triggers { get; } = new();
+    internal string? DraggedTabValue { get; private set; }
+    private bool HasItems => Items is { Count: > 0 };
+    private IReadOnlyList<TabsItem> OrderedItems => Items is null
+        ? []
+        : [.. Items
+            .Select((item, index) => new { item, index })
+            .OrderByDescending(x => x.item.Pinned)
+            .ThenBy(x => x.index)
+            .Select(x => x.item)];
     
     protected override void OnInitialized()
     {
-        ActiveTab = Value ?? DefaultValue;
+        ActiveTab = ResolveActiveValue();
     }
 
     protected override void OnParametersSet()
     {
-        ActiveTab = Value ?? DefaultValue;
+        ActiveTab = ResolveActiveValue();
+    }
+
+    private string? ResolveActiveValue()
+    {
+        if (!string.IsNullOrEmpty(Value))
+            return Value;
+        if (!string.IsNullOrEmpty(DefaultValue))
+            return DefaultValue;
+        return OrderedItems.FirstOrDefault(x => !x.Disabled)?.Value;
     }
     
     internal void RegisterTrigger(TabsTrigger trigger)
@@ -59,6 +114,95 @@
         }
         if (ValueChanged.HasDelegate)
             _ = ValueChanged.InvokeAsync(value);
+        StateHasChanged();
+    }
+
+    internal async Task CloseTabAsync(string value)
+    {
+        if (Items is null)
+            return;
+
+        var item = Items.FirstOrDefault(x => x.Value == value);
+        if (item is null || !item.Closeable)
+            return;
+
+        var oldItems = Items.ToList();
+        var nextItems = oldItems.Where(x => x.Value != value).ToList();
+        if (ActiveTab == value)
+        {
+            var oldIndex = oldItems.FindIndex(x => x.Value == value);
+            var nextActive = nextItems.Skip(Math.Max(0, oldIndex - 1)).FirstOrDefault(x => !x.Disabled)
+                ?? nextItems.LastOrDefault(x => !x.Disabled);
+            ActiveTab = nextActive?.Value;
+            await ValueChanged.InvokeAsync(ActiveTab);
+        }
+
+        await ItemsChanged.InvokeAsync(nextItems);
+        await TabClosed.InvokeAsync(item);
+        StateHasChanged();
+    }
+
+    internal async Task TogglePinAsync(string value)
+    {
+        if (Items is null)
+            return;
+
+        var item = Items.FirstOrDefault(x => x.Value == value);
+        if (item is null || !item.Pinnable)
+            return;
+
+        var updated = item with { Pinned = !item.Pinned };
+        var nextItems = Items.Select(x => x.Value == value ? updated : x).ToList();
+        await ItemsChanged.InvokeAsync(nextItems);
+        await TabPinnedChanged.InvokeAsync(updated);
+        StateHasChanged();
+    }
+
+    internal async Task RenameTabAsync(string value, string title)
+    {
+        if (Items is null)
+            return;
+
+        var item = Items.FirstOrDefault(x => x.Value == value);
+        if (item is null || !item.Renameable)
+            return;
+
+        var trimmedTitle = title.Trim();
+        if (string.IsNullOrEmpty(trimmedTitle) || trimmedTitle == item.Title)
+            return;
+
+        var updated = item with { Title = trimmedTitle };
+        var nextItems = Items.Select(x => x.Value == value ? updated : x).ToList();
+        await ItemsChanged.InvokeAsync(nextItems);
+        await TabRenamed.InvokeAsync(new TabsRenameEventArgs(value, item.Title, trimmedTitle));
+        StateHasChanged();
+    }
+
+    internal void BeginDrag(string value)
+    {
+        DraggedTabValue = value;
+    }
+
+    internal async Task DropOnTabAsync(string targetValue)
+    {
+        if (Items is null || string.IsNullOrEmpty(DraggedTabValue) || DraggedTabValue == targetValue)
+            return;
+
+        var nextItems = Items.ToList();
+        var oldIndex = nextItems.FindIndex(x => x.Value == DraggedTabValue);
+        var newIndex = nextItems.FindIndex(x => x.Value == targetValue);
+        if (oldIndex < 0 || newIndex < 0)
+            return;
+
+        var dragged = nextItems[oldIndex];
+        nextItems.RemoveAt(oldIndex);
+        if (oldIndex < newIndex)
+            newIndex--;
+        nextItems.Insert(newIndex, dragged);
+
+        await ItemsChanged.InvokeAsync(nextItems);
+        await TabReordered.InvokeAsync(new TabsReorderEventArgs(dragged.Value, targetValue, oldIndex, newIndex));
+        DraggedTabValue = null;
         StateHasChanged();
     }
     

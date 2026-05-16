@@ -2,10 +2,19 @@
 @inherits StoryComponent
 
 <StoryCard Title="Tabs"
-           Description="Tabs states demonstrate default, disabled, and line variants with the markup for each composition."
+           Description="Tabs states demonstrate default, disabled, line, overflow, and IDE-style dynamic tabs."
            States="@States" />
 
 @code {
+    private IReadOnlyList<TabsItem> _ideTabs = [
+        new() { Value = "program", Title = "Program.cs", Closeable = true, Pinnable = true, Renameable = true, Draggable = true },
+        new() { Value = "layout", Title = "MainLayout.razor", Closeable = true, Pinned = true, Pinnable = true, Renameable = true, Draggable = true },
+        new() { Value = "graph", Title = "GraphCanvas.razor", Closeable = true, Pinnable = true, Renameable = true, Draggable = true },
+        new() { Value = "theme", Title = "ThemeProvider.razor", Closeable = true, Pinnable = true, Renameable = true, Draggable = true },
+        new() { Value = "dataform", Title = "DataForm.razor", Closeable = true, Pinnable = true, Renameable = true, Draggable = true },
+        new() { Value = "tabs", Title = "Tabs.razor", Closeable = true, Pinnable = true, Renameable = true, Draggable = true }
+    ];
+
     private IReadOnlyList<StoryCard.State> States => [
         new(
             "default",
@@ -75,6 +84,41 @@
             </Tabs>,
             [
                 new StoryCard.CodeTab("line-razor", "TabsStory.razor", LineRazor)
+            ]),
+        new(
+            "overflow",
+            "Overflow",
+            @<Tabs DefaultValue="tab-01" class="w-full max-w-sm">
+                <TabsList ShowScrollButtons="true">
+                    @for (var i = 1; i <= 10; i++)
+                    {
+                        var value = $"tab-{i:00}";
+                        <TabsTrigger Value="@value">Document @i</TabsTrigger>
+                    }
+                </TabsList>
+                <TabsContent Value="tab-01">
+                    <p class="p-3 text-sm text-muted-foreground">The header stays inside its parent and exposes scroll controls.</p>
+                </TabsContent>
+            </Tabs>,
+            [
+                new StoryCard.CodeTab("overflow-razor", "TabsStory.razor", OverflowRazor)
+            ]),
+        new(
+            "ide",
+            "IDE",
+            @<Tabs Items="_ideTabs"
+                   ItemsChanged="@(items => _ideTabs = items)"
+                   Value="program"
+                   DynamicVariant="ide"
+                   class="w-full max-w-lg">
+                <ItemContent>
+                    <div class="rounded-b-md border border-t-0 bg-card p-4 text-sm text-card-foreground">
+                        Editing @context.Title
+                    </div>
+                </ItemContent>
+            </Tabs>,
+            [
+                new StoryCard.CodeTab("ide-razor", "TabsStory.razor", IdeRazor)
             ])
     ];
 
@@ -120,6 +164,33 @@
             <TabsContent Value="preview">
                 <p class="p-3 text-sm text-muted-foreground">Line tabs keep focus on dense editor-like surfaces.</p>
             </TabsContent>
+        </Tabs>
+        """;
+
+    private const string OverflowRazor =
+        """
+        <Tabs DefaultValue="tab-01" class="w-full max-w-sm">
+            <TabsList ShowScrollButtons="true">
+                @for (var i = 1; i <= 10; i++)
+                {
+                    var value = $"tab-{i:00}";
+                    <TabsTrigger Value="@value">Document @i</TabsTrigger>
+                }
+            </TabsList>
+        </Tabs>
+        """;
+
+    private const string IdeRazor =
+        """
+        <Tabs Items="_ideTabs"
+              ItemsChanged="@(items => _ideTabs = items)"
+              Value="program"
+              DynamicVariant="ide">
+            <ItemContent>
+                <div class="rounded-b-md border border-t-0 bg-card p-4 text-sm text-card-foreground">
+                    Editing @context.Title
+                </div>
+            </ItemContent>
         </Tabs>
         """;
 }
