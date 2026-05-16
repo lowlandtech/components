@@ -35,6 +35,11 @@
                 return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
             };
 
+            window.scrollActiveNavItemIntoView = function() {
+                document.querySelector('[data-active="true"]')
+                    ?.scrollIntoView({ block: 'nearest' });
+            };
+
             applyTheme();
         })();
     </script>

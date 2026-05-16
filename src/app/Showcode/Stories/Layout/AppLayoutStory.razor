@@ -1,0 +1,434 @@
+@attribute [DisplayName("Layout/App Layout")]
+@inherits StoryComponent
+
+<StoryCard Title="App Layout"
+           Description="One shell template whose Grid slots react to an enum scenario from AppLayoutSession."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        BuildState(AppLayoutScenario.Workspace, "Workspace", WorkspaceRazor),
+        BuildState(AppLayoutScenario.Documentation, "Documentation", DocumentationRazor),
+        BuildState(AppLayoutScenario.Focus, "Focus", FocusRazor),
+        BuildState(AppLayoutScenario.Studio, "Studio", StudioRazor),
+        BuildState(AppLayoutScenario.Kiosk, "Kiosk", KioskRazor),
+        BuildState(AppLayoutScenario.Chat, "Chat", ChatRazor),
+        BuildState(AppLayoutScenario.Ide, "IDE", IdeRazor)
+    ];
+
+    private StoryCard.State BuildState(AppLayoutScenario scenario, string name, string code) =>
+        new(
+            scenario.ToString().ToLowerInvariant(),
+            name,
+            @<div class="w-full">
+                <div class="min-h-[22rem] w-full overflow-hidden rounded-md border border-border">
+                    <AppLayout Scenario="@scenario"
+                               TopBar="@TopBarFor(scenario)"
+                               Sidebar="@SidebarFor(scenario)"
+                               Main="@MainFor(scenario)"
+                               Aside="@AsideFor(scenario)"
+                               Footer="@FooterFor(scenario)" />
+                </div>
+            </div>,
+            [
+                new StoryCard.CodeTab($"{scenario.ToString().ToLowerInvariant()}-razor", "AppLayoutStory.razor", code)
+            ]);
+
+    private RenderFragment TopBarFor(AppLayoutScenario scenario) => scenario switch
+    {
+        AppLayoutScenario.Ide => IdeTopBar,
+        AppLayoutScenario.Chat => @<div class="font-semibold">Messages</div>,
+        _ => @<div class="flex items-center justify-between gap-3">
+            <div class="font-semibold">LowlandTech</div>
+            <div class="flex items-center gap-2 text-xs text-muted-foreground">
+                <span>Scenario</span>
+                <span class="rounded-md border border-border px-2 py-1">@scenario</span>
+            </div>
+        </div>
+    };
+
+    private RenderFragment? SidebarFor(AppLayoutScenario scenario) => scenario switch
+    {
+        AppLayoutScenario.Chat => ChatSidebar,
+        AppLayoutScenario.Ide  => IdeSidebar,
+        AppLayoutScenario.Focus or AppLayoutScenario.Kiosk => null,
+        _ => Sidebar
+    };
+
+    private RenderFragment MainFor(AppLayoutScenario scenario) => scenario switch
+    {
+        AppLayoutScenario.Kiosk => KioskMain,
+        AppLayoutScenario.Chat  => ChatMain,
+        AppLayoutScenario.Ide   => IdeMain,
+        _ => Main
+    };
+
+    private RenderFragment? AsideFor(AppLayoutScenario scenario) => scenario switch
+    {
+        AppLayoutScenario.Ide           => IdeAside,
+        AppLayoutScenario.Documentation => Aside,
+        AppLayoutScenario.Studio        => Aside,
+        _ => null
+    };
+
+    private RenderFragment? FooterFor(AppLayoutScenario scenario) => scenario switch
+    {
+        AppLayoutScenario.Ide    => IdeFooter,
+        AppLayoutScenario.Studio => Footer,
+        _ => null
+    };
+
+    private RenderFragment Sidebar => @<nav class="space-y-1 p-3 text-sm">
+        <a class="block rounded-md bg-sidebar-accent px-3 py-2 font-medium text-sidebar-accent-foreground">Dashboard</a>
+        <a class="block rounded-md px-3 py-2 text-sidebar-foreground/80">Projects</a>
+        <a class="block rounded-md px-3 py-2 text-sidebar-foreground/80">Reports</a>
+        <a class="block rounded-md px-3 py-2 text-sidebar-foreground/80">Settings</a>
+    </nav>;
+
+    private RenderFragment Main => @<main class="space-y-4">
+        <div class="grid gap-3 md:grid-cols-3">
+            <div class="rounded-md border border-border bg-card p-4">
+                <div class="text-xs text-muted-foreground">Revenue</div>
+                <div class="mt-1 text-2xl font-semibold">$48.2k</div>
+            </div>
+            <div class="rounded-md border border-border bg-card p-4">
+                <div class="text-xs text-muted-foreground">Open work</div>
+                <div class="mt-1 text-2xl font-semibold">37</div>
+            </div>
+            <div class="rounded-md border border-border bg-card p-4">
+                <div class="text-xs text-muted-foreground">Deploys</div>
+                <div class="mt-1 text-2xl font-semibold">12</div>
+            </div>
+        </div>
+
+        <section class="rounded-md border border-border bg-card p-4">
+            <h3 class="font-semibold">Main content</h3>
+            <p class="mt-2 text-sm text-muted-foreground">
+                The same body content can stay mounted while the session switches the shell scenario.
+            </p>
+        </section>
+    </main>;
+
+    private RenderFragment Aside => @<aside class="space-y-3 text-sm">
+        <div class="font-semibold">On this page</div>
+        <a class="block text-muted-foreground">Overview</a>
+        <a class="block text-muted-foreground">Activity</a>
+        <a class="block text-muted-foreground">Resources</a>
+    </aside>;
+
+    private RenderFragment Footer => @<div class="flex items-center justify-between text-xs text-muted-foreground">
+        <span>Studio status</span>
+        <span>All changes saved</span>
+    </div>;
+
+    private RenderFragment KioskMain => @<div class="grid min-h-[22rem] place-items-center bg-muted/30 p-8 text-center">
+        <div>
+            <div class="text-4xl font-semibold">42</div>
+            <div class="mt-2 text-sm text-muted-foreground">Kiosk mode keeps the shell chrome out of the way.</div>
+        </div>
+    </div>;
+
+    private RenderFragment ChatSidebar => @<div class="space-y-1 p-2">
+        <div class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Conversations</div>
+        <div class="rounded-md bg-sidebar-accent px-3 py-2 text-sm font-medium text-sidebar-accent-foreground">Design review</div>
+        <div class="rounded-md px-3 py-2 text-sm text-sidebar-foreground/80">Sprint planning</div>
+        <div class="rounded-md px-3 py-2 text-sm text-sidebar-foreground/80">Bug triage</div>
+        <div class="rounded-md px-3 py-2 text-sm text-sidebar-foreground/80">Onboarding flow</div>
+    </div>;
+
+    private RenderFragment ChatMain => @<div class="flex min-h-[22rem] flex-col">
+        <div class="flex-1 space-y-4 overflow-auto p-4">
+            <div class="flex justify-end">
+                <div class="max-w-xs rounded-2xl rounded-br-sm bg-primary px-4 py-2 text-sm text-primary-foreground">Can you review the new layout?</div>
+            </div>
+            <div class="flex justify-start">
+                <div class="max-w-xs rounded-2xl rounded-bl-sm bg-muted px-4 py-2 text-sm">Sure! The sidebar width looks good. The main area could use more breathing room though.</div>
+            </div>
+            <div class="flex justify-end">
+                <div class="max-w-xs rounded-2xl rounded-br-sm bg-primary px-4 py-2 text-sm text-primary-foreground">Agreed. I'll bump the padding.</div>
+            </div>
+        </div>
+        <div class="border-t border-border p-3">
+            <div class="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+                <span class="flex-1">Type a message…</span>
+                <span class="text-xs">↵</span>
+            </div>
+        </div>
+    </div>;
+
+    private RenderFragment IdeTopBar => @<div class="flex items-center gap-6 text-xs">
+        <span class="font-semibold">LowlandTech IDE</span>
+        <span class="text-muted-foreground">File</span>
+        <span class="text-muted-foreground">Edit</span>
+        <span class="text-muted-foreground">View</span>
+        <span class="text-muted-foreground">Run</span>
+    </div>;
+
+    private RenderFragment IdeSidebar => @<div class="space-y-0.5 p-2 text-xs">
+        <div class="px-2 py-1 font-semibold uppercase tracking-wider text-muted-foreground">Explorer</div>
+        <div class="flex items-center gap-1.5 rounded px-2 py-1 text-muted-foreground">▸ src</div>
+        <div class="flex items-center gap-1.5 rounded bg-sidebar-accent px-2 py-1 font-medium">  AppLayout.razor</div>
+        <div class="flex items-center gap-1.5 rounded px-2 py-1 text-muted-foreground">  AppLayoutScenario.cs</div>
+        <div class="flex items-center gap-1.5 rounded px-2 py-1 text-muted-foreground">▸ test</div>
+    </div>;
+
+    private RenderFragment IdeMain => @<div class="min-h-[22rem] p-4">
+        <div class="space-y-0.5 font-mono text-xs leading-relaxed">
+            <div><span class="text-blue-400">public enum</span> <span class="text-green-400">AppLayoutScenario</span></div>
+            <div>{</div>
+            <div class="pl-6">Workspace,</div>
+            <div class="pl-6">Documentation,</div>
+            <div class="pl-6 bg-yellow-400/10 text-yellow-300">Chat,    <span class="text-muted-foreground">// ← new</span></div>
+            <div class="pl-6 bg-yellow-400/10 text-yellow-300">Ide,     <span class="text-muted-foreground">// ← new</span></div>
+            <div class="pl-6">Kiosk</div>
+            <div>}</div>
+        </div>
+    </div>;
+
+    private RenderFragment IdeAside => @<div class="space-y-1 p-2 font-mono text-xs">
+        <div class="font-semibold text-muted-foreground uppercase tracking-wider">Terminal</div>
+        <div class="text-green-400">$ dotnet build</div>
+        <div class="text-muted-foreground">Build succeeded.</div>
+        <div class="text-muted-foreground">0 Error(s)</div>
+        <div class="text-green-400">$▌</div>
+    </div>;
+
+    private RenderFragment IdeFooter => @<div class="flex items-center justify-between text-xs">
+        <span class="text-muted-foreground">main ⎇  0 errors  0 warnings</span>
+        <span class="text-muted-foreground">AppLayoutScenario.cs · C# · UTF-8</span>
+    </div>;
+
+    private const string WorkspaceRazor =
+        """
+        <AppLayout Scenario="AppLayoutScenario.Workspace"
+                   TopBar="@TopBar"
+                   Sidebar="@Sidebar"
+                   Main="@Main" />
+
+        @code {
+            // Each slot is a RenderFragment — any markup you want to render there.
+            private RenderFragment TopBar => @<div class="flex items-center justify-between gap-3">
+                <div class="font-semibold">LowlandTech</div>
+                <span class="text-xs text-muted-foreground">Workspace</span>
+            </div>;
+
+            private RenderFragment Sidebar => @<nav class="space-y-1 p-3 text-sm">
+                <a class="block rounded-md bg-sidebar-accent px-3 py-2 font-medium">Dashboard</a>
+                <a class="block rounded-md px-3 py-2 text-sidebar-foreground/80">Projects</a>
+                <a class="block rounded-md px-3 py-2 text-sidebar-foreground/80">Reports</a>
+            </nav>;
+
+            private RenderFragment Main => @<main class="space-y-4">
+                <div class="grid gap-3 md:grid-cols-3">
+                    <div class="rounded-md border bg-card p-4">
+                        <div class="text-xs text-muted-foreground">Revenue</div>
+                        <div class="mt-1 text-2xl font-semibold">$48.2k</div>
+                    </div>
+                </div>
+            </main>;
+        }
+        """;
+
+    private const string DocumentationRazor =
+        """
+        @* Aside adds a right-hand panel — shown in Documentation and Studio scenarios. *@
+        <AppLayout Scenario="AppLayoutScenario.Documentation"
+                   TopBar="@TopBar"
+                   Sidebar="@Sidebar"
+                   Main="@Main"
+                   Aside="@Aside" />
+
+        @code {
+            private RenderFragment TopBar => @<div class="font-semibold">LowlandTech</div>;
+
+            private RenderFragment Sidebar => @<nav class="space-y-1 p-3 text-sm">
+                <a class="block rounded-md bg-sidebar-accent px-3 py-2 font-medium">Dashboard</a>
+                <a class="block rounded-md px-3 py-2 text-sidebar-foreground/80">Projects</a>
+            </nav>;
+
+            private RenderFragment Main => @<main>
+                <section class="rounded-md border bg-card p-4">
+                    <h3 class="font-semibold">Documentation content</h3>
+                    <p class="mt-2 text-sm text-muted-foreground">Article body goes here.</p>
+                </section>
+            </main>;
+
+            // Aside renders in the right column — use it for a TOC, metadata, or related links.
+            private RenderFragment Aside => @<aside class="space-y-3 text-sm">
+                <div class="font-semibold">On this page</div>
+                <a class="block text-muted-foreground">Overview</a>
+                <a class="block text-muted-foreground">Activity</a>
+            </aside>;
+        }
+        """;
+
+    private const string FocusRazor =
+        """
+        @* Focus drops the Sidebar — only TopBar and Main are rendered. *@
+        <AppLayout Scenario="AppLayoutScenario.Focus"
+                   TopBar="@TopBar"
+                   Main="@Main" />
+
+        @code {
+            private RenderFragment TopBar => @<div class="flex items-center justify-between gap-3">
+                <div class="font-semibold">LowlandTech</div>
+                <span class="text-xs text-muted-foreground">Focus</span>
+            </div>;
+
+            // With no sidebar distractions, Main gets the full width.
+            private RenderFragment Main => @<main class="mx-auto max-w-2xl space-y-4 py-8">
+                <h2 class="text-xl font-semibold">Focus mode</h2>
+                <p class="text-sm text-muted-foreground">
+                    Sidebar and aside are hidden; the reader gets full attention.
+                </p>
+            </main>;
+        }
+        """;
+
+    private const string StudioRazor =
+        """
+        @* Studio shows all four slots: TopBar, Sidebar, Main, Aside, and Footer. *@
+        <AppLayout Scenario="AppLayoutScenario.Studio"
+                   TopBar="@TopBar"
+                   Sidebar="@Sidebar"
+                   Main="@Main"
+                   Aside="@Aside"
+                   Footer="@Footer" />
+
+        @code {
+            private RenderFragment TopBar => @<div class="font-semibold">LowlandTech</div>;
+
+            private RenderFragment Sidebar => @<nav class="space-y-1 p-3 text-sm">
+                <a class="block rounded-md bg-sidebar-accent px-3 py-2 font-medium">Dashboard</a>
+                <a class="block rounded-md px-3 py-2 text-sidebar-foreground/80">Projects</a>
+            </nav>;
+
+            private RenderFragment Main => @<main class="p-4">
+                <p class="text-sm text-muted-foreground">Studio canvas content.</p>
+            </main>;
+
+            private RenderFragment Aside => @<aside class="space-y-2 text-sm">
+                <div class="font-semibold">Properties</div>
+                <div class="text-muted-foreground">Select an element to inspect.</div>
+            </aside>;
+
+            // Footer spans the full bottom of the shell — status bars, save indicators, etc.
+            private RenderFragment Footer => @<div class="flex items-center justify-between text-xs text-muted-foreground">
+                <span>Studio status</span>
+                <span>All changes saved</span>
+            </div>;
+        }
+        """;
+
+    private const string KioskRazor =
+        """
+        @* Kiosk strips everything — no TopBar, no Sidebar, no Aside. Only Main fills the shell. *@
+        <AppLayout Scenario="AppLayoutScenario.Kiosk"
+                   Main="@Main" />
+
+        @code {
+            private RenderFragment Main => @<div class="grid min-h-[22rem] place-items-center bg-muted/30 p-8 text-center">
+                <div>
+                    <div class="text-4xl font-semibold">42</div>
+                    <div class="mt-2 text-sm text-muted-foreground">
+                        Kiosk mode keeps the shell chrome out of the way.
+                    </div>
+                </div>
+            </div>;
+        }
+        """;
+
+    private const string ChatRazor =
+        """
+        @* Chat: narrow sidebar for conversation list, main area is a flex column (messages + input). *@
+        <AppLayout Scenario="AppLayoutScenario.Chat"
+                   TopBar="@TopBar"
+                   Sidebar="@Sidebar"
+                   Main="@Main" />
+
+        @code {
+            private RenderFragment TopBar => @<div class="font-semibold">Messages</div>;
+
+            // Sidebar lists conversations — use whatever nav pattern suits your app.
+            private RenderFragment Sidebar => @<div class="space-y-1 p-2">
+                <div class="rounded-md bg-sidebar-accent px-3 py-2 text-sm font-medium">Design review</div>
+                <div class="rounded-md px-3 py-2 text-sm text-sidebar-foreground/80">Sprint planning</div>
+            </div>;
+
+            // Main is flex-col so the message list grows and the input sticks to the bottom.
+            private RenderFragment Main => @<div class="flex flex-col">
+                <div class="flex-1 space-y-4 overflow-auto p-4">
+                    <div class="flex justify-end">
+                        <div class="rounded-2xl rounded-br-sm bg-primary px-4 py-2 text-sm text-primary-foreground">
+                            Can you review the new layout?
+                        </div>
+                    </div>
+                    <div class="flex justify-start">
+                        <div class="rounded-2xl rounded-bl-sm bg-muted px-4 py-2 text-sm">
+                            Sure! Looks great.
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t border-border p-3">
+                    <div class="rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground">
+                        Type a message…
+                    </div>
+                </div>
+            </div>;
+        }
+        """;
+
+    private const string IdeRazor =
+        """
+        @* IDE: file explorer sidebar, editor main, terminal aside, status-bar footer. *@
+        <AppLayout Scenario="AppLayoutScenario.Ide"
+                   TopBar="@TopBar"
+                   Sidebar="@Sidebar"
+                   Main="@Main"
+                   Aside="@Aside"
+                   Footer="@Footer" />
+
+        @code {
+            // Slim menu-bar style top bar.
+            private RenderFragment TopBar => @<div class="flex items-center gap-6 text-xs">
+                <span class="font-semibold">LowlandTech IDE</span>
+                <span class="text-muted-foreground">File</span>
+                <span class="text-muted-foreground">Edit</span>
+                <span class="text-muted-foreground">Run</span>
+            </div>;
+
+            // Sidebar shows a file explorer tree.
+            private RenderFragment Sidebar => @<div class="space-y-0.5 p-2 font-mono text-xs">
+                <div class="px-2 py-1 font-semibold uppercase text-muted-foreground">Explorer</div>
+                <div class="px-2 py-1 text-muted-foreground">▸ src</div>
+                <div class="rounded bg-sidebar-accent px-2 py-1 font-medium">  AppLayout.razor</div>
+                <div class="px-2 py-1 text-muted-foreground">  AppLayoutScenario.cs</div>
+            </div>;
+
+            // Main is the editor area — monospace, dark background.
+            private RenderFragment Main => @<div class="p-4 font-mono text-xs">
+                <div><span class="text-blue-400">public enum</span> AppLayoutScenario</div>
+                <div>{</div>
+                <div class="pl-6">Workspace,</div>
+                <div class="pl-6 text-yellow-300">Chat,  // ← new</div>
+                <div class="pl-6 text-yellow-300">Ide,   // ← new</div>
+                <div>}</div>
+            </div>;
+
+            // Aside is the integrated terminal — renders below the editor on mobile, right column on desktop.
+            private RenderFragment Aside => @<div class="p-2 font-mono text-xs">
+                <div class="font-semibold text-muted-foreground uppercase">Terminal</div>
+                <div class="text-green-400">$ dotnet build</div>
+                <div class="text-muted-foreground">Build succeeded. 0 Error(s)</div>
+                <div class="text-green-400">$▌</div>
+            </div>;
+
+            // Footer is a slim status bar.
+            private RenderFragment Footer => @<div class="flex justify-between text-xs">
+                <span class="text-muted-foreground">main ⎇  0 errors</span>
+                <span class="text-muted-foreground">AppLayoutScenario.cs · C#</span>
+            </div>;
+        }
+        """;
+}
+

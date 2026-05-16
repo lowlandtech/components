@@ -1,5 +1,6 @@
 @namespace LowlandTech.Components.App.Showcode
 @inject ShowcodeState State
+@inject IJSRuntime JS
 @implements IDisposable
 
 <Sidebar Side="left" Variant="sidebar" Collapsible="offcanvas">
@@ -33,11 +34,26 @@
 </Sidebar>
 
 @code {
+    private bool _shouldScroll;
+
     protected override void OnInitialized() => State.Changed += Refresh;
 
     private void Select(StoryMetadata story) => State.Select(story);
 
-    private void Refresh() => InvokeAsync(StateHasChanged);
+    private void Refresh()
+    {
+        _shouldScroll = true;
+        InvokeAsync(StateHasChanged);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_shouldScroll)
+        {
+            _shouldScroll = false;
+            await JS.InvokeVoidAsync("scrollActiveNavItemIntoView");
+        }
+    }
 
     public void Dispose() => State.Changed -= Refresh;
 }

@@ -1,0 +1,224 @@
+@namespace LowlandTech.Components
+@inherits TinyComponentBase
+@implements IDisposable
+
+<CascadingValue Value="@CurrentContext">
+    <div data-slot="app-layout"
+         data-layout-scenario="@ScenarioKey"
+         data-session-key="@CurrentSessionKey"
+         class="@GetRootClass()"
+         @attributes="AdditionalAttributes">
+        <Grid Spacing="0" Class="@GetGridClass()">
+            @if (Definition.ShowTopBar)
+            {
+                <GridItem xs="12" Class="@GetTopBarClass()">
+                    @TopBar
+                </GridItem>
+            }
+
+            @if (Definition.ShowSidebar)
+            {
+                <GridItem xs="@Definition.SidebarXs" md="@Definition.SidebarMd" lg="@Definition.SidebarLg" Class="@GetSidebarClass()">
+                    @Sidebar
+                </GridItem>
+            }
+
+            <GridItem xs="@Definition.MainXs" md="@Definition.MainMd" lg="@Definition.MainLg" Class="@GetMainClass()">
+                @if (Main is not null)
+                {
+                    @Main
+                }
+                else
+                {
+                    @ChildContent
+                }
+            </GridItem>
+
+            @if (Definition.ShowAside)
+            {
+                <GridItem xs="@Definition.AsideXs" md="@Definition.AsideMd" lg="@Definition.AsideLg" Class="@GetAsideClass()">
+                    @Aside
+                </GridItem>
+            }
+
+            @if (Definition.ShowFooter)
+            {
+                <GridItem xs="12" Class="@GetFooterClass()">
+                    @Footer
+                </GridItem>
+            }
+        </Grid>
+    </div>
+</CascadingValue>
+
+@code {
+    [CascadingParameter] public AppLayoutSession? CascadedSession { get; set; }
+
+    [Parameter] public AppLayoutSession? Session { get; set; }
+    [Parameter] public AppLayoutScenario Scenario { get; set; } = AppLayoutScenario.Workspace;
+    [Parameter] public RenderFragment? TopBar { get; set; }
+    [Parameter] public RenderFragment? Sidebar { get; set; }
+    [Parameter] public RenderFragment? Main { get; set; }
+    [Parameter] public RenderFragment? Aside { get; set; }
+    [Parameter] public RenderFragment? Footer { get; set; }
+
+    private AppLayoutSession? _subscribedSession;
+    private AppLayoutScenario EffectiveScenario => (Session ?? CascadedSession)?.Scenario ?? Scenario;
+    private AppLayoutDefinition Definition => AppLayoutDefinition.For(EffectiveScenario);
+    private string ScenarioKey => EffectiveScenario.ToString().ToLowerInvariant();
+    private string CurrentSessionKey => (Session ?? CascadedSession)?.Key ?? "parameter";
+    private AppLayoutContext CurrentContext => new(
+        EffectiveScenario,
+        CurrentSessionKey,
+        Definition.ShowTopBar,
+        Definition.ShowSidebar,
+        Definition.ShowAside,
+        Definition.ShowFooter);
+
+    protected override void OnParametersSet()
+    {
+        var nextSession = Session ?? CascadedSession;
+        if (ReferenceEquals(_subscribedSession, nextSession))
+            return;
+
+        Unsubscribe();
+        _subscribedSession = nextSession;
+        if (_subscribedSession is not null)
+            _subscribedSession.ScenarioChanged += OnScenarioChanged;
+    }
+
+    private void OnScenarioChanged(object? sender, AppLayoutScenario scenario)
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    private string GetRootClass()
+    {
+        var baseClass = $"lt-app-layout lt-app-layout-{ScenarioKey} flex min-h-0 w-full flex-col overflow-hidden bg-background text-foreground";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private string GetGridClass() =>
+        "lt-app-layout-grid min-h-0 w-full";
+
+    private string GetTopBarClass() =>
+        $"lt-app-layout-slot lt-app-layout-topbar {Definition.TopBarClass}";
+
+    private string GetSidebarClass() =>
+        $"lt-app-layout-slot lt-app-layout-sidebar {Definition.SidebarClass}";
+
+    private string GetMainClass() =>
+        $"lt-app-layout-slot lt-app-layout-main {Definition.MainClass}";
+
+    private string GetAsideClass() =>
+        $"lt-app-layout-slot lt-app-layout-aside {Definition.AsideClass}";
+
+    private string GetFooterClass() =>
+        $"lt-app-layout-slot lt-app-layout-footer {Definition.FooterClass}";
+
+    private void Unsubscribe()
+    {
+        if (_subscribedSession is not null)
+            _subscribedSession.ScenarioChanged -= OnScenarioChanged;
+    }
+
+    public void Dispose()
+    {
+        Unsubscribe();
+    }
+
+    private sealed record AppLayoutDefinition(
+        bool ShowTopBar,
+        bool ShowSidebar,
+        bool ShowAside,
+        bool ShowFooter,
+        int SidebarXs,
+        int SidebarMd,
+        int SidebarLg,
+        int MainXs,
+        int MainMd,
+        int MainLg,
+        int AsideXs,
+        int AsideMd,
+        int AsideLg,
+        string TopBarClass,
+        string SidebarClass,
+        string MainClass,
+        string AsideClass,
+        string FooterClass)
+    {
+        public static AppLayoutDefinition For(AppLayoutScenario scenario) => scenario switch
+        {
+            AppLayoutScenario.Documentation => new(
+                true, true, true, false,
+                12, 2, 2,
+                12, 7, 7,
+                12, 3, 3,
+                "sticky top-0 z-20 border-b border-border bg-background/95 px-4 py-3",
+                "min-h-0 overflow-auto border-b border-border bg-sidebar text-sidebar-foreground md:border-b-0 md:border-r",
+                "min-h-0 overflow-auto px-4 py-4",
+                "min-h-0 overflow-auto border-t border-border bg-muted/30 px-4 py-4 md:border-l md:border-t-0",
+                "border-t border-border px-4 py-3"),
+            AppLayoutScenario.Focus => new(
+                true, false, false, false,
+                0, 0, 0,
+                12, 12, 12,
+                0, 0, 0,
+                "sticky top-0 z-20 border-b border-border bg-background/95 px-4 py-3",
+                "",
+                "min-h-0 overflow-auto px-6 py-6",
+                "",
+                ""),
+            AppLayoutScenario.Studio => new(
+                true, true, true, true,
+                12, 2, 2,
+                12, 8, 8,
+                12, 2, 2,
+                "sticky top-0 z-20 border-b border-border bg-background/95 px-4 py-3",
+                "min-h-0 overflow-auto border-b border-border bg-sidebar text-sidebar-foreground md:border-b-0 md:border-r",
+                "min-h-0 overflow-auto bg-background px-4 py-4",
+                "min-h-0 overflow-auto border-t border-border bg-muted/30 px-4 py-4 md:border-l md:border-t-0",
+                "border-t border-border bg-muted/30 px-4 py-2"),
+            AppLayoutScenario.Kiosk => new(
+                false, false, false, false,
+                0, 0, 0,
+                12, 12, 12,
+                0, 0, 0,
+                "",
+                "",
+                "min-h-0 overflow-auto p-0",
+                "",
+                ""),
+            AppLayoutScenario.Chat => new(
+                true, true, false, false,
+                12, 3, 2,
+                12, 9, 10,
+                0, 0, 0,
+                "sticky top-0 z-20 border-b border-border bg-background/95 px-4 py-3",
+                "min-h-0 overflow-auto border-b border-border bg-sidebar text-sidebar-foreground md:border-b-0 md:border-r",
+                "min-h-0 flex flex-col overflow-hidden",
+                "",
+                ""),
+            AppLayoutScenario.Ide => new(
+                true, true, true, true,
+                12, 2, 2,
+                12, 8, 8,
+                12, 2, 2,
+                "sticky top-0 z-20 border-b border-border bg-background/95 px-2 py-1",
+                "min-h-0 overflow-auto border-b border-border bg-sidebar text-sidebar-foreground md:border-b-0 md:border-r font-mono text-xs",
+                "min-h-0 overflow-auto bg-[#1e1e1e] text-[#d4d4d4] font-mono text-sm",
+                "min-h-0 overflow-auto border-t border-border bg-muted/40 px-3 py-2 font-mono text-xs md:border-l md:border-t-0",
+                "border-t border-border bg-muted/60 px-4 py-1 text-xs"),
+            _ => new(
+                true, true, false, false,
+                12, 3, 2,
+                12, 9, 10,
+                0, 0, 0,
+                "sticky top-0 z-20 border-b border-border bg-background/95 px-4 py-3",
+                "min-h-0 overflow-auto border-b border-border bg-sidebar text-sidebar-foreground md:border-b-0 md:border-r",
+                "min-h-0 overflow-auto px-4 py-4",
+                "",
+                "")
+        };
+    }
+}

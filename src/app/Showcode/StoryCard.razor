@@ -36,7 +36,7 @@
             @foreach (var state in States)
             {
                 <TabsContent Value="@state.Value" class="mt-0">
-                    <div class="relative mx-4 flex min-h-72 items-center justify-center rounded-lg border border-border/70 bg-background p-10">
+                    <div class="relative mx-4 flex min-h-32 items-center justify-center rounded-lg border border-border/70 bg-background p-10">
                         @state.Preview
                     </div>
 
@@ -140,9 +140,17 @@
 
     private static string HighlightLine(string line, string language)
     {
-        return language.Equals("csharp", StringComparison.OrdinalIgnoreCase)
-            ? HighlightCSharpLine(line)
-            : HighlightMarkupLine(line);
+        try
+        {
+            return language.Equals("csharp", StringComparison.OrdinalIgnoreCase)
+                ? HighlightCSharpLine(line)
+                : HighlightMarkupLine(line);
+        }
+        catch
+        {
+            // Fallback: return encoded plain text if highlighting fails
+            return Encode(line);
+        }
     }
 
     private static string HighlightMarkupLine(string line)
@@ -150,6 +158,7 @@
         var encoded = Encode(line);
         encoded = HighlightMarkupAttributes(encoded);
         encoded = HighlightStrings(encoded);
+        encoded = HighlightRazorExpressions(encoded);
 
         foreach (var tag in new[]
         {
@@ -174,6 +183,12 @@
             "CardAction", "CardContent", "CardDescription", "CardFooter", "CardHeader", "CardTitle", "Card",
             // Checkbox / Collapsible
             "Checkbox", "CollapsibleContent", "CollapsibleTrigger", "Collapsible",
+            // ColorPicker
+            "ColorPicker",
+            // Command
+            "CommandContainer", "CommandDialog", "CommandEmpty", "CommandGroup",
+            "CommandInput", "CommandItem", "CommandList", "CommandSearch",
+            "CommandSeparator", "CommandShortcut",
             // ContextMenu — Sub* before Sub before Menu
             "ContextMenuCheckboxItem", "ContextMenuContent", "ContextMenuItem", "ContextMenuLabel",
             "ContextMenuRadioGroup", "ContextMenuRadioItem", "ContextMenuSeparator", "ContextMenuShortcut",
@@ -261,22 +276,130 @@
 
     private static string HighlightCSharpLine(string line)
     {
-        var encoded = HighlightStrings(Encode(line));
-        foreach (var keyword in new[] { "public", "interface", "event", "void" })
+        var encoded = Encode(line);
+
+        // 1. Highlight strings first (they take precedence over everything else)
+        encoded = HighlightCSharpStrings(encoded);
+
+        // 2. Highlight comments (take precedence over keywords/types)
+        encoded = Regex.Replace(encoded, @"(//.*$)", "<span class=\"story-card-token-comment\">$1</span>", RegexOptions.Multiline);
+
+        // 3. Highlight numbers
+        encoded = Regex.Replace(encoded, @"(?<![A-Za-z0-9_&lt;])(0[xX][0-9a-fA-F_]+|0[bB][01_]+|\d[\d_]*\.?\d*([eE][+-]?\d+)?[dfmFlL]?)(?![A-Za-z0-9_&gt;])", "<span class=\"story-card-token-number\">$0</span>");
+
+        // 4. Highlight keywords and types
+        foreach (var keyword in CSharpKeywords)
         {
-            encoded = encoded.Replace(keyword, $"<span class=\"story-card-token-keyword\">{keyword}</span>", StringComparison.Ordinal);
+            encoded = HighlightWord(encoded, keyword, "story-card-token-keyword");
         }
 
-        foreach (var type in new[]
+        foreach (var type in CSharpTypes)
         {
-            "IReadOnlyCollection", "PopoverReference", "PopoverState", "Action", "IPopoverService",
-            "AppLayoutScenario", "AppLayoutSession", "RenderFragment",
-        })
-        {
-            encoded = encoded.Replace(type, $"<span class=\"story-card-token-type\">{type}</span>", StringComparison.Ordinal);
+            encoded = HighlightWord(encoded, type, "story-card-token-type");
         }
 
         return encoded;
+    }
+
+    private static string HighlightCSharpStrings(string encoded)
+    {
+        var parts = encoded.Split("&quot;");
+        if (parts.Length < 3)
+        {
+            return encoded;
+        }
+
+        var result = new List<string>();
+        for (var i = 0; i < parts.Length; i++)
+        {
+            if (i % 2 == 1)
+            {
+                result.Add($"<span class=\"story-card-token-string\">&quot;{parts[i]}&quot;</span>");
+            }
+            else
+            {
+                result.Add(parts[i]);
+            }
+        }
+
+        return string.Join(string.Empty, result);
+    }
+
+    private static readonly string[] CSharpKeywords = new[]
+    {
+        "abstract", "as", "base", "bool", "break", "byte", "case", "catch", "char", "checked",
+        "class", "const", "continue", "decimal", "default", "delegate", "do", "double", "else",
+        "enum", "event", "explicit", "extern", "false", "finally", "fixed", "float", "for",
+        "foreach", "goto", "if", "implicit", "in", "int", "interface", "internal", "is",
+        "lock", "long", "namespace", "new", "null", "object", "operator", "out", "override",
+        "params", "private", "protected", "public", "readonly", "ref", "return", "sbyte",
+        "sealed", "short", "sizeof", "stackalloc", "static", "string", "struct", "switch",
+        "this", "throw", "true", "try", "typeof", "uint", "ulong", "unchecked", "unsafe",
+        "ushort", "using", "virtual", "void", "volatile", "while", "add", "alias", "ascending",
+        "async", "await", "by", "descending", "dynamic", "equals", "from", "get", "global",
+        "group", "into", "join", "let", "nameof", "not", "notnull", "on", "or", "orderby",
+        "partial", "record", "remove", "required", "scoped", "select", "set", "unmanaged",
+        "value", "var", "when", "where", "with", "yield", "init"
+    };
+
+    private static readonly string[] CSharpTypes = new[]
+    {
+        // Common framework types
+        "Task", "Task&lt;", "ValueTask", "ValueTask&lt;", "CancellationToken", "IDisposable",
+        "IEnumerable", "IEnumerable&lt;", "IEnumerator", "IEnumerator&lt;", "IQueryable",
+        "IQueryable&lt;", "ICollection", "ICollection&lt;", "IList", "IList&lt;", "IReadOnlyList",
+        "IReadOnlyList&lt;", "IReadOnlyCollection", "IReadOnlyCollection&lt;", "IDictionary",
+        "IDictionary&lt;", "IReadOnlyDictionary", "IReadOnlyDictionary&lt;", "HashSet", "HashSet&lt;",
+        "List", "List&lt;", "Dictionary", "Dictionary&lt;", "Queue", "Queue&lt;", "Stack", "Stack&lt;",
+        "Array", "Span", "Span&lt;", "ReadOnlySpan", "ReadOnlySpan&lt;", "Memory", "Memory&lt;",
+        "Nullable", "Nullable&lt;", "Exception", "ArgumentException", "InvalidOperationException",
+        "NotImplementedException", "NotSupportedException", "NullReferenceException",
+        "DateTime", "DateTimeOffset", "TimeSpan", "DateOnly", "TimeOnly", "Guid", "Uri",
+        "Stream", "MemoryStream", "FileStream", "StringBuilder", "Encoding", "Regex",
+        "JsonDocument", "JsonElement", "JsonSerializer", "HttpClient", "HttpResponseMessage",
+        "HttpRequestMessage", "HttpStatusCode", "StringContent", "FormUrlEncodedContent",
+        "IFormFile", "IConfiguration", "ILogger", "ILogger&lt;", "IServiceProvider",
+        "IServiceCollection", "IHost", "IHostBuilder", "WebApplication", "WebApplicationBuilder",
+        "IEndpointRouteBuilder", "RouteHandlerBuilder", "Results", "TypedResults",
+        // Blazor / Component types
+        "RenderFragment", "RenderFragment&lt;", "RenderTreeBuilder", "ComponentBase",
+        "LayoutComponentBase", "EditorRequired", "Parameter", "Inject", "CascadingParameter",
+        "EventCallback", "EventCallback&lt;", "MarkupString", "IJSRuntime", "NavigationManager",
+        "AuthenticationStateProvider", "AuthorizeView", "FocusOnNavigate",
+        // LowlandTech component types
+        "Accordion", "AlertDialog", "Alert", "AspectRatio", "Avatar", "Badge", "Breadcrumb",
+        "ButtonGroup", "Button", "Card", "Checkbox", "Collapsible", "ContextMenu", "Calendar",
+        "DataForm", "DataGrid", "Dialog", "Drawer", "DropdownMenu", "Empty", "Grid", "GridItem",
+        "AppLayout", "Kbd", "NavigationMenu", "Pagination", "Popover", "Progress", "RadioGroup",
+        "Resizable", "ScrollArea", "Select", "Separator", "Skeleton", "Slider", "Sidebar",
+        "Sonner", "Spinner", "Switch", "Tabs", "TreeView", "TreeNode", "Textarea", "Toggle",
+        "Tooltip", "ThemeProvider", "ThemeToggle", "CodeEditor", "Icon", "Input", "Label",
+        "Columns", "Template", "LoadingTemplate",
+        // Common test / scenario types
+        "Scenario", "AppLayoutScenario", "ComponentScenario", "ApiScenario", "WorkspaceApiScenario",
+        "AppFactory", "ApiFactory", "FoundryContext", "GraphSession", "IGraphSession",
+        "Shouldly", "Fact", "Theory", "InlineData", "Trait", "ClassData", "MemberData",
+        // Event args
+        "TreeViewSelectEventArgs", "TreeViewExpandEventArgs", "TreeNodeContext",
+        "ChangeEventArgs", "MouseEventArgs", "KeyboardEventArgs", "FocusEventArgs",
+        // Other common types
+        "Action", "Action&lt;", "Func", "Func&lt;", "Predicate", "Predicate&lt;", "Comparison",
+        "Comparison&lt;", "Converter", "Converter&lt;", "EventHandler", "EventHandler&lt;",
+        "Lazy", "Lazy&lt;", "Tuple", "Tuple&lt;", "ValueTuple", "ValueTuple&lt;",
+        "KeyValuePair", "KeyValuePair&lt;", "Attribute", "Enum", "Delegate", "MulticastDelegate",
+        "Type", "MethodInfo", "PropertyInfo", "FieldInfo", "ConstructorInfo",
+        "Expression", "Expression&lt;", "ParameterExpression", "LambdaExpression",
+        "CancellationTokenSource", "ConcurrentDictionary", "ConcurrentDictionary&lt;",
+        "ConcurrentBag", "ConcurrentBag&lt;", "ConcurrentQueue", "ConcurrentQueue&lt;",
+        "BlockingCollection", "BlockingCollection&lt;", "ObservableCollection",
+        "ObservableCollection&lt;", "ReadOnlyObservableCollection",
+    };
+
+    private static string HighlightWord(string encoded, string word, string cssClass)
+    {
+        // Match whole words only — preceded/followed by non-word char or boundary
+        var pattern = $@"(?<![A-Za-z0-9_&lt;]){System.Text.RegularExpressions.Regex.Escape(word)}(?![A-Za-z0-9_&gt;])";
+        return System.Text.RegularExpressions.Regex.Replace(encoded, pattern, $"<span class=\"{cssClass}\">$0</span>");
     }
 
     private static string HighlightMarkupAttributes(string encoded)
@@ -284,7 +407,15 @@
         return System.Text.RegularExpressions.Regex.Replace(
             encoded,
             @"(?<=\s)(@?[A-Za-z_][A-Za-z0-9_:-]*)(?=\=)",
-            "<span class=\"story-card-token-keyword\">$1</span>");
+            "<span class=\"story-card-token-attribute\">$1</span>");
+    }
+
+    private static string HighlightRazorExpressions(string encoded)
+    {
+        return System.Text.RegularExpressions.Regex.Replace(
+            encoded,
+            @"@([A-Za-z_][A-Za-z0-9_\.]*)",
+            "<span class=\"story-card-token-razor\">@$1</span>");
     }
 
     private static string HighlightStrings(string encoded)
