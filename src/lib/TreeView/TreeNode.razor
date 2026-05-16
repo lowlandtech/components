@@ -2,33 +2,140 @@
 @typeparam TItem
 
 @{
-    var children = GetChildren(Item).ToList();
-    var hasChildren = children.Count > 0 || HasChildren?.Invoke(Item) == true;
-    var expanded = IsExpanded?.Invoke(Item) ?? false;
-    var ctx = new TreeNodeContext<TItem>(Item, Depth, expanded, hasChildren);
+    var key = Parent.GetItemKey(Item);
+    var hasChildren = Parent.NodeHasChildren(Item);
+    var expanded = Parent.IsItemExpanded(Item);
+    var selected = Parent.IsItemSelected(Item);
+    var checkedState = Parent.IsItemChecked(Item);
+    var indeterminate = Parent.IsIndeterminate(Item);
+    var focused = Parent.IsItemFocused(Item);
+    var matchesFilter = Parent.MatchesFilter(Item);
+
+    var ctx = new TreeNodeContext<TItem>
+    {
+        Item = Item,
+        Key = key,
+        Depth = Depth,
+        IsExpanded = expanded,
+        HasChildren = hasChildren,
+        IsSelected = selected,
+        IsChecked = checkedState,
+        IsIndeterminate = indeterminate,
+        IsDisabled = false,
+        IsFocused = focused,
+        ToggleExpand = () => Parent.ToggleExpand(Item),
+        Select = () => Parent.SelectNode(Item),
+        ToggleCheck = () => Parent.ToggleCheck(Item)
+    };
 }
 
-@ItemTemplate(ctx)
+<div data-tree-node="@key"
+     data-depth="@Depth"
+     class="@GetNodeClass(ctx)"
+     aria-expanded="@(hasChildren ? expanded.ToString().ToLowerInvariant() : null)"
+     aria-selected="@((selected && Parent.SelectionMode != TreeViewSelectionMode.None).ToString().ToLowerInvariant())"
+     tabindex="@(focused ? 0 : -1)"
+     @onclick="HandleClick"
+     @ondblclick="HandleDoubleClick">
+
+    @if (Parent.ItemTemplate != null)
+    {
+        @Parent.ItemTemplate(ctx)
+    }
+    else
+    {
+        <div class="lt-tree-node-row" style="padding-left: @(Depth * 16)px">
+            @if (hasChildren)
+            {
+                <button type="button"
+                        class="lt-tree-node-toggle"
+                        @onclick:stopPropagation
+                        @onclick="ctx.ToggleExpand"
+                        aria-label="@(expanded ? "Collapse" : "Expand")">
+                    <svg class="lt-tree-node-toggle-icon @(expanded ? "expanded" : "")" viewBox="0 0 24 24" width="14" height="14">
+                        <path d="m9 18 6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            }
+            else
+            {
+                <span class="lt-tree-node-toggle-placeholder"></span>
+            }
+
+            @if (Parent.CheckMode != TreeViewCheckMode.None)
+            {
+                <input type="checkbox"
+                       class="lt-tree-node-checkbox"
+                       checked="@checkedState"
+                       data-indeterminate="@(indeterminate ? "true" : "false")"
+                       @onclick:stopPropagation
+                       @onchange="() => ctx.ToggleCheck()" />
+            }
+
+            @if (Parent.BodyContent != null)
+            {
+                @Parent.BodyContent(ctx)
+            }
+            else
+            {
+                <span class="lt-tree-node-label">@GetDisplayText()</span>
+            }
+        </div>
+    }
+</div>
 
 @if (expanded && hasChildren)
 {
-    @foreach (var child in children)
+    @foreach (var child in Parent.GetChildren(Item))
     {
-        <TreeNode TItem="TItem"
-                  Item="child"
-                  Depth="@(Depth + 1)"
-                  GetChildren="GetChildren"
-                  HasChildren="HasChildren"
-                  IsExpanded="IsExpanded"
-                  ItemTemplate="ItemTemplate" />
+        if (string.IsNullOrWhiteSpace(Parent.FilterQuery) || Parent.IsVisibleInFilter(child))
+        {
+            <TreeNode TItem="TItem"
+                      Item="child"
+                      Depth="@(Depth + 1)"
+                      Parent="this.Parent" />
+        }
     }
 }
 
 @code {
     [Parameter, EditorRequired] public TItem Item { get; set; } = default!;
     [Parameter] public int Depth { get; set; }
-    [Parameter, EditorRequired] public Func<TItem, IEnumerable<TItem>> GetChildren { get; set; } = default!;
-    [Parameter] public Func<TItem, bool>? HasChildren { get; set; }
-    [Parameter, EditorRequired] public RenderFragment<TreeNodeContext<TItem>> ItemTemplate { get; set; } = default!;
-    [Parameter] public Func<TItem, bool>? IsExpanded { get; set; }
+    [Parameter, EditorRequired] public TreeView<TItem> Parent { get; set; } = default!;
+
+    private string GetNodeClass(TreeNodeContext<TItem> ctx)
+    {
+        var classes = new List<string> { "lt-tree-node" };
+        if (ctx.IsSelected && Parent.SelectionMode != TreeViewSelectionMode.None)
+            classes.Add("lt-tree-node-selected");
+        if (ctx.IsFocused)
+            classes.Add("lt-tree-node-focused");
+        if (Parent.Hover)
+            classes.Add("lt-tree-node-hoverable");
+        return string.Join(" ", classes);
+    }
+
+    private string GetDisplayText()
+    {
+        return Parent.GetText?.Invoke(Item) ?? Item?.ToString() ?? string.Empty;
+    }
+
+    private void HandleClick(MouseEventArgs e)
+    {
+        Parent.FocusNode(Item);
+
+        if (Parent.SelectionMode != TreeViewSelectionMode.None)
+        {
+            Parent.SelectNode(Item);
+        }
+    }
+
+    private void HandleDoubleClick(MouseEventArgs e)
+    {
+        Parent.FocusNode(Item);
+        if (Parent.NodeHasChildren(Item))
+        {
+            Parent.ToggleExpand(Item);
+        }
+    }
 }

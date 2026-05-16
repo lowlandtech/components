@@ -2,32 +2,48 @@
 @typeparam TItem
 @inherits TinyComponentBase
 
-<div data-slot="tree-view" class="lt-tree-view @Class" @attributes="AdditionalAttributes">
-    @foreach (var item in Items)
+@{
+    var rootStyle = new List<string>();
+    if (!string.IsNullOrEmpty(Width)) rootStyle.Add($"width:{Width}");
+    if (!string.IsNullOrEmpty(MaxHeight)) rootStyle.Add($"max-height:{MaxHeight};overflow-y:auto");
+}
+
+<div data-slot="tree-view"
+     class="lt-tree-view @GetRootClass()"
+     style="@(string.Join(";", rootStyle))"
+     tabindex="0"
+     @attributes="AdditionalAttributes"
+     @onkeydown="HandleKeyDown">
+
+    @if (!Items.Any())
     {
-        <TreeNode TItem="TItem"
-                  Item="item"
-                  Depth="0"
-                  GetChildren="GetChildren"
-                  HasChildren="HasChildren"
-                  IsExpanded="IsExpanded"
-                  ItemTemplate="ItemTemplate" />
+        @if (EmptyContent != null)
+        {
+            @EmptyContent
+        }
+    }
+    else
+    {
+        @foreach (var item in Items)
+        {
+            if (string.IsNullOrWhiteSpace(FilterQuery) || IsVisibleInFilter(item))
+            {
+                <TreeNode TItem="TItem"
+                          Item="item"
+                          Depth="0"
+                          Parent="this" />
+            }
+        }
     }
 </div>
 
 @code {
-    /// <summary>Top-level items rendered at depth 0.</summary>
-    [Parameter, EditorRequired] public IEnumerable<TItem> Items { get; set; } = default!;
-
-    /// <summary>Returns the children of an item. Empty enumerable = leaf.</summary>
-    [Parameter, EditorRequired] public Func<TItem, IEnumerable<TItem>> GetChildren { get; set; } = default!;
-
-    /// <summary>Optional child hint for lazy-loaded trees whose children have not been fetched yet.</summary>
-    [Parameter] public Func<TItem, bool>? HasChildren { get; set; }
-
-    /// <summary>Per-node markup. Receives a context with Item, Depth, IsExpanded, HasChildren.</summary>
-    [Parameter, EditorRequired] public RenderFragment<TreeNodeContext<TItem>> ItemTemplate { get; set; } = default!;
-
-    /// <summary>Returns true when an item should be rendered expanded. Default: collapsed.</summary>
-    [Parameter] public Func<TItem, bool>? IsExpanded { get; set; }
+    private string GetRootClass()
+    {
+        var classes = new List<string>();
+        if (Dense) classes.Add("lt-tree-view-dense");
+        if (Hover) classes.Add("lt-tree-view-hover");
+        if (!string.IsNullOrEmpty(Class)) classes.Add(Class);
+        return string.Join(" ", classes);
+    }
 }

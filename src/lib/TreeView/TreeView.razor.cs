@@ -1,0 +1,463 @@
+namespace LowlandTech.Components;
+
+public partial class TreeView<TItem> : TinyComponentBase
+{
+    [Parameter, EditorRequired] public IEnumerable<TItem> Items { get; set; } = default!;
+    [Parameter, EditorRequired] public Func<TItem, IEnumerable<TItem>> GetChildren { get; set; } = default!;
+    [Parameter] public Func<TItem, string>? GetKey { get; set; }
+    [Parameter] public Func<TItem, bool>? HasChildren { get; set; }
+
+    // Expansion
+    /// <summary>Legacy expansion predicate. Use <see cref="ExpandedKeys"/> for controlled state.</summary>
+    [Parameter] public Func<TItem, bool>? IsExpanded { get; set; }
+    [Parameter] public IReadOnlyList<string>? ExpandedKeys { get; set; }
+    [Parameter] public EventCallback<IReadOnlyList<string>> ExpandedKeysChanged { get; set; }
+    [Parameter] public EventCallback<TreeViewExpandEventArgs<TItem>> ExpandedChanged { get; set; }
+    [Parameter] public bool SingleExpand { get; set; }
+    [Parameter] public bool AutoExpand { get; set; }
+
+    // Selection
+    [Parameter] public TreeViewSelectionMode SelectionMode { get; set; } = TreeViewSelectionMode.None;
+    [Parameter] public string? SelectedKey { get; set; }
+    [Parameter] public EventCallback<string?> SelectedKeyChanged { get; set; }
+    [Parameter] public IReadOnlyList<string>? SelectedKeys { get; set; }
+    [Parameter] public EventCallback<IReadOnlyList<string>> SelectedKeysChanged { get; set; }
+    [Parameter] public EventCallback<TreeViewSelectEventArgs<TItem>> SelectedChanged { get; set; }
+
+    // Checking
+    [Parameter] public TreeViewCheckMode CheckMode { get; set; } = TreeViewCheckMode.None;
+    [Parameter] public IReadOnlyList<string>? CheckedKeys { get; set; }
+    [Parameter] public EventCallback<IReadOnlyList<string>> CheckedKeysChanged { get; set; }
+
+    // Filtering
+    [Parameter] public string? FilterQuery { get; set; }
+    [Parameter] public Func<TItem, string>? GetText { get; set; }
+
+    // Templates
+    [Parameter] public RenderFragment<TreeNodeContext<TItem>>? ItemTemplate { get; set; }
+    [Parameter] public RenderFragment<TreeNodeContext<TItem>>? BodyContent { get; set; }
+    [Parameter] public RenderFragment? EmptyContent { get; set; }
+
+    // Appearance
+    [Parameter] public bool Dense { get; set; }
+    [Parameter] public bool Hover { get; set; }
+    [Parameter] public string? Width { get; set; }
+    [Parameter] public string? MaxHeight { get; set; }
+
+    private HashSet<string> _expandedKeys = new();
+    private HashSet<string> _selectedKeys = new();
+    private HashSet<string> _checkedKeys = new();
+    private string? _focusedKey;
+    private IReadOnlyList<string>? _lastExpandedKeys;
+    private IReadOnlyList<string>? _lastSelectedKeys;
+    private string? _lastSelectedKey;
+    private IReadOnlyList<string>? _lastCheckedKeys;
+    private bool _expandedKeysBound;
+    private bool _selectedKeysBound;
+    private bool _checkedKeysBound;
+
+    internal string GetItemKey(TItem item)
+    {
+        if (GetKey != null) return GetKey(item);
+        return item?.GetHashCode().ToString() ?? string.Empty;
+    }
+
+    internal bool IsItemExpanded(TItem item)
+    {
+        var key = GetItemKey(item);
+        if (_expandedKeys.Contains(key)) return true;
+        if (IsExpanded != null) return IsExpanded(item);
+        return false;
+    }
+    internal bool IsItemSelected(TItem item) => _selectedKeys.Contains(GetItemKey(item));
+    internal bool IsItemChecked(TItem item) => _checkedKeys.Contains(GetItemKey(item));
+    internal bool IsItemFocused(TItem item) => GetItemKey(item) == _focusedKey;
+
+    internal bool NodeHasChildren(TItem item)
+    {
+        var children = GetChildren(item);
+        if (children != null && children.Any()) return true;
+        return HasChildren?.Invoke(item) == true;
+    }
+
+    protected override void OnParametersSet()
+    {
+        // Bind controlled ExpandedKeys only when the parameter reference changes
+        if (ExpandedKeys != null)
+        {
+            if (!_expandedKeysBound || !ReferenceEquals(_lastExpandedKeys, ExpandedKeys))
+            {
+                _expandedKeys = new HashSet<string>(ExpandedKeys);
+                _lastExpandedKeys = ExpandedKeys;
+                _expandedKeysBound = true;
+            }
+        }
+
+        // Bind controlled SelectedKeys / SelectedKey only when the parameter reference changes
+        if (SelectedKeys != null)
+        {
+            if (!_selectedKeysBound || !ReferenceEquals(_lastSelectedKeys, SelectedKeys))
+            {
+                _selectedKeys = new HashSet<string>(SelectedKeys);
+                _lastSelectedKeys = SelectedKeys;
+                _selectedKeysBound = true;
+            }
+        }
+        else if (SelectedKey != null)
+        {
+            if (!_selectedKeysBound || _lastSelectedKey != SelectedKey)
+            {
+                _selectedKeys = new HashSet<string> { SelectedKey };
+                _lastSelectedKey = SelectedKey;
+                _selectedKeysBound = true;
+            }
+        }
+
+        // Bind controlled CheckedKeys only when the parameter reference changes
+        if (CheckedKeys != null)
+        {
+            if (!_checkedKeysBound || !ReferenceEquals(_lastCheckedKeys, CheckedKeys))
+            {
+                _checkedKeys = new HashSet<string>(CheckedKeys);
+                _lastCheckedKeys = CheckedKeys;
+                _checkedKeysBound = true;
+            }
+        }
+    }
+
+    internal void ToggleExpand(TItem item)
+    {
+        var key = GetItemKey(item);
+        var expanding = !_expandedKeys.Contains(key);
+
+        if (SingleExpand && expanding)
+        {
+            // Collapse siblings at the same depth
+            _expandedKeys.RemoveWhere(k => k != key);
+        }
+
+        if (expanding)
+            _expandedKeys.Add(key);
+        else
+            _expandedKeys.Remove(key);
+
+        ExpandedKeysChanged.InvokeAsync(_expandedKeys.ToList());
+        ExpandedChanged.InvokeAsync(new TreeViewExpandEventArgs<TItem>
+        {
+            Item = item,
+            Key = key,
+            Expanded = expanding
+        });
+        StateHasChanged();
+    }
+
+    internal void SelectNode(TItem item)
+    {
+        var key = GetItemKey(item);
+        if (SelectionMode == TreeViewSelectionMode.None) return;
+
+        bool selected;
+        if (SelectionMode == TreeViewSelectionMode.Single)
+        {
+            selected = true;
+            _selectedKeys.Clear();
+            _selectedKeys.Add(key);
+        }
+        else if (SelectionMode == TreeViewSelectionMode.Toggle)
+        {
+            selected = !_selectedKeys.Remove(key);
+            if (selected) _selectedKeys.Add(key);
+        }
+        else // Multi
+        {
+            selected = !_selectedKeys.Remove(key);
+            if (selected) _selectedKeys.Add(key);
+        }
+
+        SelectedKeysChanged.InvokeAsync(_selectedKeys.ToList());
+        if (_selectedKeys.Count == 1)
+            SelectedKeyChanged.InvokeAsync(_selectedKeys.First());
+        else
+            SelectedKeyChanged.InvokeAsync(null);
+
+        SelectedChanged.InvokeAsync(new TreeViewSelectEventArgs<TItem>
+        {
+            Item = item,
+            Key = key,
+            Selected = selected
+        });
+
+        if (AutoExpand && selected)
+        {
+            ExpandAncestors(item);
+        }
+
+        StateHasChanged();
+    }
+
+    internal void ToggleCheck(TItem item)
+    {
+        var key = GetItemKey(item);
+        var checking = !_checkedKeys.Contains(key);
+
+        if (CheckMode == TreeViewCheckMode.TriState)
+        {
+            ApplyCheckRecursive(item, checking);
+            RecalculateIndeterminateStates();
+        }
+        else
+        {
+            if (checking)
+                _checkedKeys.Add(key);
+            else
+                _checkedKeys.Remove(key);
+        }
+
+        CheckedKeysChanged.InvokeAsync(_checkedKeys.ToList());
+        StateHasChanged();
+    }
+
+    private void ApplyCheckRecursive(TItem item, bool checking)
+    {
+        var key = GetItemKey(item);
+        if (checking)
+            _checkedKeys.Add(key);
+        else
+            _checkedKeys.Remove(key);
+
+        foreach (var child in GetChildren(item))
+        {
+            ApplyCheckRecursive(child, checking);
+        }
+    }
+
+    private void RecalculateIndeterminateStates()
+    {
+        // Indeterminate is computed on-the-fly in TreeNode via IsIndeterminate
+        // We just need to ensure _checkedKeys is correct after cascade.
+        // Parents are NOT in _checkedKeys unless explicitly checked or all children checked.
+        foreach (var root in Items)
+        {
+            SyncParentCheckState(root);
+        }
+    }
+
+    private bool SyncParentCheckState(TItem item)
+    {
+        var children = GetChildren(item).ToList();
+        if (children.Count == 0) return _checkedKeys.Contains(GetItemKey(item));
+
+        var childStates = children.Select(SyncParentCheckState).ToList();
+        var allChecked = childStates.All(s => s);
+        var anyChecked = childStates.Any(s => s);
+        var key = GetItemKey(item);
+
+        if (allChecked)
+        {
+            _checkedKeys.Add(key);
+        }
+        else
+        {
+            _checkedKeys.Remove(key);
+        }
+
+        return allChecked || anyChecked && _checkedKeys.Contains(key);
+    }
+
+    internal bool IsIndeterminate(TItem item)
+    {
+        if (CheckMode != TreeViewCheckMode.TriState) return false;
+        var children = GetChildren(item).ToList();
+        if (children.Count == 0) return false;
+
+        var key = GetItemKey(item);
+        if (_checkedKeys.Contains(key)) return false;
+
+        var anyChildChecked = children.Any(c => _checkedKeys.Contains(GetItemKey(c)) || IsIndeterminate(c));
+        return anyChildChecked;
+    }
+
+    private void ExpandAncestors(TItem item)
+    {
+        // Find item in tree and expand all ancestors
+        foreach (var root in Items)
+        {
+            if (ExpandPath(root, item))
+                break;
+        }
+    }
+
+    private bool ExpandPath(TItem current, TItem target)
+    {
+        if (EqualityComparer<TItem>.Default.Equals(current, target))
+            return true;
+
+        foreach (var child in GetChildren(current))
+        {
+            if (ExpandPath(child, target))
+            {
+                _expandedKeys.Add(GetItemKey(current));
+                return true;
+            }
+        }
+        return false;
+    }
+
+    internal void FocusNode(TItem item)
+    {
+        _focusedKey = GetItemKey(item);
+    }
+
+    internal void HandleKeyDown(KeyboardEventArgs e)
+    {
+        var visible = GetVisibleItems().ToList();
+        if (visible.Count == 0) return;
+
+        var focusedIndex = visible.FindIndex(i => GetItemKey(i) == _focusedKey);
+        if (focusedIndex < 0) focusedIndex = 0;
+
+        switch (e.Key)
+        {
+            case "ArrowDown":
+                if (focusedIndex < visible.Count - 1)
+                    _focusedKey = GetItemKey(visible[focusedIndex + 1]);
+                break;
+            case "ArrowUp":
+                if (focusedIndex > 0)
+                    _focusedKey = GetItemKey(visible[focusedIndex - 1]);
+                break;
+            case "ArrowRight":
+                {
+                    var current = visible[focusedIndex];
+                    if (!IsItemExpanded(current) && NodeHasChildren(current))
+                        ToggleExpand(current);
+                    else if (focusedIndex < visible.Count - 1)
+                        _focusedKey = GetItemKey(visible[focusedIndex + 1]);
+                }
+                break;
+            case "ArrowLeft":
+                {
+                    var current = visible[focusedIndex];
+                    if (IsItemExpanded(current))
+                        ToggleExpand(current);
+                    else
+                    {
+                        // Move focus to parent
+                        var parent = FindParent(current);
+                        if (parent != null)
+                            _focusedKey = GetItemKey(parent);
+                    }
+                }
+                break;
+            case "Home":
+                _focusedKey = GetItemKey(visible[0]);
+                break;
+            case "End":
+                _focusedKey = GetItemKey(visible[^1]);
+                break;
+            case "Enter":
+            case " ":
+                SelectNode(visible[focusedIndex]);
+                break;
+        }
+
+        StateHasChanged();
+    }
+
+    private IEnumerable<TItem> GetVisibleItems()
+    {
+        foreach (var item in Items)
+        {
+            foreach (var visible in GetVisibleDescendants(item))
+                yield return visible;
+        }
+    }
+
+    private IEnumerable<TItem> GetVisibleDescendants(TItem item)
+    {
+        yield return item;
+        if (IsItemExpanded(item))
+        {
+            foreach (var child in GetChildren(item))
+            {
+                foreach (var descendant in GetVisibleDescendants(child))
+                    yield return descendant;
+            }
+        }
+    }
+
+    private TItem? FindParent(TItem target)
+    {
+        foreach (var root in Items)
+        {
+            var parent = FindParentRecursive(root, target);
+            if (parent != null) return parent;
+        }
+        return default;
+    }
+
+    private TItem? FindParentRecursive(TItem current, TItem target)
+    {
+        foreach (var child in GetChildren(current))
+        {
+            if (EqualityComparer<TItem>.Default.Equals(child, target))
+                return current;
+            var found = FindParentRecursive(child, target);
+            if (found != null) return found;
+        }
+        return default;
+    }
+
+    public async Task ExpandAll()
+    {
+        foreach (var item in GetAllItems())
+        {
+            if (NodeHasChildren(item))
+                _expandedKeys.Add(GetItemKey(item));
+        }
+        await ExpandedKeysChanged.InvokeAsync(_expandedKeys.ToList());
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async Task CollapseAll()
+    {
+        _expandedKeys.Clear();
+        await ExpandedKeysChanged.InvokeAsync(_expandedKeys.ToList());
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private IEnumerable<TItem> GetAllItems()
+    {
+        foreach (var root in Items)
+        {
+            yield return root;
+            foreach (var child in GetAllDescendants(root))
+                yield return child;
+        }
+    }
+
+    private IEnumerable<TItem> GetAllDescendants(TItem item)
+    {
+        foreach (var child in GetChildren(item))
+        {
+            yield return child;
+            foreach (var descendant in GetAllDescendants(child))
+                yield return descendant;
+        }
+    }
+
+    internal bool MatchesFilter(TItem item)
+    {
+        if (string.IsNullOrWhiteSpace(FilterQuery)) return true;
+        var text = GetText?.Invoke(item) ?? item?.ToString() ?? string.Empty;
+        return text.Contains(FilterQuery, StringComparison.OrdinalIgnoreCase);
+    }
+
+    internal bool IsVisibleInFilter(TItem item)
+    {
+        if (string.IsNullOrWhiteSpace(FilterQuery)) return true;
+        if (MatchesFilter(item)) return true;
+        // Show if any descendant matches
+        return GetChildren(item).Any(child => IsVisibleInFilter(child) || MatchesFilter(child));
+    }
+}

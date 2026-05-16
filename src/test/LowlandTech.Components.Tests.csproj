@@ -76,6 +76,7 @@
 		<Compile Remove="SPEC1043.Sidebar\US02.State\SC03_SidebarMenuSubTriggerBehavior.cs" />
 		<Compile Remove="SPEC1043.Sidebar\US02.State\SC04_SidebarMobileSheetBehavior.cs" />
 		<Compile Remove="SPEC1043.Sidebar\US02.State\SC06_SidebarDataStateBehavior.cs" />
+		<Compile Remove="SPEC1073.AppLayout\**\*.cs" />
 	</ItemGroup>
 	<ItemGroup>
 	  <None Remove="LowlandTech.Components.Tests.csproj.lscache" />

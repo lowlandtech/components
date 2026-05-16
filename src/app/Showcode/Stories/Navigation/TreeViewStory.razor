@@ -2,73 +2,49 @@
 @inherits StoryComponent
 
 <StoryCard Title="TreeView"
-           Description="TreeView displays hierarchical data with expandable nodes."
+           Description="TreeView displays hierarchical data with expandable nodes, selection, and checkboxes."
            States="@States" />
 
 @code {
-    private sealed record FileItem(string Name, IReadOnlyList<FileItem> Children);
+    private sealed record FileItem(string Id, string Name, IReadOnlyList<FileItem> Children);
 
     private static string GetIcon(FileItem item) => item.Children.Count > 0 ? "folder" : "file";
 
     private static readonly IReadOnlyList<FileItem> RootItems =
     [
-        new("src",
+        new("src", "src",
         [
-            new("components",
+            new("components", "components",
             [
-                new("Button.razor", []),
-                new("Card.razor", []),
-                new("Dialog.razor", [])
+                new("Button.razor", "Button.razor", []),
+                new("Card.razor", "Card.razor", []),
+                new("Dialog.razor", "Dialog.razor", [])
             ]),
-            new("app",
+            new("app", "app",
             [
-                new("Program.cs", [])
+                new("Program.cs", "Program.cs", [])
             ])
         ]),
-        new("docs",
+        new("docs", "docs",
         [
-            new("readme.md", [])
+            new("readme.md", "readme.md", [])
         ]),
-        new("package.json", [])
+        new("package.json", "package.json", [])
     ];
 
-    private const string CollapsedRazor =
-        """
-        <TreeView TItem="FileItem"
-                  Items="RootItems"
-                  GetChildren="f => f.Children"
-                  HasChildren="f => f.Children.Count > 0">
-            <ItemTemplate Context="ctx">
-                <div style="padding-left: @(ctx.Depth * 16 + 8)px">
-                    <span>@ctx.Item.Name</span>
-                </div>
-            </ItemTemplate>
-        </TreeView>
-        """;
+    private IReadOnlyList<string> _selectedKeys = [];
+    private IReadOnlyList<string> _checkedKeys = [];
 
-    private const string ExpandedRazor =
-        """
-        <TreeView TItem="FileItem"
-                  Items="RootItems"
-                  GetChildren="f => f.Children"
-                  HasChildren="f => f.Children.Count > 0"
-                  IsExpanded='f => f.Name == "src" || f.Name == "components"'>
-            <ItemTemplate Context="ctx">
-                <div style="padding-left: @(ctx.Depth * 16 + 8)px">
-                    <span>@ctx.Item.Name</span>
-                </div>
-            </ItemTemplate>
-        </TreeView>
-        """;
-
-    private IReadOnlyList<StoryCard.State> States => [
+    private IReadOnlyList<StoryCard.State> States =>
+    [
         new(
-            "collapsed",
-            "Collapsed",
+            "default",
+            "Default (Custom Template)",
             @<div class="w-full max-w-sm rounded-lg border border-border p-4">
                 <TreeView TItem="FileItem"
                           Items="RootItems"
                           GetChildren="f => f.Children"
+                          GetKey="f => f.Id"
                           HasChildren="f => f.Children.Count > 0"
                           class="space-y-1">
                     <ItemTemplate Context="ctx">
@@ -91,41 +67,71 @@
                     </ItemTemplate>
                 </TreeView>
             </div>,
-            [
-                new StoryCard.CodeTab("collapsed-razor", "TreeViewStory.razor", CollapsedRazor)
-            ]),
+            []),
+
         new(
-            "expanded",
-            "Expanded",
+            "default-template",
+            "Default Template",
             @<div class="w-full max-w-sm rounded-lg border border-border p-4">
                 <TreeView TItem="FileItem"
                           Items="RootItems"
                           GetChildren="f => f.Children"
+                          GetKey="f => f.Id"
                           HasChildren="f => f.Children.Count > 0"
-                          IsExpanded='f => f.Name == "src" || f.Name == "components"'
-                          class="space-y-1">
-                    <ItemTemplate Context="ctx">
-                        <div class="flex items-center gap-2 rounded px-2 py-1 hover:bg-muted"
-                             style="padding-left: @(ctx.Depth * 16 + 8)px">
-                            @if (ctx.HasChildren)
-                            {
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                     class="transition-transform @(ctx.IsExpanded ? "rotate-90" : "")">
-                                    <path d="m9 18 6-6-6-6"/>
-                                </svg>
-                            }
-                            else
-                            {
-                                <span class="w-3.5"></span>
-                            }
-                            <Icon Name="@GetIcon(ctx.Item)" Size="14" />
-                            <span class="text-sm">@ctx.Item.Name</span>
-                        </div>
-                    </ItemTemplate>
-                </TreeView>
+                          ExpandedKeys="new[] { "src" }"
+                          class="space-y-1" />
             </div>,
-            [
-                new StoryCard.CodeTab("expanded-razor", "TreeViewStory.razor", ExpandedRazor)
-            ])
+            []),
+
+        new(
+            "selection",
+            "Single Selection",
+            @<div class="w-full max-w-sm rounded-lg border border-border p-4">
+                <TreeView TItem="FileItem"
+                          Items="RootItems"
+                          GetChildren="f => f.Children"
+                          GetKey="f => f.Id"
+                          HasChildren="f => f.Children.Count > 0"
+                          SelectionMode="TreeViewSelectionMode.Single"
+                          SelectedKeys="_selectedKeys"
+                          SelectedKeysChanged="keys => _selectedKeys = keys.ToList()"
+                          ExpandedKeys="new[] { "src" }"
+                          class="space-y-1" />
+            </div>,
+            []),
+
+        new(
+            "checkbox",
+            "Checkboxes",
+            @<div class="w-full max-w-sm rounded-lg border border-border p-4">
+                <TreeView TItem="FileItem"
+                          Items="RootItems"
+                          GetChildren="f => f.Children"
+                          GetKey="f => f.Id"
+                          HasChildren="f => f.Children.Count > 0"
+                          CheckMode="TreeViewCheckMode.Checkbox"
+                          CheckedKeys="_checkedKeys"
+                          CheckedKeysChanged="keys => _checkedKeys = keys.ToList()"
+                          ExpandedKeys="new[] { "src" }"
+                          class="space-y-1" />
+            </div>,
+            []),
+
+        new(
+            "tristate",
+            "Tri-State Checkboxes",
+            @<div class="w-full max-w-sm rounded-lg border border-border p-4">
+                <TreeView TItem="FileItem"
+                          Items="RootItems"
+                          GetChildren="f => f.Children"
+                          GetKey="f => f.Id"
+                          HasChildren="f => f.Children.Count > 0"
+                          CheckMode="TreeViewCheckMode.TriState"
+                          CheckedKeys="_checkedKeys"
+                          CheckedKeysChanged="keys => _checkedKeys = keys.ToList()"
+                          ExpandedKeys="new[] { "src" }"
+                          class="space-y-1" />
+            </div>,
+            [])
     ];
 }
