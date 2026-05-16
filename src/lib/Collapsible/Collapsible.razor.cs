@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Collapsible;
 
-public partial class Collapsible : LtComponentBase
+public partial class Collapsible : TinyComponentBase
 {
 }

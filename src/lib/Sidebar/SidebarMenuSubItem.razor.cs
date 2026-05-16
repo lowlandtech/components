@@ -1,5 +1,5 @@
 namespace LowlandTech.Components.Sidebar;
 
-public partial class SidebarMenuSubItem : LtComponentBase
+public partial class SidebarMenuSubItem : TinyComponentBase
 {
 }

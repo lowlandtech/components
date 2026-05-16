@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.ToggleGroup;
 
-public partial class ToggleGroup : LtComponentBase
+public partial class ToggleGroup : TinyComponentBase
 {
     [Parameter] public string? variant { get; set; }
     [Parameter] public string? size { get; set; }

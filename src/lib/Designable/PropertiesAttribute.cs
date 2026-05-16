@@ -8,7 +8,7 @@ namespace LowlandTech.Components;
 /// <example>
 /// <code>
 /// [Properties(Group = "Forms", Icon = "form-input", Description = "Single-line input")]
-/// public partial class Input : LtComponentBase
+/// public partial class Input : TinyComponentBase
 /// {
 ///     [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Select,
 ///         Options = new[] { "default", "sm", "lg" })]

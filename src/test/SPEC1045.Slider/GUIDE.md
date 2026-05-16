@@ -8,16 +8,16 @@
 | **Namespace** | `LowlandTech.Components.Slider` |
 | **Root Element** | `<span>` |
 | **data-slot** | `slider` |
-| **Base Class** | `LtComponentBase` |
+| **Base Class** | `TinyComponentBase` |
 | **shadcn Reference** | https://ui.shadcn.com/docs/components/radix/slider |
 
 ## Parameters
 
 | Parameter | Type | Default | Source |
 |-----------|------|---------|--------|
-| `Class` | `string?` | `null` | `LtComponentBase` |
-| `ChildContent` | `RenderFragment?` | `null` | `LtComponentBase` |
-| `AdditionalAttributes` | `Dictionary<string, object>?` | `null` | `LtComponentBase` |
+| `Class` | `string?` | `null` | `TinyComponentBase` |
+| `ChildContent` | `RenderFragment?` | `null` | `TinyComponentBase` |
+| `AdditionalAttributes` | `Dictionary<string, object>?` | `null` | `TinyComponentBase` |
 | `min` | `string?` | `null` | Component-specific |
 | `max` | `string?` | `null` | Component-specific |
 | `step` | `string?` | `null` | Component-specific |

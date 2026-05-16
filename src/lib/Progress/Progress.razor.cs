@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Progress;
 
-public partial class Progress : LtComponentBase
+public partial class Progress : TinyComponentBase
 {
     /// <summary>
     /// The current value of the progress bar (0-Max).

@@ -8,16 +8,16 @@
 | **Namespace** | `LowlandTech.Components.Button` |
 | **Root Element** | `<button>` |
 | **data-slot** | `button` |
-| **Base Class** | `LtComponentBase` |
+| **Base Class** | `TinyComponentBase` |
 | **shadcn Reference** | https://ui.shadcn.com/docs/components/radix/button |
 
 ## Parameters
 
 | Parameter | Type | Default | Source |
 |-----------|------|---------|--------|
-| `Class` | `string?` | `null` | `LtComponentBase` |
-| `ChildContent` | `RenderFragment?` | `null` | `LtComponentBase` |
-| `AdditionalAttributes` | `Dictionary<string, object>?` | `null` | `LtComponentBase` |
+| `Class` | `string?` | `null` | `TinyComponentBase` |
+| `ChildContent` | `RenderFragment?` | `null` | `TinyComponentBase` |
+| `AdditionalAttributes` | `Dictionary<string, object>?` | `null` | `TinyComponentBase` |
 | `variant` | `string?` | `null` | Component-specific |
 | `size` | `string?` | `null` | Component-specific |
 

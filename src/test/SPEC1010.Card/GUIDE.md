@@ -8,7 +8,7 @@
 | **Namespace** | `LowlandTech.Components.Card` |
 | **Root Element** | `<div>` |
 | **data-slot** | `card` |
-| **Base Class** | `LtComponentBase` (provides Class, ChildContent, AdditionalAttributes) |
+| **Base Class** | `TinyComponentBase` (provides Class, ChildContent, AdditionalAttributes) |
 | **shadcn Reference** | https://ui.shadcn.com/docs/components/radix/card |
 
 ## Parameters
@@ -16,9 +16,9 @@
 | Parameter | Type | Default | Source |
 |-----------|------|---------|--------|
 | `Size` | `string?` | `null` | `Card.shared.cs` |
-| `Class` | `string?` | `null` | `LtComponentBase` |
-| `ChildContent` | `RenderFragment?` | `null` | `LtComponentBase` |
-| `AdditionalAttributes` | `Dictionary<string, object>?` | `null` | `LtComponentBase` |
+| `Class` | `string?` | `null` | `TinyComponentBase` |
+| `ChildContent` | `RenderFragment?` | `null` | `TinyComponentBase` |
+| `AdditionalAttributes` | `Dictionary<string, object>?` | `null` | `TinyComponentBase` |
 
 ## Sub-Components
 
@@ -113,5 +113,5 @@ card.QuerySelector("[data-slot='card-header']").ShouldNotBeNull();
 - Card root is **auto-generated** (`Card.razor` + `Card.razor.cs`) — do not edit directly
 - Custom logic goes in `Card.shared.cs` (partial class)
 - Sub-components are **hand-crafted** — safe to edit directly
-- All sub-components inherit from `LtComponentBase`
+- All sub-components inherit from `TinyComponentBase`
 - CSS class merging: default class + `@Class` parameter (e.g., `class="card-header @Class"`)

@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components;
 
-public abstract class LtComponentBase : ComponentBase
+public abstract class TinyComponentBase : ComponentBase
 {
     [Parameter] public string? Class { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }

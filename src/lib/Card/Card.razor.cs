@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Card;
 
-public partial class Card : LtComponentBase
+public partial class Card : TinyComponentBase
 {
 }

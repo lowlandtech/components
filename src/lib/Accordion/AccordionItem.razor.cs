@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Accordion;
 
-public partial class AccordionItem : LtComponentBase, IDisposable
+public partial class AccordionItem : TinyComponentBase, IDisposable
 {
 }
 

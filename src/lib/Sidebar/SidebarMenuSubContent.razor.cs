@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Sidebar;
 
-public partial class SidebarMenuSubContent : LtComponentBase
+public partial class SidebarMenuSubContent : TinyComponentBase
 {
     private bool _isVisible;
 

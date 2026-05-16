@@ -1,5 +1,5 @@
 namespace LowlandTech.Components.Sidebar;
 
-public partial class SidebarGroupLabel : LtComponentBase
+public partial class SidebarGroupLabel : TinyComponentBase
 {
 }

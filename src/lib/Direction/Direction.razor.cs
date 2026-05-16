@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Direction;
 
-public partial class Direction : LtComponentBase
+public partial class Direction : TinyComponentBase
 {
     [Parameter] public string? dir { get; set; }
 }

@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.ContextMenu;
 
-public partial class ContextMenu : LtComponentBase
+public partial class ContextMenu : TinyComponentBase
 {
 }

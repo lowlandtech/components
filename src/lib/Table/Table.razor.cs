@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Table;
 
-public partial class Table : LtComponentBase
+public partial class Table : TinyComponentBase
 {
 }

@@ -8,7 +8,7 @@
 | **Namespace** | `LowlandTech.Components.Sidebar` |
 | **Root Element** | `<aside>` |
 | **data-slot** | `sidebar` |
-| **Base Class** | `LtComponentBase` (provides Class, ChildContent, AdditionalAttributes) |
+| **Base Class** | `TinyComponentBase` (provides Class, ChildContent, AdditionalAttributes) |
 | **shadcn Reference** | https://ui.shadcn.com/docs/components/radix/sidebar |
 
 ## Parameters (Sidebar root)
@@ -19,9 +19,9 @@
 | `Variant` | `string` | `"sidebar"` | `Sidebar.shared.cs` |
 | `Collapsible` | `string` | `"offcanvas"` | `Sidebar.shared.cs` |
 | `SidebarState` | `SidebarState?` | `null` | `CascadingParameter` (from `SidebarProvider`) |
-| `Class` | `string?` | `null` | `LtComponentBase` |
-| `ChildContent` | `RenderFragment?` | `null` | `LtComponentBase` |
-| `AdditionalAttributes` | `Dictionary<string, object>?` | `null` | `LtComponentBase` |
+| `Class` | `string?` | `null` | `TinyComponentBase` |
+| `ChildContent` | `RenderFragment?` | `null` | `TinyComponentBase` |
+| `AdditionalAttributes` | `Dictionary<string, object>?` | `null` | `TinyComponentBase` |
 
 ## State Management
 
@@ -71,7 +71,7 @@ The provider subscribes to `SidebarState.OnChange` and calls `StateHasChanged()`
 
 ## Sub-Components
 
-| SC# | Component | Element | data-slot | Default CSS Class | Extra Parameters | Inherits LtComponentBase |
+| SC# | Component | Element | data-slot | Default CSS Class | Extra Parameters | Inherits TinyComponentBase |
 |-----|-----------|---------|-----------|-------------------|------------------|--------------------------|
 | 01 | `Sidebar` | `<aside>` | `sidebar` | `app-sidebar` | `Side`, `Variant`, `Collapsible`, `SidebarState` (cascading) | Yes |
 | 02 | `SidebarHeader` | `<div>` | `sidebar-header` | `sidebar-header` | — | Yes |
@@ -287,7 +287,7 @@ public void UAC06_OmitsDataActiveWhenFalse()
 - **Sidebar root** is auto-generated (`Sidebar.razor` + `Sidebar.razor.cs`) and extended via `Sidebar.shared.cs` (partial class). Custom parameters (`Side`, `Variant`, `Collapsible`, `SidebarState` cascading) live in the shared file.
 - **SidebarProvider** owns the `SidebarState` instance, cascades it via `<CascadingValue>`. It subscribes to `SidebarState.OnChange` to trigger re-renders and implements `IDisposable` to unsubscribe.
 - **SidebarRail** and **SidebarTrigger** both consume `SidebarState` via `[CascadingParameter]` and call `SidebarState.Toggle()` on click.
-- **SidebarSeparator** (`<hr>`) and **SidebarInput** (`<input>`) do **not** inherit `LtComponentBase`. They are standalone components that define their own `Class` and `AdditionalAttributes` parameters. They also do not accept `ChildContent` (void elements).
+- **SidebarSeparator** (`<hr>`) and **SidebarInput** (`<input>`) do **not** inherit `TinyComponentBase`. They are standalone components that define their own `Class` and `AdditionalAttributes` parameters. They also do not accept `ChildContent` (void elements).
 - **SidebarMenuSkeleton** does not accept `ChildContent`. It renders its own internal skeleton structure (icon placeholder + randomized-width text placeholder).
 - **SidebarMenuButton** and **SidebarMenuSubButton** accept an `IsActive` boolean parameter that conditionally renders `data-active="true"` (present when active, absent when inactive).
 - CSS class merging follows the pattern: `class="default-class @Class"` where `@Class` is the user-supplied override.

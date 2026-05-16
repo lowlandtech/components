@@ -1,5 +1,5 @@
 namespace LowlandTech.Components.Card;
 
-public partial class CardAction : LtComponentBase
+public partial class CardAction : TinyComponentBase
 {
 }

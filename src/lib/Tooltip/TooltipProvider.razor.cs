@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Tooltip;
 
-public partial class TooltipProvider : LtComponentBase
+public partial class TooltipProvider : TinyComponentBase
 {
     /// <summary>
     /// The default delay in milliseconds before showing tooltips.

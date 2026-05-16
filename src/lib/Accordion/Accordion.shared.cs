@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Accordion;
 
 // This file extends the auto-generated Accordion partial class.

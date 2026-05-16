@@ -10,7 +10,7 @@ namespace LowlandTech.Components.Tests.SPEC1068.Designable.US01.Registry;
 public enum FixtureSize { Small, Medium, Large }
 
 [Properties(Group = "Fixtures", Icon = "test-tube", Description = "Test fixture button")]
-public partial class FixtureButton : LtComponentBase
+public partial class FixtureButton : TinyComponentBase
 {
     [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Select,
         Options = new[] { "default", "destructive", "outline" })]
@@ -40,14 +40,14 @@ public partial class FixtureButton : LtComponentBase
 }
 
 [Properties(Group = "Fixtures", Element = "fixture-card-explicit")]
-public partial class FixtureCardWithExplicitElement : LtComponentBase
+public partial class FixtureCardWithExplicitElement : TinyComponentBase
 {
     [Parameter, PropertyGrid] public string Title { get; set; } = "Untitled";
 }
 
 // Component without [Properties] — used to assert the registry SKIPS
-// undecorated components even if they inherit LtComponentBase.
-public partial class UndecoratedFixture : LtComponentBase
+// undecorated components even if they inherit TinyComponentBase.
+public partial class UndecoratedFixture : TinyComponentBase
 {
     [Parameter] public string Name { get; set; } = string.Empty;
 }

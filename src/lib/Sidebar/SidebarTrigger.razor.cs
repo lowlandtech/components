@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Sidebar;
 
-public partial class SidebarTrigger : LtComponentBase
+public partial class SidebarTrigger : TinyComponentBase
 {
     [CascadingParameter] public SidebarState? SidebarState { get; set; }
 

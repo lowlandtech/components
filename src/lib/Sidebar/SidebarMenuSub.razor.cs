@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Sidebar;
 
-public partial class SidebarMenuSub : LtComponentBase
+public partial class SidebarMenuSub : TinyComponentBase
 {
     private bool _isOpen;
 

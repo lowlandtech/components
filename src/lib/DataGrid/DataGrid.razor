@@ -1,10 +1,12 @@
 @namespace LowlandTech.Components.DataGrid
 @typeparam TItem
-@inherits LtComponentBase
+@inherits TinyComponentBase
 
 <div data-slot="data-grid"
      data-loading="@IsLoading.ToString().ToLowerInvariant()"
      data-selection-mode="@SelectionMode.ToString().ToLowerInvariant()"
+     data-density="@Density.ToString().ToLowerInvariant()"
+     data-grid-lines="@GridLines.ToString().ToLowerInvariant()"
      class="@GetClass()"
      @attributes="AdditionalAttributes">
     <CascadingValue Value="this" IsFixed="true">
@@ -23,22 +25,36 @@
             <table data-slot="data-grid-table" class="cn-data-grid-table">
                 <thead data-slot="data-grid-header" class="cn-data-grid-header">
                     <tr data-slot="data-grid-header-row" class="cn-data-grid-row">
+                        @if (DetailTemplate is not null)
+                        {
+                            <th data-slot="data-grid-header-cell" class="cn-data-grid-head cn-data-grid-expand-cell">
+                                <span class="sr-only">Expand</span>
+                            </th>
+                        }
                         @if (SelectionMode == DataGridSelectionMode.Multiple)
                         {
                             <th data-slot="data-grid-header-cell" class="cn-data-grid-head cn-data-grid-selection-cell">
-                                <span class="sr-only">Select</span>
+                                <input data-slot="data-grid-select-all"
+                                       type="checkbox"
+                                       checked="@IsAllVisibleSelected()"
+                                       aria-label="Select all visible rows"
+                                       @onchange="ToggleSelectAll" />
                             </th>
                         }
                         @foreach (var column in VisibleColumns)
                         {
                             <th data-slot="data-grid-header-cell" class="@GetHeaderCellClass(column)">
-                                @if (CanSort(column))
+                                @if (column.HeaderTemplate is not null)
+                                {
+                                    @column.HeaderTemplate
+                                }
+                                else if (CanSort(column))
                                 {
                                     <button type="button"
                                             data-slot="data-grid-sort-button"
                                             data-sort-direction="@GetSortDirection(column).ToString().ToLowerInvariant()"
                                             class="cn-data-grid-sort-button"
-                                            @onclick="() => ToggleSort(column)">
+                                            @onclick="eventArgs => ToggleSort(column, eventArgs)">
                                         <span>@column.HeaderText</span>
                                         <span aria-hidden="true" class="cn-data-grid-sort-indicator">@GetSortIndicator(column)</span>
                                     </button>
@@ -53,6 +69,10 @@
                     @if (AllowFiltering && VisibleColumns.Any(CanFilter))
                     {
                         <tr data-slot="data-grid-filter-row" class="cn-data-grid-filter-row">
+                            @if (DetailTemplate is not null)
+                            {
+                                <th data-slot="data-grid-filter-cell" class="cn-data-grid-filter-cell cn-data-grid-expand-cell"></th>
+                            }
                             @if (SelectionMode == DataGridSelectionMode.Multiple)
                             {
                                 <th data-slot="data-grid-filter-cell" class="cn-data-grid-filter-cell cn-data-grid-selection-cell"></th>
@@ -99,7 +119,7 @@
                                 }
                                 else
                                 {
-                                    <span>No results found.</span>
+                                    <span>@(!string.IsNullOrWhiteSpace(EmptyText) ? EmptyText : "No results found.")</span>
                                 }
                             </td>
                         </tr>
@@ -110,9 +130,23 @@
                         {
                             <tr data-slot="data-grid-row"
                                 data-selected="@(IsSelected(item) ? "true" : null)"
+                                data-expanded="@(IsDetailExpanded(item) ? "true" : null)"
                                 aria-selected="@(SelectionMode == DataGridSelectionMode.None ? null : IsSelected(item).ToString().ToLowerInvariant())"
                                 class="cn-data-grid-row"
                                 @onclick="() => ToggleSelection(item)">
+                                @if (DetailTemplate is not null)
+                                {
+                                    <td data-slot="data-grid-cell" class="cn-data-grid-cell cn-data-grid-expand-cell">
+                                        <button type="button"
+                                                data-slot="data-grid-expand-button"
+                                                class="cn-data-grid-expand-button"
+                                                aria-expanded="@IsDetailExpanded(item).ToString().ToLowerInvariant()"
+                                                @onclick:stopPropagation="true"
+                                                @onclick="() => ToggleDetailRow(item)">
+                                            @(IsDetailExpanded(item) ? "−" : "+")
+                                        </button>
+                                    </td>
+                                }
                                 @if (SelectionMode == DataGridSelectionMode.Multiple)
                                 {
                                     <td data-slot="data-grid-cell" class="cn-data-grid-cell cn-data-grid-selection-cell">
@@ -132,7 +166,7 @@
                                 {
                                     @foreach (var column in VisibleColumns)
                                     {
-                                        <td data-slot="data-grid-cell" class="@GetCellClass(column)">
+                                        <td data-slot="data-grid-cell" class="@GetCellClass(column)" tabindex="0" @onkeydown="eventArgs => HandleCellKeyDown(eventArgs, item, column)">
                                             @if (column.Template is not null)
                                             {
                                                 @column.Template(item)
@@ -145,9 +179,27 @@
                                     }
                                 }
                             </tr>
+                            @if (DetailTemplate is not null && IsDetailExpanded(item))
+                            {
+                                <tr data-slot="data-grid-detail-row" class="cn-data-grid-detail-row">
+                                    <td data-slot="data-grid-detail-cell" class="cn-data-grid-detail-cell" colspan="@ColumnSpan">
+                                        @DetailTemplate(item)
+                                    </td>
+                                </tr>
+                            }
                         }
                     }
                 </tbody>
+                @if (FooterTemplate is not null)
+                {
+                    <tfoot data-slot="data-grid-footer" class="cn-data-grid-footer">
+                        <tr data-slot="data-grid-footer-row" class="cn-data-grid-row">
+                            <td data-slot="data-grid-footer-cell" class="cn-data-grid-footer-cell" colspan="@ColumnSpan">
+                                @FooterTemplate
+                            </td>
+                        </tr>
+                    </tfoot>
+                }
             </table>
         </div>
 
@@ -181,14 +233,16 @@
 @code {
     private readonly List<DataGridColumn<TItem>> _columns = [];
     private readonly Dictionary<string, string> _filters = new(StringComparer.Ordinal);
-    private HashSet<TItem> _selectedItems = [];
-    private DataGridColumn<TItem>? _sortColumn;
-    private DataGridSortDirection _sortDirection = DataGridSortDirection.None;
+    private readonly List<DataGridSortDescriptor> _sortDescriptors = [];
+    private readonly HashSet<TItem> _selectedItems = [];
+    private readonly HashSet<string> _expandedRowKeys = [];
 
     [Parameter] public IEnumerable<TItem>? Items { get; set; }
     [Parameter] public RenderFragment? Columns { get; set; }
     [Parameter] public RenderFragment? EmptyTemplate { get; set; }
     [Parameter] public RenderFragment? LoadingTemplate { get; set; }
+    [Parameter] public RenderFragment<TItem>? DetailTemplate { get; set; }
+    [Parameter] public RenderFragment? FooterTemplate { get; set; }
     /// <summary>Per-row content override. When supplied, the DataGrid emits the
     /// author's template inside the <c>&lt;tr&gt;</c> wrapper (so click-to-select,
     /// data-selected, paging, and sorting all compose around the override).
@@ -196,6 +250,7 @@
     /// DataGrid's Template pattern — see docs/pluginize/issues/block-crud-page-template.md.</summary>
     [Parameter] public RenderFragment<TItem>? RowTemplate { get; set; }
     [Parameter] public bool AllowSorting { get; set; } = true;
+    [Parameter] public bool AllowMultiSort { get; set; }
     [Parameter] public bool AllowFiltering { get; set; }
     [Parameter] public bool AllowPaging { get; set; }
     [Parameter] public int PageSize { get; set; } = 10;
@@ -207,10 +262,13 @@
     [Parameter] public EventCallback<ISet<TItem>> SelectedItemsChanged { get; set; }
     [Parameter] public TItem? SelectedItem { get; set; }
     [Parameter] public EventCallback<TItem?> SelectedItemChanged { get; set; }
+    [Parameter] public DataGridDensity Density { get; set; } = DataGridDensity.Default;
+    [Parameter] public DataGridGridLines GridLines { get; set; } = DataGridGridLines.Horizontal;
+    [Parameter] public string? EmptyText { get; set; }
 
     private int EffectivePageSize => Math.Max(1, PageSize);
     private IEnumerable<DataGridColumn<TItem>> VisibleColumns => _columns.Where(column => column.Visible);
-    private int ColumnSpan => Math.Max(1, VisibleColumns.Count() + (SelectionMode == DataGridSelectionMode.Multiple ? 1 : 0));
+    private int ColumnSpan => Math.Max(1, VisibleColumns.Count() + (SelectionMode == DataGridSelectionMode.Multiple ? 1 : 0) + (DetailTemplate is not null ? 1 : 0));
     private IReadOnlyList<TItem> CurrentPageItems => GetCurrentPageItems();
     private int TotalItems => GetFilteredAndSortedItems().Count();
     private int TotalPages => Math.Max(1, (int)Math.Ceiling(TotalItems / (double)EffectivePageSize));
@@ -219,11 +277,16 @@
     {
         if (SelectedItems is not null)
         {
-            _selectedItems = new HashSet<TItem>(SelectedItems);
+            _selectedItems.Clear();
+            foreach (var item in SelectedItems)
+            {
+                _selectedItems.Add(item);
+            }
         }
         else if (SelectionMode == DataGridSelectionMode.Single && SelectedItem is not null)
         {
-            _selectedItems = [SelectedItem];
+            _selectedItems.Clear();
+            _selectedItems.Add(SelectedItem);
         }
     }
 
@@ -243,11 +306,7 @@
             _ = InvokeAsync(StateHasChanged);
         }
 
-        if (_sortColumn == column)
-        {
-            _sortColumn = null;
-            _sortDirection = DataGridSortDirection.None;
-        }
+        _sortDescriptors.RemoveAll(s => s.ColumnKey == column.Key);
     }
 
     private string GetClass()
@@ -279,7 +338,14 @@
 
     private DataGridSortDirection GetSortDirection(DataGridColumn<TItem> column)
     {
-        return _sortColumn == column ? _sortDirection : DataGridSortDirection.None;
+        var descriptor = _sortDescriptors.FirstOrDefault(s => s.ColumnKey == column.Key);
+        return descriptor?.Direction ?? DataGridSortDirection.None;
+    }
+
+    private int? GetSortOrder(DataGridColumn<TItem> column)
+    {
+        var descriptor = _sortDescriptors.FirstOrDefault(s => s.ColumnKey == column.Key);
+        return descriptor?.Order;
     }
 
     private string GetSortIndicator(DataGridColumn<TItem> column)
@@ -292,26 +358,30 @@
         };
     }
 
-    private void ToggleSort(DataGridColumn<TItem> column)
+    private void ToggleSort(DataGridColumn<TItem> column, MouseEventArgs eventArgs)
     {
-        if (_sortColumn != column)
+        var additive = AllowMultiSort && eventArgs.CtrlKey;
+        var existing = _sortDescriptors.FirstOrDefault(s => s.ColumnKey == column.Key);
+        var nextDirection = existing?.Direction switch
         {
-            _sortColumn = column;
-            _sortDirection = DataGridSortDirection.Ascending;
-        }
-        else
+            DataGridSortDirection.None => DataGridSortDirection.Ascending,
+            DataGridSortDirection.Ascending => DataGridSortDirection.Descending,
+            _ => DataGridSortDirection.None
+        };
+
+        if (!additive)
         {
-            _sortDirection = _sortDirection switch
-            {
-                DataGridSortDirection.None => DataGridSortDirection.Ascending,
-                DataGridSortDirection.Ascending => DataGridSortDirection.Descending,
-                _ => DataGridSortDirection.None
-            };
+            _sortDescriptors.Clear();
         }
 
-        if (_sortDirection == DataGridSortDirection.None)
+        if (existing is not null)
         {
-            _sortColumn = null;
+            _sortDescriptors.Remove(existing);
+        }
+
+        if (nextDirection != DataGridSortDirection.None)
+        {
+            _sortDescriptors.Add(new DataGridSortDescriptor(column.Key, column.Property ?? column.Key, nextDirection, _sortDescriptors.Count));
         }
 
         PageIndex = 0;
@@ -367,11 +437,31 @@
                 .Contains(filter.Value, StringComparison.CurrentCultureIgnoreCase));
         }
 
-        if (_sortColumn is not null && _sortDirection != DataGridSortDirection.None)
+        var activeSorts = _sortDescriptors.Where(s => s.Direction != DataGridSortDirection.None).ToList();
+        if (activeSorts.Count > 0)
         {
-            query = _sortDirection == DataGridSortDirection.Ascending
-                ? query.OrderBy(item => GetComparableSortValue(_sortColumn.GetValue(item)))
-                : query.OrderByDescending(item => GetComparableSortValue(_sortColumn.GetValue(item)));
+            IOrderedEnumerable<TItem>? ordered = null;
+
+            foreach (var descriptor in activeSorts)
+            {
+                var column = VisibleColumns.FirstOrDefault(c => c.Key == descriptor.ColumnKey);
+                if (column is null) continue;
+
+                if (ordered is null)
+                {
+                    ordered = descriptor.Direction == DataGridSortDirection.Ascending
+                        ? query.OrderBy(item => GetComparableSortValue(column.GetValue(item)))
+                        : query.OrderByDescending(item => GetComparableSortValue(column.GetValue(item)));
+                }
+                else
+                {
+                    ordered = descriptor.Direction == DataGridSortDirection.Ascending
+                        ? ordered.ThenBy(item => GetComparableSortValue(column.GetValue(item)))
+                        : ordered.ThenByDescending(item => GetComparableSortValue(column.GetValue(item)));
+                }
+            }
+
+            query = ordered ?? query;
         }
 
         return query;
@@ -403,7 +493,8 @@
             }
             else
             {
-                _selectedItems = [item];
+                _selectedItems.Clear();
+                _selectedItems.Add(item);
                 SelectedItem = item;
             }
 
@@ -418,6 +509,71 @@
         }
 
         await SelectedItemsChanged.InvokeAsync(new HashSet<TItem>(_selectedItems));
+    }
+
+    private bool IsAllVisibleSelected()
+    {
+        var visible = CurrentPageItems;
+        return visible.Count > 0 && visible.All(IsSelected);
+    }
+
+    private async Task ToggleSelectAll(ChangeEventArgs args)
+    {
+        if (SelectionMode != DataGridSelectionMode.Multiple)
+        {
+            return;
+        }
+
+        if (args.Value is true)
+        {
+            foreach (var item in CurrentPageItems)
+            {
+                _selectedItems.Add(item);
+            }
+        }
+        else
+        {
+            foreach (var item in CurrentPageItems)
+            {
+                _selectedItems.Remove(item);
+            }
+        }
+
+        await SelectedItemsChanged.InvokeAsync(new HashSet<TItem>(_selectedItems));
+    }
+
+    private string GetRowKey(TItem item)
+    {
+        return item?.GetHashCode().ToString() ?? Guid.NewGuid().ToString();
+    }
+
+    private bool IsDetailExpanded(TItem item)
+    {
+        return _expandedRowKeys.Contains(GetRowKey(item));
+    }
+
+    private void ToggleDetailRow(TItem item)
+    {
+        var key = GetRowKey(item);
+        if (!_expandedRowKeys.Add(key))
+        {
+            _expandedRowKeys.Remove(key);
+        }
+    }
+
+    private async Task HandleCellKeyDown(KeyboardEventArgs eventArgs, TItem item, DataGridColumn<TItem> column)
+    {
+        if (eventArgs.Key == "Enter" || eventArgs.Key == " ")
+        {
+            if (DetailTemplate is not null)
+            {
+                ToggleDetailRow(item);
+            }
+            else if (SelectionMode != DataGridSelectionMode.None)
+            {
+                await ToggleSelection(item);
+            }
+        }
     }
 
     private async Task GoToPreviousPage()

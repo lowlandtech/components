@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Sidebar;
 
-public partial class SidebarRail : LtComponentBase
+public partial class SidebarRail : TinyComponentBase
 {
     [CascadingParameter] public SidebarState? SidebarState { get; set; }
 

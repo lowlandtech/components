@@ -10,6 +10,7 @@
     [Parameter] public string? Property { get; set; }
     [Parameter] public string? Title { get; set; }
     [Parameter] public RenderFragment<TItem>? Template { get; set; }
+    [Parameter] public RenderFragment? HeaderTemplate { get; set; }
     [Parameter] public string? FormatString { get; set; }
     [Parameter] public bool Visible { get; set; } = true;
     [Parameter] public bool? Sortable { get; set; }

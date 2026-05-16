@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Tooltip;
 
-public partial class Tooltip : LtComponentBase, IDisposable
+public partial class Tooltip : TinyComponentBase, IDisposable
 {
     private CancellationTokenSource? _showCts;
 

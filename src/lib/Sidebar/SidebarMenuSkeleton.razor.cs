@@ -1,6 +1,6 @@
 namespace LowlandTech.Components.Sidebar;
 
-public partial class SidebarMenuSkeleton : LtComponentBase
+public partial class SidebarMenuSkeleton : TinyComponentBase
 {
     private readonly int _width = Random.Shared.Next(40, 80);
 }

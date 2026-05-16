@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Breadcrumb;
 
-public partial class Breadcrumb : LtComponentBase
+public partial class Breadcrumb : TinyComponentBase
 {
 }

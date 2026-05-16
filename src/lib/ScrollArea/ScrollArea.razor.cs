@@ -1,9 +1,8 @@
-using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace LowlandTech.Components.ScrollArea;
 
-public partial class ScrollArea : LtComponentBase, IDisposable
+public partial class ScrollArea : TinyComponentBase, IDisposable
 {
     [Parameter] public string? Orientation { get; set; }
 

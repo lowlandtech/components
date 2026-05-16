@@ -1,9 +1,8 @@
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace LowlandTech.Components.Accordion;
 
-public partial class AccordionTrigger : LtComponentBase
+public partial class AccordionTrigger : TinyComponentBase
 {
     [CascadingParameter] public AccordionItemContext? ItemContext { get; set; }
 

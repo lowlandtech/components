@@ -8,7 +8,7 @@
 | **Namespace** | `LowlandTech.Components.Alert` |
 | **Root Element** | `<div>` |
 | **data-slot** | `alert` |
-| **Base Class** | `LtComponentBase` |
+| **Base Class** | `TinyComponentBase` |
 | **shadcn Reference** | https://ui.shadcn.com/docs/components/radix/alert |
 
 ## Parameters

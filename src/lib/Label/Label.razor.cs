@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Label;
 
-public partial class Label : LtComponentBase
+public partial class Label : TinyComponentBase
 {
 }

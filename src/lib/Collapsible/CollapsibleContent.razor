@@ -1,5 +1,5 @@
 @namespace LowlandTech.Components.Collapsible
-@inherits LtComponentBase
+@inherits TinyComponentBase
 
 <div data-slot="collapsible-content"
      class="@GetClass() grid transition-all duration-300 ease-in-out @(Parent?.IsOpen == true ? "grid-rows-[1fr]" : "grid-rows-[0fr]")"

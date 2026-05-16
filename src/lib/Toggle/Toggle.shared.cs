@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Toggle;
 
 public partial class Toggle

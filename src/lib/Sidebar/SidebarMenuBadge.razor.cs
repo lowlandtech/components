@@ -1,5 +1,5 @@
 namespace LowlandTech.Components.Sidebar;
 
-public partial class SidebarMenuBadge : LtComponentBase
+public partial class SidebarMenuBadge : TinyComponentBase
 {
 }

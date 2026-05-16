@@ -1,9 +1,8 @@
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace LowlandTech.Components.Input;
 
-public partial class Input : LtComponentBase
+public partial class Input : TinyComponentBase
 {
     [Parameter] public EventCallback<KeyboardEventArgs> OnKeyUp { get; set; }
 

@@ -1,11 +1,8 @@
-using System.Reflection;
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components;
 
 /// <summary>
 /// Reflection-based <see cref="IComponentDescriptorRegistry"/>. Sweeps
-/// every loaded assembly for <see cref="LtComponentBase"/> subclasses
+/// every loaded assembly for <see cref="TinyComponentBase"/> subclasses
 /// decorated with <see cref="PropertiesAttribute"/> and builds an
 /// in-memory cache of their designable properties.
 ///
@@ -78,7 +75,7 @@ public sealed class ComponentDescriptorRegistry : IComponentDescriptorRegistry
             foreach (var type in types)
             {
                 if (type is null || type.IsAbstract) continue;
-                if (!typeof(LtComponentBase).IsAssignableFrom(type)) continue;
+                if (!typeof(TinyComponentBase).IsAssignableFrom(type)) continue;
                 var classAttr = type.GetCustomAttribute<PropertiesAttribute>(inherit: false);
                 if (classAttr is null) continue;
                 descriptors.Add(BuildDescriptor(type, classAttr));

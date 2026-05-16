@@ -1,9 +1,8 @@
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace LowlandTech.Components.Sidebar;
 
-public partial class SidebarProvider : LtComponentBase, IDisposable
+public partial class SidebarProvider : TinyComponentBase, IDisposable
 {
     [Parameter] public bool DefaultOpen { get; set; } = true;
     [Parameter] public bool? Open { get; set; }

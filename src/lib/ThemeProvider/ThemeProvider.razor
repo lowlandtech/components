@@ -2,9 +2,12 @@
 @implements IDisposable
 @inject ComponentThemeService ThemeService
 
+@if (!string.IsNullOrEmpty(_tokenCss))
+{
+    <style>[data-theme-provider="@Id"]{@((MarkupString)_tokenCss)}</style>
+}
 <div data-theme-provider="@Id"
      class="@Class"
-     style="@_inlineStyle"
      @attributes="AdditionalAttributes">
     <CascadingValue Value="_context" IsFixed="false">
         @ChildContent
@@ -26,7 +29,7 @@
     [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
     private ThemeProviderContext _context = null!;
-    private string _inlineStyle = "";
+    private string _tokenCss = "";
 
     protected override void OnInitialized()
     {
@@ -45,7 +48,7 @@
     private void UpdateStyle()
     {
         var theme = ThemeService.GetForProvider(Id);
-        _inlineStyle = theme is null
+        _tokenCss = theme is null
             ? ""
             : string.Join(";", theme.Tokens.Select(kv => $"{kv.Key}:{kv.Value}"));
     }

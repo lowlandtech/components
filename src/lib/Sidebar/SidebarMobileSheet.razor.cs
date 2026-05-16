@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Sidebar;
 
-public partial class SidebarMobileSheet : LtComponentBase
+public partial class SidebarMobileSheet : TinyComponentBase
 {
     [CascadingParameter] public SidebarState? SidebarState { get; set; }
     [Parameter] public RenderFragment? HeaderContent { get; set; }

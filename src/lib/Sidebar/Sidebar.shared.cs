@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Sidebar;
 
 // This file extends the auto-generated Sidebar partial class.

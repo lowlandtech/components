@@ -1,9 +1,8 @@
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace LowlandTech.Components.Button;
 
-public partial class Button : LtComponentBase
+public partial class Button : TinyComponentBase
 {
     /// <summary>
     /// Callback invoked when the button is clicked.

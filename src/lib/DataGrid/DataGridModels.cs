@@ -21,3 +21,24 @@ public enum DataGridTextAlign
     End
 }
 
+public enum DataGridDensity
+{
+    Compact,
+    Default,
+    Comfortable
+}
+
+public enum DataGridGridLines
+{
+    None,
+    Horizontal,
+    Vertical,
+    Both
+}
+
+public sealed record DataGridSortDescriptor(
+    string ColumnKey,
+    string PropertyPath,
+    DataGridSortDirection Direction,
+    int Order);
+

@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Tooltip;
 
-public partial class TooltipTrigger : LtComponentBase
+public partial class TooltipTrigger : TinyComponentBase
 {
     [CascadingParameter] private Tooltip? Parent { get; set; }
 

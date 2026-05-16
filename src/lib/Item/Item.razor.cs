@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Item;
 
-public partial class Item : LtComponentBase
+public partial class Item : TinyComponentBase
 {
 }

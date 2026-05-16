@@ -6,7 +6,7 @@ namespace LowlandTech.Components.Tests.SPEC1068.Designable.US01.Registry;
 /// SC01 — The reflection-based ComponentDescriptorRegistry discovers
 /// every <see cref="PropertiesAttribute"/>-decorated component in
 /// every loaded assembly, captures its class metadata, and skips
-/// undecorated components even when they inherit LtComponentBase.
+/// undecorated components even when they inherit TinyComponentBase.
 /// SPEC2100.US45 (component descriptor registry).
 /// </summary>
 [Trait(Spec.SPEC, "1068")]
@@ -26,13 +26,13 @@ public class SC01_DiscoverDecoratedComponents
         registry.All.ShouldContain(d => d.ComponentType == typeof(FixtureButton));
     }
 
-    [Fact(DisplayName = "UAC02: undecorated LtComponentBase subclasses do NOT leak into the registry")]
+    [Fact(DisplayName = "UAC02: undecorated TinyComponentBase subclasses do NOT leak into the registry")]
     [Trait(Spec.UAC, "02")]
     public void UAC02_UndecoratedSkipped()
     {
         Registry().All.ShouldNotContain(d => d.ComponentType == typeof(UndecoratedFixture),
             customMessage:
-                "UndecoratedFixture inherits LtComponentBase but has no " +
+                "UndecoratedFixture inherits TinyComponentBase but has no " +
                 "[Properties] attribute — it must be excluded from the " +
                 "registry. Otherwise the Components palette pollutes with " +
                 "every helper component the lib ships.");

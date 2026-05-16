@@ -8,7 +8,7 @@
 | **Namespace** | `LowlandTech.Components.Accordion` |
 | **Root Element** | `<div>` |
 | **data-slot** | `accordion` |
-| **Base Class** | `LtComponentBase` |
+| **Base Class** | `TinyComponentBase` |
 | **shadcn Reference** | https://ui.shadcn.com/docs/components/radix/accordion |
 
 ## Parameters
@@ -17,9 +17,9 @@
 
 | Parameter | Type | Default | Source |
 |-----------|------|---------|--------|
-| `Class` | `string?` | `null` | `LtComponentBase` |
-| `ChildContent` | `RenderFragment?` | `null` | `LtComponentBase` |
-| `AdditionalAttributes` | `Dictionary<string, object>?` | `null` | `LtComponentBase` |
+| `Class` | `string?` | `null` | `TinyComponentBase` |
+| `ChildContent` | `RenderFragment?` | `null` | `TinyComponentBase` |
+| `AdditionalAttributes` | `Dictionary<string, object>?` | `null` | `TinyComponentBase` |
 | `Type` | `string` | `"single"` | `Accordion.shared.cs` |
 | `Collapsible` | `bool` | `false` | `Accordion.shared.cs` |
 | `DefaultValue` | `string?` | `null` | `Accordion.shared.cs` |
@@ -30,22 +30,22 @@
 |-----------|------|---------|--------|
 | `Value` | `string?` | `null` | `AccordionItem.razor.cs` |
 | `Disabled` | `bool` | `false` | `AccordionItem.razor.cs` |
-| `Class` | `string?` | `null` | `LtComponentBase` |
-| `ChildContent` | `RenderFragment?` | `null` | `LtComponentBase` |
+| `Class` | `string?` | `null` | `TinyComponentBase` |
+| `ChildContent` | `RenderFragment?` | `null` | `TinyComponentBase` |
 
 ### AccordionTrigger
 
 | Parameter | Type | Default | Source |
 |-----------|------|---------|--------|
-| `Class` | `string?` | `null` | `LtComponentBase` |
-| `ChildContent` | `RenderFragment?` | `null` | `LtComponentBase` |
+| `Class` | `string?` | `null` | `TinyComponentBase` |
+| `ChildContent` | `RenderFragment?` | `null` | `TinyComponentBase` |
 
 ### AccordionContent
 
 | Parameter | Type | Default | Source |
 |-----------|------|---------|--------|
-| `Class` | `string?` | `null` | `LtComponentBase` |
-| `ChildContent` | `RenderFragment?` | `null` | `LtComponentBase` |
+| `Class` | `string?` | `null` | `TinyComponentBase` |
+| `ChildContent` | `RenderFragment?` | `null` | `TinyComponentBase` |
 
 ## Sub-Components
 

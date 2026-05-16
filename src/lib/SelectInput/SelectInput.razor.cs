@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.SelectInput;
 
 public partial class SelectInput<TValue>

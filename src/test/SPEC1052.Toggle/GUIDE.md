@@ -8,16 +8,16 @@
 | **Namespace** | `LowlandTech.Components.Toggle` |
 | **Root Element** | `<button>` |
 | **data-slot** | `toggle` |
-| **Base Class** | `LtComponentBase` |
+| **Base Class** | `TinyComponentBase` |
 | **shadcn Reference** | https://ui.shadcn.com/docs/components/radix/toggle |
 
 ## Parameters
 
 | Parameter | Type | Default | Source |
 |-----------|------|---------|--------|
-| `Class` | `string?` | `null` | `LtComponentBase` |
-| `ChildContent` | `RenderFragment?` | `null` | `LtComponentBase` |
-| `AdditionalAttributes` | `Dictionary<string, object>?` | `null` | `LtComponentBase` |
+| `Class` | `string?` | `null` | `TinyComponentBase` |
+| `ChildContent` | `RenderFragment?` | `null` | `TinyComponentBase` |
+| `AdditionalAttributes` | `Dictionary<string, object>?` | `null` | `TinyComponentBase` |
 | `pressed` | `bool` | `false` | Component-specific |
 
 ## Sub-Components

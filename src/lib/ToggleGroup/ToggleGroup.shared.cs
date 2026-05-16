@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.ToggleGroup;
 
 public record ToggleGroupContext(string Variant, string Size, int Spacing, string Orientation);

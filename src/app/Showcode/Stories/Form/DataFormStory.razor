@@ -1,0 +1,142 @@
+@attribute [DisplayName("Form/DataForm")]
+@inherits StoryComponent
+
+<StoryCard Title="DataForm"
+           Description="DataForm states demonstrate model binding, layout modes, read-only rendering, and validation integration."
+           States="@States" />
+
+@code {
+    private readonly CustomerModel _defaultModel = new() { Name = "Ada Lovelace", Email = "ada@example.com", IsActive = true, CreditLimit = 5000 };
+    private readonly CustomerModel _gridModel = new() { Name = "Grace Hopper", Email = "grace@example.com", Status = CustomerStatus.Active, Age = 35 };
+    private readonly CustomerModel _readonlyModel = new() { Name = "Alan Turing", Email = "alan@example.com", IsActive = true, CreditLimit = 10000, Status = CustomerStatus.Pending };
+    private readonly CustomerModel _invalidModel = new() { Name = "", Email = "not-an-email", CreditLimit = 20000 };
+
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "default",
+            "Default",
+            @<div class="w-full max-w-md">
+                <DataForm Model="_defaultModel" ShowDefaultActions="false" />
+            </div>,
+            [
+                new StoryCard.CodeTab("default-razor", "DataFormStory.razor", DefaultRazor)
+            ]),
+        new(
+            "grid",
+            "Grid Layout",
+            @<div class="w-full max-w-lg">
+                <DataForm Model="_gridModel" Layout="grid" ShowDefaultActions="false" />
+            </div>,
+            [
+                new StoryCard.CodeTab("grid-razor", "DataFormStory.razor", GridRazor)
+            ]),
+        new(
+            "readonly",
+            "Read Only",
+            @<div class="w-full max-w-md">
+                <DataForm Model="_readonlyModel" ReadOnly="true" ShowDefaultActions="false" />
+            </div>,
+            [
+                new StoryCard.CodeTab("readonly-razor", "DataFormStory.razor", ReadOnlyRazor)
+            ]),
+        new(
+            "validation",
+            "Validation",
+            @<div class="w-full max-w-md">
+                <DataForm Model="_invalidModel" ValidateOnSubmit="true" OnValidSubmit="HandleValid" OnInvalidSubmit="HandleInvalid" />
+            </div>,
+            [
+                new StoryCard.CodeTab("validation-razor", "DataFormStory.razor", ValidationRazor)
+            ]),
+        new(
+            "templates",
+            "Templates",
+            @<div class="w-full max-w-md">
+                <DataForm Model="_defaultModel" ShowDefaultActions="false">
+                    <LabelTemplate>
+                        <span class="text-xs font-bold uppercase tracking-wider text-primary">@context.DisplayName</span>
+                    </LabelTemplate>
+                    <FieldTemplate>
+                        <Input data-field-input="@context.PropertyName" Value="@GetValue(context.PropertyName)" Placeholder="@($"Enter {context.DisplayName}...")" />
+                    </FieldTemplate>
+                </DataForm>
+            </div>,
+            [
+                new StoryCard.CodeTab("templates-razor", "DataFormStory.razor", TemplatesRazor)
+            ])
+    ];
+
+    private void HandleValid(EditContext ctx) { }
+    private void HandleInvalid(EditContext ctx) { }
+
+    private string GetValue(string propertyName) => propertyName switch
+    {
+        "Name" => _defaultModel.Name,
+        "Email" => _defaultModel.Email,
+        _ => ""
+    };
+
+    private const string DefaultRazor =
+        """
+        <DataForm Model="_defaultModel" ShowDefaultActions="false" />
+        """;
+
+    private const string GridRazor =
+        """
+        <DataForm Model="_gridModel" Layout="grid" ShowDefaultActions="false" />
+        """;
+
+    private const string ReadOnlyRazor =
+        """
+        <DataForm Model="_readonlyModel" ReadOnly="true" ShowDefaultActions="false" />
+        """;
+
+    private const string ValidationRazor =
+        """
+        <DataForm Model="_invalidModel"
+                  ValidateOnSubmit="true"
+                  OnValidSubmit="HandleValid"
+                  OnInvalidSubmit="HandleInvalid" />
+        """;
+
+    private const string TemplatesRazor =
+        """
+        <DataForm Model="_defaultModel" ShowDefaultActions="false">
+            <LabelTemplate>
+                <span class="text-xs font-bold uppercase tracking-wider text-primary">@context.DisplayName</span>
+            </LabelTemplate>
+            <FieldTemplate>
+                <Input data-field-input="@context.PropertyName"
+                       Value="@GetValue(context.PropertyName)"
+                       Placeholder="@($"Enter {context.DisplayName}...")" />
+            </FieldTemplate>
+        </DataForm>
+        """;
+
+    public class CustomerModel
+    {
+        [System.ComponentModel.DataAnnotations.Display(Name = "Customer name", Order = 10)]
+        public string Name { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Display(Name = "Email address", Order = 20)]
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        public bool IsActive { get; set; }
+
+        [System.ComponentModel.DataAnnotations.Range(0, 10000)]
+        public decimal CreditLimit { get; set; }
+
+        public CustomerStatus Status { get; set; }
+
+        public int Age { get; set; }
+    }
+
+    public enum CustomerStatus
+    {
+        Active,
+        Inactive,
+        Pending
+    }
+}

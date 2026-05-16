@@ -8,16 +8,16 @@
 | **Namespace** | `LowlandTech.Components.Input` |
 | **Root Element** | `<input>` |
 | **data-slot** | `input` |
-| **Base Class** | `LtComponentBase` |
+| **Base Class** | `TinyComponentBase` |
 | **shadcn Reference** | https://ui.shadcn.com/docs/components/radix/input |
 
 ## Parameters
 
 | Parameter | Type | Default | Source |
 |-----------|------|---------|--------|
-| `Class` | `string?` | `null` | `LtComponentBase` |
-| `ChildContent` | `RenderFragment?` | `null` | `LtComponentBase` |
-| `AdditionalAttributes` | `Dictionary<string, object>?` | `null` | `LtComponentBase` |
+| `Class` | `string?` | `null` | `TinyComponentBase` |
+| `ChildContent` | `RenderFragment?` | `null` | `TinyComponentBase` |
+| `AdditionalAttributes` | `Dictionary<string, object>?` | `null` | `TinyComponentBase` |
 | `type` | `string?` | `null` | Component-specific |
 | `placeholder` | `string?` | `null` | Component-specific |
 

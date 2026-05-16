@@ -1,5 +1,5 @@
 namespace LowlandTech.Components.Sidebar;
 
-public partial class SidebarInset : LtComponentBase
+public partial class SidebarInset : TinyComponentBase
 {
 }

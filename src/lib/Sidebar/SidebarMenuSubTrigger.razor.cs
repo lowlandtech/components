@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Sidebar;
 
-public partial class SidebarMenuSubTrigger : LtComponentBase
+public partial class SidebarMenuSubTrigger : TinyComponentBase
 {
     [Parameter] public bool IsExpanded { get; set; }
     [Parameter] public EventCallback<bool> IsExpandedChanged { get; set; }

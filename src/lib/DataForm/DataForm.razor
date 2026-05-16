@@ -1,0 +1,85 @@
+@namespace LowlandTech.Components.DataForm
+@inherits TinyComponentBase
+
+<CascadingValue Value="_editContext">
+    <form data-slot="data-form"
+          data-layout="@Layout"
+          class="@GetClass()"
+          @attributes="AdditionalAttributes"
+          @onsubmit="HandleSubmit">
+
+        @if (ShowValidationSummary && _validationSummary.Count > 0)
+        {
+            <div data-slot="validation-summary" role="alert" class="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+                @foreach (var msg in _validationSummary)
+                {
+                    <div>@msg</div>
+                }
+            </div>
+        }
+
+        <div class="@GetFieldContainerClass()">
+            @foreach (var field in _fields)
+            {
+                var fieldId = $"dataform-field-{field.PropertyName}";
+                var validationId = $"{fieldId}-validation";
+                var fieldMessages = GetFieldMessages(field.PropertyName);
+                var hasErrors = fieldMessages.Count > 0;
+
+                <div data-field="@field.PropertyName" class="@GetFieldWrapperClass()">
+                    @if (LabelTemplate != null)
+                    {
+                        @LabelTemplate(field)
+                    }
+                    else
+                    {
+                        <label data-field-label="@field.PropertyName" for="@fieldId" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            @field.DisplayName
+                        </label>
+                    }
+
+                    @if (FieldTemplate != null)
+                    {
+                        @FieldTemplate(field)
+                    }
+                    else if (ReadOnly || field.ReadOnly)
+                    {
+                        <div data-field-readonly="@field.PropertyName" class="rounded-md border border-input bg-muted px-3 py-2 text-sm text-muted-foreground">
+                            @GetDisplayValue(field.PropertyName)
+                        </div>
+                    }
+                    else
+                    {
+                        @RenderInput(field, fieldId, hasErrors)
+                    }
+
+                    @if (ValidationTemplate != null)
+                    {
+                        @ValidationTemplate(field)
+                    }
+                    else if (hasErrors)
+                    {
+                        <div data-field-validation="@field.PropertyName" id="@validationId" class="text-sm font-medium text-destructive" role="alert">
+                            @foreach (var msg in fieldMessages)
+                            {
+                                <div>@msg</div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        @if (ActionsTemplate != null)
+        {
+            @ActionsTemplate(this)
+        }
+        else if (ShowDefaultActions)
+        {
+            <div data-slot="data-form-actions" class="flex gap-2">
+                <Button Type="submit">Submit</Button>
+                <Button Type="button" Variant="outline" @onclick="ResetModel">Reset</Button>
+            </div>
+        }
+    </form>
+</CascadingValue>

@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.NativeSelect;
 
-public partial class NativeSelect : LtComponentBase
+public partial class NativeSelect : TinyComponentBase
 {
     [Parameter] public string? size { get; set; }
 }

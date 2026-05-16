@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Dialog;
 
-public partial class Dialog : LtComponentBase
+public partial class Dialog : TinyComponentBase
 {
 }

@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Separator;
 
-public partial class Separator : LtComponentBase
+public partial class Separator : TinyComponentBase
 {
     [Parameter] public string? orientation { get; set; }
 }

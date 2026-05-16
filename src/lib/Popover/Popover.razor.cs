@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Popover;
 
-public partial class Popover : LtComponentBase
+public partial class Popover : TinyComponentBase
 {
     private bool _previousIsOpen;
 

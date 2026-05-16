@@ -572,6 +572,77 @@
     @apply whitespace-nowrap;
   }
 
+  .cn-data-grid-detail-row {
+    @apply border-b border-border bg-muted/30;
+  }
+
+  .cn-data-grid-detail-cell {
+    @apply p-4;
+  }
+
+  .cn-data-grid-footer {
+    @apply border-t bg-muted/50;
+  }
+
+  .cn-data-grid-footer-cell {
+    @apply px-3 py-2 text-sm text-muted-foreground;
+  }
+
+  .cn-data-grid-expand-cell {
+    @apply w-8 text-center;
+  }
+
+  .cn-data-grid-expand-button {
+    @apply inline-flex h-6 w-6 items-center justify-center rounded-sm text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground;
+  }
+
+  .cn-data-grid[data-density="compact"] .cn-data-grid-row {
+    @apply h-7;
+  }
+
+  .cn-data-grid[data-density="compact"] .cn-data-grid-head {
+    @apply h-6 px-2 text-xs;
+  }
+
+  .cn-data-grid[data-density="compact"] .cn-data-grid-cell {
+    @apply px-2 py-1 text-xs;
+  }
+
+  .cn-data-grid[data-density="comfortable"] .cn-data-grid-row {
+    @apply h-12;
+  }
+
+  .cn-data-grid[data-density="comfortable"] .cn-data-grid-head {
+    @apply h-10 px-4;
+  }
+
+  .cn-data-grid[data-density="comfortable"] .cn-data-grid-cell {
+    @apply px-4 py-3;
+  }
+
+  .cn-data-grid[data-grid-lines="none"] .cn-data-grid-table,
+  .cn-data-grid[data-grid-lines="none"] .cn-data-grid-row,
+  .cn-data-grid[data-grid-lines="none"] .cn-data-grid-head,
+  .cn-data-grid[data-grid-lines="none"] .cn-data-grid-cell {
+    @apply border-0;
+  }
+
+  .cn-data-grid[data-grid-lines="vertical"] .cn-data-grid-row,
+  .cn-data-grid[data-grid-lines="vertical"] .cn-data-grid-head,
+  .cn-data-grid[data-grid-lines="vertical"] .cn-data-grid-body {
+    @apply border-b-0;
+  }
+
+  .cn-data-grid[data-grid-lines="vertical"] .cn-data-grid-head,
+  .cn-data-grid[data-grid-lines="vertical"] .cn-data-grid-cell {
+    @apply border-r border-border;
+  }
+
+  .cn-data-grid[data-grid-lines="both"] .cn-data-grid-head,
+  .cn-data-grid[data-grid-lines="both"] .cn-data-grid-cell {
+    @apply border-r border-border;
+  }
+
   /* Tabs Component Styles */
   .cn-tabs-list[data-variant="line"] .cn-tabs-trigger[data-state="active"] {
     border-bottom: 2px solid currentColor;

@@ -26,15 +26,14 @@
             "Boundary",
             @<div class="flex gap-4 flex-wrap">
                 <ThemeProvider Id="tp-a" Theme="Ocean"
-                               Class="flex-1 min-w-64 rounded-xl border p-4"
-                               style="background:var(--background);color:var(--foreground);border-color:var(--border)">
+                               Class="flex-1 min-w-64 rounded-xl border p-4 bg-background text-foreground">
                     <div class="flex items-center justify-between mb-3">
                         <Badge>@Label("tp-a")</Badge>
                         <ThemeToggle AriaLabel="Cycle theme" />
                     </div>
                     <div class="space-y-2">
                         <p class="text-sm font-medium">Ocean boundary</p>
-                        <p class="text-xs" style="color:var(--muted-foreground)">Tokens are scoped to this element's subtree. Toggling cycles only this provider.</p>
+                        <p class="text-xs text-muted-foreground">Tokens are scoped to this element's subtree. Toggling cycles only this provider.</p>
                         <div class="flex gap-2 pt-1">
                             <Button Variant="default" Size="sm">Primary</Button>
                             <Button Variant="outline" Size="sm">Outline</Button>
@@ -43,15 +42,14 @@
                 </ThemeProvider>
 
                 <ThemeProvider Id="tp-b" Theme="Rose"
-                               Class="flex-1 min-w-64 rounded-xl border p-4"
-                               style="background:var(--background);color:var(--foreground);border-color:var(--border)">
+                               Class="flex-1 min-w-64 rounded-xl border p-4 bg-background text-foreground">
                     <div class="flex items-center justify-between mb-3">
                         <Badge>@Label("tp-b")</Badge>
                         <ThemeToggle AriaLabel="Cycle theme" />
                     </div>
                     <div class="space-y-2">
                         <p class="text-sm font-medium">Rose boundary</p>
-                        <p class="text-xs" style="color:var(--muted-foreground)">Independent theme state. Cycling here does not affect the adjacent provider.</p>
+                        <p class="text-xs text-muted-foreground">Independent theme state. Cycling here does not affect the adjacent provider.</p>
                         <div class="flex gap-2 pt-1">
                             <Button Variant="default" Size="sm">Primary</Button>
                             <Button Variant="outline" Size="sm">Outline</Button>
@@ -65,15 +63,13 @@
             "nested",
             "Nested",
             @<ThemeProvider Id="tp-outer" Theme="Forest"
-                            Class="rounded-xl border p-4"
-                            style="background:var(--background);color:var(--foreground);border-color:var(--border)">
+                            Class="rounded-xl border p-4 bg-background text-foreground">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-xs font-semibold">Outer: @Label("tp-outer")</span>
                     <ThemeToggle AriaLabel="Cycle outer" />
                 </div>
                 <ThemeProvider Id="tp-inner" Theme="Dark"
-                               Class="rounded-lg border p-3"
-                               style="background:var(--background);color:var(--foreground);border-color:var(--border)">
+                               Class="rounded-lg border p-3 bg-background text-foreground">
                     <div class="flex items-center justify-between mb-3">
                         <span class="text-xs font-semibold">Inner: @Label("tp-inner")</span>
                         <ThemeToggle AriaLabel="Cycle inner" />

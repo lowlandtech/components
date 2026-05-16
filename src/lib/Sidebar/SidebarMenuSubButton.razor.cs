@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Components;
-
 namespace LowlandTech.Components.Sidebar;
 
-public partial class SidebarMenuSubButton : LtComponentBase
+public partial class SidebarMenuSubButton : TinyComponentBase
 {
     [Parameter] public bool IsActive { get; set; }
 }
