@@ -32,6 +32,7 @@
         new("package.json", "package.json", [])
     ];
 
+    private static readonly IReadOnlyList<string> _expandedKeysStory = new[] { "src" };
     private IReadOnlyList<string> _selectedKeys = [];
     private IReadOnlyList<string> _checkedKeys = [];
 
@@ -78,7 +79,7 @@
                           GetChildren="f => f.Children"
                           GetKey="f => f.Id"
                           HasChildren="f => f.Children.Count > 0"
-                          ExpandedKeys="new[] { "src" }"
+                          ExpandedKeys="_expandedKeysStory"
                           class="space-y-1" />
             </div>,
             []),
@@ -95,7 +96,7 @@
                           SelectionMode="TreeViewSelectionMode.Single"
                           SelectedKeys="_selectedKeys"
                           SelectedKeysChanged="keys => _selectedKeys = keys.ToList()"
-                          ExpandedKeys="new[] { "src" }"
+                          ExpandedKeys="_expandedKeysStory"
                           class="space-y-1" />
             </div>,
             []),
@@ -112,7 +113,7 @@
                           CheckMode="TreeViewCheckMode.Checkbox"
                           CheckedKeys="_checkedKeys"
                           CheckedKeysChanged="keys => _checkedKeys = keys.ToList()"
-                          ExpandedKeys="new[] { "src" }"
+                          ExpandedKeys="_expandedKeysStory"
                           class="space-y-1" />
             </div>,
             []),
@@ -129,7 +130,7 @@
                           CheckMode="TreeViewCheckMode.TriState"
                           CheckedKeys="_checkedKeys"
                           CheckedKeysChanged="keys => _checkedKeys = keys.ToList()"
-                          ExpandedKeys="new[] { "src" }"
+                          ExpandedKeys="_expandedKeysStory"
                           class="space-y-1" />
             </div>,
             [])
