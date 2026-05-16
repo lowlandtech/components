@@ -43,7 +43,8 @@ public class SC01_RenderSkeleton : ViewScenario
         var cut = Ctx.Render<SkeletonSut>();
         var element = cut.Find("[data-slot='skeleton']");
 
-        element.ClassList.ShouldContain("cn-skeleton");
+        element.ClassList.ShouldContain("bg-muted");
+        element.ClassList.ShouldContain("rounded-md");
         element.ClassList.ShouldContain("animate-pulse");
     }
 }
