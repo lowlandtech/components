@@ -36,7 +36,8 @@
      aria-selected="@((selected && Parent.SelectionMode != TreeViewSelectionMode.None).ToString().ToLowerInvariant())"
      tabindex="@(focused ? 0 : -1)"
      @onclick="HandleClick"
-     @ondblclick="HandleDoubleClick">
+     @ondblclick="HandleDoubleClick"
+     @ondblclick:stopPropagation>
 
     @if (Parent.ItemTemplate != null)
     {
@@ -68,8 +69,9 @@
                        class="lt-tree-node-checkbox"
                        checked="@checkedState"
                        data-indeterminate="@(indeterminate ? "true" : "false")"
+                       @onclick:preventDefault
                        @onclick:stopPropagation
-                       @onchange="() => ctx.ToggleCheck()" />
+                       @onclick="() => ctx.ToggleCheck()" />
             }
 
             @if (Parent.BodyContent != null)

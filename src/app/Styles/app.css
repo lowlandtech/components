@@ -576,12 +576,29 @@ html:hover                             { scrollbar-color: var(--border) transpar
     color: #a5d6ff;
   }
 
+  .story-card-token-attribute {
+    color: #d2a8ff;
+  }
+
+  .story-card-token-razor {
+    color: #ffa657;
+  }
+
   .story-card-token-keyword {
     color: #ff7b72;
   }
 
   .story-card-token-type {
     color: #ffa657;
+  }
+
+  .story-card-token-comment {
+    color: #8b949e;
+    font-style: italic;
+  }
+
+  .story-card-token-number {
+    color: #79c0ff;
   }
 
   /* ButtonGroup Component Styles */

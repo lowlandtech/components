@@ -68,7 +68,10 @@
                     </ItemTemplate>
                 </TreeView>
             </div>,
-            []),
+            [
+                new StoryCard.CodeTab("default-razor", "TreeViewStory.razor", DefaultRazor),
+                new StoryCard.CodeTab("default-cs", "FileItem.cs", FileItemCode, "csharp")
+            ]),
 
         new(
             "default-template",
@@ -83,7 +86,10 @@
                           ExpandedKeys="_expandedKeysStory"
                           class="space-y-1" />
             </div>,
-            []),
+            [
+                new StoryCard.CodeTab("template-razor", "TreeViewStory.razor", TemplateRazor),
+                new StoryCard.CodeTab("template-cs", "FileItem.cs", FileItemCode, "csharp")
+            ]),
 
         new(
             "selection",
@@ -101,7 +107,10 @@
                           ExpandedKeys="_expandedKeysStory"
                           class="space-y-1" />
             </div>,
-            []),
+            [
+                new StoryCard.CodeTab("selection-razor", "TreeViewStory.razor", SelectionRazor),
+                new StoryCard.CodeTab("selection-cs", "FileItem.cs", FileItemCode, "csharp")
+            ]),
 
         new(
             "checkbox",
@@ -119,7 +128,10 @@
                           ExpandedKeys="_expandedKeysStory"
                           class="space-y-1" />
             </div>,
-            []),
+            [
+                new StoryCard.CodeTab("checkbox-razor", "TreeViewStory.razor", CheckboxRazor),
+                new StoryCard.CodeTab("checkbox-cs", "FileItem.cs", FileItemCode, "csharp")
+            ]),
 
         new(
             "tristate",
@@ -137,6 +149,100 @@
                           ExpandedKeys="_expandedKeysStory"
                           class="space-y-1" />
             </div>,
-            [])
+            [
+                new StoryCard.CodeTab("tristate-razor", "TreeViewStory.razor", TriStateRazor),
+                new StoryCard.CodeTab("tristate-cs", "FileItem.cs", FileItemCode, "csharp")
+            ])
     ];
+
+    private const string FileItemCode =
+        """
+        private sealed record FileItem(string Id, string Name, IReadOnlyList<FileItem> Children);
+        """;
+
+    private const string DefaultRazor =
+        """
+        <TreeView TItem="FileItem"
+                  Items="RootItems"
+                  GetChildren="f => f.Children"
+                  GetKey="f => f.Id"
+                  HasChildren="f => f.Children.Count > 0"
+                  class="space-y-1">
+            <ItemTemplate Context="ctx">
+                <div class="flex items-center gap-2"
+                     style="padding-left: @(ctx.Depth * 16 + 8)px">
+                    @if (ctx.HasChildren)
+                    {
+                        <svg class="transition-transform @(ctx.IsExpanded ? "rotate-90" : "")"
+                             width="14" height="14" viewBox="0 0 24 24">
+                            <path d="m9 18 6-6-6-6"/>
+                        </svg>
+                    }
+                    else
+                    {
+                        <span class="w-3.5"></span>
+                    }
+                    <Icon Name="@GetIcon(ctx.Item)" Size="14" />
+                    <span class="text-sm">@ctx.Item.Name</span>
+                </div>
+            </ItemTemplate>
+        </TreeView>
+        """;
+
+    private const string TemplateRazor =
+        """
+        <TreeView TItem="FileItem"
+                  Items="RootItems"
+                  GetChildren="f => f.Children"
+                  GetKey="f => f.Id"
+                  HasChildren="f => f.Children.Count > 0"
+                  GetText="f => f.Name"
+                  ExpandedKeys="_expandedKeysStory"
+                  class="space-y-1" />
+        """;
+
+    private const string SelectionRazor =
+        """
+        <TreeView TItem="FileItem"
+                  Items="RootItems"
+                  GetChildren="f => f.Children"
+                  GetKey="f => f.Id"
+                  HasChildren="f => f.Children.Count > 0"
+                  GetText="f => f.Name"
+                  SelectionMode="TreeViewSelectionMode.Single"
+                  SelectedKeys="_selectedKeys"
+                  SelectedKeysChanged="keys => _selectedKeys = keys.ToList()"
+                  ExpandedKeys="_expandedKeysStory"
+                  class="space-y-1" />
+        """;
+
+    private const string CheckboxRazor =
+        """
+        <TreeView TItem="FileItem"
+                  Items="RootItems"
+                  GetChildren="f => f.Children"
+                  GetKey="f => f.Id"
+                  HasChildren="f => f.Children.Count > 0"
+                  GetText="f => f.Name"
+                  CheckMode="TreeViewCheckMode.Checkbox"
+                  CheckedKeys="_checkedKeys"
+                  CheckedKeysChanged="keys => _checkedKeys = keys.ToList()"
+                  ExpandedKeys="_expandedKeysStory"
+                  class="space-y-1" />
+        """;
+
+    private const string TriStateRazor =
+        """
+        <TreeView TItem="FileItem"
+                  Items="RootItems"
+                  GetChildren="f => f.Children"
+                  GetKey="f => f.Id"
+                  HasChildren="f => f.Children.Count > 0"
+                  GetText="f => f.Name"
+                  CheckMode="TreeViewCheckMode.TriState"
+                  CheckedKeys="_checkedKeys"
+                  CheckedKeysChanged="keys => _checkedKeys = keys.ToList()"
+                  ExpandedKeys="_expandedKeysStory"
+                  class="space-y-1" />
+        """;
 }

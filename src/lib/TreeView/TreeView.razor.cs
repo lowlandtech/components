@@ -56,10 +56,65 @@ public partial class TreeView<TItem> : TinyComponentBase
     private bool _selectedKeysBound;
     private bool _checkedKeysBound;
 
+    // Tracks depth of each expanded key for SingleExpand sibling logic
+    private readonly Dictionary<string, int> _expandedKeyDepths = new();
+
     internal string GetItemKey(TItem item)
     {
         if (GetKey != null) return GetKey(item);
         return item?.GetHashCode().ToString() ?? string.Empty;
+    }
+
+    private int GetDepth(TItem item)
+    {
+        foreach (var root in Items)
+        {
+            var depth = GetDepthRecursive(root, item, 0);
+            if (depth >= 0) return depth;
+        }
+        return 0;
+    }
+
+    private int GetDepthRecursive(TItem current, TItem target, int currentDepth)
+    {
+        if (EqualityComparer<TItem>.Default.Equals(current, target))
+            return currentDepth;
+
+        var children = GetChildren(current);
+        if (children == null) return -1;
+
+        foreach (var child in children)
+        {
+            var found = GetDepthRecursive(child, target, currentDepth + 1);
+            if (found >= 0) return found;
+        }
+        return -1;
+    }
+
+    private int GetDepthByKey(string key)
+    {
+        foreach (var root in Items)
+        {
+            var depth = GetDepthByKeyRecursive(root, key, 0);
+            if (depth >= 0) return depth;
+        }
+        return 0;
+    }
+
+    private int GetDepthByKeyRecursive(TItem current, string key, int currentDepth)
+    {
+        if (GetItemKey(current) == key)
+            return currentDepth;
+
+        var children = GetChildren(current);
+        if (children == null) return -1;
+
+        foreach (var child in children)
+        {
+            var found = GetDepthByKeyRecursive(child, key, currentDepth + 1);
+            if (found >= 0) return found;
+        }
+        return -1;
     }
 
     internal bool IsItemExpanded(TItem item)
@@ -88,9 +143,19 @@ public partial class TreeView<TItem> : TinyComponentBase
             if (!_expandedKeysBound || !ReferenceEquals(_lastExpandedKeys, ExpandedKeys))
             {
                 _expandedKeys = new HashSet<string>(ExpandedKeys);
+                _expandedKeyDepths.Clear();
+                foreach (var k in _expandedKeys)
+                    _expandedKeyDepths[k] = GetDepthByKey(k);
                 _lastExpandedKeys = ExpandedKeys;
                 _expandedKeysBound = true;
             }
+        }
+        else if (_expandedKeysBound)
+        {
+            _expandedKeys.Clear();
+            _expandedKeyDepths.Clear();
+            _lastExpandedKeys = null;
+            _expandedKeysBound = false;
         }
 
         // Bind controlled SelectedKeys / SelectedKey only when the parameter reference changes
@@ -112,6 +177,13 @@ public partial class TreeView<TItem> : TinyComponentBase
                 _selectedKeysBound = true;
             }
         }
+        else if (_selectedKeysBound)
+        {
+            _selectedKeys.Clear();
+            _lastSelectedKeys = null;
+            _lastSelectedKey = null;
+            _selectedKeysBound = false;
+        }
 
         // Bind controlled CheckedKeys only when the parameter reference changes
         if (CheckedKeys != null)
@@ -123,23 +195,44 @@ public partial class TreeView<TItem> : TinyComponentBase
                 _checkedKeysBound = true;
             }
         }
+        else if (_checkedKeysBound)
+        {
+            _checkedKeys.Clear();
+            _lastCheckedKeys = null;
+            _checkedKeysBound = false;
+        }
     }
 
     internal void ToggleExpand(TItem item)
     {
         var key = GetItemKey(item);
         var expanding = !_expandedKeys.Contains(key);
+        var depth = GetDepth(item);
 
         if (SingleExpand && expanding)
         {
-            // Collapse siblings at the same depth
-            _expandedKeys.RemoveWhere(k => k != key);
+            // Collapse siblings at the same depth only
+            var keysToRemove = _expandedKeyDepths
+                .Where(kv => kv.Value == depth && kv.Key != key)
+                .Select(kv => kv.Key)
+                .ToList();
+            foreach (var k in keysToRemove)
+            {
+                _expandedKeys.Remove(k);
+                _expandedKeyDepths.Remove(k);
+            }
         }
 
         if (expanding)
+        {
             _expandedKeys.Add(key);
+            _expandedKeyDepths[key] = depth;
+        }
         else
+        {
             _expandedKeys.Remove(key);
+            _expandedKeyDepths.Remove(key);
+        }
 
         ExpandedKeysChanged.InvokeAsync(_expandedKeys.ToList());
         ExpandedChanged.InvokeAsync(new TreeViewExpandEventArgs<TItem>
@@ -157,35 +250,45 @@ public partial class TreeView<TItem> : TinyComponentBase
         if (SelectionMode == TreeViewSelectionMode.None) return;
 
         bool selected;
+        bool stateChanged;
         if (SelectionMode == TreeViewSelectionMode.Single)
         {
             selected = true;
-            _selectedKeys.Clear();
-            _selectedKeys.Add(key);
+            stateChanged = _selectedKeys.Count != 1 || !_selectedKeys.Contains(key);
+            if (stateChanged)
+            {
+                _selectedKeys.Clear();
+                _selectedKeys.Add(key);
+            }
         }
         else if (SelectionMode == TreeViewSelectionMode.Toggle)
         {
             selected = !_selectedKeys.Remove(key);
             if (selected) _selectedKeys.Add(key);
+            stateChanged = true; // toggle always changes state
         }
         else // Multi
         {
             selected = !_selectedKeys.Remove(key);
             if (selected) _selectedKeys.Add(key);
+            stateChanged = true; // multi always changes state
         }
 
-        SelectedKeysChanged.InvokeAsync(_selectedKeys.ToList());
-        if (_selectedKeys.Count == 1)
-            SelectedKeyChanged.InvokeAsync(_selectedKeys.First());
-        else
-            SelectedKeyChanged.InvokeAsync(null);
-
-        SelectedChanged.InvokeAsync(new TreeViewSelectEventArgs<TItem>
+        if (stateChanged)
         {
-            Item = item,
-            Key = key,
-            Selected = selected
-        });
+            SelectedKeysChanged.InvokeAsync(_selectedKeys.ToList());
+            if (_selectedKeys.Count == 1)
+                SelectedKeyChanged.InvokeAsync(_selectedKeys.First());
+            else
+                SelectedKeyChanged.InvokeAsync(null);
+
+            SelectedChanged.InvokeAsync(new TreeViewSelectEventArgs<TItem>
+            {
+                Item = item,
+                Key = key,
+                Selected = selected
+            });
+        }
 
         if (AutoExpand && selected)
         {
@@ -225,9 +328,13 @@ public partial class TreeView<TItem> : TinyComponentBase
         else
             _checkedKeys.Remove(key);
 
-        foreach (var child in GetChildren(item))
+        var children = GetChildren(item);
+        if (children != null)
         {
-            ApplyCheckRecursive(child, checking);
+            foreach (var child in children)
+            {
+                ApplyCheckRecursive(child, checking);
+            }
         }
     }
 
@@ -244,7 +351,7 @@ public partial class TreeView<TItem> : TinyComponentBase
 
     private bool SyncParentCheckState(TItem item)
     {
-        var children = GetChildren(item).ToList();
+        var children = GetChildren(item)?.ToList() ?? new List<TItem>();
         if (children.Count == 0) return _checkedKeys.Contains(GetItemKey(item));
 
         var childStates = children.Select(SyncParentCheckState).ToList();
@@ -267,7 +374,7 @@ public partial class TreeView<TItem> : TinyComponentBase
     internal bool IsIndeterminate(TItem item)
     {
         if (CheckMode != TreeViewCheckMode.TriState) return false;
-        var children = GetChildren(item).ToList();
+        var children = GetChildren(item)?.ToList() ?? new List<TItem>();
         if (children.Count == 0) return false;
 
         var key = GetItemKey(item);
@@ -292,11 +399,15 @@ public partial class TreeView<TItem> : TinyComponentBase
         if (EqualityComparer<TItem>.Default.Equals(current, target))
             return true;
 
-        foreach (var child in GetChildren(current))
+        var children = GetChildren(current);
+        if (children == null) return false;
+
+        foreach (var child in children)
         {
             if (ExpandPath(child, target))
             {
                 _expandedKeys.Add(GetItemKey(current));
+                _expandedKeyDepths[GetItemKey(current)] = GetDepth(current);
                 return true;
             }
         }
@@ -316,6 +427,7 @@ public partial class TreeView<TItem> : TinyComponentBase
         var focusedIndex = visible.FindIndex(i => GetItemKey(i) == _focusedKey);
         if (focusedIndex < 0) focusedIndex = 0;
 
+        var handled = true;
         switch (e.Key)
         {
             case "ArrowDown":
@@ -359,9 +471,15 @@ public partial class TreeView<TItem> : TinyComponentBase
             case " ":
                 SelectNode(visible[focusedIndex]);
                 break;
+            default:
+                handled = false;
+                break;
         }
 
-        StateHasChanged();
+        if (handled)
+        {
+            StateHasChanged();
+        }
     }
 
     private IEnumerable<TItem> GetVisibleItems()
@@ -378,10 +496,14 @@ public partial class TreeView<TItem> : TinyComponentBase
         yield return item;
         if (IsItemExpanded(item))
         {
-            foreach (var child in GetChildren(item))
+            var children = GetChildren(item);
+            if (children != null)
             {
-                foreach (var descendant in GetVisibleDescendants(child))
-                    yield return descendant;
+                foreach (var child in children)
+                {
+                    foreach (var descendant in GetVisibleDescendants(child))
+                        yield return descendant;
+                }
             }
         }
     }
@@ -398,7 +520,10 @@ public partial class TreeView<TItem> : TinyComponentBase
 
     private TItem? FindParentRecursive(TItem current, TItem target)
     {
-        foreach (var child in GetChildren(current))
+        var children = GetChildren(current);
+        if (children == null) return default;
+
+        foreach (var child in children)
         {
             if (EqualityComparer<TItem>.Default.Equals(child, target))
                 return current;
@@ -413,7 +538,11 @@ public partial class TreeView<TItem> : TinyComponentBase
         foreach (var item in GetAllItems())
         {
             if (NodeHasChildren(item))
-                _expandedKeys.Add(GetItemKey(item));
+            {
+                var key = GetItemKey(item);
+                _expandedKeys.Add(key);
+                _expandedKeyDepths[key] = GetDepth(item);
+            }
         }
         await ExpandedKeysChanged.InvokeAsync(_expandedKeys.ToList());
         await InvokeAsync(StateHasChanged);
@@ -438,7 +567,10 @@ public partial class TreeView<TItem> : TinyComponentBase
 
     private IEnumerable<TItem> GetAllDescendants(TItem item)
     {
-        foreach (var child in GetChildren(item))
+        var children = GetChildren(item);
+        if (children == null) yield break;
+
+        foreach (var child in children)
         {
             yield return child;
             foreach (var descendant in GetAllDescendants(child))
@@ -446,18 +578,20 @@ public partial class TreeView<TItem> : TinyComponentBase
         }
     }
 
-    internal bool MatchesFilter(TItem item)
+    public bool MatchesFilter(TItem item)
     {
         if (string.IsNullOrWhiteSpace(FilterQuery)) return true;
         var text = GetText?.Invoke(item) ?? item?.ToString() ?? string.Empty;
         return text.Contains(FilterQuery, StringComparison.OrdinalIgnoreCase);
     }
 
-    internal bool IsVisibleInFilter(TItem item)
+    public bool IsVisibleInFilter(TItem item)
     {
         if (string.IsNullOrWhiteSpace(FilterQuery)) return true;
         if (MatchesFilter(item)) return true;
         // Show if any descendant matches
-        return GetChildren(item).Any(child => IsVisibleInFilter(child) || MatchesFilter(child));
+        var children = GetChildren(item);
+        if (children == null) return false;
+        return children.Any(child => IsVisibleInFilter(child));
     }
 }

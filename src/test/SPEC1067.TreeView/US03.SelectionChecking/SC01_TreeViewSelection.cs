@@ -81,29 +81,37 @@ public class SC01_TreeViewSelection : ViewScenario
         cut.Find("[data-tree-node='b']").ClassList.ShouldContain("lt-tree-node-selected");
     }
 
-    [Fact(DisplayName = "UAC11: checkbox checking cascades to children")]
+    [Fact(DisplayName = "UAC11: checkbox checks only the clicked node")]
     [Trait(Spec.UAC, "11")]
-    public void UAC11_CheckboxCascadesToChildren()
+    public void UAC11_CheckboxChecksOnlyClickedNode()
     {
-        var cut = RenderTree(checkMode: TreeViewCheckMode.Checkbox, checkedKeys: []);
+        var cut = RenderTree(checkMode: TreeViewCheckMode.Checkbox, checkedKeys: [], expandedKeys: ["a"]);
         var checkbox = cut.Find("[data-tree-node='a'] .lt-tree-node-checkbox");
-        checkbox.Change(true);
+        checkbox.Click();
+        cut.Render();
 
-        // In checkbox mode without tri-state, just the clicked node is checked
-        // Tri-state is tested separately
+        // In checkbox mode, only the clicked node is checked (no cascade)
+        var aCheckbox = cut.Find("[data-tree-node='a'] .lt-tree-node-checkbox");
+        aCheckbox.GetAttribute("checked").ShouldNotBeNull();
+        var a1Checkbox = cut.Find("[data-tree-node='a1'] .lt-tree-node-checkbox");
+        a1Checkbox.GetAttribute("checked").ShouldBeNull();
     }
 
-    [Fact(DisplayName = "UAC14: tri-state checks child only")]
+    [Fact(DisplayName = "UAC14: tri-state parent becomes indeterminate when child checked")]
     [Trait(Spec.UAC, "14")]
     public void UAC14_TriStateChildCheck()
     {
         var cut = RenderTree(checkMode: TreeViewCheckMode.TriState, checkedKeys: [], expandedKeys: ["a"]);
         var checkbox = cut.Find("[data-tree-node='a1'] .lt-tree-node-checkbox");
-        checkbox.Change(true);
+        checkbox.Click();
         cut.Render();
+
+        // Child should be checked
+        var a1Checkbox = cut.Find("[data-tree-node='a1'] .lt-tree-node-checkbox");
+        a1Checkbox.GetAttribute("checked").ShouldNotBeNull();
 
         // Parent should become indeterminate
         var parentCheckbox = cut.Find("[data-tree-node='a'] .lt-tree-node-checkbox");
-        parentCheckbox.GetAttribute("data-indeterminate").ShouldNotBe("false");
+        parentCheckbox.GetAttribute("data-indeterminate").ShouldBe("true");
     }
 }

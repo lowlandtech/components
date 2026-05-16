@@ -713,6 +713,32 @@
     @apply text-foreground;
   }
 
+  /* AppLayout Component Styles */
+  .lt-app-layout {
+    container-type: inline-size;
+  }
+
+  .lt-app-layout-grid {
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    align-items: stretch;
+  }
+
+  .lt-app-layout-slot {
+    min-width: 0;
+    min-height: 0;
+  }
+
+  .lt-app-layout-topbar,
+  .lt-app-layout-footer {
+    grid-column: 1 / -1;
+  }
+
+  .lt-app-layout-main,
+  .lt-app-layout-sidebar,
+  .lt-app-layout-aside {
+    min-height: 0;
+  }
+
   /* Popover Component Styles */
   .cn-popover-content-outline {
     @apply rounded-md border border-border bg-popover p-4 text-popover-foreground shadow-md;
