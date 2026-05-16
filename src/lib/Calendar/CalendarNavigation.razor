@@ -3,19 +3,22 @@
 
 <div data-slot="calendar-navigation" class="cn-calendar-header flex items-center justify-between px-2 py-1">
     <div class="flex items-center gap-1">
-        <button type="button" 
-                data-slot="calendar-nav-prev-year"
-                class="cn-calendar-nav-button cn-calendar-nav-prev-year p-1 hover:bg-muted rounded"
-                @onclick="OnPreviousYear">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cn-rtl-flip">
-                <path d="m11 17-5-5 5-5" />
-                <path d="m18 17-5-5 5-5" />
-            </svg>
-        </button>
+        @if (ShowYearNav)
+        {
+            <button type="button" 
+                    data-slot="calendar-nav-prev-year"
+                    class="cn-calendar-nav-button cn-calendar-nav-prev-year p-1 hover:bg-muted rounded"
+                    @onclick="OnPreviousYear">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cn-rtl-flip">
+                    <path d="m11 17-5-5 5-5" />
+                    <path d="m18 17-5-5 5-5" />
+                </svg>
+            </button>
+        }
         <button type="button" 
                 data-slot="calendar-nav-prev"
                 class="cn-calendar-nav-button cn-calendar-nav-prev p-1 hover:bg-muted rounded"
-                @onclick="OnPreviousMonth">
+                @onclick="OnPrevious">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cn-rtl-flip">
                 <path d="m15 18-6-6 6-6" />
             </svg>
@@ -53,29 +56,44 @@
     }
     else
     {
-        <span data-slot="calendar-caption" class="cn-calendar-caption font-medium">
-            @CurrentMonth.ToString("MMMM yyyy")
-        </span>
+        @if (AllowViewZoom && View != CalendarView.Years)
+        {
+            <button type="button"
+                    data-slot="calendar-caption"
+                    class="cn-calendar-caption font-medium hover:bg-muted rounded px-2 py-0.5 transition-colors"
+                    @onclick="OnZoomOut">
+                @CaptionText
+            </button>
+        }
+        else
+        {
+            <span data-slot="calendar-caption" class="cn-calendar-caption font-medium">
+                @CaptionText
+            </span>
+        }
     }
     
     <div class="flex items-center gap-1">
         <button type="button" 
                 data-slot="calendar-nav-next"
                 class="cn-calendar-nav-button cn-calendar-nav-next p-1 hover:bg-muted rounded"
-                @onclick="OnNextMonth">
+                @onclick="OnNext">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cn-rtl-flip">
                 <path d="m9 18 6-6-6-6" />
             </svg>
         </button>
-        <button type="button" 
-                data-slot="calendar-nav-next-year"
-                class="cn-calendar-nav-button cn-calendar-nav-next-year p-1 hover:bg-muted rounded"
-                @onclick="OnNextYear">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cn-rtl-flip">
-                <path d="m13 17 5-5-5-5" />
-                <path d="m6 17 5-5-5-5" />
-            </svg>
-        </button>
+        @if (ShowYearNav)
+        {
+            <button type="button" 
+                    data-slot="calendar-nav-next-year"
+                    class="cn-calendar-nav-button cn-calendar-nav-next-year p-1 hover:bg-muted rounded"
+                    @onclick="OnNextYear">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cn-rtl-flip">
+                    <path d="m13 17 5-5-5-5" />
+                    <path d="m6 17 5-5-5-5" />
+                </svg>
+            </button>
+        }
     </div>
 </div>
 
@@ -83,12 +101,40 @@
     [Parameter] public DateTime CurrentMonth { get; set; }
     [Parameter] public bool ShowMonthDropdown { get; set; }
     [Parameter] public bool ShowYearDropdown { get; set; }
+    [Parameter] public bool AllowViewZoom { get; set; }
+    [Parameter] public CalendarView View { get; set; } = CalendarView.Days;
     [Parameter] public EventCallback OnPreviousMonth { get; set; }
     [Parameter] public EventCallback OnNextMonth { get; set; }
     [Parameter] public EventCallback OnPreviousYear { get; set; }
     [Parameter] public EventCallback OnNextYear { get; set; }
+    [Parameter] public EventCallback OnPreviousRange { get; set; }
+    [Parameter] public EventCallback OnNextRange { get; set; }
     [Parameter] public EventCallback<int> OnMonthSelected { get; set; }
     [Parameter] public EventCallback<int> OnYearSelected { get; set; }
+    [Parameter] public EventCallback OnZoomOut { get; set; }
+
+    private bool ShowYearNav => View == CalendarView.Days;
+
+    private string CaptionText => View switch
+    {
+        CalendarView.Months => CurrentMonth.ToString("yyyy"),
+        CalendarView.Years => $"{CurrentMonth.Year - 5} - {CurrentMonth.Year + 6}",
+        _ => CurrentMonth.ToString("MMMM yyyy")
+    };
+
+    private Task OnPrevious() => View switch
+    {
+        CalendarView.Years => OnPreviousRange.InvokeAsync(),
+        CalendarView.Months => OnPreviousYear.InvokeAsync(),
+        _ => OnPreviousMonth.InvokeAsync()
+    };
+
+    private Task OnNext() => View switch
+    {
+        CalendarView.Years => OnNextRange.InvokeAsync(),
+        CalendarView.Months => OnNextYear.InvokeAsync(),
+        _ => OnNextMonth.InvokeAsync()
+    };
 
     private IEnumerable<int> GetSelectableYears()
     {

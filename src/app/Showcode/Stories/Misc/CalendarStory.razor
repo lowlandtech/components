@@ -81,6 +81,15 @@
             </div>,
             [
                 new StoryCard.CodeTab("no-outside-razor", "CalendarStory.razor", NoOutsideRazor)
+            ]),
+        new(
+            "zoom",
+            "View Zoom",
+            @<div class="flex justify-center p-2">
+                <Calendar AllowViewZoom="true" @bind-SelectedDate="_singleDate" />
+            </div>,
+            [
+                new StoryCard.CodeTab("zoom-razor", "CalendarStory.razor", ZoomRazor)
             ])
     ];
 
@@ -124,5 +133,10 @@
     private const string NoOutsideRazor =
         """
         <Calendar ShowOutsideDays="false" @bind-SelectedDate="_singleDate" />
+        """;
+
+    private const string ZoomRazor =
+        """
+        <Calendar AllowViewZoom="true" @bind-SelectedDate="_singleDate" />
         """;
 }

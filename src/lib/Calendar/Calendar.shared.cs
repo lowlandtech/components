@@ -35,6 +35,16 @@ public enum CalendarMode
 }
 
 /// <summary>
+/// Calendar display views for zoom navigation.
+/// </summary>
+public enum CalendarView
+{
+    Days,
+    Months,
+    Years
+}
+
+/// <summary>
 /// Extends the auto-generated Calendar partial class with mode support.
 /// </summary>
 public partial class Calendar
@@ -46,6 +56,7 @@ public partial class Calendar
     };
 
     private CalendarMode _mode = CalendarMode.Single;
+    private CalendarView _currentView = CalendarView.Days;
     private DateTime? _selectedDate;
     private DateRange? _selectedRange;
     private List<DateTime> _selectedDates = new();
@@ -159,6 +170,21 @@ public partial class Calendar
     [Parameter] public bool ShowYearDropdown { get; set; }
 
     /// <summary>
+    /// Whether clicking the caption zooms out to month/year pickers.
+    /// </summary>
+    [Parameter] public bool AllowViewZoom { get; set; }
+
+    /// <summary>
+    /// The current display view (days, months, or years).
+    /// </summary>
+    [Parameter]
+    public CalendarView CurrentView
+    {
+        get => _currentView;
+        set => _currentView = value;
+    }
+
+    /// <summary>
     /// Function to determine if a date should be disabled.
     /// </summary>
     [Parameter] public Func<DateTime, bool>? IsDateDisabled { get; set; }
@@ -239,6 +265,81 @@ public partial class Calendar
         CurrentMonth = DateTime.Today;
         StateHasChanged();
     }
+
+    /// <summary>
+    /// Switch to the month picker view.
+    /// </summary>
+    internal void ShowMonthPicker()
+    {
+        CurrentView = CalendarView.Months;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Switch to the year picker view.
+    /// </summary>
+    internal void ShowYearPicker()
+    {
+        CurrentView = CalendarView.Years;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Switch back to the day grid view.
+    /// </summary>
+    internal void ShowDayPicker()
+    {
+        CurrentView = CalendarView.Days;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Select a month and return to day view.
+    /// </summary>
+    internal void SelectMonth(int month)
+    {
+        CurrentMonth = new DateTime(CurrentMonth.Year, month, 1);
+        CurrentView = CalendarView.Days;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Select a year and switch to month view.
+    /// </summary>
+    internal void SelectYear(int year)
+    {
+        CurrentMonth = new DateTime(year, CurrentMonth.Month, 1);
+        CurrentView = CalendarView.Months;
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Navigate to the previous year range in year picker.
+    /// </summary>
+    internal void PreviousYearRange()
+    {
+        CurrentMonth = CurrentMonth.AddYears(-12);
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Navigate to the next year range in year picker.
+    /// </summary>
+    internal void NextYearRange()
+    {
+        CurrentMonth = CurrentMonth.AddYears(12);
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Start year of the current year picker range.
+    /// </summary>
+    internal int YearPickerStart => CurrentMonth.Year - 5;
+
+    /// <summary>
+    /// End year of the current year picker range.
+    /// </summary>
+    internal int YearPickerEnd => CurrentMonth.Year + 6;
 
     /// <summary>
     /// Handle preset selection and update the calendar.

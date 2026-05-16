@@ -5,7 +5,7 @@
      class="cn-calendar group/calendar bg-background @Class"
      @attributes="AdditionalAttributes">
     
-    @if (ShowPresets && Presets?.Any() == true)
+    @if (ShowPresets && Presets?.Any() == true && CurrentView == CalendarView.Days)
     {
         <div class="cn-calendar-presets-container border-b p-2">
             <CalendarPresets 
@@ -21,17 +21,48 @@
         CurrentMonth="CurrentMonth"
         ShowMonthDropdown="ShowMonthDropdown"
         ShowYearDropdown="ShowYearDropdown"
+        AllowViewZoom="AllowViewZoom"
+        View="CurrentView"
         OnPreviousMonth="PreviousMonth"
         OnNextMonth="NextMonth"
         OnPreviousYear="PreviousYear"
         OnNextYear="NextYear"
+        OnPreviousRange="PreviousYearRange"
+        OnNextRange="NextYearRange"
         OnMonthSelected="GoToMonthNumber"
-        OnYearSelected="GoToYear" />
+        OnYearSelected="GoToYear"
+        OnZoomOut="HandleZoomOut" />
     
-    <CalendarGrid 
-        Calendar="this"
-        Mode="Mode"
-        ShowOutsideDays="ShowOutsideDays" />
+    @switch (CurrentView)
+    {
+        case CalendarView.Months:
+            <CalendarMonthGrid Calendar="this" />
+            break;
+        case CalendarView.Years:
+            <CalendarYearGrid Calendar="this" />
+            break;
+        default:
+            <CalendarGrid 
+                Calendar="this"
+                Mode="Mode"
+                ShowOutsideDays="ShowOutsideDays" />
+            break;
+    }
     
     @ChildContent
 </div>
+
+@code {
+    private void HandleZoomOut()
+    {
+        switch (CurrentView)
+        {
+            case CalendarView.Days:
+                ShowMonthPicker();
+                break;
+            case CalendarView.Months:
+                ShowYearPicker();
+                break;
+        }
+    }
+}
