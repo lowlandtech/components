@@ -1,0 +1,58 @@
+@namespace LowlandTech.Components.ThemeProvider
+@implements IDisposable
+@inject ComponentThemeService ThemeService
+
+<div data-theme-provider="@Id"
+     class="@Class"
+     style="@_inlineStyle"
+     @attributes="AdditionalAttributes">
+    <CascadingValue Value="_context" IsFixed="false">
+        @ChildContent
+    </CascadingValue>
+</div>
+
+@code {
+    /// <summary>
+    /// Unique identifier for this provider. Used by <see cref="ComponentThemeService"/>
+    /// to track which theme is active at this boundary.
+    /// </summary>
+    [Parameter, EditorRequired] public string Id { get; set; } = "";
+
+    /// <summary>Name of the initial <see cref="IComponentTheme"/> to apply.</summary>
+    [Parameter] public string? Theme { get; set; }
+
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private ThemeProviderContext _context = null!;
+    private string _inlineStyle = "";
+
+    protected override void OnInitialized()
+    {
+        _context = new(Id, ThemeService);
+        ThemeService.Register(Id, Theme);
+        ThemeService.ThemeChanged += OnThemeChanged;
+        UpdateStyle();
+    }
+
+    private void OnThemeChanged(string providerId)
+    {
+        if (providerId == Id)
+            InvokeAsync(() => { UpdateStyle(); StateHasChanged(); });
+    }
+
+    private void UpdateStyle()
+    {
+        var theme = ThemeService.GetForProvider(Id);
+        _inlineStyle = theme is null
+            ? ""
+            : string.Join(";", theme.Tokens.Select(kv => $"{kv.Key}:{kv.Value}"));
+    }
+
+    public void Dispose()
+    {
+        ThemeService.ThemeChanged -= OnThemeChanged;
+        ThemeService.Unregister(Id);
+    }
+}

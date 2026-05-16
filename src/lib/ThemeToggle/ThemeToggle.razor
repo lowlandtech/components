@@ -6,16 +6,37 @@
         aria-label="@AriaLabel"
         title="@AriaLabel"
         type="button">
-    <span class="theme-icon-sun"><Icon Paths="@Icons.Sun" Size="@IconSize" /></span>
-    <span class="theme-icon-moon"><Icon Paths="@Icons.Moon" Size="@IconSize" /></span>
+    @if (Provider is not null)
+    {
+        @* Inside a ThemeProvider — show a cycle icon *@
+        <Icon Paths="@Icons.RefreshCw" Size="@IconSize" />
+    }
+    else
+    {
+        @* Global dark/light toggle — show sun/moon pair (CSS hides the inactive one) *@
+        <span class="theme-icon-sun"><Icon Paths="@Icons.Sun" Size="@IconSize" /></span>
+        <span class="theme-icon-moon"><Icon Paths="@Icons.Moon" Size="@IconSize" /></span>
+    }
 </button>
 
 @code {
+    /// <summary>
+    /// Injected automatically when the toggle is rendered inside a <c>ThemeProvider</c>.
+    /// When present, clicking cycles through all registered themes for that boundary
+    /// instead of calling <see cref="JsFunction"/>.
+    /// </summary>
+    [CascadingParameter] public ThemeProviderContext? Provider { get; set; }
+
     [Parameter] public string CssClass { get; set; } = "icon-button";
     [Parameter] public string AriaLabel { get; set; } = "Toggle theme";
     [Parameter] public int IconSize { get; set; } = 20;
     [Parameter] public string JsFunction { get; set; } = "window.toggleTheme";
 
-    private async Task ToggleAsync() =>
-        await JS.InvokeVoidAsync(JsFunction);
+    private async Task ToggleAsync()
+    {
+        if (Provider is not null)
+            Provider.ThemeService.Next(Provider.ProviderId);
+        else
+            await JS.InvokeVoidAsync(JsFunction);
+    }
 }

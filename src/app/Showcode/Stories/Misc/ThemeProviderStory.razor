@@ -1,0 +1,110 @@
+@attribute [DisplayName("Misc/Theme Provider")]
+@inherits StoryComponent
+@implements IDisposable
+@inject ComponentThemeService ThemeService
+
+<StoryCard Title="Theme Provider"
+           Description="ThemeProvider establishes a scoped theme boundary. Multiple providers can be active simultaneously, each tracking an independent active theme via ComponentThemeService. ThemeToggle inside a provider cycles through all registered IComponentTheme implementations without affecting sibling boundaries."
+           States="@States" />
+
+@code {
+    protected override void OnInitialized() =>
+        ThemeService.ThemeChanged += OnChanged;
+
+    public void Dispose() =>
+        ThemeService.ThemeChanged -= OnChanged;
+
+    private void OnChanged(string _) => StateHasChanged();
+
+    private string Label(string providerId) =>
+        ThemeService.GetNameForProvider(providerId) ?? "—";
+
+    private IReadOnlyList<StoryCard.State> States =>
+    [
+        new(
+            "boundary",
+            "Boundary",
+            @<div class="flex gap-4 flex-wrap">
+                <ThemeProvider Id="tp-a" Theme="Ocean"
+                               Class="flex-1 min-w-64 rounded-xl border p-4"
+                               style="background:var(--background);color:var(--foreground);border-color:var(--border)">
+                    <div class="flex items-center justify-between mb-3">
+                        <Badge>@Label("tp-a")</Badge>
+                        <ThemeToggle AriaLabel="Cycle theme" />
+                    </div>
+                    <div class="space-y-2">
+                        <p class="text-sm font-medium">Ocean boundary</p>
+                        <p class="text-xs" style="color:var(--muted-foreground)">Tokens are scoped to this element's subtree. Toggling cycles only this provider.</p>
+                        <div class="flex gap-2 pt-1">
+                            <Button Variant="default" Size="sm">Primary</Button>
+                            <Button Variant="outline" Size="sm">Outline</Button>
+                        </div>
+                    </div>
+                </ThemeProvider>
+
+                <ThemeProvider Id="tp-b" Theme="Rose"
+                               Class="flex-1 min-w-64 rounded-xl border p-4"
+                               style="background:var(--background);color:var(--foreground);border-color:var(--border)">
+                    <div class="flex items-center justify-between mb-3">
+                        <Badge>@Label("tp-b")</Badge>
+                        <ThemeToggle AriaLabel="Cycle theme" />
+                    </div>
+                    <div class="space-y-2">
+                        <p class="text-sm font-medium">Rose boundary</p>
+                        <p class="text-xs" style="color:var(--muted-foreground)">Independent theme state. Cycling here does not affect the adjacent provider.</p>
+                        <div class="flex gap-2 pt-1">
+                            <Button Variant="default" Size="sm">Primary</Button>
+                            <Button Variant="outline" Size="sm">Outline</Button>
+                        </div>
+                    </div>
+                </ThemeProvider>
+            </div>,
+            [new StoryCard.CodeTab("boundary-razor", "ThemeProviderStory.razor", BoundaryRazor)]),
+
+        new(
+            "nested",
+            "Nested",
+            @<ThemeProvider Id="tp-outer" Theme="Forest"
+                            Class="rounded-xl border p-4"
+                            style="background:var(--background);color:var(--foreground);border-color:var(--border)">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-semibold">Outer: @Label("tp-outer")</span>
+                    <ThemeToggle AriaLabel="Cycle outer" />
+                </div>
+                <ThemeProvider Id="tp-inner" Theme="Dark"
+                               Class="rounded-lg border p-3"
+                               style="background:var(--background);color:var(--foreground);border-color:var(--border)">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold">Inner: @Label("tp-inner")</span>
+                        <ThemeToggle AriaLabel="Cycle inner" />
+                    </div>
+                    <div class="flex gap-2">
+                        <Button Variant="default" Size="sm">Primary</Button>
+                        <Badge>Nested</Badge>
+                    </div>
+                </ThemeProvider>
+            </ThemeProvider>,
+            [new StoryCard.CodeTab("nested-razor", "ThemeProviderStory.razor", NestedRazor)])
+    ];
+
+    private const string BoundaryRazor = """
+        <ThemeProvider Id="tp-a" Theme="Ocean">
+            <ThemeToggle />
+            <!-- content uses Ocean's CSS variables -->
+        </ThemeProvider>
+        <ThemeProvider Id="tp-b" Theme="Rose">
+            <ThemeToggle />
+            <!-- independent — toggling here only affects this boundary -->
+        </ThemeProvider>
+        """;
+
+    private const string NestedRazor = """
+        <ThemeProvider Id="tp-outer" Theme="Forest">
+            <ThemeToggle />
+            <ThemeProvider Id="tp-inner" Theme="Dark">
+                <ThemeToggle />
+                <!-- inner provider overrides outer tokens in this subtree -->
+            </ThemeProvider>
+        </ThemeProvider>
+        """;
+}
