@@ -148,6 +148,7 @@
     private static string HighlightMarkupLine(string line)
     {
         var encoded = Encode(line);
+        encoded = HighlightMarkupAttributes(encoded);
         encoded = HighlightStrings(encoded);
 
         foreach (var tag in new[]
@@ -177,8 +178,11 @@
             "ContextMenuCheckboxItem", "ContextMenuContent", "ContextMenuItem", "ContextMenuLabel",
             "ContextMenuRadioGroup", "ContextMenuRadioItem", "ContextMenuSeparator", "ContextMenuShortcut",
             "ContextMenuSubContent", "ContextMenuSubTrigger", "ContextMenuSub", "ContextMenuTrigger", "ContextMenu",
-            // DataGrid
-            "DataGridColumn", "DataGrid",
+            // Calendar
+            "CalendarPresets", "CalendarMonthGrid", "CalendarYearGrid",
+            "CalendarGrid", "CalendarNavigation", "CalendarDay", "Calendar",
+            // DataForm / DataGrid
+            "DataForm", "DataGridColumn", "DataGrid",
             // Dialog
             "DialogContent", "DialogDescription", "DialogFooter", "DialogHeader", "DialogTitle", "DialogTrigger", "Dialog",
             // Drawer
@@ -191,7 +195,7 @@
             // Empty — EmptyTemplate must precede Empty
             "EmptyContent", "EmptyDescription", "EmptyMedia", "EmptyTemplate", "EmptyTitle", "Empty",
             // Grid
-            "GridItem", "Grid",
+            "AppLayout", "GridItem", "Grid",
             // Kbd
             "Kbd",
             // LoadingTemplate (before Template below)
@@ -263,7 +267,11 @@
             encoded = encoded.Replace(keyword, $"<span class=\"story-card-token-keyword\">{keyword}</span>", StringComparison.Ordinal);
         }
 
-        foreach (var type in new[] { "IReadOnlyCollection", "PopoverReference", "PopoverState", "Action", "IPopoverService" })
+        foreach (var type in new[]
+        {
+            "IReadOnlyCollection", "PopoverReference", "PopoverState", "Action", "IPopoverService",
+            "AppLayoutScenario", "AppLayoutSession", "RenderFragment",
+        })
         {
             encoded = encoded.Replace(type, $"<span class=\"story-card-token-type\">{type}</span>", StringComparison.Ordinal);
         }
@@ -271,9 +279,17 @@
         return encoded;
     }
 
+    private static string HighlightMarkupAttributes(string encoded)
+    {
+        return System.Text.RegularExpressions.Regex.Replace(
+            encoded,
+            @"(?<=\s)(@?[A-Za-z_][A-Za-z0-9_:-]*)(?=\=)",
+            "<span class=\"story-card-token-keyword\">$1</span>");
+    }
+
     private static string HighlightStrings(string encoded)
     {
-        var parts = encoded.Split('"');
+        var parts = encoded.Split("&quot;");
         if (parts.Length < 3)
         {
             return encoded;
