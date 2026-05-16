@@ -19,4 +19,10 @@ public class ShowcodeState
         var first = StoryRegistry.GetFirst();
         if (first is not null) Select(first);
     }
+
+    public void Clear()
+    {
+        _current = null;
+        Changed?.Invoke();
+    }
 }

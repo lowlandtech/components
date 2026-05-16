@@ -57,6 +57,30 @@
             </InputGroup>,
             [
                 new StoryCard.CodeTab("input-razor", "ButtonGroupStory.razor", InputRazor)
+            ]),
+        new(
+            "input-left",
+            "Input left",
+            @<InputGroup class="w-full max-w-sm">
+                <Input Placeholder="Search components..." />
+                <InputGroupAddon Align="inline-end">
+                    <Button Variant="outline">Search</Button>
+                </InputGroupAddon>
+            </InputGroup>,
+            [
+                new StoryCard.CodeTab("input-left-razor", "ButtonGroupStory.razor", InputLeftRazor)
+            ]),
+        new(
+            "input-right",
+            "Input right",
+            @<InputGroup class="w-full max-w-sm">
+                <InputGroupAddon>
+                    <Icon Name="search" Size="14" />
+                </InputGroupAddon>
+                <Input Placeholder="Search components..." />
+            </InputGroup>,
+            [
+                new StoryCard.CodeTab("input-right-razor", "ButtonGroupStory.razor", InputRightRazor)
             ])
     ];
 
@@ -100,6 +124,26 @@
             <InputGroupAddon Align="inline-end">
                 <Button Variant="outline">Search</Button>
             </InputGroupAddon>
+        </InputGroup>
+        """;
+
+    private const string InputLeftRazor =
+        """
+        <InputGroup class="w-full max-w-sm">
+            <Input Placeholder="Search components..." />
+            <InputGroupAddon Align="inline-end">
+                <Button Variant="outline">Search</Button>
+            </InputGroupAddon>
+        </InputGroup>
+        """;
+
+    private const string InputRightRazor =
+        """
+        <InputGroup class="w-full max-w-sm">
+            <InputGroupAddon>
+                <Icon Name="search" Size="14" />
+            </InputGroupAddon>
+            <Input Placeholder="Search components..." />
         </InputGroup>
         """;
 }

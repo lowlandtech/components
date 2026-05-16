@@ -214,6 +214,7 @@
     height: 2rem !important;
     padding: 0 !important;
     justify-content: center;
+    overflow: visible;
 }
 
 [data-slot="sidebar-provider"] .app-sidebar[data-state="collapsed"][data-collapsible="icon"] [data-slot="sidebar-header"],

@@ -8,7 +8,7 @@
     <SidebarInset class="min-h-0">
         <header class="flex h-12 shrink-0 items-center justify-between border-b border-border px-4 bg-background">
             <SidebarTrigger />
-            <span class="text-sm font-semibold text-foreground tracking-tight">LowlandTech Components</span>
+            <button type="button" class="text-sm font-semibold text-foreground tracking-tight hover:text-primary transition-colors cursor-pointer" @onclick="() => State.Clear()">LowlandTech Components</button>
             <ThemeToggle />
         </header>
         <main class="min-h-0 flex-1 overflow-y-auto bg-background">
@@ -25,7 +25,6 @@
     protected override void OnInitialized()
     {
         State.Changed += Refresh;
-        if (State.Current is null) State.SelectFirst();
     }
 
     private void Refresh() => InvokeAsync(StateHasChanged);

@@ -755,3 +755,22 @@
     @apply pb-4 pt-0 text-sm;
   }
 }
+
+/* InputGroup radius overrides — must live in @layer utilities so they beat
+   the input's own rounded-md utility which also lives in @layer utilities.
+   Higher selector specificity (3 parts) wins over rounded-md (1 part). */
+@layer utilities {
+  .cn-input-group .cn-input-group-addon[data-align="inline-start"] + [data-slot="input"],
+  .cn-input-group .cn-input-group-addon:not([data-align]) + [data-slot="input"] {
+    @apply rounded-l-none;
+  }
+
+  .cn-input-group [data-slot="input"]:has(+ .cn-input-group-addon[data-align="inline-end"]) {
+    @apply rounded-r-none;
+  }
+
+  .cn-input-group .cn-input-group-addon[data-align="inline-start"] + [data-slot="input"]:has(+ .cn-input-group-addon[data-align="inline-end"]),
+  .cn-input-group .cn-input-group-addon:not([data-align]) + [data-slot="input"]:has(+ .cn-input-group-addon[data-align="inline-end"]) {
+    @apply rounded-none;
+  }
+}
