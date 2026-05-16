@@ -46,13 +46,15 @@
         new(
             "with-input",
             "With input",
-            @<ButtonGroup class="w-full max-w-sm">
-                <ButtonGroupText>
+            @<InputGroup class="w-full max-w-sm">
+                <InputGroupAddon>
                     <Icon Name="search" Size="14" />
-                </ButtonGroupText>
+                </InputGroupAddon>
                 <Input Placeholder="Search components..." />
-                <Button Variant="outline">Search</Button>
-            </ButtonGroup>,
+                <InputGroupAddon Align="inline-end">
+                    <Button Variant="outline">Search</Button>
+                </InputGroupAddon>
+            </InputGroup>,
             [
                 new StoryCard.CodeTab("input-razor", "ButtonGroupStory.razor", InputRazor)
             ])
@@ -90,12 +92,14 @@
 
     private const string InputRazor =
         """
-        <ButtonGroup class="w-full max-w-sm">
-            <ButtonGroupText>
+        <InputGroup class="w-full max-w-sm">
+            <InputGroupAddon>
                 <Icon Name="search" Size="14" />
-            </ButtonGroupText>
+            </InputGroupAddon>
             <Input Placeholder="Search components..." />
-            <Button Variant="outline">Search</Button>
-        </ButtonGroup>
+            <InputGroupAddon Align="inline-end">
+                <Button Variant="outline">Search</Button>
+            </InputGroupAddon>
+        </InputGroup>
         """;
 }

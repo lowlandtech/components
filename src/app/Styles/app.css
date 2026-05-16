@@ -536,6 +536,14 @@ html:hover                             { scrollbar-color: var(--border) transpar
     @apply bg-green-500;
   }
 
+  .story-card-code-header {
+    @apply flex min-h-11 items-center justify-between gap-3 border-b border-zinc-800 bg-zinc-950 px-4 pb-2 pt-3 font-mono text-xs text-zinc-400;
+  }
+
+  .story-card-copy-button {
+    @apply ml-auto shrink-0;
+  }
+
   .story-card-code-editor {
     @apply max-h-96 overflow-auto bg-zinc-950 py-3 font-mono text-sm leading-6 text-zinc-100;
   }
