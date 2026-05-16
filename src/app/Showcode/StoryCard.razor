@@ -57,19 +57,21 @@
 
                             @foreach (var codeTab in state.CodeTabs)
                             {
-                                <TabsContent Value="@codeTab.Value" class="relative mt-0">
-                                    <div class="flex h-9 items-center gap-2 border-b border-zinc-800 bg-zinc-950 px-4 font-mono text-xs text-zinc-400">
-                                        <span>@codeTab.Name</span>
-                                        <span class="rounded bg-zinc-800 px-1.5 py-0.5 uppercase tracking-wider text-zinc-300">@codeTab.Language</span>
+                                <TabsContent Value="@codeTab.Value" class="mt-0">
+                                    <div class="flex h-9 items-center justify-between gap-2 border-b border-zinc-800 bg-zinc-950 px-4 font-mono text-xs text-zinc-400">
+                                        <div class="flex items-center gap-2">
+                                            <span>@codeTab.Name</span>
+                                            <span class="rounded bg-zinc-800 px-1.5 py-0.5 uppercase tracking-wider text-zinc-300">@codeTab.Language</span>
+                                        </div>
+                                        <Button Variant="ghost"
+                                                Size="icon-sm"
+                                                class="text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
+                                                title="@($"Copy {codeTab.Name} code")"
+                                                @onclick="() => CopyCode(codeTab)">
+                                            <Icon Name="@(CopiedValue == codeTab.Value ? "check" : "copy")" Size="14" />
+                                            <span class="sr-only">Copy @codeTab.Name code</span>
+                                        </Button>
                                     </div>
-                                    <Button Variant="ghost"
-                                            Size="icon-sm"
-                                            class="absolute right-3 top-1 z-10 bg-zinc-900/80 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
-                                            title="@($"Copy {codeTab.Name} code")"
-                                            @onclick="() => CopyCode(codeTab)">
-                                        <Icon Name="@(CopiedValue == codeTab.Value ? "check" : "copy")" Size="14" />
-                                        <span class="sr-only">Copy @codeTab.Name code</span>
-                                    </Button>
                                     <div class="story-card-code-editor" data-language="@codeTab.Language">
                                         @foreach (var line in GetHighlightedLines(codeTab))
                                         {
@@ -148,7 +150,90 @@
         var encoded = Encode(line);
         encoded = HighlightStrings(encoded);
 
-        foreach (var tag in new[] { "PopoverProvider", "PopoverTrigger", "PopoverContent", "Popover", "RadioGroupItemDescription", "RadioGroupItemTitle", "RadioGroupItem", "RadioGroup", "ButtonGroupSeparator", "ButtonGroupText", "ButtonGroup", "DataGridColumn", "DataGrid", "EmptyDescription", "EmptyContent", "EmptyMedia", "EmptyTitle", "Empty", "CardDescription", "CardContent", "CardAction", "CardFooter", "CardHeader", "CardTitle", "Card", "SliderTrack", "SliderRange", "SliderThumb", "Slider", "AlertDescription", "AlertTitle", "Alert", "Checkbox", "Textarea", "Separator", "Skeleton", "Spinner", "Progress", "Switch", "Toggle", "Badge", "TabsTrigger", "TabsContent", "TabsList", "Tabs", "Button", "Icon", "Label", "Input", "Columns", "Template", "EmptyTemplate", "LoadingTemplate", "span", "div", "h3", "p" })
+        foreach (var tag in new[]
+        {
+            // Accordion
+            "AccordionContent", "AccordionHeader", "AccordionItem", "AccordionTrigger", "Accordion",
+            // AlertDialog (longer prefix first), then Alert
+            "AlertDialogAction", "AlertDialogCancel", "AlertDialogContent", "AlertDialogDescription",
+            "AlertDialogFooter", "AlertDialogHeader", "AlertDialogTitle", "AlertDialogTrigger", "AlertDialog",
+            "AlertDescription", "AlertTitle", "Alert",
+            // AspectRatio
+            "AspectRatio",
+            // Avatar — GroupCount before Group before Avatar
+            "AvatarBadge", "AvatarFallback", "AvatarGroupCount", "AvatarGroup", "AvatarImage", "Avatar",
+            // Badge
+            "Badge",
+            // Breadcrumb
+            "BreadcrumbEllipsis", "BreadcrumbItem", "BreadcrumbLink", "BreadcrumbList",
+            "BreadcrumbPage", "BreadcrumbSeparator", "Breadcrumb",
+            // ButtonGroup before Button
+            "ButtonGroupSeparator", "ButtonGroupText", "ButtonGroup", "Button",
+            // Card
+            "CardAction", "CardContent", "CardDescription", "CardFooter", "CardHeader", "CardTitle", "Card",
+            // Checkbox / Collapsible
+            "Checkbox", "CollapsibleContent", "CollapsibleTrigger", "Collapsible",
+            // ContextMenu — Sub* before Sub before Menu
+            "ContextMenuCheckboxItem", "ContextMenuContent", "ContextMenuItem", "ContextMenuLabel",
+            "ContextMenuRadioGroup", "ContextMenuRadioItem", "ContextMenuSeparator", "ContextMenuShortcut",
+            "ContextMenuSubContent", "ContextMenuSubTrigger", "ContextMenuSub", "ContextMenuTrigger", "ContextMenu",
+            // DataGrid
+            "DataGridColumn", "DataGrid",
+            // Dialog
+            "DialogContent", "DialogDescription", "DialogFooter", "DialogHeader", "DialogTitle", "DialogTrigger", "Dialog",
+            // Drawer
+            "DrawerClose", "DrawerContent", "DrawerDescription", "DrawerFooter", "DrawerHeader",
+            "DrawerOverlay", "DrawerTitle", "DrawerTrigger", "Drawer",
+            // DropdownMenu
+            "DropdownMenuCheckboxItem", "DropdownMenuContent", "DropdownMenuGroup", "DropdownMenuItem",
+            "DropdownMenuLabel", "DropdownMenuRadioGroup", "DropdownMenuRadioItem", "DropdownMenuSeparator",
+            "DropdownMenuShortcut", "DropdownMenuTrigger", "DropdownMenu",
+            // Empty — EmptyTemplate must precede Empty
+            "EmptyContent", "EmptyDescription", "EmptyMedia", "EmptyTemplate", "EmptyTitle", "Empty",
+            // Grid
+            "GridItem", "Grid",
+            // Kbd
+            "Kbd",
+            // LoadingTemplate (before Template below)
+            "LoadingTemplate",
+            // Pagination
+            "PaginationContent", "PaginationEllipsis", "PaginationItem", "PaginationLink",
+            "PaginationNext", "PaginationPrevious", "Pagination",
+            // Popover
+            "PopoverContent", "PopoverProvider", "PopoverReference", "PopoverTrigger", "Popover",
+            // Progress
+            "Progress",
+            // RadioGroup — ItemDescription/Title before Item before Group
+            "RadioGroupItemDescription", "RadioGroupItemTitle", "RadioGroupItem", "RadioGroup",
+            // Resizable
+            "ResizableHandle", "ResizablePanel", "Resizable",
+            // ScrollArea
+            "ScrollArea",
+            // Select
+            "SelectContent", "SelectGroup", "SelectItem", "SelectLabel",
+            "SelectSeparator", "SelectTrigger", "SelectValue", "Select",
+            // Separator / Skeleton / Slider
+            "Separator", "Skeleton", "SliderRange", "SliderThumb", "SliderTrack", "Slider",
+            // Sidebar — deepest sub-tree first
+            "SidebarGroupContent", "SidebarGroupLabel", "SidebarGroup",
+            "SidebarMenuBadge", "SidebarMenuButton", "SidebarMenuItem",
+            "SidebarMenuSubButton", "SidebarMenuSubContent", "SidebarMenuSubItem", "SidebarMenuSubTrigger",
+            "SidebarMenuSub", "SidebarMenu",
+            "SidebarContent", "SidebarFooter", "SidebarHeader", "SidebarInput", "SidebarInset",
+            "SidebarProvider", "SidebarTrigger", "Sidebar",
+            // Sonner / Spinner / Switch
+            "Sonner", "Spinner", "Switch",
+            // Tabs
+            "TabsContent", "TabsList", "TabsTrigger", "Tabs",
+            // Template (after EmptyTemplate / LoadingTemplate)
+            "Template", "Textarea", "Toggle",
+            // Tooltip
+            "TooltipContent", "TooltipProvider", "TooltipTrigger", "Tooltip",
+            // Standalone
+            "Columns", "Icon", "Input", "Label",
+            // HTML elements
+            "span", "div", "header", "h1", "h2", "h3", "p", "ul", "li", "ol",
+        })
         {
             encoded = encoded.Replace($"&lt;{tag}", $"&lt;<span class=\"story-card-token-tag\">{tag}</span>", StringComparison.Ordinal);
             encoded = encoded.Replace($"&lt;/{tag}", $"&lt;/<span class=\"story-card-token-tag\">{tag}</span>", StringComparison.Ordinal);

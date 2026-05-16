@@ -7,9 +7,6 @@
 
 @if (State.Current is not null)
 {
-    <div class="mb-6">
-        <h1 class="text-2xl font-bold tracking-tight">@State.Current.Name</h1>
-    </div>
     <DynamicComponent Type="@State.Current.Type" />
 }
 else

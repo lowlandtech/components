@@ -2,6 +2,8 @@
    Sidebar layout — mirrors shadcn/ui sidebar data-slot pattern
    ============================================================ */
 
+@layer components {
+
 /* Provider wrapper: flex row, contained by its parent by default */
 [data-slot="sidebar-provider"] {
     display: flex;
@@ -210,7 +212,7 @@
 [data-slot="sidebar-provider"] .app-sidebar[data-state="collapsed"][data-collapsible="icon"] [data-slot="sidebar-menu-button"] {
     width: 2rem !important;
     height: 2rem !important;
-    padding: 0.5rem !important;
+    padding: 0 !important;
     justify-content: center;
 }
 
@@ -301,9 +303,31 @@
     transition: margin 200ms ease-linear;
 }
 
+/* SidebarMenuBadge */
+[data-slot="sidebar-menu-badge"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: calc(infinity * 1px);
+    padding: 0.125rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1;
+    background-color: var(--sidebar-primary);
+    color: var(--sidebar-primary-foreground);
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+/* Collapsed icon mode — hide badge */
+[data-slot="sidebar-provider"] .app-sidebar[data-state="collapsed"][data-collapsible="icon"] [data-slot="sidebar-menu-badge"] {
+    display: none;
+}
+
 /* Inset variant: slight margin + rounded card appearance */
 [data-slot="sidebar-provider"]:has([data-variant="inset"]) .sidebar-inset {
     margin: 0.5rem 0.5rem 0.5rem 0;
     border-radius: 0.75rem;
     box-shadow: var(--shadow-sm);
+}
 }

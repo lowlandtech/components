@@ -6,99 +6,7 @@
            DefaultState="docs-preview"
            States="@States" />
 
-<style>
-    .sidebar-docs-card {
-        width: min(40rem, 100%);
-        height: 25rem;
-        overflow: hidden;
-        border: 1px solid #27272a;
-        border-radius: 0.75rem;
-        background: #09090b;
-        color: #fafafa;
-    }
 
-    .sidebar-docs-frame {
-        position: relative;
-        min-height: 100%;
-        background: #09090b;
-        --background: #09090b;
-        --foreground: #fafafa;
-        --sidebar: #18181b;
-        --sidebar-foreground: #e4e4e7;
-        --sidebar-primary: #155dfc;
-        --sidebar-primary-foreground: #fafafa;
-        --sidebar-accent: #27272a;
-        --sidebar-accent-foreground: #fafafa;
-        --sidebar-border: #27272a;
-        --sidebar-ring: #52525b;
-    }
-
-    .sidebar-docs-frame .sidebar-inset {
-        min-height: 100%;
-        background: #09090b;
-    }
-
-    .sidebar-docs-inset-header {
-        display: flex;
-        height: 4rem;
-        align-items: center;
-        gap: 0.5rem;
-        padding-inline: 1rem;
-    }
-
-    .sidebar-docs-logo,
-    .sidebar-docs-avatar {
-        display: inline-flex;
-        width: 2rem;
-        height: 2rem;
-        flex-shrink: 0;
-        align-items: center;
-        justify-content: center;
-        border-radius: 0.625rem;
-        background: #155dfc;
-        color: #fafafa;
-    }
-
-    .sidebar-docs-avatar {
-        background: linear-gradient(135deg, #fb7185, #7c3aed 55%, #22d3ee);
-        font-size: 0.625rem;
-        font-weight: 700;
-    }
-
-    .sidebar-docs-team,
-    .sidebar-docs-user {
-        min-height: 3rem;
-    }
-
-    .sidebar-docs-team-copy {
-        display: grid;
-        min-width: 0;
-        flex: 1;
-        line-height: 1.15;
-        text-align: left;
-    }
-
-    .sidebar-docs-title,
-    .sidebar-docs-subtitle {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .sidebar-docs-title {
-        font-size: 0.875rem;
-        font-weight: 600;
-    }
-
-    .sidebar-docs-subtitle {
-        color: #d4d4d8;
-        font-size: 0.75rem;
-    }
-
-    .sidebar-docs-chevron {
-        margin-left: auto;
-    }
-</style>
 
 @code {
     bool _openDocs = true;
@@ -109,21 +17,21 @@
         new(
             "docs-preview",
             "Docs preview",
-            @<div class="sidebar-docs-card dark">
-                <SidebarProvider @bind-Open="_openDocs" Width="16rem" class="sidebar-docs-frame">
+            @<div class="h-96 w-full border border-border rounded-lg overflow-hidden flex">
+                <SidebarProvider @bind-Open="_openDocs" Width="16rem">
                     <Sidebar Collapsible="icon">
                         <SidebarHeader>
                             <SidebarMenu>
                                 <SidebarMenuItem>
-                                    <SidebarMenuButton class="sidebar-docs-team">
-                                        <span class="sidebar-docs-logo">
+                                    <SidebarMenuButton class="h-12">
+                                        <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white">
                                             <Icon Name="calendar" Size="16" />
                                         </span>
-                                        <span class="sidebar-docs-team-copy">
-                                            <span class="sidebar-docs-title">Acme Inc</span>
-                                            <span class="sidebar-docs-subtitle">Enterprise</span>
+                                        <span class="sidebar-docs-team-copy grid min-w-0 flex-1 text-left leading-tight">
+                                            <span class="truncate text-sm font-semibold">Acme Inc</span>
+                                            <span class="truncate text-xs text-muted-foreground">Enterprise</span>
                                         </span>
-                                        <Icon Name="chevron-down" Size="14" class="sidebar-docs-chevron" />
+                                        <Icon Name="chevron-down" Size="14" class="sidebar-docs-chevron ml-auto" />
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
                             </SidebarMenu>
@@ -137,7 +45,7 @@
                                             <SidebarMenuButton IsActive="true">
                                                 <Icon Name="home" Size="16" />
                                                 <span class="sidebar-menu-text">Playground</span>
-                                                <Icon Name="chevron-down" Size="14" class="sidebar-docs-chevron" />
+                                                <Icon Name="chevron-down" Size="14" class="sidebar-docs-chevron ml-auto" />
                                             </SidebarMenuButton>
                                             <SidebarMenuSub IsOpen="true">
                                                 <SidebarMenuSubContent IsVisible="true">
@@ -157,21 +65,21 @@
                                             <SidebarMenuButton>
                                                 <Icon Name="settings" Size="16" />
                                                 <span class="sidebar-menu-text">Models</span>
-                                                <Icon Name="chevron-right" Size="14" class="sidebar-docs-chevron" />
+                                                <Icon Name="chevron-right" Size="14" class="sidebar-docs-chevron ml-auto" />
                                             </SidebarMenuButton>
                                         </SidebarMenuItem>
                                         <SidebarMenuItem>
                                             <SidebarMenuButton>
                                                 <Icon Name="search" Size="16" />
                                                 <span class="sidebar-menu-text">Documentation</span>
-                                                <Icon Name="chevron-right" Size="14" class="sidebar-docs-chevron" />
+                                                <Icon Name="chevron-right" Size="14" class="sidebar-docs-chevron ml-auto" />
                                             </SidebarMenuButton>
                                         </SidebarMenuItem>
                                         <SidebarMenuItem>
                                             <SidebarMenuButton>
                                                 <Icon Name="settings" Size="16" />
                                                 <span class="sidebar-menu-text">Settings</span>
-                                                <Icon Name="chevron-right" Size="14" class="sidebar-docs-chevron" />
+                                                <Icon Name="chevron-right" Size="14" class="sidebar-docs-chevron ml-auto" />
                                             </SidebarMenuButton>
                                         </SidebarMenuItem>
                                     </SidebarMenu>
@@ -181,20 +89,20 @@
                         <SidebarFooter>
                             <SidebarMenu>
                                 <SidebarMenuItem>
-                                    <SidebarMenuButton class="sidebar-docs-user">
-                                        <span class="sidebar-docs-avatar">SC</span>
-                                        <span class="sidebar-docs-team-copy">
-                                            <span class="sidebar-docs-title">shadcn</span>
-                                            <span class="sidebar-docs-subtitle">m@example.com</span>
+                                    <SidebarMenuButton class="h-12">
+                                        <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[10px] font-bold text-white" style="background: linear-gradient(135deg, #fb7185, #7c3aed 55%, #22d3ee)">SC</span>
+                                        <span class="sidebar-docs-team-copy grid min-w-0 flex-1 text-left leading-tight">
+                                            <span class="truncate text-sm font-semibold">shadcn</span>
+                                            <span class="truncate text-xs text-muted-foreground">m@example.com</span>
                                         </span>
-                                        <Icon Name="chevron-down" Size="14" class="sidebar-docs-chevron" />
+                                        <Icon Name="chevron-down" Size="14" class="sidebar-docs-chevron ml-auto" />
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
                             </SidebarMenu>
                         </SidebarFooter>
                     </Sidebar>
                     <SidebarInset>
-                        <header class="sidebar-docs-inset-header">
+                        <header class="flex h-16 items-center gap-2 px-4">
                             <SidebarTrigger class="h-8 w-8" />
                         </header>
                     </SidebarInset>
@@ -208,9 +116,16 @@
             "Basic",
             @<div class="h-96 w-full border border-border rounded-lg overflow-hidden flex">
                 <SidebarProvider DefaultOpen="true">
-                    <Sidebar>
+                    <Sidebar Collapsible="icon">
                         <SidebarHeader>
-                            <span class="px-2 text-sm font-semibold">MyApp</span>
+                            <SidebarMenu>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton>
+                                        <span class="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-primary text-primary-foreground text-[10px] font-bold">M</span>
+                                        <span class="sidebar-menu-text">MyApp</span>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            </SidebarMenu>
                         </SidebarHeader>
                         <SidebarContent>
                             <SidebarGroup>
@@ -249,7 +164,7 @@
                     </Sidebar>
                     <SidebarInset>
                         <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
-                            <SidebarTrigger class="h-7 w-7" />
+                            <SidebarTrigger class="h-7 w-7"><Icon Name="menu" Size="16" /></SidebarTrigger>
                             <span class="text-sm font-medium">Dashboard</span>
                         </header>
                         <div class="p-4">
@@ -279,12 +194,10 @@
                                             <SidebarMenuButton IsActive="true">Dashboard</SidebarMenuButton>
                                         </SidebarMenuItem>
                                         <SidebarMenuItem>
-                                            <SidebarMenuButton>Inbox</SidebarMenuButton>
-                                            <SidebarMenuBadge>12</SidebarMenuBadge>
+                                            <SidebarMenuButton>Inbox<SidebarMenuBadge>12</SidebarMenuBadge></SidebarMenuButton>
                                         </SidebarMenuItem>
                                         <SidebarMenuItem>
-                                            <SidebarMenuButton>Notifications</SidebarMenuButton>
-                                            <SidebarMenuBadge>3</SidebarMenuBadge>
+                                            <SidebarMenuButton>Notifications<SidebarMenuBadge>3</SidebarMenuBadge></SidebarMenuButton>
                                         </SidebarMenuItem>
                                         <SidebarMenuItem>
                                             <SidebarMenuButton>Projects</SidebarMenuButton>
@@ -313,9 +226,16 @@
             "Sub-menu",
             @<div class="h-96 w-full border border-border rounded-lg overflow-hidden flex">
                 <SidebarProvider DefaultOpen="true">
-                    <Sidebar>
+                    <Sidebar Collapsible="icon">
                         <SidebarHeader>
-                            <span class="px-2 text-sm font-semibold">MyApp</span>
+                            <SidebarMenu>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton>
+                                        <span class="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-primary text-primary-foreground text-[10px] font-bold">M</span>
+                                        <span class="sidebar-menu-text">MyApp</span>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            </SidebarMenu>
                         </SidebarHeader>
                         <SidebarContent>
                             <SidebarGroup>
@@ -353,7 +273,7 @@
                     </Sidebar>
                     <SidebarInset>
                         <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
-                            <SidebarTrigger class="h-7 w-7" />
+                            <SidebarTrigger class="h-7 w-7"><Icon Name="menu" Size="16" /></SidebarTrigger>
                             <span class="text-sm font-medium">Settings</span>
                         </header>
                         <div class="p-4">
@@ -370,7 +290,7 @@
             "Controlled open",
             @<div class="h-96 w-full border border-border rounded-lg overflow-hidden flex">
                 <SidebarProvider @bind-Open="_open4">
-                    <Sidebar>
+                    <Sidebar Collapsible="icon">
                         <SidebarHeader>
                             <SidebarInput placeholder="Search..." />
                         </SidebarHeader>
@@ -395,7 +315,7 @@
                     </Sidebar>
                     <SidebarInset>
                         <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
-                            <SidebarTrigger class="h-7 w-7" />
+                            <SidebarTrigger class="h-7 w-7"><Icon Name="menu" Size="16" /></SidebarTrigger>
                             <span class="text-sm font-medium">Dashboard</span>
                         </header>
                         <div class="p-4 space-y-3">
@@ -460,9 +380,16 @@
     private const string BasicRazor =
         """
         <SidebarProvider DefaultOpen="true">
-            <Sidebar>
+            <Sidebar Collapsible="icon">
                 <SidebarHeader>
-                    <span class="px-2 text-sm font-semibold">MyApp</span>
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton>
+                                <span class="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-primary text-primary-foreground text-[10px] font-bold">M</span>
+                                <span class="sidebar-menu-text">MyApp</span>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
                 </SidebarHeader>
                 <SidebarContent>
                     <SidebarGroup>
@@ -501,7 +428,7 @@
             </Sidebar>
             <SidebarInset>
                 <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
-                    <SidebarTrigger class="h-7 w-7" />
+                    <SidebarTrigger class="h-7 w-7"><Icon Name="menu" Size="16" /></SidebarTrigger>
                     <span class="text-sm font-medium">Dashboard</span>
                 </header>
                 <div class="p-4">
@@ -514,7 +441,17 @@
     private const string ActiveBadgeRazor =
         """
         <SidebarProvider DefaultOpen="true">
-            <Sidebar>
+            <Sidebar Collapsible="icon">
+                <SidebarHeader>
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton>
+                                <span class="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-primary text-primary-foreground text-[10px] font-bold">M</span>
+                                <span class="sidebar-menu-text">MyApp</span>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarHeader>
                 <SidebarContent>
                     <SidebarGroup>
                         <SidebarGroupLabel>Navigation</SidebarGroupLabel>
@@ -524,12 +461,10 @@
                                     <SidebarMenuButton IsActive="true">Dashboard</SidebarMenuButton>
                                 </SidebarMenuItem>
                                 <SidebarMenuItem>
-                                    <SidebarMenuButton>Inbox</SidebarMenuButton>
-                                    <SidebarMenuBadge>12</SidebarMenuBadge>
+                                    <SidebarMenuButton>Inbox<SidebarMenuBadge>12</SidebarMenuBadge></SidebarMenuButton>
                                 </SidebarMenuItem>
                                 <SidebarMenuItem>
-                                    <SidebarMenuButton>Notifications</SidebarMenuButton>
-                                    <SidebarMenuBadge>3</SidebarMenuBadge>
+                                    <SidebarMenuButton>Notifications<SidebarMenuBadge>3</SidebarMenuBadge></SidebarMenuButton>
                                 </SidebarMenuItem>
                             </SidebarMenu>
                         </SidebarGroupContent>
@@ -538,7 +473,7 @@
             </Sidebar>
             <SidebarInset>
                 <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
-                    <SidebarTrigger class="h-7 w-7" />
+                    <SidebarTrigger class="h-7 w-7"><Icon Name="menu" Size="16" /></SidebarTrigger>
                 </header>
             </SidebarInset>
         </SidebarProvider>
@@ -547,7 +482,17 @@
     private const string SubMenuRazor =
         """
         <SidebarProvider DefaultOpen="true">
-            <Sidebar>
+            <Sidebar Collapsible="icon">
+                <SidebarHeader>
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton>
+                                <span class="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-primary text-primary-foreground text-[10px] font-bold">M</span>
+                                <span class="sidebar-menu-text">MyApp</span>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarHeader>
                 <SidebarContent>
                     <SidebarGroup>
                         <SidebarGroupContent>
@@ -578,7 +523,7 @@
             </Sidebar>
             <SidebarInset>
                 <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
-                    <SidebarTrigger class="h-7 w-7" />
+                    <SidebarTrigger class="h-7 w-7"><Icon Name="menu" Size="16" /></SidebarTrigger>
                 </header>
             </SidebarInset>
         </SidebarProvider>
@@ -591,7 +536,7 @@
     private const string ControlledRazor =
         """
         <SidebarProvider @bind-Open="_open">
-            <Sidebar>
+            <Sidebar Collapsible="icon">
                 <SidebarHeader>
                     <SidebarInput placeholder="Search..." />
                 </SidebarHeader>
@@ -609,7 +554,7 @@
             </Sidebar>
             <SidebarInset>
                 <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
-                    <SidebarTrigger class="h-7 w-7" />
+                    <SidebarTrigger class="h-7 w-7"><Icon Name="menu" Size="16" /></SidebarTrigger>
                 </header>
                 <div class="p-4 space-y-3">
                     <p class="text-sm">State: @(_open ? "Open" : "Closed")</p>

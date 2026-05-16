@@ -729,18 +729,22 @@
 
   /* Accordion Component Styles */
   .cn-accordion-item {
-    border-bottom: 1px solid hsl(var(--border));
+    @apply border-b border-border;
+  }
+
+  .cn-accordion-item:last-child {
+    @apply border-b-0;
   }
 
   .cn-accordion-trigger {
-    @apply flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none
+    @apply flex w-full flex-1 items-center justify-between gap-4 py-4 text-left text-sm font-medium transition-all outline-none
       hover:underline
       focus-visible:ring-[3px] focus-visible:ring-ring
       aria-disabled:pointer-events-none aria-disabled:opacity-50;
   }
 
   .cn-accordion-trigger-icon {
-    @apply size-4 shrink-0 translate-y-0.5 transition-transform duration-200;
+    @apply size-4 shrink-0 transition-transform duration-200;
   }
 
   .cn-accordion-trigger[data-state="open"] .cn-accordion-trigger-icon {
