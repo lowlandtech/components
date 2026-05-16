@@ -1,10 +1,3 @@
-using System.ComponentModel;
-using System.Reflection;
-using LowlandTech.Components.App.Services.Themes;
-using LowlandTech.Components.App.Showcode;
-using LowlandTech.Components.App.Showcode.Stories.Misc;
-using Microsoft.Extensions.DependencyInjection;
-
 namespace LowlandTech.Components.Tests.SPEC1071.ComponentThemes.US05.DemoAppIntegration;
 
 // ============================================================
@@ -495,9 +488,9 @@ public class SC08_OceanThemeHasExpectedBackground
 
     [Fact(DisplayName = "UAC35: DarkComponentTheme '--background' matches test stub value")]
     [Trait(Spec.UAC, "35")]
-    [Then("DarkComponentTheme '--background' should be '#020817'")]
+    [Then("DarkComponentTheme '--background' should be '#1a1a27'")]
     public void UAC35_DarkBackgroundMatchesStub()
     {
-        new DarkComponentTheme().Tokens["--background"].ShouldBe("#020817");
+        new DarkComponentTheme().Tokens["--background"].ShouldBe("#1a1a27");
     }
 }

@@ -1,7 +1,3 @@
-using Bunit;
-using Microsoft.Extensions.DependencyInjection;
-using ThemeProvider = LowlandTech.Components.ThemeProvider.ThemeProvider;
-
 namespace LowlandTech.Components.Tests.SPEC1071.ComponentThemes.US03.ThemeToggleBehavior;
 
 // ============================================================
@@ -124,7 +120,7 @@ public class SC03_ThemeToggleInsideProvider : ThemeProviderScenario
     [Then("there should be no .theme-icon-sun when inside a ThemeProvider")]
     public void UAC10_NoSunIconInsideProvider()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-a")
             .Add(x => x.Theme, "Ocean")
             .AddChildContent<ThemeToggle>());
@@ -136,7 +132,7 @@ public class SC03_ThemeToggleInsideProvider : ThemeProviderScenario
     [Then("there should be no .theme-icon-moon when inside a ThemeProvider")]
     public void UAC11_NoMoonIconInsideProvider()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-a")
             .Add(x => x.Theme, "Ocean")
             .AddChildContent<ThemeToggle>());
@@ -148,7 +144,7 @@ public class SC03_ThemeToggleInsideProvider : ThemeProviderScenario
     [Then("the toggle button should still be present inside a ThemeProvider")]
     public void UAC12_ButtonPresentInsideProvider()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-a")
             .Add(x => x.Theme, "Ocean")
             .AddChildContent<ThemeToggle>());
@@ -160,7 +156,7 @@ public class SC03_ThemeToggleInsideProvider : ThemeProviderScenario
     [Then("aria-label should still be present when inside a ThemeProvider")]
     public void UAC13_AriaLabelPresentInsideProvider()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-a")
             .Add(x => x.Theme, "Ocean")
             .AddChildContent<ThemeToggle>());
@@ -231,7 +227,7 @@ public class SC05_ClickInsideProviderCycles : ThemeProviderScenario
     [Then("the provider theme should advance on click")]
     public void UAC18_ThemeChangesAfterClick()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-a")
             .Add(x => x.Theme, "Ocean")
             .AddChildContent<ThemeToggle>());
@@ -246,7 +242,7 @@ public class SC05_ClickInsideProviderCycles : ThemeProviderScenario
     [Then("the theme should become 'Rose' when cycling from 'Ocean'")]
     public void UAC19_OceanAdvancesToRose()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-a")
             .Add(x => x.Theme, "Ocean")
             .AddChildContent<ThemeToggle>());
@@ -260,7 +256,7 @@ public class SC05_ClickInsideProviderCycles : ThemeProviderScenario
     [Then("ThemeChanged event should be raised when clicking inside provider")]
     public void UAC20_ThemeChangedRaisedOnClick()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-a")
             .Add(x => x.Theme, "Ocean")
             .AddChildContent<ThemeToggle>());
@@ -276,7 +272,7 @@ public class SC05_ClickInsideProviderCycles : ThemeProviderScenario
     [Then("no JS should be invoked when clicking inside a ThemeProvider")]
     public void UAC21_NoJsInvokedInsideProvider()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-a")
             .Add(x => x.Theme, "Ocean")
             .AddChildContent<ThemeToggle>());
@@ -323,7 +319,7 @@ public class SC07_MultipleCyclesWrapAround : ThemeProviderScenario
     [Trait(Spec.UAC, "28")]
     public void UAC28_30_FiveClicksReturnToStart()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-cycle")
             .Add(x => x.Theme, "Light")
             .AddChildContent<ThemeToggle>());
@@ -337,7 +333,7 @@ public class SC07_MultipleCyclesWrapAround : ThemeProviderScenario
     [Trait(Spec.UAC, "29")]
     public void UAC29_EachIntermediateClickIsDifferent()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-cycle")
             .Add(x => x.Theme, "Light")
             .AddChildContent<ThemeToggle>());

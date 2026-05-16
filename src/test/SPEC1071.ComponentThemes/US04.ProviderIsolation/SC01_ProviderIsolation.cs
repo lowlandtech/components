@@ -1,7 +1,3 @@
-using Bunit;
-using Microsoft.Extensions.DependencyInjection;
-using ThemeProvider = LowlandTech.Components.ThemeProvider.ThemeProvider;
-
 namespace LowlandTech.Components.Tests.SPEC1071.ComponentThemes.US04.ProviderIsolation;
 
 // ============================================================
@@ -18,7 +14,7 @@ public class SC01_SiblingProvidersHaveIndependentStyles : ThemeProviderScenario
     [Then("tp-a should have Ocean background token in its style")]
     public void UAC01_TpAHasOceanBackground()
     {
-        var cutA = Ctx.Render<ThemeProvider>(p => p
+        var cutA = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-a")
             .Add(x => x.Theme, "Ocean"));
         cutA.Find("style").TextContent.ShouldContain("--background:#f0f9ff");
@@ -29,7 +25,7 @@ public class SC01_SiblingProvidersHaveIndependentStyles : ThemeProviderScenario
     [Then("tp-b should not have Ocean background token in its style")]
     public void UAC02_TpBDoesNotHaveOceanBackground()
     {
-        var cutB = Ctx.Render<ThemeProvider>(p => p
+        var cutB = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-b")
             .Add(x => x.Theme, "Rose"));
         cutB.Find("style").TextContent.ShouldNotContain("--background:#f0f9ff");
@@ -41,10 +37,10 @@ public class SC01_SiblingProvidersHaveIndependentStyles : ThemeProviderScenario
     public void UAC03_BothSiblingsActiveSimultaneously()
     {
         var service = Ctx.Services.GetRequiredService<ComponentThemeService>();
-        var cutA = Ctx.Render<ThemeProvider>(p => p
+        var cutA = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-a")
             .Add(x => x.Theme, "Ocean"));
-        var cutB = Ctx.Render<ThemeProvider>(p => p
+        var cutB = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-b")
             .Add(x => x.Theme, "Rose"));
         service.GetNameForProvider("tp-a").ShouldBe("Ocean");
@@ -56,10 +52,10 @@ public class SC01_SiblingProvidersHaveIndependentStyles : ThemeProviderScenario
     [Then("each sibling should have its own data-theme-provider id")]
     public void UAC04_05_EachSiblingHasOwnId()
     {
-        var cutA = Ctx.Render<ThemeProvider>(p => p
+        var cutA = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-a")
             .Add(x => x.Theme, "Ocean"));
-        var cutB = Ctx.Render<ThemeProvider>(p => p
+        var cutB = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-b")
             .Add(x => x.Theme, "Rose"));
         cutA.Find("[data-theme-provider='tp-a']").ShouldNotBeNull();
@@ -106,10 +102,10 @@ public class SC02_CyclingOneSiblingLeavesOtherIntact : ThemeProviderScenario
     public void UAC08_TpBStyleUnchanged()
     {
         var service = Ctx.Services.GetRequiredService<ComponentThemeService>();
-        var cutA = Ctx.Render<ThemeProvider>(p => p
+        var cutA = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-a")
             .Add(x => x.Theme, "Ocean"));
-        var cutB = Ctx.Render<ThemeProvider>(p => p
+        var cutB = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-b")
             .Add(x => x.Theme, "Rose"));
 
@@ -123,7 +119,7 @@ public class SC02_CyclingOneSiblingLeavesOtherIntact : ThemeProviderScenario
     [Then("tp-a style should reflect the new theme after cycling")]
     public void UAC09_TpAStyleUpdates()
     {
-        var cutA = Ctx.Render<ThemeProvider>(p => p
+        var cutA = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-a")
             .Add(x => x.Theme, "Ocean"));
         var service = Ctx.Services.GetRequiredService<ComponentThemeService>();
@@ -148,10 +144,10 @@ public class SC03_NestedProvidersHaveIndependentStyles : ThemeProviderScenario
     [Then("the outer provider should have a style element with Forest tokens")]
     public void UAC10_OuterProviderHasStyle()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-outer")
             .Add(x => x.Theme, "Forest")
-            .AddChildContent<ThemeProvider>(inner => inner
+            .AddChildContent<TP>(inner => inner
                 .Add(x => x.Id, "tp-inner")
                 .Add(x => x.Theme, "Dark")));
         // Both providers emit <style> elements; FindAll to count
@@ -163,10 +159,10 @@ public class SC03_NestedProvidersHaveIndependentStyles : ThemeProviderScenario
     [Then("the inner provider should have a style element with Dark tokens")]
     public void UAC11_InnerProviderHasStyle()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-outer")
             .Add(x => x.Theme, "Forest")
-            .AddChildContent<ThemeProvider>(inner => inner
+            .AddChildContent<TP>(inner => inner
                 .Add(x => x.Id, "tp-inner")
                 .Add(x => x.Theme, "Dark")));
         var styles = cut.FindAll("style");
@@ -179,10 +175,10 @@ public class SC03_NestedProvidersHaveIndependentStyles : ThemeProviderScenario
     [Then("service should know both tp-outer and tp-inner independently")]
     public void UAC12_BothProvidersRegisteredIndependently()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-outer")
             .Add(x => x.Theme, "Forest")
-            .AddChildContent<ThemeProvider>(inner => inner
+            .AddChildContent<TP>(inner => inner
                 .Add(x => x.Id, "tp-inner")
                 .Add(x => x.Theme, "Dark")));
         var service = Ctx.Services.GetRequiredService<ComponentThemeService>();
@@ -195,10 +191,10 @@ public class SC03_NestedProvidersHaveIndependentStyles : ThemeProviderScenario
     [Then("outer style element should be scoped to tp-outer")]
     public void UAC13_OuterStyleScopedCorrectly()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-outer")
             .Add(x => x.Theme, "Forest")
-            .AddChildContent<ThemeProvider>(inner => inner
+            .AddChildContent<TP>(inner => inner
                 .Add(x => x.Id, "tp-inner")
                 .Add(x => x.Theme, "Dark")));
         var styles = cut.FindAll("style");
@@ -259,10 +255,10 @@ public class SC04_CyclingInnerDoesNotAffectOuter : ThemeProviderScenario
     [Then("tp-outer rendered output should be unchanged after tp-inner cycles")]
     public void UAC17_OuterRenderUnchanged()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-outer")
             .Add(x => x.Theme, "Forest")
-            .AddChildContent<ThemeProvider>(inner => inner
+            .AddChildContent<TP>(inner => inner
                 .Add(x => x.Id, "tp-inner")
                 .Add(x => x.Theme, "Dark")));
         var service = Ctx.Services.GetRequiredService<ComponentThemeService>();
@@ -330,10 +326,10 @@ public class SC05_CyclingOuterDoesNotAffectInner : ThemeProviderScenario
     [Then("tp-inner rendered output should be unchanged after tp-outer cycles")]
     public void UAC21_InnerRenderUnchanged()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-outer")
             .Add(x => x.Theme, "Forest")
-            .AddChildContent<ThemeProvider>(inner => inner
+            .AddChildContent<TP>(inner => inner
                 .Add(x => x.Id, "tp-inner")
                 .Add(x => x.Theme, "Dark")));
         var service = Ctx.Services.GetRequiredService<ComponentThemeService>();
@@ -366,7 +362,7 @@ public class SC06_DisposedSiblingDoesNotBreakSibling : ThemeProviderScenario
     [Then("tp-a should be removed from service after disposal")]
     public void UAC22_TpARemovedAfterDispose()
     {
-        var cutA = Ctx.Render<ThemeProvider>(p => p
+        var cutA = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-a")
             .Add(x => x.Theme, "Ocean"));
         var service = Ctx.Services.GetRequiredService<ComponentThemeService>();
@@ -379,7 +375,7 @@ public class SC06_DisposedSiblingDoesNotBreakSibling : ThemeProviderScenario
     [Then("tp-b should still be addressable after tp-a is disposed")]
     public void UAC23_TpBStillAddressableAfterTpADisposed()
     {
-        var cutA = Ctx.Render<ThemeProvider>(p => p
+        var cutA = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-a")
             .Add(x => x.Theme, "Ocean"));
         var service = Ctx.Services.GetRequiredService<ComponentThemeService>();
@@ -393,7 +389,7 @@ public class SC06_DisposedSiblingDoesNotBreakSibling : ThemeProviderScenario
     [Then("tp-b should still cycle after tp-a is disposed")]
     public void UAC24_25_TpBCyclesAfterTpADisposed()
     {
-        var cutA = Ctx.Render<ThemeProvider>(p => p
+        var cutA = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-a")
             .Add(x => x.Theme, "Ocean"));
         var service = Ctx.Services.GetRequiredService<ComponentThemeService>();
@@ -466,7 +462,7 @@ public class SC08_ProviderWithChildContentRenders : ThemeProviderScenario
     {
         var exception = Record.Exception(() =>
         {
-            var cut = Ctx.Render<ThemeProvider>(p => p
+            var cut = Ctx.Render<TP>(p => p
                 .Add(x => x.Id, "tp-content")
                 .Add(x => x.Theme, "Ocean")
                 .AddChildContent("<button type='button'>click</button><span class='badge'>new</span>"));

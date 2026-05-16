@@ -1,8 +1,3 @@
-using Bunit;
-using Microsoft.Extensions.DependencyInjection;
-using ThemeProvider = LowlandTech.Components.ThemeProvider.ThemeProvider;
-
-
 namespace LowlandTech.Components.Tests.SPEC1071.ComponentThemes.US02.ThemeProviderBoundary;
 
 // ============================================================
@@ -20,7 +15,7 @@ public class SC01_ProviderRendersBoundary : ThemeProviderScenario
     [Then("the root element should be a 'div'")]
     public void UAC01_RootElementIsDiv()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "settings-panel"));
         cut.Find("[data-theme-provider='settings-panel']").TagName.ToLower()
             .ShouldBe("div");
@@ -31,7 +26,7 @@ public class SC01_ProviderRendersBoundary : ThemeProviderScenario
     [Then("the root element should have data-theme-provider='settings-panel'")]
     public void UAC02_DataThemeProviderAttribute()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "settings-panel"));
         cut.Find("[data-theme-provider='settings-panel']").ShouldNotBeNull();
     }
@@ -41,7 +36,7 @@ public class SC01_ProviderRendersBoundary : ThemeProviderScenario
     [Then("the root element should preserve child content inside the boundary")]
     public void UAC03_ChildContentPreserved()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "settings-panel")
             .AddChildContent("<span id='inner'>hello</span>"));
         cut.Find("#inner").ShouldNotBeNull();
@@ -52,7 +47,7 @@ public class SC01_ProviderRendersBoundary : ThemeProviderScenario
     [Then("ThemeProviderRendered should include providerId 'settings-panel'")]
     public void UAC04_ProviderIdInMarkup()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "settings-panel"));
         cut.Markup.ShouldContain("settings-panel");
     }
@@ -73,7 +68,7 @@ public class SC02_ProviderWritesThemeTokens : ThemeProviderScenario
     [Then("the root element style should contain '--background:#f0f9ff'")]
     public void UAC05_StyleContainsOceanBackground()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "preview")
             .Add(x => x.Theme, "Ocean"));
         cut.Find("style").TextContent.ShouldContain("--background:#f0f9ff");
@@ -84,7 +79,7 @@ public class SC02_ProviderWritesThemeTokens : ThemeProviderScenario
     [Then("the root element style should contain '--foreground:'")]
     public void UAC06_StyleContainsForeground()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "preview")
             .Add(x => x.Theme, "Ocean"));
         cut.Find("style").TextContent.ShouldContain("--foreground:");
@@ -95,7 +90,7 @@ public class SC02_ProviderWritesThemeTokens : ThemeProviderScenario
     [Then("the root element style should contain '--primary:'")]
     public void UAC07_StyleContainsPrimary()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "preview")
             .Add(x => x.Theme, "Ocean"));
         cut.Find("style").TextContent.ShouldContain("--primary:");
@@ -106,7 +101,7 @@ public class SC02_ProviderWritesThemeTokens : ThemeProviderScenario
     [Then("token declarations should be separated by semicolons")]
     public void UAC08_TokensSeparatedBySemicolons()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "preview")
             .Add(x => x.Theme, "Ocean"));
         cut.Find("style").TextContent.ShouldContain(";");
@@ -117,7 +112,7 @@ public class SC02_ProviderWritesThemeTokens : ThemeProviderScenario
     [Then("ThemeProviderStyleUpdated should include providerId 'preview'")]
     public void UAC09_StyleScopedToProviderId()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "preview")
             .Add(x => x.Theme, "Ocean"));
         cut.Find("style").TextContent.ShouldContain("[data-theme-provider=\"preview\"]");
@@ -139,7 +134,7 @@ public class SC03_ProviderCascadesContext : ThemeProviderScenario
     [Then("child components should receive ThemeProviderContext")]
     public void UAC10_ThemeToggleReceivesContext()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "toolbar")
             .Add(x => x.Theme, "Ocean")
             .AddChildContent<ThemeToggle>());
@@ -154,7 +149,7 @@ public class SC03_ProviderCascadesContext : ThemeProviderScenario
     [Then("ThemeProviderContext.ProviderId should be 'toolbar'")]
     public void UAC11_ContextProviderIdIsToolbar()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "toolbar")
             .Add(x => x.Theme, "Ocean")
             .AddChildContent("<p id='child'>content</p>"));
@@ -167,7 +162,7 @@ public class SC03_ProviderCascadesContext : ThemeProviderScenario
     [Then("ThemeProviderContext.ThemeService should be the same scoped service instance")]
     public void UAC12_ServiceInstanceIsSameScoped()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "toolbar")
             .Add(x => x.Theme, "Ocean")
             .AddChildContent<ThemeToggle>());
@@ -188,7 +183,7 @@ public class SC03_ProviderCascadesContext : ThemeProviderScenario
     {
         // Verify indirectly: the provider re-renders after a theme change and
         // ThemeToggle (a descendant) receives the updated context.
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "toolbar")
             .Add(x => x.Theme, "Ocean")
             .AddChildContent<ThemeToggle>());
@@ -213,7 +208,7 @@ public class SC04_ProviderPassesThroughAttributes : ThemeProviderScenario
     [Trait(Spec.UAC, "14")]
     public void UAC14_DivHasRoundedXl()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "theme-root")
             .Add(x => x.Class, "rounded-xl border p-4"));
         cut.Find("[data-theme-provider='theme-root']").ClassList.ShouldContain("rounded-xl");
@@ -223,7 +218,7 @@ public class SC04_ProviderPassesThroughAttributes : ThemeProviderScenario
     [Trait(Spec.UAC, "15")]
     public void UAC15_DivHasBorder()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "theme-root")
             .Add(x => x.Class, "rounded-xl border p-4"));
         cut.Find("[data-theme-provider='theme-root']").ClassList.ShouldContain("border");
@@ -233,7 +228,7 @@ public class SC04_ProviderPassesThroughAttributes : ThemeProviderScenario
     [Trait(Spec.UAC, "16")]
     public void UAC16_AdditionalAttributeRendered()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "theme-root")
             .AddUnmatched("data-testid", "theme-root"));
         cut.Find("[data-testid='theme-root']").ShouldNotBeNull();
@@ -243,7 +238,7 @@ public class SC04_ProviderPassesThroughAttributes : ThemeProviderScenario
     [Trait(Spec.UAC, "17")]
     public void UAC17_DataThemeProviderCoexistsWithExtraAttrs()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "theme-root")
             .AddUnmatched("data-testid", "theme-root"));
         cut.Find("[data-theme-provider='theme-root'][data-testid='theme-root']")
@@ -266,10 +261,10 @@ public class SC05_ProviderOnlyUpdatesOnMatch : ThemeProviderScenario
     [Trait(Spec.UAC, "18")]
     public void UAC18_21_MatchingProviderUpdatesNonMatchingDoesNot()
     {
-        var cutA = Ctx.Render<ThemeProvider>(p => p
+        var cutA = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-a")
             .Add(x => x.Theme, "Ocean"));
-        var cutB = Ctx.Render<ThemeProvider>(p => p
+        var cutB = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-b")
             .Add(x => x.Theme, "Rose"));
 
@@ -301,7 +296,7 @@ public class SC06_ProviderIgnoresMismatchedEvent : ThemeProviderScenario
     [Trait(Spec.UAC, "22")]
     public void UAC22_24_NonMatchingEventLeavesProviderUnchanged()
     {
-        var cutA = Ctx.Render<ThemeProvider>(p => p
+        var cutA = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "tp-a")
             .Add(x => x.Theme, "Ocean"));
 
@@ -329,7 +324,7 @@ public class SC07_ProviderDisposesCleanly : ThemeProviderScenario
     [Trait(Spec.UAC, "25")]
     public void UAC25_ServiceNoLongerContainsProvider()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "temporary-preview")
             .Add(x => x.Theme, "Ocean"));
         var service = Ctx.Services.GetRequiredService<ComponentThemeService>();
@@ -344,7 +339,7 @@ public class SC07_ProviderDisposesCleanly : ThemeProviderScenario
     [Trait(Spec.UAC, "26")]
     public void UAC26_27_ThemeChangedAfterDisposeDoesNotRender()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "temporary-preview")
             .Add(x => x.Theme, "Ocean"));
         var service = Ctx.Services.GetRequiredService<ComponentThemeService>();
@@ -375,7 +370,7 @@ public class SC08_ProviderNoStyleForUnknownTheme : ThemeProviderScenario
     [Trait(Spec.UAC, "29")]
     public void UAC29_31_NoStyleForUnknownTheme()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "unknown-preview")
             .Add(x => x.Theme, "Solarized")); // not a registered theme name
 
@@ -390,7 +385,7 @@ public class SC08_ProviderNoStyleForUnknownTheme : ThemeProviderScenario
     [Trait(Spec.UAC, "30")]
     public void UAC30_ChildContentRenderedWithUnknownTheme()
     {
-        var cut = Ctx.Render<ThemeProvider>(p => p
+        var cut = Ctx.Render<TP>(p => p
             .Add(x => x.Id, "unknown-preview")
             .Add(x => x.Theme, "Solarized")
             .AddChildContent("<span id='c'>ok</span>"));

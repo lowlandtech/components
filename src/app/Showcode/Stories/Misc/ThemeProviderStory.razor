@@ -62,8 +62,9 @@
         new(
             "nested",
             "Nested",
-            @<ThemeProvider Id="tp-outer" Theme="Forest"
-                            Class="rounded-xl border p-4 bg-background text-foreground">
+            @<div class="flex gap-4 flex-wrap">
+                <ThemeProvider Id="tp-outer" Theme="Forest"
+                               Class="flex-1 min-w-64 rounded-xl border p-4 bg-background text-foreground">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-xs font-semibold">Outer: @Label("tp-outer")</span>
                     <ThemeToggle AriaLabel="Cycle outer" />
@@ -79,7 +80,8 @@
                         <Badge>Nested</Badge>
                     </div>
                 </ThemeProvider>
-            </ThemeProvider>,
+            </ThemeProvider>
+            </div>,
             [new StoryCard.CodeTab("nested-razor", "ThemeProviderStory.razor", NestedRazor)])
     ];
 
