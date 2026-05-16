@@ -58,14 +58,14 @@
                             @foreach (var codeTab in state.CodeTabs)
                             {
                                 <TabsContent Value="@codeTab.Value" class="mt-0">
-                                    <div class="flex h-9 items-center justify-between gap-2 border-b border-zinc-800 bg-zinc-950 px-4 font-mono text-xs text-zinc-400">
+                                    <div class="story-card-code-header">
                                         <div class="flex items-center gap-2">
                                             <span>@codeTab.Name</span>
                                             <span class="rounded bg-zinc-800 px-1.5 py-0.5 uppercase tracking-wider text-zinc-300">@codeTab.Language</span>
                                         </div>
                                         <Button Variant="ghost"
                                                 Size="icon-sm"
-                                                class="text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
+                                                class="story-card-copy-button text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
                                                 title="@($"Copy {codeTab.Name} code")"
                                                 @onclick="() => CopyCode(codeTab)">
                                             <Icon Name="@(CopiedValue == codeTab.Value ? "check" : "copy")" Size="14" />
