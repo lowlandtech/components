@@ -42,8 +42,8 @@
 
                     @if (state.CodeTabs.Count > 0)
                     {
-                        <Tabs DefaultValue="@state.CodeTabs[0].Value" class="mx-4 mb-4 mt-4 overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950 text-zinc-100 shadow-sm">
-                            <div class="flex min-h-12 items-center justify-between gap-3 border-b border-zinc-800 bg-zinc-900/80 px-3">
+                        <Tabs DefaultValue="@state.CodeTabs[0].Value" class="mx-4 mb-4 mt-4 overflow-hidden rounded-lg border border-[#444c56] bg-[#24292E] text-[#c9d1d9] shadow-sm">
+                            <div class="flex min-h-12 items-center justify-between gap-3 border-b border-[#444c56] bg-[#2d333b] px-3">
                                 <TabsList class="story-card-code-tabs">
                                     @foreach (var codeTab in state.CodeTabs)
                                     {
@@ -61,11 +61,11 @@
                                     <div class="story-card-code-header">
                                         <div class="flex items-center gap-2">
                                             <span>@codeTab.Name</span>
-                                            <span class="rounded bg-zinc-800 px-1.5 py-0.5 uppercase tracking-wider text-zinc-300">@codeTab.Language</span>
+                                            <span class="rounded bg-[#444c56] px-1.5 py-0.5 uppercase tracking-wider text-[#c9d1d9]">@codeTab.Language</span>
                                         </div>
                                         <Button Variant="ghost"
                                                 Size="icon-sm"
-                                                class="story-card-copy-button text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
+                                                class="story-card-copy-button text-[#8b949e] hover:bg-[#444c56] hover:text-[#c9d1d9]"
                                                 title="@($"Copy {codeTab.Name} code")"
                                                 @onclick="() => CopyCode(codeTab)">
                                             <Icon Name="@(CopiedValue == codeTab.Value ? "check" : "copy")" Size="14" />

@@ -49,6 +49,17 @@
             </div>,
             [
                 new StoryCard.CodeTab("states-razor", "InputStory.razor", StatesRazor)
+            ]),
+        new(
+            "floating-label",
+            "Floating Label",
+            @<div style="display: flex; flex-direction: column; gap: 1.25rem; width: 100%; max-width: 20rem;">
+                <Input Variant="floating" Label="Username" />
+                <Input Variant="floating" Label="Email address" Type="email" />
+                <Input Variant="floating" Label="Password" Type="password" />
+            </div>,
+            [
+                new StoryCard.CodeTab("floating-razor", "InputStory.razor", FloatingLabelRazor)
             ])
     ];
 
@@ -83,5 +94,12 @@
             <Input Placeholder="Read only" ReadOnly="true" Value="Read-only value" />
             <Input Placeholder="Invalid" Invalid="true" Value="bad value" />
         </div>
+        """;
+
+    private const string FloatingLabelRazor =
+        """
+        <Input Variant="floating" Label="Username" />
+        <Input Variant="floating" Label="Email address" Type="email" />
+        <Input Variant="floating" Label="Password" Type="password" />
         """;
 }

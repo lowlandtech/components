@@ -14,7 +14,7 @@
         new(
             "right",
             "Right (default)",
-            @<div class="h-96 w-full border border-border rounded-lg bg-sidebar flex items-end justify-end p-4">
+            @<div class="h-96 w-full border border-border rounded-lg bg-sidebar flex items-center justify-center">
                 <Drawer @bind-IsOpen="_open1">
                     <DrawerTrigger>
                         <Button>Open Drawer</Button>
@@ -47,7 +47,7 @@
         new(
             "left",
             "Left direction",
-            @<div class="h-96 w-full border border-border rounded-lg bg-sidebar flex items-end justify-end p-4">
+            @<div class="h-96 w-full border border-border rounded-lg bg-sidebar flex items-center justify-center">
                 <Drawer @bind-IsOpen="_open2" Direction="left">
                     <DrawerTrigger>
                         <Button Variant="outline">Open Left Drawer</Button>
@@ -72,7 +72,7 @@
         new(
             "overlay",
             "With overlay",
-            @<div class="h-96 w-full border border-border rounded-lg bg-sidebar flex items-end justify-end p-4 overflow-hidden relative">
+            @<div class="h-96 w-full border border-border rounded-lg bg-sidebar flex items-center justify-center overflow-hidden relative">
                 <Drawer @bind-IsOpen="_open3">
                     <DrawerTrigger>
                         <Button Variant="secondary">Open with Overlay</Button>

@@ -4,9 +4,10 @@
 
 <Sidebar Side="left" Variant="sidebar" Collapsible="offcanvas">
     <SidebarHeader>
-        <div class="px-2 py-1">
-            <span class="text-sm font-semibold text-sidebar-foreground">All Components</span>
-        </div>
+        <a href="/" class="px-2 py-1.5 flex items-center gap-2 no-underline hover:opacity-80 transition-opacity">
+            <div class="flex size-6 items-center justify-center rounded-md bg-sidebar-primary text-[11px] font-bold text-sidebar-primary-foreground select-none">LT</div>
+            <span class="text-sm font-semibold text-sidebar-foreground"><span class="text-sidebar-primary">Tiny</span>Components</span>
+        </a>
     </SidebarHeader>
     <SidebarContent>
         @foreach (var group in StoryRegistry.Root.Children)

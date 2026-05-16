@@ -13,8 +13,15 @@ public partial class Input
     /// The variant of the input.
     /// </summary>
     [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Select,
-        Options = new[] { "default", "destructive" })]
+        Options = new[] { "default", "destructive", "floating" })]
     public string Variant { get; set; } = "default";
+
+    /// <summary>
+    /// The label text. Required for Variant="floating" — floats above the input when focused or filled.
+    /// </summary>
+    [Parameter, PropertyGrid(Group = "Appearance",
+        Description = "Floating label text (used with Variant=\"floating\")")]
+    public string? Label { get; set; }
 
     /// <summary>
     /// The size of the input.

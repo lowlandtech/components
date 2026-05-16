@@ -55,11 +55,11 @@
                         <tr data-slot="data-grid-filter-row" class="cn-data-grid-filter-row">
                             @if (SelectionMode == DataGridSelectionMode.Multiple)
                             {
-                                <th data-slot="data-grid-filter-cell" class="cn-data-grid-head cn-data-grid-selection-cell"></th>
+                                <th data-slot="data-grid-filter-cell" class="cn-data-grid-filter-cell cn-data-grid-selection-cell"></th>
                             }
                             @foreach (var column in VisibleColumns)
                             {
-                                <th data-slot="data-grid-filter-cell" class="@GetHeaderCellClass(column)">
+                                <th data-slot="data-grid-filter-cell" class="cn-data-grid-filter-cell">
                                     @if (CanFilter(column))
                                     {
                                         <input data-slot="data-grid-filter-input"

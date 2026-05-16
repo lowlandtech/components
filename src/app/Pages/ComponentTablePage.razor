@@ -1,14 +1,6 @@
 @inject ShowcodeState State
 
-<div class="space-y-6">
-    <div>
-        <h1 class="text-2xl font-bold tracking-tight text-foreground">Component Library</h1>
-        <p class="mt-1 text-sm text-muted-foreground">
-            @_total components &middot; @_groups.Count groups &middot; Click any element to explore
-        </p>
-    </div>
-
-    <div class="flex gap-2 items-start overflow-x-auto pb-2">
+<div class="flex gap-2 items-start overflow-x-auto pb-2" style="padding-top: 2rem;">
         @foreach (var group in _groups)
         {
             var colors = GetGroupColors(group.Name);
@@ -32,7 +24,6 @@
                 }
             </div>
         }
-    </div>
 </div>
 
 @code {

@@ -513,19 +513,19 @@ html:hover                             { scrollbar-color: var(--border) transpar
   }
 
   .story-card-code-tabs {
-    @apply inline-flex h-8 items-center gap-1 rounded-full bg-zinc-950 p-1;
+    @apply inline-flex h-8 items-center gap-1 rounded-full bg-[#24292E] p-1;
   }
 
   .story-card-code-tab {
-    @apply h-6 gap-1.5 rounded-full px-2.5 font-mono text-xs text-zinc-400 transition-colors;
+    @apply h-6 gap-1.5 rounded-full px-2.5 font-mono text-xs text-[#8b949e] transition-colors;
   }
 
   .story-card-code-tab[data-state="active"] {
-    @apply bg-zinc-800 text-zinc-50 shadow-none;
+    @apply bg-[#444c56] text-[#c9d1d9] shadow-none;
   }
 
   .story-card-file-dot {
-    @apply size-1.5 rounded-full bg-zinc-500;
+    @apply size-1.5 rounded-full bg-[#8b949e];
   }
 
   .story-card-file-dot[data-language="razor"] {
@@ -537,7 +537,7 @@ html:hover                             { scrollbar-color: var(--border) transpar
   }
 
   .story-card-code-header {
-    @apply flex min-h-11 items-center justify-between gap-3 border-b border-zinc-800 bg-zinc-950 px-4 pb-2 pt-3 font-mono text-xs text-zinc-400;
+    @apply flex min-h-11 items-center justify-between gap-3 border-b border-[#444c56] bg-[#24292E] px-4 pb-2 pt-3 font-mono text-xs text-[#8b949e];
   }
 
   .story-card-copy-button {
@@ -545,7 +545,7 @@ html:hover                             { scrollbar-color: var(--border) transpar
   }
 
   .story-card-code-editor {
-    @apply max-h-96 overflow-auto bg-zinc-950 py-3 font-mono text-sm leading-6 text-zinc-100;
+    @apply max-h-96 overflow-auto bg-[#24292E] py-3 font-mono text-sm leading-6 text-[#c9d1d9];
   }
 
   .story-card-code-line {
@@ -553,11 +553,11 @@ html:hover                             { scrollbar-color: var(--border) transpar
   }
 
   .story-card-code-line:hover {
-    @apply bg-zinc-900/70;
+    background-color: rgba(45, 51, 59, 0.7);
   }
 
   .story-card-line-number {
-    @apply select-none pr-4 text-right text-zinc-600;
+    @apply select-none pr-4 text-right text-[#6e7681];
   }
 
   .story-card-line-code {
@@ -565,23 +565,23 @@ html:hover                             { scrollbar-color: var(--border) transpar
   }
 
   .story-card-token-punctuation {
-    @apply text-zinc-500;
+    color: #8b949e;
   }
 
   .story-card-token-tag {
-    @apply text-sky-300;
+    color: #7ee787;
   }
 
   .story-card-token-string {
-    @apply text-amber-300;
+    color: #a5d6ff;
   }
 
   .story-card-token-keyword {
-    @apply text-violet-300;
+    color: #ff7b72;
   }
 
   .story-card-token-type {
-    @apply text-teal-300;
+    color: #ffa657;
   }
 
   /* ButtonGroup Component Styles */

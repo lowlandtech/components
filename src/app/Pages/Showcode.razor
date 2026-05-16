@@ -1,4 +1,4 @@
-@page "/"
+@page "/components"
 @layout ShowcodeLayout
 @inject ShowcodeState State
 @implements IDisposable
@@ -21,13 +21,9 @@
         <DynamicComponent Type="@State.Current.Type" />
     </div>
 }
-else if (State.IsTableMode)
-{
-    <ComponentTablePage />
-}
 else
 {
-    <TinyComponentsHome />
+    <ComponentTablePage />
 }
 
 @code {

@@ -536,8 +536,12 @@
     @apply border-t border-border;
   }
 
+  .cn-data-grid-filter-cell {
+    @apply px-2 py-1 align-middle;
+  }
+
   .cn-data-grid-filter-input {
-    @apply h-8 w-full rounded-md border border-input bg-transparent px-2 text-sm text-foreground shadow-sm outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring;
+    @apply h-7 w-full rounded-md border border-input bg-transparent px-2 text-sm text-foreground shadow-sm outline-none placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring;
   }
 
   .cn-data-grid-cell {

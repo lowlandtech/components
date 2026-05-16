@@ -1,4 +1,9 @@
 /* Light theme (default) */
+
+html {
+    scroll-behavior: smooth;
+}
+
 :root {
     --background: #fafafa;
     --foreground: #1a1a27;
