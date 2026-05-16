@@ -1,0 +1,154 @@
+@inject ShowcodeState State
+
+<div class="flex flex-col items-center">
+
+    @* ── Hero ─────────────────────────────────────────────────── *@
+    <section class="flex flex-col items-center text-center gap-8 pt-20 pb-16 max-w-2xl">
+
+        <div class="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm text-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+            </svg>
+            A beautiful component library for Blazor
+        </div>
+
+        <h1 class="text-5xl font-bold tracking-tight leading-tight">
+            <span class="text-primary">Tiny</span>Components
+        </h1>
+
+        <p class="text-lg text-muted-foreground leading-relaxed max-w-lg">
+            A lightweight, powerful component library for Blazor Server.
+            Built with Tailwind CSS 4.0 and inspired by shadcn/ui.
+            Perfect for building modern, accessible web applications.
+        </p>
+
+        <div class="flex items-center gap-3">
+            <button type="button"
+                    class="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+                    @onclick="() => State.ShowTable()">
+                Browse Components
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+                </svg>
+            </button>
+            <a href="https://github.com/lowlandtech/foundry"
+               target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center gap-2 rounded-md border border-border bg-background px-5 py-2.5 text-sm font-semibold text-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/>
+                    <path d="M9 18c-4.51 2-5-2-7-2"/>
+                </svg>
+                View on GitHub
+            </a>
+        </div>
+    </section>
+
+    @* ── Features ──────────────────────────────────────────────── *@
+    <section class="w-full py-12 border-t border-border">
+        <h2 class="text-2xl font-bold text-center mb-8">Features</h2>
+        <div class="grid gap-4" style="grid-template-columns: repeat(4, 1fr)">
+
+            <div class="flex flex-col gap-3 rounded-lg border border-border bg-card p-5">
+                <div class="flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                </div>
+                <h3 class="font-semibold text-foreground">shadcn/ui Inspired</h3>
+                <p class="text-sm text-muted-foreground leading-relaxed">
+                    Beautifully designed components faithfully adapted from shadcn/ui for Blazor Server.
+                </p>
+            </div>
+
+            <div class="flex flex-col gap-3 rounded-lg border border-border bg-card p-5">
+                <div class="flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m8 17 4 4 4-4"/>
+                    </svg>
+                </div>
+                <h3 class="font-semibold text-foreground">Tailwind CSS 4</h3>
+                <p class="text-sm text-muted-foreground leading-relaxed">
+                    Styled with Tailwind CSS 4.0 with full dark mode and customizable design tokens.
+                </p>
+            </div>
+
+            <div class="flex flex-col gap-3 rounded-lg border border-border bg-card p-5">
+                <div class="flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                        <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+                    </svg>
+                </div>
+                <h3 class="font-semibold text-foreground">50+ Components</h3>
+                <p class="text-sm text-muted-foreground leading-relaxed">
+                    From buttons to data grids, a comprehensive set for building modern Blazor applications.
+                </p>
+            </div>
+
+            <div class="flex flex-col gap-3 rounded-lg border border-border bg-card p-5">
+                <div class="flex size-10 items-center justify-center rounded-md bg-primary/10 text-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M13 2v7h7"/>
+                    </svg>
+                </div>
+                <h3 class="font-semibold text-foreground">Live Code Preview</h3>
+                <p class="text-sm text-muted-foreground leading-relaxed">
+                    Interactive component explorer with live source code you can copy straight into your project.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    @* ── Quick Start ──────────────────────────────────────────── *@
+    <section class="w-full py-12 border-t border-border">
+        <h2 class="text-2xl font-bold text-center mb-8">Quick Start</h2>
+
+        <div class="flex flex-col gap-4 max-w-2xl mx-auto">
+
+            <div class="rounded-lg border border-border overflow-hidden">
+                <div class="flex items-center justify-between border-b border-border bg-muted/50 px-4 py-2.5">
+                    <span class="text-sm font-medium text-foreground">Installation</span>
+                    <span class="text-xs text-muted-foreground">.NET CLI</span>
+                </div>
+                <div class="bg-zinc-950 px-4 py-4 font-mono text-sm text-zinc-100">
+                    <span class="text-zinc-500">$</span> dotnet add package <span class="text-primary">LowlandTech.Components</span>
+                </div>
+            </div>
+
+            <div class="rounded-lg border border-border overflow-hidden">
+                <div class="flex items-center justify-between border-b border-border bg-muted/50 px-4 py-2.5">
+                    <span class="text-sm font-medium text-foreground">_Imports.razor</span>
+                    <span class="text-xs text-muted-foreground">Razor</span>
+                </div>
+                <div class="bg-zinc-950 px-4 py-4 font-mono text-sm leading-6">
+                    <span class="text-violet-300">@@using</span> <span class="text-teal-300">LowlandTech.Components</span>
+                </div>
+            </div>
+
+            <div class="rounded-lg border border-border overflow-hidden">
+                <div class="flex items-center justify-between border-b border-border bg-muted/50 px-4 py-2.5">
+                    <span class="text-sm font-medium text-foreground">MyPage.razor</span>
+                    <span class="text-xs text-muted-foreground">Razor</span>
+                </div>
+                <div class="bg-zinc-950 px-4 py-4 font-mono text-sm leading-6 space-y-1">
+                    <div><span class="text-sky-300">&lt;Button</span> <span class="text-amber-300">Variant</span><span class="text-zinc-400">=</span><span class="text-amber-300">"primary"</span><span class="text-sky-300">&gt;</span><span class="text-zinc-100">Click me</span><span class="text-sky-300">&lt;/Button&gt;</span></div>
+                    <div><span class="text-sky-300">&lt;Badge</span> <span class="text-amber-300">Variant</span><span class="text-zinc-400">=</span><span class="text-amber-300">"secondary"</span><span class="text-sky-300">&gt;</span><span class="text-zinc-100">New</span><span class="text-sky-300">&lt;/Badge&gt;</span></div>
+                    <div><span class="text-sky-300">&lt;Alert</span> <span class="text-amber-300">Title</span><span class="text-zinc-400">=</span><span class="text-amber-300">"Heads up!"</span> <span class="text-sky-300">/&gt;</span></div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    @* ── Footer ────────────────────────────────────────────────── *@
+    <footer class="w-full py-8 border-t border-border text-center">
+        <p class="text-sm text-muted-foreground">
+            &copy; 2026 LowlandTech. All rights reserved. &middot; Part of the
+            <a href="https://github.com/lowlandtech/foundry" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Foundry</a>
+            platform.
+        </p>
+    </footer>
+
+</div>

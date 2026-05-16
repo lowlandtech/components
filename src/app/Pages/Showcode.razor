@@ -3,7 +3,7 @@
 @inject ShowcodeState State
 @implements IDisposable
 
-<PageTitle>LowlandTech Components</PageTitle>
+<PageTitle>TinyComponents</PageTitle>
 
 @if (State.Current is not null)
 {
@@ -11,7 +11,7 @@
         <div>
             <button type="button"
                     class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    @onclick="() => State.Clear()">
+                    @onclick="() => State.ShowTable()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m15 18-6-6 6-6"/>
                 </svg>
@@ -21,9 +21,13 @@
         <DynamicComponent Type="@State.Current.Type" />
     </div>
 }
-else
+else if (State.IsTableMode)
 {
     <ComponentTablePage />
+}
+else
+{
+    <TinyComponentsHome />
 }
 
 @code {
