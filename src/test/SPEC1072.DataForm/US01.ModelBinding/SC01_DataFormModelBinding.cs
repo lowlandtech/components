@@ -94,13 +94,13 @@ public class SC01_DataFormModelBinding : ViewScenario
         cut.Find("[data-field-input='IsActive']").GetAttribute("type").ShouldBe("checkbox");
     }
 
-    [Fact(DisplayName = "UAC12: enum properties render select inputs by default")]
+    [Fact(DisplayName = "UAC12: enum properties render Select component by default")]
     [Trait(Spec.UAC, "12")]
     public void UAC12_EnumPropertyRendersSelect()
     {
         var model = new CustomerFormModel();
         var cut = Ctx.Render<DataFormSut>(p => p.Add(x => x.Model, model));
-        cut.Find("[data-field-input='Status']").TagName.ShouldBe("SELECT");
+        cut.Find("[data-field-input='Status']").GetAttribute("data-slot").ShouldBe("select");
     }
 
     [Fact(DisplayName = "UAC13: DateTime properties render date inputs by default")]
@@ -164,16 +164,30 @@ public class SC01_DataFormModelBinding : ViewScenario
         model.Name.ShouldBe("New name");
     }
 
-    [Fact(DisplayName = "UAC25: resetting the model recreates EditContext")]
-    [Trait(Spec.UAC, "25")]
-    public void UAC25_ResetModelRecreatesEditContext()
+    [Fact(DisplayName = "UAC22: clearing a numeric field sets it to zero instead of crashing")]
+    [Trait(Spec.UAC, "22")]
+    public void UAC22_ClearingNumericFieldSetsZero()
     {
-        var model = new CustomerFormModel();
+        var model = new CustomerFormModel { Age = 42 };
         var cut = Ctx.Render<DataFormSut>(p => p.Add(x => x.Model, model));
+        cut.Find("[data-field-input='Age']").Input("");
+        model.Age.ShouldBe(0);
+    }
+
+    [Fact(DisplayName = "UAC25: the EditContext points at the new model instance")]
+    [Trait(Spec.UAC, "25")]
+    public void UAC25_EditContextPointsAtNewModel()
+    {
+        var model1 = new CustomerFormModel();
+        var cut = Ctx.Render<DataFormSut>(p => p.Add(x => x.Model, model1));
         var cascadingBefore = cut.FindComponent<CascadingValue<EditContext>>().Instance.Value;
-        cut.Find("button[type='button']").Click();
+
+        var model2 = new CustomerFormModel();
+        cut.Render(p => p.Add(x => x.Model, model2));
+
         var cascadingAfter = cut.FindComponent<CascadingValue<EditContext>>().Instance.Value;
         cascadingAfter.ShouldNotBe(cascadingBefore);
+        cascadingAfter.Model.ShouldBe(model2);
     }
 
     [Fact(DisplayName = "UAC29: read-only mode renders values without editable inputs")]

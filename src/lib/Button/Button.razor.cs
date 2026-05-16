@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Components.Web;
-
 namespace LowlandTech.Components.Button;
 
 public partial class Button : TinyComponentBase

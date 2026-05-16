@@ -6,7 +6,9 @@
           data-layout="@Layout"
           class="@GetClass()"
           @attributes="AdditionalAttributes"
-          @onsubmit="HandleSubmit">
+          @onsubmit="HandleSubmit"
+          @onsubmit:preventDefault>
+
 
         @if (ShowValidationSummary && _validationSummary.Count > 0)
         {
@@ -25,6 +27,7 @@
                 var validationId = $"{fieldId}-validation";
                 var fieldMessages = GetFieldMessages(field.PropertyName);
                 var hasErrors = fieldMessages.Count > 0;
+                var currentValue = GetDisplayValue(field.PropertyName);
 
                 <div data-field="@field.PropertyName" class="@GetFieldWrapperClass()">
                     @if (LabelTemplate != null)
@@ -45,12 +48,73 @@
                     else if (ReadOnly || field.ReadOnly)
                     {
                         <div data-field-readonly="@field.PropertyName" class="rounded-md border border-input bg-muted px-3 py-2 text-sm text-muted-foreground">
-                            @GetDisplayValue(field.PropertyName)
+                            @currentValue
                         </div>
                     }
                     else
                     {
-                        @RenderInput(field, fieldId, hasErrors)
+                        @switch (field.InputKind)
+                        {
+                            case "checkbox":
+                                <input type="checkbox"
+                                       id="@fieldId"
+                                       data-field-input="@field.PropertyName"
+                                       checked="@(GetValue(field.PropertyName) is true)"
+                                       class="h-4 w-4 rounded border-input text-primary focus:ring-ring"
+                                       aria-invalid="@(hasErrors ? "true" : null)"
+                                       aria-describedby="@(hasErrors ? validationId : null)"
+                                       @onchange="e => HandleCheckboxChange(field.PropertyName, e)" />
+                                break;
+
+                            case "select" when field.PropertyType.IsEnum:
+                                <Select Value="@currentValue"
+                                        ValueChanged="@((string? v) => SetValue(field.PropertyName, ConvertEnumValue(v, field.PropertyType)))"
+                                        data-field-input="@field.PropertyName">
+                                    <SelectTrigger id="@fieldId" Invalid="@hasErrors">
+                                        <SelectValue Placeholder="Select..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        @foreach (var name in Enum.GetNames(field.PropertyType))
+                                        {
+                                            <SelectItem Value="@name" Text="@name">@name</SelectItem>
+                                        }
+                                    </SelectContent>
+                                </Select>
+                                break;
+
+                            case "number":
+                                <input type="number"
+                                       id="@fieldId"
+                                       data-field-input="@field.PropertyName"
+                                       value="@currentValue"
+                                       class="@GetInputClass(hasErrors)"
+                                       aria-invalid="@(hasErrors ? "true" : null)"
+                                       aria-describedby="@(hasErrors ? validationId : null)"
+                                       @oninput="e => SetValue(field.PropertyName, ConvertValue(e.Value, field.PropertyType))" />
+                                break;
+
+                            case "date":
+                                <input type="date"
+                                       id="@fieldId"
+                                       data-field-input="@field.PropertyName"
+                                       value="@currentValue"
+                                       class="@GetInputClass(hasErrors)"
+                                       aria-invalid="@(hasErrors ? "true" : null)"
+                                       aria-describedby="@(hasErrors ? validationId : null)"
+                                       @oninput="e => SetValue(field.PropertyName, ConvertValue(e.Value, field.PropertyType))" />
+                                break;
+
+                            default:
+                                <input type="text"
+                                       id="@fieldId"
+                                       data-field-input="@field.PropertyName"
+                                       value="@currentValue"
+                                       class="@GetInputClass(hasErrors)"
+                                       aria-invalid="@(hasErrors ? "true" : null)"
+                                       aria-describedby="@(hasErrors ? validationId : null)"
+                                       @oninput="e => SetValue(field.PropertyName, ConvertValue(e.Value, field.PropertyType))" />
+                                break;
+                        }
                     }
 
                     @if (ValidationTemplate != null)

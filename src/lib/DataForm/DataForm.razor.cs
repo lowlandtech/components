@@ -21,19 +21,26 @@ public partial class DataForm : TinyComponentBase
 
     private EditContext _editContext = null!;
     private object _currentModel = null!;
+    private EditContext? _currentEditContextParam;
+    private ValidationMessageStore? _messageStore;
     private IReadOnlyList<DataFormField> _fields = [];
     private List<string> _validationSummary = [];
     private readonly Dictionary<string, List<string>> _fieldMessages = new();
+    private readonly Dictionary<string, object?> _originalValues = new();
 
     protected override void OnParametersSet()
     {
-        if (_currentModel != Model)
+        var newEditContext = EditContext ?? new EditContext(Model);
+        if (_currentModel != Model || _currentEditContextParam != EditContext)
         {
             _currentModel = Model;
-            _editContext = EditContext ?? new EditContext(Model);
+            _currentEditContextParam = EditContext;
+            _editContext = newEditContext;
+            _messageStore = new ValidationMessageStore(_editContext);
             _fieldMessages.Clear();
             _validationSummary.Clear();
             DiscoverFields();
+            SnapshotValues();
         }
     }
 
@@ -121,122 +128,139 @@ public partial class DataForm : TinyComponentBase
         };
     }
 
-    private RenderFragment RenderInput(DataFormField field, string fieldId, bool hasErrors) => builder =>
+    private string GetInputClass(bool hasErrors)
     {
-        var inputKind = field.InputKind;
-        var prop = Model.GetType().GetProperty(field.PropertyName);
-        if (prop == null) return;
-
-        var value = prop.GetValue(Model);
-        var ariaInvalid = hasErrors ? "true" : null;
-        var describedBy = hasErrors ? $"{fieldId}-validation" : null;
-        var cssClass = hasErrors
-            ? "flex h-9 w-full rounded-md border border-destructive bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-destructive disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-            : "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm";
-
-        if (inputKind == "checkbox")
-        {
-            builder.OpenElement(0, "input");
-            builder.AddAttribute(1, "type", "checkbox");
-            builder.AddAttribute(2, "id", fieldId);
-            builder.AddAttribute(3, "data-field-input", field.PropertyName);
-            builder.AddAttribute(4, "checked", value is true);
-            builder.AddAttribute(5, "class", "h-4 w-4 rounded border-input text-primary focus:ring-ring");
-            builder.AddAttribute(6, "aria-invalid", ariaInvalid);
-            if (describedBy != null) builder.AddAttribute(7, "aria-describedby", describedBy);
-            builder.AddAttribute(8, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, e =>
-            {
-                var boolValue = e.Value is true || e.Value?.ToString() == "on";
-                SetValue(field.PropertyName, boolValue);
-            }));
-            builder.CloseElement();
-        }
-        else if (inputKind == "select" && prop.PropertyType.IsEnum)
-        {
-            builder.OpenElement(0, "select");
-            builder.AddAttribute(1, "id", fieldId);
-            builder.AddAttribute(2, "data-field-input", field.PropertyName);
-            builder.AddAttribute(3, "class", cssClass);
-            builder.AddAttribute(4, "aria-invalid", ariaInvalid);
-            if (describedBy != null) builder.AddAttribute(5, "aria-describedby", describedBy);
-            builder.AddAttribute(6, "value", value?.ToString() ?? "");
-            builder.AddAttribute(7, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, e =>
-            {
-                if (Enum.TryParse(prop.PropertyType, e.Value?.ToString(), out var enumValue))
-                {
-                    SetValue(field.PropertyName, enumValue);
-                }
-            }));
-
-            foreach (var name in Enum.GetNames(prop.PropertyType))
-            {
-                builder.OpenElement(8, "option");
-                builder.AddAttribute(9, "value", name);
-                builder.AddContent(10, name);
-                builder.CloseElement();
-            }
-
-            builder.CloseElement();
-        }
-        else
-        {
-            builder.OpenElement(0, "input");
-            builder.AddAttribute(1, "type", inputKind);
-            builder.AddAttribute(2, "id", fieldId);
-            builder.AddAttribute(3, "data-field-input", field.PropertyName);
-            builder.AddAttribute(4, "value", value?.ToString() ?? "");
-            builder.AddAttribute(5, "class", cssClass);
-            builder.AddAttribute(6, "aria-invalid", ariaInvalid);
-            if (describedBy != null) builder.AddAttribute(7, "aria-describedby", describedBy);
-            builder.AddAttribute(8, "oninput", EventCallback.Factory.Create<ChangeEventArgs>(this, e =>
-            {
-                var newValue = ConvertValue(e.Value, prop.PropertyType);
-                SetValue(field.PropertyName, newValue);
-            }));
-            builder.CloseElement();
-        }
-    };
-
-    private void SetValue(string propertyName, object? value)
-    {
-        var prop = Model.GetType().GetProperty(propertyName);
-        if (prop == null || !prop.CanWrite) return;
-
-        prop.SetValue(Model, value);
-        _editContext?.NotifyFieldChanged(new FieldIdentifier(Model, propertyName));
-        OnModelChanged.InvokeAsync();
+        var baseClass = "flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm";
+        var borderClass = hasErrors
+            ? " border-destructive focus-visible:ring-destructive"
+            : " border-input focus-visible:ring-ring";
+        return $"{baseClass}{borderClass}";
     }
 
-    private static object? ConvertValue(object? value, Type targetType)
+    internal void HandleCheckboxChange(string propertyName, ChangeEventArgs e)
+    {
+        try
+        {
+            var value = e.Value is true || e.Value?.ToString() == "on" || (e.Value?.ToString() is { } s && bool.TryParse(s, out var b) && b);
+            SetValue(propertyName, value);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"DataForm checkbox error: {ex.Message}");
+        }
+    }
+
+    internal void SetValue(string propertyName, object? value)
+    {
+        try
+        {
+            var prop = Model.GetType().GetProperty(propertyName);
+            if (prop == null || !prop.CanWrite) return;
+
+            var targetType = prop.PropertyType;
+            var underlying = Nullable.GetUnderlyingType(targetType) ?? targetType;
+
+            // Ensure type compatibility before setting
+            if (value != null && !underlying.IsAssignableFrom(value.GetType()))
+            {
+                try
+                {
+                    value = Convert.ChangeType(value, underlying, CultureInfo.InvariantCulture);
+                }
+                catch
+                {
+                    return; // Conversion failed; skip update to avoid crash
+                }
+            }
+
+            // Handle null for non-nullable value types only
+            if (value == null && underlying.IsValueType && Nullable.GetUnderlyingType(targetType) == null)
+            {
+                value = Activator.CreateInstance(underlying);
+            }
+
+            prop.SetValue(Model, value);
+            _editContext?.NotifyFieldChanged(new FieldIdentifier(Model, propertyName));
+            OnModelChanged.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"DataForm.SetValue error: {ex.Message}");
+        }
+    }
+
+    internal static object? ConvertValue(object? value, Type targetType)
     {
         if (value == null) return null;
 
+        var str = value.ToString();
+        if (string.IsNullOrEmpty(str)) return null;
+
         var underlying = Nullable.GetUnderlyingType(targetType) ?? targetType;
 
-        if (underlying == typeof(int) && int.TryParse(value.ToString(), out var intVal))
+        // Already the correct type — return as-is
+        if (underlying.IsAssignableFrom(value.GetType()))
+            return value;
+
+        // Parse with invariant culture so browsers' dot-separated decimals work everywhere
+        if (underlying == typeof(int) && int.TryParse(str, NumberStyles.Integer, CultureInfo.InvariantCulture, out var intVal))
             return intVal;
-        if (underlying == typeof(long) && long.TryParse(value.ToString(), out var longVal))
+        if (underlying == typeof(long) && long.TryParse(str, NumberStyles.Integer, CultureInfo.InvariantCulture, out var longVal))
             return longVal;
-        if (underlying == typeof(double) && double.TryParse(value.ToString(), out var doubleVal))
+        if (underlying == typeof(double) && double.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out var doubleVal))
             return doubleVal;
-        if (underlying == typeof(decimal) && decimal.TryParse(value.ToString(), out var decimalVal))
+        if (underlying == typeof(decimal) && decimal.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out var decimalVal))
             return decimalVal;
-        if (underlying == typeof(float) && float.TryParse(value.ToString(), out var floatVal))
+        if (underlying == typeof(float) && float.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out var floatVal))
             return floatVal;
-        if (underlying == typeof(DateTime) && DateTime.TryParse(value.ToString(), out var dtVal))
+        if (underlying == typeof(DateTime) && DateTime.TryParse(str, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dtVal))
             return dtVal;
-        if (underlying == typeof(DateOnly) && DateOnly.TryParse(value.ToString(), out var doVal))
+        if (underlying == typeof(DateOnly) && DateOnly.TryParse(str, CultureInfo.InvariantCulture, DateTimeStyles.None, out var doVal))
             return doVal;
         if (underlying == typeof(bool))
-            return value is true || value.ToString() == "on";
+            return value is true || str == "on" || (bool.TryParse(str, out var b) && b);
+        if (underlying.IsEnum && Enum.TryParse(underlying, str, out var enumVal))
+            return enumVal;
 
-        return value;
+        // Last-resort fallback
+        try
+        {
+            return Convert.ChangeType(str, underlying, CultureInfo.InvariantCulture);
+        }
+        catch
+        {
+            return null;
+        }
     }
 
-    private object? GetDisplayValue(string propertyName)
+    internal static object? ConvertEnumValue(string? value, Type targetType)
+    {
+        if (string.IsNullOrEmpty(value)) return null;
+        var underlying = Nullable.GetUnderlyingType(targetType) ?? targetType;
+        if (underlying.IsEnum && Enum.TryParse(underlying, value, out var enumVal))
+            return enumVal;
+        return ConvertValue(value, targetType);
+    }
+
+    internal object? GetValue(string propertyName)
     {
         var prop = Model.GetType().GetProperty(propertyName);
-        return prop?.GetValue(Model)?.ToString() ?? "";
+        return prop?.GetValue(Model);
+    }
+
+    internal string GetDisplayValue(string propertyName)
+    {
+        var prop = Model.GetType().GetProperty(propertyName);
+        if (prop == null) return "";
+        var value = prop.GetValue(Model);
+        if (value == null) return "";
+
+        if (value is DateTime dt)
+            return dt.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+        if (value is DateOnly d)
+            return d.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+        return value.ToString() ?? "";
     }
 
     private IReadOnlyList<string> GetFieldMessages(string propertyName)
@@ -245,20 +269,52 @@ public partial class DataForm : TinyComponentBase
         return _editContext.GetValidationMessages(new FieldIdentifier(Model, propertyName)).ToList();
     }
 
+    private void SnapshotValues()
+    {
+        _originalValues.Clear();
+        foreach (var field in _fields)
+        {
+            var prop = Model.GetType().GetProperty(field.PropertyName);
+            if (prop != null && prop.CanRead)
+                _originalValues[field.PropertyName] = prop.GetValue(Model);
+        }
+    }
+
     private void ResetModel()
     {
+        foreach (var field in _fields)
+        {
+            if (_originalValues.TryGetValue(field.PropertyName, out var originalValue))
+            {
+                var prop = Model.GetType().GetProperty(field.PropertyName);
+                if (prop != null && prop.CanWrite)
+                    prop.SetValue(Model, originalValue);
+            }
+        }
         _fieldMessages.Clear();
         _validationSummary.Clear();
         _editContext = new EditContext(Model);
-        StateHasChanged();
     }
 
     private async Task HandleSubmit()
     {
         if (ValidateOnSubmit)
         {
-            var isValid = _editContext.Validate();
-            _validationSummary = _editContext.GetValidationMessages().ToList();
+            _messageStore?.Clear();
+            var validationContext = new ValidationContext(Model);
+            var results = new List<ValidationResult>();
+            Validator.TryValidateObject(Model, validationContext, results, validateAllProperties: true);
+
+            foreach (var result in results)
+            {
+                foreach (var member in result.MemberNames.DefaultIfEmpty(string.Empty))
+                {
+                    _messageStore?.Add(_editContext.Field(member), result.ErrorMessage ?? "Invalid");
+                }
+            }
+
+            _validationSummary = results.Select(r => r.ErrorMessage ?? "Invalid").ToList();
+            var isValid = results.Count == 0;
             StateHasChanged();
 
             if (isValid)
