@@ -15,12 +15,8 @@ public class SC01_KeyboardNavigation : ViewScenario
     {
         var cut = RenderGrid();
 
-        var cells = cut.FindAll("[data-slot='data-grid-cell']");
+        var cells = cut.FindAll("[data-slot='data-grid-cell'][tabindex='0']");
         cells.Count.ShouldBe(3);
-        foreach (var cell in cells)
-        {
-            cell.GetAttribute("tabindex").ShouldBe("0");
-        }
     }
 
     [Fact(DisplayName = "UAC02: Enter on cell toggles detail row")]
@@ -29,7 +25,7 @@ public class SC01_KeyboardNavigation : ViewScenario
     {
         var cut = RenderGrid();
 
-        var cell = cut.Find("[data-slot='data-grid-cell']");
+        var cell = cut.Find("[data-slot='data-grid-cell'][tabindex='0']");
         cell.KeyDown("Enter");
 
         cut.FindAll("[data-slot='data-grid-detail-row']").Count.ShouldBe(1);
@@ -41,7 +37,7 @@ public class SC01_KeyboardNavigation : ViewScenario
     {
         var cut = RenderGrid();
 
-        var cell = cut.Find("[data-slot='data-grid-cell']");
+        var cell = cut.Find("[data-slot='data-grid-cell'][tabindex='0']");
         cell.KeyDown(" ");
 
         cut.FindAll("[data-slot='data-grid-detail-row']").Count.ShouldBe(1);

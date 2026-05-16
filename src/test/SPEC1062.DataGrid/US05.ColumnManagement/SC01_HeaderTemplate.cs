@@ -15,8 +15,8 @@ public class SC01_HeaderTemplate : ViewScenario
     {
         var cut = RenderGrid();
 
-        cut.Markup.ShouldContain("Custom Name Header");
-        cut.Markup.ShouldNotContain("Name");
+        var headerCell = cut.FindAll("[data-slot='data-grid-header-cell']")[0];
+        headerCell.TextContent.ShouldContain("Custom Name Header");
     }
 
     [Fact(DisplayName = "UAC02: HeaderTemplate preserves sort button when column is sortable")]

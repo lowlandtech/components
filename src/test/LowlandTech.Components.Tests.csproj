@@ -17,6 +17,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="bunit" Version="2.7.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.8" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
 		<PackageReference Include="coverlet.collector" Version="10.0.0">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -62,7 +63,7 @@
 		</EmbeddedResource>
 	</ItemGroup>
 
-	<!-- Exclude unfinished scaffold test files that reference unimplemented features -->
+	<!-- Exclude unfinished / broken test files from other agents -->
 	<ItemGroup>
 		<Compile Remove="SPEC1071.ComponentThemes\**\*.cs" />
 		<Compile Remove="SPEC1009.Calendar\US02.Modes\**\*.cs" />

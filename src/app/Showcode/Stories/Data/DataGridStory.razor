@@ -2,7 +2,7 @@
 @inherits StoryComponent
 
 <StoryCard Title="DataGrid"
-           Description="DataGrid states demonstrate filterable paged rows, empty templates, and loading templates."
+           Description="DataGrid states demonstrate filterable paged rows, empty templates, loading templates, multi-sort, detail rows, header/footer templates, density, and selection."
            States="@States" />
 
 @code {
@@ -39,6 +39,99 @@
             [
                 new StoryCard.CodeTab("orders-razor", "DataGridStory.razor", OrdersRazor),
                 new StoryCard.CodeTab("orders-model", "OrderRow.cs", ModelCode, "csharp")
+            ]),
+        new(
+            "multi-sort",
+            "Multi Sort",
+            @<div class="p-1">
+                <DataGrid TItem="OrderRow"
+                          Items="@Orders"
+                          AllowMultiSort="true">
+                    <Columns>
+                        <DataGridColumn TItem="OrderRow" Property="Status" Title="Status" />
+                        <DataGridColumn TItem="OrderRow" Property="Customer.Region" Title="Region" />
+                        <DataGridColumn TItem="OrderRow" Property="Total" Title="Total" FormatString="C0" />
+                    </Columns>
+                </DataGrid>
+            </div>,
+            [
+                new StoryCard.CodeTab("multi-sort-razor", "DataGridStory.razor", MultiSortRazor)
+            ]),
+        new(
+            "detail",
+            "Detail Rows",
+            @<div class="p-1">
+                <DataGrid TItem="OrderRow" Items="@Orders" PageSize="3">
+                    <Columns>
+                        <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
+                        <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
+                        <DataGridColumn TItem="OrderRow" Property="Status" Title="Status" />
+                    </Columns>
+                    <DetailTemplate Context="order">
+                        <div class="space-y-1 text-sm">
+                            <p><strong>Region:</strong> @order.Customer.Region</p>
+                            <p><strong>Due:</strong> @order.DueDate.ToString("MMM d, yyyy")</p>
+                            <p><strong>Total:</strong> @order.Total.ToString("C0")</p>
+                        </div>
+                    </DetailTemplate>
+                </DataGrid>
+            </div>,
+            [
+                new StoryCard.CodeTab("detail-razor", "DataGridStory.razor", DetailRazor)
+            ]),
+        new(
+            "header-footer",
+            "Header & Footer Templates",
+            @<div class="p-1">
+                <DataGrid TItem="OrderRow" Items="@Orders" PageSize="3">
+                    <Columns>
+                        <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order">
+                            <HeaderTemplate>
+                                <span class="font-bold text-primary">📦 Order</span>
+                            </HeaderTemplate>
+                        </DataGridColumn>
+                        <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
+                        <DataGridColumn TItem="OrderRow" Property="Total" Title="Total" FormatString="C0" />
+                    </Columns>
+                    <FooterTemplate>
+                        <div class="flex justify-between text-sm font-medium">
+                            <span>@Orders.Count orders</span>
+                            <span>@Orders.Sum(o => o.Total).ToString("C0")</span>
+                        </div>
+                    </FooterTemplate>
+                </DataGrid>
+            </div>,
+            [
+                new StoryCard.CodeTab("header-footer-razor", "DataGridStory.razor", HeaderFooterRazor)
+            ]),
+        new(
+            "density",
+            "Density & Grid Lines",
+            @<div class="p-1">
+                <DataGrid TItem="OrderRow" Items="@Orders" Density="DataGridDensity.Compact" GridLines="DataGridGridLines.Both">
+                    <Columns>
+                        <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
+                        <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
+                        <DataGridColumn TItem="OrderRow" Property="Status" Title="Status" />
+                    </Columns>
+                </DataGrid>
+            </div>,
+            [
+                new StoryCard.CodeTab("density-razor", "DataGridStory.razor", DensityRazor)
+            ]),
+        new(
+            "empty-text",
+            "Empty Text",
+            @<div class="p-1">
+                <DataGrid TItem="OrderRow" Items="Array.Empty<OrderRow>()" EmptyText="No orders found.">
+                    <Columns>
+                        <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
+                        <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
+                    </Columns>
+                </DataGrid>
+            </div>,
+            [
+                new StoryCard.CodeTab("empty-text-razor", "DataGridStory.razor", EmptyTextRazor)
             ]),
         new(
             "empty",
@@ -120,6 +213,79 @@
                         <Badge Variant="@GetStatusVariant(order.Status)">@order.Status</Badge>
                     </Template>
                 </DataGridColumn>
+            </Columns>
+        </DataGrid>
+        """;
+
+    private const string MultiSortRazor =
+        """
+        <DataGrid TItem="OrderRow"
+                  Items="@Orders"
+                  AllowMultiSort="true">
+            <Columns>
+                <DataGridColumn TItem="OrderRow" Property="Status" Title="Status" />
+                <DataGridColumn TItem="OrderRow" Property="Customer.Region" Title="Region" />
+                <DataGridColumn TItem="OrderRow" Property="Total" Title="Total" FormatString="C0" />
+            </Columns>
+        </DataGrid>
+        """;
+
+    private const string DetailRazor =
+        """
+        <DataGrid TItem="OrderRow" Items="@Orders" PageSize="3">
+            <Columns>
+                <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
+                <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
+                <DataGridColumn TItem="OrderRow" Property="Status" Title="Status" />
+            </Columns>
+            <DetailTemplate Context="order">
+                <div class="space-y-1 text-sm">
+                    <p><strong>Region:</strong> @order.Customer.Region</p>
+                    <p><strong>Due:</strong> @order.DueDate.ToString("MMM d, yyyy")</p>
+                    <p><strong>Total:</strong> @order.Total.ToString("C0")</p>
+                </div>
+            </DetailTemplate>
+        </DataGrid>
+        """;
+
+    private const string HeaderFooterRazor =
+        """
+        <DataGrid TItem="OrderRow" Items="@Orders" PageSize="3">
+            <Columns>
+                <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order">
+                    <HeaderTemplate>
+                        <span class="font-bold text-primary">📦 Order</span>
+                    </HeaderTemplate>
+                </DataGridColumn>
+                <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
+                <DataGridColumn TItem="OrderRow" Property="Total" Title="Total" FormatString="C0" />
+            </Columns>
+            <FooterTemplate>
+                <div class="flex justify-between text-sm font-medium">
+                    <span>@Orders.Count orders</span>
+                    <span>@Orders.Sum(o => o.Total).ToString("C0")</span>
+                </div>
+            </FooterTemplate>
+        </DataGrid>
+        """;
+
+    private const string DensityRazor =
+        """
+        <DataGrid TItem="OrderRow" Items="@Orders" Density="DataGridDensity.Compact" GridLines="DataGridGridLines.Both">
+            <Columns>
+                <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
+                <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
+                <DataGridColumn TItem="OrderRow" Property="Status" Title="Status" />
+            </Columns>
+        </DataGrid>
+        """;
+
+    private const string EmptyTextRazor =
+        """
+        <DataGrid TItem="OrderRow" Items="Array.Empty<OrderRow>()" EmptyText="No orders found.">
+            <Columns>
+                <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
+                <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
             </Columns>
         </DataGrid>
         """;

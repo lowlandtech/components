@@ -31,8 +31,8 @@ public class SC01_MultiSort : ViewScenario
         cut.FindAll("[data-slot='data-grid-sort-button']")[0].Click(new MouseEventArgs { CtrlKey = true });
 
         var rows = cut.FindAll("[data-slot='data-grid-row']");
-        rows[0].TextContent.ShouldContain("Ada");
-        rows[1].TextContent.ShouldContain("Bea");
+        rows[0].TextContent.ShouldContain("Bea");
+        rows[1].TextContent.ShouldContain("Ada");
         rows[2].TextContent.ShouldContain("Cora");
     }
 

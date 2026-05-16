@@ -38,9 +38,10 @@ public class SC01_SelectAll : ViewScenario
     {
         var cut = RenderGrid();
 
-        foreach (var checkbox in cut.FindAll("[data-slot='data-grid-selection-input']"))
+        var rowCount = cut.FindAll("[data-slot='data-grid-row']").Count;
+        for (var i = 0; i < rowCount; i++)
         {
-            checkbox.Change(true);
+            cut.FindAll("[data-slot='data-grid-selection-input']")[i].Change(true);
         }
 
         cut.Find("[data-slot='data-grid-select-all']").GetAttribute("checked").ShouldNotBeNull();

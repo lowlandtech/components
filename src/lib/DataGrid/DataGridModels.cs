@@ -42,3 +42,17 @@ public sealed record DataGridSortDescriptor(
     DataGridSortDirection Direction,
     int Order);
 
+public sealed record DataGridFilterDescriptor(
+    string ColumnKey,
+    string PropertyPath,
+    string Operator,
+    string Value);
+
+public sealed record DataGridStateRepresentation(
+    int PageIndex,
+    int PageSize,
+    IReadOnlyList<DataGridSortDescriptor> SortDescriptors,
+    IReadOnlyList<DataGridFilterDescriptor> FilterDescriptors,
+    IReadOnlyList<string> SelectedRowKeys,
+    IReadOnlyList<string> ExpandedRowKeys);
+

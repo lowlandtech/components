@@ -143,7 +143,7 @@
                                                 aria-expanded="@IsDetailExpanded(item).ToString().ToLowerInvariant()"
                                                 @onclick:stopPropagation="true"
                                                 @onclick="() => ToggleDetailRow(item)">
-                                            @(IsDetailExpanded(item) ? "−" : "+")
+                                            @(IsDetailExpanded(item) ? "-" : "+")
                                         </button>
                                     </td>
                                 }
@@ -232,9 +232,9 @@
 
 @code {
     private readonly List<DataGridColumn<TItem>> _columns = [];
-    private readonly Dictionary<string, string> _filters = new(StringComparer.Ordinal);
+    private readonly List<DataGridFilterDescriptor> _filterDescriptors = [];
     private readonly List<DataGridSortDescriptor> _sortDescriptors = [];
-    private readonly HashSet<TItem> _selectedItems = [];
+    private readonly HashSet<string> _selectedRowKeys = [];
     private readonly HashSet<string> _expandedRowKeys = [];
 
     [Parameter] public IEnumerable<TItem>? Items { get; set; }
@@ -256,6 +256,9 @@
     [Parameter] public int PageSize { get; set; } = 10;
     [Parameter] public int PageIndex { get; set; }
     [Parameter] public EventCallback<int> PageIndexChanged { get; set; }
+    [Parameter] public EventCallback<IReadOnlyList<DataGridSortDescriptor>> SortChanged { get; set; }
+    [Parameter] public EventCallback<IReadOnlyList<DataGridFilterDescriptor>> FilterChanged { get; set; }
+    [Parameter] public EventCallback<DataGridStateRepresentation> StateChanged { get; set; }
     [Parameter] public bool IsLoading { get; set; }
     [Parameter] public DataGridSelectionMode SelectionMode { get; set; } = DataGridSelectionMode.None;
     [Parameter] public ISet<TItem>? SelectedItems { get; set; }
@@ -264,6 +267,7 @@
     [Parameter] public EventCallback<TItem?> SelectedItemChanged { get; set; }
     [Parameter] public DataGridDensity Density { get; set; } = DataGridDensity.Default;
     [Parameter] public DataGridGridLines GridLines { get; set; } = DataGridGridLines.Horizontal;
+    [Parameter] public Func<TItem, string>? ItemKey { get; set; }
     [Parameter] public string? EmptyText { get; set; }
 
     private int EffectivePageSize => Math.Max(1, PageSize);
@@ -277,16 +281,27 @@
     {
         if (SelectedItems is not null)
         {
-            _selectedItems.Clear();
+            _selectedRowKeys.Clear();
             foreach (var item in SelectedItems)
             {
-                _selectedItems.Add(item);
+                _selectedRowKeys.Add(GetRowKey(item));
             }
         }
         else if (SelectionMode == DataGridSelectionMode.Single && SelectedItem is not null)
         {
-            _selectedItems.Clear();
-            _selectedItems.Add(SelectedItem);
+            _selectedRowKeys.Clear();
+            _selectedRowKeys.Add(GetRowKey(SelectedItem));
+        }
+
+        var totalPages = TotalPages;
+        if (PageIndex > 0 && PageIndex >= totalPages)
+        {
+            var clamped = Math.Max(0, totalPages - 1);
+            if (PageIndex != clamped)
+            {
+                PageIndex = clamped;
+                _ = PageIndexChanged.InvokeAsync(PageIndex);
+            }
         }
     }
 
@@ -358,15 +373,15 @@
         };
     }
 
-    private void ToggleSort(DataGridColumn<TItem> column, MouseEventArgs eventArgs)
+    private async Task ToggleSort(DataGridColumn<TItem> column, MouseEventArgs eventArgs)
     {
         var additive = AllowMultiSort && eventArgs.CtrlKey;
         var existing = _sortDescriptors.FirstOrDefault(s => s.ColumnKey == column.Key);
         var nextDirection = existing?.Direction switch
         {
-            DataGridSortDirection.None => DataGridSortDirection.Ascending,
             DataGridSortDirection.Ascending => DataGridSortDirection.Descending,
-            _ => DataGridSortDirection.None
+            DataGridSortDirection.Descending => DataGridSortDirection.None,
+            _ => DataGridSortDirection.Ascending
         };
 
         if (!additive)
@@ -385,25 +400,34 @@
         }
 
         PageIndex = 0;
+        await PageIndexChanged.InvokeAsync(PageIndex);
+        await SortChanged.InvokeAsync(_sortDescriptors.ToList());
+        await NotifyStateChanged();
     }
 
     private string GetFilterValue(DataGridColumn<TItem> column)
     {
-        return _filters.TryGetValue(column.Key, out var value) ? value : string.Empty;
+        var descriptor = _filterDescriptors.FirstOrDefault(f => f.ColumnKey == column.Key);
+        return descriptor?.Value ?? string.Empty;
     }
 
-    private void UpdateFilter(DataGridColumn<TItem> column, string? value)
+    private async Task UpdateFilter(DataGridColumn<TItem> column, string? value)
     {
-        if (string.IsNullOrWhiteSpace(value))
+        _filterDescriptors.RemoveAll(f => f.ColumnKey == column.Key);
+
+        if (!string.IsNullOrWhiteSpace(value))
         {
-            _filters.Remove(column.Key);
-        }
-        else
-        {
-            _filters[column.Key] = value;
+            _filterDescriptors.Add(new DataGridFilterDescriptor(
+                column.Key,
+                column.Property ?? column.Key,
+                "Contains",
+                value));
         }
 
         PageIndex = 0;
+        await PageIndexChanged.InvokeAsync(PageIndex);
+        await FilterChanged.InvokeAsync(_filterDescriptors.ToList());
+        await NotifyStateChanged();
     }
 
     private IReadOnlyList<TItem> GetCurrentPageItems()
@@ -423,9 +447,9 @@
     {
         var query = Items ?? Enumerable.Empty<TItem>();
 
-        foreach (var filter in _filters.Where(filter => !string.IsNullOrWhiteSpace(filter.Value)))
+        foreach (var filter in _filterDescriptors)
         {
-            var column = VisibleColumns.FirstOrDefault(candidate => candidate.Key == filter.Key);
+            var column = VisibleColumns.FirstOrDefault(candidate => candidate.Key == filter.ColumnKey);
 
             if (column is null)
             {
@@ -474,7 +498,19 @@
 
     private bool IsSelected(TItem item)
     {
-        return _selectedItems.Contains(item);
+        return _selectedRowKeys.Contains(GetRowKey(item));
+    }
+
+    private HashSet<TItem> GetSelectedItems()
+    {
+        var items = Items ?? Enumerable.Empty<TItem>();
+        return items.Where(item => _selectedRowKeys.Contains(GetRowKey(item))).ToHashSet();
+    }
+
+    private TItem? GetSelectedItem()
+    {
+        var items = Items ?? Enumerable.Empty<TItem>();
+        return items.FirstOrDefault(item => _selectedRowKeys.Contains(GetRowKey(item)));
     }
 
     private async Task ToggleSelection(TItem item)
@@ -484,37 +520,41 @@
             return;
         }
 
+        var key = GetRowKey(item);
+
         if (SelectionMode == DataGridSelectionMode.Single)
         {
-            if (_selectedItems.Contains(item))
+            if (_selectedRowKeys.Contains(key))
             {
-                _selectedItems.Clear();
+                _selectedRowKeys.Clear();
                 SelectedItem = default;
             }
             else
             {
-                _selectedItems.Clear();
-                _selectedItems.Add(item);
+                _selectedRowKeys.Clear();
+                _selectedRowKeys.Add(key);
                 SelectedItem = item;
             }
 
-            await SelectedItemChanged.InvokeAsync(SelectedItem);
-            await SelectedItemsChanged.InvokeAsync(new HashSet<TItem>(_selectedItems));
+            await SelectedItemChanged.InvokeAsync(GetSelectedItem());
+            await SelectedItemsChanged.InvokeAsync(GetSelectedItems());
+            await NotifyStateChanged();
             return;
         }
 
-        if (!_selectedItems.Add(item))
+        if (!_selectedRowKeys.Add(key))
         {
-            _selectedItems.Remove(item);
+            _selectedRowKeys.Remove(key);
         }
 
-        await SelectedItemsChanged.InvokeAsync(new HashSet<TItem>(_selectedItems));
+        await SelectedItemsChanged.InvokeAsync(GetSelectedItems());
+        await NotifyStateChanged();
     }
 
     private bool IsAllVisibleSelected()
     {
         var visible = CurrentPageItems;
-        return visible.Count > 0 && visible.All(IsSelected);
+        return visible.Count > 0 && visible.All(item => _selectedRowKeys.Contains(GetRowKey(item)));
     }
 
     private async Task ToggleSelectAll(ChangeEventArgs args)
@@ -528,23 +568,29 @@
         {
             foreach (var item in CurrentPageItems)
             {
-                _selectedItems.Add(item);
+                _selectedRowKeys.Add(GetRowKey(item));
             }
         }
         else
         {
             foreach (var item in CurrentPageItems)
             {
-                _selectedItems.Remove(item);
+                _selectedRowKeys.Remove(GetRowKey(item));
             }
         }
 
-        await SelectedItemsChanged.InvokeAsync(new HashSet<TItem>(_selectedItems));
+        await SelectedItemsChanged.InvokeAsync(GetSelectedItems());
+        await NotifyStateChanged();
     }
 
     private string GetRowKey(TItem item)
     {
-        return item?.GetHashCode().ToString() ?? Guid.NewGuid().ToString();
+        if (item is null)
+        {
+            return Guid.NewGuid().ToString();
+        }
+
+        return ItemKey?.Invoke(item) ?? item.GetHashCode().ToString();
     }
 
     private bool IsDetailExpanded(TItem item)
@@ -552,12 +598,33 @@
         return _expandedRowKeys.Contains(GetRowKey(item));
     }
 
-    private void ToggleDetailRow(TItem item)
+    private async Task ToggleDetailRow(TItem item)
     {
         var key = GetRowKey(item);
         if (!_expandedRowKeys.Add(key))
         {
             _expandedRowKeys.Remove(key);
+        }
+
+        await NotifyStateChanged();
+    }
+
+    private DataGridStateRepresentation GetStateRepresentation()
+    {
+        return new DataGridStateRepresentation(
+            PageIndex,
+            PageSize,
+            _sortDescriptors.ToList(),
+            _filterDescriptors.ToList(),
+            _selectedRowKeys.ToList(),
+            _expandedRowKeys.ToList());
+    }
+
+    private async Task NotifyStateChanged()
+    {
+        if (StateChanged.HasDelegate)
+        {
+            await StateChanged.InvokeAsync(GetStateRepresentation());
         }
     }
 
@@ -567,7 +634,7 @@
         {
             if (DetailTemplate is not null)
             {
-                ToggleDetailRow(item);
+                await ToggleDetailRow(item);
             }
             else if (SelectionMode != DataGridSelectionMode.None)
             {
@@ -580,11 +647,13 @@
     {
         PageIndex = Math.Max(0, PageIndex - 1);
         await PageIndexChanged.InvokeAsync(PageIndex);
+        await NotifyStateChanged();
     }
 
     private async Task GoToNextPage()
     {
         PageIndex = Math.Min(TotalPages - 1, PageIndex + 1);
         await PageIndexChanged.InvokeAsync(PageIndex);
+        await NotifyStateChanged();
     }
 }
