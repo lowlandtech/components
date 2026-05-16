@@ -1,0 +1,17 @@
+@namespace LowlandTech.Components.GraphEdge
+@inherits LtComponentBase
+
+<g data-slot="graph-edge" @attributes="AdditionalAttributes">
+    <path d="@GetPath()"
+          class="@GetPathClass()"
+          marker-end="@(Directed && _canvasId is not null ? $"url(#graph-arrow-{_canvasId})" : null)" />
+    @if (!string.IsNullOrEmpty(Label))
+    {
+        <SvgText X="@GetLabelX()" Y="@GetLabelY()" Class="cn-graph-edge-label">@Label</SvgText>
+    }
+</g>
+
+@code {
+    [CascadingParameter(Name = "GraphCanvasId")]
+    private string? _canvasId { get; set; }
+}

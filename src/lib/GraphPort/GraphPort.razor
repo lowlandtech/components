@@ -1,0 +1,11 @@
+@namespace LowlandTech.Components.GraphPort
+@inherits LtComponentBase
+
+<g data-slot="graph-port" @attributes="AdditionalAttributes">
+    <circle cx="@X" cy="@Y" r="@Radius" class="@GetClass()" />
+    @if (!string.IsNullOrEmpty(Label))
+    {
+        <SvgText X="@GetLabelX()" Y="@Y" Class="cn-graph-port-label"
+                 TextAnchor="@(Type == "output" ? "start" : "end")">@Label</SvgText>
+    }
+</g>

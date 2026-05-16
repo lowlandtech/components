@@ -1,0 +1,164 @@
+@namespace LowlandTech.Components.GraphEditor
+@inherits LtComponentBase
+@implements IDisposable
+
+<svg width="@Width" height="@Height"
+     class="cn-graph-canvas @Class"
+     @attributes="AdditionalAttributes"
+     @onpointermove="OnPointerMove"
+     @onpointerup="OnPointerUp"
+     @onpointermove:preventDefault>
+
+    <defs>
+        <pattern id="dot-@_id" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r="1" class="cn-graph-dot" />
+        </pattern>
+        <marker id="arrow-@_id" markerWidth="8" markerHeight="6"
+                refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L8,3 z" class="cn-graph-arrow" />
+        </marker>
+    </defs>
+
+    @if (ShowGrid)
+    {
+        <rect width="@Width" height="@Height" fill="url(#dot-@_id)" />
+    }
+
+    @* ── Edges (rendered below nodes) ── *@
+    @foreach (var edge in Diagram.Edges)
+    {
+        <g data-edge="@edge.Id">
+            <path d="@GetEdgePath(edge)"
+                  class="@GetEdgeClass(edge)"
+                  marker-end="@(edge.Directed ? $"url(#arrow-{_id})" : null)" />
+            @if (!string.IsNullOrEmpty(edge.Label))
+            {
+                <SvgText X="@GetEdgeLabelX(edge)" Y="@GetEdgeLabelY(edge)"
+                         Class="cn-graph-edge-label">@edge.Label</SvgText>
+            }
+        </g>
+    }
+
+    @* ── Nodes (rendered on top) ── *@
+    @foreach (var node in Diagram.Nodes)
+    {
+        <g transform="translate(@F(node.X), @F(node.Y))"
+           data-node="@node.Id"
+           style="cursor: @(node.Locked ? "default" : (_dragNode == node ? "grabbing" : "grab"))"
+           @onpointerdown="e => OnNodePointerDown(e, node)"
+           @onpointerdown:stopPropagation>
+
+            <rect width="@F(node.Width)" height="@F(node.Height)" rx="6"
+                  class="@GetNodeRectClass(node)" />
+
+            @if (!string.IsNullOrEmpty(node.Subtitle))
+            {
+                <SvgText X="@((int)(node.Width / 2))" Y="@((int)(node.Height / 2 - 7))"
+                         Class="cn-graph-node-title">@node.Title</SvgText>
+                <SvgText X="@((int)(node.Width / 2))" Y="@((int)(node.Height / 2 + 8))"
+                         Class="cn-graph-node-subtitle">@node.Subtitle</SvgText>
+            }
+            else
+            {
+                <SvgText X="@((int)(node.Width / 2))" Y="@((int)(node.Height / 2))"
+                         Class="cn-graph-node-title">@node.Title</SvgText>
+            }
+
+            @* Ports — position is relative to the node's translate origin *@
+            @foreach (var port in node.Ports)
+            {
+                <circle cx="@F(port.X - node.X)" cy="@F(port.Y - node.Y)" r="5"
+                        class="@GetPortClass(port)" />
+            }
+        </g>
+    }
+</svg>
+
+@code {
+    private readonly string _id = Guid.NewGuid().ToString("n")[..8];
+
+    private GraphNodeModel? _dragNode;
+    private double _dragInitialX, _dragInitialY;
+    private double _dragStartClientX, _dragStartClientY;
+
+    // ── Lifecycle ────────────────────────────────────────────────────────────
+
+    protected override void OnInitialized()
+        => Diagram.Changed += OnDiagramChanged;
+
+    public void Dispose()
+        => Diagram.Changed -= OnDiagramChanged;
+
+    private void OnDiagramChanged()
+        => InvokeAsync(StateHasChanged);
+
+    // ── Drag ─────────────────────────────────────────────────────────────────
+
+    private void OnNodePointerDown(PointerEventArgs e, GraphNodeModel node)
+    {
+        if (node.Locked) return;
+        _dragNode        = node;
+        _dragInitialX    = node.X;
+        _dragInitialY    = node.Y;
+        _dragStartClientX = e.ClientX;
+        _dragStartClientY = e.ClientY;
+    }
+
+    private void OnPointerMove(PointerEventArgs e)
+    {
+        if (_dragNode is null) return;
+        _dragNode.SetPosition(
+            _dragInitialX + (e.ClientX - _dragStartClientX),
+            _dragInitialY + (e.ClientY - _dragStartClientY));
+    }
+
+    private void OnPointerUp(PointerEventArgs e)
+        => _dragNode = null;
+
+    // ── Rendering helpers ────────────────────────────────────────────────────
+
+    /// Format a double as an integer SVG coordinate string.
+    private static string F(double v) => ((int)v).ToString();
+
+    private string GetEdgePath(GraphEdgeModel edge)
+    {
+        var x1 = edge.Source.X; var y1 = edge.Source.Y;
+        var x2 = edge.Target.X; var y2 = edge.Target.Y;
+        return edge.Routing switch
+        {
+            "straight" => $"M {F(x1)} {F(y1)} L {F(x2)} {F(y2)}",
+            "step"     => $"M {F(x1)} {F(y1)} H {F((x1 + x2) / 2)} V {F(y2)} H {F(x2)}",
+            _          => GetBezierPath(x1, y1, x2, y2)
+        };
+    }
+
+    private static string GetBezierPath(double x1, double y1, double x2, double y2)
+    {
+        var dx = Math.Abs(x2 - x1) * 0.5;
+        return $"M {F(x1)} {F(y1)} C {F(x1 + dx)} {F(y1)} {F(x2 - dx)} {F(y2)} {F(x2)} {F(y2)}";
+    }
+
+    private static string GetEdgeClass(GraphEdgeModel edge)
+    {
+        var cls = "cn-graph-edge-path";
+        if (edge.Variant != "default") cls += $" cn-graph-edge-path-{edge.Variant}";
+        return cls;
+    }
+
+    private static string GetNodeRectClass(GraphNodeModel node)
+    {
+        var cls = "cn-graph-node-rect";
+        if (node.Variant != "default") cls += $" cn-graph-node-rect-{node.Variant}";
+        if (node.Selected) cls += " cn-graph-node-selected";
+        return cls;
+    }
+
+    private static string GetPortClass(GraphPortModel port) =>
+        port.Alignment == GraphPortAlignment.Left ? "cn-graph-port-input" : "cn-graph-port-output";
+
+    private static int GetEdgeLabelX(GraphEdgeModel edge) =>
+        (int)((edge.Source.X + edge.Target.X) / 2);
+
+    private static int GetEdgeLabelY(GraphEdgeModel edge) =>
+        (int)((edge.Source.Y + edge.Target.Y) / 2) - 8;
+}

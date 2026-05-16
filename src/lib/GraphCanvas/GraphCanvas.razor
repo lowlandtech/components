@@ -1,0 +1,33 @@
+@namespace LowlandTech.Components.GraphCanvas
+@inherits LtComponentBase
+
+<CascadingValue Value="@_id" Name="GraphCanvasId">
+    <svg data-slot="graph-canvas"
+         width="@Width"
+         height="@Height"
+         viewBox="0 0 @Width @Height"
+         class="@GetClass()"
+         @attributes="AdditionalAttributes">
+        <defs>
+            <pattern id="graph-dot-@_id" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                <circle cx="1" cy="1" r="1" class="cn-graph-dot" />
+            </pattern>
+            <marker id="graph-arrow-@_id"
+                    markerWidth="8" markerHeight="6"
+                    refX="7" refY="3"
+                    orient="auto"
+                    markerUnits="strokeWidth">
+                <path d="M0,0 L0,6 L8,3 z" class="cn-graph-arrow" />
+            </marker>
+        </defs>
+        @if (ShowGrid)
+        {
+            <rect width="100%" height="100%" fill="url(#graph-dot-@_id)" />
+        }
+        @ChildContent
+    </svg>
+</CascadingValue>
+
+@code {
+    private readonly string _id = Guid.NewGuid().ToString("n")[..8];
+}

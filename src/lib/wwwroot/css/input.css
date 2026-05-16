@@ -778,3 +778,104 @@
     @apply rounded-none;
   }
 }
+
+/* ============================================================
+   Graph Components
+   ============================================================ */
+@layer components {
+
+  .cn-graph-canvas {
+    @apply block overflow-hidden rounded-lg border border-border bg-background;
+  }
+
+  .cn-graph-dot {
+    fill: var(--border);
+  }
+
+  .cn-graph-arrow {
+    fill: var(--muted-foreground);
+  }
+
+  /* --- GraphNode --- */
+  .cn-graph-node-rect {
+    fill: var(--card);
+    stroke: var(--border);
+    stroke-width: 1.5;
+    transition: stroke 150ms, fill 150ms;
+  }
+
+  .cn-graph-node-rect-primary { fill: var(--primary); stroke: var(--primary); }
+  .cn-graph-node-rect-success { fill: oklch(0.45 0.13 152); stroke: oklch(0.45 0.13 152); }
+  .cn-graph-node-rect-warning { fill: oklch(0.60 0.14 72); stroke: oklch(0.60 0.14 72); }
+  .cn-graph-node-rect-danger  { fill: var(--destructive); stroke: var(--destructive); }
+
+  .cn-graph-node-selected {
+    stroke: var(--primary);
+    stroke-width: 2;
+    filter: drop-shadow(0 0 5px color-mix(in srgb, var(--primary) 55%, transparent));
+  }
+
+  .cn-graph-node-title {
+    fill: var(--card-foreground);
+    font-size: 12px;
+    font-weight: 600;
+    text-anchor: middle;
+    dominant-baseline: central;
+    pointer-events: none;
+  }
+
+  .cn-graph-node-subtitle {
+    fill: var(--muted-foreground);
+    font-size: 10px;
+    text-anchor: middle;
+    dominant-baseline: central;
+    pointer-events: none;
+  }
+
+  /* colored variants: force white text on coloured rects */
+  .cn-graph-node-rect-primary + .cn-graph-node-title,
+  .cn-graph-node-rect-success + .cn-graph-node-title,
+  .cn-graph-node-rect-warning + .cn-graph-node-title,
+  .cn-graph-node-rect-danger  + .cn-graph-node-title { fill: #fff; }
+
+  /* --- GraphEdge --- */
+  .cn-graph-edge-path {
+    fill: none;
+    stroke: var(--border);
+    stroke-width: 1.5;
+    transition: stroke 150ms;
+  }
+
+  .cn-graph-edge-path-dashed      { stroke-dasharray: 5 4; stroke: var(--muted-foreground); }
+  .cn-graph-edge-path-highlighted { stroke: var(--primary); stroke-width: 2; }
+
+  .cn-graph-edge-label {
+    fill: var(--muted-foreground);
+    font-size: 10px;
+    text-anchor: middle;
+    dominant-baseline: central;
+  }
+
+  /* --- GraphPort --- */
+  .cn-graph-port-input {
+    fill: var(--background);
+    stroke: var(--border);
+    stroke-width: 1.5;
+    cursor: crosshair;
+    transition: fill 120ms;
+  }
+
+  .cn-graph-port-output {
+    fill: var(--primary);
+    stroke: var(--primary);
+    stroke-width: 1.5;
+    cursor: crosshair;
+    transition: fill 120ms;
+  }
+
+  .cn-graph-port-label {
+    fill: var(--muted-foreground);
+    font-size: 9px;
+    dominant-baseline: central;
+  }
+}

@@ -1,0 +1,174 @@
+@attribute [DisplayName("Graph/Edge")]
+@inherits StoryComponent
+
+<StoryCard Title="GraphEdge"
+           Description="A path connecting two points — supports bezier, straight, and step routing with optional arrowheads and labels. The arrowhead references a marker defined in the parent GraphCanvas."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "bezier",
+            "Bezier",
+            @<GraphCanvas Width="420" Height="120">
+                <GraphNode X="40"  Y="38" Title="Source" />
+                <GraphNode X="260" Y="38" Title="Target" />
+                <GraphEdge X1="160" Y1="60" X2="260" Y2="60" Routing="bezier" />
+                <GraphPort X="160" Y="60" Type="output" />
+                <GraphPort X="260" Y="60" Type="input"  />
+            </GraphCanvas>,
+            [
+                new StoryCard.CodeTab("bezier-razor", "GraphEdgeStory.razor", BezierRazor)
+            ]),
+        new(
+            "straight",
+            "Straight",
+            @<GraphCanvas Width="420" Height="120">
+                <GraphNode X="40"  Y="38" Title="Source" />
+                <GraphNode X="260" Y="38" Title="Target" />
+                <GraphEdge X1="160" Y1="60" X2="260" Y2="60" Routing="straight" />
+                <GraphPort X="160" Y="60" Type="output" />
+                <GraphPort X="260" Y="60" Type="input"  />
+            </GraphCanvas>,
+            [
+                new StoryCard.CodeTab("straight-razor", "GraphEdgeStory.razor", StraightRazor)
+            ]),
+        new(
+            "step",
+            "Step",
+            @<GraphCanvas Width="420" Height="160">
+                <GraphNode X="40"  Y="30" Title="Source" />
+                <GraphNode X="260" Y="86" Title="Target" />
+                <GraphEdge X1="160" Y1="52" X2="260" Y2="108" Routing="step" />
+                <GraphPort X="160" Y="52"  Type="output" />
+                <GraphPort X="260" Y="108" Type="input"  />
+            </GraphCanvas>,
+            [
+                new StoryCard.CodeTab("step-razor", "GraphEdgeStory.razor", StepRazor)
+            ]),
+        new(
+            "labeled",
+            "Labeled",
+            @<GraphCanvas Width="420" Height="120">
+                <GraphNode X="40"  Y="38" Title="Validate" />
+                <GraphNode X="260" Y="38" Title="Process"  />
+                <GraphEdge X1="160" Y1="60" X2="260" Y2="60" Routing="bezier" Label="on success" />
+                <GraphPort X="160" Y="60" Type="output" />
+                <GraphPort X="260" Y="60" Type="input"  />
+            </GraphCanvas>,
+            [
+                new StoryCard.CodeTab("labeled-razor", "GraphEdgeStory.razor", LabeledRazor)
+            ]),
+        new(
+            "variants",
+            "Variants",
+            @<GraphCanvas Width="420" Height="200">
+                @* default *@
+                <GraphNode X="40"  Y="22"  Title="Node A" />
+                <GraphNode X="260" Y="22"  Title="Node B" />
+                <GraphEdge X1="160" Y1="44" X2="260" Y2="44" Routing="straight" />
+                @* dashed *@
+                <GraphNode X="40"  Y="88"  Title="Node C" />
+                <GraphNode X="260" Y="88"  Title="Node D" />
+                <GraphEdge X1="160" Y1="110" X2="260" Y2="110" Routing="straight" Variant="dashed" />
+                @* highlighted *@
+                <GraphNode X="40"  Y="154" Title="Node E" Variant="primary" />
+                <GraphNode X="260" Y="154" Title="Node F" Variant="primary" />
+                <GraphEdge X1="160" Y1="176" X2="260" Y2="176" Routing="straight" Variant="highlighted" />
+            </GraphCanvas>,
+            [
+                new StoryCard.CodeTab("variants-razor", "GraphEdgeStory.razor", VariantsRazor)
+            ]),
+        new(
+            "waypoints",
+            "Waypoints",
+            @<GraphCanvas Width="500" Height="180">
+                @* direct path at Y=90 would cross through the obstacle — waypoints route below it *@
+                <GraphNode X="20"  Y="68" Title="Source" />
+                <GraphNode X="360" Y="68" Title="Target" />
+                <GraphNode X="185" Y="55" Width="130" Height="44" Title="Obstacle" Variant="warning" />
+                <GraphEdge X1="140" Y1="90" X2="360" Y2="90"
+                           Routing="bezier"
+                           Waypoints="@_waypoints" />
+                <GraphPort X="140" Y="90" Type="output" />
+                <GraphPort X="360" Y="90" Type="input"  />
+            </GraphCanvas>,
+            [
+                new StoryCard.CodeTab("waypoints-razor", "GraphEdgeStory.razor", WaypointsRazor)
+            ])
+    ];
+
+    private const string BezierRazor =
+        """
+        <GraphCanvas Width="420" Height="120">
+            <GraphNode X="40"  Y="38" Title="Source" />
+            <GraphNode X="260" Y="38" Title="Target" />
+            <GraphEdge X1="160" Y1="60" X2="260" Y2="60" Routing="bezier" />
+        </GraphCanvas>
+        """;
+
+    private const string StraightRazor =
+        """
+        <GraphCanvas Width="420" Height="120">
+            <GraphNode X="40"  Y="38" Title="Source" />
+            <GraphNode X="260" Y="38" Title="Target" />
+            <GraphEdge X1="160" Y1="60" X2="260" Y2="60" Routing="straight" />
+        </GraphCanvas>
+        """;
+
+    private const string StepRazor =
+        """
+        <GraphCanvas Width="420" Height="160">
+            <GraphNode X="40"  Y="30"  Title="Source" />
+            <GraphNode X="260" Y="86"  Title="Target" />
+            <GraphEdge X1="160" Y1="52" X2="260" Y2="108" Routing="step" />
+        </GraphCanvas>
+        """;
+
+    private const string LabeledRazor =
+        """
+        <GraphCanvas Width="420" Height="120">
+            <GraphNode X="40"  Y="38" Title="Validate" />
+            <GraphNode X="260" Y="38" Title="Process" />
+            <GraphEdge X1="160" Y1="60" X2="260" Y2="60" Routing="bezier" Label="on success" />
+        </GraphCanvas>
+        """;
+
+    private const string VariantsRazor =
+        """
+        <GraphCanvas Width="420" Height="200">
+            <GraphNode X="40"  Y="22"  Title="Node A" />
+            <GraphNode X="260" Y="22"  Title="Node B" />
+            <GraphEdge X1="160" Y1="44" X2="260" Y2="44" Routing="straight" />
+
+            <GraphNode X="40"  Y="88"  Title="Node C" />
+            <GraphNode X="260" Y="88"  Title="Node D" />
+            <GraphEdge X1="160" Y1="110" X2="260" Y2="110" Routing="straight" Variant="dashed" />
+
+            <GraphNode X="40"  Y="154" Title="Node E" Variant="primary" />
+            <GraphNode X="260" Y="154" Title="Node F" Variant="primary" />
+            <GraphEdge X1="160" Y1="176" X2="260" Y2="176" Routing="straight" Variant="highlighted" />
+        </GraphCanvas>
+        """;
+
+    // Waypoints anchor points on an edge so it can route around obstacles.
+    // Each GraphPoint(X, Y) is an intermediate coordinate the path must pass through.
+    private static readonly GraphPoint[] _waypoints = [new(160, 130), new(340, 130)];
+
+    private const string WaypointsRazor =
+        """
+        // Define intermediate anchor points — the edge passes through each in order.
+        private static readonly GraphPoint[] _waypoints = [new(160, 130), new(340, 130)];
+
+        <GraphCanvas Width="500" Height="180">
+            <GraphNode X="20"  Y="68" Title="Source" />
+            <GraphNode X="360" Y="68" Title="Target" />
+            <GraphNode X="185" Y="55" Width="130" Height="44" Title="Obstacle" Variant="warning" />
+            <GraphEdge X1="140" Y1="90" X2="360" Y2="90"
+                       Routing="bezier"
+                       Waypoints="@_waypoints" />
+            <GraphPort X="140" Y="90" Type="output" />
+            <GraphPort X="360" Y="90" Type="input"  />
+        </GraphCanvas>
+        """;
+}

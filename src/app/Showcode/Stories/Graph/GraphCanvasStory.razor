@@ -1,0 +1,112 @@
+@attribute [DisplayName("Graph/Canvas")]
+@inherits StoryComponent
+
+<StoryCard Title="GraphCanvas"
+           Description="SVG canvas container for graph visualizations. Provides a dot-grid background, arrowhead marker definitions, and a cascading ID so nested edges can reference the correct markers."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "pipeline",
+            "Pipeline",
+            @<GraphCanvas Width="680" Height="200">
+                @* nodes *@
+                <GraphNode X="40"  Y="76" Width="120" Height="48" Title="Ingest"  Subtitle="data source" />
+                <GraphNode X="200" Y="76" Width="120" Height="48" Title="Parse"   Subtitle="transform"  />
+                <GraphNode X="360" Y="76" Width="120" Height="48" Title="Enrich"  Subtitle="augment"    />
+                <GraphNode X="520" Y="76" Width="120" Height="48" Title="Export"  Subtitle="write out"  Variant="primary" />
+                @* edges *@
+                <GraphEdge X1="160" Y1="100" X2="200" Y2="100" Routing="straight" />
+                <GraphEdge X1="320" Y1="100" X2="360" Y2="100" Routing="straight" />
+                <GraphEdge X1="480" Y1="100" X2="520" Y2="100" Routing="straight" Label="ready" />
+                @* ports *@
+                <GraphPort X="160" Y="100" Type="output" />
+                <GraphPort X="200" Y="100" Type="input"  />
+                <GraphPort X="320" Y="100" Type="output" />
+                <GraphPort X="360" Y="100" Type="input"  />
+                <GraphPort X="480" Y="100" Type="output" />
+                <GraphPort X="520" Y="100" Type="input"  />
+            </GraphCanvas>,
+            [
+                new StoryCard.CodeTab("pipeline-razor", "GraphCanvasStory.razor", PipelineRazor)
+            ]),
+        new(
+            "branching",
+            "Branching",
+            @<GraphCanvas Width="580" Height="280">
+                @* decision tree nodes *@
+                <GraphNode X="230" Y="20"  Width="120" Height="44" Title="Request"  />
+                <GraphNode X="60"  Y="118" Width="120" Height="44" Title="Approved" Variant="success" />
+                <GraphNode X="400" Y="118" Width="120" Height="44" Title="Rejected" Variant="danger"  />
+                <GraphNode X="60"  Y="216" Width="120" Height="44" Title="Send Email" />
+                <GraphNode X="400" Y="216" Width="120" Height="44" Title="Log Error" />
+                @* edges *@
+                <GraphEdge X1="290" Y1="64"  X2="120" Y2="118" Routing="straight" Label="yes" />
+                <GraphEdge X1="290" Y1="64"  X2="460" Y2="118" Routing="straight" Label="no"  />
+                <GraphEdge X1="120" Y1="162" X2="120" Y2="216" Routing="straight" />
+                <GraphEdge X1="460" Y1="162" X2="460" Y2="216" Routing="straight" />
+            </GraphCanvas>,
+            [
+                new StoryCard.CodeTab("branching-razor", "GraphCanvasStory.razor", BranchingRazor)
+            ]),
+        new(
+            "no-grid",
+            "No grid",
+            @<GraphCanvas Width="400" Height="160" ShowGrid="false" class="bg-muted/30">
+                <GraphNode X="60"  Y="58" Width="120" Height="44" Title="Source" Variant="primary" />
+                <GraphNode X="220" Y="58" Width="120" Height="44" Title="Target" />
+                <GraphEdge X1="180" Y1="80" X2="220" Y2="80" />
+                <GraphPort X="180" Y="80" Type="output" />
+                <GraphPort X="220" Y="80" Type="input"  />
+            </GraphCanvas>,
+            [
+                new StoryCard.CodeTab("no-grid-razor", "GraphCanvasStory.razor", NoGridRazor)
+            ])
+    ];
+
+    private const string PipelineRazor =
+        """
+        <GraphCanvas Width="680" Height="200">
+            <GraphNode X="40"  Y="76" Width="120" Height="48" Title="Ingest"  Subtitle="data source" />
+            <GraphNode X="200" Y="76" Width="120" Height="48" Title="Parse"   Subtitle="transform" />
+            <GraphNode X="360" Y="76" Width="120" Height="48" Title="Enrich"  Subtitle="augment" />
+            <GraphNode X="520" Y="76" Width="120" Height="48" Title="Export"  Subtitle="write out" Variant="primary" />
+            <GraphEdge X1="160" Y1="100" X2="200" Y2="100" Routing="straight" />
+            <GraphEdge X1="320" Y1="100" X2="360" Y2="100" Routing="straight" />
+            <GraphEdge X1="480" Y1="100" X2="520" Y2="100" Routing="straight" Label="ready" />
+            <GraphPort X="160" Y="100" Type="output" />
+            <GraphPort X="200" Y="100" Type="input" />
+            <GraphPort X="320" Y="100" Type="output" />
+            <GraphPort X="360" Y="100" Type="input" />
+            <GraphPort X="480" Y="100" Type="output" />
+            <GraphPort X="520" Y="100" Type="input" />
+        </GraphCanvas>
+        """;
+
+    private const string BranchingRazor =
+        """
+        <GraphCanvas Width="580" Height="280">
+            <GraphNode X="230" Y="20"  Width="120" Height="44" Title="Request" />
+            <GraphNode X="60"  Y="118" Width="120" Height="44" Title="Approved" Variant="success" />
+            <GraphNode X="400" Y="118" Width="120" Height="44" Title="Rejected" Variant="danger" />
+            <GraphNode X="60"  Y="216" Width="120" Height="44" Title="Send Email" />
+            <GraphNode X="400" Y="216" Width="120" Height="44" Title="Log Error" />
+            <GraphEdge X1="290" Y1="64"  X2="120" Y2="118" Routing="straight" Label="yes" />
+            <GraphEdge X1="290" Y1="64"  X2="460" Y2="118" Routing="straight" Label="no" />
+            <GraphEdge X1="120" Y1="162" X2="120" Y2="216" Routing="straight" />
+            <GraphEdge X1="460" Y1="162" X2="460" Y2="216" Routing="straight" />
+        </GraphCanvas>
+        """;
+
+    private const string NoGridRazor =
+        """
+        <GraphCanvas Width="400" Height="160" ShowGrid="false" class="bg-muted/30">
+            <GraphNode X="60"  Y="58" Width="120" Height="44" Title="Source" Variant="primary" />
+            <GraphNode X="220" Y="58" Width="120" Height="44" Title="Target" />
+            <GraphEdge X1="180" Y1="80" X2="220" Y2="80" />
+            <GraphPort X="180" Y="80" Type="output" />
+            <GraphPort X="220" Y="80" Type="input" />
+        </GraphCanvas>
+        """;
+}

@@ -1,0 +1,97 @@
+@attribute [DisplayName("Graph/Editor")]
+@inherits StoryComponent
+
+<StoryCard Title="GraphEditor"
+           Description="Interactive diagram editor — drag any node and its edges and ports follow automatically. Built on a mutable GraphDiagram model with C# event-driven reactivity. No JavaScript required for WASM; Server-mode hosting benefits from a JS-interop pointer-move debounce for high-latency connections."
+           States="@States" />
+
+@code {
+    // Each StoryComponent instance owns its own diagrams so that navigating
+    // away and back resets node positions to the initial layout.
+    private readonly GraphDiagram _pipeline  = BuildPipeline();
+    private readonly GraphDiagram _branching = BuildBranching();
+
+    private IReadOnlyList<StoryCard.State> States =>
+    [
+        new(
+            "pipeline",
+            "Pipeline",
+            @<GraphEditor Diagram="@_pipeline" Width="540" Height="220" />,
+            [new StoryCard.CodeTab("pipeline-cs", "Build the diagram", PipelineCode)]),
+        new(
+            "branching",
+            "Branching",
+            @<GraphEditor Diagram="@_branching" Width="540" Height="260" />,
+            [new StoryCard.CodeTab("branching-cs", "Build the diagram", BranchingCode)])
+    ];
+
+    // ── Pipeline: Input → Process → Output ──────────────────────────────────
+
+    private static GraphDiagram BuildPipeline()
+    {
+        var d = new GraphDiagram();
+
+        var input   = d.AddNode(new GraphNodeModel(40,  88) { Title = "Input",   Variant = "primary" });
+        var process = d.AddNode(new GraphNodeModel(210, 88) { Title = "Process" });
+        var output  = d.AddNode(new GraphNodeModel(380, 88) { Title = "Output",  Variant = "success" });
+
+        d.AddEdge(input.AddPort(GraphPortAlignment.Right),   process.AddPort(GraphPortAlignment.Left));
+        d.AddEdge(process.AddPort(GraphPortAlignment.Right), output.AddPort(GraphPortAlignment.Left));
+
+        return d;
+    }
+
+    // ── Branching: Request → Review → {Approved | Rejected} ─────────────────
+
+    private static GraphDiagram BuildBranching()
+    {
+        var d = new GraphDiagram();
+
+        var request  = d.AddNode(new GraphNodeModel(40,  108) { Title = "Request",  Variant = "primary" });
+        var review   = d.AddNode(new GraphNodeModel(210, 108) { Title = "Review" });
+        var approved = d.AddNode(new GraphNodeModel(380,  55) { Title = "Approved", Variant = "success" });
+        var rejected = d.AddNode(new GraphNodeModel(380, 163) { Title = "Rejected", Variant = "danger"  });
+
+        var reviewOut = review.AddPort(GraphPortAlignment.Right);  // one port, two edges
+
+        d.AddEdge(request.AddPort(GraphPortAlignment.Right), review.AddPort(GraphPortAlignment.Left));
+        d.AddEdge(reviewOut, approved.AddPort(GraphPortAlignment.Left));
+        d.AddEdge(reviewOut, rejected.AddPort(GraphPortAlignment.Left));
+
+        return d;
+    }
+
+    // ── Code snippets ────────────────────────────────────────────────────────
+
+    private const string PipelineCode =
+        """
+        var d = new GraphDiagram();
+
+        var input   = d.AddNode(new GraphNodeModel(40,  88) { Title = "Input",   Variant = "primary" });
+        var process = d.AddNode(new GraphNodeModel(210, 88) { Title = "Process" });
+        var output  = d.AddNode(new GraphNodeModel(380, 88) { Title = "Output",  Variant = "success" });
+
+        d.AddEdge(input.AddPort(GraphPortAlignment.Right),   process.AddPort(GraphPortAlignment.Left));
+        d.AddEdge(process.AddPort(GraphPortAlignment.Right), output.AddPort(GraphPortAlignment.Left));
+
+        <GraphEditor Diagram="@d" />
+        """;
+
+    private const string BranchingCode =
+        """
+        var d = new GraphDiagram();
+
+        var request  = d.AddNode(new GraphNodeModel(40,  108) { Title = "Request",  Variant = "primary" });
+        var review   = d.AddNode(new GraphNodeModel(210, 108) { Title = "Review" });
+        var approved = d.AddNode(new GraphNodeModel(380,  55) { Title = "Approved", Variant = "success" });
+        var rejected = d.AddNode(new GraphNodeModel(380, 163) { Title = "Rejected", Variant = "danger"  });
+
+        // One port, two outgoing edges — both leave from the same point.
+        var reviewOut = review.AddPort(GraphPortAlignment.Right);
+        d.AddEdge(request.AddPort(GraphPortAlignment.Right), review.AddPort(GraphPortAlignment.Left));
+        d.AddEdge(reviewOut, approved.AddPort(GraphPortAlignment.Left));
+        d.AddEdge(reviewOut, rejected.AddPort(GraphPortAlignment.Left));
+
+        <GraphEditor Diagram="@d" />
+        """;
+}

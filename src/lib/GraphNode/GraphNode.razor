@@ -1,0 +1,16 @@
+@namespace LowlandTech.Components.GraphNode
+@inherits LtComponentBase
+
+<g data-slot="graph-node" transform="translate(@X, @Y)" class="cn-graph-node" @attributes="AdditionalAttributes">
+    <rect width="@Width" height="@Height" rx="6" class="@GetRectClass()" />
+    @if (!string.IsNullOrEmpty(Subtitle))
+    {
+        <SvgText X="@(Width / 2)" Y="@(Height / 2 - 7)" Class="cn-graph-node-title">@Title</SvgText>
+        <SvgText X="@(Width / 2)" Y="@(Height / 2 + 8)" Class="cn-graph-node-subtitle">@Subtitle</SvgText>
+    }
+    else
+    {
+        <SvgText X="@(Width / 2)" Y="@(Height / 2)" Class="cn-graph-node-title">@Title</SvgText>
+    }
+    @ChildContent
+</g>
