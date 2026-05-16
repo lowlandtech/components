@@ -6,6 +6,61 @@
            States="@States" />
 
 @code {
+    private sealed record FileItem(string Name, IReadOnlyList<FileItem> Children);
+
+    private static string GetIcon(FileItem item) => item.Children.Count > 0 ? "folder" : "file";
+
+    private static readonly IReadOnlyList<FileItem> RootItems =
+    [
+        new("src",
+        [
+            new("components",
+            [
+                new("Button.razor", []),
+                new("Card.razor", []),
+                new("Dialog.razor", [])
+            ]),
+            new("app",
+            [
+                new("Program.cs", [])
+            ])
+        ]),
+        new("docs",
+        [
+            new("readme.md", [])
+        ]),
+        new("package.json", [])
+    ];
+
+    private const string CollapsedRazor =
+        """
+        <TreeView TItem="FileItem"
+                  Items="RootItems"
+                  GetChildren="f => f.Children"
+                  HasChildren="f => f.Children.Count > 0">
+            <ItemTemplate Context="ctx">
+                <div style="padding-left: @(ctx.Depth * 16 + 8)px">
+                    <span>@ctx.Item.Name</span>
+                </div>
+            </ItemTemplate>
+        </TreeView>
+        """;
+
+    private const string ExpandedRazor =
+        """
+        <TreeView TItem="FileItem"
+                  Items="RootItems"
+                  GetChildren="f => f.Children"
+                  HasChildren="f => f.Children.Count > 0"
+                  IsExpanded='f => f.Name == "src" || f.Name == "components"'>
+            <ItemTemplate Context="ctx">
+                <div style="padding-left: @(ctx.Depth * 16 + 8)px">
+                    <span>@ctx.Item.Name</span>
+                </div>
+            </ItemTemplate>
+        </TreeView>
+        """;
+
     private IReadOnlyList<StoryCard.State> States => [
         new(
             "collapsed",
@@ -47,7 +102,7 @@
                           Items="RootItems"
                           GetChildren="f => f.Children"
                           HasChildren="f => f.Children.Count > 0"
-                          IsExpanded="f => f.Name == "src" || f.Name == "components""
+                          IsExpanded='f => f.Name == "src" || f.Name == "components"'
                           class="space-y-1">
                     <ItemTemplate Context="ctx">
                         <div class="flex items-center gap-2 rounded px-2 py-1 hover:bg-muted"
@@ -73,59 +128,4 @@
                 new StoryCard.CodeTab("expanded-razor", "TreeViewStory.razor", ExpandedRazor)
             ])
     ];
-
-    private static string GetIcon(FileItem item) => item.Children.Count > 0 ? "folder" : "file";
-
-    private static readonly IReadOnlyList<FileItem> RootItems =
-    [
-        new("src",
-        [
-            new("components",
-            [
-                new("Button.razor", []),
-                new("Card.razor", []),
-                new("Dialog.razor", [])
-            ]),
-            new("app",
-            [
-                new("Program.cs", [])
-            ])
-        ]),
-        new("docs",
-        [
-            new("readme.md", [])
-        ]),
-        new("package.json", [])
-    ];
-
-    private sealed record FileItem(string Name, IReadOnlyList<FileItem> Children);
-
-    private const string CollapsedRazor =
-        """
-        <TreeView TItem="FileItem"
-                  Items="RootItems"
-                  GetChildren="f => f.Children"
-                  HasChildren="f => f.Children.Count > 0">
-            <ItemTemplate Context="ctx">
-                <div style="padding-left: @(ctx.Depth * 16 + 8)px">
-                    <span>@ctx.Item.Name</span>
-                </div>
-            </ItemTemplate>
-        </TreeView>
-        """;
-
-    private const string ExpandedRazor =
-        """
-        <TreeView TItem="FileItem"
-                  Items="RootItems"
-                  GetChildren="f => f.Children"
-                  HasChildren="f => f.Children.Count > 0"
-                  IsExpanded="f => f.Name == "src" || f.Name == "components"">
-            <ItemTemplate Context="ctx">
-                <div style="padding-left: @(ctx.Depth * 16 + 8)px">
-                    <span>@ctx.Item.Name</span>
-                </div>
-            </ItemTemplate>
-        </TreeView>
-        """;
 }

@@ -1,0 +1,143 @@
+@attribute [DisplayName("Navigation/NavigationMenu")]
+@inherits StoryComponent
+
+<StoryCard Title="NavigationMenu"
+           Description="NavigationMenu displays a horizontal menu with dropdown panels for site navigation."
+           States="@States" />
+
+@code {
+    private bool _openGettingStarted;
+    private bool _openComponents;
+    private bool _openDocs;
+
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "with-dropdowns",
+            "With dropdowns",
+            @<div class="w-full">
+                <NavigationMenu>
+                    <NavigationMenuList>
+                        <NavigationMenuItem>
+                            <NavigationMenuTrigger IsOpen="_openGettingStarted" OnClick="() => _openGettingStarted = !_openGettingStarted">
+                                Getting started
+                            </NavigationMenuTrigger>
+                            <NavigationMenuContent IsOpen="_openGettingStarted" class="absolute w-[400px] p-4">
+                                <div class="grid gap-3">
+                                    <NavigationMenuLink Href="#">
+                                        <div class="text-sm font-medium">Introduction</div>
+                                        <div class="text-xs text-muted-foreground">Re-usable components built with Radix UI and Tailwind CSS.</div>
+                                    </NavigationMenuLink>
+                                    <NavigationMenuLink Href="#">
+                                        <div class="text-sm font-medium">Installation</div>
+                                        <div class="text-xs text-muted-foreground">How to install dependencies and structure your app.</div>
+                                    </NavigationMenuLink>
+                                    <NavigationMenuLink Href="#">
+                                        <div class="text-sm font-medium">Theming</div>
+                                        <div class="text-xs text-muted-foreground">Customizing the look and feel of your application.</div>
+                                    </NavigationMenuLink>
+                                </div>
+                            </NavigationMenuContent>
+                        </NavigationMenuItem>
+                        <NavigationMenuItem>
+                            <NavigationMenuTrigger IsOpen="_openComponents" OnClick="() => _openComponents = !_openComponents">
+                                Components
+                            </NavigationMenuTrigger>
+                            <NavigationMenuContent IsOpen="_openComponents" class="absolute w-[400px] p-4">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <NavigationMenuLink Href="#">
+                                        <div class="text-sm font-medium">Button</div>
+                                        <div class="text-xs text-muted-foreground">Interactive button variants.</div>
+                                    </NavigationMenuLink>
+                                    <NavigationMenuLink Href="#">
+                                        <div class="text-sm font-medium">Dialog</div>
+                                        <div class="text-xs text-muted-foreground">Modal window for focused tasks.</div>
+                                    </NavigationMenuLink>
+                                    <NavigationMenuLink Href="#">
+                                        <div class="text-sm font-medium">Card</div>
+                                        <div class="text-xs text-muted-foreground">Container for grouped content.</div>
+                                    </NavigationMenuLink>
+                                    <NavigationMenuLink Href="#">
+                                        <div class="text-sm font-medium">Table</div>
+                                        <div class="text-xs text-muted-foreground">Structured data display.</div>
+                                    </NavigationMenuLink>
+                                </div>
+                            </NavigationMenuContent>
+                        </NavigationMenuItem>
+                        <NavigationMenuItem>
+                            <NavigationMenuLink Href="#" class="h-10 w-max px-4 py-2">
+                                Documentation
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                    </NavigationMenuList>
+                </NavigationMenu>
+            </div>,
+            [
+                new StoryCard.CodeTab("dropdowns-razor", "NavigationMenuStory.razor", DropdownsRazor)
+            ]),
+        new(
+            "links-only",
+            "Links only",
+            @<div class="w-full">
+                <NavigationMenu>
+                    <NavigationMenuList>
+                        <NavigationMenuItem>
+                            <NavigationMenuLink Href="#" class="h-10 w-max px-4 py-2">
+                                Home
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                        <NavigationMenuItem>
+                            <NavigationMenuLink Href="#" class="h-10 w-max px-4 py-2">
+                                Features
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                        <NavigationMenuItem>
+                            <NavigationMenuLink Href="#" class="h-10 w-max px-4 py-2">
+                                Pricing
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                        <NavigationMenuItem>
+                            <NavigationMenuLink Href="#" class="h-10 w-max px-4 py-2">
+                                About
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                    </NavigationMenuList>
+                </NavigationMenu>
+            </div>,
+            [
+                new StoryCard.CodeTab("links-razor", "NavigationMenuStory.razor", LinksRazor)
+            ])
+    ];
+
+    private const string DropdownsRazor =
+        """
+        <NavigationMenu>
+            <NavigationMenuList>
+                <NavigationMenuItem>
+                    <NavigationMenuTrigger IsOpen="_open" OnClick="() => _open = !_open">
+                        Getting started
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent IsOpen="_open" class="absolute w-[400px] p-4">
+                        <NavigationMenuLink Href="#">
+                            <div class="text-sm font-medium">Introduction</div>
+                            <div class="text-xs text-muted-foreground">Re-usable components built with Radix UI.</div>
+                        </NavigationMenuLink>
+                    </NavigationMenuContent>
+                </NavigationMenuItem>
+            </NavigationMenuList>
+        </NavigationMenu>
+        """;
+
+    private const string LinksRazor =
+        """
+        <NavigationMenu>
+            <NavigationMenuList>
+                <NavigationMenuItem>
+                    <NavigationMenuLink Href="#">Home</NavigationMenuLink>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                    <NavigationMenuLink Href="#">Features</NavigationMenuLink>
+                </NavigationMenuItem>
+            </NavigationMenuList>
+        </NavigationMenu>
+        """;
+}

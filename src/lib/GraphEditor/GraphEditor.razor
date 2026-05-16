@@ -2,12 +2,21 @@
 @inherits LtComponentBase
 @implements IDisposable
 
+@* ── Drag-capture overlay ─────────────────────────────────────────────────
+   Rendered only while a node is being dragged. Covers the entire viewport
+   so that pointer events keep firing even when the pointer leaves the SVG.
+   Without this, fast drags break the moment the cursor exits the canvas. *@
+@if (_dragNode is not null)
+{
+    <div class="fixed inset-0 z-50" style="cursor: grabbing"
+         @onpointermove="OnPointerMove"
+         @onpointermove:preventDefault
+         @onpointerup="OnPointerUp" />
+}
+
 <svg width="@Width" height="@Height"
      class="cn-graph-canvas @Class"
-     @attributes="AdditionalAttributes"
-     @onpointermove="OnPointerMove"
-     @onpointerup="OnPointerUp"
-     @onpointermove:preventDefault>
+     @attributes="AdditionalAttributes">
 
     <defs>
         <pattern id="dot-@_id" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">

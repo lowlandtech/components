@@ -225,4 +225,64 @@ public class SC01_GraphEditorRendering : JsViewScenario
 
         cut.FindAll("[data-node]").Count.ShouldBe(2);
     }
+
+    [Fact(DisplayName = "UAC18: Drag-capture overlay absent before drag starts")]
+    [Trait(Spec.UAC, "18")]
+    public void UAC18_OverlayAbsentWhenIdle()
+    {
+        var cut = Render();
+        // No fixed overlay should exist before any pointerdown.
+        cut.FindAll("div.fixed").ShouldBeEmpty();
+    }
+
+    [Fact(DisplayName = "UAC19: Drag-capture overlay appears after pointerdown on a node")]
+    [Trait(Spec.UAC, "19")]
+    public void UAC19_OverlayAppearsOnPointerDown()
+    {
+        var d    = new GraphDiagram();
+        d.AddNode(new GraphNodeModel(40, 80) { Title = "N" });
+        var cut  = Render(d);
+
+        cut.Find("[data-node]").TriggerEvent("onpointerdown",
+            new PointerEventArgs { ClientX = 100, ClientY = 102 });
+
+        cut.FindAll("div.fixed").Count.ShouldBe(1);
+    }
+
+    [Fact(DisplayName = "UAC20: Drag-capture overlay disappears on pointerup")]
+    [Trait(Spec.UAC, "20")]
+    public void UAC20_OverlayGoneAfterPointerUp()
+    {
+        var d    = new GraphDiagram();
+        d.AddNode(new GraphNodeModel(40, 80) { Title = "N" });
+        var cut  = Render(d);
+
+        cut.Find("[data-node]").TriggerEvent("onpointerdown",
+            new PointerEventArgs { ClientX = 100, ClientY = 102 });
+        cut.Find("div.fixed").TriggerEvent("onpointerup",
+            new PointerEventArgs { ClientX = 100, ClientY = 102 });
+
+        cut.FindAll("div.fixed").ShouldBeEmpty();
+    }
+
+    [Fact(DisplayName = "UAC21: Node position updates when overlay receives pointermove")]
+    [Trait(Spec.UAC, "21")]
+    public void UAC21_NodeMovesOnOverlayPointerMove()
+    {
+        var d    = new GraphDiagram();
+        var node = d.AddNode(new GraphNodeModel(40, 80) { Title = "N" });
+        var cut  = Render(d);
+
+        // Start drag at client (100, 100), then move to (150, 130).
+        cut.Find("[data-node]").TriggerEvent("onpointerdown",
+            new PointerEventArgs { ClientX = 100, ClientY = 100 });
+
+        cut.Find("div.fixed").TriggerEvent("onpointermove",
+            new PointerEventArgs { ClientX = 150, ClientY = 130 });
+
+        // Node moved by delta (50, 30) from its initial position (40, 80).
+        node.X.ShouldBe(90);
+        node.Y.ShouldBe(110);
+        cut.Find("[data-node]").GetAttribute("transform").ShouldBe("translate(90, 110)");
+    }
 }
