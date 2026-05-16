@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "../wwwroot/css/variables.css";
 @import "../../lib/wwwroot/css/sidebar.css";
+@import "../../lib/wwwroot/css/tooltip.css";
 
 @source "../**/*.razor";
 @source "../**/*.html";
@@ -606,5 +607,29 @@
 
   .cn-button-group-separator[data-orientation="vertical"] {
     @apply h-px w-full;
+  }
+
+  /* Accordion Component Styles */
+  .cn-accordion-item {
+    border-bottom: 1px solid hsl(var(--border));
+  }
+
+  .cn-accordion-trigger {
+    @apply flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none
+      hover:underline
+      focus-visible:ring-[3px] focus-visible:ring-ring
+      aria-disabled:pointer-events-none aria-disabled:opacity-50;
+  }
+
+  .cn-accordion-trigger-icon {
+    @apply size-4 shrink-0 translate-y-0.5 transition-transform duration-200;
+  }
+
+  .cn-accordion-trigger[data-state="open"] .cn-accordion-trigger-icon {
+    @apply rotate-180;
+  }
+
+  .cn-accordion-content-inner {
+    @apply pb-4 pt-0 text-sm;
   }
 }
