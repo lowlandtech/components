@@ -1,0 +1,19 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Navigation
+
+<div class="w-full max-w-sm rounded-lg border border-border p-4">
+    <TreeView TItem="TreeViewFileItem"
+              Items="TreeViewSampleData.RootItems"
+              GetChildren="f => f.Children"
+              GetKey="f => f.Id"
+              HasChildren="f => f.Children.Count > 0"
+              GetText="f => f.Name"
+              CheckMode="TreeViewCheckMode.Checkbox"
+              CheckedKeys="_checkedKeys"
+              CheckedKeysChanged="keys => _checkedKeys = keys.ToList()"
+              ExpandedKeys="TreeViewSampleData.ExpandedKeys"
+              class="space-y-1" />
+</div>
+
+@code {
+    private IReadOnlyList<string> _checkedKeys = [];
+}

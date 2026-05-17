@@ -26,7 +26,7 @@ public class SC01_ThemeServiceBehavior : IAsyncLifetime
     }
 
     // Builds a ThemeService wired to the bUnit JSInterop runtime.
-    private LowlandTech.Components.App.Services.ThemeService BuildService() =>
+    private LowlandTech.Components.Stories.Services.ThemeService BuildService() =>
         new(_ctx.JSInterop.JSRuntime);
 
     private void SetupForInit(string? storedTheme)

@@ -1,0 +1,59 @@
+@namespace LowlandTech.Components.Stories.Showcode
+@inject ShowcodeState State
+@inject IJSRuntime JS
+@implements IDisposable
+
+<Sidebar Side="left" Variant="sidebar" Collapsible="offcanvas">
+    <SidebarHeader>
+        <a href="/" class="px-2 py-1.5 flex items-center gap-2 no-underline hover:opacity-80 transition-opacity">
+            <div class="flex size-6 items-center justify-center rounded-md bg-sidebar-primary text-[11px] font-bold text-sidebar-primary-foreground select-none">LT</div>
+            <span class="text-sm font-semibold text-sidebar-foreground"><span class="text-sidebar-primary">Tiny</span>Components</span>
+        </a>
+    </SidebarHeader>
+    <SidebarContent>
+        @foreach (var group in StoryRegistry.Root.Children)
+        {
+            <SidebarGroup>
+                <SidebarGroupLabel>@group.Name</SidebarGroupLabel>
+                <SidebarGroupContent>
+                    <SidebarMenu>
+                        @foreach (var story in group.Stories)
+                        {
+                            <SidebarMenuItem>
+                                <SidebarMenuButton IsActive="@(State.Current?.Slug == story.Slug)"
+                                                   @onclick="@(() => Select(story))">
+                                    @story.Name
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        }
+                    </SidebarMenu>
+                </SidebarGroupContent>
+            </SidebarGroup>
+        }
+    </SidebarContent>
+</Sidebar>
+
+@code {
+    private bool _shouldScroll;
+
+    protected override void OnInitialized() => State.Changed += Refresh;
+
+    private void Select(StoryMetadata story) => State.Select(story);
+
+    private void Refresh()
+    {
+        _shouldScroll = true;
+        InvokeAsync(StateHasChanged);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_shouldScroll)
+        {
+            _shouldScroll = false;
+            await JS.InvokeVoidAsync("scrollActiveNavItemIntoView");
+        }
+    }
+
+    public void Dispose() => State.Changed -= Refresh;
+}

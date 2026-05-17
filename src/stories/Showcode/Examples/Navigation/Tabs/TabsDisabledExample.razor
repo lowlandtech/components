@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Navigation
+
+<Tabs DefaultValue="tab1" class="w-full max-w-lg">
+    <TabsList>
+        <TabsTrigger Value="tab1">Active</TabsTrigger>
+        <TabsTrigger Value="tab2">Also Active</TabsTrigger>
+        <TabsTrigger Value="tab3" Disabled="true">Disabled</TabsTrigger>
+    </TabsList>
+    <TabsContent Value="tab1"><p class="p-2 text-sm text-muted-foreground">Tab 1 content.</p></TabsContent>
+    <TabsContent Value="tab2"><p class="p-2 text-sm text-muted-foreground">Tab 2 content.</p></TabsContent>
+    <TabsContent Value="tab3"><p class="p-2 text-sm text-muted-foreground">Unreachable content.</p></TabsContent>
+</Tabs>

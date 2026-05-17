@@ -1,0 +1,25 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Overlay
+
+<div class="h-96 w-full border border-border rounded-lg bg-sidebar flex items-center justify-center">
+    <Drawer @bind-IsOpen="_open" Direction="left">
+        <DrawerTrigger>
+            <Button Variant="outline">Open Left Drawer</Button>
+        </DrawerTrigger>
+        <DrawerContent>
+            <DrawerHeader>
+                <DrawerTitle>Navigation</DrawerTitle>
+                <DrawerDescription>Main navigation drawer.</DrawerDescription>
+            </DrawerHeader>
+            <div class="p-4">
+                <p class="text-sm text-muted-foreground">Navigation items here.</p>
+            </div>
+            <DrawerFooter>
+                <DrawerClose><Button Variant="outline" class="w-full">Close</Button></DrawerClose>
+            </DrawerFooter>
+        </DrawerContent>
+    </Drawer>
+</div>
+
+@code {
+    private bool _open;
+}

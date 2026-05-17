@@ -1,0 +1,11 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Form
+
+<RadioGroup Name="tier" @bind-Value="_tier">
+    <RadioGroupItem Value="basic">Basic</RadioGroupItem>
+    <RadioGroupItem Value="standard">Standard</RadioGroupItem>
+    <RadioGroupItem Value="premium" Disabled="true">Premium (unavailable)</RadioGroupItem>
+</RadioGroup>
+
+@code {
+    private string _tier = "basic";
+}

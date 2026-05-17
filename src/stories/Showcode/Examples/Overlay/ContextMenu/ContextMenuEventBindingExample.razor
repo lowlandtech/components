@@ -1,0 +1,37 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Overlay
+
+<div class="flex w-full gap-4">
+    <div class="flex flex-1 items-center justify-center rounded-lg border border-dashed border-border h-40">
+        <ContextMenu @bind-IsOpen="_evtOpen">
+            <ContextMenuTrigger>
+                <div class="flex h-20 w-48 items-center justify-center rounded-md border bg-muted text-sm text-muted-foreground select-none">
+                    Right click here
+                </div>
+            </ContextMenuTrigger>
+            <ContextMenuContent>
+                <ContextMenuItem OnClick="@(() => _log.Insert(0, "Cut"))">
+                    Cut <ContextMenuShortcut>⌘X</ContextMenuShortcut>
+                </ContextMenuItem>
+                <ContextMenuItem OnClick="@(() => _log.Insert(0, "Copy"))">
+                    Copy <ContextMenuShortcut>⌘C</ContextMenuShortcut>
+                </ContextMenuItem>
+                <ContextMenuItem OnClick="@(() => _log.Insert(0, "Paste"))">
+                    Paste <ContextMenuShortcut>⌘V</ContextMenuShortcut>
+                </ContextMenuItem>
+            </ContextMenuContent>
+        </ContextMenu>
+    </div>
+    <div class="w-48 rounded-lg border bg-muted/40 p-3 text-xs space-y-1">
+        <p class="font-medium text-foreground">Event log</p>
+        <p class="text-muted-foreground">Open: @_evtOpen</p>
+        @foreach (var entry in _log.Take(5))
+        {
+            <p class="text-muted-foreground">→ @entry</p>
+        }
+    </div>
+</div>
+
+@code {
+    bool _evtOpen;
+    List<string> _log = [];
+}

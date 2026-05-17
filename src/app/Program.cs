@@ -15,6 +15,6 @@ builder.Services.AddSingleton<IComponentTheme, RoseComponentTheme>();
 builder.Services.AddSingleton<IComponentTheme, ForestComponentTheme>();
 builder.Services.AddScoped<ComponentThemeService>();
 
-StoryRegistry.RegisterAllStories(typeof(App).Assembly);
+StoryRegistry.RegisterAllStories(typeof(ShowcodeLayout).Assembly);
 
 await builder.Build().RunAsync();

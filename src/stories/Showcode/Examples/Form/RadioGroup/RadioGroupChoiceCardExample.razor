@@ -1,0 +1,20 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Form
+
+<RadioGroup Name="billing" class="w-full max-w-lg" @bind-Value="_billing">
+    <RadioGroupItem Value="solo" Variant="choice-card">
+        <div class="space-y-1">
+            <RadioGroupItemTitle>Solo</RadioGroupItemTitle>
+            <RadioGroupItemDescription>One workspace for personal projects.</RadioGroupItemDescription>
+        </div>
+    </RadioGroupItem>
+    <RadioGroupItem Value="team" Variant="choice-card">
+        <div class="space-y-1">
+            <RadioGroupItemTitle>Team</RadioGroupItemTitle>
+            <RadioGroupItemDescription>Shared workspaces and billing controls.</RadioGroupItemDescription>
+        </div>
+    </RadioGroupItem>
+</RadioGroup>
+
+@code {
+    private string _billing = "team";
+}

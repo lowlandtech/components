@@ -1,0 +1,11 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Misc
+
+<div class="flex justify-center p-2">
+    <Calendar IsDateDisabled="IsWeekend" @bind-SelectedDate="_singleDate" />
+</div>
+
+@code {
+    private DateTime? _singleDate = DateTime.Today;
+
+    private static bool IsWeekend(DateTime date) => date.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday;
+}

@@ -1,9 +1,0 @@
-@namespace LowlandTech.Components.App.Showcode.Examples.Misc
-
-<div class="flex justify-center p-2">
-    <Calendar Mode="CalendarMode.Multiple" @bind-SelectedDates="_multipleDates" />
-</div>
-
-@code {
-    private List<DateTime> _multipleDates = [DateTime.Today, DateTime.Today.AddDays(2)];
-}

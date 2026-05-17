@@ -32,7 +32,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\app\LowlandTech.Components.App.csproj" />
+		<ProjectReference Include="..\stories\LowlandTech.Components.Stories.csproj" />
 		<ProjectReference Include="..\lib\LowlandTech.Components.csproj" />
 	</ItemGroup>
 

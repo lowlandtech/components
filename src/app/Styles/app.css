@@ -3,7 +3,8 @@
 @import "../../lib/wwwroot/css/sidebar.css";
 @import "../../lib/wwwroot/css/tooltip.css";
 
-@source "../**/*.razor";
+@source ".\./\*\*/\*\.razor";
+@source "../../stories/**/*.razor";
 @source "../**/*.html";
 @source "../../lib/**/*.razor";
 
@@ -700,3 +701,4 @@ html:hover                             { scrollbar-color: var(--border) transpar
     @apply pb-4 pt-0 text-sm;
   }
 }
+

@@ -37,11 +37,11 @@ public class SC01_ComponentThemeContract
 
     public static TheoryData<IComponentTheme> AllThemes =>
     [
-        new LowlandTech.Components.App.Services.Themes.DarkComponentTheme(),
-        new LowlandTech.Components.App.Services.Themes.LightComponentTheme(),
-        new LowlandTech.Components.App.Services.Themes.ForestComponentTheme(),
-        new LowlandTech.Components.App.Services.Themes.OceanComponentTheme(),
-        new LowlandTech.Components.App.Services.Themes.RoseComponentTheme(),
+        new DarkComponentTheme(),
+        new LightComponentTheme(),
+        new ForestComponentTheme(),
+        new OceanComponentTheme(),
+        new RoseComponentTheme(),
     ];
 
     // -----------------------------------------------------------------------

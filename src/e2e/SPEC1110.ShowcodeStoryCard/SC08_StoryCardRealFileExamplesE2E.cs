@@ -24,7 +24,7 @@ public sealed class SC08_StoryCardRealFileExamplesE2E(ShowcodeCollection collect
         await Assertions.Expect(card).Not.ToContainTextAsync("TreeViewStory.razor");
 
         var activeCode = card.Locator("[data-slot='tabs-content'][data-state='active'] .story-card-code-editor").First;
-        await Assertions.Expect(activeCode).ToContainTextAsync("@namespace LowlandTech.Components.App.Showcode.Examples.Navigation");
+        await Assertions.Expect(activeCode).ToContainTextAsync("@namespace LowlandTech.Components.Stories.Showcode.Examples.Navigation");
         await Assertions.Expect(activeCode).ToContainTextAsync("TreeViewSampleData.RootItems");
 
         await card.Locator("[data-slot='tabs-trigger']").Filter(new LocatorFilterOptions

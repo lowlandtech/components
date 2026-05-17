@@ -1,0 +1,19 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Misc
+
+<div class="max-w-sm w-full self-start">
+    <Collapsible @bind-IsOpen="_open">
+        <CollapsibleTrigger class="flex items-center gap-2 text-sm font-medium hover:underline">
+            <span>Toggle repositories</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform" style="transform: rotate(@(_open ? "180deg" : "0deg"))"><path d="m6 9 6 6 6-6"/></svg>
+        </CollapsibleTrigger>
+        <CollapsibleContent class="mt-2 space-y-1">
+            <div class="rounded-md border px-4 py-2 text-sm">@@permer/cloc</div>
+            <div class="rounded-md border px-4 py-2 text-sm">@@stitches/core</div>
+            <div class="rounded-md border px-4 py-2 text-sm">@@radix-ui/react-collapsible</div>
+        </CollapsibleContent>
+    </Collapsible>
+</div>
+
+@code {
+    private bool _open;
+}

@@ -220,7 +220,7 @@ public class SC04_ThemeProviderStoryStateStructure
         // Verify the story type was compiled from the correct source by checking
         // it's in the expected assembly.
         var asm = typeof(ThemeProviderStory).Assembly;
-        asm.GetName().Name.ShouldBe("LowlandTech.Components.App");
+        asm.GetName().Name.ShouldBe("LowlandTech.Components.Stories");
     }
 
     [Fact(DisplayName = "UAC16: ThemeProviderStory has 'nested' state (via source constants)")]
@@ -230,16 +230,16 @@ public class SC04_ThemeProviderStoryStateStructure
     {
         // Same assembly check covers both boundary and nested states.
         var asm = typeof(ThemeProviderStory).Assembly;
-        asm.GetName().Name.ShouldBe("LowlandTech.Components.App");
+        asm.GetName().Name.ShouldBe("LowlandTech.Components.Stories");
     }
 
-    [Fact(DisplayName = "UAC17: ThemeProviderStory comes from LowlandTech.Components.App assembly")]
+    [Fact(DisplayName = "UAC17: ThemeProviderStory comes from LowlandTech.Components.Stories assembly")]
     [Trait(Spec.UAC, "17")]
-    [Then("ThemeProviderStory should come from the LowlandTech.Components.App assembly")]
+    [Then("ThemeProviderStory should come from the LowlandTech.Components.Stories assembly")]
     public void UAC17_CorrectAssembly()
     {
         typeof(ThemeProviderStory).Assembly.GetName().Name
-            .ShouldBe("LowlandTech.Components.App");
+            .ShouldBe("LowlandTech.Components.Stories");
     }
 }
 
@@ -412,17 +412,17 @@ public class SC07_StoryCardDescriptionContent
 
     [Fact(DisplayName = "UAC28: Story assembly contains expected component types")]
     [Trait(Spec.UAC, "28")]
-    [Then("the LowlandTech.Components.App assembly should contain expected story types")]
+    [Then("the LowlandTech.Components.Stories assembly should contain expected story types")]
     public void UAC28_AssemblyContainsStoryTypes()
     {
         var asm = typeof(ThemeProviderStory).Assembly;
-        asm.GetType("LowlandTech.Components.App.Showcode.Stories.Misc.ThemeProviderStory")
+        asm.GetType("LowlandTech.Components.Stories.Showcode.Stories.Misc.ThemeProviderStory")
             .ShouldNotBeNull();
     }
 
     [Fact(DisplayName = "UAC29: StoryComponent base type is accessible from the assembly")]
     [Trait(Spec.UAC, "29")]
-    [Then("StoryComponent should be accessible from the LowlandTech.Components.App assembly")]
+    [Then("StoryComponent should be accessible from the LowlandTech.Components.Stories assembly")]
     public void UAC29_StoryComponentAccessible()
     {
         typeof(StoryComponent).ShouldNotBeNull();

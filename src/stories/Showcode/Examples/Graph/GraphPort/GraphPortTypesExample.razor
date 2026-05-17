@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Graph
+
+<GraphCanvas Width="360" Height="120">
+    @* input side *@
+    <GraphNode X="20"  Y="38" Width="120" Height="44" Title="Consumer" />
+    <GraphPort X="20"  Y="60" Type="input" />
+    @* output side *@
+    <GraphNode X="220" Y="38" Width="120" Height="44" Title="Producer" />
+    <GraphPort X="340" Y="60" Type="output" />
+    @* edge between them *@
+    <GraphEdge X1="340" Y1="60" X2="20" Y2="60" Routing="straight" />
+</GraphCanvas>

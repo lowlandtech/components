@@ -1,0 +1,22 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Overlay
+
+<div class="flex flex-col items-center gap-4">
+    <div class="flex items-center gap-2">
+        <span class="text-sm text-muted-foreground">IsOpen:</span>
+        <Switch @bind-Checked="_isOpen" />
+        <span class="text-sm font-mono">@(_isOpen ? "true" : "false")</span>
+    </div>
+    <DropdownMenu>
+        <DropdownMenuTrigger><Button Variant="outline">Controlled menu</Button></DropdownMenuTrigger>
+        <DropdownMenuContent @bind-IsOpen="_isOpen">
+            <DropdownMenuItem @onclick="() => _isOpen = false">Close menu</DropdownMenuItem>
+            <DropdownMenuItem>Stay open</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem @onclick="() => _isOpen = false">Save and close</DropdownMenuItem>
+        </DropdownMenuContent>
+    </DropdownMenu>
+</div>
+
+@code {
+    private bool _isOpen = true;
+}

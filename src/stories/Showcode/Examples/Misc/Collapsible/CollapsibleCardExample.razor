@@ -1,0 +1,25 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Misc
+
+<div class="max-w-sm w-full self-start">
+    <Collapsible @bind-IsOpen="_open">
+        <Card>
+            <CardHeader>
+                <div class="flex items-center justify-between">
+                    <CardTitle>Advanced Settings</CardTitle>
+                    <CollapsibleTrigger class="p-1.5 hover:bg-muted rounded">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(@(_open ? "180deg" : "0deg"))"><path d="m6 9 6 6 6-6"/></svg>
+                    </CollapsibleTrigger>
+                </div>
+            </CardHeader>
+            <CollapsibleContent>
+                <CardContent class="pt-0">
+                    <p class="text-sm text-muted-foreground">Advanced settings are hidden by default to keep the UI clean.</p>
+                </CardContent>
+            </CollapsibleContent>
+        </Card>
+    </Collapsible>
+</div>
+
+@code {
+    private bool _open;
+}

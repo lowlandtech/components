@@ -1,0 +1,25 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Graph
+
+<GraphEditor Diagram="@_diagram" Width="540" Height="260" />
+
+@code {
+    private readonly GraphDiagram _diagram = BuildBranching();
+
+    private static GraphDiagram BuildBranching()
+    {
+        var d = new GraphDiagram();
+
+        var request  = d.AddNode(new GraphNodeModel(40,  108) { Title = "Request",  Variant = "primary" });
+        var review   = d.AddNode(new GraphNodeModel(210, 108) { Title = "Review" });
+        var approved = d.AddNode(new GraphNodeModel(380,  55) { Title = "Approved", Variant = "success" });
+        var rejected = d.AddNode(new GraphNodeModel(380, 163) { Title = "Rejected", Variant = "danger"  });
+
+        var reviewOut = review.AddPort(GraphPortAlignment.Right);  // one port, two edges
+
+        d.AddEdge(request.AddPort(GraphPortAlignment.Right), review.AddPort(GraphPortAlignment.Left));
+        d.AddEdge(reviewOut, approved.AddPort(GraphPortAlignment.Left));
+        d.AddEdge(reviewOut, rejected.AddPort(GraphPortAlignment.Left));
+
+        return d;
+    }
+}

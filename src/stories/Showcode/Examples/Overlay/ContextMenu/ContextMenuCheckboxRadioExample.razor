@@ -1,0 +1,29 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Overlay
+
+<div class="flex h-40 w-full items-center justify-center rounded-lg border border-dashed border-border">
+    <ContextMenu>
+        <ContextMenuTrigger>
+            <div class="flex h-20 w-48 items-center justify-center rounded-md border bg-muted text-sm text-muted-foreground select-none">
+                Right click here
+            </div>
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+            <ContextMenuLabel>View</ContextMenuLabel>
+            <ContextMenuCheckboxItem @bind-Checked="_showToolbar">Toolbar</ContextMenuCheckboxItem>
+            <ContextMenuCheckboxItem @bind-Checked="_showStatusBar">Status Bar</ContextMenuCheckboxItem>
+            <ContextMenuSeparator />
+            <ContextMenuLabel>Theme</ContextMenuLabel>
+            <ContextMenuRadioGroup @bind-Value="_theme">
+                <ContextMenuRadioItem Value="light">Light</ContextMenuRadioItem>
+                <ContextMenuRadioItem Value="dark">Dark</ContextMenuRadioItem>
+                <ContextMenuRadioItem Value="system">System</ContextMenuRadioItem>
+            </ContextMenuRadioGroup>
+        </ContextMenuContent>
+    </ContextMenu>
+</div>
+
+@code {
+    bool _showToolbar = true;
+    bool _showStatusBar;
+    string _theme = "light";
+}
