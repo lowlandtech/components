@@ -1,0 +1,9 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Data
+
+<div class="w-full max-w-md">
+    <DataForm Model="_model" ReadOnly="true" ShowDefaultActions="false" />
+</div>
+
+@code {
+    private readonly CustomerModel _model = new() { Name = "Alan Turing", Email = "alan@example.com", IsActive = true, CreditLimit = 10000, Status = CustomerStatus.Pending };
+}
