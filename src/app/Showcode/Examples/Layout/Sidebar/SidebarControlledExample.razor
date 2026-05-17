@@ -1,0 +1,48 @@
+@namespace LowlandTech.Components.App.Showcode.Examples.Layout
+
+<div class="h-96 w-full border border-border rounded-lg overflow-hidden flex">
+    <SidebarProvider @bind-Open="_open">
+        <Sidebar>
+            <SidebarHeader>
+                <SidebarInput placeholder="Search..." />
+            </SidebarHeader>
+            <SidebarContent>
+                <SidebarGroup>
+                    <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton>Dashboard</SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton>Analytics</SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton>Settings</SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+            </SidebarContent>
+        </Sidebar>
+        <SidebarInset>
+            <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
+                <SidebarTrigger class="h-7 w-7"><Icon Name="@(_open ? "panel-left-close" : "panel-left-open")" Size="16" /></SidebarTrigger>
+                <span class="text-sm font-medium">Dashboard</span>
+            </header>
+            <div class="p-4 space-y-3">
+                <p class="text-sm text-muted-foreground">
+                    State: <span class="font-semibold text-foreground">@(_open ? "Open" : "Closed")</span>
+                </p>
+                <div class="flex gap-2">
+                    <Button Variant="outline" Size="sm" @onclick="@(() => _open = true)">Open</Button>
+                    <Button Variant="outline" Size="sm" @onclick="@(() => _open = false)">Close</Button>
+                </div>
+            </div>
+        </SidebarInset>
+    </SidebarProvider>
+</div>
+
+@code {
+    private bool _open = true;
+}

@@ -1,0 +1,18 @@
+@namespace LowlandTech.Components.App.Showcode.Examples.Graph
+
+<GraphCanvas Width="500" Height="180">
+    @* direct path at Y=90 would cross through the obstacle — waypoints route below it *@
+    <GraphNode X="20"  Y="68" Title="Source" />
+    <GraphNode X="360" Y="68" Title="Target" />
+    <GraphNode X="185" Y="55" Width="130" Height="44" Title="Obstacle" Variant="warning" />
+    <GraphEdge X1="140" Y1="90" X2="360" Y2="90"
+               Routing="bezier"
+               Waypoints="@_waypoints" />
+    <GraphPort X="140" Y="90" Type="output" />
+    <GraphPort X="360" Y="90" Type="input"  />
+</GraphCanvas>
+
+@code {
+    // Define intermediate anchor points — the edge passes through each in order.
+    private static readonly GraphPoint[] _waypoints = [new(160, 130), new(340, 130)];
+}

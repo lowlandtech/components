@@ -10,138 +10,42 @@
         new(
             "horizontal",
             "Horizontal",
-            @<div class="h-72 w-full max-w-lg rounded-lg border">
-                <Resizable>
-                    <ResizablePanel DefaultSize="50" Id="left">
-                        <div class="flex h-full items-center justify-center bg-muted/50 text-sm font-medium">Left</div>
-                    </ResizablePanel>
-                    <ResizableHandle />
-                    <ResizablePanel DefaultSize="50" Id="right">
-                        <div class="flex h-full items-center justify-center bg-muted/30 text-sm font-medium">Right</div>
-                    </ResizablePanel>
-                </Resizable>
-            </div>,
+            @<ResizableHorizontalExample />,
             [
-                new StoryCard.CodeTab("horizontal-razor", "ResizableStory.razor", HorizontalRazor)
+                StorySourceRegistry.CodeTab(
+                    "horizontal-razor",
+                    "ResizableHorizontalExample.razor",
+                    "Showcode/Examples/Layout/Resizable/ResizableHorizontalExample.razor")
             ]),
         new(
             "vertical",
             "Vertical",
-            @<div class="h-64 w-full max-w-sm rounded-lg border">
-                <Resizable Direction="vertical">
-                    <ResizablePanel DefaultSize="50" Id="top">
-                        <div class="flex h-full items-center justify-center bg-muted/50 text-sm font-medium">Top</div>
-                    </ResizablePanel>
-                    <ResizableHandle />
-                    <ResizablePanel DefaultSize="50" Id="bottom">
-                        <div class="flex h-full items-center justify-center bg-muted/30 text-sm font-medium">Bottom</div>
-                    </ResizablePanel>
-                </Resizable>
-            </div>,
+            @<ResizableVerticalExample />,
             [
-                new StoryCard.CodeTab("vertical-razor", "ResizableStory.razor", VerticalRazor)
+                StorySourceRegistry.CodeTab(
+                    "vertical-razor",
+                    "ResizableVerticalExample.razor",
+                    "Showcode/Examples/Layout/Resizable/ResizableVerticalExample.razor")
             ]),
         new(
             "with-handle",
             "With handle",
-            @<div class="h-72 w-full max-w-lg rounded-lg border">
-                <Resizable>
-                    <ResizablePanel DefaultSize="40" Id="a">
-                        <div class="flex h-full items-center justify-center bg-muted/50 text-sm font-medium">A</div>
-                    </ResizablePanel>
-                    <ResizableHandle WithHandle="true" />
-                    <ResizablePanel DefaultSize="60" Id="b">
-                        <div class="flex h-full items-center justify-center bg-muted/30 text-sm font-medium">B</div>
-                    </ResizablePanel>
-                </Resizable>
-            </div>,
+            @<ResizableWithHandleExample />,
             [
-                new StoryCard.CodeTab("with-handle-razor", "ResizableStory.razor", WithHandleRazor)
+                StorySourceRegistry.CodeTab(
+                    "with-handle-razor",
+                    "ResizableWithHandleExample.razor",
+                    "Showcode/Examples/Layout/Resizable/ResizableWithHandleExample.razor")
             ]),
         new(
             "three-panels",
             "Three panels",
-            @<div class="h-72 w-full max-w-lg rounded-lg border">
-                <Resizable>
-                    <ResizablePanel DefaultSize="30" MinSize="15" Id="p1">
-                        <div class="flex h-full items-center justify-center bg-muted/50 text-sm font-medium">Panel 1</div>
-                    </ResizablePanel>
-                    <ResizableHandle />
-                    <ResizablePanel DefaultSize="40" MinSize="15" Id="p2">
-                        <div class="flex h-full items-center justify-center bg-muted/40 text-sm font-medium">Panel 2</div>
-                    </ResizablePanel>
-                    <ResizableHandle />
-                    <ResizablePanel DefaultSize="30" MinSize="15" Id="p3">
-                        <div class="flex h-full items-center justify-center bg-muted/30 text-sm font-medium">Panel 3</div>
-                    </ResizablePanel>
-                </Resizable>
-            </div>,
+            @<ResizableThreePanelsExample />,
             [
-                new StoryCard.CodeTab("three-panels-razor", "ResizableStory.razor", ThreePanelsRazor)
+                StorySourceRegistry.CodeTab(
+                    "three-panels-razor",
+                    "ResizableThreePanelsExample.razor",
+                    "Showcode/Examples/Layout/Resizable/ResizableThreePanelsExample.razor")
             ])
     ];
-
-    private const string HorizontalRazor =
-        """
-        <div class="h-72 rounded-lg border">
-            <Resizable>
-                <ResizablePanel DefaultSize="50" Id="left">
-                    <div class="flex h-full items-center justify-center bg-muted/50 text-sm font-medium">Left</div>
-                </ResizablePanel>
-                <ResizableHandle />
-                <ResizablePanel DefaultSize="50" Id="right">
-                    <div class="flex h-full items-center justify-center bg-muted/30 text-sm font-medium">Right</div>
-                </ResizablePanel>
-            </Resizable>
-        </div>
-        """;
-
-    private const string VerticalRazor =
-        """
-        <div class="h-64 rounded-lg border">
-            <Resizable Direction="vertical">
-                <ResizablePanel DefaultSize="50" Id="top">
-                    <div class="flex h-full items-center justify-center bg-muted/50 text-sm font-medium">Top</div>
-                </ResizablePanel>
-                <ResizableHandle />
-                <ResizablePanel DefaultSize="50" Id="bottom">
-                    <div class="flex h-full items-center justify-center bg-muted/30 text-sm font-medium">Bottom</div>
-                </ResizablePanel>
-            </Resizable>
-        </div>
-        """;
-
-    private const string WithHandleRazor =
-        """
-        <div class="h-72 rounded-lg border">
-            <Resizable>
-                <ResizablePanel DefaultSize="40" Id="a">
-                    <div class="flex h-full items-center justify-center bg-muted/50 text-sm font-medium">A</div>
-                </ResizablePanel>
-                <ResizableHandle WithHandle="true" />
-                <ResizablePanel DefaultSize="60" Id="b">
-                    <div class="flex h-full items-center justify-center bg-muted/30 text-sm font-medium">B</div>
-                </ResizablePanel>
-            </Resizable>
-        </div>
-        """;
-
-    private const string ThreePanelsRazor =
-        """
-        <div class="h-72 rounded-lg border">
-            <Resizable>
-                <ResizablePanel DefaultSize="30" MinSize="15" Id="p1">
-                    <div class="flex h-full items-center justify-center bg-muted/50 text-sm font-medium">Panel 1</div>
-                </ResizablePanel>
-                <ResizableHandle />
-                <ResizablePanel DefaultSize="40" MinSize="15" Id="p2">
-                    <div class="flex h-full items-center justify-center bg-muted/40 text-sm font-medium">Panel 2</div>
-                </ResizablePanel>
-                <ResizableHandle />
-                <ResizablePanel DefaultSize="30" MinSize="15" Id="p3">
-                    <div class="flex h-full items-center justify-center bg-muted/30 text-sm font-medium">Panel 3</div>
-                </ResizablePanel>
-            </Resizable>
-        </div>
-        """;
 }

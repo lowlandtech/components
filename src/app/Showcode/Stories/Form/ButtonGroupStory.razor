@@ -10,140 +10,62 @@
         new(
             "segmented",
             "Segmented",
-            @<ButtonGroup>
-                <Button Variant="outline">Left</Button>
-                <Button Variant="outline">Middle</Button>
-                <Button Variant="outline">Right</Button>
-            </ButtonGroup>,
+            @<ButtonGroupSegmentedExample />,
             [
-                new StoryCard.CodeTab("segmented-razor", "ButtonGroupStory.razor", SegmentedRazor)
+                StorySourceRegistry.CodeTab(
+                    "segmented-razor",
+                    "ButtonGroupSegmentedExample.razor",
+                    "Showcode/Examples/Form/ButtonGroup/ButtonGroupSegmentedExample.razor")
             ]),
         new(
             "primary",
             "Primary",
-            @<ButtonGroup>
-                <Button Variant="default">Bold</Button>
-                <Button Variant="default">Italic</Button>
-                <Button Variant="default">Underline</Button>
-            </ButtonGroup>,
+            @<ButtonGroupPrimaryExample />,
             [
-                new StoryCard.CodeTab("primary-razor", "ButtonGroupStory.razor", PrimaryRazor)
+                StorySourceRegistry.CodeTab(
+                    "primary-razor",
+                    "ButtonGroupPrimaryExample.razor",
+                    "Showcode/Examples/Form/ButtonGroup/ButtonGroupPrimaryExample.razor")
             ]),
         new(
             "icons",
             "Icons",
-            @<ButtonGroup>
-                <Button Variant="outline" Size="icon">
-                    <Icon Name="arrow-left" Size="14" />
-                </Button>
-                <Button Variant="outline" Size="icon">
-                    <Icon Name="arrow-right" Size="14" />
-                </Button>
-            </ButtonGroup>,
+            @<ButtonGroupIconsExample />,
             [
-                new StoryCard.CodeTab("icons-razor", "ButtonGroupStory.razor", IconsRazor)
+                StorySourceRegistry.CodeTab(
+                    "icons-razor",
+                    "ButtonGroupIconsExample.razor",
+                    "Showcode/Examples/Form/ButtonGroup/ButtonGroupIconsExample.razor")
             ]),
         new(
             "with-input",
             "With input",
-            @<InputGroup class="w-full max-w-sm">
-                <InputGroupAddon>
-                    <Icon Name="search" Size="14" />
-                </InputGroupAddon>
-                <Input Placeholder="Search components..." />
-                <InputGroupAddon Align="inline-end">
-                    <Button Variant="outline">Search</Button>
-                </InputGroupAddon>
-            </InputGroup>,
+            @<ButtonGroupWithInputExample />,
             [
-                new StoryCard.CodeTab("input-razor", "ButtonGroupStory.razor", InputRazor)
+                StorySourceRegistry.CodeTab(
+                    "input-razor",
+                    "ButtonGroupWithInputExample.razor",
+                    "Showcode/Examples/Form/ButtonGroup/ButtonGroupWithInputExample.razor")
             ]),
         new(
             "input-left",
             "Input left",
-            @<InputGroup class="w-full max-w-sm">
-                <Input Placeholder="Search components..." />
-                <InputGroupAddon Align="inline-end">
-                    <Button Variant="outline">Search</Button>
-                </InputGroupAddon>
-            </InputGroup>,
+            @<ButtonGroupInputLeftExample />,
             [
-                new StoryCard.CodeTab("input-left-razor", "ButtonGroupStory.razor", InputLeftRazor)
+                StorySourceRegistry.CodeTab(
+                    "input-left-razor",
+                    "ButtonGroupInputLeftExample.razor",
+                    "Showcode/Examples/Form/ButtonGroup/ButtonGroupInputLeftExample.razor")
             ]),
         new(
             "input-right",
             "Input right",
-            @<InputGroup class="w-full max-w-sm">
-                <InputGroupAddon>
-                    <Icon Name="search" Size="14" />
-                </InputGroupAddon>
-                <Input Placeholder="Search components..." />
-            </InputGroup>,
+            @<ButtonGroupInputRightExample />,
             [
-                new StoryCard.CodeTab("input-right-razor", "ButtonGroupStory.razor", InputRightRazor)
+                StorySourceRegistry.CodeTab(
+                    "input-right-razor",
+                    "ButtonGroupInputRightExample.razor",
+                    "Showcode/Examples/Form/ButtonGroup/ButtonGroupInputRightExample.razor")
             ])
     ];
-
-    private const string SegmentedRazor =
-        """
-        <ButtonGroup>
-            <Button Variant="outline">Left</Button>
-            <Button Variant="outline">Middle</Button>
-            <Button Variant="outline">Right</Button>
-        </ButtonGroup>
-        """;
-
-    private const string PrimaryRazor =
-        """
-        <ButtonGroup>
-            <Button Variant="default">Bold</Button>
-            <Button Variant="default">Italic</Button>
-            <Button Variant="default">Underline</Button>
-        </ButtonGroup>
-        """;
-
-    private const string IconsRazor =
-        """
-        <ButtonGroup>
-            <Button Variant="outline" Size="icon">
-                <Icon Name="arrow-left" Size="14" />
-            </Button>
-            <Button Variant="outline" Size="icon">
-                <Icon Name="arrow-right" Size="14" />
-            </Button>
-        </ButtonGroup>
-        """;
-
-    private const string InputRazor =
-        """
-        <InputGroup class="w-full max-w-sm">
-            <InputGroupAddon>
-                <Icon Name="search" Size="14" />
-            </InputGroupAddon>
-            <Input Placeholder="Search components..." />
-            <InputGroupAddon Align="inline-end">
-                <Button Variant="outline">Search</Button>
-            </InputGroupAddon>
-        </InputGroup>
-        """;
-
-    private const string InputLeftRazor =
-        """
-        <InputGroup class="w-full max-w-sm">
-            <Input Placeholder="Search components..." />
-            <InputGroupAddon Align="inline-end">
-                <Button Variant="outline">Search</Button>
-            </InputGroupAddon>
-        </InputGroup>
-        """;
-
-    private const string InputRightRazor =
-        """
-        <InputGroup class="w-full max-w-sm">
-            <InputGroupAddon>
-                <Icon Name="search" Size="14" />
-            </InputGroupAddon>
-            <Input Placeholder="Search components..." />
-        </InputGroup>
-        """;
 }

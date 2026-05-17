@@ -1,0 +1,13 @@
+@namespace LowlandTech.Components.App.Showcode.Examples.Data
+
+<div class="p-1">
+    <DataGrid TItem="OrderRow"
+              Items="@DataGridSampleData.Orders"
+              AllowMultiSort="true">
+        <Columns>
+            <DataGridColumn TItem="OrderRow" Property="Status" Title="Status" />
+            <DataGridColumn TItem="OrderRow" Property="Customer.Region" Title="Region" />
+            <DataGridColumn TItem="OrderRow" Property="Total" Title="Total" FormatString="C0" />
+        </Columns>
+    </DataGrid>
+</div>

@@ -1,0 +1,23 @@
+@namespace LowlandTech.Components.App.Showcode.Examples.Overlay
+
+<div class="flex flex-col items-center gap-4">
+    <div class="rounded-md border bg-muted/40 px-3 py-2 text-xs font-mono">
+        Selected: @_selectedAlignment
+    </div>
+    <DropdownMenu>
+        <DropdownMenuTrigger><Button Variant="outline">Alignment: @_selectedAlignment</Button></DropdownMenuTrigger>
+        <DropdownMenuContent>
+            <DropdownMenuLabel>Text alignment</DropdownMenuLabel>
+            <DropdownMenuRadioGroup @bind-Value="_selectedAlignment">
+                <DropdownMenuRadioItem Value="start">Start</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem Value="center">Center</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem Value="end">End</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem Value="justify" Disabled="true">Justify</DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+        </DropdownMenuContent>
+    </DropdownMenu>
+</div>
+
+@code {
+    private string? _selectedAlignment = "start";
+}

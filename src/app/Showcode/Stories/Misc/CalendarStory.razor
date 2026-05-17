@@ -6,137 +6,86 @@
            States="@States" />
 
 @code {
-    private DateTime? _singleDate = DateTime.Today;
-    private DateRange? _range = new() { Start = DateTime.Today, End = DateTime.Today.AddDays(7) };
-    private List<DateTime> _multipleDates = [DateTime.Today, DateTime.Today.AddDays(2)];
-
-    private static readonly List<CalendarPresetItem> Presets =
-    [
-        new() { Label = "Today", Date = DateTime.Today },
-        new() { Label = "Tomorrow", Date = DateTime.Today.AddDays(1) },
-        new() { Label = "Next week", Date = DateTime.Today.AddDays(7) }
-    ];
-
-    private IReadOnlyList<StoryCard.State> States =>
-    [
+    private IReadOnlyList<StoryCard.State> States => [
         new(
             "single",
             "Single",
-            @<div class="flex justify-center p-2">
-                <Calendar @bind-SelectedDate="_singleDate" />
-            </div>,
+            @<CalendarSingleExample />,
             [
-                new StoryCard.CodeTab("single-razor", "CalendarStory.razor", SingleRazor)
+                StorySourceRegistry.CodeTab(
+                    "single-razor",
+                    "CalendarSingleExample.razor",
+                    "Showcode/Examples/Misc/Calendar/CalendarSingleExample.razor")
             ]),
         new(
             "range",
             "Range",
-            @<div class="flex justify-center p-2">
-                <Calendar Mode="CalendarMode.Range" @bind-SelectedRange="_range" />
-            </div>,
+            @<CalendarRangeExample />,
             [
-                new StoryCard.CodeTab("range-razor", "CalendarStory.razor", RangeRazor)
+                StorySourceRegistry.CodeTab(
+                    "range-razor",
+                    "CalendarRangeExample.razor",
+                    "Showcode/Examples/Misc/Calendar/CalendarRangeExample.razor")
             ]),
         new(
             "multiple",
             "Multiple",
-            @<div class="flex justify-center p-2">
-                <Calendar Mode="CalendarMode.Multiple" @bind-SelectedDates="_multipleDates" />
-            </div>,
+            @<CalendarMultipleExample />,
             [
-                new StoryCard.CodeTab("multiple-razor", "CalendarStory.razor", MultipleRazor)
+                StorySourceRegistry.CodeTab(
+                    "multiple-razor",
+                    "CalendarMultipleExample.razor",
+                    "Showcode/Examples/Misc/Calendar/CalendarMultipleExample.razor")
             ]),
         new(
             "presets",
             "With Presets",
-            @<div class="flex justify-center p-2">
-                <Calendar ShowPresets="true" Presets="Presets" @bind-SelectedDate="_singleDate" />
-            </div>,
+            @<CalendarPresetsExample />,
             [
-                new StoryCard.CodeTab("presets-razor", "CalendarStory.razor", PresetsRazor)
+                StorySourceRegistry.CodeTab(
+                    "presets-razor",
+                    "CalendarPresetsExample.razor",
+                    "Showcode/Examples/Misc/Calendar/CalendarPresetsExample.razor")
             ]),
         new(
             "dropdowns",
             "Dropdown Navigation",
-            @<div class="flex justify-center p-2">
-                <Calendar ShowMonthDropdown="true" ShowYearDropdown="true" @bind-SelectedDate="_singleDate" />
-            </div>,
+            @<CalendarDropdownsExample />,
             [
-                new StoryCard.CodeTab("dropdowns-razor", "CalendarStory.razor", DropdownsRazor)
+                StorySourceRegistry.CodeTab(
+                    "dropdowns-razor",
+                    "CalendarDropdownsExample.razor",
+                    "Showcode/Examples/Misc/Calendar/CalendarDropdownsExample.razor")
             ]),
         new(
             "disabled",
             "Disabled Weekends",
-            @<div class="flex justify-center p-2">
-                <Calendar IsDateDisabled="IsWeekend" @bind-SelectedDate="_singleDate" />
-            </div>,
+            @<CalendarDisabledExample />,
             [
-                new StoryCard.CodeTab("disabled-razor", "CalendarStory.razor", DisabledRazor)
+                StorySourceRegistry.CodeTab(
+                    "disabled-razor",
+                    "CalendarDisabledExample.razor",
+                    "Showcode/Examples/Misc/Calendar/CalendarDisabledExample.razor")
             ]),
         new(
             "no-outside",
             "Hide Outside Days",
-            @<div class="flex justify-center p-2">
-                <Calendar ShowOutsideDays="false" @bind-SelectedDate="_singleDate" />
-            </div>,
+            @<CalendarNoOutsideExample />,
             [
-                new StoryCard.CodeTab("no-outside-razor", "CalendarStory.razor", NoOutsideRazor)
+                StorySourceRegistry.CodeTab(
+                    "no-outside-razor",
+                    "CalendarNoOutsideExample.razor",
+                    "Showcode/Examples/Misc/Calendar/CalendarNoOutsideExample.razor")
             ]),
         new(
             "zoom",
             "View Zoom",
-            @<div class="flex justify-center p-2">
-                <Calendar AllowViewZoom="true" @bind-SelectedDate="_singleDate" />
-            </div>,
+            @<CalendarZoomExample />,
             [
-                new StoryCard.CodeTab("zoom-razor", "CalendarStory.razor", ZoomRazor)
+                StorySourceRegistry.CodeTab(
+                    "zoom-razor",
+                    "CalendarZoomExample.razor",
+                    "Showcode/Examples/Misc/Calendar/CalendarZoomExample.razor")
             ])
     ];
-
-    private static bool IsWeekend(DateTime date) => date.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday;
-
-    private const string SingleRazor =
-        """
-        <Calendar @bind-SelectedDate="_singleDate" />
-        """;
-
-    private const string RangeRazor =
-        """
-        <Calendar Mode="CalendarMode.Range" @bind-SelectedRange="_range" />
-        """;
-
-    private const string MultipleRazor =
-        """
-        <Calendar Mode="CalendarMode.Multiple" @bind-SelectedDates="_multipleDates" />
-        """;
-
-    private const string PresetsRazor =
-        """
-        <Calendar ShowPresets="true" Presets="Presets" @bind-SelectedDate="_singleDate" />
-        """;
-
-    private const string DropdownsRazor =
-        """
-        <Calendar ShowMonthDropdown="true" ShowYearDropdown="true" @bind-SelectedDate="_singleDate" />
-        """;
-
-    private const string DisabledRazor =
-        """
-        <Calendar IsDateDisabled="IsWeekend" @bind-SelectedDate="_singleDate" />
-
-        @code {
-            private static bool IsWeekend(DateTime date) =>
-                date.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday;
-        }
-        """;
-
-    private const string NoOutsideRazor =
-        """
-        <Calendar ShowOutsideDays="false" @bind-SelectedDate="_singleDate" />
-        """;
-
-    private const string ZoomRazor =
-        """
-        <Calendar AllowViewZoom="true" @bind-SelectedDate="_singleDate" />
-        """;
 }

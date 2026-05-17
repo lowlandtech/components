@@ -10,58 +10,32 @@
         new(
             "default",
             "Default",
-            @<Alert class="max-w-lg">
-                <AlertTitle>Default</AlertTitle>
-                <AlertDescription>This is a default alert with general information.</AlertDescription>
-            </Alert>,
+            @<AlertDefaultExample />,
             [
-                new StoryCard.CodeTab("default-razor", "AlertStory.razor", DefaultRazor)
+                StorySourceRegistry.CodeTab(
+                    "default-razor",
+                    "AlertDefaultExample.razor",
+                    "Showcode/Examples/Feedback/Alert/AlertDefaultExample.razor")
             ]),
         new(
             "destructive",
             "Destructive",
-            @<Alert Variant="destructive" class="max-w-lg">
-                <AlertTitle>Destructive</AlertTitle>
-                <AlertDescription>Your session has expired. Please log in again to continue.</AlertDescription>
-            </Alert>,
+            @<AlertDestructiveExample />,
             [
-                new StoryCard.CodeTab("destructive-razor", "AlertStory.razor", DestructiveRazor)
+                StorySourceRegistry.CodeTab(
+                    "destructive-razor",
+                    "AlertDestructiveExample.razor",
+                    "Showcode/Examples/Feedback/Alert/AlertDestructiveExample.razor")
             ]),
         new(
             "with-icon",
             "With icon",
-            @<Alert class="max-w-lg">
-                <Icon Name="circle-alert" Size="16" data-slot="alert-icon" />
-                <AlertTitle>Heads up!</AlertTitle>
-                <AlertDescription>You can add components and dependencies to your app using the CLI.</AlertDescription>
-            </Alert>,
+            @<AlertWithIconExample />,
             [
-                new StoryCard.CodeTab("icon-razor", "AlertStory.razor", IconRazor)
+                StorySourceRegistry.CodeTab(
+                    "icon-razor",
+                    "AlertWithIconExample.razor",
+                    "Showcode/Examples/Feedback/Alert/AlertWithIconExample.razor")
             ])
     ];
-
-    private const string DefaultRazor =
-        """
-        <Alert>
-            <AlertTitle>Default</AlertTitle>
-            <AlertDescription>This is a default alert with general information.</AlertDescription>
-        </Alert>
-        """;
-
-    private const string DestructiveRazor =
-        """
-        <Alert Variant="destructive">
-            <AlertTitle>Destructive</AlertTitle>
-            <AlertDescription>Your session has expired. Please log in again to continue.</AlertDescription>
-        </Alert>
-        """;
-
-    private const string IconRazor =
-        """
-        <Alert>
-            <Icon Name="circle-alert" Size="16" data-slot="alert-icon" />
-            <AlertTitle>Heads up!</AlertTitle>
-            <AlertDescription>You can add components and dependencies to your app using the CLI.</AlertDescription>
-        </Alert>
-        """;
 }

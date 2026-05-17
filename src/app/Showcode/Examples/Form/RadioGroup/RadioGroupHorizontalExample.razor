@@ -1,0 +1,14 @@
+@namespace LowlandTech.Components.App.Showcode.Examples.Form
+
+<div class="space-y-3">
+    <RadioGroup Name="answer" Orientation="horizontal" @bind-Value="_answer">
+        <RadioGroupItem Value="yes">Yes</RadioGroupItem>
+        <RadioGroupItem Value="no">No</RadioGroupItem>
+        <RadioGroupItem Value="maybe">Maybe</RadioGroupItem>
+    </RadioGroup>
+    <p class="text-xs text-muted-foreground">Selected: @_answer</p>
+</div>
+
+@code {
+    private string _answer = "yes";
+}

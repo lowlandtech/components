@@ -10,102 +10,42 @@
         new(
             "variants",
             "Variants",
-            @<div class="flex flex-wrap items-center justify-center gap-3">
-                <Button Variant="default">Default</Button>
-                <Button Variant="destructive">Destructive</Button>
-                <Button Variant="outline">Outline</Button>
-                <Button Variant="secondary">Secondary</Button>
-                <Button Variant="ghost">Ghost</Button>
-                <Button Variant="link">Link</Button>
-            </div>,
+            @<ButtonVariantsExample />,
             [
-                new StoryCard.CodeTab("variants-razor", "ButtonStory.razor", VariantsRazor)
+                StorySourceRegistry.CodeTab(
+                    "variants-razor",
+                    "ButtonVariantsExample.razor",
+                    "Showcode/Examples/Form/Button/ButtonVariantsExample.razor")
             ]),
         new(
             "sizes",
             "Sizes",
-            @<div class="flex flex-wrap items-center justify-center gap-3">
-                <Button Size="sm">Small</Button>
-                <Button Size="default">Default</Button>
-                <Button Size="lg">Large</Button>
-                <Button Size="icon" Variant="outline">
-                    <Icon Name="arrow-right" Size="16" />
-                </Button>
-            </div>,
+            @<ButtonSizesExample />,
             [
-                new StoryCard.CodeTab("sizes-razor", "ButtonStory.razor", SizesRazor)
+                StorySourceRegistry.CodeTab(
+                    "sizes-razor",
+                    "ButtonSizesExample.razor",
+                    "Showcode/Examples/Form/Button/ButtonSizesExample.razor")
             ]),
         new(
             "with-icon",
             "With icon",
-            @<div class="flex flex-wrap items-center justify-center gap-3">
-                <Button Variant="default">
-                    <Icon Name="upload" Size="16" />
-                    Upload
-                </Button>
-                <Button Variant="outline">
-                    Settings
-                    <Icon Name="settings" Size="16" />
-                </Button>
-            </div>,
+            @<ButtonWithIconExample />,
             [
-                new StoryCard.CodeTab("icon-razor", "ButtonStory.razor", IconRazor)
+                StorySourceRegistry.CodeTab(
+                    "icon-razor",
+                    "ButtonWithIconExample.razor",
+                    "Showcode/Examples/Form/Button/ButtonWithIconExample.razor")
             ]),
         new(
             "disabled",
             "Disabled",
-            @<div class="flex flex-wrap items-center justify-center gap-3">
-                <Button Variant="default" disabled>Default</Button>
-                <Button Variant="outline" disabled>Outline</Button>
-            </div>,
+            @<ButtonDisabledExample />,
             [
-                new StoryCard.CodeTab("disabled-razor", "ButtonStory.razor", DisabledRazor)
+                StorySourceRegistry.CodeTab(
+                    "disabled-razor",
+                    "ButtonDisabledExample.razor",
+                    "Showcode/Examples/Form/Button/ButtonDisabledExample.razor")
             ])
     ];
-
-    private const string VariantsRazor =
-        """
-        <div class="flex flex-wrap gap-3">
-            <Button Variant="default">Default</Button>
-            <Button Variant="destructive">Destructive</Button>
-            <Button Variant="outline">Outline</Button>
-            <Button Variant="secondary">Secondary</Button>
-            <Button Variant="ghost">Ghost</Button>
-            <Button Variant="link">Link</Button>
-        </div>
-        """;
-
-    private const string SizesRazor =
-        """
-        <div class="flex flex-wrap items-center gap-3">
-            <Button Size="sm">Small</Button>
-            <Button Size="default">Default</Button>
-            <Button Size="lg">Large</Button>
-            <Button Size="icon" Variant="outline">
-                <Icon Name="arrow-right" Size="16" />
-            </Button>
-        </div>
-        """;
-
-    private const string IconRazor =
-        """
-        <div class="flex flex-wrap gap-3">
-            <Button Variant="default">
-                <Icon Name="upload" Size="16" />
-                Upload
-            </Button>
-            <Button Variant="outline">
-                Settings
-                <Icon Name="settings" Size="16" />
-            </Button>
-        </div>
-        """;
-
-    private const string DisabledRazor =
-        """
-        <div class="flex flex-wrap gap-3">
-            <Button Variant="default" disabled>Default</Button>
-            <Button Variant="outline" disabled>Outline</Button>
-        </div>
-        """;
 }

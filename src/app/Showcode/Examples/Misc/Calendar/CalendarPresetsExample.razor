@@ -1,0 +1,16 @@
+@namespace LowlandTech.Components.App.Showcode.Examples.Misc
+
+<div class="flex justify-center p-2">
+    <Calendar ShowPresets="true" Presets="Presets" @bind-SelectedDate="_singleDate" />
+</div>
+
+@code {
+    private DateTime? _singleDate = DateTime.Today;
+
+    private static readonly List<CalendarPresetItem> Presets =
+    [
+        new() { Label = "Today", Date = DateTime.Today },
+        new() { Label = "Tomorrow", Date = DateTime.Today.AddDays(1) },
+        new() { Label = "Next week", Date = DateTime.Today.AddDays(7) }
+    ];
+}

@@ -10,54 +10,32 @@
         new(
             "default",
             "Default",
-            @<div class="w-full max-w-sm">
-                <Textarea Placeholder="Type your message here." />
-            </div>,
+            @<TextareaDefaultExample />,
             [
-                new StoryCard.CodeTab("default-razor", "TextareaStory.razor", DefaultRazor)
+                StorySourceRegistry.CodeTab(
+                    "default-razor",
+                    "TextareaDefaultExample.razor",
+                    "Showcode/Examples/Form/Textarea/TextareaDefaultExample.razor")
             ]),
         new(
             "with-label",
             "With label",
-            @<div class="w-full max-w-sm space-y-1">
-                <Label For="msg">Your message</Label>
-                <Textarea id="msg" Placeholder="Leave a comment..." />
-            </div>,
+            @<TextareaWithLabelExample />,
             [
-                new StoryCard.CodeTab("label-razor", "TextareaStory.razor", LabelRazor)
+                StorySourceRegistry.CodeTab(
+                    "label-razor",
+                    "TextareaWithLabelExample.razor",
+                    "Showcode/Examples/Form/Textarea/TextareaWithLabelExample.razor")
             ]),
         new(
             "states",
             "States",
-            @<div class="w-full max-w-sm space-y-2">
-                <Textarea Placeholder="Disabled textarea" Disabled="true" />
-                <Textarea ReadOnly="true" Value="Read-only note" />
-                <Textarea Invalid="true" Value="This needs a little more detail." />
-            </div>,
+            @<TextareaStatesExample />,
             [
-                new StoryCard.CodeTab("states-razor", "TextareaStory.razor", StatesRazor)
+                StorySourceRegistry.CodeTab(
+                    "states-razor",
+                    "TextareaStatesExample.razor",
+                    "Showcode/Examples/Form/Textarea/TextareaStatesExample.razor")
             ])
     ];
-
-    private const string DefaultRazor =
-        """
-        <Textarea Placeholder="Type your message here." />
-        """;
-
-    private const string LabelRazor =
-        """
-        <div class="space-y-1">
-            <Label For="msg">Your message</Label>
-            <Textarea id="msg" Placeholder="Leave a comment..." />
-        </div>
-        """;
-
-    private const string StatesRazor =
-        """
-        <div class="space-y-2">
-            <Textarea Placeholder="Disabled textarea" Disabled="true" />
-            <Textarea ReadOnly="true" Value="Read-only note" />
-            <Textarea Invalid="true" Value="This needs a little more detail." />
-        </div>
-        """;
 }

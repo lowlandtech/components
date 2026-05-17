@@ -1,0 +1,16 @@
+@namespace LowlandTech.Components.App.Showcode.Examples.Navigation
+
+<Accordion Type="single" Collapsible="true" DefaultValue="faq-2" class="w-full max-w-md">
+    <AccordionItem Value="faq-1">
+        <AccordionHeader><AccordionTrigger>Installation</AccordionTrigger></AccordionHeader>
+        <AccordionContent>Run dotnet restore and dotnet build to get started.</AccordionContent>
+    </AccordionItem>
+    <AccordionItem Value="faq-2">
+        <AccordionHeader><AccordionTrigger>Configuration</AccordionTrigger></AccordionHeader>
+        <AccordionContent>Edit appsettings.json to configure database, SMTP, and external services.</AccordionContent>
+    </AccordionItem>
+    <AccordionItem Value="faq-3">
+        <AccordionHeader><AccordionTrigger>Deployment</AccordionTrigger></AccordionHeader>
+        <AccordionContent>Use Docker Compose with the provided infra configuration files.</AccordionContent>
+    </AccordionItem>
+</Accordion>

@@ -6,89 +6,26 @@
            States="@States" />
 
 @code {
-    private bool _openDefault;
-    private bool _openCard;
-
     private IReadOnlyList<StoryCard.State> States => [
         new(
             "default",
             "Default",
-            @<div class="max-w-sm w-full self-start">
-                <Collapsible @bind-IsOpen="_openDefault">
-                    <CollapsibleTrigger class="flex items-center gap-2 text-sm font-medium hover:underline">
-                        <span>Toggle repositories</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform" style="transform: rotate(@(_openDefault ? "180deg" : "0deg"))"><path d="m6 9 6 6 6-6"/></svg>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent class="mt-2 space-y-1">
-                        <div class="rounded-md border px-4 py-2 text-sm">@@permer/cloc</div>
-                        <div class="rounded-md border px-4 py-2 text-sm">@@stitches/core</div>
-                        <div class="rounded-md border px-4 py-2 text-sm">@@radix-ui/react-collapsible</div>
-                    </CollapsibleContent>
-                </Collapsible>
-            </div>,
+            @<CollapsibleDefaultExample />,
             [
-                new StoryCard.CodeTab("default-razor", "CollapsibleStory.razor", DefaultRazor)
+                StorySourceRegistry.CodeTab(
+                    "default-razor",
+                    "CollapsibleDefaultExample.razor",
+                    "Showcode/Examples/Misc/Collapsible/CollapsibleDefaultExample.razor")
             ]),
         new(
             "card",
             "In a card",
-            @<div class="max-w-sm w-full self-start">
-                <Collapsible @bind-IsOpen="_openCard">
-                    <Card>
-                        <CardHeader>
-                            <div class="flex items-center justify-between">
-                                <CardTitle>Advanced Settings</CardTitle>
-                                <CollapsibleTrigger class="p-1.5 hover:bg-muted rounded">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(@(_openCard ? "180deg" : "0deg"))"><path d="m6 9 6 6 6-6"/></svg>
-                                </CollapsibleTrigger>
-                            </div>
-                        </CardHeader>
-                        <CollapsibleContent>
-                            <CardContent class="pt-0">
-                                <p class="text-sm text-muted-foreground">Advanced settings are hidden by default to keep the UI clean.</p>
-                            </CardContent>
-                        </CollapsibleContent>
-                    </Card>
-                </Collapsible>
-            </div>,
+            @<CollapsibleCardExample />,
             [
-                new StoryCard.CodeTab("card-razor", "CollapsibleStory.razor", CardRazor)
+                StorySourceRegistry.CodeTab(
+                    "card-razor",
+                    "CollapsibleCardExample.razor",
+                    "Showcode/Examples/Misc/Collapsible/CollapsibleCardExample.razor")
             ])
     ];
-
-    private const string DefaultRazor =
-        """
-        <Collapsible @bind-IsOpen="_openDefault">
-            <CollapsibleTrigger class="flex items-center gap-2 text-sm font-medium hover:underline">
-                <span>Toggle repositories</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform" style="transform: rotate(@(_openDefault ? "180deg" : "0deg"))"><path d="m6 9 6 6 6-6"/></svg>
-            </CollapsibleTrigger>
-            <CollapsibleContent class="mt-2 space-y-1">
-                <div class="rounded-md border px-4 py-2 text-sm">@@permer/cloc</div>
-                <div class="rounded-md border px-4 py-2 text-sm">@@stitches/core</div>
-                <div class="rounded-md border px-4 py-2 text-sm">@@radix-ui/react-collapsible</div>
-            </CollapsibleContent>
-        </Collapsible>
-        """;
-
-    private const string CardRazor =
-        """
-        <Collapsible @bind-IsOpen="_openCard">
-            <Card>
-                <CardHeader>
-                    <div class="flex items-center justify-between">
-                        <CardTitle>Advanced Settings</CardTitle>
-                        <CollapsibleTrigger class="p-1.5 hover:bg-muted rounded">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(@(_openCard ? "180deg" : "0deg"))"><path d="m6 9 6 6 6-6"/></svg>
-                        </CollapsibleTrigger>
-                    </div>
-                </CardHeader>
-                <CollapsibleContent>
-                    <CardContent class="pt-0">
-                        <p class="text-sm text-muted-foreground">Advanced settings are hidden by default to keep the UI clean.</p>
-                    </CardContent>
-                </CollapsibleContent>
-            </Card>
-        </Collapsible>
-        """;
 }

@@ -10,74 +10,42 @@
         new(
             "default",
             "Default",
-            @<div class="w-full max-w-sm space-y-1">
-                <Label For="email">Email address</Label>
-                <Input id="email" Type="email" Placeholder="you@example.com" />
-            </div>,
+            @<LabelDefaultExample />,
             [
-                new StoryCard.CodeTab("default-razor", "LabelStory.razor", DefaultRazor)
+                StorySourceRegistry.CodeTab(
+                    "default-razor",
+                    "LabelDefaultExample.razor",
+                    "Showcode/Examples/Form/Label/LabelDefaultExample.razor")
             ]),
         new(
             "required",
             "Required",
-            @<div class="w-full max-w-sm space-y-1">
-                <Label For="name" Required="true">Full name</Label>
-                <Input id="name" Placeholder="John Doe" />
-            </div>,
+            @<LabelRequiredExample />,
             [
-                new StoryCard.CodeTab("required-razor", "LabelStory.razor", RequiredRazor)
+                StorySourceRegistry.CodeTab(
+                    "required-razor",
+                    "LabelRequiredExample.razor",
+                    "Showcode/Examples/Form/Label/LabelRequiredExample.razor")
             ]),
         new(
             "description",
             "Description",
-            @<div class="w-full max-w-sm">
-                <Label For="bio" Description="Tell us a little bit about yourself.">Bio</Label>
-                <Textarea id="bio" Placeholder="I am a..." />
-            </div>,
+            @<LabelDescriptionExample />,
             [
-                new StoryCard.CodeTab("description-razor", "LabelStory.razor", DescriptionRazor)
+                StorySourceRegistry.CodeTab(
+                    "description-razor",
+                    "LabelDescriptionExample.razor",
+                    "Showcode/Examples/Form/Label/LabelDescriptionExample.razor")
             ]),
         new(
             "disabled",
             "Disabled",
-            @<div class="w-full max-w-sm space-y-1">
-                <Label For="disabled-email" Disabled="true">Email address</Label>
-                <Input id="disabled-email" Placeholder="Disabled" Disabled="true" />
-            </div>,
+            @<LabelDisabledExample />,
             [
-                new StoryCard.CodeTab("disabled-razor", "LabelStory.razor", DisabledRazor)
+                StorySourceRegistry.CodeTab(
+                    "disabled-razor",
+                    "LabelDisabledExample.razor",
+                    "Showcode/Examples/Form/Label/LabelDisabledExample.razor")
             ])
     ];
-
-    private const string DefaultRazor =
-        """
-        <div class="space-y-1">
-            <Label For="email">Email address</Label>
-            <Input id="email" Type="email" Placeholder="you@example.com" />
-        </div>
-        """;
-
-    private const string RequiredRazor =
-        """
-        <div class="space-y-1">
-            <Label For="name" Required="true">Full name</Label>
-            <Input id="name" Placeholder="John Doe" />
-        </div>
-        """;
-
-    private const string DescriptionRazor =
-        """
-        <div>
-            <Label For="bio" Description="Tell us a little bit about yourself.">Bio</Label>
-            <Textarea id="bio" Placeholder="I am a..." />
-        </div>
-        """;
-
-    private const string DisabledRazor =
-        """
-        <div class="space-y-1">
-            <Label For="disabled-email" Disabled="true">Email address</Label>
-            <Input id="disabled-email" Placeholder="Disabled" Disabled="true" />
-        </div>
-        """;
 }

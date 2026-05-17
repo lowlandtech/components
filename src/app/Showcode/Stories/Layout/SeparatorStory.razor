@@ -10,60 +10,32 @@
         new(
             "horizontal",
             "Horizontal",
-            @<div class="w-full max-w-sm">
-                <p class="text-sm text-muted-foreground">Above the separator</p>
-                <Separator class="my-3" />
-                <p class="text-sm text-muted-foreground">Below the separator</p>
-            </div>,
+            @<SeparatorHorizontalExample />,
             [
-                new StoryCard.CodeTab("horizontal-razor", "SeparatorStory.razor", HorizontalRazor)
+                StorySourceRegistry.CodeTab(
+                    "horizontal-razor",
+                    "SeparatorHorizontalExample.razor",
+                    "Showcode/Examples/Layout/Separator/SeparatorHorizontalExample.razor")
             ]),
         new(
             "vertical",
             "Vertical",
-            @<div class="flex h-5 items-center gap-3 text-sm">
-                <span>Blog</span>
-                <Separator Orientation="vertical" />
-                <span>Docs</span>
-                <Separator Orientation="vertical" />
-                <span>Source</span>
-            </div>,
+            @<SeparatorVerticalExample />,
             [
-                new StoryCard.CodeTab("vertical-razor", "SeparatorStory.razor", VerticalRazor)
+                StorySourceRegistry.CodeTab(
+                    "vertical-razor",
+                    "SeparatorVerticalExample.razor",
+                    "Showcode/Examples/Layout/Separator/SeparatorVerticalExample.razor")
             ]),
         new(
             "with-label",
             "With label",
-            @<div class="w-full max-w-sm">
-                <Separator>OR</Separator>
-            </div>,
+            @<SeparatorWithLabelExample />,
             [
-                new StoryCard.CodeTab("label-razor", "SeparatorStory.razor", LabelRazor)
+                StorySourceRegistry.CodeTab(
+                    "label-razor",
+                    "SeparatorWithLabelExample.razor",
+                    "Showcode/Examples/Layout/Separator/SeparatorWithLabelExample.razor")
             ])
     ];
-
-    private const string HorizontalRazor =
-        """
-        <div>
-            <p class="text-sm text-muted-foreground">Above the separator</p>
-            <Separator class="my-3" />
-            <p class="text-sm text-muted-foreground">Below the separator</p>
-        </div>
-        """;
-
-    private const string VerticalRazor =
-        """
-        <div class="flex h-5 items-center gap-3 text-sm">
-            <span>Blog</span>
-            <Separator Orientation="vertical" />
-            <span>Docs</span>
-            <Separator Orientation="vertical" />
-            <span>Source</span>
-        </div>
-        """;
-
-    private const string LabelRazor =
-        """
-        <Separator>OR</Separator>
-        """;
 }

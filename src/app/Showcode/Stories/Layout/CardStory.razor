@@ -10,186 +10,62 @@
         new(
             "basic",
             "Basic",
-            @<Card class="w-full max-w-sm">
-                <CardHeader>
-                    <CardTitle>Card Title</CardTitle>
-                    <CardDescription>Card description goes here.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <p class="text-sm text-muted-foreground">Card content area for any content.</p>
-                </CardContent>
-            </Card>,
+            @<CardBasicExample />,
             [
-                new StoryCard.CodeTab("basic-razor", "CardStory.razor", BasicRazor)
+                StorySourceRegistry.CodeTab(
+                    "basic-razor",
+                    "CardBasicExample.razor",
+                    "Showcode/Examples/Layout/Card/CardBasicExample.razor")
             ]),
         new(
             "with-footer",
             "With footer",
-            @<Card class="w-full max-w-sm">
-                <CardHeader>
-                    <CardTitle>Create Project</CardTitle>
-                    <CardDescription>Deploy your new project in one-click.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <p class="text-sm text-muted-foreground">Your project will be created with default settings.</p>
-                </CardContent>
-                <CardFooter class="flex justify-between">
-                    <Button Variant="ghost">Cancel</Button>
-                    <Button>Deploy</Button>
-                </CardFooter>
-            </Card>,
+            @<CardWithFooterExample />,
             [
-                new StoryCard.CodeTab("footer-razor", "CardStory.razor", FooterRazor)
+                StorySourceRegistry.CodeTab(
+                    "footer-razor",
+                    "CardWithFooterExample.razor",
+                    "Showcode/Examples/Layout/Card/CardWithFooterExample.razor")
             ]),
         new(
             "with-action",
             "With action",
-            @<Card class="w-full max-w-sm">
-                <CardHeader>
-                    <CardTitle>Notifications</CardTitle>
-                    <CardDescription>You have 3 unread messages.</CardDescription>
-                    <CardAction>
-                        <Badge>3 new</Badge>
-                    </CardAction>
-                </CardHeader>
-                <CardContent>
-                    <p class="text-sm font-medium">New feature available</p>
-                    <p class="text-sm text-muted-foreground">Check out the new dashboard with real-time analytics.</p>
-                </CardContent>
-            </Card>,
+            @<CardWithActionExample />,
             [
-                new StoryCard.CodeTab("action-razor", "CardStory.razor", ActionRazor)
+                StorySourceRegistry.CodeTab(
+                    "action-razor",
+                    "CardWithActionExample.razor",
+                    "Showcode/Examples/Layout/Card/CardWithActionExample.razor")
             ]),
         new(
             "outlined",
             "Outlined",
-            @<Card Variant="outlined" class="w-full max-w-sm">
-                <CardHeader>
-                    <CardTitle>Outlined Card</CardTitle>
-                    <CardDescription>No shadow, just a border.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <p class="text-sm text-muted-foreground">Use outlined cards for secondary content or nested panels.</p>
-                </CardContent>
-            </Card>,
+            @<CardOutlinedExample />,
             [
-                new StoryCard.CodeTab("outlined-razor", "CardStory.razor", OutlinedRazor)
+                StorySourceRegistry.CodeTab(
+                    "outlined-razor",
+                    "CardOutlinedExample.razor",
+                    "Showcode/Examples/Layout/Card/CardOutlinedExample.razor")
             ]),
         new(
             "elevation",
             "Elevation",
-            @<Card Elevation="8" class="w-full max-w-sm">
-                <CardHeader>
-                    <CardTitle>Elevated Card</CardTitle>
-                    <CardDescription>High elevation for emphasis.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <p class="text-sm text-muted-foreground">Higher elevation creates stronger visual hierarchy.</p>
-                </CardContent>
-            </Card>,
+            @<CardElevationExample />,
             [
-                new StoryCard.CodeTab("elevation-razor", "CardStory.razor", ElevationRazor)
+                StorySourceRegistry.CodeTab(
+                    "elevation-razor",
+                    "CardElevationExample.razor",
+                    "Showcode/Examples/Layout/Card/CardElevationExample.razor")
             ]),
         new(
             "square",
             "Square",
-            @<Card Square="true" class="w-full max-w-sm">
-                <CardHeader>
-                    <CardTitle>Square Card</CardTitle>
-                    <CardDescription>No border radius.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <p class="text-sm text-muted-foreground">Square corners for dense UIs or dashboard tiles.</p>
-                </CardContent>
-            </Card>,
+            @<CardSquareExample />,
             [
-                new StoryCard.CodeTab("square-razor", "CardStory.razor", SquareRazor)
+                StorySourceRegistry.CodeTab(
+                    "square-razor",
+                    "CardSquareExample.razor",
+                    "Showcode/Examples/Layout/Card/CardSquareExample.razor")
             ])
     ];
-
-    private const string BasicRazor =
-        """
-        <Card>
-            <CardHeader>
-                <CardTitle>Card Title</CardTitle>
-                <CardDescription>Card description goes here.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <p class="text-sm text-muted-foreground">Card content area for any content.</p>
-            </CardContent>
-        </Card>
-        """;
-
-    private const string FooterRazor =
-        """
-        <Card>
-            <CardHeader>
-                <CardTitle>Create Project</CardTitle>
-                <CardDescription>Deploy your new project in one-click.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <p class="text-sm text-muted-foreground">Your project will be created with default settings.</p>
-            </CardContent>
-            <CardFooter class="flex justify-between">
-                <Button Variant="ghost">Cancel</Button>
-                <Button>Deploy</Button>
-            </CardFooter>
-        </Card>
-        """;
-
-    private const string ActionRazor =
-        """
-        <Card>
-            <CardHeader>
-                <CardTitle>Notifications</CardTitle>
-                <CardDescription>You have 3 unread messages.</CardDescription>
-                <CardAction>
-                    <Badge>3 new</Badge>
-                </CardAction>
-            </CardHeader>
-            <CardContent>
-                <p class="text-sm font-medium">New feature available</p>
-                <p class="text-sm text-muted-foreground">Check out the new dashboard.</p>
-            </CardContent>
-        </Card>
-        """;
-
-    private const string OutlinedRazor =
-        """
-        <Card Variant="outlined">
-            <CardHeader>
-                <CardTitle>Outlined Card</CardTitle>
-                <CardDescription>No shadow, just a border.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <p class="text-sm text-muted-foreground">Use outlined cards for secondary content.</p>
-            </CardContent>
-        </Card>
-        """;
-
-    private const string ElevationRazor =
-        """
-        <Card Elevation="8">
-            <CardHeader>
-                <CardTitle>Elevated Card</CardTitle>
-                <CardDescription>High elevation for emphasis.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <p class="text-sm text-muted-foreground">Higher elevation creates stronger visual hierarchy.</p>
-            </CardContent>
-        </Card>
-        """;
-
-    private const string SquareRazor =
-        """
-        <Card Square="true">
-            <CardHeader>
-                <CardTitle>Square Card</CardTitle>
-                <CardDescription>No border radius.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <p class="text-sm text-muted-foreground">Square corners for dense UIs or dashboard tiles.</p>
-            </CardContent>
-        </Card>
-        """;
 }

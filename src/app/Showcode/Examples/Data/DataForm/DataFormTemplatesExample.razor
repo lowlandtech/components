@@ -1,0 +1,23 @@
+@namespace LowlandTech.Components.App.Showcode.Examples.Data
+
+<div class="w-full max-w-md">
+    <DataForm Model="_model" ShowDefaultActions="false">
+        <LabelTemplate>
+            <span class="text-xs font-bold uppercase tracking-wider text-primary">@context.DisplayName</span>
+        </LabelTemplate>
+        <FieldTemplate>
+            <Input data-field-input="@context.PropertyName" Value="@GetValue(context.PropertyName)" Placeholder="@($"Enter {context.DisplayName}...")" />
+        </FieldTemplate>
+    </DataForm>
+</div>
+
+@code {
+    private readonly CustomerModel _model = new() { Name = "Ada Lovelace", Email = "ada@example.com", IsActive = true, CreditLimit = 5000 };
+
+    private string GetValue(string propertyName) => propertyName switch
+    {
+        "Name" => _model.Name,
+        "Email" => _model.Email,
+        _ => ""
+    };
+}

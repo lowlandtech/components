@@ -1,0 +1,27 @@
+@namespace LowlandTech.Components.App.Showcode.Examples.Overlay
+
+<div class="flex h-40 w-full items-center justify-center rounded-lg border border-dashed border-border">
+    <ContextMenu>
+        <ContextMenuTrigger>
+            <div class="flex h-20 w-48 items-center justify-center rounded-md border bg-muted text-sm text-muted-foreground select-none">
+                Right click here
+            </div>
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+            <ContextMenuItem>New Tab</ContextMenuItem>
+            <ContextMenuItem>New Window</ContextMenuItem>
+            <ContextMenuSeparator />
+            <ContextMenuItem>
+                Undo
+                <ContextMenuShortcut>⌘Z</ContextMenuShortcut>
+            </ContextMenuItem>
+            <ContextMenuItem>
+                Redo
+                <ContextMenuShortcut>⌘Y</ContextMenuShortcut>
+            </ContextMenuItem>
+            <ContextMenuSeparator />
+            <ContextMenuLabel>Danger Zone</ContextMenuLabel>
+            <ContextMenuItem Variant="destructive">Delete</ContextMenuItem>
+        </ContextMenuContent>
+    </ContextMenu>
+</div>

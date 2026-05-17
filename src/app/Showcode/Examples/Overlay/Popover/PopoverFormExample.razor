@@ -1,0 +1,23 @@
+@namespace LowlandTech.Components.App.Showcode.Examples.Overlay
+
+<Popover>
+    <PopoverTrigger>
+        <Button Variant="outline">
+            <Icon Name="settings" Size="14" />
+            Dimensions
+        </Button>
+    </PopoverTrigger>
+    <PopoverContent Variant="outline" class="w-64">
+        <div class="space-y-3">
+            <p class="text-sm font-medium">Dimensions</p>
+            <div class="space-y-1">
+                <Label For="pop-w">Width</Label>
+                <Input id="pop-w" Value="100%" />
+            </div>
+            <div class="space-y-1">
+                <Label For="pop-h">Height</Label>
+                <Input id="pop-h" Value="auto" />
+            </div>
+        </div>
+    </PopoverContent>
+</Popover>

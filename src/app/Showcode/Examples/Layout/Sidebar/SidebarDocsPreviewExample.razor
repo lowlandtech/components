@@ -1,0 +1,97 @@
+@namespace LowlandTech.Components.App.Showcode.Examples.Layout
+
+<div class="h-96 w-full border border-border rounded-lg overflow-hidden flex">
+    <SidebarProvider @bind-Open="_open" Width="16rem">
+        <Sidebar Collapsible="icon">
+            <SidebarHeader>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton class="h-12">
+                            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-blue-600 text-white">
+                                <Icon Name="calendar" Size="14" />
+                            </span>
+                            <span class="sidebar-docs-team-copy grid min-w-0 flex-1 text-left leading-tight">
+                                <span class="truncate text-sm font-semibold">Acme Inc</span>
+                                <span class="truncate text-xs text-muted-foreground">Enterprise</span>
+                            </span>
+                            <Icon Name="chevron-down" Size="14" class="sidebar-docs-chevron ml-auto" />
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarHeader>
+            <SidebarContent>
+                <SidebarGroup>
+                    <SidebarGroupLabel>Platform</SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton IsActive="true">
+                                    <Icon Name="home" Size="16" />
+                                    <span class="sidebar-menu-text">Playground</span>
+                                    <Icon Name="chevron-down" Size="14" class="sidebar-docs-chevron ml-auto" />
+                                </SidebarMenuButton>
+                                <SidebarMenuSub IsOpen="true">
+                                    <SidebarMenuSubContent IsVisible="true">
+                                        <SidebarMenuSubItem>
+                                            <SidebarMenuSubButton>History</SidebarMenuSubButton>
+                                        </SidebarMenuSubItem>
+                                        <SidebarMenuSubItem>
+                                            <SidebarMenuSubButton>Starred</SidebarMenuSubButton>
+                                        </SidebarMenuSubItem>
+                                        <SidebarMenuSubItem>
+                                            <SidebarMenuSubButton>Settings</SidebarMenuSubButton>
+                                        </SidebarMenuSubItem>
+                                    </SidebarMenuSubContent>
+                                </SidebarMenuSub>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton>
+                                    <Icon Name="settings" Size="16" />
+                                    <span class="sidebar-menu-text">Models</span>
+                                    <Icon Name="chevron-right" Size="14" class="sidebar-docs-chevron ml-auto" />
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton>
+                                    <Icon Name="search" Size="16" />
+                                    <span class="sidebar-menu-text">Documentation</span>
+                                    <Icon Name="chevron-right" Size="14" class="sidebar-docs-chevron ml-auto" />
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton>
+                                    <Icon Name="settings" Size="16" />
+                                    <span class="sidebar-menu-text">Settings</span>
+                                    <Icon Name="chevron-right" Size="14" class="sidebar-docs-chevron ml-auto" />
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+            </SidebarContent>
+            <SidebarFooter>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton class="h-12">
+                            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[10px] font-bold text-white" style="background: linear-gradient(135deg, #fb7185, #7c3aed 55%, #22d3ee)">SC</span>
+                            <span class="sidebar-docs-team-copy grid min-w-0 flex-1 text-left leading-tight">
+                                <span class="truncate text-sm font-semibold">shadcn</span>
+                                <span class="truncate text-xs text-muted-foreground">m@example.com</span>
+                            </span>
+                            <Icon Name="chevron-down" Size="14" class="sidebar-docs-chevron ml-auto" />
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarFooter>
+        </Sidebar>
+        <SidebarInset>
+            <header class="flex h-16 items-center gap-2 px-4">
+                <SidebarTrigger class="h-8 w-8"><Icon Name="@(_open ? "panel-left-close" : "panel-left-open")" Size="16" /></SidebarTrigger>
+            </header>
+        </SidebarInset>
+    </SidebarProvider>
+</div>
+
+@code {
+    private bool _open = true;
+}

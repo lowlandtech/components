@@ -10,96 +10,52 @@
         new(
             "default",
             "Default",
-            @<div class="w-full max-w-sm">
-                <Input Placeholder="Enter text..." />
-            </div>,
+            @<InputDefaultExample />,
             [
-                new StoryCard.CodeTab("default-razor", "InputStory.razor", DefaultRazor)
+                StorySourceRegistry.CodeTab(
+                    "default-razor",
+                    "InputDefaultExample.razor",
+                    "Showcode/Examples/Form/Input/InputDefaultExample.razor")
             ]),
         new(
             "types",
             "Types",
-            @<div class="w-full max-w-sm space-y-2">
-                <Input Type="email" Placeholder="Email address" />
-                <Input Type="password" Placeholder="Password" />
-                <Input Type="number" Placeholder="0" />
-                <Input Type="search" Placeholder="Search..." />
-            </div>,
+            @<InputTypesExample />,
             [
-                new StoryCard.CodeTab("types-razor", "InputStory.razor", TypesRazor)
+                StorySourceRegistry.CodeTab(
+                    "types-razor",
+                    "InputTypesExample.razor",
+                    "Showcode/Examples/Form/Input/InputTypesExample.razor")
             ]),
         new(
             "sizes",
             "Sizes",
-            @<div class="w-full max-w-sm space-y-2">
-                <Input Size="sm" Placeholder="Small input" />
-                <Input Size="default" Placeholder="Default input" />
-                <Input Size="lg" Placeholder="Large input" />
-            </div>,
+            @<InputSizesExample />,
             [
-                new StoryCard.CodeTab("sizes-razor", "InputStory.razor", SizesRazor)
+                StorySourceRegistry.CodeTab(
+                    "sizes-razor",
+                    "InputSizesExample.razor",
+                    "Showcode/Examples/Form/Input/InputSizesExample.razor")
             ]),
         new(
             "states",
             "States",
-            @<div class="w-full max-w-sm space-y-2">
-                <Input Placeholder="Disabled" Disabled="true" />
-                <Input Placeholder="Read only" ReadOnly="true" Value="Read-only value" />
-                <Input Placeholder="Invalid" Invalid="true" Value="bad value" />
-            </div>,
+            @<InputStatesExample />,
             [
-                new StoryCard.CodeTab("states-razor", "InputStory.razor", StatesRazor)
+                StorySourceRegistry.CodeTab(
+                    "states-razor",
+                    "InputStatesExample.razor",
+                    "Showcode/Examples/Form/Input/InputStatesExample.razor")
             ]),
         new(
             "floating-label",
             "Floating Label",
-            @<div style="display: flex; flex-direction: column; gap: 1.25rem; width: 100%; max-width: 20rem;">
-                <Input Variant="floating" Label="Username" />
-                <Input Variant="floating" Label="Email address" Type="email" />
-                <Input Variant="floating" Label="Password" Type="password" />
-            </div>,
+            @<InputFloatingLabelExample />,
             [
-                new StoryCard.CodeTab("floating-razor", "InputStory.razor", FloatingLabelRazor)
+                StorySourceRegistry.CodeTab(
+                    "floating-razor",
+                    "InputFloatingLabelExample.razor",
+                    "Showcode/Examples/Form/Input/InputFloatingLabelExample.razor")
             ])
     ];
-
-    private const string DefaultRazor =
-        """
-        <Input Placeholder="Enter text..." />
-        """;
-
-    private const string TypesRazor =
-        """
-        <div class="space-y-2">
-            <Input Type="email" Placeholder="Email address" />
-            <Input Type="password" Placeholder="Password" />
-            <Input Type="number" Placeholder="0" />
-            <Input Type="search" Placeholder="Search..." />
-        </div>
-        """;
-
-    private const string SizesRazor =
-        """
-        <div class="space-y-2">
-            <Input Size="sm" Placeholder="Small input" />
-            <Input Size="default" Placeholder="Default input" />
-            <Input Size="lg" Placeholder="Large input" />
-        </div>
-        """;
-
-    private const string StatesRazor =
-        """
-        <div class="space-y-2">
-            <Input Placeholder="Disabled" Disabled="true" />
-            <Input Placeholder="Read only" ReadOnly="true" Value="Read-only value" />
-            <Input Placeholder="Invalid" Invalid="true" Value="bad value" />
-        </div>
-        """;
-
-    private const string FloatingLabelRazor =
-        """
-        <Input Variant="floating" Label="Username" />
-        <Input Variant="floating" Label="Email address" Type="email" />
-        <Input Variant="floating" Label="Password" Type="password" />
-        """;
 }

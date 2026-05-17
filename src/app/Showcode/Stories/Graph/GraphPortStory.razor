@@ -10,91 +10,32 @@
         new(
             "types",
             "Input / Output",
-            @<GraphCanvas Width="360" Height="120">
-                @* input side *@
-                <GraphNode X="20"  Y="38" Width="120" Height="44" Title="Consumer" />
-                <GraphPort X="20"  Y="60" Type="input" />
-                @* output side *@
-                <GraphNode X="220" Y="38" Width="120" Height="44" Title="Producer" />
-                <GraphPort X="340" Y="60" Type="output" />
-                @* edge between them *@
-                <GraphEdge X1="340" Y1="60" X2="20" Y2="60" Routing="straight" />
-            </GraphCanvas>,
+            @<GraphPortTypesExample />,
             [
-                new StoryCard.CodeTab("types-razor", "GraphPortStory.razor", TypesRazor)
+                StorySourceRegistry.CodeTab(
+                    "types-razor",
+                    "GraphPortTypesExample.razor",
+                    "Showcode/Examples/Graph/GraphPort/GraphPortTypesExample.razor")
             ]),
         new(
             "labeled",
             "Labeled",
-            @<GraphCanvas Width="420" Height="130">
-                <GraphNode X="150" Y="43" Width="120" Height="44" Title="Transform" />
-                @* labeled input ports *@
-                <GraphPort X="150" Y="58" Type="input"  Label="src" />
-                <GraphPort X="150" Y="74" Type="input"  Label="cfg" />
-                @* labeled output port *@
-                <GraphPort X="270" Y="65" Type="output" Label="out" />
-            </GraphCanvas>,
+            @<GraphPortLabeledExample />,
             [
-                new StoryCard.CodeTab("labeled-razor", "GraphPortStory.razor", LabeledRazor)
+                StorySourceRegistry.CodeTab(
+                    "labeled-razor",
+                    "GraphPortLabeledExample.razor",
+                    "Showcode/Examples/Graph/GraphPort/GraphPortLabeledExample.razor")
             ]),
         new(
             "multi-port",
             "Multi-port",
-            @<GraphCanvas Width="460" Height="160">
-                @* 2-in / 2-out node *@
-                <GraphNode X="160" Y="56" Width="140" Height="60" Title="Merge" Subtitle="combine streams" />
-                @* inputs *@
-                <GraphPort X="160" Y="72"  Type="input"  Label="stream A" />
-                <GraphPort X="160" Y="100" Type="input"  Label="stream B" />
-                @* outputs *@
-                <GraphPort X="300" Y="80"  Type="output" Label="merged" />
-                @* inbound edges *@
-                <GraphEdge X1="60"  Y1="72"  X2="160" Y2="72"  Routing="straight" />
-                <GraphEdge X1="60"  Y1="100" X2="160" Y2="100" Routing="straight" />
-                @* outbound edge *@
-                <GraphEdge X1="300" Y1="80"  X2="400" Y2="80"  Routing="straight" />
-                @* source stubs *@
-                <GraphNode X="20"  Y="50"  Width="40" Height="44" Title="A" Variant="primary" />
-                <GraphNode X="20"  Y="78"  Width="40" Height="44" Title="B" Variant="primary" />
-            </GraphCanvas>,
+            @<GraphPortMultiPortExample />,
             [
-                new StoryCard.CodeTab("multi-razor", "GraphPortStory.razor", MultiPortRazor)
+                StorySourceRegistry.CodeTab(
+                    "multi-razor",
+                    "GraphPortMultiPortExample.razor",
+                    "Showcode/Examples/Graph/GraphPort/GraphPortMultiPortExample.razor")
             ])
     ];
-
-    private const string TypesRazor =
-        """
-        <GraphCanvas Width="360" Height="120">
-            <GraphNode X="20"  Y="38" Width="120" Height="44" Title="Consumer" />
-            <GraphPort X="20"  Y="60" Type="input" />
-            <GraphNode X="220" Y="38" Width="120" Height="44" Title="Producer" />
-            <GraphPort X="340" Y="60" Type="output" />
-            <GraphEdge X1="340" Y1="60" X2="20" Y2="60" Routing="straight" />
-        </GraphCanvas>
-        """;
-
-    private const string LabeledRazor =
-        """
-        <GraphCanvas Width="420" Height="130">
-            <GraphNode X="150" Y="43" Width="120" Height="44" Title="Transform" />
-            <GraphPort X="150" Y="58" Type="input"  Label="src" />
-            <GraphPort X="150" Y="74" Type="input"  Label="cfg" />
-            <GraphPort X="270" Y="65" Type="output" Label="out" />
-        </GraphCanvas>
-        """;
-
-    private const string MultiPortRazor =
-        """
-        <GraphCanvas Width="460" Height="160">
-            <GraphNode X="160" Y="56" Width="140" Height="60" Title="Merge" Subtitle="combine streams" />
-            <GraphPort X="160" Y="72"  Type="input"  Label="stream A" />
-            <GraphPort X="160" Y="100" Type="input"  Label="stream B" />
-            <GraphPort X="300" Y="80"  Type="output" Label="merged" />
-            <GraphEdge X1="60"  Y1="72"  X2="160" Y2="72"  Routing="straight" />
-            <GraphEdge X1="60"  Y1="100" X2="160" Y2="100" Routing="straight" />
-            <GraphEdge X1="300" Y1="80"  X2="400" Y2="80"  Routing="straight" />
-            <GraphNode X="20"  Y="50" Width="40" Height="44" Title="A" Variant="primary" />
-            <GraphNode X="20"  Y="78" Width="40" Height="44" Title="B" Variant="primary" />
-        </GraphCanvas>
-        """;
 }

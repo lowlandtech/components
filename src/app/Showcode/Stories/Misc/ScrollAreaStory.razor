@@ -10,118 +10,42 @@
         new(
             "vertical",
             "Vertical",
-            @<ScrollArea class="h-48 w-72 border rounded-md" Orientation="vertical" ScrollbarHoverOnly="false">
-                <div class="p-4 space-y-2">
-                    @for (var i = 1; i <= 20; i++)
-                    {
-                        <p class="text-sm">Item @i: Lorem ipsum dolor sit amet.</p>
-                    }
-                </div>
-            </ScrollArea>,
+            @<ScrollAreaVerticalExample />,
             [
-                new StoryCard.CodeTab("vertical-razor", "ScrollAreaStory.razor", VerticalRazor)
+                StorySourceRegistry.CodeTab(
+                    "vertical-razor",
+                    "ScrollAreaVerticalExample.razor",
+                    "Showcode/Examples/Misc/ScrollArea/ScrollAreaVerticalExample.razor")
             ]),
         new(
             "horizontal",
             "Horizontal",
-            @<ScrollArea class="h-24 w-72 border rounded-md" Orientation="horizontal" ScrollbarHoverOnly="false">
-                <div class="flex gap-3 p-4" style="width: max-content;">
-                    @for (var i = 1; i <= 12; i++)
-                    {
-                        <div class="w-28 h-14 bg-muted rounded flex items-center justify-center shrink-0">
-                            <span class="text-xs font-medium">Card @i</span>
-                        </div>
-                    }
-                </div>
-            </ScrollArea>,
+            @<ScrollAreaHorizontalExample />,
             [
-                new StoryCard.CodeTab("horizontal-razor", "ScrollAreaStory.razor", HorizontalRazor)
+                StorySourceRegistry.CodeTab(
+                    "horizontal-razor",
+                    "ScrollAreaHorizontalExample.razor",
+                    "Showcode/Examples/Misc/ScrollArea/ScrollAreaHorizontalExample.razor")
             ]),
         new(
             "styled-scrollbar",
             "Styled scrollbar",
-            @<ScrollArea class="h-48 w-72 border rounded-md"
-                         Orientation="vertical"
-                         ScrollbarWidth="6px"
-                         ScrollbarThumbColor="#8b5cf6"
-                         ScrollbarTrackColor="rgba(139,92,246,0.15)"
-                         ScrollbarHoverOnly="false">
-                <div class="p-4 space-y-2">
-                    @for (var i = 1; i <= 20; i++)
-                    {
-                        <p class="text-sm">Item @i: Custom purple scrollbar always visible.</p>
-                    }
-                </div>
-            </ScrollArea>,
+            @<ScrollAreaStyledScrollbarExample />,
             [
-                new StoryCard.CodeTab("styled-razor", "ScrollAreaStory.razor", StyledRazor)
+                StorySourceRegistry.CodeTab(
+                    "styled-razor",
+                    "ScrollAreaStyledScrollbarExample.razor",
+                    "Showcode/Examples/Misc/ScrollArea/ScrollAreaStyledScrollbarExample.razor")
             ]),
         new(
             "hover-only",
             "Hover only",
-            @<ScrollArea class="h-48 w-72 border rounded-md"
-                         Orientation="vertical"
-                         ScrollbarWidth="10px"
-                         ScrollbarThumbColor="var(--foreground)"
-                         ScrollbarHoverOnly="true">
-                <div class="p-4 space-y-2">
-                    @for (var i = 1; i <= 20; i++)
-                    {
-                        <p class="text-sm">Item @i: Hover over this area to reveal the scrollbar.</p>
-                    }
-                </div>
-            </ScrollArea>,
+            @<ScrollAreaHoverOnlyExample />,
             [
-                new StoryCard.CodeTab("hover-razor", "ScrollAreaStory.razor", HoverRazor)
+                StorySourceRegistry.CodeTab(
+                    "hover-razor",
+                    "ScrollAreaHoverOnlyExample.razor",
+                    "Showcode/Examples/Misc/ScrollArea/ScrollAreaHoverOnlyExample.razor")
             ])
     ];
-
-    private const string VerticalRazor =
-        """
-        <ScrollArea class="h-48 w-72 border rounded-md" Orientation="vertical" ScrollbarHoverOnly="false">
-            <div class="p-4 space-y-2">
-                @for (var i = 1; i <= 20; i++)
-                {
-                    <p class="text-sm">Item @i: Lorem ipsum dolor sit amet.</p>
-                }
-            </div>
-        </ScrollArea>
-        """;
-
-    private const string HorizontalRazor =
-        """
-        <ScrollArea class="h-24 w-72 border rounded-md" Orientation="horizontal" ScrollbarHoverOnly="false">
-            <div class="flex gap-3 p-4" style="width: max-content;">
-                @for (var i = 1; i <= 12; i++)
-                {
-                    <div class="w-28 h-14 bg-muted rounded flex items-center justify-center shrink-0">
-                        <span class="text-xs font-medium">Card @i</span>
-                    </div>
-                }
-            </div>
-        </ScrollArea>
-        """;
-
-    private const string StyledRazor =
-        """
-        <ScrollArea class="h-48 w-72 border rounded-md"
-                    Orientation="vertical"
-                    ScrollbarWidth="6px"
-                    ScrollbarThumbColor="#8b5cf6"
-                    ScrollbarTrackColor="rgba(139,92,246,0.15)"
-                    ScrollbarHoverOnly="false">
-            ...
-        </ScrollArea>
-        """;
-
-    private const string HoverRazor =
-        """
-        <ScrollArea class="h-48 w-72 border rounded-md"
-                    Orientation="vertical"
-                    ScrollbarWidth="10px"
-                    ScrollbarThumbColor="var(--foreground)"
-                    ScrollbarHoverOnly="true">
-            ...
-        </ScrollArea>
-        """;
 }

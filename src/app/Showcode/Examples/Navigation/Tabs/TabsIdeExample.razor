@@ -1,0 +1,24 @@
+@namespace LowlandTech.Components.App.Showcode.Examples.Navigation
+
+<Tabs Items="_ideTabs"
+      ItemsChanged="@(items => _ideTabs = items)"
+      Value="program"
+      DynamicVariant="ide"
+      class="w-full max-w-lg">
+    <ItemContent>
+        <div class="rounded-b-md border border-t-0 bg-card p-4 text-sm text-card-foreground">
+            Editing @context.Title
+        </div>
+    </ItemContent>
+</Tabs>
+
+@code {
+    private IReadOnlyList<TabsItem> _ideTabs = [
+        new() { Value = "program", Title = "Program.cs", Closeable = true, Pinnable = true, Renameable = true, Draggable = true },
+        new() { Value = "layout", Title = "MainLayout.razor", Closeable = true, Pinned = true, Pinnable = true, Renameable = true, Draggable = true },
+        new() { Value = "graph", Title = "GraphCanvas.razor", Closeable = true, Pinnable = true, Renameable = true, Draggable = true },
+        new() { Value = "theme", Title = "ThemeProvider.razor", Closeable = true, Pinnable = true, Renameable = true, Draggable = true },
+        new() { Value = "dataform", Title = "DataForm.razor", Closeable = true, Pinnable = true, Renameable = true, Draggable = true },
+        new() { Value = "tabs", Title = "Tabs.razor", Closeable = true, Pinnable = true, Renameable = true, Draggable = true }
+    ];
+}

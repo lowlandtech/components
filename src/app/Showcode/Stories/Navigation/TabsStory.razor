@@ -6,191 +6,57 @@
            States="@States" />
 
 @code {
-    private IReadOnlyList<TabsItem> _ideTabs = [
-        new() { Value = "program", Title = "Program.cs", Closeable = true, Pinnable = true, Renameable = true, Draggable = true },
-        new() { Value = "layout", Title = "MainLayout.razor", Closeable = true, Pinned = true, Pinnable = true, Renameable = true, Draggable = true },
-        new() { Value = "graph", Title = "GraphCanvas.razor", Closeable = true, Pinnable = true, Renameable = true, Draggable = true },
-        new() { Value = "theme", Title = "ThemeProvider.razor", Closeable = true, Pinnable = true, Renameable = true, Draggable = true },
-        new() { Value = "dataform", Title = "DataForm.razor", Closeable = true, Pinnable = true, Renameable = true, Draggable = true },
-        new() { Value = "tabs", Title = "Tabs.razor", Closeable = true, Pinnable = true, Renameable = true, Draggable = true }
-    ];
-
-    private IReadOnlyList<StoryCard.State> States => [
+    private IReadOnlyList<StoryCard.State> States =>
+    [
         new(
             "default",
             "Default",
-            @<Tabs DefaultValue="account" class="w-full max-w-lg">
-                <TabsList>
-                    <TabsTrigger Value="account">Account</TabsTrigger>
-                    <TabsTrigger Value="password">Password</TabsTrigger>
-                    <TabsTrigger Value="settings">Settings</TabsTrigger>
-                </TabsList>
-                <TabsContent Value="account">
-                    <div class="rounded-lg border bg-card p-4 text-card-foreground">
-                        <h3 class="mb-1 font-medium">Account Settings</h3>
-                        <p class="text-sm text-muted-foreground">Manage your account preferences and personal information.</p>
-                    </div>
-                </TabsContent>
-                <TabsContent Value="password">
-                    <div class="rounded-lg border bg-card p-4 text-card-foreground">
-                        <h3 class="mb-1 font-medium">Password Settings</h3>
-                        <p class="text-sm text-muted-foreground">Update your password and security preferences.</p>
-                    </div>
-                </TabsContent>
-                <TabsContent Value="settings">
-                    <div class="rounded-lg border bg-card p-4 text-card-foreground">
-                        <h3 class="mb-1 font-medium">General Settings</h3>
-                        <p class="text-sm text-muted-foreground">Configure application-wide settings and notifications.</p>
-                    </div>
-                </TabsContent>
-            </Tabs>,
+            @<TabsDefaultExample />,
             [
-                new StoryCard.CodeTab("default-razor", "TabsStory.razor", DefaultRazor)
+                StorySourceRegistry.CodeTab(
+                    "default-razor",
+                    "TabsDefaultExample.razor",
+                    "Showcode/Examples/Navigation/Tabs/TabsDefaultExample.razor")
             ]),
         new(
             "disabled",
             "Disabled",
-            @<Tabs DefaultValue="tab1" class="w-full max-w-lg">
-                <TabsList>
-                    <TabsTrigger Value="tab1">Active</TabsTrigger>
-                    <TabsTrigger Value="tab2">Also Active</TabsTrigger>
-                    <TabsTrigger Value="tab3" Disabled="true">Disabled</TabsTrigger>
-                </TabsList>
-                <TabsContent Value="tab1"><p class="p-2 text-sm text-muted-foreground">Tab 1 content.</p></TabsContent>
-                <TabsContent Value="tab2"><p class="p-2 text-sm text-muted-foreground">Tab 2 content.</p></TabsContent>
-                <TabsContent Value="tab3"><p class="p-2 text-sm text-muted-foreground">Unreachable content.</p></TabsContent>
-            </Tabs>,
+            @<TabsDisabledExample />,
             [
-                new StoryCard.CodeTab("disabled-razor", "TabsStory.razor", DisabledRazor)
+                StorySourceRegistry.CodeTab(
+                    "disabled-razor",
+                    "TabsDisabledExample.razor",
+                    "Showcode/Examples/Navigation/Tabs/TabsDisabledExample.razor")
             ]),
         new(
             "line",
             "Line",
-            @<Tabs DefaultValue="preview" class="w-full max-w-lg">
-                <TabsList Variant="line">
-                    <TabsTrigger Value="preview">Preview</TabsTrigger>
-                    <TabsTrigger Value="code">Code</TabsTrigger>
-                    <TabsTrigger Value="settings">Settings</TabsTrigger>
-                </TabsList>
-                <TabsContent Value="preview">
-                    <p class="p-3 text-sm text-muted-foreground">Line tabs keep focus on dense editor-like surfaces.</p>
-                </TabsContent>
-                <TabsContent Value="code">
-                    <p class="p-3 text-sm text-muted-foreground">Code content.</p>
-                </TabsContent>
-                <TabsContent Value="settings">
-                    <p class="p-3 text-sm text-muted-foreground">Settings content.</p>
-                </TabsContent>
-            </Tabs>,
+            @<TabsLineExample />,
             [
-                new StoryCard.CodeTab("line-razor", "TabsStory.razor", LineRazor)
+                StorySourceRegistry.CodeTab(
+                    "line-razor",
+                    "TabsLineExample.razor",
+                    "Showcode/Examples/Navigation/Tabs/TabsLineExample.razor")
             ]),
         new(
             "overflow",
             "Overflow",
-            @<Tabs DefaultValue="tab-01" class="w-full max-w-sm">
-                <TabsList ShowScrollButtons="true">
-                    @for (var i = 1; i <= 10; i++)
-                    {
-                        var value = $"tab-{i:00}";
-                        <TabsTrigger Value="@value">Document @i</TabsTrigger>
-                    }
-                </TabsList>
-                <TabsContent Value="tab-01">
-                    <p class="p-3 text-sm text-muted-foreground">The header stays inside its parent and exposes scroll controls.</p>
-                </TabsContent>
-            </Tabs>,
+            @<TabsOverflowExample />,
             [
-                new StoryCard.CodeTab("overflow-razor", "TabsStory.razor", OverflowRazor)
+                StorySourceRegistry.CodeTab(
+                    "overflow-razor",
+                    "TabsOverflowExample.razor",
+                    "Showcode/Examples/Navigation/Tabs/TabsOverflowExample.razor")
             ]),
         new(
             "ide",
             "IDE",
-            @<Tabs Items="_ideTabs"
-                   ItemsChanged="@(items => _ideTabs = items)"
-                   Value="program"
-                   DynamicVariant="ide"
-                   class="w-full max-w-lg">
-                <ItemContent>
-                    <div class="rounded-b-md border border-t-0 bg-card p-4 text-sm text-card-foreground">
-                        Editing @context.Title
-                    </div>
-                </ItemContent>
-            </Tabs>,
+            @<TabsIdeExample />,
             [
-                new StoryCard.CodeTab("ide-razor", "TabsStory.razor", IdeRazor)
+                StorySourceRegistry.CodeTab(
+                    "ide-razor",
+                    "TabsIdeExample.razor",
+                    "Showcode/Examples/Navigation/Tabs/TabsIdeExample.razor")
             ])
     ];
-
-    private const string DefaultRazor =
-        """
-        <Tabs DefaultValue="account">
-            <TabsList>
-                <TabsTrigger Value="account">Account</TabsTrigger>
-                <TabsTrigger Value="password">Password</TabsTrigger>
-                <TabsTrigger Value="settings">Settings</TabsTrigger>
-            </TabsList>
-            <TabsContent Value="account">
-                <div class="rounded-lg border bg-card p-4 text-card-foreground">
-                    <h3 class="mb-1 font-medium">Account Settings</h3>
-                    <p class="text-sm text-muted-foreground">Manage your account preferences and personal information.</p>
-                </div>
-            </TabsContent>
-        </Tabs>
-        """;
-
-    private const string DisabledRazor =
-        """
-        <Tabs DefaultValue="tab1">
-            <TabsList>
-                <TabsTrigger Value="tab1">Active</TabsTrigger>
-                <TabsTrigger Value="tab2">Also Active</TabsTrigger>
-                <TabsTrigger Value="tab3" Disabled="true">Disabled</TabsTrigger>
-            </TabsList>
-            <TabsContent Value="tab1">
-                <p class="p-2 text-sm text-muted-foreground">Tab 1 content.</p>
-            </TabsContent>
-        </Tabs>
-        """;
-
-    private const string LineRazor =
-        """
-        <Tabs DefaultValue="preview">
-            <TabsList Variant="line">
-                <TabsTrigger Value="preview">Preview</TabsTrigger>
-                <TabsTrigger Value="code">Code</TabsTrigger>
-                <TabsTrigger Value="settings">Settings</TabsTrigger>
-            </TabsList>
-            <TabsContent Value="preview">
-                <p class="p-3 text-sm text-muted-foreground">Line tabs keep focus on dense editor-like surfaces.</p>
-            </TabsContent>
-        </Tabs>
-        """;
-
-    private const string OverflowRazor =
-        """
-        <Tabs DefaultValue="tab-01" class="w-full max-w-sm">
-            <TabsList ShowScrollButtons="true">
-                @for (var i = 1; i <= 10; i++)
-                {
-                    var value = $"tab-{i:00}";
-                    <TabsTrigger Value="@value">Document @i</TabsTrigger>
-                }
-            </TabsList>
-        </Tabs>
-        """;
-
-    private const string IdeRazor =
-        """
-        <Tabs Items="_ideTabs"
-              ItemsChanged="@(items => _ideTabs = items)"
-              Value="program"
-              DynamicVariant="ide">
-            <ItemContent>
-                <div class="rounded-b-md border border-t-0 bg-card p-4 text-sm text-card-foreground">
-                    Editing @context.Title
-                </div>
-            </ItemContent>
-        </Tabs>
-        """;
 }

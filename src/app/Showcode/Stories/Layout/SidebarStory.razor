@@ -6,538 +6,57 @@
            DefaultState="docs-preview"
            States="@States" />
 
-
-
 @code {
-    bool _openDocs = true;
-    bool _open4 = true;
-    bool _subExpanded;
-
     private IReadOnlyList<StoryCard.State> States => [
         new(
             "docs-preview",
             "Docs preview",
-            @<div class="h-96 w-full border border-border rounded-lg overflow-hidden flex">
-                <SidebarProvider @bind-Open="_openDocs" Width="16rem">
-                    <Sidebar Collapsible="icon">
-                        <SidebarHeader>
-                            <SidebarMenu>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton class="h-12">
-                                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-blue-600 text-white">
-                                            <Icon Name="calendar" Size="14" />
-                                        </span>
-                                        <span class="sidebar-docs-team-copy grid min-w-0 flex-1 text-left leading-tight">
-                                            <span class="truncate text-sm font-semibold">Acme Inc</span>
-                                            <span class="truncate text-xs text-muted-foreground">Enterprise</span>
-                                        </span>
-                                        <Icon Name="chevron-down" Size="14" class="sidebar-docs-chevron ml-auto" />
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            </SidebarMenu>
-                        </SidebarHeader>
-                        <SidebarContent>
-                            <SidebarGroup>
-                                <SidebarGroupLabel>Platform</SidebarGroupLabel>
-                                <SidebarGroupContent>
-                                    <SidebarMenu>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton IsActive="true">
-                                                <Icon Name="home" Size="16" />
-                                                <span class="sidebar-menu-text">Playground</span>
-                                                <Icon Name="chevron-down" Size="14" class="sidebar-docs-chevron ml-auto" />
-                                            </SidebarMenuButton>
-                                            <SidebarMenuSub IsOpen="true">
-                                                <SidebarMenuSubContent IsVisible="true">
-                                                    <SidebarMenuSubItem>
-                                                        <SidebarMenuSubButton>History</SidebarMenuSubButton>
-                                                    </SidebarMenuSubItem>
-                                                    <SidebarMenuSubItem>
-                                                        <SidebarMenuSubButton>Starred</SidebarMenuSubButton>
-                                                    </SidebarMenuSubItem>
-                                                    <SidebarMenuSubItem>
-                                                        <SidebarMenuSubButton>Settings</SidebarMenuSubButton>
-                                                    </SidebarMenuSubItem>
-                                                </SidebarMenuSubContent>
-                                            </SidebarMenuSub>
-                                        </SidebarMenuItem>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton>
-                                                <Icon Name="settings" Size="16" />
-                                                <span class="sidebar-menu-text">Models</span>
-                                                <Icon Name="chevron-right" Size="14" class="sidebar-docs-chevron ml-auto" />
-                                            </SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton>
-                                                <Icon Name="search" Size="16" />
-                                                <span class="sidebar-menu-text">Documentation</span>
-                                                <Icon Name="chevron-right" Size="14" class="sidebar-docs-chevron ml-auto" />
-                                            </SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton>
-                                                <Icon Name="settings" Size="16" />
-                                                <span class="sidebar-menu-text">Settings</span>
-                                                <Icon Name="chevron-right" Size="14" class="sidebar-docs-chevron ml-auto" />
-                                            </SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                    </SidebarMenu>
-                                </SidebarGroupContent>
-                            </SidebarGroup>
-                        </SidebarContent>
-                        <SidebarFooter>
-                            <SidebarMenu>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton class="h-12">
-                                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[10px] font-bold text-white" style="background: linear-gradient(135deg, #fb7185, #7c3aed 55%, #22d3ee)">SC</span>
-                                        <span class="sidebar-docs-team-copy grid min-w-0 flex-1 text-left leading-tight">
-                                            <span class="truncate text-sm font-semibold">shadcn</span>
-                                            <span class="truncate text-xs text-muted-foreground">m@example.com</span>
-                                        </span>
-                                        <Icon Name="chevron-down" Size="14" class="sidebar-docs-chevron ml-auto" />
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            </SidebarMenu>
-                        </SidebarFooter>
-                    </Sidebar>
-                    <SidebarInset>
-                        <header class="flex h-16 items-center gap-2 px-4">
-                            <SidebarTrigger class="h-8 w-8"><Icon Name="@(_openDocs ? "panel-left-close" : "panel-left-open")" Size="16" /></SidebarTrigger>
-                        </header>
-                    </SidebarInset>
-                </SidebarProvider>
-            </div>,
+            @<SidebarDocsPreviewExample />,
             [
-                new StoryCard.CodeTab("docs-preview-razor", "SidebarStory.razor", DocsPreviewRazor)
+                StorySourceRegistry.CodeTab(
+                    "docs-preview-razor",
+                    "SidebarDocsPreviewExample.razor",
+                    "Showcode/Examples/Layout/Sidebar/SidebarDocsPreviewExample.razor")
             ]),
         new(
             "basic",
             "Basic",
-            @<div class="h-96 w-full border border-border rounded-lg overflow-hidden flex">
-                <SidebarProvider DefaultOpen="true">
-                    <Sidebar>
-                        <SidebarHeader>
-                            <span class="px-2 text-sm font-semibold">MyApp</span>
-                        </SidebarHeader>
-                        <SidebarContent>
-                            <SidebarGroup>
-                                <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-                                <SidebarGroupContent>
-                                    <SidebarMenu>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton>Dashboard</SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton>Projects</SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton>Reports</SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                    </SidebarMenu>
-                                </SidebarGroupContent>
-                            </SidebarGroup>
-                            <SidebarGroup>
-                                <SidebarGroupLabel>Account</SidebarGroupLabel>
-                                <SidebarGroupContent>
-                                    <SidebarMenu>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton>Profile</SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton>Settings</SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                    </SidebarMenu>
-                                </SidebarGroupContent>
-                            </SidebarGroup>
-                        </SidebarContent>
-                        <SidebarFooter>
-                            <span class="px-2 text-xs text-muted-foreground">© 2025 MyApp</span>
-                        </SidebarFooter>
-                    </Sidebar>
-                    <SidebarInset>
-                        <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
-                            <SidebarTrigger class="h-7 w-7"><Icon Name="panel-left" Size="16" /></SidebarTrigger>
-                            <span class="text-sm font-medium">Dashboard</span>
-                        </header>
-                        <div class="p-4">
-                            <p class="text-sm text-muted-foreground">Main content area. Click the trigger to collapse the sidebar.</p>
-                        </div>
-                    </SidebarInset>
-                </SidebarProvider>
-            </div>,
+            @<SidebarBasicExample />,
             [
-                new StoryCard.CodeTab("basic-razor", "SidebarStory.razor", BasicRazor)
+                StorySourceRegistry.CodeTab(
+                    "basic-razor",
+                    "SidebarBasicExample.razor",
+                    "Showcode/Examples/Layout/Sidebar/SidebarBasicExample.razor")
             ]),
         new(
             "active-badge",
             "Active & Badge",
-            @<div class="h-96 w-full border border-border rounded-lg overflow-hidden flex">
-                <SidebarProvider DefaultOpen="true">
-                    <Sidebar>
-                        <SidebarHeader>
-                            <span class="px-2 text-sm font-semibold">MyApp</span>
-                        </SidebarHeader>
-                        <SidebarContent>
-                            <SidebarGroup>
-                                <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-                                <SidebarGroupContent>
-                                    <SidebarMenu>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton IsActive="true">Dashboard</SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton>Inbox<SidebarMenuBadge>12</SidebarMenuBadge></SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton>Notifications<SidebarMenuBadge>3</SidebarMenuBadge></SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton>Projects</SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                    </SidebarMenu>
-                                </SidebarGroupContent>
-                            </SidebarGroup>
-                        </SidebarContent>
-                    </Sidebar>
-                    <SidebarInset>
-                        <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
-                            <SidebarTrigger class="h-7 w-7"><Icon Name="panel-left" Size="16" /></SidebarTrigger>
-                            <span class="text-sm font-medium">Dashboard</span>
-                        </header>
-                        <div class="p-4">
-                            <p class="text-sm text-muted-foreground">The active item is highlighted. Badges show notification counts.</p>
-                        </div>
-                    </SidebarInset>
-                </SidebarProvider>
-            </div>,
+            @<SidebarActiveBadgeExample />,
             [
-                new StoryCard.CodeTab("active-badge-razor", "SidebarStory.razor", ActiveBadgeRazor)
+                StorySourceRegistry.CodeTab(
+                    "active-badge-razor",
+                    "SidebarActiveBadgeExample.razor",
+                    "Showcode/Examples/Layout/Sidebar/SidebarActiveBadgeExample.razor")
             ]),
         new(
             "sub-menu",
             "Sub-menu",
-            @<div class="h-96 w-full border border-border rounded-lg overflow-hidden flex">
-                <SidebarProvider DefaultOpen="true">
-                    <Sidebar Collapsible="icon">
-                        <SidebarHeader>
-                            <SidebarMenu>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton>
-                                        <span class="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-primary text-primary-foreground text-[10px] font-bold">M</span>
-                                        <span class="sidebar-menu-text">MyApp</span>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            </SidebarMenu>
-                        </SidebarHeader>
-                        <SidebarContent>
-                            <SidebarGroup>
-                                <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-                                <SidebarGroupContent>
-                                    <SidebarMenu>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton>Dashboard</SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuSubTrigger IsExpanded="_subExpanded" OnToggle="@(() => _subExpanded = !_subExpanded)">
-                                                Settings
-                                            </SidebarMenuSubTrigger>
-                                            <SidebarMenuSub IsOpen="_subExpanded">
-                                                <SidebarMenuSubContent IsVisible="_subExpanded">
-                                                    <SidebarMenuSubItem>
-                                                        <SidebarMenuSubButton>General</SidebarMenuSubButton>
-                                                    </SidebarMenuSubItem>
-                                                    <SidebarMenuSubItem>
-                                                        <SidebarMenuSubButton>Security</SidebarMenuSubButton>
-                                                    </SidebarMenuSubItem>
-                                                    <SidebarMenuSubItem>
-                                                        <SidebarMenuSubButton IsActive="true">Notifications</SidebarMenuSubButton>
-                                                    </SidebarMenuSubItem>
-                                                </SidebarMenuSubContent>
-                                            </SidebarMenuSub>
-                                        </SidebarMenuItem>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton>Profile</SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                    </SidebarMenu>
-                                </SidebarGroupContent>
-                            </SidebarGroup>
-                        </SidebarContent>
-                    </Sidebar>
-                    <SidebarInset>
-                        <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
-                            <SidebarTrigger class="h-7 w-7"><Icon Name="panel-left" Size="16" /></SidebarTrigger>
-                            <span class="text-sm font-medium">Settings</span>
-                        </header>
-                        <div class="p-4">
-                            <p class="text-sm text-muted-foreground">Click "Settings" to expand the sub-menu.</p>
-                        </div>
-                    </SidebarInset>
-                </SidebarProvider>
-            </div>,
+            @<SidebarSubMenuExample />,
             [
-                new StoryCard.CodeTab("sub-menu-razor", "SidebarStory.razor", SubMenuRazor)
+                StorySourceRegistry.CodeTab(
+                    "sub-menu-razor",
+                    "SidebarSubMenuExample.razor",
+                    "Showcode/Examples/Layout/Sidebar/SidebarSubMenuExample.razor")
             ]),
         new(
             "controlled",
             "Controlled open",
-            @<div class="h-96 w-full border border-border rounded-lg overflow-hidden flex">
-                <SidebarProvider @bind-Open="_open4">
-                    <Sidebar>
-                        <SidebarHeader>
-                            <SidebarInput placeholder="Search..." />
-                        </SidebarHeader>
-                        <SidebarContent>
-                            <SidebarGroup>
-                                <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-                                <SidebarGroupContent>
-                                    <SidebarMenu>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton>Dashboard</SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton>Analytics</SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuButton>Settings</SidebarMenuButton>
-                                        </SidebarMenuItem>
-                                    </SidebarMenu>
-                                </SidebarGroupContent>
-                            </SidebarGroup>
-                        </SidebarContent>
-                    </Sidebar>
-                    <SidebarInset>
-                        <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
-                            <SidebarTrigger class="h-7 w-7"><Icon Name="@(_open4 ? "panel-left-close" : "panel-left-open")" Size="16" /></SidebarTrigger>
-                            <span class="text-sm font-medium">Dashboard</span>
-                        </header>
-                        <div class="p-4 space-y-3">
-                            <p class="text-sm text-muted-foreground">
-                                State: <span class="font-semibold text-foreground">@(_open4 ? "Open" : "Closed")</span>
-                            </p>
-                            <div class="flex gap-2">
-                                <Button Variant="outline" Size="sm" @onclick="@(() => _open4 = true)">Open</Button>
-                                <Button Variant="outline" Size="sm" @onclick="@(() => _open4 = false)">Close</Button>
-                            </div>
-                        </div>
-                    </SidebarInset>
-                </SidebarProvider>
-            </div>,
+            @<SidebarControlledExample />,
             [
-                new StoryCard.CodeTab("controlled-razor", "SidebarStory.razor", ControlledRazor)
+                StorySourceRegistry.CodeTab(
+                    "controlled-razor",
+                    "SidebarControlledExample.razor",
+                    "Showcode/Examples/Layout/Sidebar/SidebarControlledExample.razor")
             ])
     ];
-
-    private const string DocsPreviewRazor =
-        """
-        <SidebarProvider @bind-Open="_open" Width="16rem">
-            <Sidebar Collapsible="icon">
-                <SidebarHeader>
-                    <SidebarMenu>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton class="h-12">
-                                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-blue-600 text-white">
-                                    <Icon Name="calendar" Size="14" />
-                                </span>
-                                <span class="sidebar-docs-team-copy grid min-w-0 flex-1 text-left leading-tight">
-                                    <span class="truncate text-sm font-semibold">Acme Inc</span>
-                                    <span class="truncate text-xs text-muted-foreground">Enterprise</span>
-                                </span>
-                                <Icon Name="chevron-down" Size="14" class="sidebar-docs-chevron ml-auto" />
-                        </SidebarMenuItem>
-                    </SidebarMenu>
-                </SidebarHeader>
-                <SidebarContent>
-                    <SidebarGroup>
-                        <SidebarGroupLabel>Platform</SidebarGroupLabel>
-                        <SidebarGroupContent>
-                            <SidebarMenu>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton IsActive="true">
-                                        <Icon Name="home" Size="16" />
-                                        <span>Playground</span>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            </SidebarMenu>
-                        </SidebarGroupContent>
-                    </SidebarGroup>
-                </SidebarContent>
-            </Sidebar>
-            <SidebarInset>
-                <header class="flex h-12 items-center px-4">
-                    <SidebarTrigger class="h-8 w-8"><Icon Name="panel-left" Size="16" /></SidebarTrigger>
-                </header>
-            </SidebarInset>
-        </SidebarProvider>
-        """;
-
-    private const string BasicRazor =
-        """
-        <SidebarProvider DefaultOpen="true">
-            <Sidebar>
-                <SidebarHeader>
-                    <span class="px-2 text-sm font-semibold">MyApp</span>
-                </SidebarHeader>
-                <SidebarContent>
-                    <SidebarGroup>
-                        <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-                        <SidebarGroupContent>
-                            <SidebarMenu>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton>Dashboard</SidebarMenuButton>
-                                </SidebarMenuItem>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton>Projects</SidebarMenuButton>
-                                </SidebarMenuItem>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton>Reports</SidebarMenuButton>
-                                </SidebarMenuItem>
-                            </SidebarMenu>
-                        </SidebarGroupContent>
-                    </SidebarGroup>
-                    <SidebarGroup>
-                        <SidebarGroupLabel>Account</SidebarGroupLabel>
-                        <SidebarGroupContent>
-                            <SidebarMenu>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton>Profile</SidebarMenuButton>
-                                </SidebarMenuItem>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton>Settings</SidebarMenuButton>
-                                </SidebarMenuItem>
-                            </SidebarMenu>
-                        </SidebarGroupContent>
-                    </SidebarGroup>
-                </SidebarContent>
-                <SidebarFooter>
-                    <span class="px-2 text-xs text-muted-foreground">© 2025 MyApp</span>
-                </SidebarFooter>
-            </Sidebar>
-            <SidebarInset>
-                <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
-                    <SidebarTrigger class="h-7 w-7"><Icon Name="panel-left" Size="16" /></SidebarTrigger>
-                    <span class="text-sm font-medium">Dashboard</span>
-                </header>
-                <div class="p-4">
-                    <p class="text-sm text-muted-foreground">Main content area.</p>
-                </div>
-            </SidebarInset>
-        </SidebarProvider>
-        """;
-
-    private const string ActiveBadgeRazor =
-        """
-        <SidebarProvider DefaultOpen="true">
-            <Sidebar>
-                <SidebarHeader>
-                    <span class="px-2 text-sm font-semibold">MyApp</span>
-                </SidebarHeader>
-                <SidebarContent>
-                    <SidebarGroup>
-                        <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-                        <SidebarGroupContent>
-                            <SidebarMenu>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton IsActive="true">Dashboard</SidebarMenuButton>
-                                </SidebarMenuItem>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton>Inbox<SidebarMenuBadge>12</SidebarMenuBadge></SidebarMenuButton>
-                                </SidebarMenuItem>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton>Notifications<SidebarMenuBadge>3</SidebarMenuBadge></SidebarMenuButton>
-                                </SidebarMenuItem>
-                            </SidebarMenu>
-                        </SidebarGroupContent>
-                    </SidebarGroup>
-                </SidebarContent>
-            </Sidebar>
-            <SidebarInset>
-                <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
-                    <SidebarTrigger class="h-7 w-7"><Icon Name="panel-left" Size="16" /></SidebarTrigger>
-                </header>
-            </SidebarInset>
-        </SidebarProvider>
-        """;
-
-    private const string SubMenuRazor =
-        """
-        <SidebarProvider DefaultOpen="true">
-            <Sidebar>
-                <SidebarHeader>
-                    <span class="px-2 text-sm font-semibold">MyApp</span>
-                </SidebarHeader>
-                <SidebarContent>
-                    <SidebarGroup>
-                        <SidebarGroupContent>
-                            <SidebarMenu>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton>Dashboard</SidebarMenuButton>
-                                </SidebarMenuItem>
-                                <SidebarMenuItem>
-                                    <SidebarMenuSubTrigger IsExpanded="_subExpanded"
-                                                           OnToggle="@(() => _subExpanded = !_subExpanded)">
-                                        Settings
-                                    </SidebarMenuSubTrigger>
-                                    <SidebarMenuSub IsOpen="_subExpanded">
-                                        <SidebarMenuSubContent IsVisible="_subExpanded">
-                                            <SidebarMenuSubItem>
-                                                <SidebarMenuSubButton>General</SidebarMenuSubButton>
-                                            </SidebarMenuSubItem>
-                                            <SidebarMenuSubItem>
-                                                <SidebarMenuSubButton IsActive="true">Notifications</SidebarMenuSubButton>
-                                            </SidebarMenuSubItem>
-                                        </SidebarMenuSubContent>
-                                    </SidebarMenuSub>
-                                </SidebarMenuItem>
-                            </SidebarMenu>
-                        </SidebarGroupContent>
-                    </SidebarGroup>
-                </SidebarContent>
-            </Sidebar>
-            <SidebarInset>
-                <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
-                    <SidebarTrigger class="h-7 w-7"><Icon Name="panel-left" Size="16" /></SidebarTrigger>
-                </header>
-            </SidebarInset>
-        </SidebarProvider>
-
-        @code {
-            bool _subExpanded;
-        }
-        """;
-
-    private const string ControlledRazor =
-        """
-        <SidebarProvider @bind-Open="_open">
-            <Sidebar Collapsible="icon">
-                <SidebarHeader>
-                    <SidebarInput placeholder="Search..." />
-                </SidebarHeader>
-                <SidebarContent>
-                    <SidebarGroup>
-                        <SidebarGroupContent>
-                            <SidebarMenu>
-                                <SidebarMenuItem>
-                                    <SidebarMenuButton>Dashboard</SidebarMenuButton>
-                                </SidebarMenuItem>
-                            </SidebarMenu>
-                        </SidebarGroupContent>
-                    </SidebarGroup>
-                </SidebarContent>
-            </Sidebar>
-            <SidebarInset>
-                <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
-                    <SidebarTrigger class="h-7 w-7"><Icon Name="@(_open ? "panel-left-close" : "panel-left-open")" Size="16" /></SidebarTrigger>
-                </header>
-                <div class="p-4 space-y-3">
-                    <p class="text-sm">State: @(_open ? "Open" : "Closed")</p>
-                    <Button Variant="outline" Size="sm" @onclick="@(() => _open = !_open)">Toggle</Button>
-                </div>
-            </SidebarInset>
-        </SidebarProvider>
-
-        @code {
-            bool _open = true;
-        }
-        """;
 }

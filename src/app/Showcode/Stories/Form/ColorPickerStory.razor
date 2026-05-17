@@ -6,52 +6,36 @@
            States="@States" />
 
 @code {
-    private string _color1 = "#3b82f6";
-    private string _color2 = "#10b981";
-    private string _color3 = "#f59e0b";
-
     private IReadOnlyList<StoryCard.State> States => [
         new(
             "default",
             "Default",
-            @<ColorPicker @bind-Value="_color1" Placeholder="#3b82f6" />,
+            @<ColorPickerDefaultExample />,
             [
-                new StoryCard.CodeTab("default-razor", "ColorPickerStory.razor", DefaultRazor)
+                StorySourceRegistry.CodeTab(
+                    "default-razor",
+                    "ColorPickerDefaultExample.razor",
+                    "Showcode/Examples/Form/ColorPicker/ColorPickerDefaultExample.razor")
             ]),
         new(
             "sizes",
             "Sizes",
-            @<div class="flex items-center gap-4">
-                <ColorPicker @bind-Value="_color2" Size="sm" Placeholder="#10b981" />
-                <ColorPicker @bind-Value="_color2" Size="default" Placeholder="#10b981" />
-                <ColorPicker @bind-Value="_color2" Size="lg" Placeholder="#10b981" />
-            </div>,
+            @<ColorPickerSizesExample />,
             [
-                new StoryCard.CodeTab("sizes-razor", "ColorPickerStory.razor", SizesRazor)
+                StorySourceRegistry.CodeTab(
+                    "sizes-razor",
+                    "ColorPickerSizesExample.razor",
+                    "Showcode/Examples/Form/ColorPicker/ColorPickerSizesExample.razor")
             ]),
         new(
             "disabled",
             "Disabled",
-            @<ColorPicker Value="#ef4444" Disabled="true" Placeholder="#ef4444" />,
+            @<ColorPickerDisabledExample />,
             [
-                new StoryCard.CodeTab("disabled-razor", "ColorPickerStory.razor", DisabledRazor)
+                StorySourceRegistry.CodeTab(
+                    "disabled-razor",
+                    "ColorPickerDisabledExample.razor",
+                    "Showcode/Examples/Form/ColorPicker/ColorPickerDisabledExample.razor")
             ])
     ];
-
-    private const string DefaultRazor =
-        """
-        <ColorPicker @bind-Value="_color" Placeholder="#3b82f6" />
-        """;
-
-    private const string SizesRazor =
-        """
-        <ColorPicker @bind-Value="_color" Size="sm" Placeholder="#10b981" />
-        <ColorPicker @bind-Value="_color" Size="default" Placeholder="#10b981" />
-        <ColorPicker @bind-Value="_color" Size="lg" Placeholder="#10b981" />
-        """;
-
-    private const string DisabledRazor =
-        """
-        <ColorPicker Value="#ef4444" Disabled="true" Placeholder="#ef4444" />
-        """;
 }

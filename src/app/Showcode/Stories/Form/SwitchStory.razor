@@ -10,78 +10,32 @@
         new(
             "states",
             "States",
-            @<div class="space-y-3">
-                <div class="flex items-center gap-3">
-                    <Switch id="sw1" IsChecked="false" />
-                    <Label For="sw1">Off</Label>
-                </div>
-                <div class="flex items-center gap-3">
-                    <Switch id="sw2" IsChecked="true" />
-                    <Label For="sw2">On</Label>
-                </div>
-                <div class="flex items-center gap-3">
-                    <Switch id="sw3" Disabled="true" />
-                    <Label For="sw3" Disabled="true">Disabled</Label>
-                </div>
-            </div>,
+            @<SwitchStatesExample />,
             [
-                new StoryCard.CodeTab("states-razor", "SwitchStory.razor", StatesRazor)
+                StorySourceRegistry.CodeTab(
+                    "states-razor",
+                    "SwitchStatesExample.razor",
+                    "Showcode/Examples/Form/Switch/SwitchStatesExample.razor")
             ]),
         new(
             "choice-card",
             "Choice card",
-            @<div class="w-full max-w-md">
-                <Switch ChoiceCard="true"
-                        Title="Email notifications"
-                        Description="Receive emails about your account activity."
-                        IsChecked="true" />
-            </div>,
+            @<SwitchChoiceCardExample />,
             [
-                new StoryCard.CodeTab("choice-card-razor", "SwitchStory.razor", ChoiceCardRazor)
+                StorySourceRegistry.CodeTab(
+                    "choice-card-razor",
+                    "SwitchChoiceCardExample.razor",
+                    "Showcode/Examples/Form/Switch/SwitchChoiceCardExample.razor")
             ]),
         new(
             "invalid",
             "Invalid",
-            @<div class="flex items-center gap-3">
-                <Switch id="sw-invalid" Invalid="true" />
-                <Label For="sw-invalid">Requires review</Label>
-            </div>,
+            @<SwitchInvalidExample />,
             [
-                new StoryCard.CodeTab("invalid-razor", "SwitchStory.razor", InvalidRazor)
+                StorySourceRegistry.CodeTab(
+                    "invalid-razor",
+                    "SwitchInvalidExample.razor",
+                    "Showcode/Examples/Form/Switch/SwitchInvalidExample.razor")
             ])
     ];
-
-    private const string StatesRazor =
-        """
-        <div class="space-y-3">
-            <div class="flex items-center gap-3">
-                <Switch id="sw1" IsChecked="false" />
-                <Label For="sw1">Off</Label>
-            </div>
-            <div class="flex items-center gap-3">
-                <Switch id="sw2" IsChecked="true" />
-                <Label For="sw2">On</Label>
-            </div>
-            <div class="flex items-center gap-3">
-                <Switch id="sw3" Disabled="true" />
-                <Label For="sw3" Disabled="true">Disabled</Label>
-            </div>
-        </div>
-        """;
-
-    private const string ChoiceCardRazor =
-        """
-        <Switch ChoiceCard="true"
-                Title="Email notifications"
-                Description="Receive emails about your account activity."
-                IsChecked="true" />
-        """;
-
-    private const string InvalidRazor =
-        """
-        <div class="flex items-center gap-3">
-            <Switch id="sw-invalid" Invalid="true" />
-            <Label For="sw-invalid">Requires review</Label>
-        </div>
-        """;
 }

@@ -6,137 +6,75 @@
            States="@States" />
 
 @code {
-    private readonly CustomerModel _defaultModel = new() { Name = "Ada Lovelace", Email = "ada@example.com", IsActive = true, CreditLimit = 5000 };
-    private readonly CustomerModel _gridModel = new() { Name = "Grace Hopper", Email = "grace@example.com", Status = CustomerStatus.Active, Age = 35 };
-    private readonly CustomerModel _readonlyModel = new() { Name = "Alan Turing", Email = "alan@example.com", IsActive = true, CreditLimit = 10000, Status = CustomerStatus.Pending };
-    private readonly CustomerModel _invalidModel = new() { Name = "", Email = "not-an-email", CreditLimit = 20000 };
+    private const string CustomerModelSource = "Showcode/Examples/Data/DataForm/CustomerModel.cs";
+    private const string CustomerStatusSource = "Showcode/Examples/Data/DataForm/CustomerStatus.cs";
 
     private IReadOnlyList<StoryCard.State> States => [
         new(
             "default",
             "Default",
-            @<div class="w-full max-w-md">
-                <DataForm Model="_defaultModel" ShowDefaultActions="false" />
-            </div>,
+            @<DataFormDefaultExample />,
             [
-                new StoryCard.CodeTab("default-razor", "DataFormStory.razor", DefaultRazor)
+                StorySourceRegistry.CodeTab(
+                    "default-razor",
+                    "DataFormDefaultExample.razor",
+                    "Showcode/Examples/Data/DataForm/DataFormDefaultExample.razor"),
+                SharedModelTab("default-model"),
+                SharedEnumTab("default-enum")
             ]),
         new(
             "grid",
             "Grid Layout",
-            @<div class="w-full max-w-lg">
-                <DataForm Model="_gridModel" Layout="grid" ShowDefaultActions="false" />
-            </div>,
+            @<DataFormGridExample />,
             [
-                new StoryCard.CodeTab("grid-razor", "DataFormStory.razor", GridRazor)
+                StorySourceRegistry.CodeTab(
+                    "grid-razor",
+                    "DataFormGridExample.razor",
+                    "Showcode/Examples/Data/DataForm/DataFormGridExample.razor"),
+                SharedModelTab("grid-model"),
+                SharedEnumTab("grid-enum")
             ]),
         new(
             "readonly",
             "Read Only",
-            @<div class="w-full max-w-md">
-                <DataForm Model="_readonlyModel" ReadOnly="true" ShowDefaultActions="false" />
-            </div>,
+            @<DataFormReadOnlyExample />,
             [
-                new StoryCard.CodeTab("readonly-razor", "DataFormStory.razor", ReadOnlyRazor)
+                StorySourceRegistry.CodeTab(
+                    "readonly-razor",
+                    "DataFormReadOnlyExample.razor",
+                    "Showcode/Examples/Data/DataForm/DataFormReadOnlyExample.razor"),
+                SharedModelTab("readonly-model"),
+                SharedEnumTab("readonly-enum")
             ]),
         new(
             "validation",
             "Validation",
-            @<div class="w-full max-w-md">
-                <DataForm Model="_invalidModel" ValidateOnSubmit="true" OnValidSubmit="HandleValid" OnInvalidSubmit="HandleInvalid" />
-            </div>,
+            @<DataFormValidationExample />,
             [
-                new StoryCard.CodeTab("validation-razor", "DataFormStory.razor", ValidationRazor)
+                StorySourceRegistry.CodeTab(
+                    "validation-razor",
+                    "DataFormValidationExample.razor",
+                    "Showcode/Examples/Data/DataForm/DataFormValidationExample.razor"),
+                SharedModelTab("validation-model"),
+                SharedEnumTab("validation-enum")
             ]),
         new(
             "templates",
             "Templates",
-            @<div class="w-full max-w-md">
-                <DataForm Model="_defaultModel" ShowDefaultActions="false">
-                    <LabelTemplate>
-                        <span class="text-xs font-bold uppercase tracking-wider text-primary">@context.DisplayName</span>
-                    </LabelTemplate>
-                    <FieldTemplate>
-                        <Input data-field-input="@context.PropertyName" Value="@GetValue(context.PropertyName)" Placeholder="@($"Enter {context.DisplayName}...")" />
-                    </FieldTemplate>
-                </DataForm>
-            </div>,
+            @<DataFormTemplatesExample />,
             [
-                new StoryCard.CodeTab("templates-razor", "DataFormStory.razor", TemplatesRazor)
+                StorySourceRegistry.CodeTab(
+                    "templates-razor",
+                    "DataFormTemplatesExample.razor",
+                    "Showcode/Examples/Data/DataForm/DataFormTemplatesExample.razor"),
+                SharedModelTab("templates-model"),
+                SharedEnumTab("templates-enum")
             ])
     ];
 
-    private void HandleValid(EditContext ctx) { }
-    private void HandleInvalid(EditContext ctx) { }
+    private static StoryCard.CodeTab SharedModelTab(string value) =>
+        StorySourceRegistry.CodeTab(value, "CustomerModel.cs", CustomerModelSource, "csharp");
 
-    private string GetValue(string propertyName) => propertyName switch
-    {
-        "Name" => _defaultModel.Name,
-        "Email" => _defaultModel.Email,
-        _ => ""
-    };
-
-    private const string DefaultRazor =
-        """
-        <DataForm Model="_defaultModel" ShowDefaultActions="false" />
-        """;
-
-    private const string GridRazor =
-        """
-        <DataForm Model="_gridModel" Layout="grid" ShowDefaultActions="false" />
-        """;
-
-    private const string ReadOnlyRazor =
-        """
-        <DataForm Model="_readonlyModel" ReadOnly="true" ShowDefaultActions="false" />
-        """;
-
-    private const string ValidationRazor =
-        """
-        <DataForm Model="_invalidModel"
-                  ValidateOnSubmit="true"
-                  OnValidSubmit="HandleValid"
-                  OnInvalidSubmit="HandleInvalid" />
-        """;
-
-    private const string TemplatesRazor =
-        """
-        <DataForm Model="_defaultModel" ShowDefaultActions="false">
-            <LabelTemplate>
-                <span class="text-xs font-bold uppercase tracking-wider text-primary">@context.DisplayName</span>
-            </LabelTemplate>
-            <FieldTemplate>
-                <Input data-field-input="@context.PropertyName"
-                       Value="@GetValue(context.PropertyName)"
-                       Placeholder="@($"Enter {context.DisplayName}...")" />
-            </FieldTemplate>
-        </DataForm>
-        """;
-
-    public class CustomerModel
-    {
-        [System.ComponentModel.DataAnnotations.Display(Name = "Customer name", Order = 10)]
-        public string Name { get; set; } = string.Empty;
-
-        [System.ComponentModel.DataAnnotations.Display(Name = "Email address", Order = 20)]
-        [System.ComponentModel.DataAnnotations.Required]
-        [System.ComponentModel.DataAnnotations.EmailAddress]
-        public string Email { get; set; } = string.Empty;
-
-        public bool IsActive { get; set; }
-
-        [System.ComponentModel.DataAnnotations.Range(0, 10000)]
-        public decimal CreditLimit { get; set; }
-
-        public CustomerStatus Status { get; set; }
-
-        public int Age { get; set; }
-    }
-
-    public enum CustomerStatus
-    {
-        Active,
-        Inactive,
-        Pending
-    }
+    private static StoryCard.CodeTab SharedEnumTab(string value) =>
+        StorySourceRegistry.CodeTab(value, "CustomerStatus.cs", CustomerStatusSource, "csharp");
 }

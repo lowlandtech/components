@@ -1,0 +1,14 @@
+@namespace LowlandTech.Components.App.Showcode.Examples.Data
+
+<div class="p-1">
+    <DataGrid TItem="OrderRow" Items="@DataGridSampleData.Orders" IsLoading="true">
+        <Columns>
+            <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
+            <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
+            <DataGridColumn TItem="OrderRow" Property="Status" Title="Status" />
+        </Columns>
+        <LoadingTemplate>
+            <span>Refreshing orders...</span>
+        </LoadingTemplate>
+    </DataGrid>
+</div>

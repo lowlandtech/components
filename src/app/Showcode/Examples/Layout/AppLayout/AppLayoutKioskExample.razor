@@ -1,0 +1,17 @@
+@namespace LowlandTech.Components.App.Showcode.Examples.Layout
+
+<div class="w-full">
+    <div class="min-h-[22rem] w-full overflow-hidden rounded-md border border-border">
+        <AppLayout Scenario="AppLayoutScenario.Kiosk"
+                   Main="@Main" />
+    </div>
+</div>
+
+@code {
+    private RenderFragment Main => @<div class="grid min-h-[22rem] place-items-center bg-muted/30 p-8 text-center">
+        <div>
+            <div class="text-4xl font-semibold">42</div>
+            <div class="mt-2 text-sm text-muted-foreground">Kiosk mode keeps the shell chrome out of the way.</div>
+        </div>
+    </div>;
+}

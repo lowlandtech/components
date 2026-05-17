@@ -10,64 +10,32 @@
         new(
             "variants",
             "Variants",
-            @<GraphCanvas Width="640" Height="100">
-                <GraphNode X="20"  Y="28" Title="Default" />
-                <GraphNode X="150" Y="28" Title="Primary" Variant="primary" />
-                <GraphNode X="280" Y="28" Title="Success" Variant="success" />
-                <GraphNode X="410" Y="28" Title="Warning" Variant="warning" />
-                <GraphNode X="500" Y="28" Width="120" Title="Danger"  Variant="danger"  />
-            </GraphCanvas>,
+            @<GraphNodeVariantsExample />,
             [
-                new StoryCard.CodeTab("variants-razor", "GraphNodeStory.razor", VariantsRazor)
+                StorySourceRegistry.CodeTab(
+                    "variants-razor",
+                    "GraphNodeVariantsExample.razor",
+                    "Showcode/Examples/Graph/GraphNode/GraphNodeVariantsExample.razor")
             ]),
         new(
             "with-subtitle",
             "With subtitle",
-            @<GraphCanvas Width="500" Height="120">
-                <GraphNode X="40"  Y="38" Width="130" Height="52" Title="API Gateway" Subtitle="entry point" />
-                <GraphNode X="220" Y="38" Width="130" Height="52" Title="Auth Service" Subtitle="validate token" Variant="primary" />
-                <GraphNode X="350" Y="38" Width="130" Height="52" Title="Database" Subtitle="persist" Variant="success" />
-            </GraphCanvas>,
+            @<GraphNodeWithSubtitleExample />,
             [
-                new StoryCard.CodeTab("subtitle-razor", "GraphNodeStory.razor", SubtitleRazor)
+                StorySourceRegistry.CodeTab(
+                    "subtitle-razor",
+                    "GraphNodeWithSubtitleExample.razor",
+                    "Showcode/Examples/Graph/GraphNode/GraphNodeWithSubtitleExample.razor")
             ]),
         new(
             "selected",
             "Selected",
-            @<GraphCanvas Width="420" Height="120">
-                <GraphNode X="60"  Y="38" Title="Normal" />
-                <GraphNode X="240" Y="38" Title="Selected" Selected="true" Variant="primary" />
-            </GraphCanvas>,
+            @<GraphNodeSelectedExample />,
             [
-                new StoryCard.CodeTab("selected-razor", "GraphNodeStory.razor", SelectedRazor)
+                StorySourceRegistry.CodeTab(
+                    "selected-razor",
+                    "GraphNodeSelectedExample.razor",
+                    "Showcode/Examples/Graph/GraphNode/GraphNodeSelectedExample.razor")
             ])
     ];
-
-    private const string VariantsRazor =
-        """
-        <GraphCanvas Width="640" Height="100">
-            <GraphNode X="20"  Y="28" Title="Default" />
-            <GraphNode X="150" Y="28" Title="Primary" Variant="primary" />
-            <GraphNode X="280" Y="28" Title="Success" Variant="success" />
-            <GraphNode X="410" Y="28" Title="Warning" Variant="warning" />
-            <GraphNode X="500" Y="28" Title="Danger"  Variant="danger" />
-        </GraphCanvas>
-        """;
-
-    private const string SubtitleRazor =
-        """
-        <GraphCanvas Width="500" Height="120">
-            <GraphNode X="40"  Y="38" Width="130" Height="52" Title="API Gateway"  Subtitle="entry point" />
-            <GraphNode X="220" Y="38" Width="130" Height="52" Title="Auth Service" Subtitle="validate token" Variant="primary" />
-            <GraphNode X="350" Y="38" Width="130" Height="52" Title="Database"     Subtitle="persist" Variant="success" />
-        </GraphCanvas>
-        """;
-
-    private const string SelectedRazor =
-        """
-        <GraphCanvas Width="420" Height="120">
-            <GraphNode X="60"  Y="38" Title="Normal" />
-            <GraphNode X="240" Y="38" Title="Selected" Selected="true" Variant="primary" />
-        </GraphCanvas>
-        """;
 }

@@ -10,88 +10,32 @@
         new(
             "modifiers",
             "Modifier keys",
-            @<div class="flex flex-wrap gap-2">
-                <Kbd>Ctrl</Kbd>
-                <Kbd>Alt</Kbd>
-                <Kbd>Shift</Kbd>
-                <Kbd>Cmd</Kbd>
-                <Kbd>Tab</Kbd>
-                <Kbd>Enter</Kbd>
-                <Kbd>Esc</Kbd>
-            </div>,
+            @<KbdModifiersExample />,
             [
-                new StoryCard.CodeTab("modifiers-razor", "KbdStory.razor", ModifiersRazor)
+                StorySourceRegistry.CodeTab(
+                    "modifiers-razor",
+                    "KbdModifiersExample.razor",
+                    "Showcode/Examples/Misc/Kbd/KbdModifiersExample.razor")
             ]),
         new(
             "shortcuts",
             "Shortcut combos",
-            @<div class="space-y-2 text-sm">
-                <div class="flex items-center gap-2">
-                    <span class="text-muted-foreground w-32">Save</span>
-                    <div class="flex gap-1"><Kbd>Ctrl</Kbd><span>+</span><Kbd>S</Kbd></div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-muted-foreground w-32">Copy</span>
-                    <div class="flex gap-1"><Kbd>Ctrl</Kbd><span>+</span><Kbd>C</Kbd></div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-muted-foreground w-32">Command palette</span>
-                    <div class="flex gap-1"><Kbd>Ctrl</Kbd><span>+</span><Kbd>K</Kbd></div>
-                </div>
-            </div>,
+            @<KbdShortcutsExample />,
             [
-                new StoryCard.CodeTab("shortcuts-razor", "KbdStory.razor", ShortcutsRazor)
+                StorySourceRegistry.CodeTab(
+                    "shortcuts-razor",
+                    "KbdShortcutsExample.razor",
+                    "Showcode/Examples/Misc/Kbd/KbdShortcutsExample.razor")
             ]),
         new(
             "sizes",
             "Sizes",
-            @<div class="flex flex-wrap items-center gap-3">
-                <Kbd Size="sm">sm</Kbd>
-                <Kbd Size="md">md</Kbd>
-                <Kbd Size="lg">lg</Kbd>
-            </div>,
+            @<KbdSizesExample />,
             [
-                new StoryCard.CodeTab("sizes-razor", "KbdStory.razor", SizesRazor)
+                StorySourceRegistry.CodeTab(
+                    "sizes-razor",
+                    "KbdSizesExample.razor",
+                    "Showcode/Examples/Misc/Kbd/KbdSizesExample.razor")
             ])
     ];
-
-    private const string ModifiersRazor =
-        """
-        <div class="flex flex-wrap gap-2">
-            <Kbd>Ctrl</Kbd>
-            <Kbd>Alt</Kbd>
-            <Kbd>Shift</Kbd>
-            <Kbd>Cmd</Kbd>
-            <Kbd>Tab</Kbd>
-            <Kbd>Enter</Kbd>
-            <Kbd>Esc</Kbd>
-        </div>
-        """;
-
-    private const string ShortcutsRazor =
-        """
-        <div class="space-y-2 text-sm">
-            <div class="flex items-center gap-2">
-                <span class="text-muted-foreground w-32">Save</span>
-                <div class="flex gap-1"><Kbd>Ctrl</Kbd><span>+</span><Kbd>S</Kbd></div>
-            </div>
-            <div class="flex items-center gap-2">
-                <span class="text-muted-foreground w-32">Copy</span>
-                <div class="flex gap-1"><Kbd>Ctrl</Kbd><span>+</span><Kbd>C</Kbd></div>
-            </div>
-            <div class="flex items-center gap-2">
-                <span class="text-muted-foreground w-32">Command palette</span>
-                <div class="flex gap-1"><Kbd>Ctrl</Kbd><span>+</span><Kbd>K</Kbd></div>
-            </div>
-        </div>
-        """;
-
-    private const string SizesRazor =
-        """
-        <div class="flex flex-wrap items-center gap-3">
-            <Kbd Size="sm">sm</Kbd>
-            <Kbd Size="md">md</Kbd>
-            <Kbd Size="lg">lg</Kbd>
-        </div>
-        """;
 }

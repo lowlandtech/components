@@ -10,101 +10,42 @@
         new(
             "sizes",
             "Sizes",
-            @<div class="flex flex-wrap items-end justify-center gap-6">
-                <div class="flex flex-col items-center gap-2">
-                    <Spinner class="size-4" />
-                    <span class="text-xs text-muted-foreground">size-4</span>
-                </div>
-                <div class="flex flex-col items-center gap-2">
-                    <Spinner class="size-6" />
-                    <span class="text-xs text-muted-foreground">size-6</span>
-                </div>
-                <div class="flex flex-col items-center gap-2">
-                    <Spinner class="size-8" />
-                    <span class="text-xs text-muted-foreground">size-8</span>
-                </div>
-            </div>,
+            @<SpinnerSizesExample />,
             [
-                new StoryCard.CodeTab("sizes-razor", "SpinnerStory.razor", SizesRazor)
+                StorySourceRegistry.CodeTab(
+                    "sizes-razor",
+                    "SpinnerSizesExample.razor",
+                    "Showcode/Examples/Feedback/Spinner/SpinnerSizesExample.razor")
             ]),
         new(
             "colors",
             "Colors",
-            @<div class="flex flex-wrap items-center justify-center gap-6">
-                <div class="flex flex-col items-center gap-2">
-                    <Spinner class="size-6" Color="text-primary" />
-                    <span class="text-xs text-muted-foreground">primary</span>
-                </div>
-                <div class="flex flex-col items-center gap-2">
-                    <Spinner class="size-6" Color="text-destructive" />
-                    <span class="text-xs text-muted-foreground">destructive</span>
-                </div>
-                <div class="flex flex-col items-center gap-2">
-                    <Spinner class="size-6" Color="text-green-500" />
-                    <span class="text-xs text-muted-foreground">green-500</span>
-                </div>
-                <div class="flex flex-col items-center gap-2">
-                    <Spinner class="size-6" Color="text-amber-500" />
-                    <span class="text-xs text-muted-foreground">amber-500</span>
-                </div>
-            </div>,
+            @<SpinnerColorsExample />,
             [
-                new StoryCard.CodeTab("colors-razor", "SpinnerStory.razor", ColorsRazor)
+                StorySourceRegistry.CodeTab(
+                    "colors-razor",
+                    "SpinnerColorsExample.razor",
+                    "Showcode/Examples/Feedback/Spinner/SpinnerColorsExample.razor")
             ]),
         new(
             "with-label",
             "With label",
-            @<div class="flex items-center gap-2 text-sm text-muted-foreground">
-                <Spinner class="size-4" />
-                Loading...
-            </div>,
+            @<SpinnerWithLabelExample />,
             [
-                new StoryCard.CodeTab("label-razor", "SpinnerStory.razor", LabelRazor)
+                StorySourceRegistry.CodeTab(
+                    "label-razor",
+                    "SpinnerWithLabelExample.razor",
+                    "Showcode/Examples/Feedback/Spinner/SpinnerWithLabelExample.razor")
             ]),
         new(
             "inside-button",
             "Inside button",
-            @<Button Variant="outline" disabled>
-                <Spinner class="size-4" />
-                Processing
-            </Button>,
+            @<SpinnerInsideButtonExample />,
             [
-                new StoryCard.CodeTab("button-razor", "SpinnerStory.razor", ButtonRazor)
+                StorySourceRegistry.CodeTab(
+                    "button-razor",
+                    "SpinnerInsideButtonExample.razor",
+                    "Showcode/Examples/Feedback/Spinner/SpinnerInsideButtonExample.razor")
             ])
     ];
-
-    private const string SizesRazor =
-        """
-        <div class="flex flex-wrap items-end gap-6">
-            <Spinner class="size-4" />
-            <Spinner class="size-6" />
-            <Spinner class="size-8" />
-        </div>
-        """;
-
-    private const string ColorsRazor =
-        """
-        <div class="flex flex-wrap items-center gap-6">
-            <Spinner class="size-6" Color="text-primary" />
-            <Spinner class="size-6" Color="text-destructive" />
-            <Spinner class="size-6" Color="text-green-500" />
-            <Spinner class="size-6" Color="text-amber-500" />
-        </div>
-        """;
-
-    private const string LabelRazor =
-        """
-        <div class="flex items-center gap-2 text-sm text-muted-foreground">
-            <Spinner class="size-4" />
-            Loading...
-        </div>
-        """;
-
-    private const string ButtonRazor =
-        """
-        <Button Variant="outline" disabled>
-            <Spinner class="size-4" />
-            Processing
-        </Button>
-        """;
 }

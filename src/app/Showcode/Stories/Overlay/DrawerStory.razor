@@ -6,173 +6,36 @@
            States="@States" />
 
 @code {
-    bool _open1;
-    bool _open2;
-    bool _open3;
-
     private IReadOnlyList<StoryCard.State> States => [
         new(
             "right",
             "Right (default)",
-            @<div class="h-96 w-full border border-border rounded-lg bg-sidebar flex items-center justify-center">
-                <Drawer @bind-IsOpen="_open1">
-                    <DrawerTrigger>
-                        <Button>Open Drawer</Button>
-                    </DrawerTrigger>
-                    <DrawerContent>
-                        <DrawerHeader>
-                            <DrawerTitle>Edit Profile</DrawerTitle>
-                            <DrawerDescription>Make changes to your profile here.</DrawerDescription>
-                        </DrawerHeader>
-                        <div class="p-4 space-y-3">
-                            <div class="space-y-1">
-                                <Label For="dr-name">Name</Label>
-                                <Input id="dr-name" Value="John Doe" />
-                            </div>
-                            <div class="space-y-1">
-                                <Label For="dr-email">Email</Label>
-                                <Input id="dr-email" Type="email" Value="john@example.com" />
-                            </div>
-                        </div>
-                        <DrawerFooter>
-                            <Button @onclick="@(() => _open1 = false)">Save changes</Button>
-                            <DrawerClose><Button Variant="outline">Cancel</Button></DrawerClose>
-                        </DrawerFooter>
-                    </DrawerContent>
-                </Drawer>
-            </div>,
+            @<DrawerRightExample />,
             [
-                new StoryCard.CodeTab("right-razor", "DrawerStory.razor", RightRazor)
+                StorySourceRegistry.CodeTab(
+                    "right-razor",
+                    "DrawerRightExample.razor",
+                    "Showcode/Examples/Overlay/Drawer/DrawerRightExample.razor")
             ]),
         new(
             "left",
             "Left direction",
-            @<div class="h-96 w-full border border-border rounded-lg bg-sidebar flex items-center justify-center">
-                <Drawer @bind-IsOpen="_open2" Direction="left">
-                    <DrawerTrigger>
-                        <Button Variant="outline">Open Left Drawer</Button>
-                    </DrawerTrigger>
-                    <DrawerContent>
-                        <DrawerHeader>
-                            <DrawerTitle>Navigation</DrawerTitle>
-                            <DrawerDescription>Main navigation drawer.</DrawerDescription>
-                        </DrawerHeader>
-                        <div class="p-4">
-                            <p class="text-sm text-muted-foreground">Navigation items here.</p>
-                        </div>
-                        <DrawerFooter>
-                            <DrawerClose><Button Variant="outline" class="w-full">Close</Button></DrawerClose>
-                        </DrawerFooter>
-                    </DrawerContent>
-                </Drawer>
-            </div>,
+            @<DrawerLeftExample />,
             [
-                new StoryCard.CodeTab("left-razor", "DrawerStory.razor", LeftRazor)
+                StorySourceRegistry.CodeTab(
+                    "left-razor",
+                    "DrawerLeftExample.razor",
+                    "Showcode/Examples/Overlay/Drawer/DrawerLeftExample.razor")
             ]),
         new(
             "overlay",
             "With overlay",
-            @<div class="h-96 w-full border border-border rounded-lg bg-sidebar flex items-center justify-center overflow-hidden relative">
-                <Drawer @bind-IsOpen="_open3">
-                    <DrawerTrigger>
-                        <Button Variant="secondary">Open with Overlay</Button>
-                    </DrawerTrigger>
-                    <DrawerOverlay />
-                    <DrawerContent>
-                        <DrawerHeader>
-                            <DrawerTitle>Drawer with Overlay</DrawerTitle>
-                            <DrawerDescription>Click the overlay to dismiss.</DrawerDescription>
-                        </DrawerHeader>
-                        <div class="p-4">
-                            <p class="text-sm text-muted-foreground">The overlay blocks interaction behind the drawer.</p>
-                        </div>
-                        <DrawerFooter>
-                            <DrawerClose><Button Variant="outline">Close</Button></DrawerClose>
-                        </DrawerFooter>
-                    </DrawerContent>
-                </Drawer>
-            </div>,
+            @<DrawerOverlayExample />,
             [
-                new StoryCard.CodeTab("overlay-razor", "DrawerStory.razor", OverlayRazor)
+                StorySourceRegistry.CodeTab(
+                    "overlay-razor",
+                    "DrawerOverlayExample.razor",
+                    "Showcode/Examples/Overlay/Drawer/DrawerOverlayExample.razor")
             ])
     ];
-
-    private const string RightRazor =
-        """
-        <Drawer @bind-IsOpen="_open">
-            <DrawerTrigger>
-                <Button>Open Drawer</Button>
-            </DrawerTrigger>
-            <DrawerContent>
-                <DrawerHeader>
-                    <DrawerTitle>Edit Profile</DrawerTitle>
-                    <DrawerDescription>Make changes to your profile here.</DrawerDescription>
-                </DrawerHeader>
-                <div class="p-4 space-y-3">
-                    <div class="space-y-1">
-                        <Label For="name">Name</Label>
-                        <Input id="name" Value="John Doe" />
-                    </div>
-                </div>
-                <DrawerFooter>
-                    <Button @onclick="@(() => _open = false)">Save changes</Button>
-                    <DrawerClose><Button Variant="outline">Cancel</Button></DrawerClose>
-                </DrawerFooter>
-            </DrawerContent>
-        </Drawer>
-
-        @code {
-            bool _open;
-        }
-        """;
-
-    private const string LeftRazor =
-        """
-        <Drawer @bind-IsOpen="_open" Direction="left">
-            <DrawerTrigger>
-                <Button Variant="outline">Open Left Drawer</Button>
-            </DrawerTrigger>
-            <DrawerContent>
-                <DrawerHeader>
-                    <DrawerTitle>Navigation</DrawerTitle>
-                </DrawerHeader>
-                <div class="p-4">
-                    <p class="text-sm text-muted-foreground">Navigation items here.</p>
-                </div>
-                <DrawerFooter>
-                    <DrawerClose><Button Variant="outline" class="w-full">Close</Button></DrawerClose>
-                </DrawerFooter>
-            </DrawerContent>
-        </Drawer>
-
-        @code {
-            bool _open;
-        }
-        """;
-
-    private const string OverlayRazor =
-        """
-        <Drawer @bind-IsOpen="_open">
-            <DrawerTrigger>
-                <Button Variant="secondary">Open with Overlay</Button>
-            </DrawerTrigger>
-            <DrawerOverlay />
-            <DrawerContent>
-                <DrawerHeader>
-                    <DrawerTitle>Drawer with Overlay</DrawerTitle>
-                    <DrawerDescription>Click the overlay to dismiss.</DrawerDescription>
-                </DrawerHeader>
-                <div class="p-4">
-                    <p class="text-sm text-muted-foreground">The overlay blocks interaction behind the drawer.</p>
-                </div>
-                <DrawerFooter>
-                    <DrawerClose><Button Variant="outline">Close</Button></DrawerClose>
-                </DrawerFooter>
-            </DrawerContent>
-        </Drawer>
-
-        @code {
-            bool _open;
-        }
-        """;
 }

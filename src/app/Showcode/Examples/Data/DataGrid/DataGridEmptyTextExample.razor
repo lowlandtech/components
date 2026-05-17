@@ -1,0 +1,10 @@
+@namespace LowlandTech.Components.App.Showcode.Examples.Data
+
+<div class="p-1">
+    <DataGrid TItem="OrderRow" Items="Array.Empty<OrderRow>()" EmptyText="No orders found.">
+        <Columns>
+            <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
+            <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
+        </Columns>
+    </DataGrid>
+</div>

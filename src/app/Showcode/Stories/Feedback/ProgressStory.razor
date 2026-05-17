@@ -10,76 +10,32 @@
         new(
             "values",
             "Values",
-            @<div class="w-full max-w-sm space-y-4">
-                <div class="space-y-1">
-                    <span class="text-sm text-muted-foreground">33%</span>
-                    <Progress Value="33" Max="100" />
-                </div>
-                <div class="space-y-1">
-                    <span class="text-sm text-muted-foreground">66%</span>
-                    <Progress Value="66" Max="100" />
-                </div>
-                <div class="space-y-1">
-                    <span class="text-sm text-muted-foreground">100%</span>
-                    <Progress Value="100" Max="100" />
-                </div>
-            </div>,
+            @<ProgressValuesExample />,
             [
-                new StoryCard.CodeTab("values-razor", "ProgressStory.razor", ValuesRazor)
+                StorySourceRegistry.CodeTab(
+                    "values-razor",
+                    "ProgressValuesExample.razor",
+                    "Showcode/Examples/Feedback/Progress/ProgressValuesExample.razor")
             ]),
         new(
             "indeterminate",
             "Indeterminate",
-            @<div class="w-full max-w-sm space-y-2">
-                <span class="text-sm text-muted-foreground">Loading workspace</span>
-                <Progress IsIndeterminate="true" />
-            </div>,
+            @<ProgressIndeterminateExample />,
             [
-                new StoryCard.CodeTab("indeterminate-razor", "ProgressStory.razor", IndeterminateRazor)
+                StorySourceRegistry.CodeTab(
+                    "indeterminate-razor",
+                    "ProgressIndeterminateExample.razor",
+                    "Showcode/Examples/Feedback/Progress/ProgressIndeterminateExample.razor")
             ]),
         new(
             "custom-max",
             "Custom max",
-            @<div class="w-full max-w-sm space-y-2">
-                <span class="text-sm text-muted-foreground">3 of 8 steps</span>
-                <Progress Value="3" Max="8" />
-            </div>,
+            @<ProgressCustomMaxExample />,
             [
-                new StoryCard.CodeTab("custom-max-razor", "ProgressStory.razor", CustomMaxRazor)
+                StorySourceRegistry.CodeTab(
+                    "custom-max-razor",
+                    "ProgressCustomMaxExample.razor",
+                    "Showcode/Examples/Feedback/Progress/ProgressCustomMaxExample.razor")
             ])
     ];
-
-    private const string ValuesRazor =
-        """
-        <div class="space-y-4">
-            <div class="space-y-1">
-                <span class="text-sm text-muted-foreground">33%</span>
-                <Progress Value="33" Max="100" />
-            </div>
-            <div class="space-y-1">
-                <span class="text-sm text-muted-foreground">66%</span>
-                <Progress Value="66" Max="100" />
-            </div>
-            <div class="space-y-1">
-                <span class="text-sm text-muted-foreground">100%</span>
-                <Progress Value="100" Max="100" />
-            </div>
-        </div>
-        """;
-
-    private const string IndeterminateRazor =
-        """
-        <div class="space-y-2">
-            <span class="text-sm text-muted-foreground">Loading workspace</span>
-            <Progress IsIndeterminate="true" />
-        </div>
-        """;
-
-    private const string CustomMaxRazor =
-        """
-        <div class="space-y-2">
-            <span class="text-sm text-muted-foreground">3 of 8 steps</span>
-            <Progress Value="3" Max="8" />
-        </div>
-        """;
 }

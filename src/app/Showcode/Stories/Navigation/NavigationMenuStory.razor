@@ -6,136 +6,27 @@
            States="@States" />
 
 @code {
-    private bool _openGettingStarted;
-    private bool _openComponents;
-
-    private IReadOnlyList<StoryCard.State> States => [
+    private IReadOnlyList<StoryCard.State> States =>
+    [
         new(
             "with-dropdowns",
             "With dropdowns",
-            @<div class="w-full max-w-lg">
-                <NavigationMenu class="relative">
-                    <NavigationMenuList>
-                        <NavigationMenuItem>
-                            <NavigationMenuTrigger IsOpen="_openGettingStarted" OnClick="() => _openGettingStarted = !_openGettingStarted">
-                                Getting started
-                            </NavigationMenuTrigger>
-                            <NavigationMenuContent IsOpen="_openGettingStarted" class="mt-2 rounded-lg border bg-popover p-3 shadow-sm">
-                                <div class="grid gap-2">
-                                    <NavigationMenuLink Href="#">
-                                        <div class="text-sm font-medium">Introduction</div>
-                                        <div class="text-xs text-muted-foreground">Built with Radix UI and Tailwind CSS.</div>
-                                    </NavigationMenuLink>
-                                    <NavigationMenuLink Href="#">
-                                        <div class="text-sm font-medium">Installation</div>
-                                        <div class="text-xs text-muted-foreground">How to install dependencies.</div>
-                                    </NavigationMenuLink>
-                                    <NavigationMenuLink Href="#">
-                                        <div class="text-sm font-medium">Theming</div>
-                                        <div class="text-xs text-muted-foreground">Customize the look and feel.</div>
-                                    </NavigationMenuLink>
-                                </div>
-                            </NavigationMenuContent>
-                        </NavigationMenuItem>
-                        <NavigationMenuItem>
-                            <NavigationMenuTrigger IsOpen="_openComponents" OnClick="() => _openComponents = !_openComponents">
-                                Components
-                            </NavigationMenuTrigger>
-                            <NavigationMenuContent IsOpen="_openComponents" class="mt-2 rounded-lg border bg-popover p-3 shadow-sm">
-                                <div class="grid grid-cols-2 gap-2">
-                                    <NavigationMenuLink Href="#">
-                                        <div class="text-sm font-medium">Button</div>
-                                        <div class="text-xs text-muted-foreground">Interactive variants.</div>
-                                    </NavigationMenuLink>
-                                    <NavigationMenuLink Href="#">
-                                        <div class="text-sm font-medium">Dialog</div>
-                                        <div class="text-xs text-muted-foreground">Modal windows.</div>
-                                    </NavigationMenuLink>
-                                    <NavigationMenuLink Href="#">
-                                        <div class="text-sm font-medium">Card</div>
-                                        <div class="text-xs text-muted-foreground">Content containers.</div>
-                                    </NavigationMenuLink>
-                                    <NavigationMenuLink Href="#">
-                                        <div class="text-sm font-medium">Table</div>
-                                        <div class="text-xs text-muted-foreground">Data display.</div>
-                                    </NavigationMenuLink>
-                                </div>
-                            </NavigationMenuContent>
-                        </NavigationMenuItem>
-                        <NavigationMenuItem>
-                            <NavigationMenuLink Href="#" class="inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
-                                Documentation
-                            </NavigationMenuLink>
-                        </NavigationMenuItem>
-                    </NavigationMenuList>
-                </NavigationMenu>
-            </div>,
+            @<NavigationMenuWithDropdownsExample />,
             [
-                new StoryCard.CodeTab("dropdowns-razor", "NavigationMenuStory.razor", DropdownsRazor)
+                StorySourceRegistry.CodeTab(
+                    "dropdowns-razor",
+                    "NavigationMenuWithDropdownsExample.razor",
+                    "Showcode/Examples/Navigation/NavigationMenu/NavigationMenuWithDropdownsExample.razor")
             ]),
         new(
             "links-only",
             "Links only",
-            @<div class="w-full max-w-lg">
-                <NavigationMenu>
-                    <NavigationMenuList>
-                        <NavigationMenuItem>
-                            <NavigationMenuLink Href="#" class="inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
-                                Home
-                            </NavigationMenuLink>
-                        </NavigationMenuItem>
-                        <NavigationMenuItem>
-                            <NavigationMenuLink Href="#" class="inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
-                                Features
-                            </NavigationMenuLink>
-                        </NavigationMenuItem>
-                        <NavigationMenuItem>
-                            <NavigationMenuLink Href="#" class="inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
-                                Pricing
-                            </NavigationMenuLink>
-                        </NavigationMenuItem>
-                        <NavigationMenuItem>
-                            <NavigationMenuLink Href="#" class="inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
-                                About
-                            </NavigationMenuLink>
-                        </NavigationMenuItem>
-                    </NavigationMenuList>
-                </NavigationMenu>
-            </div>,
+            @<NavigationMenuLinksOnlyExample />,
             [
-                new StoryCard.CodeTab("links-razor", "NavigationMenuStory.razor", LinksRazor)
+                StorySourceRegistry.CodeTab(
+                    "links-razor",
+                    "NavigationMenuLinksOnlyExample.razor",
+                    "Showcode/Examples/Navigation/NavigationMenu/NavigationMenuLinksOnlyExample.razor")
             ])
     ];
-
-    private const string DropdownsRazor =
-        """
-        <NavigationMenu>
-            <NavigationMenuList>
-                <NavigationMenuItem>
-                    <NavigationMenuTrigger IsOpen="_open" OnClick="() => _open = !_open">
-                        Getting started
-                    </NavigationMenuTrigger>
-                    <NavigationMenuContent IsOpen="_open" class="mt-2 rounded-lg border bg-popover p-3 shadow-sm">
-                        <NavigationMenuLink Href="#">
-                            <div class="text-sm font-medium">Introduction</div>
-                            <div class="text-xs text-muted-foreground">Built with Radix UI and Tailwind.</div>
-                        </NavigationMenuLink>
-                    </NavigationMenuContent>
-                </NavigationMenuItem>
-            </NavigationMenuList>
-        </NavigationMenu>
-        """;
-
-    private const string LinksRazor =
-        """
-        <NavigationMenu>
-            <NavigationMenuList>
-                <NavigationMenuItem>
-                    <NavigationMenuLink Href="#" class="inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
-                        Home
-                    </NavigationMenuLink>
-                </NavigationMenuItem>
-            </NavigationMenuList>
-        </NavigationMenu>
-        """;
 }

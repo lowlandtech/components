@@ -6,140 +6,42 @@
            States="@States" />
 
 @code {
+    private const string ServiceSource = "Showcode/Examples/Overlay/Popover/PopoverServiceExample.cs";
+    private const string ProviderSource = "Showcode/Examples/Overlay/Popover/PopoverProviderExample.razor";
+
     private IReadOnlyList<StoryCard.State> States => [
         new(
             "basic",
             "Basic",
-            @<Popover>
-                <PopoverTrigger>
-                    <Button Variant="outline">Open popover</Button>
-                </PopoverTrigger>
-                <PopoverContent>
-                    <p class="text-sm">Place content for the popover here.</p>
-                </PopoverContent>
-            </Popover>,
+            @<PopoverBasicExample />,
             [
-                new StoryCard.CodeTab("basic-razor", "PopoverStory.razor", BasicRazor),
-                new StoryCard.CodeTab("basic-service", "PopoverService.cs", PopoverServiceCode, "csharp")
+                StorySourceRegistry.CodeTab(
+                    "basic-razor",
+                    "PopoverBasicExample.razor",
+                    "Showcode/Examples/Overlay/Popover/PopoverBasicExample.razor"),
+                StorySourceRegistry.CodeTab("basic-service", "PopoverService.cs", ServiceSource, "csharp")
             ]),
         new(
             "outlined",
             "Outlined",
-            @<Popover>
-                <PopoverTrigger>
-                    <Button Variant="outline">Open outlined popover</Button>
-                </PopoverTrigger>
-                <PopoverContent Variant="outline">
-                    <p class="text-sm">This popover uses the outline variant so its border and surface are visible.</p>
-                </PopoverContent>
-            </Popover>,
+            @<PopoverOutlinedExample />,
             [
-                new StoryCard.CodeTab("outlined-razor", "PopoverStory.razor", OutlinedRazor),
-                new StoryCard.CodeTab("outlined-service", "PopoverService.cs", PopoverServiceCode, "csharp")
+                StorySourceRegistry.CodeTab(
+                    "outlined-razor",
+                    "PopoverOutlinedExample.razor",
+                    "Showcode/Examples/Overlay/Popover/PopoverOutlinedExample.razor"),
+                StorySourceRegistry.CodeTab("outlined-service", "PopoverService.cs", ServiceSource, "csharp")
             ]),
         new(
             "form",
             "With form",
-            @<Popover>
-                <PopoverTrigger>
-                    <Button Variant="outline">
-                        <Icon Name="settings" Size="14" />
-                        Dimensions
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent Variant="outline" class="w-64">
-                    <div class="space-y-3">
-                        <p class="text-sm font-medium">Dimensions</p>
-                        <div class="space-y-1">
-                            <Label For="pop-w">Width</Label>
-                            <Input id="pop-w" Value="100%" />
-                        </div>
-                        <div class="space-y-1">
-                            <Label For="pop-h">Height</Label>
-                            <Input id="pop-h" Value="auto" />
-                        </div>
-                    </div>
-                </PopoverContent>
-            </Popover>,
+            @<PopoverFormExample />,
             [
-                new StoryCard.CodeTab("form-razor", "PopoverStory.razor", FormRazor),
-                new StoryCard.CodeTab("form-service", "PopoverProvider.razor", PopoverProviderCode)
+                StorySourceRegistry.CodeTab(
+                    "form-razor",
+                    "PopoverFormExample.razor",
+                    "Showcode/Examples/Overlay/Popover/PopoverFormExample.razor"),
+                StorySourceRegistry.CodeTab("form-provider", "PopoverProvider.razor", ProviderSource)
             ])
     ];
-
-    private const string BasicRazor =
-        """
-        <Popover>
-            <PopoverTrigger>
-                <Button Variant="outline">Open popover</Button>
-            </PopoverTrigger>
-            <PopoverContent>
-                <p class="text-sm">Place content for the popover here.</p>
-            </PopoverContent>
-        </Popover>
-        """;
-
-    private const string OutlinedRazor =
-        """
-        <Popover>
-            <PopoverTrigger>
-                <Button Variant="outline">Open outlined popover</Button>
-            </PopoverTrigger>
-            <PopoverContent Variant="outline">
-                <p class="text-sm">This popover uses the outline variant so its border and surface are visible.</p>
-            </PopoverContent>
-        </Popover>
-        """;
-
-    private const string FormRazor =
-        """
-        <Popover>
-            <PopoverTrigger>
-                <Button Variant="outline">
-                    <Icon Name="settings" Size="14" />
-                    Dimensions
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent Variant="outline" class="w-64">
-                <div class="space-y-3">
-                    <p class="text-sm font-medium">Dimensions</p>
-                    <div class="space-y-1">
-                        <Label For="pop-w">Width</Label>
-                        <Input id="pop-w" Value="100%" />
-                    </div>
-                    <div class="space-y-1">
-                        <Label For="pop-h">Height</Label>
-                        <Input id="pop-h" Value="auto" />
-                    </div>
-                </div>
-            </PopoverContent>
-        </Popover>
-        """;
-
-    private const string PopoverServiceCode =
-        """
-        public interface IPopoverService
-        {
-            IReadOnlyCollection<PopoverReference> ActivePopovers { get; }
-            event Action? OnChanged;
-
-            PopoverReference Register(Guid id);
-            void Update(Guid id, PopoverState state);
-            void Unregister(Guid id);
-        }
-        """;
-
-    private const string PopoverProviderCode =
-        """
-        <PopoverProvider />
-
-        @code {
-            protected override void OnInitialized()
-            {
-                PopoverService.OnChanged += OnPopoverChanged;
-            }
-
-            private void OnPopoverChanged() => InvokeAsync(StateHasChanged);
-        }
-        """;
 }

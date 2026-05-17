@@ -1,0 +1,20 @@
+@namespace LowlandTech.Components.App.Showcode.Examples.Graph
+
+<GraphCanvas Width="680" Height="200">
+    @* nodes *@
+    <GraphNode X="40"  Y="76" Width="120" Height="48" Title="Ingest"  Subtitle="data source" />
+    <GraphNode X="200" Y="76" Width="120" Height="48" Title="Parse"   Subtitle="transform"  />
+    <GraphNode X="360" Y="76" Width="120" Height="48" Title="Enrich"  Subtitle="augment"    />
+    <GraphNode X="520" Y="76" Width="120" Height="48" Title="Export"  Subtitle="write out"  Variant="primary" />
+    @* edges *@
+    <GraphEdge X1="160" Y1="100" X2="200" Y2="100" Routing="straight" />
+    <GraphEdge X1="320" Y1="100" X2="360" Y2="100" Routing="straight" />
+    <GraphEdge X1="480" Y1="100" X2="520" Y2="100" Routing="straight" Label="ready" />
+    @* ports *@
+    <GraphPort X="160" Y="100" Type="output" />
+    <GraphPort X="200" Y="100" Type="input"  />
+    <GraphPort X="320" Y="100" Type="output" />
+    <GraphPort X="360" Y="100" Type="input"  />
+    <GraphPort X="480" Y="100" Type="output" />
+    <GraphPort X="520" Y="100" Type="input"  />
+</GraphCanvas>

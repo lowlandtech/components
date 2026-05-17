@@ -1,0 +1,27 @@
+@namespace LowlandTech.Components.App.Showcode.Examples.Form
+
+<div class="w-full max-w-sm">
+    <Select @bind-Value="_role">
+        <SelectTrigger>
+            <SelectValue Placeholder="Select a role" />
+        </SelectTrigger>
+        <SelectContent>
+            <SelectGroup>
+                <SelectLabel>Product</SelectLabel>
+                <SelectItem Value="owner" Text="Owner">Owner</SelectItem>
+                <SelectItem Value="admin" Text="Admin">Admin</SelectItem>
+                <SelectItem Value="member" Text="Member">Member</SelectItem>
+            </SelectGroup>
+            <SelectSeparator />
+            <SelectGroup>
+                <SelectLabel>Billing</SelectLabel>
+                <SelectItem Value="billing" Text="Billing Manager">Billing Manager</SelectItem>
+                <SelectItem Value="viewer" Text="Viewer">Viewer</SelectItem>
+            </SelectGroup>
+        </SelectContent>
+    </Select>
+</div>
+
+@code {
+    private string _role = "admin";
+}

@@ -1,0 +1,64 @@
+@namespace LowlandTech.Components.App.Showcode.Examples.Layout
+
+<div class="h-96 w-full border border-border rounded-lg overflow-hidden flex">
+    <SidebarProvider DefaultOpen="true">
+        <Sidebar Collapsible="icon">
+            <SidebarHeader>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton>
+                            <span class="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-primary text-primary-foreground text-[10px] font-bold">M</span>
+                            <span class="sidebar-menu-text">MyApp</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarHeader>
+            <SidebarContent>
+                <SidebarGroup>
+                    <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton>Dashboard</SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuSubTrigger IsExpanded="_subExpanded" OnToggle="@(() => _subExpanded = !_subExpanded)">
+                                    Settings
+                                </SidebarMenuSubTrigger>
+                                <SidebarMenuSub IsOpen="_subExpanded">
+                                    <SidebarMenuSubContent IsVisible="_subExpanded">
+                                        <SidebarMenuSubItem>
+                                            <SidebarMenuSubButton>General</SidebarMenuSubButton>
+                                        </SidebarMenuSubItem>
+                                        <SidebarMenuSubItem>
+                                            <SidebarMenuSubButton>Security</SidebarMenuSubButton>
+                                        </SidebarMenuSubItem>
+                                        <SidebarMenuSubItem>
+                                            <SidebarMenuSubButton IsActive="true">Notifications</SidebarMenuSubButton>
+                                        </SidebarMenuSubItem>
+                                    </SidebarMenuSubContent>
+                                </SidebarMenuSub>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton>Profile</SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+            </SidebarContent>
+        </Sidebar>
+        <SidebarInset>
+            <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
+                <SidebarTrigger class="h-7 w-7"><Icon Name="panel-left" Size="16" /></SidebarTrigger>
+                <span class="text-sm font-medium">Settings</span>
+            </header>
+            <div class="p-4">
+                <p class="text-sm text-muted-foreground">Click "Settings" to expand the sub-menu.</p>
+            </div>
+        </SidebarInset>
+    </SidebarProvider>
+</div>
+
+@code {
+    private bool _subExpanded;
+}

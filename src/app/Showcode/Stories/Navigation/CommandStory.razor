@@ -6,103 +6,27 @@
            States="@States" />
 
 @code {
-    private IReadOnlyList<StoryCard.State> States => [
+    private IReadOnlyList<StoryCard.State> States =>
+    [
         new(
             "basic",
             "Basic",
-            @<CommandContainer>
-                <CommandInput Placeholder="Type a command or search..." />
-                <CommandList>
-                    <CommandGroup Heading="Suggestions">
-                        <CommandItem Value="calendar">
-                            <Icon Name="calendar" class="mr-2" />
-                            Calendar
-                        </CommandItem>
-                        <CommandItem Value="search">
-                            <Icon Name="search" class="mr-2" />
-                            Search
-                        </CommandItem>
-                        <CommandItem Value="settings">
-                            <Icon Name="settings" class="mr-2" />
-                            Settings
-                        </CommandItem>
-                    </CommandGroup>
-                    <CommandSeparator />
-                    <CommandGroup Heading="Settings">
-                        <CommandItem Value="profile">Profile</CommandItem>
-                        <CommandItem Value="billing">Billing</CommandItem>
-                        <CommandItem Value="notifications">Notifications</CommandItem>
-                    </CommandGroup>
-                </CommandList>
-            </CommandContainer>,
+            @<CommandBasicExample />,
             [
-                new StoryCard.CodeTab("basic-razor", "CommandStory.razor", BasicRazor)
+                StorySourceRegistry.CodeTab(
+                    "basic-razor",
+                    "CommandBasicExample.razor",
+                    "Showcode/Examples/Navigation/Command/CommandBasicExample.razor")
             ]),
         new(
             "with-shortcuts",
             "With shortcuts",
-            @<CommandContainer>
-                <CommandInput Placeholder="Type a command or search..." />
-                <CommandList>
-                    <CommandGroup Heading="Actions">
-                        <CommandItem Value="new-file">
-                            <Icon Name="plus" class="mr-2" />
-                            New file
-                            <CommandShortcut>⌘N</CommandShortcut>
-                        </CommandItem>
-                        <CommandItem Value="copy">
-                            <Icon Name="copy" class="mr-2" />
-                            Copy
-                            <CommandShortcut>⌘C</CommandShortcut>
-                        </CommandItem>
-                        <CommandItem Value="paste">
-                            Paste
-                            <CommandShortcut>⌘V</CommandShortcut>
-                        </CommandItem>
-                    </CommandGroup>
-                </CommandList>
-            </CommandContainer>,
+            @<CommandWithShortcutsExample />,
             [
-                new StoryCard.CodeTab("shortcuts-razor", "CommandStory.razor", ShortcutsRazor)
+                StorySourceRegistry.CodeTab(
+                    "shortcuts-razor",
+                    "CommandWithShortcutsExample.razor",
+                    "Showcode/Examples/Navigation/Command/CommandWithShortcutsExample.razor")
             ])
     ];
-
-    private const string BasicRazor =
-        """
-        <CommandContainer>
-            <CommandInput Placeholder="Type a command or search..." />
-            <CommandList>
-                <CommandGroup Heading="Suggestions">
-                    <CommandItem Value="calendar">Calendar</CommandItem>
-                    <CommandItem Value="search">Search</CommandItem>
-                    <CommandItem Value="settings">Settings</CommandItem>
-                </CommandGroup>
-                <CommandSeparator />
-                <CommandGroup Heading="Settings">
-                    <CommandItem Value="profile">Profile</CommandItem>
-                    <CommandItem Value="billing">Billing</CommandItem>
-                    <CommandItem Value="notifications">Notifications</CommandItem>
-                </CommandGroup>
-            </CommandList>
-        </CommandContainer>
-        """;
-
-    private const string ShortcutsRazor =
-        """
-        <CommandContainer>
-            <CommandInput Placeholder="Type a command or search..." />
-            <CommandList>
-                <CommandGroup Heading="Actions">
-                    <CommandItem Value="new-file">
-                        New file
-                        <CommandShortcut>⌘N</CommandShortcut>
-                    </CommandItem>
-                    <CommandItem Value="copy">
-                        Copy
-                        <CommandShortcut>⌘C</CommandShortcut>
-                    </CommandItem>
-                </CommandGroup>
-            </CommandList>
-        </CommandContainer>
-        """;
 }

@@ -10,64 +10,22 @@
         new(
             "default",
             "Default",
-            @<div class="h-48 w-full max-w-md rounded-lg border border-dashed">
-                <Empty>
-                    <EmptyMedia Variant="icon">
-                        <Icon Name="circle-alert" Size="40" />
-                    </EmptyMedia>
-                    <EmptyTitle>No results found</EmptyTitle>
-                    <EmptyDescription>Try adjusting your search or filters.</EmptyDescription>
-                </Empty>
-            </div>,
+            @<EmptyDefaultExample />,
             [
-                new StoryCard.CodeTab("default-razor", "EmptyStory.razor", DefaultRazor)
+                StorySourceRegistry.CodeTab(
+                    "default-razor",
+                    "EmptyDefaultExample.razor",
+                    "Showcode/Examples/Layout/Empty/EmptyDefaultExample.razor")
             ]),
         new(
             "with-action",
             "With action",
-            @<div class="h-56 w-full max-w-md rounded-lg border border-dashed">
-                <Empty>
-                    <EmptyMedia Variant="icon">
-                        <Icon Name="file-plus" Size="40" />
-                    </EmptyMedia>
-                    <EmptyTitle>No documents yet</EmptyTitle>
-                    <EmptyDescription>Create your first document to get started.</EmptyDescription>
-                    <EmptyContent>
-                        <Button Size="sm">Create document</Button>
-                    </EmptyContent>
-                </Empty>
-            </div>,
+            @<EmptyWithActionExample />,
             [
-                new StoryCard.CodeTab("action-razor", "EmptyStory.razor", ActionRazor)
+                StorySourceRegistry.CodeTab(
+                    "action-razor",
+                    "EmptyWithActionExample.razor",
+                    "Showcode/Examples/Layout/Empty/EmptyWithActionExample.razor")
             ])
     ];
-
-    private const string DefaultRazor =
-        """
-        <div class="h-48 rounded-lg border border-dashed">
-            <Empty>
-                <EmptyMedia Variant="icon">
-                    <Icon Name="circle-alert" Size="40" />
-                </EmptyMedia>
-                <EmptyTitle>No results found</EmptyTitle>
-                <EmptyDescription>Try adjusting your search or filters.</EmptyDescription>
-            </Empty>
-        </div>
-        """;
-
-    private const string ActionRazor =
-        """
-        <div class="h-56 rounded-lg border border-dashed">
-            <Empty>
-                <EmptyMedia Variant="icon">
-                    <Icon Name="file-plus" Size="40" />
-                </EmptyMedia>
-                <EmptyTitle>No documents yet</EmptyTitle>
-                <EmptyDescription>Create your first document to get started.</EmptyDescription>
-                <EmptyContent>
-                    <Button Size="sm">Create document</Button>
-                </EmptyContent>
-            </Empty>
-        </div>
-        """;
 }

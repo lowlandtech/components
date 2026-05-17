@@ -10,122 +10,52 @@
         new(
             "image",
             "With image",
-            @<Avatar>
-                <AvatarImage src="https://github.com/shadcn.png" alt="shadcn" />
-                <AvatarFallback>CN</AvatarFallback>
-            </Avatar>,
+            @<AvatarImageExample />,
             [
-                new StoryCard.CodeTab("image-razor", "AvatarStory.razor", ImageRazor)
+                StorySourceRegistry.CodeTab(
+                    "image-razor",
+                    "AvatarImageExample.razor",
+                    "Showcode/Examples/Misc/Avatar/AvatarImageExample.razor")
             ]),
         new(
             "fallback",
             "Fallback only",
-            @<div class="flex items-center gap-3">
-                <Avatar><AvatarFallback>JD</AvatarFallback></Avatar>
-                <Avatar><AvatarFallback>AB</AvatarFallback></Avatar>
-                <Avatar><AvatarFallback>WM</AvatarFallback></Avatar>
-            </div>,
+            @<AvatarFallbackExample />,
             [
-                new StoryCard.CodeTab("fallback-razor", "AvatarStory.razor", FallbackRazor)
+                StorySourceRegistry.CodeTab(
+                    "fallback-razor",
+                    "AvatarFallbackExample.razor",
+                    "Showcode/Examples/Misc/Avatar/AvatarFallbackExample.razor")
             ]),
         new(
             "sizes",
             "Sizes",
-            @<div class="flex items-end gap-3">
-                <div class="flex flex-col items-center gap-1">
-                    <Avatar Size="sm"><AvatarFallback>SM</AvatarFallback></Avatar>
-                    <span class="text-xs text-muted-foreground">sm</span>
-                </div>
-                <div class="flex flex-col items-center gap-1">
-                    <Avatar Size="default"><AvatarFallback>DF</AvatarFallback></Avatar>
-                    <span class="text-xs text-muted-foreground">default</span>
-                </div>
-                <div class="flex flex-col items-center gap-1">
-                    <Avatar Size="lg"><AvatarFallback>LG</AvatarFallback></Avatar>
-                    <span class="text-xs text-muted-foreground">lg</span>
-                </div>
-                <div class="flex flex-col items-center gap-1">
-                    <Avatar Size="xl"><AvatarFallback>XL</AvatarFallback></Avatar>
-                    <span class="text-xs text-muted-foreground">xl</span>
-                </div>
-            </div>,
+            @<AvatarSizesExample />,
             [
-                new StoryCard.CodeTab("sizes-razor", "AvatarStory.razor", SizesRazor)
+                StorySourceRegistry.CodeTab(
+                    "sizes-razor",
+                    "AvatarSizesExample.razor",
+                    "Showcode/Examples/Misc/Avatar/AvatarSizesExample.razor")
             ]),
         new(
             "group",
             "Group",
-            @<AvatarGroup>
-                <Avatar><AvatarFallback>A1</AvatarFallback></Avatar>
-                <Avatar><AvatarFallback>A2</AvatarFallback></Avatar>
-                <Avatar><AvatarFallback>A3</AvatarFallback></Avatar>
-                <AvatarGroupCount Count="12" />
-            </AvatarGroup>,
+            @<AvatarGroupExample />,
             [
-                new StoryCard.CodeTab("group-razor", "AvatarStory.razor", GroupRazor)
+                StorySourceRegistry.CodeTab(
+                    "group-razor",
+                    "AvatarGroupExample.razor",
+                    "Showcode/Examples/Misc/Avatar/AvatarGroupExample.razor")
             ]),
         new(
             "badge",
             "Badge",
-            @<div class="flex items-center gap-4">
-                <Avatar>
-                    <AvatarImage src="https://github.com/shadcn.png" alt="shadcn" />
-                    <AvatarFallback>CN</AvatarFallback>
-                    <AvatarBadge class="bg-green-500" />
-                </Avatar>
-                <Avatar>
-                    <AvatarFallback>JD</AvatarFallback>
-                    <AvatarBadge class="bg-amber-500" />
-                </Avatar>
-                <Avatar>
-                    <AvatarFallback>AB</AvatarFallback>
-                    <AvatarBadge class="bg-red-500" />
-                </Avatar>
-            </div>,
+            @<AvatarBadgeExample />,
             [
-                new StoryCard.CodeTab("badge-razor", "AvatarStory.razor", BadgeRazor)
+                StorySourceRegistry.CodeTab(
+                    "badge-razor",
+                    "AvatarBadgeExample.razor",
+                    "Showcode/Examples/Misc/Avatar/AvatarBadgeExample.razor")
             ])
     ];
-
-    private const string ImageRazor =
-        """
-        <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" alt="shadcn" />
-            <AvatarFallback>CN</AvatarFallback>
-        </Avatar>
-        """;
-
-    private const string FallbackRazor =
-        """
-        <Avatar>
-            <AvatarFallback>JD</AvatarFallback>
-        </Avatar>
-        """;
-
-    private const string SizesRazor =
-        """
-        <Avatar Size="sm"><AvatarFallback>SM</AvatarFallback></Avatar>
-        <Avatar Size="default"><AvatarFallback>DF</AvatarFallback></Avatar>
-        <Avatar Size="lg"><AvatarFallback>LG</AvatarFallback></Avatar>
-        <Avatar Size="xl"><AvatarFallback>XL</AvatarFallback></Avatar>
-        """;
-
-    private const string GroupRazor =
-        """
-        <AvatarGroup>
-            <Avatar><AvatarFallback>A1</AvatarFallback></Avatar>
-            <Avatar><AvatarFallback>A2</AvatarFallback></Avatar>
-            <Avatar><AvatarFallback>A3</AvatarFallback></Avatar>
-            <AvatarGroupCount Count="12" />
-        </AvatarGroup>
-        """;
-
-    private const string BadgeRazor =
-        """
-        <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" alt="shadcn" />
-            <AvatarFallback>CN</AvatarFallback>
-            <AvatarBadge class="bg-green-500" />
-        </Avatar>
-        """;
 }

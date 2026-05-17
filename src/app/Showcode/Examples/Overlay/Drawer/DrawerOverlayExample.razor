@@ -1,0 +1,26 @@
+@namespace LowlandTech.Components.App.Showcode.Examples.Overlay
+
+<div class="h-96 w-full border border-border rounded-lg bg-sidebar flex items-center justify-center overflow-hidden relative">
+    <Drawer @bind-IsOpen="_open">
+        <DrawerTrigger>
+            <Button Variant="secondary">Open with Overlay</Button>
+        </DrawerTrigger>
+        <DrawerOverlay />
+        <DrawerContent>
+            <DrawerHeader>
+                <DrawerTitle>Drawer with Overlay</DrawerTitle>
+                <DrawerDescription>Click the overlay to dismiss.</DrawerDescription>
+            </DrawerHeader>
+            <div class="p-4">
+                <p class="text-sm text-muted-foreground">The overlay blocks interaction behind the drawer.</p>
+            </div>
+            <DrawerFooter>
+                <DrawerClose><Button Variant="outline">Close</Button></DrawerClose>
+            </DrawerFooter>
+        </DrawerContent>
+    </Drawer>
+</div>
+
+@code {
+    private bool _open;
+}

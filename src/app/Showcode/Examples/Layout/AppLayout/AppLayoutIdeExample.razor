@@ -1,0 +1,56 @@
+@namespace LowlandTech.Components.App.Showcode.Examples.Layout
+
+<div class="w-full">
+    <div class="min-h-[22rem] w-full overflow-hidden rounded-md border border-border">
+        <AppLayout Scenario="AppLayoutScenario.Ide"
+                   TopBar="@TopBar"
+                   Sidebar="@Sidebar"
+                   Main="@Main"
+                   Aside="@Aside"
+                   Footer="@Footer" />
+    </div>
+</div>
+
+@code {
+    private RenderFragment TopBar => @<div class="flex items-center gap-6 text-xs">
+        <span class="font-semibold">LowlandTech IDE</span>
+        <span class="text-muted-foreground">File</span>
+        <span class="text-muted-foreground">Edit</span>
+        <span class="text-muted-foreground">View</span>
+        <span class="text-muted-foreground">Run</span>
+    </div>;
+
+    private RenderFragment Sidebar => @<div class="space-y-0.5 p-2 text-xs">
+        <div class="px-2 py-1 font-semibold uppercase tracking-wider text-muted-foreground">Explorer</div>
+        <div class="flex items-center gap-1.5 rounded px-2 py-1 text-muted-foreground">▸ src</div>
+        <div class="flex items-center gap-1.5 rounded bg-sidebar-accent px-2 py-1 font-medium">  AppLayout.razor</div>
+        <div class="flex items-center gap-1.5 rounded px-2 py-1 text-muted-foreground">  AppLayoutScenario.cs</div>
+        <div class="flex items-center gap-1.5 rounded px-2 py-1 text-muted-foreground">▸ test</div>
+    </div>;
+
+    private RenderFragment Main => @<div class="min-h-[22rem] p-4">
+        <div class="space-y-0.5 font-mono text-xs leading-relaxed">
+            <div><span class="text-blue-400">public enum</span> <span class="text-green-400">AppLayoutScenario</span></div>
+            <div>{</div>
+            <div class="pl-6">Workspace,</div>
+            <div class="pl-6">Documentation,</div>
+            <div class="pl-6 bg-yellow-400/10 text-yellow-300">Chat,    <span class="text-muted-foreground">// ← new</span></div>
+            <div class="pl-6 bg-yellow-400/10 text-yellow-300">Ide,     <span class="text-muted-foreground">// ← new</span></div>
+            <div class="pl-6">Kiosk</div>
+            <div>}</div>
+        </div>
+    </div>;
+
+    private RenderFragment Aside => @<div class="space-y-1 p-2 font-mono text-xs">
+        <div class="font-semibold text-muted-foreground uppercase tracking-wider">Terminal</div>
+        <div class="text-green-400">$ dotnet build</div>
+        <div class="text-muted-foreground">Build succeeded.</div>
+        <div class="text-muted-foreground">0 Error(s)</div>
+        <div class="text-green-400">$▌</div>
+    </div>;
+
+    private RenderFragment Footer => @<div class="flex items-center justify-between text-xs">
+        <span class="text-muted-foreground">main ⎇  0 errors  0 warnings</span>
+        <span class="text-muted-foreground">AppLayoutScenario.cs · C# · UTF-8</span>
+    </div>;
+}

@@ -10,136 +10,32 @@
         new(
             "edit-profile",
             "Edit profile",
-            @<Dialog>
-                <DialogTrigger>
-                    <Button>Edit Profile</Button>
-                </DialogTrigger>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Edit Profile</DialogTitle>
-                        <DialogDescription>Make changes to your profile here. Click save when you are done.</DialogDescription>
-                    </DialogHeader>
-                    <div class="grid gap-4 py-4">
-                        <div class="space-y-1">
-                            <Label For="dlg-name">Name</Label>
-                            <Input id="dlg-name" Value="John Doe" />
-                        </div>
-                        <div class="space-y-1">
-                            <Label For="dlg-user">Username</Label>
-                            <Input id="dlg-user" Value="@("@johndoe")" />
-                        </div>
-                    </div>
-                    <DialogFooter>
-                        <Button Variant="ghost">Cancel</Button>
-                        <Button>Save changes</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>,
+            @<DialogEditProfileExample />,
             [
-                new StoryCard.CodeTab("edit-profile-razor", "DialogStory.razor", EditProfileRazor)
+                StorySourceRegistry.CodeTab(
+                    "edit-profile-razor",
+                    "DialogEditProfileExample.razor",
+                    "Showcode/Examples/Overlay/Dialog/DialogEditProfileExample.razor")
             ]),
         new(
             "confirm",
             "Confirm",
-            @<Dialog>
-                <DialogTrigger>
-                    <Button Variant="destructive">Delete account</Button>
-                </DialogTrigger>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Are you absolutely sure?</DialogTitle>
-                        <DialogDescription>This action cannot be undone. This will permanently delete your account and remove your data from our servers.</DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                        <Button Variant="ghost">Cancel</Button>
-                        <Button Variant="destructive">Delete</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>,
+            @<DialogConfirmExample />,
             [
-                new StoryCard.CodeTab("confirm-razor", "DialogStory.razor", ConfirmRazor)
+                StorySourceRegistry.CodeTab(
+                    "confirm-razor",
+                    "DialogConfirmExample.razor",
+                    "Showcode/Examples/Overlay/Dialog/DialogConfirmExample.razor")
             ]),
         new(
             "no-overlay-close",
             "No overlay close",
-            @<Dialog>
-                <DialogTrigger>
-                    <Button Variant="outline">Modal only</Button>
-                </DialogTrigger>
-                <DialogContent CloseOnOverlayClick="false">
-                    <DialogHeader>
-                        <DialogTitle>Close via X only</DialogTitle>
-                        <DialogDescription>This dialog can only be closed by clicking the X button or the action buttons.</DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                        <Button>Got it</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>,
+            @<DialogNoOverlayCloseExample />,
             [
-                new StoryCard.CodeTab("no-overlay-close-razor", "DialogStory.razor", NoOverlayCloseRazor)
+                StorySourceRegistry.CodeTab(
+                    "no-overlay-close-razor",
+                    "DialogNoOverlayCloseExample.razor",
+                    "Showcode/Examples/Overlay/Dialog/DialogNoOverlayCloseExample.razor")
             ])
     ];
-
-    private const string EditProfileRazor =
-        """
-        <Dialog>
-            <DialogTrigger>
-                <Button>Edit Profile</Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Edit Profile</DialogTitle>
-                    <DialogDescription>Make changes to your profile here.</DialogDescription>
-                </DialogHeader>
-                <div class="grid gap-4 py-4">
-                    <div class="space-y-1">
-                        <Label For="dlg-name">Name</Label>
-                        <Input id="dlg-name" Value="John Doe" />
-                    </div>
-                </div>
-                <DialogFooter>
-                    <Button Variant="ghost">Cancel</Button>
-                    <Button>Save changes</Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-        """;
-
-    private const string ConfirmRazor =
-        """
-        <Dialog>
-            <DialogTrigger>
-                <Button Variant="destructive">Delete account</Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Are you absolutely sure?</DialogTitle>
-                    <DialogDescription>This action cannot be undone.</DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                    <Button Variant="ghost">Cancel</Button>
-                    <Button Variant="destructive">Delete</Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-        """;
-
-    private const string NoOverlayCloseRazor =
-        """
-        <Dialog>
-            <DialogTrigger>
-                <Button Variant="outline">Modal only</Button>
-            </DialogTrigger>
-            <DialogContent CloseOnOverlayClick="false">
-                <DialogHeader>
-                    <DialogTitle>Close via X only</DialogTitle>
-                    <DialogDescription>Can only be closed by the X button.</DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                    <Button>Got it</Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-        """;
 }
