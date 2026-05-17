@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.App.Showcode.Examples.Navigation
+
+<div class="w-full max-w-sm rounded-lg border border-border p-4">
+    <TreeView TItem="TreeViewFileItem"
+              Items="TreeViewSampleData.RootItems"
+              GetChildren="f => f.Children"
+              GetKey="f => f.Id"
+              HasChildren="f => f.Children.Count > 0"
+              GetText="f => f.Name"
+              ExpandedKeys="TreeViewSampleData.ExpandedKeys"
+              class="space-y-1" />
+</div>

@@ -6,243 +6,80 @@
            States="@States" />
 
 @code {
-    private sealed record FileItem(string Id, string Name, IReadOnlyList<FileItem> Children);
-
-    private static string GetIcon(FileItem item) => item.Children.Count > 0 ? "folder" : "file";
-
-    private static readonly IReadOnlyList<FileItem> RootItems =
-    [
-        new("src", "src",
-        [
-            new("components", "components",
-            [
-                new("Button.razor", "Button.razor", []),
-                new("Card.razor", "Card.razor", []),
-                new("Dialog.razor", "Dialog.razor", [])
-            ]),
-            new("app", "app",
-            [
-                new("Program.cs", "Program.cs", [])
-            ])
-        ]),
-        new("docs", "docs",
-        [
-            new("readme.md", "readme.md", [])
-        ]),
-        new("package.json", "package.json", [])
-    ];
-
-    private static readonly IReadOnlyList<string> _expandedKeysStory = new[] { "src" };
-    private IReadOnlyList<string> _selectedKeys = [];
-    private IReadOnlyList<string> _checkedKeys = [];
+    private const string FileItemSource = "Showcode/Examples/Navigation/TreeView/TreeViewFileItem.cs";
+    private const string SampleDataSource = "Showcode/Examples/Navigation/TreeView/TreeViewSampleData.cs";
 
     private IReadOnlyList<StoryCard.State> States =>
     [
         new(
             "default",
             "Default (Custom Template)",
-            @<div class="w-full max-w-sm rounded-lg border border-border p-4">
-                <TreeView TItem="FileItem"
-                          Items="RootItems"
-                          GetChildren="f => f.Children"
-                          GetKey="f => f.Id"
-                          HasChildren="f => f.Children.Count > 0"
-                          class="space-y-1">
-                    <ItemTemplate Context="ctx">
-                        <div class="flex items-center gap-2 rounded px-2 py-1 hover:bg-muted"
-                             style="padding-left: @(ctx.Depth * 16 + 8)px">
-                            @if (ctx.HasChildren)
-                            {
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                     class="transition-transform @(ctx.IsExpanded ? "rotate-90" : "")">
-                                    <path d="m9 18 6-6-6-6"/>
-                                </svg>
-                            }
-                            else
-                            {
-                                <span class="w-3.5"></span>
-                            }
-                            <Icon Name="@GetIcon(ctx.Item)" Size="14" />
-                            <span class="text-sm">@ctx.Item.Name</span>
-                        </div>
-                    </ItemTemplate>
-                </TreeView>
-            </div>,
+            @<TreeViewCustomTemplateExample />,
             [
-                new StoryCard.CodeTab("default-razor", "TreeViewStory.razor", DefaultRazor),
-                new StoryCard.CodeTab("default-cs", "FileItem.cs", FileItemCode, "csharp")
+                StorySourceRegistry.CodeTab(
+                    "default-razor",
+                    "TreeViewCustomTemplateExample.razor",
+                    "Showcode/Examples/Navigation/TreeView/TreeViewCustomTemplateExample.razor"),
+                SharedModelTab("default-file-item"),
+                SharedDataTab("default-data")
             ]),
 
         new(
             "default-template",
             "Default Template",
-            @<div class="w-full max-w-sm rounded-lg border border-border p-4">
-                <TreeView TItem="FileItem"
-                          Items="RootItems"
-                          GetChildren="f => f.Children"
-                          GetKey="f => f.Id"
-                          HasChildren="f => f.Children.Count > 0"
-                          GetText="f => f.Name"
-                          ExpandedKeys="_expandedKeysStory"
-                          class="space-y-1" />
-            </div>,
+            @<TreeViewDefaultTemplateExample />,
             [
-                new StoryCard.CodeTab("template-razor", "TreeViewStory.razor", TemplateRazor),
-                new StoryCard.CodeTab("template-cs", "FileItem.cs", FileItemCode, "csharp")
+                StorySourceRegistry.CodeTab(
+                    "template-razor",
+                    "TreeViewDefaultTemplateExample.razor",
+                    "Showcode/Examples/Navigation/TreeView/TreeViewDefaultTemplateExample.razor"),
+                SharedModelTab("template-file-item"),
+                SharedDataTab("template-data")
             ]),
 
         new(
             "selection",
             "Single Selection",
-            @<div class="w-full max-w-sm rounded-lg border border-border p-4">
-                <TreeView TItem="FileItem"
-                          Items="RootItems"
-                          GetChildren="f => f.Children"
-                          GetKey="f => f.Id"
-                          HasChildren="f => f.Children.Count > 0"
-                          GetText="f => f.Name"
-                          SelectionMode="TreeViewSelectionMode.Single"
-                          SelectedKeys="_selectedKeys"
-                          SelectedKeysChanged="keys => _selectedKeys = keys.ToList()"
-                          ExpandedKeys="_expandedKeysStory"
-                          class="space-y-1" />
-            </div>,
+            @<TreeViewSelectionExample />,
             [
-                new StoryCard.CodeTab("selection-razor", "TreeViewStory.razor", SelectionRazor),
-                new StoryCard.CodeTab("selection-cs", "FileItem.cs", FileItemCode, "csharp")
+                StorySourceRegistry.CodeTab(
+                    "selection-razor",
+                    "TreeViewSelectionExample.razor",
+                    "Showcode/Examples/Navigation/TreeView/TreeViewSelectionExample.razor"),
+                SharedModelTab("selection-file-item"),
+                SharedDataTab("selection-data")
             ]),
 
         new(
             "checkbox",
             "Checkboxes",
-            @<div class="w-full max-w-sm rounded-lg border border-border p-4">
-                <TreeView TItem="FileItem"
-                          Items="RootItems"
-                          GetChildren="f => f.Children"
-                          GetKey="f => f.Id"
-                          HasChildren="f => f.Children.Count > 0"
-                          GetText="f => f.Name"
-                          CheckMode="TreeViewCheckMode.Checkbox"
-                          CheckedKeys="_checkedKeys"
-                          CheckedKeysChanged="keys => _checkedKeys = keys.ToList()"
-                          ExpandedKeys="_expandedKeysStory"
-                          class="space-y-1" />
-            </div>,
+            @<TreeViewCheckboxExample />,
             [
-                new StoryCard.CodeTab("checkbox-razor", "TreeViewStory.razor", CheckboxRazor),
-                new StoryCard.CodeTab("checkbox-cs", "FileItem.cs", FileItemCode, "csharp")
+                StorySourceRegistry.CodeTab(
+                    "checkbox-razor",
+                    "TreeViewCheckboxExample.razor",
+                    "Showcode/Examples/Navigation/TreeView/TreeViewCheckboxExample.razor"),
+                SharedModelTab("checkbox-file-item"),
+                SharedDataTab("checkbox-data")
             ]),
 
         new(
             "tristate",
             "Tri-State Checkboxes",
-            @<div class="w-full max-w-sm rounded-lg border border-border p-4">
-                <TreeView TItem="FileItem"
-                          Items="RootItems"
-                          GetChildren="f => f.Children"
-                          GetKey="f => f.Id"
-                          HasChildren="f => f.Children.Count > 0"
-                          GetText="f => f.Name"
-                          CheckMode="TreeViewCheckMode.TriState"
-                          CheckedKeys="_checkedKeys"
-                          CheckedKeysChanged="keys => _checkedKeys = keys.ToList()"
-                          ExpandedKeys="_expandedKeysStory"
-                          class="space-y-1" />
-            </div>,
+            @<TreeViewTriStateExample />,
             [
-                new StoryCard.CodeTab("tristate-razor", "TreeViewStory.razor", TriStateRazor),
-                new StoryCard.CodeTab("tristate-cs", "FileItem.cs", FileItemCode, "csharp")
+                StorySourceRegistry.CodeTab(
+                    "tristate-razor",
+                    "TreeViewTriStateExample.razor",
+                    "Showcode/Examples/Navigation/TreeView/TreeViewTriStateExample.razor"),
+                SharedModelTab("tristate-file-item"),
+                SharedDataTab("tristate-data")
             ])
     ];
 
-    private const string FileItemCode =
-        """
-        private sealed record FileItem(string Id, string Name, IReadOnlyList<FileItem> Children);
-        """;
+    private static StoryCard.CodeTab SharedModelTab(string value) =>
+        StorySourceRegistry.CodeTab(value, "TreeViewFileItem.cs", FileItemSource, "csharp");
 
-    private const string DefaultRazor =
-        """
-        <TreeView TItem="FileItem"
-                  Items="RootItems"
-                  GetChildren="f => f.Children"
-                  GetKey="f => f.Id"
-                  HasChildren="f => f.Children.Count > 0"
-                  class="space-y-1">
-            <ItemTemplate Context="ctx">
-                <div class="flex items-center gap-2"
-                     style="padding-left: @(ctx.Depth * 16 + 8)px">
-                    @if (ctx.HasChildren)
-                    {
-                        <svg class="transition-transform @(ctx.IsExpanded ? "rotate-90" : "")"
-                             width="14" height="14" viewBox="0 0 24 24">
-                            <path d="m9 18 6-6-6-6"/>
-                        </svg>
-                    }
-                    else
-                    {
-                        <span class="w-3.5"></span>
-                    }
-                    <Icon Name="@GetIcon(ctx.Item)" Size="14" />
-                    <span class="text-sm">@ctx.Item.Name</span>
-                </div>
-            </ItemTemplate>
-        </TreeView>
-        """;
-
-    private const string TemplateRazor =
-        """
-        <TreeView TItem="FileItem"
-                  Items="RootItems"
-                  GetChildren="f => f.Children"
-                  GetKey="f => f.Id"
-                  HasChildren="f => f.Children.Count > 0"
-                  GetText="f => f.Name"
-                  ExpandedKeys="_expandedKeysStory"
-                  class="space-y-1" />
-        """;
-
-    private const string SelectionRazor =
-        """
-        <TreeView TItem="FileItem"
-                  Items="RootItems"
-                  GetChildren="f => f.Children"
-                  GetKey="f => f.Id"
-                  HasChildren="f => f.Children.Count > 0"
-                  GetText="f => f.Name"
-                  SelectionMode="TreeViewSelectionMode.Single"
-                  SelectedKeys="_selectedKeys"
-                  SelectedKeysChanged="keys => _selectedKeys = keys.ToList()"
-                  ExpandedKeys="_expandedKeysStory"
-                  class="space-y-1" />
-        """;
-
-    private const string CheckboxRazor =
-        """
-        <TreeView TItem="FileItem"
-                  Items="RootItems"
-                  GetChildren="f => f.Children"
-                  GetKey="f => f.Id"
-                  HasChildren="f => f.Children.Count > 0"
-                  GetText="f => f.Name"
-                  CheckMode="TreeViewCheckMode.Checkbox"
-                  CheckedKeys="_checkedKeys"
-                  CheckedKeysChanged="keys => _checkedKeys = keys.ToList()"
-                  ExpandedKeys="_expandedKeysStory"
-                  class="space-y-1" />
-        """;
-
-    private const string TriStateRazor =
-        """
-        <TreeView TItem="FileItem"
-                  Items="RootItems"
-                  GetChildren="f => f.Children"
-                  GetKey="f => f.Id"
-                  HasChildren="f => f.Children.Count > 0"
-                  GetText="f => f.Name"
-                  CheckMode="TreeViewCheckMode.TriState"
-                  CheckedKeys="_checkedKeys"
-                  CheckedKeysChanged="keys => _checkedKeys = keys.ToList()"
-                  ExpandedKeys="_expandedKeysStory"
-                  class="space-y-1" />
-        """;
+    private static StoryCard.CodeTab SharedDataTab(string value) =>
+        StorySourceRegistry.CodeTab(value, "TreeViewSampleData.cs", SampleDataSource, "csharp");
 }

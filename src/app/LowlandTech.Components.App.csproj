@@ -27,4 +27,10 @@
     <ProjectReference Include="..\lib\LowlandTech.Components.csproj" />
   </ItemGroup>
 
+  <Target Name="GenerateShowcodeSources"
+          BeforeTargets="BeforeCompile"
+          Condition="'$(OS)' == 'Windows_NT' And Exists('$(MSBuildProjectDirectory)\..\..\..\scripts\update-showcode-sources.ps1')">
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\..\..\..\scripts\update-showcode-sources.ps1&quot; -ProjectPath &quot;$(MSBuildProjectDirectory)&quot;" />
+  </Target>
+
 </Project>
