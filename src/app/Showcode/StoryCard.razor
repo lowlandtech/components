@@ -130,12 +130,17 @@
         string Code,
         string Language = "razor");
 
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<HighlightCacheKey, IReadOnlyList<CodeLine>> HighlightedLineCache = new();
+
     private static IReadOnlyList<CodeLine> GetHighlightedLines(CodeTab codeTab)
     {
         var normalized = codeTab.Code.Replace("\r\n", "\n").TrimEnd('\n');
-        return normalized.Split('\n')
-            .Select((line, index) => new CodeLine(index + 1, HighlightLine(line, codeTab.Language)))
-            .ToList();
+        var cacheKey = new HighlightCacheKey(normalized, codeTab.Language);
+
+        return HighlightedLineCache.GetOrAdd(cacheKey, key =>
+            key.Code.Split('\n')
+                .Select((line, index) => new CodeLine(index + 1, HighlightLine(line, key.Language)))
+                .ToList());
     }
 
     private static string HighlightLine(string line, string language)
@@ -160,107 +165,7 @@
         encoded = HighlightStrings(encoded);
         encoded = HighlightRazorExpressions(encoded);
 
-        foreach (var tag in new[]
-        {
-            // Accordion
-            "AccordionContent", "AccordionHeader", "AccordionItem", "AccordionTrigger", "Accordion",
-            // AlertDialog (longer prefix first), then Alert
-            "AlertDialogAction", "AlertDialogCancel", "AlertDialogContent", "AlertDialogDescription",
-            "AlertDialogFooter", "AlertDialogHeader", "AlertDialogTitle", "AlertDialogTrigger", "AlertDialog",
-            "AlertDescription", "AlertTitle", "Alert",
-            // AspectRatio
-            "AspectRatio",
-            // Avatar — GroupCount before Group before Avatar
-            "AvatarBadge", "AvatarFallback", "AvatarGroupCount", "AvatarGroup", "AvatarImage", "Avatar",
-            // Badge
-            "Badge",
-            // Breadcrumb
-            "BreadcrumbEllipsis", "BreadcrumbItem", "BreadcrumbLink", "BreadcrumbList",
-            "BreadcrumbPage", "BreadcrumbSeparator", "Breadcrumb",
-            // ButtonGroup before Button
-            "ButtonGroupSeparator", "ButtonGroupText", "ButtonGroup", "Button",
-            // Card
-            "CardAction", "CardContent", "CardDescription", "CardFooter", "CardHeader", "CardTitle", "Card",
-            // Checkbox / Collapsible
-            "Checkbox", "CollapsibleContent", "CollapsibleTrigger", "Collapsible",
-            // ColorPicker
-            "ColorPicker",
-            // Command
-            "CommandContainer", "CommandDialog", "CommandEmpty", "CommandGroup",
-            "CommandInput", "CommandItem", "CommandList", "CommandSearch",
-            "CommandSeparator", "CommandShortcut",
-            // ContextMenu — Sub* before Sub before Menu
-            "ContextMenuCheckboxItem", "ContextMenuContent", "ContextMenuItem", "ContextMenuLabel",
-            "ContextMenuRadioGroup", "ContextMenuRadioItem", "ContextMenuSeparator", "ContextMenuShortcut",
-            "ContextMenuSubContent", "ContextMenuSubTrigger", "ContextMenuSub", "ContextMenuTrigger", "ContextMenu",
-            // Calendar
-            "CalendarPresets", "CalendarMonthGrid", "CalendarYearGrid",
-            "CalendarGrid", "CalendarNavigation", "CalendarDay", "Calendar",
-            // DataForm / DataGrid
-            "DataForm", "DataGridColumn", "DataGrid",
-            // Dialog
-            "DialogContent", "DialogDescription", "DialogFooter", "DialogHeader", "DialogTitle", "DialogTrigger", "Dialog",
-            // Drawer
-            "DrawerClose", "DrawerContent", "DrawerDescription", "DrawerFooter", "DrawerHeader",
-            "DrawerOverlay", "DrawerTitle", "DrawerTrigger", "Drawer",
-            // DropdownMenu
-            "DropdownMenuCheckboxItem", "DropdownMenuContent", "DropdownMenuGroup", "DropdownMenuItem",
-            "DropdownMenuLabel", "DropdownMenuRadioGroup", "DropdownMenuRadioItem", "DropdownMenuSeparator",
-            "DropdownMenuShortcut", "DropdownMenuTrigger", "DropdownMenu",
-            // Empty — EmptyTemplate must precede Empty
-            "EmptyContent", "EmptyDescription", "EmptyMedia", "EmptyTemplate", "EmptyTitle", "Empty",
-            // Grid
-            "AppLayout", "GridItem", "Grid",
-            // Kbd
-            "Kbd",
-            // LoadingTemplate (before Template below)
-            "LoadingTemplate",
-            // NavigationMenu — deepest first
-            "NavigationMenuContent", "NavigationMenuIndicator", "NavigationMenuItem",
-            "NavigationMenuLink", "NavigationMenuList", "NavigationMenuTrigger",
-            "NavigationMenuViewport", "NavigationMenu",
-            // Pagination
-            "PaginationContent", "PaginationEllipsis", "PaginationItem", "PaginationLink",
-            "PaginationNext", "PaginationPrevious", "Pagination",
-            // Popover
-            "PopoverContent", "PopoverProvider", "PopoverReference", "PopoverTrigger", "Popover",
-            // Progress
-            "Progress",
-            // RadioGroup — ItemDescription/Title before Item before Group
-            "RadioGroupItemDescription", "RadioGroupItemTitle", "RadioGroupItem", "RadioGroup",
-            // Resizable
-            "ResizableHandle", "ResizablePanel", "Resizable",
-            // ScrollArea
-            "ScrollArea",
-            // Select
-            "SelectContent", "SelectGroup", "SelectItem", "SelectLabel",
-            "SelectSeparator", "SelectTrigger", "SelectValue", "Select",
-            // Separator / Skeleton / Slider
-            "Separator", "Skeleton", "SliderRange", "SliderThumb", "SliderTrack", "Slider",
-            // Sidebar — deepest sub-tree first
-            "SidebarGroupContent", "SidebarGroupLabel", "SidebarGroup",
-            "SidebarMenuBadge", "SidebarMenuButton", "SidebarMenuItem",
-            "SidebarMenuSubButton", "SidebarMenuSubContent", "SidebarMenuSubItem", "SidebarMenuSubTrigger",
-            "SidebarMenuSub", "SidebarMenu",
-            "SidebarContent", "SidebarFooter", "SidebarHeader", "SidebarInput", "SidebarInset",
-            "SidebarProvider", "SidebarTrigger", "Sidebar",
-            // Sonner / Spinner / Switch
-            "Sonner", "Spinner", "Switch",
-            // Tabs
-            "TabsContent", "TabsList", "TabsTrigger", "Tabs",
-            // TreeView
-            "TreeNode", "TreeView",
-            // Template (after EmptyTemplate / LoadingTemplate)
-            "Template", "Textarea", "Toggle",
-            // ThemeProvider / ThemeToggle
-            "ThemeProvider", "ThemeToggle",
-            // Tooltip
-            "TooltipContent", "TooltipProvider", "TooltipTrigger", "Tooltip",
-            // Standalone
-            "Columns", "Icon", "Input", "Label",
-            // HTML elements
-            "span", "div", "header", "h1", "h2", "h3", "p", "ul", "li", "ol",
-        })
+        foreach (var tag in MarkupTags)
         {
             encoded = encoded.Replace($"&lt;{tag}", $"&lt;<span class=\"story-card-token-tag\">{tag}</span>", StringComparison.Ordinal);
             encoded = encoded.Replace($"&lt;/{tag}", $"&lt;/<span class=\"story-card-token-tag\">{tag}</span>", StringComparison.Ordinal);
@@ -324,6 +229,69 @@
 
         return string.Join(string.Empty, result);
     }
+
+    private static readonly string[] MarkupTags = new[]
+    {
+        "AccordionContent", "AccordionHeader", "AccordionItem", "AccordionTrigger", "Accordion",
+        "AlertDialogAction", "AlertDialogCancel", "AlertDialogContent", "AlertDialogDescription",
+        "AlertDialogFooter", "AlertDialogHeader", "AlertDialogTitle", "AlertDialogTrigger", "AlertDialog",
+        "AlertDescription", "AlertTitle", "Alert",
+        "AspectRatio",
+        "AvatarBadge", "AvatarFallback", "AvatarGroupCount", "AvatarGroup", "AvatarImage", "Avatar",
+        "Badge",
+        "BreadcrumbEllipsis", "BreadcrumbItem", "BreadcrumbLink", "BreadcrumbList",
+        "BreadcrumbPage", "BreadcrumbSeparator", "Breadcrumb",
+        "ButtonGroupSeparator", "ButtonGroupText", "ButtonGroup", "Button",
+        "CardAction", "CardContent", "CardDescription", "CardFooter", "CardHeader", "CardTitle", "Card",
+        "Checkbox", "CollapsibleContent", "CollapsibleTrigger", "Collapsible",
+        "ColorPicker",
+        "CommandContainer", "CommandDialog", "CommandEmpty", "CommandGroup",
+        "CommandInput", "CommandItem", "CommandList", "CommandSearch",
+        "CommandSeparator", "CommandShortcut",
+        "ContextMenuCheckboxItem", "ContextMenuContent", "ContextMenuItem", "ContextMenuLabel",
+        "ContextMenuRadioGroup", "ContextMenuRadioItem", "ContextMenuSeparator", "ContextMenuShortcut",
+        "ContextMenuSubContent", "ContextMenuSubTrigger", "ContextMenuSub", "ContextMenuTrigger", "ContextMenu",
+        "CalendarPresets", "CalendarMonthGrid", "CalendarYearGrid",
+        "CalendarGrid", "CalendarNavigation", "CalendarDay", "Calendar",
+        "DataForm", "DataGridColumn", "DataGrid",
+        "DialogContent", "DialogDescription", "DialogFooter", "DialogHeader", "DialogTitle", "DialogTrigger", "Dialog",
+        "DrawerClose", "DrawerContent", "DrawerDescription", "DrawerFooter", "DrawerHeader",
+        "DrawerOverlay", "DrawerTitle", "DrawerTrigger", "Drawer",
+        "DropdownMenuCheckboxItem", "DropdownMenuContent", "DropdownMenuGroup", "DropdownMenuItem",
+        "DropdownMenuLabel", "DropdownMenuRadioGroup", "DropdownMenuRadioItem", "DropdownMenuSeparator",
+        "DropdownMenuShortcut", "DropdownMenuTrigger", "DropdownMenu",
+        "EmptyContent", "EmptyDescription", "EmptyMedia", "EmptyTemplate", "EmptyTitle", "Empty",
+        "AppLayout", "GridItem", "Grid",
+        "Kbd",
+        "LoadingTemplate",
+        "NavigationMenuContent", "NavigationMenuIndicator", "NavigationMenuItem",
+        "NavigationMenuLink", "NavigationMenuList", "NavigationMenuTrigger",
+        "NavigationMenuViewport", "NavigationMenu",
+        "PaginationContent", "PaginationEllipsis", "PaginationItem", "PaginationLink",
+        "PaginationNext", "PaginationPrevious", "Pagination",
+        "PopoverContent", "PopoverProvider", "PopoverReference", "PopoverTrigger", "Popover",
+        "Progress",
+        "RadioGroupItemDescription", "RadioGroupItemTitle", "RadioGroupItem", "RadioGroup",
+        "ResizableHandle", "ResizablePanel", "Resizable",
+        "ScrollArea",
+        "SelectContent", "SelectGroup", "SelectItem", "SelectLabel",
+        "SelectSeparator", "SelectTrigger", "SelectValue", "Select",
+        "Separator", "Skeleton", "SliderRange", "SliderThumb", "SliderTrack", "Slider",
+        "SidebarGroupContent", "SidebarGroupLabel", "SidebarGroup",
+        "SidebarMenuBadge", "SidebarMenuButton", "SidebarMenuItem",
+        "SidebarMenuSubButton", "SidebarMenuSubContent", "SidebarMenuSubItem", "SidebarMenuSubTrigger",
+        "SidebarMenuSub", "SidebarMenu",
+        "SidebarContent", "SidebarFooter", "SidebarHeader", "SidebarInput", "SidebarInset",
+        "SidebarProvider", "SidebarTrigger", "Sidebar",
+        "Sonner", "Spinner", "Switch",
+        "TabsContent", "TabsList", "TabsTrigger", "Tabs",
+        "TreeNode", "TreeView",
+        "Template", "Textarea", "Toggle",
+        "ThemeProvider", "ThemeToggle",
+        "TooltipContent", "TooltipProvider", "TooltipTrigger", "Tooltip",
+        "Columns", "Icon", "Input", "Label",
+        "span", "div", "header", "h1", "h2", "h3", "p", "ul", "li", "ol",
+    };
 
     private static readonly string[] CSharpKeywords = new[]
     {
@@ -456,5 +424,6 @@
             .Replace("\"", "&quot;", StringComparison.Ordinal);
     }
 
+    private sealed record HighlightCacheKey(string Code, string Language);
     private sealed record CodeLine(int Number, string Html);
 }
