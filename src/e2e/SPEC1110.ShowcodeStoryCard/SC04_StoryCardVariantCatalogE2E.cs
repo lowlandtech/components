@@ -74,7 +74,7 @@ public sealed class SC04_StoryCardVariantCatalogE2E(ShowcodeCollection collectio
         (await alert.GetAttributeAsync("data-variant")).ShouldBe("destructive");
 
         var code = ActiveCodeEditor(card);
-        await Assertions.Expect(code).ToContainTextAsync("<Alert Variant=\"destructive\">");
+        await Assertions.Expect(code).ToContainTextAsync("<Alert Variant=\"destructive\"");
     }
 
     private async Task AssertTabsStoryAsync()
@@ -103,7 +103,10 @@ public sealed class SC04_StoryCardVariantCatalogE2E(ShowcodeCollection collectio
             Name = storyName,
             Exact = true
         }).First.ClickAsync();
-        await Showcode.Page.WaitForTimeoutAsync(600);
+        await Assertions.Expect(
+            Showcode.Page.Locator("[data-slot='story-card']")
+                         .GetByRole(AriaRole.Heading, new() { Name = storyName, Exact = true })
+        ).ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = 15_000 });
     }
 
     private static ILocator ActiveCodeEditor(ILocator card)

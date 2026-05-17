@@ -9,7 +9,7 @@ public static class StoryRegistry
     public static IEnumerable<StoryMetadata> GetAll() => _stories.Values;
 
     public static StoryMetadata? GetBySlug(string slug) =>
-        _stories.TryGetValue(slug, out var meta) ? meta : null;
+        _stories.GetValueOrDefault(slug);
 
     public static StoryMetadata? GetFirst() => _stories.Values.FirstOrDefault();
 

@@ -26,12 +26,21 @@ public abstract class ShowcodeScenario : IAsyncLifetime
         });
 
         var page = await Context.NewPageAsync();
-        Showcode = new ShowcodePage(page, _collection.Process.BaseUrl);
 
-        // Load the app for the first time.
-        await page.GotoAsync(_collection.Process.BaseUrl);
+        // Navigate directly to the Showcode page — the root URL renders the
+        // home page which has no sidebar, causing WaitForSelector to timeout.
+        var showcodeUrl = _collection.Process.BaseUrl + "/components";
+        Showcode = new ShowcodePage(page, showcodeUrl);
+
+        // Load the Showcode page and wait for Blazor WASM to hydrate.
+        // NetworkIdle gives the WASM bundle time to download and boot before
+        // we check for DOM elements — without it the selector times out on
+        // cold starts (NCrunch, first run, slow machines).
+        await page.GotoAsync(showcodeUrl);
+        await page.WaitForLoadStateAsync(LoadState.NetworkIdle,
+            new PageWaitForLoadStateOptions { Timeout = 120_000 });
         await page.WaitForSelectorAsync("[data-slot='sidebar-menu-button']",
-            new PageWaitForSelectorOptions { Timeout = 30_000 });
+            new PageWaitForSelectorOptions { Timeout = 60_000 });
     }
 
     public async ValueTask DisposeAsync()

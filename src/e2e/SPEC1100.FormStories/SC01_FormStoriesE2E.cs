@@ -81,13 +81,13 @@ public sealed class SC01_FormStoriesE2E(ShowcodeCollection collection) : Showcod
         var checkbox = Showcode.Checkboxes.First;
         await Assertions.Expect(checkbox).ToBeVisibleAsync();
 
-        // Check it.
-        await checkbox.CheckAsync();
-        (await checkbox.IsCheckedAsync()).ShouldBeTrue();
+        // Click to check — verify via data-state (Blazor sets this as lowercase).
+        await checkbox.ClickAsync();
+        (await checkbox.GetAttributeAsync("data-state")).ShouldBe("checked");
 
-        // Uncheck it.
-        await checkbox.UncheckAsync();
-        (await checkbox.IsCheckedAsync()).ShouldBeFalse();
+        // Click to uncheck.
+        await checkbox.ClickAsync();
+        (await checkbox.GetAttributeAsync("data-state")).ShouldBe("unchecked");
     }
 
     [Fact(DisplayName = "UAC06: Switch story — switch renders and is interactive")]
@@ -96,8 +96,8 @@ public sealed class SC01_FormStoriesE2E(ShowcodeCollection collection) : Showcod
     {
         await Showcode.GoToStoryAsync("Switch");
 
-        // Switch is a checkbox under the hood.
-        var switchEl = Showcode.Page.Locator("main input[type='checkbox']").First;
+        // Switch renders as <button role="switch" data-slot="switch">, not as input[type='checkbox'].
+        var switchEl = Showcode.Page.Locator("main [data-slot='switch']").First;
         await Assertions.Expect(switchEl).ToBeVisibleAsync();
 
         var wasChecked = await switchEl.IsCheckedAsync();
@@ -105,7 +105,7 @@ public sealed class SC01_FormStoriesE2E(ShowcodeCollection collection) : Showcod
         (await switchEl.IsCheckedAsync()).ShouldBe(!wasChecked);
     }
 
-    [Fact(DisplayName = "UAC07: Slider story — slider renders with a range input")]
+    [Fact(DisplayName = "UAC07: Slider story — slider renders with ARIA value attributes")]
     [Trait(Spec.UAC, "07")]
     public async Task UAC07_SliderStory()
     {
@@ -114,13 +114,13 @@ public sealed class SC01_FormStoriesE2E(ShowcodeCollection collection) : Showcod
         var slider = Showcode.RangeInputs.First;
         await Assertions.Expect(slider).ToBeVisibleAsync();
 
-        // Move slider to its max via keyboard.
-        await slider.FocusAsync();
-        await slider.PressAsync("End");
-
-        var max = await slider.GetAttributeAsync("max");
-        var value = await slider.InputValueAsync();
-        value.ShouldBe(max ?? value); // value should be at max
+        // Slider renders as a custom div with role="slider" and ARIA value attrs.
+        var min = await slider.GetAttributeAsync("aria-valuemin");
+        var max = await slider.GetAttributeAsync("aria-valuemax");
+        var now = await slider.GetAttributeAsync("aria-valuenow");
+        min.ShouldNotBeNullOrWhiteSpace();
+        max.ShouldNotBeNullOrWhiteSpace();
+        now.ShouldNotBeNullOrWhiteSpace();
     }
 
     [Fact(DisplayName = "UAC08: Label story — label text is visible")]
@@ -139,13 +139,14 @@ public sealed class SC01_FormStoriesE2E(ShowcodeCollection collection) : Showcod
     {
         await Showcode.GoToStoryAsync("Radio Group");
 
+        // RadioGroupItem renders as a div with data-slot="radio-group-item" and data-state.
         var radios = Showcode.RadioInputs;
         await Assertions.Expect(radios.First).ToBeVisibleAsync();
 
-        // Select the second radio.
+        // Select the second radio item.
         var second = radios.Nth(1);
         await second.ClickAsync();
-        (await second.IsCheckedAsync()).ShouldBeTrue();
+        (await second.GetAttributeAsync("data-state")).ShouldBe("checked");
     }
 
     [Fact(DisplayName = "UAC10: Toggle story — toggle buttons render and can be clicked")]

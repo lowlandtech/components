@@ -30,9 +30,9 @@ public sealed class SC05_StoryCardFormBatchE2E(ShowcodeCollection collection) : 
         var card = CurrentStoryCard;
         await SelectStateAsync(card, "With input");
 
-        await Assertions.Expect(card.Locator("[data-slot='button-group']").First).ToBeVisibleAsync();
+        await Assertions.Expect(card.Locator("[data-slot='input-group']").First).ToBeVisibleAsync();
         await Assertions.Expect(card.Locator("[data-slot='input']").First).ToHaveAttributeAsync("placeholder", "Search components...");
-        await Assertions.Expect(ActiveCodeEditor(card)).ToContainTextAsync("<ButtonGroupText>");
+        await Assertions.Expect(ActiveCodeEditor(card)).ToContainTextAsync("<InputGroupAddon>");
     }
 
     private async Task AssertInputStoryAsync()
@@ -89,7 +89,10 @@ public sealed class SC05_StoryCardFormBatchE2E(ShowcodeCollection collection) : 
             Name = storyName,
             Exact = true
         }).First.ClickAsync();
-        await Showcode.Page.WaitForTimeoutAsync(600);
+        await Assertions.Expect(
+            Showcode.Page.Locator("[data-slot='story-card']")
+                         .GetByRole(AriaRole.Heading, new() { Name = storyName, Exact = true })
+        ).ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = 15_000 });
     }
 
     private static async Task SelectStateAsync(ILocator card, string stateName)

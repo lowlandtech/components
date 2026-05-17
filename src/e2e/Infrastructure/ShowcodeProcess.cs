@@ -23,13 +23,13 @@ public sealed class ShowcodeProcess : IAsyncDisposable
     /// <summary>
     /// Boot the WASM dev-server and return when it is ready to serve
     /// HTTP requests (max ~60 s). The project file is located by walking
-    /// up from <see cref="AppContext.BaseDirectory"/> until the solution
-    /// root is found.
+    /// up from the compile-time <c>[CallerFilePath]</c> source directory
+    /// until a <c>.sln</c> is found, making discovery robust under NCrunch.
     /// </summary>
     public static async Task<ShowcodeProcess> StartAsync(CancellationToken ct = default)
     {
         var projectPath = FindProjectFile(
-            "src", "components", "app", "LowlandTech.Components.App.csproj");
+            ["src", "components", "app", "LowlandTech.Components.App.csproj"]);
 
         var port = FindFreePort();
         var baseUrl = $"http://127.0.0.1:{port}";
@@ -55,7 +55,7 @@ public sealed class ShowcodeProcess : IAsyncDisposable
     private static async Task WaitForReadyAsync(string baseUrl, CancellationToken ct)
     {
         using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
-        var deadline = DateTime.UtcNow.AddSeconds(90);
+        var deadline = DateTime.UtcNow.AddSeconds(180);
 
         while (DateTime.UtcNow < deadline && !ct.IsCancellationRequested)
         {
@@ -76,29 +76,46 @@ public sealed class ShowcodeProcess : IAsyncDisposable
         throw new TimeoutException($"Showcode app did not start within 90 s at {baseUrl}.");
     }
 
-    private static string FindProjectFile(params string[] relativeParts)
+    // [CallerFilePath] is substituted by the compiler with the real source path
+    // (e.g. D:\lowlandtech\develop\src\components\e2e\Infrastructure\ShowcodeProcess.cs).
+    // This survives NCrunch binary relocation because it is a compile-time constant.
+    private static string FindProjectFile(
+        string[] relativeParts,
+        [CallerFilePath] string sourceFilePath = "")
     {
         var attempts = new List<string>();
 
-        foreach (var root in GetSearchRoots())
+        // NCrunch rewrites [CallerFilePath] to its own mirrored temp path, but
+        // the PDB still contains the original on-disk source path. Reading a
+        // StackFrame with file info extracts it from the PDB at runtime.
+        var pdbSourcePath = new StackTrace(fNeedFileInfo: true)
+            .GetFrames()
+            .Select(f => f.GetFileName())
+            .FirstOrDefault(f => f is not null && f.Contains("ShowcodeProcess"));
+
+        foreach (var anchor in new[] { pdbSourcePath, sourceFilePath })
+        {
+            if (string.IsNullOrEmpty(anchor) || !File.Exists(anchor))
+                continue;
+
+            foreach (var dir in EnumerateSelfAndParents(new DirectoryInfo(Path.GetDirectoryName(anchor)!)))
+            {
+                var candidate = Path.Combine([dir.FullName, .. relativeParts]);
+                attempts.Add(candidate);
+                if (File.Exists(candidate))
+                    return candidate;
+            }
+        }
+
+        // Fallback: runtime roots (works for normal dotnet test runs).
+        foreach (var root in GetRuntimeSearchRoots())
         {
             foreach (var dir in EnumerateSelfAndParents(root))
             {
                 var candidate = Path.Combine([dir.FullName, .. relativeParts]);
                 attempts.Add(candidate);
-
                 if (File.Exists(candidate))
                     return candidate;
-
-                var componentSiblingCandidate = Path.Combine(
-                    dir.FullName,
-                    "app",
-                    "LowlandTech.Components.App.csproj");
-
-                attempts.Add(componentSiblingCandidate);
-
-                if (File.Exists(componentSiblingCandidate))
-                    return componentSiblingCandidate;
             }
         }
 
@@ -107,10 +124,12 @@ public sealed class ShowcodeProcess : IAsyncDisposable
             $"Could not find project file: {string.Join("/", relativeParts)}{Environment.NewLine}" +
             $"AppContext.BaseDirectory: {AppContext.BaseDirectory}{Environment.NewLine}" +
             $"CurrentDirectory: {Directory.GetCurrentDirectory()}{Environment.NewLine}" +
+            $"CallerFilePath: {sourceFilePath}{Environment.NewLine}" +
+            $"PdbSourcePath: {pdbSourcePath}{Environment.NewLine}" +
             $"Paths checked:{Environment.NewLine}{diagnostics}");
     }
 
-    private static IEnumerable<DirectoryInfo> GetSearchRoots()
+    private static IEnumerable<DirectoryInfo> GetRuntimeSearchRoots()
     {
         var roots = new[]
         {

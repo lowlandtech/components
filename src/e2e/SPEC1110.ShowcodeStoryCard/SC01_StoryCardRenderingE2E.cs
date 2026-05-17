@@ -29,7 +29,7 @@ public sealed class SC01_StoryCardRenderingE2E(ShowcodeCollection collection) : 
 
         var codeTab = card.Locator("[data-slot='tabs-trigger']").Filter(new LocatorFilterOptions
         {
-            HasText = "PopoverStory.razor"
+            HasText = "PopoverBasicExample.razor"
         }).First;
         await Assertions.Expect(codeTab).ToBeVisibleAsync();
 

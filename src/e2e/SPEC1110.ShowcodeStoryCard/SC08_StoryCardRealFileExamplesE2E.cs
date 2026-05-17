@@ -40,10 +40,15 @@ public sealed class SC08_StoryCardRealFileExamplesE2E(ShowcodeCollection collect
             HasText = "Single Selection"
         }).First.ClickAsync();
 
-        await Showcode.Page.WaitForTimeoutAsync(300);
+        // Wait for the code tab label to appear (state-based, replaces fixed delay).
+        await Assertions.Expect(
+            card.Locator("[data-slot='tabs-trigger']").Filter(new LocatorFilterOptions
+            {
+                HasText = "TreeViewSelectionExample.razor"
+            }).First
+        ).ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = 10_000 });
 
         activeCode = card.Locator("[data-slot='tabs-content'][data-state='active'] .story-card-code-editor").First;
-        await Assertions.Expect(activeCode).ToContainTextAsync("TreeViewSelectionExample.razor");
         await Assertions.Expect(activeCode).ToContainTextAsync("SelectedKeysChanged");
     }
 }

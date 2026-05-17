@@ -1,21 +1,13 @@
-using Microsoft.JSInterop;
-
 namespace LowlandTech.Components.App.Services;
 
 /// <summary>
 /// Service for managing theme (light/dark mode) with localStorage persistence.
 /// </summary>
-public class ThemeService
+public class ThemeService(IJSRuntime jsRuntime)
 {
     private const string ThemeKey = "app-theme";
-    private readonly IJSRuntime _jsRuntime;
     private bool _isInitialized;
     private bool _isDark;
-
-    public ThemeService(IJSRuntime jsRuntime)
-    {
-        _jsRuntime = jsRuntime;
-    }
 
     public bool IsDark => _isDark;
 
@@ -28,7 +20,7 @@ public class ThemeService
         try
         {
             // Check if there's a stored theme preference
-            var storedTheme = await _jsRuntime.InvokeAsync<string?>("localStorage.getItem", ThemeKey);
+            var storedTheme = await jsRuntime.InvokeAsync<string?>("localStorage.getItem", ThemeKey);
             
             if (storedTheme == "dark")
             {
@@ -41,7 +33,7 @@ public class ThemeService
             else
             {
                 // No stored preference, check system preference
-                _isDark = await _jsRuntime.InvokeAsync<bool>("eval", 
+                _isDark = await jsRuntime.InvokeAsync<bool>("eval", 
                     "window.matchMedia('(prefers-color-scheme: dark)').matches");
             }
 
@@ -75,7 +67,7 @@ public class ThemeService
         try
         {
             var value = _isDark ? "dark" : "light";
-            await _jsRuntime.InvokeVoidAsync("localStorage.setItem", ThemeKey, value);
+            await jsRuntime.InvokeVoidAsync("localStorage.setItem", ThemeKey, value);
             await ApplyThemeAsync();
             ThemeChanged?.Invoke();
         }
@@ -89,7 +81,7 @@ public class ThemeService
     {
         try
         {
-            await _jsRuntime.InvokeVoidAsync("eval", 
+            await jsRuntime.InvokeVoidAsync("eval", 
                 $"document.documentElement.classList.toggle('dark', {(_isDark ? "true" : "false")})");
         }
         catch

@@ -34,18 +34,23 @@ public sealed class ShowcodePage
         await _page.WaitForSelectorAsync("[data-slot='sidebar-menu-button']",
             new PageWaitForSelectorOptions { Timeout = 30_000 });
 
-        // Click the sidebar entry for this story.
+        // Click the exact sidebar entry for this story (exact match avoids
+        // "Button" inadvertently matching "Button Group" etc.).
         var btn = _page.Locator("[data-slot='sidebar-menu-button']")
-                       .Filter(new LocatorFilterOptions { HasText = storyName });
+                       .GetByText(storyName, new() { Exact = true });
         await btn.First.ClickAsync();
 
-        // Wait for Blazor to re-render.
-        await _page.WaitForTimeoutAsync(600);
+        // Wait for the story card heading to appear — state-based wait instead of a
+        // fixed delay that is too short on slow WASM startup.
+        await Assertions.Expect(
+            _page.Locator("[data-slot='story-card']")
+                 .GetByRole(AriaRole.Heading, new() { Name = storyName, Exact = true })
+        ).ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = 15_000 });
     }
 
     // ── Locator helpers ──────────────────────────────────────────────────────
 
-    public ILocator Main => _page.Locator("main");
+    public ILocator Main => _page.Locator("main").First;
 
     /// <summary>Buttons rendered by the LT Button component (not sidebar).</summary>
     public ILocator ComponentButtons =>
@@ -59,15 +64,15 @@ public sealed class ShowcodePage
 
     /// <summary>Checks or checkboxes inside the story main area.</summary>
     public ILocator Checkboxes =>
-        _page.Locator("main input[type='checkbox']");
+        _page.Locator("main [data-slot='checkbox']");
 
-    /// <summary>Radio inputs inside the story main area.</summary>
+    /// <summary>Radio group items inside the story main area.</summary>
     public ILocator RadioInputs =>
-        _page.Locator("main input[type='radio']");
+        _page.Locator("main [data-slot='radio-group-item']");
 
-    /// <summary>Range inputs (sliders) inside the story main area.</summary>
+    /// <summary>Sliders inside the story main area.</summary>
     public ILocator RangeInputs =>
-        _page.Locator("main input[type='range']");
+        _page.Locator("main [data-slot='slider']");
 
     /// <summary>Text inputs inside the story main area.</summary>
     public ILocator TextInputs =>

@@ -56,8 +56,8 @@ public sealed class SC01_FeedbackStoriesE2E(ShowcodeCollection collection) : Sho
     {
         await Showcode.GoToStoryAsync("Spinner");
 
-        // Spinner renders as an SVG or div with a specific role/class.
-        var spinner = Showcode.Page.Locator("main [data-slot='spinner'], main svg").First;
+        // Spinner renders as <span data-slot="spinner" role="status">.
+        var spinner = Showcode.DataSlot("spinner").First;
         await Assertions.Expect(spinner).ToBeVisibleAsync();
     }
 }

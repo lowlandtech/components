@@ -85,10 +85,10 @@ public sealed class SC07_StoryCardLayoutFeedbackBatchE2E(ShowcodeCollection coll
         await GoToStoryExactAsync("Skeleton");
 
         var card = CurrentStoryCard;
-        await SelectStateAsync(card, "Media");
+        await SelectStateAsync(card, "Profile");
 
         await Assertions.Expect(card.Locator("[data-slot='skeleton']").First).ToBeVisibleAsync();
-        await Assertions.Expect(ActiveCodeEditor(card)).ToContainTextAsync("<Skeleton class=\"h-40 w-full rounded-lg\" />");
+        await Assertions.Expect(ActiveCodeEditor(card)).ToContainTextAsync("<Skeleton class=\"h-12 w-12 rounded-full\" />");
     }
 
     private ILocator CurrentStoryCard => Showcode.Page.Locator("main [data-slot='story-card']").First;
@@ -100,7 +100,10 @@ public sealed class SC07_StoryCardLayoutFeedbackBatchE2E(ShowcodeCollection coll
             Name = storyName,
             Exact = true
         }).First.ClickAsync();
-        await Showcode.Page.WaitForTimeoutAsync(600);
+        await Assertions.Expect(
+            Showcode.Page.Locator("[data-slot='story-card']")
+                         .GetByRole(AriaRole.Heading, new() { Name = storyName, Exact = true })
+        ).ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = 15_000 });
     }
 
     private static async Task SelectStateAsync(ILocator card, string stateName)
