@@ -1,7 +1,3 @@
-using System.Diagnostics;
-using System.Net;
-using System.Net.Sockets;
-
 namespace LowlandTech.Components.E2E.Infrastructure;
 
 /// <summary>
@@ -82,17 +78,62 @@ public sealed class ShowcodeProcess : IAsyncDisposable
 
     private static string FindProjectFile(params string[] relativeParts)
     {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir is not null)
+        var attempts = new List<string>();
+
+        foreach (var root in GetSearchRoots())
         {
-            var candidate = Path.Combine([dir.FullName, .. relativeParts]);
-            if (File.Exists(candidate))
-                return candidate;
-            dir = dir.Parent;
+            foreach (var dir in EnumerateSelfAndParents(root))
+            {
+                var candidate = Path.Combine([dir.FullName, .. relativeParts]);
+                attempts.Add(candidate);
+
+                if (File.Exists(candidate))
+                    return candidate;
+
+                var componentSiblingCandidate = Path.Combine(
+                    dir.FullName,
+                    "app",
+                    "LowlandTech.Components.App.csproj");
+
+                attempts.Add(componentSiblingCandidate);
+
+                if (File.Exists(componentSiblingCandidate))
+                    return componentSiblingCandidate;
+            }
         }
 
+        var diagnostics = string.Join(Environment.NewLine, attempts.Select((p, i) => $"  [{i}] {p}"));
         throw new FileNotFoundException(
-            $"Could not find project file: {string.Join("/", relativeParts)}");
+            $"Could not find project file: {string.Join("/", relativeParts)}{Environment.NewLine}" +
+            $"AppContext.BaseDirectory: {AppContext.BaseDirectory}{Environment.NewLine}" +
+            $"CurrentDirectory: {Directory.GetCurrentDirectory()}{Environment.NewLine}" +
+            $"Paths checked:{Environment.NewLine}{diagnostics}");
+    }
+
+    private static IEnumerable<DirectoryInfo> GetSearchRoots()
+    {
+        var roots = new[]
+        {
+            AppContext.BaseDirectory,
+            Directory.GetCurrentDirectory(),
+            Path.GetDirectoryName(typeof(ShowcodeProcess).Assembly.Location),
+        };
+
+        return roots
+            .Where(root => !string.IsNullOrWhiteSpace(root))
+            .Select(root => new DirectoryInfo(root!))
+            .Where(root => root.Exists)
+            .DistinctBy(root => root.FullName);
+    }
+
+    private static IEnumerable<DirectoryInfo> EnumerateSelfAndParents(DirectoryInfo start)
+    {
+        var dir = start;
+        while (dir is not null)
+        {
+            yield return dir;
+            dir = dir.Parent;
+        }
     }
 
     private static int FindFreePort()
