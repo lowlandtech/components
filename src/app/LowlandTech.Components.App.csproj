@@ -8,9 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="artifacts\**" />
     <Compile Remove="visual-artifacts\**" />
+    <Content Remove="artifacts\**" />
     <Content Remove="visual-artifacts\**" />
+    <EmbeddedResource Remove="artifacts\**" />
     <EmbeddedResource Remove="visual-artifacts\**" />
+    <None Remove="artifacts\**" />
     <None Remove="visual-artifacts\**" />
   </ItemGroup>
 
@@ -27,9 +31,7 @@
     <ProjectReference Include="..\lib\LowlandTech.Components.csproj" />
   </ItemGroup>
 
-  <Target Name="GenerateShowcodeSources"
-          BeforeTargets="BeforeCompile"
-          Condition="'$(OS)' == 'Windows_NT' And Exists('$(MSBuildProjectDirectory)\..\..\..\scripts\update-showcode-sources.ps1')">
+  <Target Name="GenerateShowcodeSources" BeforeTargets="BeforeCompile" Condition="'$(OS)' == 'Windows_NT' And Exists('$(MSBuildProjectDirectory)\..\..\..\scripts\update-showcode-sources.ps1')">
     <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\..\..\..\scripts\update-showcode-sources.ps1&quot; -ProjectPath &quot;$(MSBuildProjectDirectory)&quot;" />
   </Target>
 
