@@ -210,13 +210,12 @@ else
             try
             {
                 await _module.InvokeVoidAsync("unobserveOverflow", _viewport);
+                await _module.DisposeAsync();
             }
             catch
             {
                 // Ignore JS teardown races during component disposal.
             }
-
-            await _module.DisposeAsync();
         }
 
         _dotNetRef?.Dispose();
