@@ -22,7 +22,9 @@ public sealed class ShowcodeCollection : IAsyncLifetime
 
     public async ValueTask DisposeAsync()
     {
-        await Process.DisposeAsync();
+        if (Process is not null)
+            await Process.DisposeAsync();
+
         await Playwright.DisposeAsync();
     }
 }

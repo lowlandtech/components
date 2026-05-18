@@ -1,4 +1,6 @@
+@namespace LowlandTech.Components.Stories.Pages
 @inject ShowcodeState State
+@inject NavigationManager Nav
 
 <div class="flex gap-2 items-start overflow-x-auto pb-2" style="padding-top: 2rem;">
         @foreach (var group in _groups)
@@ -13,7 +15,7 @@
                     var num = _nums[(group.Name, story.Name)];
                     <button type="button"
                             class="@colors.Cell flex flex-col items-center gap-0.5 rounded-md border px-1.5 pt-1.5 pb-2 text-center transition-all cursor-pointer w-full focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                            @onclick="() => State.Select(story)">
+                            @onclick="() => SelectAndNavigate(story)">
                         <div class="flex items-center justify-between w-full">
                             <span class="text-[9px] font-mono leading-none opacity-40 select-none">@num</span>
                             <Icon Paths="@GetIconPaths(story.Name)" Size="16" class="shrink-0 opacity-60 transition-opacity" />
@@ -27,11 +29,19 @@
 </div>
 
 @code {
+    [Parameter] public string BasePath { get; set; } = "/admin/components";
+
     private static readonly string[] GroupOrder = ["Data", "Feedback", "Form", "Layout", "Misc", "Navigation", "Overlay"];
 
     private List<StoryGroup> _groups = [];
     private int _total;
     private Dictionary<(string, string), int> _nums = new();
+
+    private void SelectAndNavigate(StoryMetadata story)
+    {
+        State.Select(story);
+        Nav.NavigateTo($"{BasePath.TrimEnd('/')}/{story.RouteSlug}");
+    }
 
     protected override void OnInitialized()
     {

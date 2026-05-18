@@ -1,5 +1,6 @@
 global using System.Diagnostics;
 global using System.Net;
+global using System.Text;
 global using System.Net.Sockets;
 global using System.Runtime.CompilerServices;
 global using Microsoft.Playwright;

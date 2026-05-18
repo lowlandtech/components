@@ -1,0 +1,69 @@
+@namespace LowlandTech.Components.Stories.Pages
+@page "/admin/components"
+@page "/admin/components/{Component}"
+@attribute [PluginPage(Label = "Components", Icon = "layers", Group = "UI", Order = 10)]
+@inject ShowcodeState State
+@inject NavigationManager Nav
+@implements IDisposable
+
+<PageTitle>TinyComponents</PageTitle>
+
+@if (State.Current is not null)
+{
+    <div class="grid min-h-full" style="grid-template-columns: 1fr min(860px, 100%) 1fr;">
+        <div class="col-start-2 flex flex-col gap-4">
+            <div>
+                <button type="button"
+                        class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                        @onclick="ShowAllComponents">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6"/>
+                    </svg>
+                    All Components
+                </button>
+            </div>
+            <DynamicComponent Type="@State.Current.Type" />
+        </div>
+    </div>
+}
+else
+{
+    <Home />
+}
+
+@code {
+    [Parameter] public string? Component { get; set; }
+
+    protected override void OnInitialized()
+    {
+        State.Changed += Refresh;
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (string.IsNullOrWhiteSpace(Component))
+        {
+            State.ShowTable();
+            return;
+        }
+
+        var story = StoryRegistry.GetByRouteSlug(Component) ?? StoryRegistry.GetBySlug(Component);
+        if (story is not null)
+        {
+            State.Select(story);
+            return;
+        }
+
+        State.ShowTable();
+    }
+
+    private void ShowAllComponents()
+    {
+        State.ShowTable();
+        Nav.NavigateTo("/admin/components");
+    }
+
+    private void Refresh() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => State.Changed -= Refresh;
+}

@@ -1,0 +1,212 @@
+.group\/sidebar-wrapper[data-slot="sidebar-provider"] {
+    height: 100svh;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.group\/sidebar-wrapper[data-slot="sidebar-provider"] .sidebar-inset {
+    min-height: 0;
+}
+
+.group\/sidebar-wrapper[data-slot="sidebar-provider"] .sidebar-inset > main {
+    min-height: 0;
+}
+
+.theme-icon-sun {
+    display: none;
+}
+
+.dark .theme-icon-sun {
+    display: inline-flex;
+}
+
+.dark .theme-icon-moon {
+    display: none;
+}
+
+.story-card-code-editor::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+.story-card-code-editor::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.story-card-code-editor::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 9999px;
+    transition: background 0.2s;
+}
+
+.story-card-code-editor:hover::-webkit-scrollbar-thumb {
+    background: var(--color-zinc-600, #52525b);
+}
+
+.story-card-code-editor {
+    scrollbar-color: transparent transparent;
+    scrollbar-width: thin;
+}
+
+.story-card-code-editor:hover {
+    scrollbar-color: var(--color-zinc-600, #52525b) transparent;
+}
+
+.story-card-pill-tabs {
+    display: inline-flex;
+    height: 2.25rem;
+    align-items: center;
+    gap: 0.25rem;
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    background: var(--muted);
+    padding: 0.25rem;
+}
+
+.story-card-pill-tab {
+    height: 1.75rem;
+    border-radius: 9999px;
+    padding-inline: 0.75rem;
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+    transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.story-card-pill-tab[data-state="active"] {
+    background: var(--background);
+    color: var(--foreground);
+    box-shadow: var(--shadow-sm, 0 1px 2px rgb(0 0 0 / 0.05));
+}
+
+.story-card-code-tabs {
+    display: inline-flex;
+    height: 2rem;
+    align-items: center;
+    gap: 0.25rem;
+    border-radius: 9999px;
+    background: #24292e;
+    padding: 0.25rem;
+}
+
+.story-card-code-tab {
+    height: 1.5rem;
+    gap: 0.375rem;
+    border-radius: 9999px;
+    padding-inline: 0.625rem;
+    color: #8b949e;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1rem;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.story-card-code-tab[data-state="active"] {
+    background: #444c56;
+    color: #c9d1d9;
+    box-shadow: none;
+}
+
+.story-card-file-dot {
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 9999px;
+    background: #8b949e;
+}
+
+.story-card-file-dot[data-language="razor"] {
+    background: var(--primary);
+}
+
+.story-card-file-dot[data-language="csharp"] {
+    background: var(--color-green-500, #22c55e);
+}
+
+.story-card-code-header {
+    display: flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border-bottom: 1px solid #444c56;
+    background: #24292e;
+    padding: 0.75rem 1rem 0.5rem;
+    color: #8b949e;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1rem;
+}
+
+.story-card-copy-button {
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.story-card-code-editor {
+    max-height: 24rem;
+    overflow: auto;
+    background: #24292e;
+    padding-block: 0.75rem;
+    color: #c9d1d9;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.5rem;
+}
+
+.story-card-code-line {
+    display: grid;
+    min-width: max-content;
+    grid-template-columns: 3.5rem 1fr;
+    padding-inline: 1rem;
+}
+
+.story-card-code-line:hover {
+    background-color: rgb(45 51 59 / 0.7);
+}
+
+.story-card-line-number {
+    user-select: none;
+    padding-right: 1rem;
+    color: #6e7681;
+    text-align: right;
+}
+
+.story-card-line-code {
+    padding-right: 1.5rem;
+    white-space: pre;
+}
+
+.story-card-token-punctuation {
+    color: #8b949e;
+}
+
+.story-card-token-tag {
+    color: #7ee787;
+}
+
+.story-card-token-string {
+    color: #a5d6ff;
+}
+
+.story-card-token-attribute {
+    color: #d2a8ff;
+}
+
+.story-card-token-razor,
+.story-card-token-type {
+    color: #ffa657;
+}
+
+.story-card-token-keyword {
+    color: #ff7b72;
+}
+
+.story-card-token-comment {
+    color: #8b949e;
+    font-style: italic;
+}
+
+.story-card-token-number {
+    color: #79c0ff;
+}

@@ -22,43 +22,102 @@ public sealed class ShowcodeProcess : IAsyncDisposable
 
     /// <summary>
     /// Boot the WASM dev-server and return when it is ready to serve
-    /// HTTP requests (max ~60 s). The project file is located by walking
+    /// HTTP requests (max ~180 s). The project file is located by walking
     /// up from the compile-time <c>[CallerFilePath]</c> source directory
     /// until a <c>.sln</c> is found, making discovery robust under NCrunch.
     /// </summary>
+    /// <remarks>
+    /// Uses <c>--configuration Release</c> to avoid VS DLL-lock failures.
+    /// VS holds exclusive locks on <c>bin/Debug/</c> DLLs while the solution
+    /// is open; building in Release mode outputs to <c>bin/Release/</c> which
+    /// VS does not load, so MSBuild copy steps succeed without contention.
+    /// Using a dedicated configuration also guarantees that the static web
+    /// assets endpoints and runtime manifests are generated together in a
+    /// single consistent build pass, preventing WASM boot failures caused by
+    /// fingerprint mismatches from incremental Debug builds.
+    /// </remarks>
     public static async Task<ShowcodeProcess> StartAsync(CancellationToken ct = default)
     {
         var projectPath = FindProjectFile(
             ["src", "components", "app", "LowlandTech.Components.App.csproj"]);
 
-        var port = FindFreePort();
-        var baseUrl = $"http://127.0.0.1:{port}";
-
-        var psi = new ProcessStartInfo
+        Exception? lastEx = null;
+        for (var attempt = 1; attempt <= 3; attempt++)
         {
-            FileName = "dotnet",
-            Arguments = $"run --project \"{projectPath}\" --urls {baseUrl} --no-launch-profile",
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true,
-        };
+            var port = FindFreePort();
+            var baseUrl = $"http://127.0.0.1:{port}";
 
-        var process = Process.Start(psi)
-            ?? throw new InvalidOperationException("Failed to start dotnet run.");
+            var stderrBuf = new StringBuilder();
+            var psi = new ProcessStartInfo
+            {
+                FileName = "dotnet",
+                Arguments = $"run --project \"{projectPath}\" --configuration Release --urls {baseUrl} --no-launch-profile",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            };
 
-        await WaitForReadyAsync(baseUrl, ct);
+            var process = Process.Start(psi)
+                ?? throw new InvalidOperationException("Failed to start dotnet run.");
 
-        return new ShowcodeProcess(process, baseUrl);
+            // Drain stdout; capture stderr so failures are diagnosable.
+            _ = process.StandardOutput.BaseStream.CopyToAsync(Stream.Null, ct);
+            var stderrTask = DrainStderrAsync(process.StandardError, stderrBuf, ct);
+
+            try
+            {
+                await WaitForReadyAsync(process, baseUrl, ct);
+                return new ShowcodeProcess(process, baseUrl);
+            }
+            catch (Exception ex) when (ex is InvalidOperationException or TimeoutException)
+            {
+                // dotnet run exited/timed-out before serving; wait for stderr to
+                // flush, then retry on a fresh port.
+                await Task.WhenAny(stderrTask, Task.Delay(500, ct));
+                var failure = new InvalidOperationException(
+                    $"Attempt {attempt}: dotnet run failed (exit {(process.HasExited ? process.ExitCode : -1)})." +
+                    $" stderr:\n{stderrBuf}", ex);
+                try { process.Kill(entireProcessTree: true); } catch { /* already gone */ }
+                process.Dispose();
+
+                if (attempt == 3)
+                    throw failure;
+
+                lastEx = failure;
+                await Task.Delay(TimeSpan.FromSeconds(2), ct);
+            }
+        }
+
+        throw lastEx ?? new TimeoutException("Showcode app failed to start after 3 attempts.");
     }
 
-    private static async Task WaitForReadyAsync(string baseUrl, CancellationToken ct)
+    private static async Task DrainStderrAsync(StreamReader reader, StringBuilder buf, CancellationToken ct)
+    {
+        try
+        {
+            while (!ct.IsCancellationRequested)
+            {
+                var line = await reader.ReadLineAsync(ct);
+                if (line is null) break;
+                buf.AppendLine(line);
+            }
+        }
+        catch (OperationCanceledException) { /* expected on shutdown */ }
+    }
+
+    private static async Task WaitForReadyAsync(Process process, string baseUrl, CancellationToken ct)
     {
         using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
         var deadline = DateTime.UtcNow.AddSeconds(180);
 
         while (DateTime.UtcNow < deadline && !ct.IsCancellationRequested)
         {
+            // Fail fast if dotnet run exited before serving (build error, port conflict, etc.)
+            if (process.HasExited)
+                throw new InvalidOperationException(
+                    $"dotnet run exited with code {process.ExitCode} before serving at {baseUrl}.");
+
             try
             {
                 var response = await http.GetAsync(baseUrl, ct);
@@ -73,7 +132,7 @@ public sealed class ShowcodeProcess : IAsyncDisposable
             await Task.Delay(1_000, ct);
         }
 
-        throw new TimeoutException($"Showcode app did not start within 90 s at {baseUrl}.");
+        throw new TimeoutException($"Showcode app did not start within 180 s at {baseUrl}.");
     }
 
     // [CallerFilePath] is substituted by the compiler with the real source path
