@@ -1,4 +1,4 @@
-@namespace LowlandTech.Components.Stories.Showcode
+@namespace LowlandTech.Components
 @inject IJSRuntime JS
 
 @if (States.Count > 0)
@@ -130,7 +130,7 @@
         string Code,
         string Language = "razor");
 
-    private static readonly System.Collections.Concurrent.ConcurrentDictionary<HighlightCacheKey, IReadOnlyList<CodeLine>> HighlightedLineCache = new();
+    private static readonly ConcurrentDictionary<HighlightCacheKey, IReadOnlyList<CodeLine>> HighlightedLineCache = new();
 
     private static IReadOnlyList<CodeLine> GetHighlightedLines(CodeTab codeTab)
     {
@@ -365,14 +365,13 @@
 
     private static string HighlightWord(string encoded, string word, string cssClass)
     {
-        // Match whole words only — preceded/followed by non-word char or boundary
-        var pattern = $@"(?<![A-Za-z0-9_&lt;]){System.Text.RegularExpressions.Regex.Escape(word)}(?![A-Za-z0-9_&gt;])";
-        return System.Text.RegularExpressions.Regex.Replace(encoded, pattern, $"<span class=\"{cssClass}\">$0</span>");
+        var pattern = $@"(?<![A-Za-z0-9_&lt;]){Regex.Escape(word)}(?![A-Za-z0-9_&gt;])";
+        return Regex.Replace(encoded, pattern, $"<span class=\"{cssClass}\">$0</span>");
     }
 
     private static string HighlightMarkupAttributes(string encoded)
     {
-        return System.Text.RegularExpressions.Regex.Replace(
+        return Regex.Replace(
             encoded,
             @"(?<=\s)(@?[A-Za-z_][A-Za-z0-9_:-]*)(?=\=)",
             "<span class=\"story-card-token-attribute\">$1</span>");
@@ -380,7 +379,7 @@
 
     private static string HighlightRazorExpressions(string encoded)
     {
-        return System.Text.RegularExpressions.Regex.Replace(
+        return Regex.Replace(
             encoded,
             @"@([A-Za-z_][A-Za-z0-9_\.]*)",
             "<span class=\"story-card-token-razor\">@$1</span>");

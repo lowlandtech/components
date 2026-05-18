@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Stories.Showcode;
+namespace LowlandTech.Components;
 
 public class StoryGroup
 {
