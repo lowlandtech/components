@@ -10,7 +10,10 @@
          @attributes="AdditionalAttributes">
         @if (HasItems)
         {
-            <TabsList Variant="@DynamicVariant" ShowScrollButtons="@ShowScrollButtons">
+            <TabsList Variant="@DynamicVariant"
+                      Align="@DynamicListAlign"
+                      Stretch="@DynamicListStretch"
+                      ShowScrollButtons="@ShowScrollButtons">
                 @foreach (var item in OrderedItems)
                 {
                     <TabsTrigger Value="@item.Value"
@@ -49,6 +52,8 @@
     [Parameter] public EventCallback<IReadOnlyList<TabsItem>> ItemsChanged { get; set; }
     [Parameter] public RenderFragment<TabsItem>? ItemContent { get; set; }
     [Parameter] public string DynamicVariant { get; set; } = "ide";
+    [Parameter] public string DynamicListAlign { get; set; } = "left";
+    [Parameter] public bool DynamicListStretch { get; set; }
     [Parameter] public bool ShowScrollButtons { get; set; } = true;
     [Parameter] public EventCallback<TabsItem> TabClosed { get; set; }
     [Parameter] public EventCallback<TabsItem> TabPinnedChanged { get; set; }

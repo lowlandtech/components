@@ -46,6 +46,8 @@ else
 @code {
     [CascadingParameter] private Tabs? Parent { get; set; }
     [Parameter] public string Variant { get; set; } = "default";
+    [Parameter] public string Align { get; set; } = "left";
+    [Parameter] public bool Stretch { get; set; }
     [Parameter] public bool ShowScrollButtons { get; set; } = true;
 
     private ElementReference _viewport;
@@ -55,11 +57,19 @@ else
     
     private string GetOrientation() => Parent?.Orientation ?? "horizontal";
     private bool IsVertical => GetOrientation() == "vertical";
+    private string GetAlign() => Align.ToLowerInvariant() switch
+    {
+        "center" => "center",
+        "right" or "end" => "right",
+        _ => "left"
+    };
 
     private RenderFragment RenderList() => @<CascadingValue Value="this">
         <div data-slot="tabs-list"
              data-orientation="@GetOrientation()"
              data-variant="@Variant"
+             data-align="@GetAlign()"
+             data-stretch="@Stretch.ToString().ToLowerInvariant()"
              class="@GetClass()"
              role="tablist"
              @onkeydown="HandleKeyDown"
@@ -185,6 +195,12 @@ else
             ? "cn-tabs-list flex flex-col gap-1 p-1"
             : "cn-tabs-list inline-flex h-9 min-w-max items-center justify-start p-1 text-muted-foreground";
 
+        if (!isVertical && Stretch)
+            baseClass += " w-full";
+
+        if (!isVertical)
+            baseClass = baseClass.Replace("justify-start", GetJustifyClass());
+
         baseClass += isIdeVariant
             ? " cn-tabs-list-ide bg-transparent border-b rounded-none gap-0 p-0 h-10"
             : isLineVariant
@@ -193,6 +209,13 @@ else
 
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
+
+    private string GetJustifyClass() => GetAlign() switch
+    {
+        "center" => "justify-center",
+        "right" => "justify-end",
+        _ => "justify-start"
+    };
 
     private string GetShellClass()
     {

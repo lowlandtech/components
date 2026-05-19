@@ -285,4 +285,27 @@ public class SC02_RenderTabsSubcomponents : ViewScenario
                 "Inactive triggers must NOT carry the primary indicator — " +
                 "otherwise every tab looks active.");
     }
+
+    [Fact(DisplayName = "UAC21: TabsList can stretch its back panel to fill its parent")]
+    [Trait(Spec.UAC, "21")]
+    public void UAC21_TabsListCanStretch()
+    {
+        var cut = Ctx.Render<TabsList>(p => p.Add(x => x.Stretch, true));
+
+        var list = cut.Find("[data-slot='tabs-list']");
+        list.GetAttribute("data-stretch").ShouldBe("true");
+        list.ClassList.ShouldContain("w-full");
+    }
+
+    [Fact(DisplayName = "UAC22: TabsList supports centered trigger alignment")]
+    [Trait(Spec.UAC, "22")]
+    public void UAC22_TabsListSupportsCenteredAlignment()
+    {
+        var cut = Ctx.Render<TabsList>(p => p.Add(x => x.Align, "center"));
+
+        var list = cut.Find("[data-slot='tabs-list']");
+        list.GetAttribute("data-align").ShouldBe("center");
+        list.ClassList.ShouldContain("justify-center");
+        list.ClassList.ShouldNotContain("justify-start");
+    }
 }
