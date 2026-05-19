@@ -1,0 +1,13 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Blocks
+
+<ArticleCardGrid Title="Latest articles"
+                 Articles="@_articles" />
+
+@code {
+    private readonly IReadOnlyList<ArticleCardGrid.ArticleItem> _articles =
+    [
+        new("Getting Started with Foundry", "Learn the basics of building modular applications.", null, "Guide", "May 15, 2026"),
+        new("Component Patterns", "Best practices for composing reusable UI blocks.", null, "Engineering", "May 10, 2026"),
+        new("Scaling Your Platform", "Strategies for growing from prototype to production.", null, "Architecture", "May 5, 2026")
+    ];
+}

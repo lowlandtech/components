@@ -1,0 +1,41 @@
+@attribute [DisplayName("Blocks/Marketing")]
+@inherits StoryComponent
+
+<StoryCard Title="Marketing"
+           Description="Conversion and social-proof blocks for landing pages."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "cta-band",
+            "Call to Action",
+            @<CallToActionBandExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "cta-band-razor",
+                    "CallToActionBandExample.razor",
+                    "Showcode/Examples/Blocks/Marketing/CallToActionBandExample.razor")
+            ]),
+        new(
+            "stats-band",
+            "Stats Band",
+            @<StatsBandExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "stats-band-razor",
+                    "StatsBandExample.razor",
+                    "Showcode/Examples/Blocks/Marketing/StatsBandExample.razor")
+            ]),
+        new(
+            "feature-grid",
+            "Feature Grid",
+            @<FeatureGridExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "feature-grid-razor",
+                    "FeatureGridExample.razor",
+                    "Showcode/Examples/Blocks/Content/FeatureGridExample.razor")
+            ])
+    ];
+}

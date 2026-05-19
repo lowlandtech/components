@@ -1,0 +1,31 @@
+@attribute [DisplayName("Blocks/Content")]
+@inherits StoryComponent
+
+<StoryCard Title="Content"
+           Description="Content blocks for articles, empty states, and feature grids."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "empty-state",
+            "Empty State",
+            @<EmptyStateWithActionExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "empty-state-razor",
+                    "EmptyStateWithActionExample.razor",
+                    "Showcode/Examples/Blocks/Content/EmptyStateWithActionExample.razor")
+            ]),
+        new(
+            "article-card-grid",
+            "Article Card Grid",
+            @<ArticleCardGridExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "article-card-grid-razor",
+                    "ArticleCardGridExample.razor",
+                    "Showcode/Examples/Blocks/Content/ArticleCardGridExample.razor")
+            ])
+    ];
+}

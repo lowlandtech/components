@@ -1,0 +1,31 @@
+@attribute [DisplayName("Blocks/Hero")]
+@inherits StoryComponent
+
+<StoryCard Title="Hero"
+           Description="Hero sections for landing pages and marketing surfaces."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "centered",
+            "Centered",
+            @<HeroCenteredExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "centered-razor",
+                    "HeroCenteredExample.razor",
+                    "Showcode/Examples/Blocks/Hero/HeroCenteredExample.razor")
+            ]),
+        new(
+            "split",
+            "Split",
+            @<HeroSplitExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "split-razor",
+                    "HeroSplitExample.razor",
+                    "Showcode/Examples/Blocks/Hero/HeroSplitExample.razor")
+            ])
+    ];
+}

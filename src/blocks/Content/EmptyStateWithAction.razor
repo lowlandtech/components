@@ -1,0 +1,43 @@
+@namespace LowlandTech.Components.Blocks
+@inherits TinyComponentBase
+
+<div class="@GetClass()" data-slot="empty-state-action" @attributes="AdditionalAttributes">
+    <div class="mx-auto max-w-md text-center space-y-6">
+        @if (!string.IsNullOrEmpty(IconPath))
+        {
+            <div class="flex justify-center">
+                <div class="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                    <Icon Paths="@IconPath" Size="24" class="text-muted-foreground" />
+                </div>
+            </div>
+        }
+        <div class="space-y-2">
+            @if (!string.IsNullOrEmpty(Title))
+            {
+                <h3 class="text-lg font-semibold">@Title</h3>
+            }
+            @if (!string.IsNullOrEmpty(Description))
+            {
+                <p class="text-sm text-muted-foreground max-w-xs mx-auto">@Description</p>
+            }
+        </div>
+        @if (ChildContent is not null)
+        {
+            <div class="flex items-center justify-center gap-3">
+                @ChildContent
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public string? IconPath { get; set; }
+    [Parameter] public string Title { get; set; } = "No items yet";
+    [Parameter] public string Description { get; set; } = "Get started by creating your first item.";
+
+    private string GetClass()
+    {
+        var parts = new[] { "py-16 md:py-24", Class ?? string.Empty };
+        return string.Join(" ", parts.Where(p => !string.IsNullOrEmpty(p)));
+    }
+}

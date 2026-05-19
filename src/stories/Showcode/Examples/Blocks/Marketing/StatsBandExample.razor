@@ -1,0 +1,14 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Blocks
+
+<StatsBand Title="Trusted by teams worldwide"
+           Stats="@_stats" />
+
+@code {
+    private readonly IReadOnlyList<StatsBand.StatItem> _stats =
+    [
+        new("10k+", "Active users"),
+        new("99.9%", "Uptime"),
+        new("150+", "Countries"),
+        new("24/7", "Support")
+    ];
+}

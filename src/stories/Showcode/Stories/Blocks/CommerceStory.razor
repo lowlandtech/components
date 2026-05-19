@@ -1,0 +1,21 @@
+@attribute [DisplayName("Blocks/Commerce")]
+@inherits StoryComponent
+
+<StoryCard Title="Commerce"
+           Description="Commerce blocks for pricing, checkout, and product surfaces."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "pricing-table",
+            "Pricing Table",
+            @<PricingTableExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "pricing-table-razor",
+                    "PricingTableExample.razor",
+                    "Showcode/Examples/Blocks/Commerce/PricingTableExample.razor")
+            ])
+    ];
+}

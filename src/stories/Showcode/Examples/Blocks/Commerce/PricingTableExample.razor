@@ -1,0 +1,20 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Blocks
+
+<PricingTable Title="Simple, transparent pricing"
+              Subtitle="Choose the plan that fits your team."
+              Tiers="@_tiers" />
+
+@code {
+    private readonly IReadOnlyList<PricingTable.PricingTier> _tiers =
+    [
+        new("Starter", "$0", "month",
+            ["Up to 3 users", "1 workspace", "Community support"],
+            "For individuals trying things out."),
+        new("Pro", "$29", "month",
+            ["Up to 20 users", "Unlimited workspaces", "Priority support", "SSO ready"],
+            "For growing teams shipping weekly.", IsPopular: true),
+        new("Enterprise", "Custom", "",
+            ["Unlimited users", "Dedicated infra", "SLA guarantee", "On-prem option"],
+            "For organizations with compliance needs.")
+    ];
+}

@@ -1,0 +1,55 @@
+@namespace LowlandTech.Components.Blocks
+@inherits TinyComponentBase
+
+<section class="@GetClass()" data-slot="hero-split" @attributes="AdditionalAttributes">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="grid gap-8 lg:grid-cols-2 lg:gap-12 items-center">
+            <div class="space-y-6">
+                @if (!string.IsNullOrEmpty(Overline))
+                {
+                    <p class="text-sm font-medium text-muted-foreground tracking-wider uppercase">@Overline</p>
+                }
+                <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
+                    @Title
+                </h1>
+                @if (!string.IsNullOrEmpty(Subtitle))
+                {
+                    <p class="text-lg text-muted-foreground max-w-lg">
+                        @Subtitle
+                    </p>
+                }
+                @if (ChildContent is not null)
+                {
+                    <div class="flex flex-wrap items-center gap-4">
+                        @ChildContent
+                    </div>
+                }
+            </div>
+            <div class="relative">
+                @if (MediaContent is not null)
+                {
+                    @MediaContent
+                }
+                else
+                {
+                    <div class="aspect-video rounded-xl bg-muted flex items-center justify-center">
+                        <span class="text-muted-foreground text-sm">Media placeholder</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter] public string Overline { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Subtitle { get; set; } = string.Empty;
+    [Parameter] public RenderFragment? MediaContent { get; set; }
+
+    private string GetClass()
+    {
+        var parts = new[] { "py-16 md:py-24", Class ?? string.Empty };
+        return string.Join(" ", parts.Where(p => !string.IsNullOrEmpty(p)));
+    }
+}

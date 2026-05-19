@@ -1,0 +1,14 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Blocks
+
+<FeatureGrid Title="Everything you need"
+             Subtitle="A complete toolkit for modern web applications."
+             Features="@_features" />
+
+@code {
+    private readonly IReadOnlyList<FeatureGrid.FeatureItem> _features =
+    [
+        new("Graph Architecture", "Automatic graph synchronization for all entities.", "<circle cx='12' cy='12' r='10'/><circle cx='12' cy='12' r='3'/>"),
+        new("Plugin System", "Hot-reloadable plugins with NuGet packaging.", "<rect x='3' y='3' width='18' height='18' rx='2'/><path d='M3 9h18M3 15h18M9 3v18'/>"),
+        new("Blazor UI", "50+ components with Tailwind CSS theming.", "<path d='M12 2L2 7l10 5 10-5-10-5z'/><path d='M2 17l10 5 10-5'/><path d='M2 12l10 5 10-5'/>")
+    ];
+}

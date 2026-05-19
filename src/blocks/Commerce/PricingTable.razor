@@ -1,0 +1,88 @@
+@namespace LowlandTech.Components.Blocks
+@inherits TinyComponentBase
+
+<section class="@GetClass()" data-slot="pricing-table" @attributes="AdditionalAttributes">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        @if (!string.IsNullOrEmpty(Title))
+        {
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold tracking-tight">@Title</h2>
+                @if (!string.IsNullOrEmpty(Subtitle))
+                {
+                    <p class="mt-3 text-lg text-muted-foreground">@Subtitle</p>
+                }
+            </div>
+        }
+        <div class="grid gap-6 @GetGridClass()">
+            @foreach (var tier in Tiers)
+            {
+                <div class="relative flex flex-col rounded-xl border p-6 @GetTierClass(tier)" data-testid="pricing-table-tier">
+                    @if (tier.IsPopular)
+                    {
+                        <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+                            <span class="inline-flex items-center rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">Popular</span>
+                        </div>
+                    }
+                    <div class="mb-4">
+                        <h3 class="text-lg font-semibold">@tier.Name</h3>
+                        @if (!string.IsNullOrEmpty(tier.Description))
+                        {
+                            <p class="text-sm text-muted-foreground mt-1">@tier.Description</p>
+                        }
+                    </div>
+                    <div class="mb-6">
+                        <span class="text-4xl font-bold tracking-tight">@tier.Price</span>
+                        @if (!string.IsNullOrEmpty(tier.Interval))
+                        {
+                            <span class="text-sm text-muted-foreground">/@tier.Interval</span>
+                        }
+                    </div>
+                    <ul class="mb-6 flex-1 space-y-3">
+                        @foreach (var feature in tier.Features)
+                        {
+                            <li class="flex items-start gap-2 text-sm">
+                                <Icon Paths="<path d='m9 12 2 2 4-4'/>" Size="16" class="mt-0.5 shrink-0 text-primary" />
+                                <span>@feature</span>
+                            </li>
+                        }
+                    </ul>
+                    @if (ChildContent is not null)
+                    {
+                        @ChildContent
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Subtitle { get; set; } = string.Empty;
+    [Parameter] public IReadOnlyList<PricingTier> Tiers { get; set; } = [];
+    [Parameter] public int? Columns { get; set; }
+
+    private string GetClass()
+    {
+        var parts = new[] { "py-16 md:py-24", Class ?? string.Empty };
+        return string.Join(" ", parts.Where(p => !string.IsNullOrEmpty(p)));
+    }
+
+    private string GetGridClass()
+    {
+        var cols = Columns ?? Math.Min(Tiers.Count, 3);
+        return cols switch
+        {
+            1 => "grid-cols-1 max-w-sm mx-auto",
+            2 => "grid-cols-1 sm:grid-cols-2 max-w-2xl mx-auto",
+            _ => "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+        };
+    }
+
+    private static string GetTierClass(PricingTier tier)
+    {
+        return tier.IsPopular ? "border-primary shadow-sm" : "";
+    }
+
+    public record PricingTier(string Name, string Price, string Interval, IReadOnlyList<string> Features, string? Description = null, bool IsPopular = false);
+}

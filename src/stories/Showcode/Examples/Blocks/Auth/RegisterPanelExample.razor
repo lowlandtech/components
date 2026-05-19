@@ -1,0 +1,11 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Blocks
+
+<RegisterPanel Title="Create your account"
+               Subtitle="Start your free trial today."
+               OnSubmit="@((RegisterPanel.RegisterCredentials c) => _lastName = c.Name)" />
+
+<p class="text-xs text-muted-foreground mt-4 text-center">Last submitted: @_lastName</p>
+
+@code {
+    private string _lastName = "—";
+}

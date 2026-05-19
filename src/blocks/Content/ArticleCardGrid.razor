@@ -1,0 +1,61 @@
+@namespace LowlandTech.Components.Blocks
+@inherits TinyComponentBase
+
+<section class="@GetClass()" data-slot="article-card-grid" @attributes="AdditionalAttributes">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        @if (!string.IsNullOrEmpty(Title))
+        {
+            <h2 class="text-2xl font-bold tracking-tight mb-8">@Title</h2>
+        }
+        <div class="grid gap-6 @GetGridClass()">
+            @foreach (var article in Articles)
+            {
+                <div class="group flex flex-col gap-3 rounded-xl border p-5 transition-colors hover:bg-muted/40" data-testid="article-card-grid-item">
+                    @if (!string.IsNullOrEmpty(article.ImageUrl))
+                    {
+                        <div class="aspect-video overflow-hidden rounded-lg bg-muted">
+                            <img src="@article.ImageUrl" alt="@article.Title" class="h-full w-full object-cover transition-transform group-hover:scale-105" />
+                        </div>
+                    }
+                    <div class="space-y-2">
+                        @if (!string.IsNullOrEmpty(article.Category))
+                        {
+                            <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors">@article.Category</span>
+                        }
+                        <h3 class="text-base font-semibold leading-tight">@article.Title</h3>
+                        <p class="text-sm text-muted-foreground line-clamp-2">@article.Description</p>
+                    </div>
+                    @if (!string.IsNullOrEmpty(article.Date))
+                    {
+                        <p class="mt-auto text-xs text-muted-foreground">@article.Date</p>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public IReadOnlyList<ArticleItem> Articles { get; set; } = [];
+    [Parameter] public int? Columns { get; set; }
+
+    private string GetClass()
+    {
+        var parts = new[] { "py-16 md:py-24", Class ?? string.Empty };
+        return string.Join(" ", parts.Where(p => !string.IsNullOrEmpty(p)));
+    }
+
+    private string GetGridClass()
+    {
+        var cols = Columns ?? 3;
+        return cols switch
+        {
+            1 => "grid-cols-1",
+            2 => "grid-cols-1 sm:grid-cols-2",
+            _ => "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+        };
+    }
+
+    public record ArticleItem(string Title, string Description, string? ImageUrl = null, string? Category = null, string? Date = null);
+}

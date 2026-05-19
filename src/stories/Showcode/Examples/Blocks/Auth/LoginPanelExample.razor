@@ -1,0 +1,11 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Blocks
+
+<LoginPanel Title="Welcome back"
+            Subtitle="Sign in to your account to continue."
+            OnSubmit="@((LoginPanel.LoginCredentials c) => _lastEmail = c.Email)" />
+
+<p class="text-xs text-muted-foreground mt-4 text-center">Last submitted: @_lastEmail</p>
+
+@code {
+    private string _lastEmail = "—";
+}

@@ -1,0 +1,41 @@
+@attribute [DisplayName("Blocks/Auth")]
+@inherits StoryComponent
+
+<StoryCard Title="Auth"
+           Description="Authentication pattern blocks for sign-in, register, and password reset."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "login-panel",
+            "Login Panel",
+            @<LoginPanelExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "login-panel-razor",
+                    "LoginPanelExample.razor",
+                    "Showcode/Examples/Blocks/Auth/LoginPanelExample.razor")
+            ]),
+        new(
+            "register-panel",
+            "Register Panel",
+            @<RegisterPanelExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "register-panel-razor",
+                    "RegisterPanelExample.razor",
+                    "Showcode/Examples/Blocks/Auth/RegisterPanelExample.razor")
+            ]),
+        new(
+            "forgot-password",
+            "Forgot Password",
+            @<ForgotPasswordPanelExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "forgot-password-razor",
+                    "ForgotPasswordPanelExample.razor",
+                    "Showcode/Examples/Blocks/Auth/ForgotPasswordPanelExample.razor")
+            ])
+    ];
+}
