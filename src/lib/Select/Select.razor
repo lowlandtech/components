@@ -23,7 +23,8 @@
     /// <summary>
     /// The currently selected value.
     /// </summary>
-    [Parameter] public string? Value { get; set; }
+    [Parameter, PropertyGrid(Label = "Default Value", Editor = PropertyEditor.Text)]
+    public string? Value { get; set; }
 
     /// <summary>
     /// Event callback when value changes.
