@@ -1,0 +1,38 @@
+@namespace LowlandTech.Components.Blocks
+@inherits TinyComponentBase
+
+<section class="@GetClass()" data-slot="hero-centered" @attributes="AdditionalAttributes">
+    <div class="mx-auto max-w-3xl text-center">
+        @if (!string.IsNullOrEmpty(Overline))
+        {
+            <p class="text-sm font-medium text-muted-foreground tracking-wider uppercase mb-4">@Overline</p>
+        }
+        <h1 class="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl mb-6">
+            @Title
+        </h1>
+        @if (!string.IsNullOrEmpty(Subtitle))
+        {
+            <p class="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
+                @Subtitle
+            </p>
+        }
+        @if (ChildContent is not null)
+        {
+            <div class="flex flex-wrap items-center justify-center gap-4">
+                @ChildContent
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter] public string Overline { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Subtitle { get; set; } = string.Empty;
+
+    private string GetClass()
+    {
+        var parts = new[] { "py-16 md:py-24", Class ?? string.Empty };
+        return string.Join(" ", parts.Where(p => !string.IsNullOrEmpty(p)));
+    }
+}

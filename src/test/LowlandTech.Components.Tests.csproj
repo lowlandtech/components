@@ -34,6 +34,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\stories\LowlandTech.Components.Stories.csproj" />
 		<ProjectReference Include="..\lib\LowlandTech.Components.csproj" />
+		<ProjectReference Include="..\blocks\LowlandTech.Components.Blocks.csproj" />
 	</ItemGroup>
 
 	<!-- Embed sources used by textual drift-guard tests so they survive NCrunch

@@ -5,5 +5,6 @@
     <Project Path="lib/LowlandTech.Components.csproj" />
     <Project Path="stories/LowlandTech.Components.Stories.csproj" />
     <Project Path="test/LowlandTech.Components.Tests.csproj" />
+    <Project Path="blocks/LowlandTech.Components.Blocks.csproj" />
   </Folder>
 </Solution>

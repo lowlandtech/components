@@ -27,4 +27,13 @@ public sealed class StoriesAppPlugin : IAppPlugin
         "_content/LowlandTech.Components.Stories/css/sonner.css",
         "_content/LowlandTech.Components.Stories/css/rtl.css",
     ];
+
+    public IReadOnlyList<string> InlineScripts =>
+    [
+        """
+        window.getTheme = function() {
+            return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+        };
+        """,
+    ];
 }

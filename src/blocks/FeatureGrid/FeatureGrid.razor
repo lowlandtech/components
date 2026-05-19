@@ -1,0 +1,56 @@
+@namespace LowlandTech.Components.Blocks
+@inherits TinyComponentBase
+
+<section class="@GetClass()" data-slot="feature-grid" @attributes="AdditionalAttributes">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        @if (!string.IsNullOrEmpty(Title))
+        {
+            <h2 class="text-3xl font-bold tracking-tight text-center mb-4">@Title</h2>
+        }
+        @if (!string.IsNullOrEmpty(Subtitle))
+        {
+            <p class="text-lg text-muted-foreground text-center mb-12 max-w-2xl mx-auto">@Subtitle</p>
+        }
+        <div class="grid gap-8 @GetGridClass()">
+            @foreach (var feature in Features)
+            {
+                <div class="relative flex flex-col gap-4 rounded-xl border p-6" data-testid="feature-grid-item">
+                    @if (!string.IsNullOrEmpty(feature.IconPath))
+                    {
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
+                            <Icon Paths="@feature.IconPath" Size="20" class="text-primary-foreground" />
+                        </div>
+                    }
+                    <h3 class="text-lg font-semibold">@feature.Title</h3>
+                    <p class="text-sm text-muted-foreground">@feature.Description</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Subtitle { get; set; } = string.Empty;
+    [Parameter] public IReadOnlyList<FeatureItem> Features { get; set; } = [];
+    [Parameter] public int? Columns { get; set; }
+
+    private string GetClass()
+    {
+        var parts = new[] { "py-16 md:py-24", Class ?? string.Empty };
+        return string.Join(" ", parts.Where(p => !string.IsNullOrEmpty(p)));
+    }
+
+    private string GetGridClass()
+    {
+        var cols = Columns ?? 3;
+        return cols switch
+        {
+            1 => "grid-cols-1",
+            2 => "grid-cols-1 sm:grid-cols-2",
+            _ => "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+        };
+    }
+
+    public record FeatureItem(string Title, string Description, string? IconPath);
+}

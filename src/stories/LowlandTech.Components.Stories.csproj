@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\lib\LowlandTech.Components.csproj" />
+    <ProjectReference Include="..\blocks\LowlandTech.Components.Blocks.csproj" />
     <ProjectReference Include="..\..\core\LowlandTech.Core.csproj" />
   </ItemGroup>
 
