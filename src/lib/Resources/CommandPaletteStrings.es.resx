@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="SearchTriggerTitle" xml:space="preserve"><value>Buscar (Ctrl+K o /)</value></data>
+  <data name="SearchPlaceholder" xml:space="preserve"><value>Buscar páginas, configuración y acciones...</value></data>
+  <data name="SearchCompactPlaceholder" xml:space="preserve"><value>Buscar...</value></data>
+  <data name="SearchInputPlaceholder" xml:space="preserve"><value>Escribe un comando o busca...</value></data>
+  <data name="NoResultsFound" xml:space="preserve"><value>No se encontraron resultados.</value></data>
+  <data name="SuggestionsHeading" xml:space="preserve"><value>Sugerencias</value></data>
+  <data name="PagesHeading" xml:space="preserve"><value>Páginas</value></data>
+  <data name="ActionsHeading" xml:space="preserve"><value>Acciones</value></data>
+  <data name="HomeLabel" xml:space="preserve"><value>Inicio</value></data>
+  <data name="HomeDescription" xml:space="preserve"><value>Ir a la página de inicio</value></data>
+  <data name="DashboardLabel" xml:space="preserve"><value>Panel</value></data>
+  <data name="DashboardDescription" xml:space="preserve"><value>Ver el panel</value></data>
+  <data name="SettingsLabel" xml:space="preserve"><value>Configuración</value></data>
+  <data name="SettingsDescription" xml:space="preserve"><value>Abrir la configuración</value></data>
+  <data name="ProfileLabel" xml:space="preserve"><value>Perfil</value></data>
+  <data name="ProfileDescription" xml:space="preserve"><value>Ver tu perfil</value></data>
+  <data name="WorkspacesLabel" xml:space="preserve"><value>Espacios de trabajo</value></data>
+  <data name="WorkspacesDescription" xml:space="preserve"><value>Administrar espacios de trabajo</value></data>
+  <data name="TemplatesLabel" xml:space="preserve"><value>Plantillas</value></data>
+  <data name="TemplatesDescription" xml:space="preserve"><value>Explorar plantillas</value></data>
+  <data name="FlowsLabel" xml:space="preserve"><value>Flujos</value></data>
+  <data name="FlowsDescription" xml:space="preserve"><value>Administrar flujos de trabajo</value></data>
+  <data name="ToolsLabel" xml:space="preserve"><value>Herramientas</value></data>
+  <data name="ToolsDescription" xml:space="preserve"><value>Ver herramientas</value></data>
+  <data name="PackagesLabel" xml:space="preserve"><value>Paquetes</value></data>
+  <data name="PackagesDescription" xml:space="preserve"><value>Explorar paquetes</value></data>
+  <data name="ToggleThemeLabel" xml:space="preserve"><value>Cambiar tema</value></data>
+  <data name="ToggleThemeDescription" xml:space="preserve"><value>Cambiar entre modo claro y oscuro</value></data>
+  <data name="ToggleSidebarLabel" xml:space="preserve"><value>Alternar barra lateral</value></data>
+  <data name="ToggleSidebarDescription" xml:space="preserve"><value>Mostrar u ocultar la barra lateral</value></data>
+  <data name="SessionLabel" xml:space="preserve"><value>Sesión</value></data>
+  <data name="SessionDescription" xml:space="preserve"><value>Abrir sesión</value></data>
+  <data name="AdminWorkspacesLabel" xml:space="preserve"><value>Admin: Espacios de trabajo</value></data>
+  <data name="AdminWorkspacesDescription" xml:space="preserve"><value>Administrar todos los espacios de trabajo</value></data>
+  <data name="AdminTemplatesLabel" xml:space="preserve"><value>Admin: Plantillas</value></data>
+  <data name="AdminTemplatesDescription" xml:space="preserve"><value>Administrar todas las plantillas</value></data>
+  <data name="AdminFlowsLabel" xml:space="preserve"><value>Admin: Flujos</value></data>
+  <data name="AdminFlowsDescription" xml:space="preserve"><value>Administrar todos los flujos</value></data>
+  <data name="AdminToolsLabel" xml:space="preserve"><value>Admin: Herramientas</value></data>
+  <data name="AdminToolsDescription" xml:space="preserve"><value>Administrar todas las herramientas</value></data>
+  <data name="AdminPackagesLabel" xml:space="preserve"><value>Admin: Paquetes</value></data>
+  <data name="AdminPackagesDescription" xml:space="preserve"><value>Administrar paquetes de la sesión</value></data>
+  <data name="AdminTablesLabel" xml:space="preserve"><value>Admin: Tablas</value></data>
+  <data name="AdminTablesDescription" xml:space="preserve"><value>Administrar tablas de base de datos</value></data>
+  <data name="AdminColumnsLabel" xml:space="preserve"><value>Admin: Columnas</value></data>
+  <data name="AdminColumnsDescription" xml:space="preserve"><value>Administrar columnas de tabla</value></data>
+  <data name="AdminRelationshipsLabel" xml:space="preserve"><value>Admin: Relaciones</value></data>
+  <data name="AdminRelationshipsDescription" xml:space="preserve"><value>Administrar relaciones</value></data>
+  <data name="AdminGroupsLabel" xml:space="preserve"><value>Admin: Grupos</value></data>
+  <data name="AdminGroupsDescription" xml:space="preserve"><value>Administrar grupos de usuarios</value></data>
+  <data name="AdminTeamsLabel" xml:space="preserve"><value>Admin: Equipos</value></data>
+  <data name="AdminTeamsDescription" xml:space="preserve"><value>Administrar equipos</value></data>
+  <data name="AdminImportsLabel" xml:space="preserve"><value>Admin: Importaciones</value></data>
+  <data name="AdminImportsDescription" xml:space="preserve"><value>Administrar importaciones</value></data>
+  <data name="AdminWorkflowsLabel" xml:space="preserve"><value>Admin: Flujos de trabajo</value></data>
+  <data name="AdminWorkflowsDescription" xml:space="preserve"><value>Administrar flujos de trabajo</value></data>
+  <data name="AdminStepsLabel" xml:space="preserve"><value>Admin: Pasos</value></data>
+  <data name="AdminStepsDescription" xml:space="preserve"><value>Administrar pasos del flujo de trabajo</value></data>
+  <data name="AdminVersionsLabel" xml:space="preserve"><value>Admin: Versiones</value></data>
+  <data name="AdminVersionsDescription" xml:space="preserve"><value>Administrar versiones de plantillas</value></data>
+  <data name="MyProfileLabel" xml:space="preserve"><value>Mi perfil</value></data>
+  <data name="MyProfileDescription" xml:space="preserve"><value>Ver y editar tu perfil</value></data>
+  <data name="LogoutLabel" xml:space="preserve"><value>Cerrar sesión</value></data>
+  <data name="LogoutDescription" xml:space="preserve"><value>Cerrar sesión de tu cuenta</value></data>
+</root>

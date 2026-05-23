@@ -9,13 +9,15 @@
     <button type="button"
             class="@GetTriggerClass()"
             @onclick="Open"
-            title="Search (Ctrl+K or /)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 shrink-0 text-muted-foreground">
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="m21 21-4.3-4.3"></path>
-        </svg>
-        <span class="hidden xl:inline-flex text-muted-foreground">@Placeholder</span>
-        <span class="inline-flex xl:hidden text-muted-foreground">Search...</span>
+            title="@SearchTriggerTitle">
+        <span class="flex min-w-0 flex-1 items-center gap-2 text-left">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4 shrink-0 text-muted-foreground">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.3-4.3"></path>
+            </svg>
+            <span class="hidden min-w-0 truncate text-muted-foreground xl:inline-flex">@ResolvedPlaceholder</span>
+            <span class="min-w-0 truncate text-muted-foreground xl:hidden">@SearchCompactPlaceholder</span>
+        </span>
         <kbd class="@GetKbdClass()">
             <span class="text-xs">⌘</span>K
         </kbd>
@@ -40,7 +42,7 @@
                         <input 
                             type="text"
                             class="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-                            placeholder="Type a command or search..."
+                            placeholder="@SearchInputPlaceholder"
                             @bind="_searchQuery"
                             @bind:event="oninput" />
                         @if (_isLoading)
@@ -56,14 +58,14 @@
                         @if (!string.IsNullOrEmpty(_searchQuery) && !HasResults())
                         {
                             <div class="py-6 text-center text-sm text-muted-foreground">
-                                No results found.
+                                @NoResultsFoundText
                             </div>
                         }
 
                         @* Suggestions Group *@
                         @if (ShouldShowSuggestions())
                         {
-                            <CommandGroup Heading="Suggestions">
+                            <CommandGroup Heading="@SuggestionsHeading">
                                 @foreach (var item in FilteredSuggestions.Take(MaxResults))
                                 {
                                     <CommandItem Value="@item.Value" OnSelect="() => ExecuteAction(item)">
@@ -88,7 +90,7 @@
                             {
                                 <CommandSeparator />
                             }
-                            <CommandGroup Heading="Pages">
+                            <CommandGroup Heading="@PagesHeading">
                                 @foreach (var pageItem in FilteredPages.Take(MaxResults))
                                 {
                                     <CommandItem Value="@pageItem.Value" OnSelect="() => NavigateTo(pageItem.Url)">
@@ -109,7 +111,7 @@
                             {
                                 <CommandSeparator />
                             }
-                            <CommandGroup Heading="Actions">
+                            <CommandGroup Heading="@ActionsHeading">
                                 @foreach (var action in FilteredActions.Take(MaxResults))
                                 {
                                     <CommandItem Value="@action.Value" OnSelect="() => ExecuteAction(action)">
@@ -144,42 +146,25 @@
     private string _searchQuery = "";
     private bool _isLoading = false;
 
-    [Parameter] public string Placeholder { get; set; } = "Search pages, settings, and actions...";
+    [Parameter] public string? Placeholder { get; set; }
+    [Parameter] public string SearchTriggerTitle { get; set; } = string.Empty;
+    [Parameter] public string SearchCompactPlaceholder { get; set; } = string.Empty;
+    [Parameter] public string SearchInputPlaceholder { get; set; } = string.Empty;
+    [Parameter] public string NoResultsFoundText { get; set; } = string.Empty;
+    [Parameter] public string SuggestionsHeading { get; set; } = string.Empty;
+    [Parameter] public string PagesHeading { get; set; } = string.Empty;
+    [Parameter] public string ActionsHeading { get; set; } = string.Empty;
     [Parameter] public int MaxResults { get; set; } = 5;
     [Parameter] public List<CommandSearchItem> Suggestions { get; set; } = new();
     [Parameter] public List<CommandSearchItem> Pages { get; set; } = new();
     [Parameter] public List<CommandSearchItem> Actions { get; set; } = new();
     [Parameter] public EventCallback<CommandSearchItem> OnItemSelected { get; set; }
 
-    // Default suggestions
-    private List<CommandSearchItem> DefaultSuggestions => new()
-    {
-        new("home", "Home", "/", "Go to home page"),
-        new("dashboard", "Dashboard", "/dashboard", "View dashboard"),
-        new("settings", "Settings", "/settings", "Open settings"),
-        new("profile", "Profile", "/profile", "View your profile"),
-    };
+    private string ResolvedPlaceholder => Placeholder ?? string.Empty;
 
-    // Default pages
-    private List<CommandSearchItem> DefaultPages => new()
-    {
-        new("workspaces", "Workspaces", "/workspaces", "Manage workspaces"),
-        new("templates", "Templates", "/templates", "Browse templates"),
-        new("flows", "Flows", "/flows", "Manage workflows"),
-        new("tools", "Tools", "/tools", "View tools"),
-        new("packages", "Packages", "/packages", "Browse packages"),
-    };
-
-    // Default actions
-    private List<CommandSearchItem> DefaultActions => new()
-    {
-        new("toggle-theme", "Toggle Theme", null, "Switch between light and dark mode", null, "⌘T"),
-        new("toggle-sidebar", "Toggle Sidebar", null, "Show or hide the sidebar", null, "⌘B"),
-    };
-
-    private List<CommandSearchItem> AllSuggestions => Suggestions.Any() ? Suggestions : DefaultSuggestions;
-    private List<CommandSearchItem> AllPages => Pages.Any() ? Pages : DefaultPages;
-    private List<CommandSearchItem> AllActions => Actions.Any() ? Actions : DefaultActions;
+    private List<CommandSearchItem> AllSuggestions => Suggestions;
+    private List<CommandSearchItem> AllPages => Pages;
+    private List<CommandSearchItem> AllActions => Actions;
 
     private IEnumerable<CommandSearchItem> FilteredSuggestions => FilterItems(AllSuggestions);
     private IEnumerable<CommandSearchItem> FilteredPages => FilterItems(AllPages);
@@ -315,7 +300,7 @@
     }
 
     private string GetContainerClass() => string.IsNullOrEmpty(Class) ? "relative" : $"relative {Class}";
-    private string GetTriggerClass() => "relative h-8 w-full justify-between rounded-lg border border-input bg-background/50 px-3 py-2 text-sm font-normal shadow-none hover:bg-accent hover:text-accent-foreground flex items-center gap-2 md:w-40 lg:w-64 xl:w-80 transition-colors";
+    private string GetTriggerClass() => "relative flex h-8 w-full min-w-0 items-center justify-between gap-2 rounded-lg border border-input bg-background/50 px-3 py-2 text-sm font-normal shadow-none transition-colors hover:bg-accent hover:text-accent-foreground";
     private string GetKbdClass() => "pointer-events-none absolute right-2 top-1/2 hidden h-5 -translate-y-1/2 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex";
 
     public async ValueTask DisposeAsync()

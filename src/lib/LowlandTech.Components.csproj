@@ -10,6 +10,7 @@
     <Authors>LowlandTech</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>Blazor component library for the Foundry platform.</Description>
+    <EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
   </PropertyGroup>
 
 
@@ -19,6 +20,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\**\*.resx">
+      <LogicalName>$(AssemblyName).$([System.String]::Copy('%(RelativeDir)%(Filename)').Replace('\', '.').Replace('/', '.')).resources</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <Choose>

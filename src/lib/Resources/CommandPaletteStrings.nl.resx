@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="SearchTriggerTitle" xml:space="preserve"><value>Zoeken (Ctrl+K of /)</value></data>
+  <data name="SearchPlaceholder" xml:space="preserve"><value>Zoek pagina's, instellingen en acties...</value></data>
+  <data name="SearchCompactPlaceholder" xml:space="preserve"><value>Zoeken...</value></data>
+  <data name="SearchInputPlaceholder" xml:space="preserve"><value>Typ een opdracht of zoek...</value></data>
+  <data name="NoResultsFound" xml:space="preserve"><value>Geen resultaten gevonden.</value></data>
+  <data name="SuggestionsHeading" xml:space="preserve"><value>Suggesties</value></data>
+  <data name="PagesHeading" xml:space="preserve"><value>Pagina's</value></data>
+  <data name="ActionsHeading" xml:space="preserve"><value>Acties</value></data>
+  <data name="HomeLabel" xml:space="preserve"><value>Start</value></data>
+  <data name="HomeDescription" xml:space="preserve"><value>Ga naar de startpagina</value></data>
+  <data name="DashboardLabel" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="DashboardDescription" xml:space="preserve"><value>Bekijk het dashboard</value></data>
+  <data name="SettingsLabel" xml:space="preserve"><value>Instellingen</value></data>
+  <data name="SettingsDescription" xml:space="preserve"><value>Open instellingen</value></data>
+  <data name="ProfileLabel" xml:space="preserve"><value>Profiel</value></data>
+  <data name="ProfileDescription" xml:space="preserve"><value>Bekijk je profiel</value></data>
+  <data name="WorkspacesLabel" xml:space="preserve"><value>Werkruimtes</value></data>
+  <data name="WorkspacesDescription" xml:space="preserve"><value>Beheer werkruimtes</value></data>
+  <data name="TemplatesLabel" xml:space="preserve"><value>Sjablonen</value></data>
+  <data name="TemplatesDescription" xml:space="preserve"><value>Bekijk sjablonen</value></data>
+  <data name="FlowsLabel" xml:space="preserve"><value>Stromen</value></data>
+  <data name="FlowsDescription" xml:space="preserve"><value>Beheer werkstromen</value></data>
+  <data name="ToolsLabel" xml:space="preserve"><value>Hulpmiddelen</value></data>
+  <data name="ToolsDescription" xml:space="preserve"><value>Bekijk hulpmiddelen</value></data>
+  <data name="PackagesLabel" xml:space="preserve"><value>Pakketten</value></data>
+  <data name="PackagesDescription" xml:space="preserve"><value>Bekijk pakketten</value></data>
+  <data name="ToggleThemeLabel" xml:space="preserve"><value>Thema wisselen</value></data>
+  <data name="ToggleThemeDescription" xml:space="preserve"><value>Wissel tussen lichte en donkere modus</value></data>
+  <data name="ToggleSidebarLabel" xml:space="preserve"><value>Zijbalk wisselen</value></data>
+  <data name="ToggleSidebarDescription" xml:space="preserve"><value>Toon of verberg de zijbalk</value></data>
+  <data name="SessionLabel" xml:space="preserve"><value>Sessie</value></data>
+  <data name="SessionDescription" xml:space="preserve"><value>Open sessie</value></data>
+  <data name="AdminWorkspacesLabel" xml:space="preserve"><value>Beheer: Werkruimtes</value></data>
+  <data name="AdminWorkspacesDescription" xml:space="preserve"><value>Beheer alle werkruimtes</value></data>
+  <data name="AdminTemplatesLabel" xml:space="preserve"><value>Beheer: Sjablonen</value></data>
+  <data name="AdminTemplatesDescription" xml:space="preserve"><value>Beheer alle sjablonen</value></data>
+  <data name="AdminFlowsLabel" xml:space="preserve"><value>Beheer: Stromen</value></data>
+  <data name="AdminFlowsDescription" xml:space="preserve"><value>Beheer alle stromen</value></data>
+  <data name="AdminToolsLabel" xml:space="preserve"><value>Beheer: Hulpmiddelen</value></data>
+  <data name="AdminToolsDescription" xml:space="preserve"><value>Beheer alle hulpmiddelen</value></data>
+  <data name="AdminPackagesLabel" xml:space="preserve"><value>Beheer: Pakketten</value></data>
+  <data name="AdminPackagesDescription" xml:space="preserve"><value>Beheer pakketten in de sessie</value></data>
+  <data name="AdminTablesLabel" xml:space="preserve"><value>Beheer: Tabellen</value></data>
+  <data name="AdminTablesDescription" xml:space="preserve"><value>Beheer databasetabellen</value></data>
+  <data name="AdminColumnsLabel" xml:space="preserve"><value>Beheer: Kolommen</value></data>
+  <data name="AdminColumnsDescription" xml:space="preserve"><value>Beheer tabelkolommen</value></data>
+  <data name="AdminRelationshipsLabel" xml:space="preserve"><value>Beheer: Relaties</value></data>
+  <data name="AdminRelationshipsDescription" xml:space="preserve"><value>Beheer relaties</value></data>
+  <data name="AdminGroupsLabel" xml:space="preserve"><value>Beheer: Groepen</value></data>
+  <data name="AdminGroupsDescription" xml:space="preserve"><value>Beheer gebruikersgroepen</value></data>
+  <data name="AdminTeamsLabel" xml:space="preserve"><value>Beheer: Teams</value></data>
+  <data name="AdminTeamsDescription" xml:space="preserve"><value>Beheer teams</value></data>
+  <data name="AdminImportsLabel" xml:space="preserve"><value>Beheer: Importen</value></data>
+  <data name="AdminImportsDescription" xml:space="preserve"><value>Beheer importen</value></data>
+  <data name="AdminWorkflowsLabel" xml:space="preserve"><value>Beheer: Werkstromen</value></data>
+  <data name="AdminWorkflowsDescription" xml:space="preserve"><value>Beheer werkstromen</value></data>
+  <data name="AdminStepsLabel" xml:space="preserve"><value>Beheer: Stappen</value></data>
+  <data name="AdminStepsDescription" xml:space="preserve"><value>Beheer werkstroomstappen</value></data>
+  <data name="AdminVersionsLabel" xml:space="preserve"><value>Beheer: Versies</value></data>
+  <data name="AdminVersionsDescription" xml:space="preserve"><value>Beheer sjabloonversies</value></data>
+  <data name="MyProfileLabel" xml:space="preserve"><value>Mijn profiel</value></data>
+  <data name="MyProfileDescription" xml:space="preserve"><value>Bekijk en bewerk je profiel</value></data>
+  <data name="LogoutLabel" xml:space="preserve"><value>Afmelden</value></data>
+  <data name="LogoutDescription" xml:space="preserve"><value>Meld je af bij je account</value></data>
+</root>

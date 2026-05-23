@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="SearchTriggerTitle" xml:space="preserve"><value>Søg (Ctrl+K eller /)</value></data>
+  <data name="SearchPlaceholder" xml:space="preserve"><value>Søg efter sider, indstillinger og handlinger...</value></data>
+  <data name="SearchCompactPlaceholder" xml:space="preserve"><value>Søg...</value></data>
+  <data name="SearchInputPlaceholder" xml:space="preserve"><value>Skriv en kommando eller søg...</value></data>
+  <data name="NoResultsFound" xml:space="preserve"><value>Ingen resultater fundet.</value></data>
+  <data name="SuggestionsHeading" xml:space="preserve"><value>Forslag</value></data>
+  <data name="PagesHeading" xml:space="preserve"><value>Sider</value></data>
+  <data name="ActionsHeading" xml:space="preserve"><value>Handlinger</value></data>
+  <data name="HomeLabel" xml:space="preserve"><value>Start</value></data>
+  <data name="HomeDescription" xml:space="preserve"><value>Gå til startsiden</value></data>
+  <data name="DashboardLabel" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="DashboardDescription" xml:space="preserve"><value>Vis dashboard</value></data>
+  <data name="SettingsLabel" xml:space="preserve"><value>Indstillinger</value></data>
+  <data name="SettingsDescription" xml:space="preserve"><value>Åbn indstillinger</value></data>
+  <data name="ProfileLabel" xml:space="preserve"><value>Profil</value></data>
+  <data name="ProfileDescription" xml:space="preserve"><value>Vis din profil</value></data>
+  <data name="WorkspacesLabel" xml:space="preserve"><value>Arbejdsområder</value></data>
+  <data name="WorkspacesDescription" xml:space="preserve"><value>Administrer arbejdsområder</value></data>
+  <data name="TemplatesLabel" xml:space="preserve"><value>Skabeloner</value></data>
+  <data name="TemplatesDescription" xml:space="preserve"><value>Gennemse skabeloner</value></data>
+  <data name="FlowsLabel" xml:space="preserve"><value>Flows</value></data>
+  <data name="FlowsDescription" xml:space="preserve"><value>Administrer workflows</value></data>
+  <data name="ToolsLabel" xml:space="preserve"><value>Værktøjer</value></data>
+  <data name="ToolsDescription" xml:space="preserve"><value>Vis værktøjer</value></data>
+  <data name="PackagesLabel" xml:space="preserve"><value>Pakker</value></data>
+  <data name="PackagesDescription" xml:space="preserve"><value>Gennemse pakker</value></data>
+  <data name="ToggleThemeLabel" xml:space="preserve"><value>Skift tema</value></data>
+  <data name="ToggleThemeDescription" xml:space="preserve"><value>Skift mellem lyst og mørkt tema</value></data>
+  <data name="ToggleSidebarLabel" xml:space="preserve"><value>Skift sidebjælke</value></data>
+  <data name="ToggleSidebarDescription" xml:space="preserve"><value>Vis eller skjul sidebjælken</value></data>
+  <data name="SessionLabel" xml:space="preserve"><value>Session</value></data>
+  <data name="SessionDescription" xml:space="preserve"><value>Åbn session</value></data>
+  <data name="AdminWorkspacesLabel" xml:space="preserve"><value>Admin: Arbejdsområder</value></data>
+  <data name="AdminWorkspacesDescription" xml:space="preserve"><value>Administrer alle arbejdsområder</value></data>
+  <data name="AdminTemplatesLabel" xml:space="preserve"><value>Admin: Skabeloner</value></data>
+  <data name="AdminTemplatesDescription" xml:space="preserve"><value>Administrer alle skabeloner</value></data>
+  <data name="AdminFlowsLabel" xml:space="preserve"><value>Admin: Flows</value></data>
+  <data name="AdminFlowsDescription" xml:space="preserve"><value>Administrer alle flows</value></data>
+  <data name="AdminToolsLabel" xml:space="preserve"><value>Admin: Værktøjer</value></data>
+  <data name="AdminToolsDescription" xml:space="preserve"><value>Administrer alle værktøjer</value></data>
+  <data name="AdminPackagesLabel" xml:space="preserve"><value>Admin: Pakker</value></data>
+  <data name="AdminPackagesDescription" xml:space="preserve"><value>Administrer pakker i sessionen</value></data>
+  <data name="AdminTablesLabel" xml:space="preserve"><value>Admin: Tabeller</value></data>
+  <data name="AdminTablesDescription" xml:space="preserve"><value>Administrer databasetabeller</value></data>
+  <data name="AdminColumnsLabel" xml:space="preserve"><value>Admin: Kolonner</value></data>
+  <data name="AdminColumnsDescription" xml:space="preserve"><value>Administrer tabelkolonner</value></data>
+  <data name="AdminRelationshipsLabel" xml:space="preserve"><value>Admin: Relationer</value></data>
+  <data name="AdminRelationshipsDescription" xml:space="preserve"><value>Administrer relationer</value></data>
+  <data name="AdminGroupsLabel" xml:space="preserve"><value>Admin: Grupper</value></data>
+  <data name="AdminGroupsDescription" xml:space="preserve"><value>Administrer brugergrupper</value></data>
+  <data name="AdminTeamsLabel" xml:space="preserve"><value>Admin: Teams</value></data>
+  <data name="AdminTeamsDescription" xml:space="preserve"><value>Administrer teams</value></data>
+  <data name="AdminImportsLabel" xml:space="preserve"><value>Admin: Importer</value></data>
+  <data name="AdminImportsDescription" xml:space="preserve"><value>Administrer importer</value></data>
+  <data name="AdminWorkflowsLabel" xml:space="preserve"><value>Admin: Workflows</value></data>
+  <data name="AdminWorkflowsDescription" xml:space="preserve"><value>Administrer workflows</value></data>
+  <data name="AdminStepsLabel" xml:space="preserve"><value>Admin: Trin</value></data>
+  <data name="AdminStepsDescription" xml:space="preserve"><value>Administrer workflowtrin</value></data>
+  <data name="AdminVersionsLabel" xml:space="preserve"><value>Admin: Versioner</value></data>
+  <data name="AdminVersionsDescription" xml:space="preserve"><value>Administrer skabelonversioner</value></data>
+  <data name="MyProfileLabel" xml:space="preserve"><value>Min profil</value></data>
+  <data name="MyProfileDescription" xml:space="preserve"><value>Vis og rediger din profil</value></data>
+  <data name="LogoutLabel" xml:space="preserve"><value>Log af</value></data>
+  <data name="LogoutDescription" xml:space="preserve"><value>Log af din konto</value></data>
+</root>
