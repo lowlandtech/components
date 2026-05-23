@@ -1,5 +1,3 @@
-using LowlandTech.Core.Graph;
-
 namespace LowlandTech.Components.Feed;
 
 public abstract class BlockBase : ComponentBase, IBlock, IDisposable

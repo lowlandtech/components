@@ -28,18 +28,9 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <Choose>
-    <When Condition="Exists('$(MSBuildThisFileDirectory)..\..\core\LowlandTech.Core.csproj')">
-      <ItemGroup>
-        <ProjectReference Include="$(MSBuildThisFileDirectory)..\..\core\LowlandTech.Core.csproj" />
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <PackageReference Include="LowlandTech.Core" Version="*" />
-      </ItemGroup>
-    </Otherwise>
-  </Choose>
+  <ItemGroup>
+    <ProjectReference Include="..\..\core\LowlandTech.Core.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Remove="artifacts\**" />
