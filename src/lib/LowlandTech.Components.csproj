@@ -48,11 +48,15 @@
 
   <Target Name="BuildTailwindCSS" BeforeTargets="BeforeBuild" Condition="'$(SkipTailwindBuild)' != 'true'">
     <PropertyGroup>
-      <WwwRootPath>$(MSBuildProjectDirectory)\wwwroot</WwwRootPath>
-      <NodeModulesPath>$(WwwRootPath)\node_modules</NodeModulesPath>
+      <WwwRootPath>$(MSBuildProjectDirectory)/wwwroot</WwwRootPath>
+      <NodeModulesPath>$(WwwRootPath)/node_modules</NodeModulesPath>
     </PropertyGroup>
-    <Exec Command="set PATH=$(VisualStudioNodeJsPath);%PATH% &amp;&amp; $(NpmCommand) install" WorkingDirectory="$(WwwRootPath)" Condition="!Exists('$(NodeModulesPath)')" ConsoleToMSBuild="true" IgnoreExitCode="false" />
-    <Exec Command="set PATH=$(VisualStudioNodeJsPath);%PATH% &amp;&amp; $(NpmCommand) run build:css" WorkingDirectory="$(WwwRootPath)" ConsoleToMSBuild="true" IgnoreExitCode="false" />
+    <!-- Windows: prepend VS NodeJs to PATH so npm.cmd is found -->
+    <Exec Command="set PATH=$(VisualStudioNodeJsPath);%PATH% &amp;&amp; $(NpmCommand) install" WorkingDirectory="$(WwwRootPath)" Condition="'$(OS)' == 'Windows_NT' And !Exists('$(NodeModulesPath)')" ConsoleToMSBuild="true" IgnoreExitCode="false" />
+    <Exec Command="set PATH=$(VisualStudioNodeJsPath);%PATH% &amp;&amp; $(NpmCommand) run build:css" WorkingDirectory="$(WwwRootPath)" Condition="'$(OS)' == 'Windows_NT'" ConsoleToMSBuild="true" IgnoreExitCode="false" />
+    <!-- Linux/macOS: use npm directly from PATH -->
+    <Exec Command="npm install" WorkingDirectory="$(WwwRootPath)" Condition="'$(OS)' != 'Windows_NT' And !Exists('$(NodeModulesPath)')" ConsoleToMSBuild="true" IgnoreExitCode="false" />
+    <Exec Command="npm run build:css" WorkingDirectory="$(WwwRootPath)" Condition="'$(OS)' != 'Windows_NT'" ConsoleToMSBuild="true" IgnoreExitCode="false" />
   </Target>
 
 </Project>
