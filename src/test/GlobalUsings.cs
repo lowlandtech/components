@@ -12,6 +12,7 @@ global using LowlandTech.Components.Stories.Showcode;
 global using LowlandTech.Components.Stories.Showcode.Stories.Misc;
 global using LowlandTech.Components.Select;
 global using LowlandTech.Components.Session;
+global using LowlandTech.Components.Session.Agents;
 global using LowlandTech.Components.Tabs;
 global using LowlandTech.Components.Tests.Infrastructure;
 global using Microsoft.AspNetCore.Components;

@@ -1,6 +1,8 @@
 @namespace LowlandTech.Components.Session
 @inherits TinyComponentBase
 @inject IJSRuntime JS
+@inject ISonnerService Sonner
+@inject IGraphDiscoveryService Discovery
 
 <div data-slot="session-app" class="@GetClass()" @attributes="AdditionalAttributes">
     <Resizable>
@@ -56,49 +58,65 @@
                                 PinnedTabIds="_pinnedNodeIds"
                                 OnTabPinnedChanged="HandleTabPinnedChangedAsync"
                                 class="min-h-0 flex-1">
-                    <div class="space-y-3" data-slot="session-app-turns">
-                        <div id="session-turn-request" data-slot="session-app-turn-section">
-                            <SessionCard Node="CurrentRequestNode"
-                                         Initials="RQ"
-                                         Status="Request"
-                                         StatusVariant="outline"
-                                         Description="Summarize the active session and use any pinned context." />
+                    @if (MaximizedBlock is { } maximizedBlock)
+                    {
+                        <div class="flex min-h-full"
+                             data-slot="session-app-maximized-block"
+                             data-block-id="@maximizedBlock.Id">
+                            <SessionContextBlock Block="maximizedBlock"
+                                                 Mode="@SessionContextBlock.ModeMaximized"
+                                                 IsPinned="@IsBlockPinned(maximizedBlock)"
+                                                 OnUnpin="@(() => UnpinBlockAsync(maximizedBlock))"
+                                                 ModeChanged="@(mode => HandleBlockModeChangedAsync(maximizedBlock, mode))" />
                         </div>
-
-                        @if (CurrentSubmittedCommands.Count == 0)
-                        {
-                            <div id="session-turn-response" data-slot="session-app-turn-section">
-                                <SessionCard Node="CurrentResponseNode"
-                                             Initials="RS"
-                                             Status="Ready"
-                                             Description="Pinned context blocks will be included in the assistant context window without creating turns." />
+                    }
+                    else
+                    {
+                        <div class="space-y-3" data-slot="session-app-turns">
+                            <div id="session-turn-request" data-slot="session-app-turn-section">
+                                <SessionCard Node="CurrentRequestNode"
+                                             Initials="RQ"
+                                             Status="Request"
+                                             StatusVariant="outline"
+                                             Description="Summarize the active session and use any pinned context." />
                             </div>
-                        }
-                        else
-                        {
-                            @for (var i = 0; i < CurrentSubmittedCommands.Count; i++)
+
+                            @if (CurrentSubmittedCommands.Count == 0)
                             {
-                                var command = CurrentSubmittedCommands[i];
-                                <div id="@GetCommandTurnId(i)" data-slot="session-app-turn-section">
-                                    <SessionCard Node="CreateResponseNode(command)"
+                                <div id="session-turn-response" data-slot="session-app-turn-section">
+                                    <SessionCard Node="CurrentResponseNode"
                                                  Initials="RS"
-                                                 Status="@command.AgentTypeKey"
-                                                 Description="@CreateResponseDescription(command)" />
+                                                 Status="Ready"
+                                                 Description="Pinned context blocks will be included in the assistant context window without creating turns." />
                                 </div>
                             }
-                        }
-                    </div>
-
-                    @if ((ViewState.ContextBlocks ?? []).Count > 0)
-                    {
-                        <div class="space-y-2" data-slot="session-app-context-blocks">
-                            @foreach (var block in ViewState.ContextBlocks ?? [])
+                            else
                             {
-                                <SessionContextBlock Block="block"
-                                                     IsPinned="@IsBlockPinned(block)"
-                                                     OnUnpin="@(() => UnpinBlockAsync(block))" />
+                                @for (var i = 0; i < CurrentSubmittedCommands.Count; i++)
+                                {
+                                    var command = CurrentSubmittedCommands[i];
+                                    <div id="@GetCommandTurnId(i)" data-slot="session-app-turn-section">
+                                        <SessionCard Node="CreateResponseNode(command)"
+                                                     Initials="RS"
+                                                     Status="@command.AgentTypeKey"
+                                                     Description="@CreateResponseDescription(command)" />
+                                    </div>
+                                }
                             }
                         </div>
+
+                        @if ((ViewState.ContextBlocks ?? []).Count > 0)
+                        {
+                            <div class="space-y-2" data-slot="session-app-context-blocks">
+                                @foreach (var block in ViewState.ContextBlocks ?? [])
+                                {
+                                    <SessionContextBlock Block="block"
+                                                         IsPinned="@IsBlockPinned(block)"
+                                                         OnUnpin="@(() => UnpinBlockAsync(block))"
+                                                         ModeChanged="@(mode => HandleBlockModeChangedAsync(block, mode))" />
+                                }
+                            </div>
+                        }
                     }
                 </SessionContent>
 
@@ -157,6 +175,7 @@
     private SessionUiState _state;
     private string? _activeSessionId;
     private string? _pendingScrollSectionId;
+    private string? _maximizedBlockId;
     private readonly List<SessionNodeInput> _openSessionNodes = [];
     private readonly HashSet<string> _pinnedNodeIds = [];
 
@@ -199,6 +218,8 @@
                 new(new("contoso", "customer", "Contoso", "CustomerBlock"))
             ])
     ];
+
+    [Parameter] public bool IsTest { get; set; }
 
     public SessionApp()
     {
@@ -278,6 +299,11 @@
             ? [.. TurnSections, .. BlockSections]
             : [];
 
+    private SessionContextBlockModel? MaximizedBlock =>
+        string.IsNullOrWhiteSpace(_maximizedBlockId)
+            ? null
+            : (ViewState.ContextBlocks ?? []).FirstOrDefault(block => string.Equals(block.Id, _maximizedBlockId, StringComparison.Ordinal));
+
     private int GetSessionSectionCount(string sessionId) =>
         GetSessionTurnSectionCount(sessionId) + GetSessionBlockSectionCount(sessionId);
 
@@ -317,6 +343,7 @@
 
             var previousActiveId = _activeSessionId;
             _activeSessionId = selectedSessionNode.Id;
+            _maximizedBlockId = null;
 
             SyncOpenSessionNodes(state.OpenNodes, previousActiveId);
 
@@ -328,6 +355,7 @@
 
             var newSelectedNode = ResolveSessionNode(state.SelectedNode);
             _activeSessionId = newSelectedNode?.Id;
+            _maximizedBlockId = null;
 
             SyncOpenSessionNodes(state.OpenNodes, null);
 
@@ -351,6 +379,7 @@
 
         _activeSessionId = null;
         _state = SessionUiDefaults.Empty;
+        _maximizedBlockId = null;
         StateHasChanged();
         return Task.CompletedTask;
     }
@@ -401,13 +430,49 @@
         return Task.CompletedTask;
     }
 
-    private Task HandleSubmitAsync(SessionCommandSubmitted command)
+    private async Task HandleSubmitAsync(SessionCommandSubmitted command)
     {
+        if (IsTest)
+        {
+            var response = DummyAskAgentGraphService.TestReplies[Random.Shared.Next(DummyAskAgentGraphService.TestReplies.Length)];
+            command = command with { Response = response };
+        }
+        else
+        {
+            var service = Discovery.Get(command.AgentTypeKey);
+            if (service is not null)
+            {
+                var context = new SessionContext();
+                await service.ExecuteAsync(context);
+                if (!string.IsNullOrWhiteSpace(context.Response))
+                {
+                    command = command with { Response = context.Response };
+                }
+            }
+            else
+            {
+                Sonner.Show($"No agent service registered for '{command.AgentTypeKey}'.", ToastType.Warning, description: "Install a plugin that provides this agent type or enable test mode.");
+            }
+        }
+
         GetSessionCommands(CurrentSessionId).Add(command);
         _pendingScrollSectionId = GetCommandTurnId(CurrentSubmittedCommands.Count - 1);
 
         StateHasChanged();
-        return Task.CompletedTask;
+
+        try
+        {
+            await JS.InvokeVoidAsync("eval", """
+                (() => {
+                    const input = document.querySelector('[data-slot="session-command-input"]');
+                    if (input) { input.value = ''; input.focus(); }
+                })();
+                """);
+        }
+        catch
+        {
+            // Best-effort: tests and prerender may not have a DOM.
+        }
     }
 
     private static SessionNodeInput CreateResponseNode(SessionCommandSubmitted command) =>
@@ -415,6 +480,9 @@
 
     private string CreateResponseDescription(SessionCommandSubmitted command)
     {
+        if (!string.IsNullOrWhiteSpace(command.Response))
+            return command.Response;
+
         var contextCount = ViewState.ContextBlocks?.Count ?? 0;
         return $"{command.AgentTypeKey} processed \"{command.Input}\" with {contextCount} context block(s).";
     }
@@ -513,7 +581,27 @@
     {
         var pinId = $"pin:{block.Context.Id}";
         _state = SessionUiReducer.Reduce(_state, new UnpinSessionContext(pinId));
+        if (string.Equals(_maximizedBlockId, block.Id, StringComparison.Ordinal))
+        {
+            _maximizedBlockId = null;
+        }
+
         PersistCurrentSessionState();
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task HandleBlockModeChangedAsync(SessionContextBlockModel block, string mode)
+    {
+        if (string.Equals(mode, SessionContextBlock.ModeMaximized, StringComparison.Ordinal))
+        {
+            _maximizedBlockId = block.Id;
+        }
+        else if (string.Equals(_maximizedBlockId, block.Id, StringComparison.Ordinal))
+        {
+            _maximizedBlockId = null;
+        }
+
         StateHasChanged();
         return Task.CompletedTask;
     }

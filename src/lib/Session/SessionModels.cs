@@ -261,7 +261,7 @@ public sealed record SessionNodeSelected(SessionNodeInput Node) : SessionUiEvent
 
 public sealed record SessionAgentTypeSelected(SessionNodeInput Node, string AgentTypeKey) : SessionUiEvent(Node);
 
-public sealed record SessionCommandSubmitted(SessionNodeInput Node, string AgentTypeKey, string Input) : SessionUiEvent(Node);
+public sealed record SessionCommandSubmitted(SessionNodeInput Node, string AgentTypeKey, string Input, string? Response = null) : SessionUiEvent(Node);
 
 public sealed record SessionCardActionSelected(SessionNodeInput Node, string ActionKey) : SessionUiEvent(Node);
 

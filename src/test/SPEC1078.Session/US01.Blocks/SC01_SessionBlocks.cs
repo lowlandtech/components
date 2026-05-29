@@ -357,6 +357,22 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Markup.ShouldContain("1 context block");
     }
 
+    [Fact(DisplayName = "UAC16b: SessionApp IsTest mode returns a random dummy reply and clears input")]
+    [Trait(Spec.UAC, "16b")]
+    public void UAC16b_SessionAppIsTestReturnsRandomDummyReply()
+    {
+        var cut = Ctx.Render<SessionApp>(p => p.Add(x => x.IsTest, true));
+
+        cut.Find("[data-node-id='orders-session']").Click();
+
+        cut.Find("[data-testid='session-command-input']").Input("Hello test");
+        cut.Find("[data-testid='session-command-submit']").Click();
+
+        var markup = cut.Markup;
+        var hasDummyReply = DummyAskAgentGraphService.TestReplies.Any(reply => markup.Contains(reply));
+        hasDummyReply.ShouldBeTrue("Expected one of the dummy test replies to be rendered.");
+    }
+
     [Fact(DisplayName = "UAC17: SessionApp projects one transient feed block and replaces it on context selection change")]
     [Trait(Spec.UAC, "17")]
     public void UAC17_SessionAppReplacesProjectedFeedBlock()
@@ -619,6 +635,33 @@ public class SC01_SessionBlocks : ViewScenario
             .ShouldAllBe(handle => handle.ClassList.Contains("bg-transparent"));
     }
 
+    [Fact(DisplayName = "UAC28: SessionApp maximized context block replaces the tab body content")]
+    [Trait(Spec.UAC, "28")]
+    public void UAC28_SessionAppMaximizedBlockOverlaysTabContent()
+    {
+        var cut = Ctx.Render<SessionApp>();
+
+        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='invoice-approval']").Click();
+
+        cut.Find("[data-block-id='projected-context-block'] [data-testid='card-mode-menu-trigger']").Click();
+        ClickOpenCardMode("Maximized");
+
+        var maximized = cut.Find("[data-slot='session-app-maximized-block']");
+        maximized.GetAttribute("data-block-id").ShouldBe("projected-context-block");
+        maximized.TextContent.ShouldContain("Invoice approval");
+        cut.Find("[data-slot='session-app-maximized-block'] [data-mode='maximized']").ShouldNotBeNull();
+        cut.FindAll("[data-slot='session-app-turns']").ShouldBeEmpty();
+        cut.FindAll("[data-slot='session-app-context-blocks']").ShouldBeEmpty();
+
+        cut.Find("[data-slot='session-app-maximized-block'] [data-testid='card-mode-menu-trigger']").Click();
+        ClickOpenCardMode("Normal");
+
+        cut.FindAll("[data-slot='session-app-maximized-block']").ShouldBeEmpty();
+        cut.Find("[data-slot='session-app-turns']").ShouldNotBeNull();
+        cut.Find("[data-slot='session-app-context-blocks']").ShouldNotBeNull();
+    }
+
     public sealed class TestSessionContextBlock : ComponentBase, ISessionContextBlock
     {
         [Parameter] public SessionContextBlockModel? Block { get; set; }
@@ -644,6 +687,22 @@ public class SC01_SessionBlocks : ViewScenario
             builder.CloseElement();
         });
         fragmentCut.Find(".session-context-node-pin").Click();
+    }
+
+    private void ClickOpenCardMode(string label)
+    {
+        var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
+        var popover = popoverService.ActivePopovers.Single(reference => reference.State.Open);
+        var fragmentCut = Ctx.Render(builder =>
+        {
+            builder.OpenElement(0, "div");
+            builder.AddContent(1, popover.State.Fragment);
+            builder.CloseElement();
+        });
+
+        fragmentCut.FindAll(".node-menu-item")
+            .Single(item => string.Equals(item.TextContent.Trim(), label, StringComparison.Ordinal))
+            .Click();
     }
 
     private static string FindSessionCount(IRenderedComponent<SessionApp> cut, string sessionId) =>

@@ -71,6 +71,7 @@
     [Parameter] public string Mode { get; set; } = ModeNormal;
     [Parameter] public bool IsPinned { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnUnpin { get; set; }
+    [Parameter] public EventCallback<string> ModeChanged { get; set; }
 
     private string NormalizedMode => Mode?.ToLowerInvariant() switch
     {
@@ -87,7 +88,7 @@
     {
         var baseClass = NormalizedMode switch
         {
-            ModeMaximized => "flex flex-1 w-full flex-col overflow-hidden bg-background gap-0 py-0",
+            ModeMaximized => "flex min-h-full w-full flex-col overflow-hidden bg-background gap-0 py-0",
             ModeOverlayPage => "w-full overflow-hidden bg-background gap-0 py-0 opacity-60",
             ModeOverlayApp => "fixed inset-0 z-50 flex h-dvh w-dvw flex-col overflow-hidden rounded-none bg-background gap-0 py-0",
             _ => "w-full overflow-hidden bg-background gap-0 py-0"
@@ -125,7 +126,7 @@
 
     private Task UnpinAsync(MouseEventArgs _) => OnUnpin.InvokeAsync(Block.Context);
 
-    private void OnModeChangedAsync(string mode)
+    private async Task OnModeChangedAsync(string mode)
     {
         if (mode == ModeOverlayPage)
         {
@@ -135,7 +136,9 @@
         {
             PageOverlay.Clear();
         }
+
         Mode = mode;
+        await ModeChanged.InvokeAsync(NormalizedMode);
         StateHasChanged();
     }
 
