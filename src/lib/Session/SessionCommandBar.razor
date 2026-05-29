@@ -144,10 +144,14 @@
         var submitted = new SessionCommandSubmitted(SelectedNode, ActiveAgentTypeKey, input);
         State = SessionUiReducer.Reduce(State, new SubmitSessionCommand(SelectedNode, ActiveAgentTypeKey, input));
         Value = State.Input;
+
+        // Propagate cleared input to parent before invoking submit handlers so the parent
+        // renders with empty input before the response is added.
+        await ValueChanged.InvokeAsync(Value);
+        await StateChanged.InvokeAsync(State);
+
         if (agent is not null)
             await agent.OnSubmit.InvokeAsync(submitted);
         await OnSubmit.InvokeAsync(submitted);
-        await ValueChanged.InvokeAsync(Value);
-        await StateChanged.InvokeAsync(State);
     }
 }
