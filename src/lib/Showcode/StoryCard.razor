@@ -58,11 +58,7 @@
                             @foreach (var codeTab in state.CodeTabs)
                             {
                                 <TabsContent Value="@codeTab.Value" class="mt-0">
-                                    <div class="story-card-code-header">
-                                        <div class="flex items-center gap-2">
-                                            <span>@codeTab.Name</span>
-                                            <span class="rounded bg-[#444c56] px-1.5 py-0.5 uppercase tracking-wider text-[#c9d1d9]">@codeTab.Language</span>
-                                        </div>
+                                    <div class="relative">
                                         <Button Variant="ghost"
                                                 Size="icon-sm"
                                                 class="story-card-copy-button text-[#8b949e] hover:bg-[#444c56] hover:text-[#c9d1d9]"
@@ -71,7 +67,6 @@
                                             <Icon Name="@(CopiedValue == codeTab.Value ? "check" : "copy")" Size="14" />
                                             <span class="sr-only">Copy @codeTab.Name code</span>
                                         </Button>
-                                    </div>
                                     <div class="story-card-code-editor" data-language="@codeTab.Language">
                                         @foreach (var line in GetHighlightedLines(codeTab))
                                         {
@@ -80,6 +75,7 @@
                                                 <code class="story-card-line-code">@((MarkupString)line.Html)</code>
                                             </div>
                                         }
+                                    </div>
                                     </div>
                                 </TabsContent>
                             }
@@ -108,7 +104,7 @@
 
     private string GetClass()
     {
-        var baseClass = "overflow-hidden rounded-xl border bg-card text-card-foreground";
+        var baseClass = "overflow-hidden bg-background text-foreground";
         return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
     }
 

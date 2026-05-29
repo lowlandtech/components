@@ -117,14 +117,14 @@ html:hover                             { scrollbar-color: var(--border) transpar
 
 .loading-progress circle {
   fill: none;
-  stroke: hsl(var(--border));
+  stroke: var(--border);
   stroke-width: 0.6rem;
   transform-origin: 50% 50%;
   transform: rotate(-90deg);
 }
 
 .loading-progress circle:last-child {
-  stroke: hsl(var(--primary));
+  stroke: var(--primary);
   stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8), 500%;
   transition: stroke-dasharray 0.05s ease-in-out;
 }
