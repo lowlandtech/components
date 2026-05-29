@@ -43,7 +43,10 @@ public sealed record SessionContextBlockModel(
     SessionNodeInput Context,
     object? Data = null,
     Type? ComponentType = null,
-    bool IncludeInContextWindow = true);
+    bool IncludeInContextWindow = true)
+{
+    public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
+}
 
 public interface IBlock
 {
@@ -261,7 +264,10 @@ public sealed record SessionNodeSelected(SessionNodeInput Node) : SessionUiEvent
 
 public sealed record SessionAgentTypeSelected(SessionNodeInput Node, string AgentTypeKey) : SessionUiEvent(Node);
 
-public sealed record SessionCommandSubmitted(SessionNodeInput Node, string AgentTypeKey, string Input, string? Response = null) : SessionUiEvent(Node);
+public sealed record SessionCommandSubmitted(SessionNodeInput Node, string AgentTypeKey, string Input, string? Response = null) : SessionUiEvent(Node)
+{
+    public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
+}
 
 public sealed record SessionCardActionSelected(SessionNodeInput Node, string ActionKey) : SessionUiEvent(Node);
 

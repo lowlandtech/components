@@ -417,20 +417,19 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-block-id='projected-context-block']").TextContent.ShouldContain("Invoice approval");
     }
 
-    [Fact(DisplayName = "UAC19: SessionApp renders context blocks after session turns")]
+    [Fact(DisplayName = "UAC19: SessionApp interleaves turns and blocks in a unified feed")]
     [Trait(Spec.UAC, "19")]
-    public void UAC19_SessionAppRendersContextBlocksAfterTurns()
+    public void UAC19_SessionAppRendersUnifiedFeed()
     {
         var cut = Ctx.Render<SessionApp>();
 
         cut.Find("[data-node-id='release-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
 
-        var turnsIndex = cut.Markup.IndexOf("data-slot=\"session-app-turns\"", StringComparison.Ordinal);
-        var blocksIndex = cut.Markup.IndexOf("data-slot=\"session-app-context-blocks\"", StringComparison.Ordinal);
-
-        turnsIndex.ShouldBeGreaterThan(-1);
-        blocksIndex.ShouldBeGreaterThan(turnsIndex);
+        var feed = cut.Find("[data-slot='session-app-feed']");
+        feed.ShouldNotBeNull();
+        feed.QuerySelectorAll("[data-slot='session-app-turn-section']").Count.ShouldBeGreaterThan(0);
+        feed.QuerySelectorAll("[data-slot='session-context-block']").Count.ShouldBeGreaterThan(0);
     }
 
     [Fact(DisplayName = "UAC20: SessionContextExplorer hides pinned nodes from the context tree")]
@@ -651,15 +650,13 @@ public class SC01_SessionBlocks : ViewScenario
         maximized.GetAttribute("data-block-id").ShouldBe("projected-context-block");
         maximized.TextContent.ShouldContain("Invoice approval");
         cut.Find("[data-slot='session-app-maximized-block'] [data-mode='maximized']").ShouldNotBeNull();
-        cut.FindAll("[data-slot='session-app-turns']").ShouldBeEmpty();
-        cut.FindAll("[data-slot='session-app-context-blocks']").ShouldBeEmpty();
+        cut.FindAll("[data-slot='session-app-feed']").ShouldBeEmpty();
 
         cut.Find("[data-slot='session-app-maximized-block'] [data-testid='card-mode-menu-trigger']").Click();
         ClickOpenCardMode("Normal");
 
         cut.FindAll("[data-slot='session-app-maximized-block']").ShouldBeEmpty();
-        cut.Find("[data-slot='session-app-turns']").ShouldNotBeNull();
-        cut.Find("[data-slot='session-app-context-blocks']").ShouldNotBeNull();
+        cut.Find("[data-slot='session-app-feed']").ShouldNotBeNull();
     }
 
     public sealed class TestSessionContextBlock : ComponentBase, ISessionContextBlock

@@ -72,7 +72,7 @@
                     }
                     else
                     {
-                        <div class="space-y-3" data-slot="session-app-turns">
+                        <div class="space-y-3" data-slot="session-app-feed">
                             <div id="session-turn-request" data-slot="session-app-turn-section">
                                 <SessionCard Node="CurrentRequestNode"
                                              Initials="RQ"
@@ -80,6 +80,26 @@
                                              StatusVariant="outline"
                                              Description="Summarize the active session and use any pinned context." />
                             </div>
+
+                            @foreach (var item in FeedItems)
+                            {
+                                @if (item.Kind == SessionFeedItemKind.Response)
+                                {
+                                    <div id="@GetCommandTurnId(item.CommandIndex)" data-slot="session-app-turn-section">
+                                        <SessionCard Node="CreateResponseNode(item.Command!)"
+                                                     Initials="RS"
+                                                     Status="@item.Command!.AgentTypeKey"
+                                                     Description="@CreateResponseDescription(item.Command)" />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <SessionContextBlock Block="item.Block!"
+                                                         IsPinned="@IsBlockPinned(item.Block!)"
+                                                         OnUnpin="@(() => UnpinBlockAsync(item.Block!))"
+                                                         ModeChanged="@(mode => HandleBlockModeChangedAsync(item.Block!, mode))" />
+                                }
+                            }
 
                             @if (CurrentSubmittedCommands.Count == 0)
                             {
@@ -90,33 +110,7 @@
                                                  Description="Pinned context blocks will be included in the assistant context window without creating turns." />
                                 </div>
                             }
-                            else
-                            {
-                                @for (var i = 0; i < CurrentSubmittedCommands.Count; i++)
-                                {
-                                    var command = CurrentSubmittedCommands[i];
-                                    <div id="@GetCommandTurnId(i)" data-slot="session-app-turn-section">
-                                        <SessionCard Node="CreateResponseNode(command)"
-                                                     Initials="RS"
-                                                     Status="@command.AgentTypeKey"
-                                                     Description="@CreateResponseDescription(command)" />
-                                    </div>
-                                }
-                            }
                         </div>
-
-                        @if ((ViewState.ContextBlocks ?? []).Count > 0)
-                        {
-                            <div class="space-y-2" data-slot="session-app-context-blocks">
-                                @foreach (var block in ViewState.ContextBlocks ?? [])
-                                {
-                                    <SessionContextBlock Block="block"
-                                                         IsPinned="@IsBlockPinned(block)"
-                                                         OnUnpin="@(() => UnpinBlockAsync(block))"
-                                                         ModeChanged="@(mode => HandleBlockModeChangedAsync(block, mode))" />
-                                }
-                            </div>
-                        }
                     }
                 </SessionContent>
 
@@ -266,43 +260,57 @@
     private IReadOnlyList<SessionListEntry> DisplaySessions =>
         [.. Sessions.Select(session => session with { Count = GetSessionSectionCount(session.Id) })];
 
-    private IReadOnlyList<SessionAppSection> TurnSections
+    private IReadOnlyList<SessionAppSection> VisibleSections
     {
         get
         {
+            if (!HasActiveSession)
+                return [];
+
             var sections = new List<SessionAppSection>
             {
                 new("session-turn-request", CurrentRequestNode.Label, "turn")
             };
 
+            foreach (var item in FeedItems)
+            {
+                if (item.Kind == SessionFeedItemKind.Response)
+                {
+                    sections.Add(new(GetCommandTurnId(item.CommandIndex), CreateResponseNode(item.Command!).Label, "turn"));
+                }
+                else
+                {
+                    sections.Add(new SessionAppSection(item.Block!.Id, item.Block.Context.Label, item.Block.Context.NodeTypeKey));
+                }
+            }
+
             if (CurrentSubmittedCommands.Count == 0)
             {
                 sections.Add(new("session-turn-response", CurrentResponseNode.Label, "turn"));
-            }
-            else
-            {
-                for (var i = 0; i < CurrentSubmittedCommands.Count; i++)
-                {
-                    sections.Add(new(GetCommandTurnId(i), CreateResponseNode(CurrentSubmittedCommands[i]).Label, "turn"));
-                }
             }
 
             return sections;
         }
     }
 
-    private IReadOnlyList<SessionAppSection> BlockSections =>
-        [.. (ViewState.ContextBlocks ?? []).Select(block => new SessionAppSection(block.Id, block.Context.Label, block.Context.NodeTypeKey))];
-
-    private IReadOnlyList<SessionAppSection> VisibleSections =>
-        HasActiveSession
-            ? [.. TurnSections, .. BlockSections]
-            : [];
-
     private SessionContextBlockModel? MaximizedBlock =>
         string.IsNullOrWhiteSpace(_maximizedBlockId)
             ? null
             : (ViewState.ContextBlocks ?? []).FirstOrDefault(block => string.Equals(block.Id, _maximizedBlockId, StringComparison.Ordinal));
+
+    private IEnumerable<SessionFeedItem> FeedItems
+    {
+        get
+        {
+            var responses = CurrentSubmittedCommands
+                .Select((cmd, i) => new SessionFeedItem(SessionFeedItemKind.Response, cmd.CreatedAt, Command: cmd, CommandIndex: i));
+
+            var blocks = (ViewState.ContextBlocks ?? [])
+                .Select(block => new SessionFeedItem(SessionFeedItemKind.Block, block.CreatedAt, Block: block));
+
+            return responses.Concat(blocks).OrderBy(item => item.CreatedAt);
+        }
+    }
 
     private int GetSessionSectionCount(string sessionId) =>
         GetSessionTurnSectionCount(sessionId) + GetSessionBlockSectionCount(sessionId);
@@ -645,4 +653,13 @@
             .Replace("'", "\\'", StringComparison.Ordinal);
 
     private sealed record SessionAppSection(string Id, string Label, string Kind);
+
+    private enum SessionFeedItemKind { Response, Block }
+
+    private sealed record SessionFeedItem(
+        SessionFeedItemKind Kind,
+        DateTimeOffset CreatedAt,
+        SessionCommandSubmitted? Command = null,
+        int CommandIndex = -1,
+        SessionContextBlockModel? Block = null);
 }
