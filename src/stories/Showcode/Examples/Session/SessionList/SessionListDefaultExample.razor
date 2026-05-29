@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Session
+
+<SessionList Items="_sessions" />
+
+@code {
+    private readonly IReadOnlyList<SessionListEntry> _sessions =
+    [
+        new("orders", "Orders", 12),
+        new("support", "Support triage", 7),
+        new("release-notes", "Release notes", 4)
+    ];
+}

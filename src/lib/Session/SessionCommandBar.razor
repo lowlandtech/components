@@ -1,0 +1,150 @@
+@namespace LowlandTech.Components.Session
+@using LowlandTech.Components.Icon
+@using LowlandTech.Components.Spinner
+@inherits TinyComponentBase
+
+<div data-slot="session-command-bar" class="@GetClass()" @attributes="AdditionalAttributes">
+    @if (SelectedNode is not null)
+    {
+        <div class="session-command-bar-context flex items-center gap-1.5 px-2 pt-2 text-xs" data-testid="session-command-context">
+            <span class="inline-flex items-center gap-1 rounded bg-primary px-2 py-0.5 font-medium text-primary-foreground"
+                  data-node-type="@SelectedNode.NodeTypeKey">
+                @SelectedNode.Label
+            </span>
+        </div>
+    }
+
+    <textarea data-slot="session-command-input"
+              data-testid="session-command-input"
+              rows="@Rows"
+              value="@Value"
+              placeholder="@Placeholder"
+              disabled="@Disabled"
+              class="w-full resize-none border-0 bg-transparent px-3 pt-3 pb-1 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
+              @oninput="HandleInput"
+              @onkeydown="HandleKeyDown"></textarea>
+
+    <div class="flex items-center justify-between gap-2 px-2 pb-2 pt-1">
+        <div class="flex flex-wrap items-center gap-1" data-testid="session-agent-types">
+            @foreach (var agent in AgentTypes)
+            {
+                var isActive = string.Equals(agent.Key, ActiveAgentTypeKey, StringComparison.OrdinalIgnoreCase);
+                <button type="button"
+                        data-slot="session-agent-type"
+                        data-agent-type="@agent.Key"
+                        data-active="@(isActive ? "true" : "false")"
+                        disabled="@agent.Disabled"
+                        title="@agent.Tooltip"
+                        class="@GetAgentClass(agent, isActive)"
+                        @onclick="() => SelectAgentAsync(agent)">
+                    @agent.Label
+                </button>
+            }
+        </div>
+
+        <button type="button"
+                data-slot="session-command-submit"
+                data-testid="session-command-submit"
+                disabled="@(Disabled || IsBusy || SelectedNode is null || string.IsNullOrWhiteSpace(Value))"
+                class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground transition-opacity hover:bg-primary/90 disabled:opacity-40"
+                title="@SubmitTitle"
+                @onclick="SubmitAsync">
+            @if (IsBusy)
+            {
+                <Spinner Size="14" class="animate-spin" data-testid="session-command-busy-loader" />
+            }
+            else
+            {
+                <Icon Paths="<path d='m22 2-7 20-4-9-9-4Z'/><path d='M22 2 11 13'/>" Size="14" />
+            }
+        </button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public SessionUiState State { get; set; } = SessionUiDefaults.Empty;
+    [Parameter] public EventCallback<SessionUiState> StateChanged { get; set; }
+    [Parameter] public SessionNodeInput? SelectedNode { get; set; }
+    [Parameter] public IReadOnlyList<SessionAgentType> AgentTypes { get; set; } = SessionUiDefaults.AgentTypes;
+    [Parameter] public string ActiveAgentTypeKey { get; set; } = "ask";
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public string Placeholder { get; set; } = "Ask about the active session...";
+    [Parameter] public string SubmitTitle { get; set; } = "Send";
+    [Parameter] public int Rows { get; set; } = 3;
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public bool IsBusy { get; set; }
+    [Parameter] public EventCallback<SessionAgentTypeSelected> OnAgentTypeSelected { get; set; }
+    [Parameter] public EventCallback<SessionCommandSubmitted> OnSubmit { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        SelectedNode ??= State.SelectedNode;
+        Value ??= State.Input;
+        if (string.IsNullOrWhiteSpace(ActiveAgentTypeKey))
+            ActiveAgentTypeKey = State.ActiveAgentTypeKey;
+    }
+
+    private string GetClass()
+    {
+        var baseClass = "flex w-full flex-col rounded-lg border border-primary bg-background";
+        return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private static string GetAgentClass(SessionAgentType agent, bool isActive)
+    {
+        var stateClass = isActive
+            ? "border-primary bg-primary text-primary-foreground"
+            : agent.Disabled
+                ? "border-primary/30 text-primary/40 cursor-not-allowed"
+                : "border-primary/60 text-primary hover:border-primary hover:bg-primary/10";
+
+        return $"inline-flex h-8 items-center rounded-md border px-3 text-xs font-medium transition-colors {stateClass}";
+    }
+
+    private async Task HandleInput(ChangeEventArgs e)
+    {
+        var nextValue = e.Value?.ToString() ?? string.Empty;
+        Value = nextValue;
+        State = SessionUiReducer.Reduce(State, new SetSessionInput(nextValue));
+        await ValueChanged.InvokeAsync(nextValue);
+        await StateChanged.InvokeAsync(State);
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !e.ShiftKey)
+            await SubmitAsync();
+    }
+
+    private async Task SelectAgentAsync(SessionAgentType agent)
+    {
+        if (agent.Disabled || SelectedNode is null)
+            return;
+
+        ActiveAgentTypeKey = agent.Key;
+        State = SessionUiReducer.Reduce(State, new SelectSessionAgentType(agent.Key));
+        await agent.OnSelected.InvokeAsync(SelectedNode);
+        await OnAgentTypeSelected.InvokeAsync(new SessionAgentTypeSelected(SelectedNode, agent.Key));
+        await StateChanged.InvokeAsync(State);
+    }
+
+    private async Task SubmitAsync()
+    {
+        if (Disabled || IsBusy || SelectedNode is null || string.IsNullOrWhiteSpace(Value))
+            return;
+
+        var agent = AgentTypes.FirstOrDefault(candidate => string.Equals(candidate.Key, ActiveAgentTypeKey, StringComparison.OrdinalIgnoreCase));
+        if (agent?.Disabled == true)
+            return;
+
+        var submitted = new SessionCommandSubmitted(SelectedNode, ActiveAgentTypeKey, Value);
+        State = SessionUiReducer.Reduce(State, new SubmitSessionCommand(SelectedNode, ActiveAgentTypeKey, Value));
+        Value = State.Input;
+        if (agent is not null)
+            await agent.OnSubmit.InvokeAsync(submitted);
+        await OnSubmit.InvokeAsync(submitted);
+        await ValueChanged.InvokeAsync(Value);
+        await StateChanged.InvokeAsync(State);
+    }
+}

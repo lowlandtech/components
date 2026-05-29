@@ -1,0 +1,62 @@
+@namespace LowlandTech.Components.Session
+@using LowlandTech.Components.Badge
+@inherits TinyComponentBase
+
+<article data-slot="session-card" data-node-id="@Node.Id" class="@GetClass()" @attributes="AdditionalAttributes">
+    <header class="flex items-center gap-2 border-b border-border bg-muted/30 px-3 py-2">
+        <span class="inline-flex h-5 w-5 items-center justify-center rounded-sm bg-primary/10 text-[10px] font-semibold text-primary">@Initials</span>
+        <span class="truncate text-xs font-semibold">@Node.Label</span>
+        @if (!string.IsNullOrWhiteSpace(Status))
+        {
+            <Badge Variant="@StatusVariant" class="ml-auto">@Status</Badge>
+        }
+    </header>
+    <div class="space-y-2 px-3 py-3 text-sm">
+        @if (ChildContent is not null)
+        {
+            @ChildContent
+        }
+        else if (!string.IsNullOrWhiteSpace(Description))
+        {
+            <p>@Description</p>
+        }
+
+        @if (Actions.Count > 0)
+        {
+            <div class="flex flex-wrap gap-2">
+                @foreach (var action in Actions)
+                {
+                    <button type="button"
+                            data-slot="session-card-action"
+                            data-action-key="@action.Key"
+                            class="inline-flex h-8 items-center rounded-md border border-input bg-background px-3 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                            @onclick="() => SelectActionAsync(action)">
+                        @action.Label
+                    </button>
+                }
+            </div>
+        }
+    </div>
+</article>
+
+@code {
+    [Parameter, EditorRequired] public SessionNodeInput Node { get; set; } = new("session-card", "session-card", "Session card");
+    [Parameter] public string Initials { get; set; } = "AI";
+    [Parameter] public string? Description { get; set; }
+    [Parameter] public string? Status { get; set; }
+    [Parameter] public string StatusVariant { get; set; } = "outline";
+    [Parameter] public IReadOnlyList<SessionCardAction> Actions { get; set; } = [];
+    [Parameter] public EventCallback<SessionCardActionSelected> OnActionSelected { get; set; }
+
+    private string GetClass()
+    {
+        var baseClass = "w-full overflow-hidden rounded-lg border border-border bg-background";
+        return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private async Task SelectActionAsync(SessionCardAction action)
+    {
+        await action.OnSelected.InvokeAsync(Node);
+        await OnActionSelected.InvokeAsync(new SessionCardActionSelected(Node, action.Key));
+    }
+}

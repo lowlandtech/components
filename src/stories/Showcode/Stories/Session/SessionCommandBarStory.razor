@@ -1,0 +1,41 @@
+@attribute [DisplayName("Session/SessionCommandBar")]
+@inherits StoryComponent
+
+<StoryCard Title="SessionCommandBar"
+           Description="Session command input states for asking, planning, creating, and sending work into the active session."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "default",
+            "Default",
+            @<SessionCommandBarDefaultExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "default-razor",
+                    "SessionCommandBarDefaultExample.razor",
+                    "Showcode/Examples/Session/SessionCommandBar/SessionCommandBarDefaultExample.razor")
+            ]),
+        new(
+            "create",
+            "Create",
+            @<SessionCommandBarCreateExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "create-razor",
+                    "SessionCommandBarCreateExample.razor",
+                    "Showcode/Examples/Session/SessionCommandBar/SessionCommandBarCreateExample.razor")
+            ]),
+        new(
+            "busy",
+            "Busy",
+            @<SessionCommandBarBusyExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "busy-razor",
+                    "SessionCommandBarBusyExample.razor",
+                    "Showcode/Examples/Session/SessionCommandBar/SessionCommandBarBusyExample.razor")
+            ])
+    ];
+}

@@ -1,0 +1,24 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Session
+
+<SessionCommandBar SelectedNode="_node"
+                   AgentTypes="_agentTypes"
+                   ActiveAgentTypeKey="ask"
+                   Placeholder="Ask about the active session..."
+                   OnSubmit="HandleSubmit" />
+
+@code {
+    private readonly SessionNodeInput _node = new("orders", "session", "Orders");
+    private string? _lastSubmitted;
+
+    private IReadOnlyList<SessionAgentType> _agentTypes => [
+        new("ask", "Ask"),
+        new("plan", "Plan"),
+        new("edit", "Edit"),
+        new("run", "Run", Disabled: true)
+    ];
+
+    private void HandleSubmit(SessionCommandSubmitted submitted)
+    {
+        _lastSubmitted = $"{submitted.AgentTypeKey}:{submitted.Input}";
+    }
+}

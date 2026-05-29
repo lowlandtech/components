@@ -1,0 +1,106 @@
+@namespace LowlandTech.Components.Session
+@using LowlandTech.Components.Badge
+@using LowlandTech.Components.Icon
+@inherits TinyComponentBase
+
+<div data-slot="session-list" class="@GetClass()" @attributes="AdditionalAttributes">
+    @if (ShowHeader)
+    {
+        <div class="flex h-10 items-center justify-between border-b border-border px-3">
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold">@Title</span>
+                <Badge Variant="secondary">@Items.Count</Badge>
+            </div>
+            <button type="button"
+                    data-slot="session-list-create"
+                    data-testid="session-list-create"
+                    class="inline-flex h-7 min-w-7 items-center justify-end rounded pl-2 pr-0 text-muted-foreground hover:bg-muted hover:text-foreground"
+                    title="@CreateTitle"
+                    @onclick="CreateAsync">
+                <Icon Name="plus" Size="14" />
+            </button>
+        </div>
+    }
+
+    @if (Items.Count == 0)
+    {
+        <div class="flex h-40 flex-col items-center justify-center gap-3 px-6 text-center" data-slot="session-list-empty">
+            <Icon Paths="<path d='M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/><path d='M8 8h8M8 12h5'/>" Size="24" class="text-muted-foreground" />
+            <div>
+                <p class="text-sm font-medium">@EmptyTitle</p>
+                <p class="mt-1 text-xs text-muted-foreground">@EmptyDescription</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="divide-y divide-border/70">
+            @foreach (var item in Items)
+            {
+                var node = ToNode(item);
+                <button type="button"
+                        data-slot="session-list-item"
+                        data-node-id="@node.Id"
+                        data-selected="@(SelectedNode?.Id == node.Id ? "true" : "false")"
+                        class="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm hover:bg-muted/60 data-[selected=true]:bg-primary/10"
+                        @onclick="() => SelectAsync(node)">
+                    <span class="truncate">@node.Label</span>
+                    <span class="text-[10px] text-muted-foreground">@item.Count</span>
+                </button>
+            }
+        </div>
+    }
+
+    @if (ShowFooter && Items.Count > 0)
+    {
+        <div class="flex h-9 items-center justify-between border-t border-border px-3 text-xs text-muted-foreground">
+            <span>@PageLabel</span>
+            <span>@RowsLabel</span>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public SessionUiState State { get; set; } = SessionUiDefaults.Empty;
+    [Parameter] public EventCallback<SessionUiState> StateChanged { get; set; }
+    [Parameter] public IReadOnlyList<SessionListEntry> Items { get; set; } = [];
+    [Parameter] public SessionNodeInput? SelectedNode { get; set; }
+    [Parameter] public string Title { get; set; } = "Sessions";
+    [Parameter] public string CreateTitle { get; set; } = "New session";
+    [Parameter] public string EmptyTitle { get; set; } = "No sessions yet";
+    [Parameter] public string EmptyDescription { get; set; } = "Start a session to collect work, messages, and generated blocks.";
+    [Parameter] public string PageLabel { get; set; } = "Page 1 / 1";
+    [Parameter] public string RowsLabel { get; set; } = "Rows 10";
+    [Parameter] public bool ShowHeader { get; set; } = true;
+    [Parameter] public bool ShowFooter { get; set; } = true;
+    [Parameter] public EventCallback<SessionNodeSelected> OnSelected { get; set; }
+    [Parameter] public EventCallback<SessionNodeInput> OnCreateRequested { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        SelectedNode ??= State.SelectedNode;
+    }
+
+    private string GetClass()
+    {
+        var baseClass = "w-full overflow-hidden rounded-lg border border-border bg-background";
+        return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private static SessionNodeInput ToNode(SessionListEntry entry) =>
+        new(entry.Id, entry.NodeTypeKey, entry.Label);
+
+    private async Task SelectAsync(SessionNodeInput node)
+    {
+        SelectedNode = node;
+        State = SessionUiReducer.Reduce(State, new SelectSessionNode(node));
+        await OnSelected.InvokeAsync(new SessionNodeSelected(node));
+        await StateChanged.InvokeAsync(State);
+    }
+
+    private async Task CreateAsync()
+    {
+        var node = new SessionNodeInput("new-session", "session", Title);
+        await OnCreateRequested.InvokeAsync(node);
+    }
+}

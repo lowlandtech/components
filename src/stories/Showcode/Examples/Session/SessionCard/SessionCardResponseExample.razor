@@ -1,0 +1,16 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Session
+
+<SessionCard Node="_node"
+             Initials="RS"
+             Description="The orders session has three open follow-ups. The highest risk item is the delayed invoice approval."
+             Status="Ready"
+             Actions="_actions" />
+
+@code {
+    private readonly SessionNodeInput _node = new("response-order-summary", "session-response", "Order summary response");
+
+    private IReadOnlyList<SessionCardAction> _actions => [
+        new("draft-reply", "Draft reply"),
+        new("create-task", "Create task")
+    ];
+}

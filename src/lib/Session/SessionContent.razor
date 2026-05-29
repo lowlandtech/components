@@ -1,0 +1,102 @@
+@namespace LowlandTech.Components.Session
+@using LowlandTech.Components.Icon
+@using LowlandTech.Components.Tabs
+@inherits TinyComponentBase
+
+<div data-slot="session-content" class="@GetClass()" @attributes="AdditionalAttributes">
+    @if (OpenNodes.Count == 0)
+    {
+        <div class="flex h-72 items-center justify-center" data-slot="session-content-empty">
+            <div class="text-center">
+                <Icon Paths="<path d='M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/><path d='M8 8h8M8 12h5'/>" Size="28" class="mx-auto text-muted-foreground" />
+                <p class="mt-3 text-sm font-medium">@EmptyTitle</p>
+                <p class="mt-1 text-xs text-muted-foreground">@EmptyDescription</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <Tabs Items="@TabItems"
+              Value="@SelectedNode?.Id"
+              ValueChanged="SelectByValueAsync"
+              TabClosed="CloseTabAsync"
+              DynamicVariant="ide"
+              DynamicListAlign="left"
+              class="min-h-0 w-full gap-0"
+              data-slot="session-content-tabs">
+            <ItemContent>
+                <div class="min-h-72 space-y-3 overflow-auto p-3" data-slot="session-content-body">
+                    @if (ChildContent is not null)
+                    {
+                        @ChildContent
+                    }
+                    else if (SelectedNode is not null)
+                    {
+                        <SessionCard Node="SelectedNode" Status="Ready" Description="Session content is ready for reusable block composition." />
+                    }
+                </div>
+            </ItemContent>
+        </Tabs>
+    }
+</div>
+
+@code {
+    [Parameter] public SessionUiState State { get; set; } = SessionUiDefaults.Empty;
+    [Parameter] public EventCallback<SessionUiState> StateChanged { get; set; }
+    [Parameter] public IReadOnlyList<SessionNodeInput> OpenNodes { get; set; } = [];
+    [Parameter] public SessionNodeInput? SelectedNode { get; set; }
+    [Parameter] public string EmptyTitle { get; set; } = "Select a session";
+    [Parameter] public string EmptyDescription { get; set; } = "SessionContent stays idle until a session tab is active.";
+    [Parameter] public bool CloseableTabs { get; set; } = true;
+    [Parameter] public bool PinnableTabs { get; set; }
+    [Parameter] public bool RenameableTabs { get; set; }
+    [Parameter] public bool DraggableTabs { get; set; }
+    [Parameter] public EventCallback<SessionNodeSelected> OnSelected { get; set; }
+
+    private IReadOnlyList<TabsItem> TabItems =>
+        [.. OpenNodes.Select(node => new TabsItem
+        {
+            Value = node.Id,
+            Title = node.Label,
+            Closeable = CloseableTabs,
+            Pinnable = PinnableTabs,
+            Renameable = RenameableTabs,
+            Draggable = DraggableTabs
+        })];
+
+    protected override void OnParametersSet()
+    {
+        if (OpenNodes.Count == 0)
+            OpenNodes = State.OpenNodes;
+
+        SelectedNode ??= State.SelectedNode ?? OpenNodes.FirstOrDefault();
+    }
+
+    private string GetClass()
+    {
+        var baseClass = "flex w-full flex-col overflow-hidden rounded-lg border border-border bg-background";
+        return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private async Task SelectAsync(SessionNodeInput node)
+    {
+        SelectedNode = node;
+        State = SessionUiReducer.Reduce(State, new SelectSessionNode(node));
+        await OnSelected.InvokeAsync(new SessionNodeSelected(node));
+        await StateChanged.InvokeAsync(State);
+    }
+
+    private Task SelectByValueAsync(string? nodeId)
+    {
+        var node = OpenNodes.FirstOrDefault(candidate => candidate.Id == nodeId);
+        return node is null ? Task.CompletedTask : SelectAsync(node);
+    }
+
+    private async Task CloseTabAsync(TabsItem item)
+    {
+        State = SessionUiReducer.Reduce(State, new CloseSessionNode(item.Value));
+        OpenNodes = State.OpenNodes;
+        SelectedNode = State.SelectedNode ?? OpenNodes.FirstOrDefault();
+        await StateChanged.InvokeAsync(State);
+    }
+}

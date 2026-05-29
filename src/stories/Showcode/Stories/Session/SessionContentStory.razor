@@ -1,0 +1,31 @@
+@attribute [DisplayName("Session/SessionContent")]
+@inherits StoryComponent
+
+<StoryCard Title="SessionContent"
+           Description="Session content shell states for tabbed workspaces, feeds, and section navigation."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "with-tabs",
+            "With tabs",
+            @<SessionContentTabsExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "tabs-razor",
+                    "SessionContentTabsExample.razor",
+                    "Showcode/Examples/Session/SessionContent/SessionContentTabsExample.razor")
+            ]),
+        new(
+            "empty",
+            "Empty",
+            @<SessionContentEmptyExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "empty-razor",
+                    "SessionContentEmptyExample.razor",
+                    "Showcode/Examples/Session/SessionContent/SessionContentEmptyExample.razor")
+            ])
+    ];
+}

@@ -1,0 +1,19 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Session
+
+<SessionCommandBar SelectedNode="_node"
+                   AgentTypes="_agentTypes"
+                   ActiveAgentTypeKey="run"
+                   Value="Generate the implementation plan"
+                   Placeholder="Ask about the active session..."
+                   IsBusy="true" />
+
+@code {
+    private readonly SessionNodeInput _node = new("orders", "session", "Orders");
+
+    private IReadOnlyList<SessionAgentType> _agentTypes => [
+        new("ask", "Ask"),
+        new("plan", "Plan"),
+        new("edit", "Edit"),
+        new("run", "Run")
+    ];
+}

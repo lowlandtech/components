@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Session
+
+<SessionCard Node="_node"
+             Initials="RQ"
+             Status="Pending"
+             StatusVariant="outline">
+    <p>Draft a customer-facing reply for the delayed invoice approval.</p>
+</SessionCard>
+
+@code {
+    private readonly SessionNodeInput _node = new("request-invoice-reply", "session-request", "Invoice reply request");
+}

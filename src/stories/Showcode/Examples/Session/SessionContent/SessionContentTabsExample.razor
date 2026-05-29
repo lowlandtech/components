@@ -1,0 +1,19 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Session
+
+<SessionContent OpenNodes="_nodes" SelectedNode="_nodes[0]">
+    <SessionCardTurnExample />
+    <SessionCardRequestExample />
+    <SessionCardResponseExample />
+    <div class="border-t border-border pt-3">
+        <SessionCommandBarDefaultExample />
+    </div>
+</SessionContent>
+
+@code {
+    private readonly IReadOnlyList<SessionNodeInput> _nodes =
+    [
+        new("orders", "session", "Orders"),
+        new("support", "session", "Support triage"),
+        new("release-notes", "session", "Release notes")
+    ];
+}

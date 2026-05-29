@@ -1,0 +1,31 @@
+@attribute [DisplayName("Session/SessionList")]
+@inherits StoryComponent
+
+<StoryCard Title="SessionList"
+           Description="Session list states for browsing, selecting, paging, and creating sessions."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "default",
+            "Default",
+            @<SessionListDefaultExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "default-razor",
+                    "SessionListDefaultExample.razor",
+                    "Showcode/Examples/Session/SessionList/SessionListDefaultExample.razor")
+            ]),
+        new(
+            "empty",
+            "Empty",
+            @<SessionListEmptyExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "empty-razor",
+                    "SessionListEmptyExample.razor",
+                    "Showcode/Examples/Session/SessionList/SessionListEmptyExample.razor")
+            ])
+    ];
+}

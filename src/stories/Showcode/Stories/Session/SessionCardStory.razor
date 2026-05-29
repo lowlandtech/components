@@ -1,0 +1,41 @@
+@attribute [DisplayName("Session/SessionCard")]
+@inherits StoryComponent
+
+<StoryCard Title="SessionCard"
+           Description="Reusable session card states for session turns, requests, and responses."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "turn",
+            "Turn",
+            @<SessionCardTurnExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "turn-razor",
+                    "SessionCardTurnExample.razor",
+                    "Showcode/Examples/Session/SessionCard/SessionCardTurnExample.razor")
+            ]),
+        new(
+            "request",
+            "Request",
+            @<SessionCardRequestExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "request-razor",
+                    "SessionCardRequestExample.razor",
+                    "Showcode/Examples/Session/SessionCard/SessionCardRequestExample.razor")
+            ]),
+        new(
+            "response",
+            "Response",
+            @<SessionCardResponseExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "response-razor",
+                    "SessionCardResponseExample.razor",
+                    "Showcode/Examples/Session/SessionCard/SessionCardResponseExample.razor")
+            ])
+    ];
+}
