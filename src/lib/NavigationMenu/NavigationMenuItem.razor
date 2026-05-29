@@ -1,11 +1,18 @@
 @namespace LowlandTech.Components.NavigationMenu
 @inherits TinyComponentBase
 
-<li data-slot="navigation-menu-item" class="@GetClass()" @attributes="AdditionalAttributes">
-    @ChildContent
-</li>
+<CascadingValue Value="this">
+    <li data-slot="navigation-menu-item" class="@GetClass()" @attributes="AdditionalAttributes">
+        @ChildContent
+    </li>
+</CascadingValue>
 
 @code {
+    [CascadingParameter] private NavigationMenu? Menu { get; set; }
+    [Parameter] public string? Value { get; set; }
+
+    internal bool IsActive => !string.IsNullOrEmpty(Value) && Menu?.IsItemActive(Value) == true;
+
     private string GetClass()
     {
         var baseClass = "relative";

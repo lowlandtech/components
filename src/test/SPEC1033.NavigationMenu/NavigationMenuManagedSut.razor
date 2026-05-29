@@ -1,0 +1,26 @@
+@namespace LowlandTech.Components.Tests.SPEC1033.NavigationMenu
+@using LowlandTech.Components.NavigationMenu
+
+<NavigationMenu @bind-Value="_activeValue">
+    <NavigationMenuList>
+        <NavigationMenuItem Value="getting-started">
+            <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
+            <NavigationMenuContent>
+                <NavigationMenuLink Href="/intro">Introduction</NavigationMenuLink>
+            </NavigationMenuContent>
+        </NavigationMenuItem>
+        <NavigationMenuItem Value="components">
+            <NavigationMenuTrigger>Components</NavigationMenuTrigger>
+            <NavigationMenuContent>
+                <NavigationMenuLink Href="/button">Button</NavigationMenuLink>
+            </NavigationMenuContent>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+            <NavigationMenuLink Href="/docs">Documentation</NavigationMenuLink>
+        </NavigationMenuItem>
+    </NavigationMenuList>
+</NavigationMenu>
+
+@code {
+    private string? _activeValue;
+}

@@ -1,48 +1,44 @@
 @namespace LowlandTech.Components.Stories.Showcode.Examples.Navigation
 
 <div class="w-full max-w-lg">
-    <NavigationMenu class="relative">
+    <NavigationMenu @bind-Value="_activeItem">
         <NavigationMenuList>
-            <NavigationMenuItem>
-                <NavigationMenuTrigger IsOpen="_openGettingStarted" OnClick="() => _openGettingStarted = !_openGettingStarted">
-                    Getting started
-                </NavigationMenuTrigger>
-                <NavigationMenuContent IsOpen="_openGettingStarted" class="mt-2 rounded-lg border bg-popover p-3 shadow-sm">
+            <NavigationMenuItem Value="getting-started">
+                <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
+                <NavigationMenuContent class="mt-2 rounded-lg border bg-popover p-3 shadow-sm">
                     <div class="grid gap-2">
-                        <NavigationMenuLink Href="#">
+                        <NavigationMenuLink Href="#" PreventDefault="true">
                             <div class="text-sm font-medium">Introduction</div>
                             <div class="text-xs text-muted-foreground">Built with Radix UI and Tailwind CSS.</div>
                         </NavigationMenuLink>
-                        <NavigationMenuLink Href="#">
+                        <NavigationMenuLink Href="#" PreventDefault="true">
                             <div class="text-sm font-medium">Installation</div>
                             <div class="text-xs text-muted-foreground">How to install dependencies.</div>
                         </NavigationMenuLink>
-                        <NavigationMenuLink Href="#">
+                        <NavigationMenuLink Href="#" PreventDefault="true">
                             <div class="text-sm font-medium">Theming</div>
                             <div class="text-xs text-muted-foreground">Customize the look and feel.</div>
                         </NavigationMenuLink>
                     </div>
                 </NavigationMenuContent>
             </NavigationMenuItem>
-            <NavigationMenuItem>
-                <NavigationMenuTrigger IsOpen="_openComponents" OnClick="() => _openComponents = !_openComponents">
-                    Components
-                </NavigationMenuTrigger>
-                <NavigationMenuContent IsOpen="_openComponents" class="mt-2 rounded-lg border bg-popover p-3 shadow-sm">
+            <NavigationMenuItem Value="components">
+                <NavigationMenuTrigger>Components</NavigationMenuTrigger>
+                <NavigationMenuContent class="mt-2 rounded-lg border bg-popover p-3 shadow-sm">
                     <div class="grid grid-cols-2 gap-2">
-                        <NavigationMenuLink Href="#">
+                        <NavigationMenuLink Href="#" PreventDefault="true">
                             <div class="text-sm font-medium">Button</div>
                             <div class="text-xs text-muted-foreground">Interactive variants.</div>
                         </NavigationMenuLink>
-                        <NavigationMenuLink Href="#">
+                        <NavigationMenuLink Href="#" PreventDefault="true">
                             <div class="text-sm font-medium">Dialog</div>
                             <div class="text-xs text-muted-foreground">Modal windows.</div>
                         </NavigationMenuLink>
-                        <NavigationMenuLink Href="#">
+                        <NavigationMenuLink Href="#" PreventDefault="true">
                             <div class="text-sm font-medium">Card</div>
                             <div class="text-xs text-muted-foreground">Content containers.</div>
                         </NavigationMenuLink>
-                        <NavigationMenuLink Href="#">
+                        <NavigationMenuLink Href="#" PreventDefault="true">
                             <div class="text-sm font-medium">Table</div>
                             <div class="text-xs text-muted-foreground">Data display.</div>
                         </NavigationMenuLink>
@@ -50,7 +46,7 @@
                 </NavigationMenuContent>
             </NavigationMenuItem>
             <NavigationMenuItem>
-                <NavigationMenuLink Href="#" class="inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
+                <NavigationMenuLink Href="#" PreventDefault="true" class="inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
                     Documentation
                 </NavigationMenuLink>
             </NavigationMenuItem>
@@ -59,6 +55,5 @@
 </div>
 
 @code {
-    private bool _openGettingStarted;
-    private bool _openComponents;
+    private string? _activeItem;
 }

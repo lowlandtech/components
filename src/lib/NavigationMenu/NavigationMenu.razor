@@ -2,6 +2,8 @@
 @namespace LowlandTech.Components.NavigationMenu
 @inherits TinyComponentBase
 
-<nav data-slot="navigation-menu" class="@Class" @attributes="AdditionalAttributes">
-    @ChildContent
-</nav>
+<CascadingValue Value="this">
+    <nav data-slot="navigation-menu" class="@Class" @attributes="AdditionalAttributes">
+        @ChildContent
+    </nav>
+</CascadingValue>

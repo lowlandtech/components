@@ -4,12 +4,23 @@
 <a data-slot="navigation-menu-link"
    class="@GetClass()"
    href="@Href"
+   @onclick="HandleClick"
+   @onclick:preventDefault="PreventDefault"
    @attributes="AdditionalAttributes">
     @ChildContent
 </a>
 
 @code {
+    [CascadingParameter] private NavigationMenu? Menu { get; set; }
     [Parameter] public string Href { get; set; } = "#";
+    [Parameter] public EventCallback<MouseEventArgs> OnClick { get; set; }
+    [Parameter] public bool PreventDefault { get; set; }
+
+    private async Task HandleClick(MouseEventArgs args)
+    {
+        await OnClick.InvokeAsync(args);
+        await Menu?.ActivateItemAsync(null)!;
+    }
 
     private string GetClass()
     {

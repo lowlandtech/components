@@ -1,18 +1,54 @@
 @namespace LowlandTech.Components.NavigationMenu
 @inherits TinyComponentBase
+@implements IDisposable
 
 <button type="button"
         data-slot="navigation-menu-trigger"
-    data-state="@(IsOpen ? "open" : "closed")"
+        data-state="@GetState()"
         class="@GetClass()"
-        @onclick="OnClick"
+        @onclick="HandleClick"
         @attributes="AdditionalAttributes">
     @ChildContent
 </button>
 
 @code {
+    [CascadingParameter] private NavigationMenu? Menu { get; set; }
+    [CascadingParameter] private NavigationMenuItem? Item { get; set; }
     [Parameter] public EventCallback OnClick { get; set; }
     [Parameter] public bool IsOpen { get; set; }
+
+    private bool IsManaged => !string.IsNullOrEmpty(Item?.Value);
+    private bool IsOpenState => IsManaged ? (Menu?.IsItemActive(Item?.Value) ?? false) : IsOpen;
+
+    protected override void OnInitialized()
+    {
+        if (Menu != null)
+            Menu.OnActiveValueChanged += OnMenuChanged;
+    }
+
+    private void OnMenuChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        if (Menu != null)
+            Menu.OnActiveValueChanged -= OnMenuChanged;
+    }
+
+    private string GetState() => IsOpenState ? "open" : "closed";
+
+    private async Task HandleClick()
+    {
+        if (IsManaged && Item != null && Menu != null)
+        {
+            var nextValue = IsOpenState ? null : Item.Value;
+            await Menu.ActivateItemAsync(nextValue);
+        }
+
+        await OnClick.InvokeAsync();
+    }
 
     private string GetClass()
     {
