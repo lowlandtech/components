@@ -373,6 +373,81 @@ public class SC01_SessionBlocks : ViewScenario
         hasDummyReply.ShouldBeTrue("Expected one of the dummy test replies to be rendered.");
     }
 
+    [Fact(DisplayName = "UAC16c: SessionApp accumulates multiple submitted commands")]
+    [Trait(Spec.UAC, "16c")]
+    public void UAC16c_SessionAppAccumulatesMultipleCommands()
+    {
+        var cut = Ctx.Render<SessionApp>();
+
+        cut.Find("[data-node-id='orders-session']").Click();
+
+        cut.Find("[data-testid='session-command-input']").Input("First question");
+        cut.Find("[data-testid='session-command-submit']").Click();
+
+        cut.Find("[data-testid='session-command-input']").Input("Second question");
+        cut.Find("[data-testid='session-command-submit']").Click();
+
+        cut.Find("[data-testid='session-command-input']").Input("Third question");
+        cut.Find("[data-testid='session-command-submit']").Click();
+
+        var markup = cut.Markup;
+        markup.ShouldContain("First question");
+        markup.ShouldContain("Second question");
+        markup.ShouldContain("Third question");
+
+        cut.FindAll("[data-slot='session-app-turn-section']").Count.ShouldBe(4); // 1 request + 3 responses
+    }
+
+    [Fact(DisplayName = "UAC16d: SessionApp interleaves blocks and commands chronologically")]
+    [Trait(Spec.UAC, "16d")]
+    public void UAC16d_SessionAppInterleavesBlocksAndCommands()
+    {
+        var cut = Ctx.Render<SessionApp>();
+
+        cut.Find("[data-node-id='orders-session']").Click();
+
+        // Pin invoice first
+        cut.Find("[data-node-id='invoice-approval']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
+        ClickOpenContextNodePin();
+
+        // Submit first command
+        cut.Find("[data-testid='session-command-input']").Input("First question");
+        cut.Find("[data-testid='session-command-submit']").Click();
+
+        // Submit second command
+        cut.Find("[data-testid='session-command-input']").Input("Second question");
+        cut.Find("[data-testid='session-command-submit']").Click();
+
+        // Pin Northwind after commands
+        cut.Find("[data-node-id='northwind']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='northwind']").Click();
+        ClickOpenContextNodePin();
+
+        var markup = cut.Markup;
+
+        // All items should be present
+        markup.ShouldContain("Invoice approval");
+        markup.ShouldContain("Northwind Traders");
+        markup.ShouldContain("First question");
+        markup.ShouldContain("Second question");
+
+        // Invoice should appear before First question in the unified feed
+        var invoiceIndex = markup.IndexOf("Invoice approval", StringComparison.Ordinal);
+        var firstQuestionIndex = markup.IndexOf("First question", StringComparison.Ordinal);
+        var secondQuestionIndex = markup.IndexOf("Second question", StringComparison.Ordinal);
+        var northwindIndex = markup.IndexOf("Northwind Traders", StringComparison.Ordinal);
+
+        invoiceIndex.ShouldBeGreaterThan(-1);
+        firstQuestionIndex.ShouldBeGreaterThan(-1);
+        secondQuestionIndex.ShouldBeGreaterThan(-1);
+        northwindIndex.ShouldBeGreaterThan(-1);
+
+        invoiceIndex.ShouldBeLessThan(firstQuestionIndex);
+        firstQuestionIndex.ShouldBeLessThan(secondQuestionIndex);
+        secondQuestionIndex.ShouldBeLessThan(northwindIndex);
+    }
+
     [Fact(DisplayName = "UAC17: SessionApp projects one transient feed block and replaces it on context selection change")]
     [Trait(Spec.UAC, "17")]
     public void UAC17_SessionAppReplacesProjectedFeedBlock()
