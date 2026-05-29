@@ -1,0 +1,51 @@
+@attribute [DisplayName("Session/SessionContextBlock")]
+@inherits StoryComponent
+
+<StoryCard Title="SessionContextBlock"
+           Description="Durable context block that renders contextual data without creating a session turn."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "normal",
+            "Normal",
+            @<SessionContextBlockDefaultExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "default-razor",
+                    "SessionContextBlockDefaultExample.razor",
+                    "Showcode/Examples/Session/SessionContextBlock/SessionContextBlockDefaultExample.razor")
+            ]),
+        new(
+            "minimized",
+            "Minimized",
+            @<SessionContextBlockMinimizedExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "minimized-razor",
+                    "SessionContextBlockMinimizedExample.razor",
+                    "Showcode/Examples/Session/SessionContextBlock/SessionContextBlockMinimizedExample.razor")
+            ]),
+        new(
+            "maximized",
+            "Maximized",
+            @<SessionContextBlockMaximizedExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "maximized-razor",
+                    "SessionContextBlockMaximizedExample.razor",
+                    "Showcode/Examples/Session/SessionContextBlock/SessionContextBlockMaximizedExample.razor")
+            ]),
+        new(
+            "overlay-page",
+            "OverlayPage",
+            @<SessionContextBlockOverlayPageExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "overlay-page-razor",
+                    "SessionContextBlockOverlayPageExample.razor",
+                    "Showcode/Examples/Session/SessionContextBlock/SessionContextBlockOverlayPageExample.razor")
+            ])
+    ];
+}

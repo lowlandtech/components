@@ -1,0 +1,13 @@
+@namespace LowlandTech.Components.Session
+@inherits TinyComponentBase
+
+<div class="rounded-md border border-border bg-muted/20 p-3">
+    <p class="text-sm font-medium">@Context?.Label</p>
+    <p class="mt-1 text-xs text-muted-foreground">Customer summary block projected into the active session feed.</p>
+</div>
+
+@code {
+    [Parameter] public SessionContextBlockModel? Block { get; set; }
+    [Parameter] public SessionNodeInput? Context { get; set; }
+    [Parameter] public object? Data { get; set; }
+}

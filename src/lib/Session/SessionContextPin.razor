@@ -1,0 +1,32 @@
+@namespace LowlandTech.Components.Session
+@using LowlandTech.Components.Badge
+@using LowlandTech.Components.Icon
+@inherits TinyComponentBase
+
+<Badge data-slot="session-context-pin"
+       data-pin-id="@Pin.Id"
+       Variant="secondary"
+       class="gap-1 pl-2 pr-1"
+       @attributes="AdditionalAttributes">
+    <Icon Name="pin" Size="12" />
+    <span class="truncate">@Pin.Node.Label</span>
+    <button type="button"
+            class="ml-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-current opacity-70 transition-opacity hover:opacity-100 hover:bg-background/20 focus:outline-none focus:ring-1 focus:ring-ring"
+            data-testid="session-context-pin-remove"
+            title="@RemoveTitle"
+            @onclick="RemoveAsync">
+        <Icon Name="x" Size="10" />
+    </button>
+</Badge>
+
+@code {
+    [Parameter, EditorRequired] public SessionContextPinModel Pin { get; set; } = new(
+        "pin:context",
+        new("context", "context", "Context"),
+        new("pin:context", "session.pin", "Context", "SessionContextPin"));
+
+    [Parameter] public string RemoveTitle { get; set; } = "Unpin context";
+    [Parameter] public EventCallback<SessionContextPinModel> OnRemove { get; set; }
+
+    private Task RemoveAsync(MouseEventArgs _) => OnRemove.InvokeAsync(Pin);
+}

@@ -1,0 +1,15 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Session
+
+<SessionContextBlock Block="_block">
+    <div class="rounded-md border border-border bg-muted/20 p-3">
+        <p class="text-sm font-medium">Invoice approval</p>
+        <p class="mt-1 text-xs text-muted-foreground">Amount: EUR 4,200 - Status: pending finance approval</p>
+    </div>
+</SessionContextBlock>
+
+@code {
+    private readonly SessionContextBlockModel _block = new(
+        "context-block:invoice-approval",
+        new("invoice-approval", "invoice", "Invoice approval", "InvoiceBlock"),
+        "Amount: EUR 4,200; Status: pending finance approval");
+}

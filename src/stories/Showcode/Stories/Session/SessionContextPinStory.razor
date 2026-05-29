@@ -1,0 +1,21 @@
+@attribute [DisplayName("Session/SessionContextPin")]
+@inherits StoryComponent
+
+<StoryCard Title="SessionContextPin"
+           Description="Durable pinned session context node edged into the active session hierarchy."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "default",
+            "Default",
+            @<SessionContextPinDefaultExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "default-razor",
+                    "SessionContextPinDefaultExample.razor",
+                    "Showcode/Examples/Session/SessionContextPin/SessionContextPinDefaultExample.razor")
+            ])
+    ];
+}

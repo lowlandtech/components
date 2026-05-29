@@ -1,0 +1,20 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Layout
+
+<Card class="w-full max-w-sm">
+    <CardHeader>
+        <CardTitle>Mode menu</CardTitle>
+        <CardDescription>Change the card display mode using the menu.</CardDescription>
+        <CardAction>
+            <CardModeMenu Mode="@_mode" ModeChanged="OnModeChanged" />
+        </CardAction>
+    </CardHeader>
+    <CardContent>
+        <p class="text-sm text-muted-foreground">Current mode: <span class="font-medium text-foreground">@_mode</span></p>
+    </CardContent>
+</Card>
+
+@code {
+    private string _mode = Card.ModeNormal;
+
+    private void OnModeChanged(string mode) => _mode = mode;
+}

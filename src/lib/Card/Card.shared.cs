@@ -32,4 +32,16 @@ public partial class Card
     /// </summary>
     [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Switch)]
     public bool Square { get; set; }
+
+    /// <summary>
+    /// The display mode of the card.
+    /// </summary>
+    [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Select,
+        Options = new[] { "normal", "minimized", "maximized", "overlay-page", "overlay-app" })]
+    public string Mode { get; set; } = "normal";
+
+    /// <summary>
+    /// Event callback when the card mode changes.
+    /// </summary>
+    [Parameter] public EventCallback<string> ModeChanged { get; set; }
 }

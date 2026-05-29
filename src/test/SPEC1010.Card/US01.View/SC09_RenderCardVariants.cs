@@ -1,85 +1,141 @@
 using Bunit;
 using CardSut = LowlandTech.Components.Card.Card;
+using LowlandTech.Components.Card;
+using LowlandTech.Components.Popover;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LowlandTech.Components.Tests.SPEC1010.Card.US01.View;
 
 [Trait(Spec.SPEC, "1010")]
 [Trait(Spec.SC, "09")]
-[UserStory("01", "Render Card component variants")]
+[UserStory("01", "Card supports display modes and mode menu")]
 public class SC09_RenderCardVariants : ViewScenario
 {
-    [Fact(DisplayName = "UAC01: Card renders data-variant attribute")]
+    [Fact(DisplayName = "UAC01: Card renders data-mode attribute for normal mode")]
     [Trait(Spec.UAC, "01")]
-    [Then("the rendered markup contains data-variant attribute")]
-    public void UAC01_RendersDataVariantAttribute()
+    public void UAC01_RendersDataModeNormal()
     {
-        var cut = Ctx.Render<CardSut>(p => p.Add(x => x.Variant, "outlined"));
-        cut.Find("[data-slot='card']").GetAttribute("data-variant").ShouldBe("outlined");
+        var cut = Ctx.Render<CardSut>();
+        cut.Find("[data-slot='card']").GetAttribute("data-mode").ShouldBe("normal");
     }
 
-    [Fact(DisplayName = "UAC02: Card renders data-elevation attribute")]
+    [Fact(DisplayName = "UAC02: Card renders data-mode attribute for minimized mode")]
     [Trait(Spec.UAC, "02")]
-    [Then("the rendered markup contains data-elevation attribute")]
-    public void UAC02_RendersDataElevationAttribute()
+    public void UAC02_RendersDataModeMinimized()
     {
-        var cut = Ctx.Render<CardSut>(p => p.Add(x => x.Elevation, 5));
-        cut.Find("[data-slot='card']").GetAttribute("data-elevation").ShouldBe("5");
+        var cut = Ctx.Render<CardSut>(p => p.Add(x => x.Mode, CardSut.ModeMinimized));
+        cut.Find("[data-slot='card']").GetAttribute("data-mode").ShouldBe("minimized");
     }
 
-    [Fact(DisplayName = "UAC03: Card renders data-square attribute when Square is true")]
+    [Fact(DisplayName = "UAC03: Card renders data-mode attribute for maximized mode")]
     [Trait(Spec.UAC, "03")]
-    [Then("the rendered markup contains data-square attribute")]
-    public void UAC03_RendersDataSquareAttribute()
+    public void UAC03_RendersDataModeMaximized()
     {
-        var cut = Ctx.Render<CardSut>(p => p.Add(x => x.Square, true));
-        cut.Find("[data-slot='card']").GetAttribute("data-square").ShouldBe("true");
+        var cut = Ctx.Render<CardSut>(p => p.Add(x => x.Mode, CardSut.ModeMaximized));
+        cut.Find("[data-slot='card']").GetAttribute("data-mode").ShouldBe("maximized");
     }
 
-    [Fact(DisplayName = "UAC04: Card does not render data-square attribute when Square is false")]
+    [Fact(DisplayName = "UAC04: Card renders data-mode attribute for overlay-page mode")]
     [Trait(Spec.UAC, "04")]
-    [Then("the rendered markup does not contain data-square attribute")]
-    public void UAC04_DoesNotRenderDataSquareWhenFalse()
+    public void UAC04_RendersDataModeOverlayPage()
     {
-        var cut = Ctx.Render<CardSut>();
-        cut.Find("[data-slot='card']").GetAttribute("data-square").ShouldBeNull();
+        var cut = Ctx.Render<CardSut>(p => p.Add(x => x.Mode, CardSut.ModeOverlayPage));
+        cut.Find("[data-slot='card']").GetAttribute("data-mode").ShouldBe("overlay-page");
     }
 
-    [Fact(DisplayName = "UAC05: Default variant applies shadow-sm class")]
+    [Fact(DisplayName = "UAC05: Card renders data-mode attribute for overlay-app mode")]
     [Trait(Spec.UAC, "05")]
-    [Then("the rendered markup contains shadow-sm class")]
-    public void UAC05_DefaultVariantAppliesShadow()
+    public void UAC05_RendersDataModeOverlayApp()
     {
-        var cut = Ctx.Render<CardSut>();
-        cut.Find("[data-slot='card']").ClassList.ShouldContain("shadow-sm");
+        var cut = Ctx.Render<CardSut>(p => p.Add(x => x.Mode, CardSut.ModeOverlayApp));
+        cut.Find("[data-slot='card']").GetAttribute("data-mode").ShouldBe("overlay-app");
     }
 
-    [Fact(DisplayName = "UAC06: Outlined variant suppresses shadow")]
+    [Fact(DisplayName = "UAC06: Card maximized mode applies flex layout class")]
     [Trait(Spec.UAC, "06")]
-    [Then("the rendered markup does not contain shadow classes")]
-    public void UAC06_OutlinedVariantSuppressesShadow()
+    public void UAC06_MaximizedAppliesFlexLayout()
     {
-        var cut = Ctx.Render<CardSut>(p => p.Add(x => x.Variant, "outlined"));
-        var classList = cut.Find("[data-slot='card']").ClassList;
-        classList.ShouldNotContain("shadow-sm");
-        classList.ShouldNotContain("shadow");
-        classList.ShouldNotContain("shadow-md");
+        var cut = Ctx.Render<CardSut>(p => p.Add(x => x.Mode, CardSut.ModeMaximized));
+        var card = cut.Find("[data-slot='card']");
+        card.ClassList.ShouldContain("flex");
+        card.ClassList.ShouldContain("min-h-full");
+        card.ClassList.ShouldContain("w-full");
     }
 
-    [Fact(DisplayName = "UAC07: Elevation 0 applies shadow-none class")]
+    [Fact(DisplayName = "UAC07: Card overlay-app mode applies fixed viewport class")]
     [Trait(Spec.UAC, "07")]
-    [Then("the rendered markup contains shadow-none class")]
-    public void UAC07_ElevationZeroAppliesShadowNone()
+    public void UAC07_OverlayAppAppliesFixedViewport()
     {
-        var cut = Ctx.Render<CardSut>(p => p.Add(x => x.Elevation, 0));
-        cut.Find("[data-slot='card']").ClassList.ShouldContain("shadow-none");
+        var cut = Ctx.Render<CardSut>(p => p.Add(x => x.Mode, CardSut.ModeOverlayApp));
+        var card = cut.Find("[data-slot='card']");
+        card.ClassList.ShouldContain("fixed");
+        card.ClassList.ShouldContain("inset-0");
+        card.ClassList.ShouldContain("z-50");
     }
 
-    [Fact(DisplayName = "UAC08: High elevation applies shadow-2xl class")]
+    [Fact(DisplayName = "UAC08: CardModeMenu renders trigger button")]
     [Trait(Spec.UAC, "08")]
-    [Then("the rendered markup contains shadow-2xl class")]
-    public void UAC08_HighElevationAppliesShadow2Xl()
+    public void UAC08_CardModeMenuRendersTrigger()
     {
-        var cut = Ctx.Render<CardSut>(p => p.Add(x => x.Elevation, 25));
-        cut.Find("[data-slot='card']").ClassList.ShouldContain("shadow-2xl");
+        var cut = Ctx.Render<CardModeMenu>();
+        cut.Find("[data-testid='card-mode-menu-trigger']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC09: CardModeMenu registers a popover on initialization")]
+    [Trait(Spec.UAC, "09")]
+    public void UAC09_CardModeMenuRegistersPopover()
+    {
+        var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
+        var initialCount = popoverService.ActivePopovers.Count;
+
+        var cut = Ctx.Render<CardModeMenu>(p => p.Add(x => x.Mode, CardSut.ModeNormal));
+
+        popoverService.ActivePopovers.Count.ShouldBe(initialCount + 1);
+    }
+
+    [Fact(DisplayName = "UAC10: CardModeMenu opens popover on trigger click")]
+    [Trait(Spec.UAC, "10")]
+    public void UAC10_CardModeMenuOpensPopoverOnClick()
+    {
+        var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
+        var cut = Ctx.Render<CardModeMenu>(p => p.Add(x => x.Mode, CardSut.ModeNormal));
+
+        var trigger = cut.Find("[data-testid='card-mode-menu-trigger']");
+        trigger.Click();
+
+        var popover = popoverService.ActivePopovers.Last();
+        popover.State.Open.ShouldBeTrue();
+        popover.State.Fragment.ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC11: CardModeMenu closes popover and emits mode change on selection")]
+    [Trait(Spec.UAC, "11")]
+    public void UAC11_CardModeMenuEmitsModeChange()
+    {
+        string? changedMode = null;
+        var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
+        var cut = Ctx.Render<CardModeMenu>(p => p
+            .Add(x => x.Mode, CardSut.ModeNormal)
+            .Add(x => x.ModeChanged, mode => changedMode = mode));
+
+        var trigger = cut.Find("[data-testid='card-mode-menu-trigger']");
+        trigger.Click();
+
+        var popover = popoverService.ActivePopovers.Last();
+        popover.State.Open.ShouldBeTrue();
+
+        // Render the popover fragment so we can interact with it
+        var fragmentCut = Ctx.Render(builder =>
+        {
+            builder.OpenElement(0, "div");
+            builder.AddContent(1, popover.State.Fragment);
+            builder.CloseElement();
+        });
+        var items = fragmentCut.FindAll(".node-menu-item");
+        items.Count.ShouldBe(5);
+        items[2].Click(); // Maximized
+
+        changedMode.ShouldBe("maximized");
+        popover.State.Open.ShouldBeFalse();
     }
 }

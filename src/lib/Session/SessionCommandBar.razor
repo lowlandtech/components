@@ -9,7 +9,7 @@
         <div class="session-command-bar-context flex items-center gap-1.5 px-2 pt-2 text-xs" data-testid="session-command-context">
             <span class="inline-flex items-center gap-1 rounded bg-primary px-2 py-0.5 font-medium text-primary-foreground"
                   data-node-type="@SelectedNode.NodeTypeKey">
-                @SelectedNode.Label
+                @SelectedNode.NodeTypeKey
             </span>
         </div>
     }
@@ -45,7 +45,7 @@
         <button type="button"
                 data-slot="session-command-submit"
                 data-testid="session-command-submit"
-                disabled="@(Disabled || IsBusy || SelectedNode is null || string.IsNullOrWhiteSpace(Value))"
+                disabled="@(Disabled || IsBusy || SelectedNode is null || string.IsNullOrWhiteSpace(CurrentInput))"
                 class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground transition-opacity hover:bg-primary/90 disabled:opacity-40"
                 title="@SubmitTitle"
                 @onclick="SubmitAsync">
@@ -76,6 +76,8 @@
     [Parameter] public bool IsBusy { get; set; }
     [Parameter] public EventCallback<SessionAgentTypeSelected> OnAgentTypeSelected { get; set; }
     [Parameter] public EventCallback<SessionCommandSubmitted> OnSubmit { get; set; }
+
+    private string CurrentInput => !string.IsNullOrWhiteSpace(Value) ? Value! : State.Input;
 
     protected override void OnParametersSet()
     {
@@ -131,15 +133,16 @@
 
     private async Task SubmitAsync()
     {
-        if (Disabled || IsBusy || SelectedNode is null || string.IsNullOrWhiteSpace(Value))
+        var input = CurrentInput;
+        if (Disabled || IsBusy || SelectedNode is null || string.IsNullOrWhiteSpace(input))
             return;
 
         var agent = AgentTypes.FirstOrDefault(candidate => string.Equals(candidate.Key, ActiveAgentTypeKey, StringComparison.OrdinalIgnoreCase));
         if (agent?.Disabled == true)
             return;
 
-        var submitted = new SessionCommandSubmitted(SelectedNode, ActiveAgentTypeKey, Value);
-        State = SessionUiReducer.Reduce(State, new SubmitSessionCommand(SelectedNode, ActiveAgentTypeKey, Value));
+        var submitted = new SessionCommandSubmitted(SelectedNode, ActiveAgentTypeKey, input);
+        State = SessionUiReducer.Reduce(State, new SubmitSessionCommand(SelectedNode, ActiveAgentTypeKey, input));
         Value = State.Input;
         if (agent is not null)
             await agent.OnSubmit.InvokeAsync(submitted);

@@ -20,12 +20,14 @@
               Value="@SelectedNode?.Id"
               ValueChanged="SelectByValueAsync"
               TabClosed="CloseTabAsync"
+              TabPinnedChanged="OnTabPinnedChangedAsync"
               DynamicVariant="ide"
               DynamicListAlign="left"
-              class="min-h-0 w-full gap-0"
+              class="min-h-0 w-full flex-1 !gap-0 overflow-hidden"
+              ContentClass="flex-1 overflow-hidden !mt-0 flex flex-col"
               data-slot="session-content-tabs">
             <ItemContent>
-                <div class="min-h-72 space-y-3 overflow-auto p-3" data-slot="session-content-body">
+                <div class="session-content-body flex-1 overflow-auto py-3 pl-3.5 pr-0 space-y-3" style="scrollbar-gutter: stable;" data-slot="session-content-body">
                     @if (ChildContent is not null)
                     {
                         @ChildContent
@@ -51,15 +53,18 @@
     [Parameter] public bool PinnableTabs { get; set; }
     [Parameter] public bool RenameableTabs { get; set; }
     [Parameter] public bool DraggableTabs { get; set; }
+    [Parameter] public IReadOnlySet<string>? PinnedTabIds { get; set; }
     [Parameter] public EventCallback<SessionNodeSelected> OnSelected { get; set; }
+    [Parameter] public EventCallback<TabsItem> OnTabPinnedChanged { get; set; }
 
     private IReadOnlyList<TabsItem> TabItems =>
         [.. OpenNodes.Select(node => new TabsItem
         {
             Value = node.Id,
             Title = node.Label,
-            Closeable = CloseableTabs,
+            Closeable = CloseableTabs && !(PinnedTabIds?.Contains(node.Id) ?? false),
             Pinnable = PinnableTabs,
+            Pinned = PinnedTabIds?.Contains(node.Id) ?? false,
             Renameable = RenameableTabs,
             Draggable = DraggableTabs
         })];
@@ -98,5 +103,10 @@
         OpenNodes = State.OpenNodes;
         SelectedNode = State.SelectedNode ?? OpenNodes.FirstOrDefault();
         await StateChanged.InvokeAsync(State);
+    }
+
+    private Task OnTabPinnedChangedAsync(TabsItem item)
+    {
+        return OnTabPinnedChanged.InvokeAsync(item);
     }
 }

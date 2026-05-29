@@ -1,0 +1,21 @@
+@attribute [DisplayName("Session/SessionContextProjection")]
+@inherits StoryComponent
+
+<StoryCard Title="SessionContextProjection"
+           Description="Transient projected context selected from the SessionContextExplorer."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "default",
+            "Default",
+            @<SessionContextProjectionDefaultExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "default-razor",
+                    "SessionContextProjectionDefaultExample.razor",
+                    "Showcode/Examples/Session/SessionContextProjection/SessionContextProjectionDefaultExample.razor")
+            ])
+    ];
+}

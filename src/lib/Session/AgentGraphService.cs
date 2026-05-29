@@ -1,0 +1,36 @@
+namespace LowlandTech.Components.Session;
+
+/// <summary>
+/// Descriptor for an agent-type-specific graph execution strategy.
+/// Each agent type (ask, plan, edit, run) implements its own behavior.
+/// </summary>
+public interface IAgentGraphService
+{
+    /// <summary>The agent type key this service handles (e.g. "ask", "plan").</summary>
+    string AgentTypeKey { get; }
+
+    /// <summary>Execute the agent logic against the session context.</summary>
+    Task ExecuteAsync(SessionContext context);
+}
+
+/// <summary>
+/// Registry that owns agent graph services for one feature domain.
+/// </summary>
+public interface IAgentGraphRegistry
+{
+    /// <summary>Resolution priority when multiple registries match.</summary>
+    int Priority => 0;
+
+    /// <summary>Find a service for the given agent type key.</summary>
+    IAgentGraphService? GetService(string agentTypeKey);
+}
+
+/// <summary>
+/// Discovery service that aggregates all <see cref="IAgentGraphRegistry"/> instances
+/// and resolves the appropriate <see cref="IAgentGraphService"/> by agent type key.
+/// </summary>
+public interface IGraphDiscoveryService
+{
+    /// <summary>Get the agent graph service for the specified agent type key.</summary>
+    IAgentGraphService? Get(string agentTypeKey);
+}

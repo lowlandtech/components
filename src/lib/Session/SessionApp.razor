@@ -1,0 +1,560 @@
+@namespace LowlandTech.Components.Session
+@inherits TinyComponentBase
+@inject IJSRuntime JS
+
+<div data-slot="session-app" class="@GetClass()" @attributes="AdditionalAttributes">
+    <Resizable>
+        <ResizablePanel DefaultSize="24" MinSize="16" MaxSize="38" Id="session-app-left-panel">
+            <aside class="flex min-h-0 w-full flex-col overflow-hidden border-r border-border bg-sidebar/40 p-3"
+                   data-slot="session-app-left-sidebar">
+                @if (HasActiveSession)
+                {
+                    <section class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background">
+                        <header class="flex h-10 shrink-0 items-center gap-2 border-b border-border px-3">
+                            <button type="button"
+                                    data-slot="session-app-sidebar-back"
+                                    class="inline-flex h-7 items-center rounded-md border border-border pl-1 pr-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                    @onclick="ShowSessionsAsync">
+                                Back
+                            </button>
+                            <p class="min-w-0 flex-1 truncate text-xs">
+                                <span class="font-semibold">Context:</span>
+                                <span class="ml-1 text-muted-foreground">@CurrentSessionNode?.Label</span>
+                            </p>
+                        </header>
+
+                        <SessionContextExplorer RootNodes="ContextNodes"
+                                                State="ViewState"
+                                                Projection="ViewState.ContextProjection"
+                                                Pins="@(ViewState.ContextPins ?? [])"
+                                                StateChanged="SetStateAsync"
+                                                OnProjected="HandleProjectedAsync"
+                                                OnPinned="HandlePinnedAsync"
+                                                OnUnpinned="HandleUnpinnedAsync"
+                                                ShowHeader="false"
+                                                class="min-h-0 flex-1 rounded-none border-0 bg-transparent" />
+                    </section>
+                }
+                else
+                {
+                    <SessionList Items="DisplaySessions"
+                                 State="ViewState"
+                                 SelectedNode="CurrentSessionNode"
+                                 StateChanged="SetStateAsync"
+                                 class="min-h-0 flex-1" />
+                }
+            </aside>
+        </ResizablePanel>
+        <ResizableHandle WithHandle="true" RevealOnHover="true" />
+        <ResizablePanel DefaultSize="60" MinSize="35" Id="session-app-main-panel">
+            <main class="flex min-h-0 w-full flex-col gap-3 overflow-hidden p-3">
+                <SessionContent State="ViewState"
+                                OpenNodes="ViewState.OpenNodes"
+                                SelectedNode="CurrentSessionNode"
+                                StateChanged="SetStateAsync"
+                                PinnableTabs="true"
+                                PinnedTabIds="_pinnedNodeIds"
+                                OnTabPinnedChanged="HandleTabPinnedChangedAsync"
+                                class="min-h-0 flex-1">
+                    <div class="space-y-3" data-slot="session-app-turns">
+                        <div id="session-turn-request" data-slot="session-app-turn-section">
+                            <SessionCard Node="CurrentRequestNode"
+                                         Initials="RQ"
+                                         Status="Request"
+                                         StatusVariant="outline"
+                                         Description="Summarize the active session and use any pinned context." />
+                        </div>
+
+                        @if (CurrentSubmittedCommands.Count == 0)
+                        {
+                            <div id="session-turn-response" data-slot="session-app-turn-section">
+                                <SessionCard Node="CurrentResponseNode"
+                                             Initials="RS"
+                                             Status="Ready"
+                                             Description="Pinned context blocks will be included in the assistant context window without creating turns." />
+                            </div>
+                        }
+                        else
+                        {
+                            @for (var i = 0; i < CurrentSubmittedCommands.Count; i++)
+                            {
+                                var command = CurrentSubmittedCommands[i];
+                                <div id="@GetCommandTurnId(i)" data-slot="session-app-turn-section">
+                                    <SessionCard Node="CreateResponseNode(command)"
+                                                 Initials="RS"
+                                                 Status="@command.AgentTypeKey"
+                                                 Description="@CreateResponseDescription(command)" />
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    @if ((ViewState.ContextBlocks ?? []).Count > 0)
+                    {
+                        <div class="space-y-2" data-slot="session-app-context-blocks">
+                            @foreach (var block in ViewState.ContextBlocks ?? [])
+                            {
+                                <SessionContextBlock Block="block"
+                                                     IsPinned="@IsBlockPinned(block)"
+                                                     OnUnpin="@(() => UnpinBlockAsync(block))" />
+                            }
+                        </div>
+                    }
+                </SessionContent>
+
+                <SessionCommandBar State="ViewState"
+                                   SelectedNode="CurrentCommandContextNode"
+                                   ActiveAgentTypeKey="@ViewState.ActiveAgentTypeKey"
+                                   Value="@ViewState.Input"
+                                   ValueChanged="SetInputAsync"
+                                   StateChanged="SetStateAsync"
+                                   OnSubmit="HandleSubmitAsync" />
+            </main>
+        </ResizablePanel>
+        <ResizableHandle WithHandle="true" RevealOnHover="true" />
+        <ResizablePanel DefaultSize="16" MinSize="12" MaxSize="28" Id="session-app-sections-panel">
+            <aside class="flex min-h-0 w-full flex-col overflow-hidden border-l border-border bg-sidebar/40 p-3"
+                   data-slot="session-app-right-sidebar"
+                   data-testid="session-app-right-sidebar">
+                <section class="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background">
+                    <header class="flex h-10 shrink-0 items-center gap-2 border-b border-border px-3">
+                        <span class="text-xs font-semibold">Sections</span>
+                        <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground"
+                              data-testid="session-app-sections-count">
+                            @VisibleSections.Count
+                        </span>
+                    </header>
+                    <div class="min-h-0 flex-1 overflow-y-auto py-1"
+                         data-slot="session-app-section-links">
+                        @if (VisibleSections.Count == 0)
+                        {
+                            <div class="px-3 py-3 text-xs text-muted-foreground">
+                                No sections
+                            </div>
+                        }
+                        else
+                        {
+                            @foreach (var section in VisibleSections)
+                            {
+                                <button type="button"
+                                        class="group flex min-h-8 w-full items-center gap-2 px-3 py-1 text-left text-sm font-normal text-foreground transition-colors hover:bg-muted/60"
+                                        data-testid="session-app-section-link"
+                                        data-section-id="@section.Id"
+                                        @onclick="() => ScrollSectionIntoViewAsync(section.Id)">
+                                    <span class="min-w-0 flex-1 truncate">@section.Label</span>
+                                    <span class="shrink-0 text-[10px] text-muted-foreground">@section.Kind</span>
+                                </button>
+                            }
+                        }
+                    </div>
+                </section>
+            </aside>
+        </ResizablePanel>
+    </Resizable>
+</div>
+
+@code {
+    private SessionUiState _state;
+    private string? _activeSessionId;
+    private string? _pendingScrollSectionId;
+    private readonly List<SessionNodeInput> _openSessionNodes = [];
+    private readonly HashSet<string> _pinnedNodeIds = [];
+
+    private readonly Dictionary<string, SessionNodeInput> _requestNodes = new()
+    {
+        ["orders-session"] = new("request-orders", "session-request", "Order summary"),
+        ["support-session"] = new("request-support", "session-request", "Support ticket summary"),
+        ["release-session"] = new("request-release", "session-request", "Release draft")
+    };
+
+    private readonly Dictionary<string, SessionNodeInput> _responseNodes = new()
+    {
+        ["orders-session"] = new("response-orders", "session-response", "Orders context"),
+        ["support-session"] = new("response-support", "session-response", "Support context"),
+        ["release-session"] = new("response-release", "session-response", "Release context")
+    };
+
+    private readonly Dictionary<string, List<SessionCommandSubmitted>> _sessionCommands = new();
+    private readonly Dictionary<string, SessionUiState> _sessionStates = new();
+
+    [Parameter] public IReadOnlyList<SessionListEntry> Sessions { get; set; } =
+    [
+        new("orders-session", "Orders"),
+        new("support-session", "Support triage"),
+        new("release-session", "Release notes")
+    ];
+
+    [Parameter] public IReadOnlyList<SessionContextNode> ContextNodes { get; set; } =
+    [
+        new(
+            new("orders", "workitem", "Orders", "OrdersBlock"),
+            [
+                new(new("invoice-approval", "invoice", "Invoice approval", "InvoiceBlock")),
+                new(new("shipment-delay", "shipment", "Shipment delay", "ShipmentBlock"))
+            ]),
+        new(
+            new("customers", "table", "Customers", "DataGridBlock"),
+            [
+                new(new("northwind", "customer", "Northwind Traders", "CustomerBlock")),
+                new(new("contoso", "customer", "Contoso", "CustomerBlock"))
+            ])
+    ];
+
+    public SessionApp()
+    {
+        _state = SessionUiDefaults.Empty;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (string.IsNullOrWhiteSpace(_pendingScrollSectionId))
+            return;
+
+        var sectionId = _pendingScrollSectionId;
+        _pendingScrollSectionId = null;
+        await ScrollSectionIntoViewAsync(sectionId);
+    }
+
+    private string CurrentSessionId => _activeSessionId ?? "orders-session";
+
+    private bool HasActiveSession => _activeSessionId is not null;
+
+    private SessionNodeInput? CurrentSessionNode =>
+        _activeSessionId is null
+            ? null
+            : FindSessionNode(_activeSessionId);
+
+    private SessionNodeInput? CurrentCommandContextNode =>
+        ViewState.ContextProjection?.Node ?? CurrentSessionNode;
+
+    private SessionUiState ViewState =>
+        CurrentSessionNode is null
+            ? SessionUiDefaults.Empty with { OpenNodes = [.. _openSessionNodes] }
+            : _state with
+            {
+                SelectedNode = CurrentSessionNode,
+                OpenNodes = [.. _openSessionNodes]
+            };
+
+    private SessionNodeInput CurrentRequestNode => _requestNodes.GetValueOrDefault(CurrentSessionId) ?? _requestNodes["orders-session"];
+
+    private SessionNodeInput CurrentResponseNode => _responseNodes.GetValueOrDefault(CurrentSessionId) ?? _responseNodes["orders-session"];
+
+    private List<SessionCommandSubmitted> CurrentSubmittedCommands => GetSessionCommands(CurrentSessionId);
+
+    private IReadOnlyList<SessionListEntry> DisplaySessions =>
+        [.. Sessions.Select(session => session with { Count = GetSessionSectionCount(session.Id) })];
+
+    private IReadOnlyList<SessionAppSection> TurnSections
+    {
+        get
+        {
+            var sections = new List<SessionAppSection>
+            {
+                new("session-turn-request", CurrentRequestNode.Label, "turn")
+            };
+
+            if (CurrentSubmittedCommands.Count == 0)
+            {
+                sections.Add(new("session-turn-response", CurrentResponseNode.Label, "turn"));
+            }
+            else
+            {
+                for (var i = 0; i < CurrentSubmittedCommands.Count; i++)
+                {
+                    sections.Add(new(GetCommandTurnId(i), CreateResponseNode(CurrentSubmittedCommands[i]).Label, "turn"));
+                }
+            }
+
+            return sections;
+        }
+    }
+
+    private IReadOnlyList<SessionAppSection> BlockSections =>
+        [.. (ViewState.ContextBlocks ?? []).Select(block => new SessionAppSection(block.Id, block.Context.Label, block.Context.NodeTypeKey))];
+
+    private IReadOnlyList<SessionAppSection> VisibleSections =>
+        HasActiveSession
+            ? [.. TurnSections, .. BlockSections]
+            : [];
+
+    private int GetSessionSectionCount(string sessionId) =>
+        GetSessionTurnSectionCount(sessionId) + GetSessionBlockSectionCount(sessionId);
+
+    private int GetSessionTurnSectionCount(string sessionId)
+    {
+        var commandCount = _sessionCommands.TryGetValue(sessionId, out var commands)
+            ? commands.Count
+            : 0;
+
+        return commandCount == 0 ? 2 : commandCount + 1;
+    }
+
+    private int GetSessionBlockSectionCount(string sessionId)
+    {
+        var state = string.Equals(_activeSessionId, sessionId, StringComparison.Ordinal)
+            ? _state
+            : _sessionStates.TryGetValue(sessionId, out var storedState)
+                ? storedState
+                : SessionUiDefaults.Empty;
+
+        return state.ContextBlocks?.Count ?? 0;
+    }
+
+    private string GetClass()
+    {
+        var baseClass = "h-[42rem] min-h-0 w-full overflow-hidden rounded-lg border border-border bg-background";
+        return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private Task SetStateAsync(SessionUiState state)
+    {
+        var selectedSessionNode = ResolveSessionNode(state.SelectedNode);
+
+        if (selectedSessionNode is not null && !string.Equals(_activeSessionId, selectedSessionNode.Id, StringComparison.Ordinal))
+        {
+            PersistCurrentSessionState();
+
+            var previousActiveId = _activeSessionId;
+            _activeSessionId = selectedSessionNode.Id;
+
+            SyncOpenSessionNodes(state.OpenNodes, previousActiveId);
+
+            _state = GetSessionState(selectedSessionNode.Id);
+        }
+        else if (_activeSessionId is not null && state.OpenNodes.All(n => n.Id != _activeSessionId))
+        {
+            PersistCurrentSessionState();
+
+            var newSelectedNode = ResolveSessionNode(state.SelectedNode);
+            _activeSessionId = newSelectedNode?.Id;
+
+            SyncOpenSessionNodes(state.OpenNodes, null);
+
+            _state = _activeSessionId is null
+                ? SessionUiDefaults.Empty
+                : GetSessionState(_activeSessionId);
+        }
+        else
+        {
+            _state = StripNavigationState(state);
+            PersistCurrentSessionState();
+        }
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task ShowSessionsAsync()
+    {
+        PersistCurrentSessionState();
+
+        _activeSessionId = null;
+        _state = SessionUiDefaults.Empty;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task SetInputAsync(string value)
+    {
+        _state = SessionUiReducer.Reduce(_state, new SetSessionInput(value));
+        PersistCurrentSessionState();
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task HandleProjectedAsync(SessionContextProjected _)
+    {
+        _pendingScrollSectionId = "projected-context-block";
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task HandlePinnedAsync(SessionContextPinned pinned)
+    {
+        _pendingScrollSectionId = $"context-block:{pinned.Node.Id}";
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task HandleUnpinnedAsync(SessionContextUnpinned _)
+    {
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task HandleTabPinnedChangedAsync(TabsItem item)
+    {
+        if (item.Pinned)
+        {
+            if (!_pinnedNodeIds.Contains(item.Value))
+            {
+                _pinnedNodeIds.Add(item.Value);
+            }
+        }
+        else
+        {
+            _pinnedNodeIds.Remove(item.Value);
+        }
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private Task HandleSubmitAsync(SessionCommandSubmitted command)
+    {
+        GetSessionCommands(CurrentSessionId).Add(command);
+        _pendingScrollSectionId = GetCommandTurnId(CurrentSubmittedCommands.Count - 1);
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private static SessionNodeInput CreateResponseNode(SessionCommandSubmitted command) =>
+        new($"response:{command.AgentTypeKey}:{command.Input.GetHashCode()}", "session-response", $"{command.AgentTypeKey} response");
+
+    private string CreateResponseDescription(SessionCommandSubmitted command)
+    {
+        var contextCount = ViewState.ContextBlocks?.Count ?? 0;
+        return $"{command.AgentTypeKey} processed \"{command.Input}\" with {contextCount} context block(s).";
+    }
+
+    private SessionNodeInput? FindSessionNode(string sessionId)
+    {
+        var entry = Sessions.FirstOrDefault(candidate => string.Equals(candidate.Id, sessionId, StringComparison.Ordinal));
+        return entry is null ? null : new SessionNodeInput(entry.Id, entry.NodeTypeKey, entry.Label);
+    }
+
+    private SessionNodeInput? ResolveSessionNode(SessionNodeInput? node) =>
+        node is null ? null : FindSessionNode(node.Id);
+
+    private void PersistCurrentSessionState()
+    {
+        if (_activeSessionId is null)
+            return;
+
+        _sessionStates[_activeSessionId] = StripNavigationState(_state);
+    }
+
+    private SessionUiState GetSessionState(string sessionId)
+    {
+        if (_sessionStates.TryGetValue(sessionId, out var state))
+            return state;
+
+        var sessionNode = FindSessionNode(sessionId);
+        return sessionNode is null
+            ? SessionUiDefaults.Empty
+            : SessionUiDefaults.Empty with { SelectedNode = sessionNode };
+    }
+
+    private SessionUiState StripNavigationState(SessionUiState state)
+    {
+        var currentSessionNode = CurrentSessionNode ?? FindSessionNode(_activeSessionId ?? string.Empty);
+        return currentSessionNode is null
+            ? state with { OpenNodes = [] }
+            : state with
+            {
+                SelectedNode = currentSessionNode,
+                OpenNodes = []
+            };
+    }
+
+    private void SyncOpenSessionNodes(IReadOnlyList<SessionNodeInput> openNodes, string? previousActiveId)
+    {
+        var incomingNodes = openNodes
+            .Select(ResolveSessionNode)
+            .Where(node => node is not null)
+            .Cast<SessionNodeInput>()
+            .DistinctBy(node => node.Id)
+            .ToList();
+
+        var newOpenNodes = new List<SessionNodeInput>();
+
+        // 1. Keep all pinned tabs
+        foreach (var pinnedId in _pinnedNodeIds)
+        {
+            var pinnedNode = incomingNodes.FirstOrDefault(n => n.Id == pinnedId)
+                ?? FindSessionNode(pinnedId);
+
+            if (pinnedNode is not null)
+            {
+                newOpenNodes.Add(pinnedNode);
+            }
+        }
+
+        // 2. Add the currently active non-pinned session if present in incoming
+        if (_activeSessionId is not null && !_pinnedNodeIds.Contains(_activeSessionId))
+        {
+            var activeNode = incomingNodes.FirstOrDefault(n => n.Id == _activeSessionId);
+            if (activeNode is not null)
+            {
+                newOpenNodes.Add(activeNode);
+            }
+        }
+
+        _openSessionNodes.Clear();
+        _openSessionNodes.AddRange(newOpenNodes);
+    }
+
+    private List<SessionCommandSubmitted> GetSessionCommands(string sessionId)
+    {
+        if (_sessionCommands.TryGetValue(sessionId, out var commands))
+            return commands;
+
+        commands = [];
+        _sessionCommands[sessionId] = commands;
+        return commands;
+    }
+
+    private bool IsBlockPinned(SessionContextBlockModel block) =>
+        (ViewState.ContextPins ?? []).Any(pin => pin.Node.Id == block.Context.Id);
+
+    private Task UnpinBlockAsync(SessionContextBlockModel block)
+    {
+        var pinId = $"pin:{block.Context.Id}";
+        _state = SessionUiReducer.Reduce(_state, new UnpinSessionContext(pinId));
+        PersistCurrentSessionState();
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private static string GetCommandTurnId(int index) => $"session-turn-response-{index}";
+
+    private async Task ScrollSectionIntoViewAsync(string sectionId)
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("eval",
+                $$"""
+                (() => {
+                    const target = document.getElementById('{{EscapeJsString(sectionId)}}');
+                    const scroller = target?.closest('[data-slot="session-content-body"]');
+                    if (!target || !scroller) return;
+
+                    const inset = 10;
+                    const targetTop = target.offsetTop - scroller.offsetTop;
+                    const targetBottom = targetTop + target.offsetHeight;
+                    const visibleTop = scroller.scrollTop + inset;
+                    const visibleBottom = scroller.scrollTop + scroller.clientHeight - inset;
+
+                    if (targetTop < visibleTop) {
+                        scroller.scrollTo({ top: Math.max(0, targetTop - inset), behavior: 'smooth' });
+                    } else if (targetBottom > visibleBottom) {
+                        scroller.scrollTo({ top: targetBottom - scroller.clientHeight + inset, behavior: 'smooth' });
+                    }
+                })();
+                """);
+        }
+        catch
+        {
+            // Best-effort enhancement: tests, prerender, and disconnected circuits may not have a DOM.
+        }
+    }
+
+    private static string EscapeJsString(string value) =>
+        value
+            .Replace("\\", "\\\\", StringComparison.Ordinal)
+            .Replace("'", "\\'", StringComparison.Ordinal);
+
+    private sealed record SessionAppSection(string Id, string Label, string Kind);
+}

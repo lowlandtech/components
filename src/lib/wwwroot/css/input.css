@@ -778,7 +778,16 @@
   }
 
   .cn-card-action {
-    @apply col-start-2 row-span-2 row-start-1 self-start justify-self-end;
+    @apply col-start-2 row-start-1 self-center justify-self-end;
+  }
+
+  .cn-card-header:has([data-slot="card-description"]) {
+    align-items: start;
+  }
+
+  .cn-card-header:has([data-slot="card-description"]) > .cn-card-action {
+    align-self: start;
+    grid-row: 1 / span 2;
   }
 
   .cn-card-content {

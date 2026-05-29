@@ -45,7 +45,9 @@
                         class="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm hover:bg-muted/60 data-[selected=true]:bg-primary/10"
                         @onclick="() => SelectAsync(node)">
                     <span class="truncate">@node.Label</span>
-                    <span class="text-[10px] text-muted-foreground">@item.Count</span>
+                    <span class="text-[10px] text-muted-foreground"
+                          data-testid="session-list-item-count"
+                          data-node-id="@node.Id">@item.Count</span>
                 </button>
             }
         </div>
