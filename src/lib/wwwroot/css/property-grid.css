@@ -35,9 +35,34 @@
 }
 
 .lt-property-grid-empty {
-    padding: 12px;
     color: var(--muted-foreground, #a0a3b8);
-    font-style: italic;
+}
+
+.lt-property-grid-empty-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2.5rem 1rem;
+}
+
+.lt-property-grid-empty-icon {
+    color: var(--muted-foreground, #a0a3b8);
+    margin-bottom: 0.75rem;
+}
+
+.lt-property-grid-empty-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--foreground, #e2e4ea);
+    margin: 0.75rem 0 0.25rem;
+}
+
+.lt-property-grid-empty-desc {
+    font-size: 0.75rem;
+    color: var(--muted-foreground, #a0a3b8);
+    margin: 0;
 }
 
 .lt-property-grid-rows {

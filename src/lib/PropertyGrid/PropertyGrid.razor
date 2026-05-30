@@ -16,7 +16,27 @@
     @if (Items is null || Items.Count == 0)
     {
         <div data-slot="property-grid-empty" class="lt-property-grid-empty">
-            @(EmptyText ?? "No properties.")
+            @if (!string.IsNullOrEmpty(EmptyTitle) || !string.IsNullOrEmpty(EmptyDescription) || !string.IsNullOrEmpty(EmptyIconPaths) || !string.IsNullOrEmpty(EmptyIconName))
+            {
+                <div class="lt-property-grid-empty-content">
+                    @if (!string.IsNullOrEmpty(EmptyIconPaths) || !string.IsNullOrEmpty(EmptyIconName))
+                    {
+                        <Icon Name="@EmptyIconName" Paths="@EmptyIconPaths" Size="28" class="lt-property-grid-empty-icon" />
+                    }
+                    @if (!string.IsNullOrEmpty(EmptyTitle))
+                    {
+                        <p class="lt-property-grid-empty-title">@EmptyTitle</p>
+                    }
+                    @if (!string.IsNullOrEmpty(EmptyDescription))
+                    {
+                        <p class="lt-property-grid-empty-desc">@EmptyDescription</p>
+                    }
+                </div>
+            }
+            else
+            {
+                @(EmptyText ?? "No properties.")
+            }
         </div>
     }
     else
@@ -76,8 +96,20 @@
     /// <summary>Optional read-only flag per row (greys the editor column).</summary>
     [Parameter] public Func<TField, bool>? IsReadOnlySelector { get; set; }
 
-    /// <summary>Text to show when Items is null or empty.</summary>
+    /// <summary>Text to show when Items is null or empty (simple fallback when no title/description/icon are set).</summary>
     [Parameter] public string? EmptyText { get; set; }
+
+    /// <summary>Title to show in the rich empty state when Items is null or empty.</summary>
+    [Parameter] public string? EmptyTitle { get; set; }
+
+    /// <summary>Description to show in the rich empty state when Items is null or empty.</summary>
+    [Parameter] public string? EmptyDescription { get; set; }
+
+    /// <summary>Icon name to show in the rich empty state (uses built-in icon set).</summary>
+    [Parameter] public string? EmptyIconName { get; set; }
+
+    /// <summary>SVG path data for a custom icon in the rich empty state. Alternative to EmptyIconName.</summary>
+    [Parameter] public string? EmptyIconPaths { get; set; }
 
     private string GetClass()
     {

@@ -11,6 +11,7 @@ global using System.Text.Json.Nodes;
 global using System.Text.RegularExpressions;
 global using LowlandTech.Components.Feed;
 global using LowlandTech.Components.Card;
+global using LowlandTech.Components.Icon;
 global using LowlandTech.Components.Popover;
 global using LowlandTech.Components.Session.Agents;
 global using LowlandTech.Components.Sonner;
