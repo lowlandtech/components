@@ -1,9 +1,5 @@
 @namespace LowlandTech.Components.Session
-@using LowlandTech.Components.Badge
-@using LowlandTech.Components.Card
-@using LowlandTech.Components.Icon
 @inherits TinyComponentBase
-@inject IPageOverlayService PageOverlay
 
 <Card data-slot="session-context-block"
       id="@Block.Id"
@@ -11,6 +7,7 @@
       data-mode="@NormalizedMode"
       Variant="outlined"
       Elevation="0"
+    style="padding-block:0;"
       class="@GetClass()"
       @attributes="AdditionalAttributes">
     <CardHeader class="border-b border-border bg-muted/30 px-3 py-2">
@@ -56,139 +53,3 @@
         </CardContent>
     }
 </Card>
-
-@code {
-    public const string ModeMinimized = "minimized";
-    public const string ModeNormal = "normal";
-    public const string ModeMaximized = "maximized";
-    public const string ModeOverlayPage = "overlay-page";
-    public const string ModeOverlayApp = "overlay-app";
-
-    [Parameter, EditorRequired] public SessionContextBlockModel Block { get; set; } =
-        new("context-block", new("context", "context", "Context"));
-
-    [Parameter] public IReadOnlyDictionary<string, object?>? Parameters { get; set; }
-    [Parameter] public string Mode { get; set; } = ModeNormal;
-    [Parameter] public bool IsPinned { get; set; }
-    [Parameter] public EventCallback<SessionNodeInput> OnUnpin { get; set; }
-    [Parameter] public EventCallback<string> ModeChanged { get; set; }
-    [Parameter] public string? PageOverlayContainerClass { get; set; }
-    [Parameter] public string? AppOverlayContainerClass { get; set; }
-    [Parameter] public bool HostHandlesPageOverlay { get; set; }
-
-    private string NormalizedMode => Mode?.ToLowerInvariant() switch
-    {
-        ModeMinimized => ModeMinimized,
-        ModeMaximized => ModeMaximized,
-        ModeOverlayPage => ModeOverlayPage,
-        ModeOverlayApp => ModeOverlayApp,
-        _ => ModeNormal
-    };
-
-    private bool ShowsContent => NormalizedMode is not ModeMinimized and not ModeOverlayPage;
-
-    private string GetClass()
-    {
-        var baseClass = NormalizedMode switch
-        {
-            ModeMaximized => "flex min-h-full w-full flex-col overflow-hidden bg-background gap-0 py-0",
-            ModeOverlayPage => "w-full overflow-hidden bg-background gap-0 py-0 opacity-60",
-            ModeOverlayApp when !string.IsNullOrWhiteSpace(AppOverlayContainerClass) => AppOverlayContainerClass,
-            ModeOverlayApp => "fixed inset-0 z-50 flex h-dvh w-dvw flex-col overflow-hidden rounded-none bg-background gap-0 py-0",
-            _ => "w-full overflow-hidden bg-background gap-0 py-0"
-        };
-
-        return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
-    }
-
-    private string GetContentClass()
-    {
-        var baseClass = NormalizedMode switch
-        {
-            ModeMaximized => "min-h-0 flex-1 overflow-auto p-3 text-sm",
-            ModeOverlayPage => "min-h-0 flex-1 overflow-auto p-3 text-sm",
-            ModeOverlayApp when !string.IsNullOrWhiteSpace(AppOverlayContainerClass) => "min-h-0 flex-1 overflow-auto p-3 text-sm",
-            ModeOverlayApp => "h-[calc(100dvh-3rem)] overflow-auto p-3 text-sm",
-            _ => "p-3 text-sm"
-        };
-
-        return baseClass;
-    }
-
-    private Dictionary<string, object?> GetParameters()
-    {
-        var parameters = Parameters?.ToDictionary(pair => pair.Key, pair => pair.Value) ?? [];
-        parameters.TryAdd("Block", Block);
-        parameters.TryAdd("Context", Block.Context);
-        parameters.TryAdd("Data", Block.Data);
-        return parameters;
-    }
-
-    private string GetFallbackText() =>
-        Block.Data is null
-            ? "Context data is available to the session."
-            : Block.Data.ToString() ?? "Context data is available to the session.";
-
-    private Task UnpinAsync(MouseEventArgs _) => OnUnpin.InvokeAsync(Block.Context);
-
-    private async Task OnModeChangedAsync(string mode)
-    {
-        if (mode == ModeOverlayPage)
-        {
-            if (!HostHandlesPageOverlay)
-            {
-                PageOverlay.Set(BuildOverlayFragment(), Block.Context.Label, PageOverlayContainerClass);
-            }
-        }
-        else if (NormalizedMode == ModeOverlayPage)
-        {
-            PageOverlay.Clear();
-        }
-
-        Mode = mode;
-        await ModeChanged.InvokeAsync(NormalizedMode);
-        StateHasChanged();
-    }
-
-    private RenderFragment BuildOverlayFragment() => __builder =>
-    {
-        <div class="flex flex-1 flex-col">
-            <div class="flex items-center justify-between border-b border-border bg-muted/30 px-4 py-3">
-                <span class="text-sm font-semibold">@Block.Context.Label</span>
-                <div class="flex items-center gap-2">
-                    @if (IsPinned)
-                    {
-                        <Badge Variant="secondary" Size="sm" class="gap-1">
-                            <Icon Name="pin" Size="9" />
-                            <span>Pinned</span>
-                        </Badge>
-                    }
-                    else
-                    {
-                        <Badge Variant="outline" Size="sm">@Block.Context.NodeTypeKey</Badge>
-                    }
-                    <button type="button"
-                            class="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
-                            title="Restore"
-                            @onclick="() => OnModeChangedAsync(ModeNormal)">
-                        <Icon Name="chevron-down" Size="12" />
-                    </button>
-                </div>
-            </div>
-            <div class="min-h-0 flex-1 overflow-auto p-4">
-                @if (Block.ComponentType is not null)
-                {
-                    <DynamicComponent Type="@Block.ComponentType" Parameters="@GetParameters()" />
-                }
-                else if (ChildContent is not null)
-                {
-                    @ChildContent
-                }
-                else
-                {
-                    <p class="text-muted-foreground">@GetFallbackText()</p>
-                }
-            </div>
-        </div>
-    };
-}

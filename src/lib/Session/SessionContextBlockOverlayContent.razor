@@ -1,0 +1,41 @@
+@namespace LowlandTech.Components.Session
+@inherits TinyComponentBase
+
+<div class="flex flex-1 flex-col">
+    <div class="flex items-center justify-between border-b border-border bg-muted/30 px-4 py-3">
+        <span class="text-sm font-semibold">@Block.Context.Label</span>
+        <div class="flex items-center gap-2">
+            @if (IsPinned)
+            {
+                <Badge Variant="secondary" Size="sm" class="gap-1">
+                    <Icon Name="pin" Size="9" />
+                    <span>Pinned</span>
+                </Badge>
+            }
+            else
+            {
+                <Badge Variant="outline" Size="sm">@Block.Context.NodeTypeKey</Badge>
+            }
+            <button type="button"
+                    class="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
+                    title="Restore"
+                    @onclick="RestoreAsync">
+                <Icon Name="chevron-down" Size="12" />
+            </button>
+        </div>
+    </div>
+    <div class="min-h-0 flex-1 overflow-auto p-4">
+        @if (Block.ComponentType is not null)
+        {
+            <DynamicComponent Type="@Block.ComponentType" Parameters="@GetParameters()" />
+        }
+        else if (ChildContent is not null)
+        {
+            @ChildContent
+        }
+        else
+        {
+            <p class="text-muted-foreground">@GetFallbackText()</p>
+        }
+    </div>
+</div>

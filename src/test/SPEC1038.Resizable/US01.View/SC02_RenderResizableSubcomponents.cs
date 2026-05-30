@@ -14,7 +14,11 @@ public class SC02_RenderResizableSubcomponents : ViewScenario
     public void UAC01_PanelRendersDataSlot()
     {
         var cut = Ctx.Render<ResizablePanel>(p => p.AddChildContent("Panel"));
-        cut.Find("[data-slot='resizable-panel']").ShouldNotBeNull();
+        var panel = cut.Find("[data-slot='resizable-panel']");
+
+        panel.ShouldNotBeNull();
+        panel.ClassList.ShouldContain("h-full");
+        panel.ClassList.ShouldContain("self-stretch");
     }
 
     [Fact(DisplayName = "UAC02: ResizablePanel renders ChildContent")]

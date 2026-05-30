@@ -1,0 +1,52 @@
+@namespace LowlandTech.Components.Session
+@inherits TinyComponentBase
+
+<div>
+    <div class="flex items-center gap-1 rounded-sm px-2 hover:bg-muted/60 data-[projected=true]:bg-primary/10"
+         data-projected="@(Projection?.Node.Id == Item.Node.Id ? "true" : "false")">
+        <button type="button"
+                data-slot="session-context-node"
+                data-node-id="@Item.Node.Id"
+                class="flex min-h-8 flex-1 items-center justify-start gap-2 px-2 py-1 text-left text-sm font-normal"
+                style="@IndentStyle"
+                @onclick="ProjectAsync"
+                @ondblclick="PinAsync">
+            @if (HasChildren)
+            {
+                <Icon Name="chevron-right" Size="12" class="text-muted-foreground" />
+            }
+            else
+            {
+                <span class="w-3"></span>
+            }
+            <span class="min-w-0 flex-1 truncate">@Item.Node.Label</span>
+            <span class="shrink-0 text-[10px] text-muted-foreground">@Item.Node.NodeTypeKey</span>
+        </button>
+        <span id="popover-anchor-@PopoverId" class="inline-flex">
+            <button type="button"
+                    class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm text-muted-foreground"
+                    data-testid="session-context-node-menu-trigger"
+                    data-node-id="@Item.Node.Id"
+                    title="Options"
+                    @onclick="ToggleMenuAsync">
+                <Icon Paths="@Icons.EllipsisVertical" Size="12" />
+            </button>
+        </span>
+    </div>
+    @foreach (var (child, i) in VisibleChildren.Select((node, idx) => (node, idx)))
+    {
+        <SessionContextTreeNode Item="child"
+                                Depth="@(Depth + 1)"
+                                Index="i"
+                                SiblingCount="@VisibleChildren.Count"
+                                Projection="Projection"
+                                Pins="Pins"
+                                OnProject="OnProject"
+                                OnPin="OnPin"
+                                OnNodeNew="OnNodeNew"
+                                OnNodeRename="OnNodeRename"
+                                OnNodeMoveUp="OnNodeMoveUp"
+                                OnNodeMoveDown="OnNodeMoveDown"
+                                OnNodeDelete="OnNodeDelete" />
+    }
+</div>

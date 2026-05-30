@@ -167,6 +167,18 @@ public class SC01_SessionBlocks : ViewScenario
         selected.ActionKey.ShouldBe("create-task");
     }
 
+    [Fact(DisplayName = "UAC05b: SessionCard flushes outer card block padding")]
+    [Trait(Spec.UAC, "05b")]
+    public void UAC05b_SessionCardFlushesOuterCardPadding()
+    {
+        var cut = Ctx.Render<SessionCard>(p => p.Add(x => x.Node, OrdersNode));
+
+        var style = cut.Find("[data-slot='session-card']").GetAttribute("style");
+
+        style.ShouldNotBeNull();
+        style.ShouldContain("padding-block:0");
+    }
+
     [Fact(DisplayName = "UAC06: SessionContent uses IDE tabs and emits selected node")]
     [Trait(Spec.UAC, "06")]
     public void UAC06_SessionContentUsesIdeTabsAndSelectsTab()
@@ -318,6 +330,23 @@ public class SC01_SessionBlocks : ViewScenario
         var cut = Ctx.Render<SessionContextBlock>(p => p.Add(x => x.Block, block));
 
         cut.Markup.ShouldContain("Dynamic invoice-data");
+    }
+
+    [Fact(DisplayName = "UAC13b: SessionContextBlock flushes outer card block padding")]
+    [Trait(Spec.UAC, "13b")]
+    public void UAC13b_ContextBlockFlushesOuterCardPadding()
+    {
+        var block = new SessionContextBlockModel(
+            "context-block:invoice",
+            new("invoice", "invoice", "Invoice", "InvoiceBlock"),
+            "invoice-data");
+
+        var cut = Ctx.Render<SessionContextBlock>(p => p.Add(x => x.Block, block));
+
+        var style = cut.Find("[data-slot='session-context-block']").GetAttribute("style");
+
+        style.ShouldNotBeNull();
+        style.ShouldContain("padding-block:0");
     }
 
     [Fact(DisplayName = "UAC14: SessionContextBlock minimized mode renders only the card header")]
@@ -611,6 +640,36 @@ public class SC01_SessionBlocks : ViewScenario
         projectedBlock.TextContent.ShouldNotContain("Invoice detail block projected into the active session feed.");
     }
 
+    [Fact(DisplayName = "UAC17b: SessionApp moves a newly selected projection to the end of the session feed")]
+    [Trait(Spec.UAC, "17b")]
+    public void UAC17b_SessionAppMovesProjectionToFeedTailOnSelection()
+    {
+        var cut = Ctx.Render<SessionApp>(p => p
+            .Add(x => x.IsTest, true)
+            .Add(x => x.TestStreamDelayMilliseconds, 0));
+
+        cut.Find("[data-node-id='orders-session']").Click();
+
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='shipment-delay']").Click();
+        ClickOpenContextNodePin();
+
+        cut.Find("[data-testid='session-command-input']").Input("Earlier response");
+        cut.Find("[data-testid='session-command-submit']").Click();
+
+        cut.Find("[data-node-id='northwind']").Click();
+
+        var feedText = cut.Find("[data-slot='session-app-feed']").TextContent;
+        var pinnedIndex = feedText.IndexOf("Shipment delay", StringComparison.Ordinal);
+        var responseIndex = feedText.IndexOf("Earlier response", StringComparison.Ordinal);
+        var projectedIndex = feedText.IndexOf("Northwind Traders", StringComparison.Ordinal);
+
+        pinnedIndex.ShouldBeGreaterThan(-1);
+        responseIndex.ShouldBeGreaterThan(-1);
+        projectedIndex.ShouldBeGreaterThan(-1);
+        pinnedIndex.ShouldBeLessThan(responseIndex);
+        responseIndex.ShouldBeLessThan(projectedIndex);
+    }
+
     [Fact(DisplayName = "UAC18: SessionApp keeps projected context scoped to the active session")]
     [Trait(Spec.UAC, "18")]
     public void UAC18_SessionAppScopesProjectedContextPerSession()
@@ -762,7 +821,11 @@ public class SC01_SessionBlocks : ViewScenario
 
         var sidebar = cut.Find("[data-testid='session-app-right-sidebar']");
         sidebar.ShouldNotBeNull();
-        sidebar.ClassList.ShouldContain("p-3");
+        sidebar.ClassList.ShouldNotContain("p-3");
+        var sidebarBody = cut.Find("[data-slot='session-app-right-sidebar-body']");
+        var sidebarBodyStyle = sidebarBody.GetAttribute("style");
+        sidebarBodyStyle.ShouldNotBeNull();
+        sidebarBodyStyle.ShouldContain("padding:10px");
         var panel = sidebar.QuerySelector("section.rounded-lg.border.border-border.bg-background");
         panel.ShouldNotBeNull();
         panel!.ClassList.ShouldContain("w-full");
@@ -922,6 +985,33 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-block-id='context-block:shipment-delay'][data-mode='minimized']").ShouldNotBeNull();
     }
 
+    [Fact(DisplayName = "UAC28d: SessionApp moves the projected block behind a newly appended response")]
+    [Trait(Spec.UAC, "28d")]
+    public void UAC28d_SessionAppMovesProjectionBehindNewResponses()
+    {
+        var cut = Ctx.Render<SessionApp>(p => p
+            .Add(x => x.IsTest, true)
+            .Add(x => x.TestStreamDelayMilliseconds, 0));
+
+        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='invoice-approval']").Click();
+
+        var initialFeed = cut.Find("[data-slot='session-app-feed']").TextContent;
+        initialFeed.IndexOf("Invoice approval", StringComparison.Ordinal)
+            .ShouldBeGreaterThan(initialFeed.IndexOf("Release context", StringComparison.Ordinal));
+
+        cut.Find("[data-testid='session-command-input']").Input("Move projection after this response");
+        cut.Find("[data-testid='session-command-submit']").Click();
+
+        var updatedFeed = cut.Find("[data-slot='session-app-feed']").TextContent;
+        var responseIndex = updatedFeed.IndexOf("Move projection after this response", StringComparison.Ordinal);
+        var projectionIndex = updatedFeed.IndexOf("Invoice approval", StringComparison.Ordinal);
+
+        responseIndex.ShouldBeGreaterThan(-1);
+        projectionIndex.ShouldBeGreaterThan(-1);
+        responseIndex.ShouldBeLessThan(projectionIndex);
+    }
+
     [Fact(DisplayName = "UAC29: SessionApp maximized agent card replaces the tab body content")]
     [Trait(Spec.UAC, "29")]
     public void UAC29_SessionAppMaximizedAgentCardOverlaysTabContent()
@@ -965,16 +1055,29 @@ public class SC01_SessionBlocks : ViewScenario
         standalone.Find("[data-slot='sidebar-provider']").ShouldNotBeNull();
         standalone.Find("[data-slot='sidebar']").ShouldNotBeNull();
         standalone.Find("[data-slot='sidebar-inset']").ShouldNotBeNull();
+        var shellStyle = standalone.Find("[data-slot='session-app']").GetAttribute("style");
+        shellStyle.ShouldNotBeNull();
+        shellStyle.ShouldContain("height:42rem");
         standalone.FindAll("[data-panel='session-app-left-panel']").ShouldBeEmpty();
         standalone.FindAll("[data-slot='resizable-panel']").Count.ShouldBe(3);
         standalone.Find("[data-panel='session-app-sidebar-panel']").ShouldNotBeNull();
         standalone.Find("[data-panel='session-app-main-panel']").ShouldNotBeNull();
         standalone.Find("[data-panel='session-app-sections-panel']").ShouldNotBeNull();
+        standalone.Find("[data-panel='session-app-sidebar-panel']").ClassList.ShouldContain("h-full");
+        standalone.Find("[data-panel='session-app-sidebar-panel']").ClassList.ShouldContain("self-stretch");
         standalone.Find("[data-panel='session-app-main-panel']").ClassList.ShouldContain("h-full");
+        standalone.Find("[data-panel='session-app-sections-panel']").ClassList.ShouldContain("h-full");
+        standalone.Find("[data-panel='session-app-sections-panel']").ClassList.ShouldContain("self-stretch");
         standalone.Find("[data-slot='sidebar-inset'] > main").ClassList.ShouldContain("h-full");
+        var standaloneMainStyle = standalone.Find("[data-slot='sidebar-inset'] > main").GetAttribute("style");
+        standaloneMainStyle.ShouldNotBeNull();
+        standaloneMainStyle.ShouldContain("padding:10px");
         standalone.FindAll("[data-slot='resizable-handle']").Count.ShouldBe(2);
         standalone.FindAll("[data-slot='resizable-handle']")
             .All(handle => handle.GetAttribute("data-reveal-on-hover") == "true")
+            .ShouldBeTrue();
+        standalone.FindAll("[data-slot='resizable-handle']")
+            .All(handle => handle.ClassList.Contains("z-20"))
             .ShouldBeTrue();
         standalone.Find("[data-slot='sidebar-header']").ShouldNotBeNull();
         standalone.Find("[data-slot='sidebar-brand-logo']").GetAttribute("src").ShouldBe("_content/LowlandTech.Components/img/session-app-logo.svg");
@@ -988,6 +1091,49 @@ public class SC01_SessionBlocks : ViewScenario
         standalone.FindAll("[data-slot='session-list'] [data-slot='sidebar-menu-badge']").Count.ShouldBe(3);
         standalone.Find("[data-slot='session-app-left-sidebar']").ShouldNotBeNull();
         standalone.Find("[data-testid='session-app-right-sidebar']").ShouldNotBeNull();
+
+        standalone.Find("[data-node-id='orders-session']").Click();
+        var sessionBodyStyle = standalone.Find("[data-slot='session-content-body']").GetAttribute("style");
+        sessionBodyStyle.ShouldNotBeNull();
+        sessionBodyStyle.ShouldContain("padding:10px");
+    }
+
+    [Fact(DisplayName = "UAC30b: SessionApp standalone sidebars keep full panel stretch classes")]
+    [Trait(Spec.UAC, "30b")]
+    public void UAC30b_SessionAppStandaloneSidebarsKeepStretchClasses()
+    {
+        var standalone = Ctx.Render<SessionApp>(p => p.Add(x => x.HasSidebar, true));
+
+        var leftSidebar = standalone.Find("[data-slot='session-app-left-sidebar']");
+        leftSidebar.ClassList.ShouldContain("h-full");
+        leftSidebar.ClassList.ShouldContain("w-full");
+        leftSidebar.ClassList.ShouldContain("flex-1");
+
+        var appShellStyle = standalone.Find("[data-slot='session-app']").GetAttribute("style");
+        appShellStyle.ShouldNotBeNull();
+        appShellStyle.ShouldContain("height:42rem");
+        appShellStyle.ShouldContain("min-height:42rem");
+
+        var sidebarContent = standalone.Find("[data-slot='sidebar-content']");
+        sidebarContent.ClassList.ShouldContain("w-full");
+        sidebarContent.ClassList.ShouldContain("flex-1");
+
+        var sessionList = standalone.Find("[data-slot='session-list']");
+        sessionList.ClassList.ShouldContain("h-full");
+        sessionList.ClassList.ShouldContain("w-full");
+        sessionList.ClassList.ShouldContain("flex-1");
+
+        var rightSidebar = standalone.Find("[data-testid='session-app-right-sidebar']");
+        rightSidebar.ClassList.ShouldContain("h-full");
+        rightSidebar.ClassList.ShouldContain("min-w-0");
+        rightSidebar.ClassList.ShouldContain("w-full");
+        rightSidebar.ClassList.ShouldNotContain("p-3");
+        var rightSidebarBodyStyle = standalone.Find("[data-slot='session-app-right-sidebar-body']").GetAttribute("style");
+        rightSidebarBodyStyle.ShouldNotBeNull();
+        rightSidebarBodyStyle.ShouldContain("padding:10px");
+
+        standalone.Find("[data-panel='session-app-sidebar-panel']").ClassList.ShouldContain("self-stretch");
+        standalone.Find("[data-panel='session-app-sections-panel']").ClassList.ShouldContain("self-stretch");
     }
 
     [Fact(DisplayName = "UAC31: SessionApp supplies overlay containers to rendered session cards")]

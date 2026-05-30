@@ -96,7 +96,7 @@
 
     private string GetClass()
     {
-        var baseClass = "cn-resizable-panel relative flex min-w-0 min-h-0";
+        var baseClass = "cn-resizable-panel relative flex h-full min-h-0 min-w-0 self-stretch";
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
 }

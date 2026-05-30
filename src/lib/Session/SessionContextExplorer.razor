@@ -1,10 +1,5 @@
 @namespace LowlandTech.Components.Session
-@using LowlandTech.Components.Badge
-@using LowlandTech.Components.Button
-@using LowlandTech.Components.Icon
 @inherits TinyComponentBase
-@inject IPopoverService PopoverService
-@implements IDisposable
 
 <section data-slot="session-context-explorer" class="@GetClass()" @attributes="AdditionalAttributes">
     @if (ShowHeader)
@@ -30,238 +25,22 @@
         }
         else
         {
-            var visibleRoots = RootNodes.Where(n => !IsPinned(n.Node.Id)).ToList();
-            @foreach (var (node, i) in visibleRoots.Select((n, i) => (n, i)))
+            @foreach (var (node, i) in VisibleRoots.Select((n, i) => (n, i)))
             {
-                @RenderNode(node, 0, visibleRoots, i)
+                <SessionContextTreeNode Item="node"
+                                        Depth="0"
+                                        Index="i"
+                                        SiblingCount="@VisibleRoots.Count"
+                                        Projection="Projection"
+                                        Pins="Pins"
+                                        OnProject="ProjectAsync"
+                                        OnPin="HandlePinAsync"
+                                        OnNodeNew="HandleNewAsync"
+                                        OnNodeRename="HandleRenameAsync"
+                                        OnNodeMoveUp="HandleMoveUpAsync"
+                                        OnNodeMoveDown="HandleMoveDownAsync"
+                                        OnNodeDelete="HandleDeleteAsync" />
             }
         }
     </div>
 </section>
-
-@code {
-    private string? _openMenuNodeId;
-    private readonly Dictionary<string, Guid> _nodePopoverIds = new();
-
-    [Parameter] public SessionUiState State { get; set; } = SessionUiDefaults.Empty;
-    [Parameter] public EventCallback<SessionUiState> StateChanged { get; set; }
-    [Parameter] public IReadOnlyList<SessionContextNode> RootNodes { get; set; } = [];
-    [Parameter] public SessionContextProjectionModel? Projection { get; set; }
-    [Parameter] public IReadOnlyList<SessionContextPinModel> Pins { get; set; } = [];
-    [Parameter] public string Title { get; set; } = "Context";
-    [Parameter] public string EmptyTitle { get; set; } = "No context nodes";
-    [Parameter] public string EmptyDescription { get; set; } = "Context nodes appear here when application entities are available.";
-    [Parameter] public bool ShowHeader { get; set; } = true;
-    [Parameter] public EventCallback<SessionContextProjected> OnProjected { get; set; }
-    [Parameter] public EventCallback<SessionContextPinned> OnPinned { get; set; }
-    [Parameter] public EventCallback<SessionContextUnpinned> OnUnpinned { get; set; }
-    [Parameter] public EventCallback<SessionNodeInput> OnNodeNew { get; set; }
-    [Parameter] public EventCallback<SessionNodeInput> OnNodeRename { get; set; }
-    [Parameter] public EventCallback<SessionNodeInput> OnNodeMoveUp { get; set; }
-    [Parameter] public EventCallback<SessionNodeInput> OnNodeMoveDown { get; set; }
-    [Parameter] public EventCallback<SessionNodeInput> OnNodeDelete { get; set; }
-
-    protected override void OnParametersSet()
-    {
-        Projection ??= State.ContextProjection;
-        if (Pins.Count == 0 && State.ContextPins is { Count: > 0 })
-            Pins = State.ContextPins;
-    }
-
-    private string GetClass()
-    {
-        var baseClass = "w-full overflow-hidden rounded-lg border border-border bg-background";
-        return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
-    }
-
-    private bool IsPinned(string nodeId) => Pins.Any(p => p.Node.Id == nodeId);
-
-    private RenderFragment RenderNode(SessionContextNode item, int depth, IReadOnlyList<SessionContextNode> siblings, int index) => @<div>
-        <div class="flex items-center gap-1 rounded-sm px-2 hover:bg-muted/60 data-[projected=true]:bg-primary/10"
-             data-projected="@(Projection?.Node.Id == item.Node.Id ? "true" : "false")">
-            <button type="button"
-                    data-slot="session-context-node"
-                    data-node-id="@item.Node.Id"
-                    class="flex min-h-8 flex-1 items-center justify-start gap-2 px-2 py-1 text-left text-sm font-normal"
-                    style="@($"padding-left:{Math.Max(0, depth) * 0.75 + 0.5}rem")"
-                    @onclick="@(() => ProjectAsync(item.Node))"
-                    @ondblclick="@(() => PinAsync(new SessionContextProjectionModel(item.Node)))">
-                @if (item.Children is { Count: > 0 })
-                {
-                    <Icon Name="chevron-right" Size="12" class="text-muted-foreground" />
-                }
-                else
-                {
-                    <span class="w-3"></span>
-                }
-                <span class="min-w-0 flex-1 truncate">@item.Node.Label</span>
-                <span class="shrink-0 text-[10px] text-muted-foreground">@item.Node.NodeTypeKey</span>
-            </button>
-            <span id="popover-anchor-@GetPopoverId(item.Node.Id)" class="inline-flex">
-                <button type="button"
-                        class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm text-muted-foreground"
-                        data-testid="session-context-node-menu-trigger"
-                        data-node-id="@item.Node.Id"
-                        title="Options"
-                        @onclick="() => ToggleMenuAsync(item, index, siblings.Count)">
-                    <Icon Paths="@Icons.EllipsisVertical" Size="12" />
-                </button>
-            </span>
-        </div>
-        @if (item.Children is { Count: > 0 })
-        {
-            var visibleChildren = item.Children.Where(c => !IsPinned(c.Node.Id)).ToList();
-            @foreach (var (child, i) in visibleChildren.Select((c, i) => (c, i)))
-            {
-                @RenderNode(child, depth + 1, visibleChildren, i)
-            }
-        }
-    </div>;
-
-    private void ToggleMenuAsync(SessionContextNode item, int index, int siblingCount)
-    {
-        var nodeId = item.Node.Id;
-        var popoverId = GetPopoverId(nodeId);
-
-        if (_openMenuNodeId == nodeId)
-        {
-            _openMenuNodeId = null;
-            PopoverService.Update(popoverId, new PopoverState { Open = false });
-        }
-        else
-        {
-            if (_openMenuNodeId is not null && _nodePopoverIds.TryGetValue(_openMenuNodeId, out var oldId))
-            {
-                PopoverService.Update(oldId, new PopoverState { Open = false });
-            }
-
-            _openMenuNodeId = nodeId;
-            PopoverService.Update(popoverId, new PopoverState
-            {
-                Open = true,
-                Placement = PopoverPlacement.BottomEnd,
-                CssClass = "min-w-[10rem]",
-                Fragment = BuildMenuContent(item, index, siblingCount)
-            });
-        }
-    }
-
-    private Guid GetPopoverId(string nodeId)
-    {
-        if (!_nodePopoverIds.TryGetValue(nodeId, out var popoverId))
-        {
-            popoverId = Guid.NewGuid();
-            _nodePopoverIds[nodeId] = popoverId;
-            PopoverService.Register(popoverId);
-        }
-        return popoverId;
-    }
-
-    private void CloseMenu()
-    {
-        if (_openMenuNodeId is not null && _nodePopoverIds.TryGetValue(_openMenuNodeId, out var popoverId))
-        {
-            PopoverService.Update(popoverId, new PopoverState { Open = false });
-        }
-        _openMenuNodeId = null;
-    }
-
-    private RenderFragment BuildMenuContent(SessionContextNode item, int index, int siblingCount) => __builder =>
-    {
-        <div class="node-menu-backdrop" @onclick="CloseMenu" @onclick:stopPropagation></div>
-        <div class="node-menu relative z-10" @onclick:stopPropagation>
-            <button type="button" class="node-menu-item" @onclick="() => HandleNewAsync(item.Node)">
-                <Icon Paths="@Icons.Plus" Size="12" /> New
-            </button>
-            <button type="button" class="node-menu-item" @onclick="() => HandleRenameAsync(item.Node)">
-                <Icon Paths="@Icons.Pencil" Size="12" /> Rename
-            </button>
-            <div class="node-menu-separator"></div>
-            <button type="button" class="node-menu-item session-context-node-pin" @onclick="() => HandlePinAsync(item.Node)">
-                <Icon Paths="@Icons.Pin" Size="12" /> Pin
-            </button>
-            <button type="button" class="node-menu-item" disabled="@(index == 0)" @onclick="() => HandleMoveUpAsync(item.Node)">
-                <Icon Paths="@Icons.ChevronUp" Size="12" /> Move up
-            </button>
-            <button type="button" class="node-menu-item" disabled="@(index == siblingCount - 1)" @onclick="() => HandleMoveDownAsync(item.Node)">
-                <Icon Paths="@Icons.ChevronDown" Size="12" /> Move down
-            </button>
-            <div class="node-menu-separator"></div>
-            <button type="button" class="node-menu-item text-destructive" @onclick="() => HandleDeleteAsync(item.Node)">
-                <Icon Paths="@Icons.Trash" Size="12" /> Delete
-            </button>
-        </div>
-    };
-
-    private async Task ProjectAsync(SessionNodeInput node)
-    {
-        CloseMenu();
-        State = SessionUiReducer.Reduce(State, new ProjectSessionContext(node));
-        Projection = State.ContextProjection;
-        await OnProjected.InvokeAsync(new SessionContextProjected(node));
-        await StateChanged.InvokeAsync(State);
-    }
-
-    private async Task HandleNewAsync(SessionNodeInput node)
-    {
-        CloseMenu();
-        await OnNodeNew.InvokeAsync(node);
-    }
-
-    private async Task HandleRenameAsync(SessionNodeInput node)
-    {
-        CloseMenu();
-        await OnNodeRename.InvokeAsync(node);
-    }
-
-    private async Task HandlePinAsync(SessionNodeInput node)
-    {
-        CloseMenu();
-        await PinAsync(new SessionContextProjectionModel(node));
-    }
-
-    private async Task HandleMoveUpAsync(SessionNodeInput node)
-    {
-        CloseMenu();
-        await OnNodeMoveUp.InvokeAsync(node);
-    }
-
-    private async Task HandleMoveDownAsync(SessionNodeInput node)
-    {
-        CloseMenu();
-        await OnNodeMoveDown.InvokeAsync(node);
-    }
-
-    private async Task HandleDeleteAsync(SessionNodeInput node)
-    {
-        CloseMenu();
-        await OnNodeDelete.InvokeAsync(node);
-    }
-
-    private async Task PinAsync(SessionContextProjectionModel projection)
-    {
-        State = SessionUiReducer.Reduce(State, new PinSessionContext(projection));
-        Projection = State.ContextProjection;
-        Pins = State.ContextPins ?? [];
-        var pin = Pins.First(candidate => candidate.Node.Id == projection.Node.Id);
-        await OnPinned.InvokeAsync(new SessionContextPinned(projection.Node, pin));
-        await StateChanged.InvokeAsync(State);
-    }
-
-    private async Task UnpinAsync(SessionContextPinModel pin)
-    {
-        State = SessionUiReducer.Reduce(State, new UnpinSessionContext(pin.Id));
-        Pins = State.ContextPins ?? [];
-        await OnUnpinned.InvokeAsync(new SessionContextUnpinned(pin.Node, pin.Id));
-        await StateChanged.InvokeAsync(State);
-    }
-
-    public void Dispose()
-    {
-        foreach (var id in _nodePopoverIds.Values)
-        {
-            PopoverService.Unregister(id);
-        }
-        _nodePopoverIds.Clear();
-    }
-}

@@ -1,6 +1,4 @@
 @namespace LowlandTech.Components.Session
-@using LowlandTech.Components.Badge
-@using LowlandTech.Components.Icon
 @inherits TinyComponentBase
 
 <Badge data-slot="session-context-pin"
@@ -18,15 +16,3 @@
         <Icon Name="x" Size="10" />
     </button>
 </Badge>
-
-@code {
-    [Parameter, EditorRequired] public SessionContextPinModel Pin { get; set; } = new(
-        "pin:context",
-        new("context", "context", "Context"),
-        new("pin:context", "session.pin", "Context", "SessionContextPin"));
-
-    [Parameter] public string RemoveTitle { get; set; } = "Unpin context";
-    [Parameter] public EventCallback<SessionContextPinModel> OnRemove { get; set; }
-
-    private Task RemoveAsync(MouseEventArgs _) => OnRemove.InvokeAsync(Pin);
-}

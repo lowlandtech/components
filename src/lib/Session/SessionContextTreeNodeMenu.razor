@@ -1,0 +1,26 @@
+@namespace LowlandTech.Components.Session
+@inherits TinyComponentBase
+
+<div class="node-menu-backdrop" @onclick="CloseAsync" @onclick:stopPropagation></div>
+<div class="node-menu relative z-10" @onclick:stopPropagation>
+    <button type="button" class="node-menu-item" @onclick="NewAsync">
+        <Icon Paths="@Icons.Plus" Size="12" /> New
+    </button>
+    <button type="button" class="node-menu-item" @onclick="RenameAsync">
+        <Icon Paths="@Icons.Pencil" Size="12" /> Rename
+    </button>
+    <div class="node-menu-separator"></div>
+    <button type="button" class="node-menu-item session-context-node-pin" @onclick="PinAsync">
+        <Icon Paths="@Icons.Pin" Size="12" /> Pin
+    </button>
+    <button type="button" class="node-menu-item" disabled="@(!CanMoveUp)" @onclick="MoveUpAsync">
+        <Icon Paths="@Icons.ChevronUp" Size="12" /> Move up
+    </button>
+    <button type="button" class="node-menu-item" disabled="@(!CanMoveDown)" @onclick="MoveDownAsync">
+        <Icon Paths="@Icons.ChevronDown" Size="12" /> Move down
+    </button>
+    <div class="node-menu-separator"></div>
+    <button type="button" class="node-menu-item text-destructive" @onclick="DeleteAsync">
+        <Icon Paths="@Icons.Trash" Size="12" /> Delete
+    </button>
+</div>
