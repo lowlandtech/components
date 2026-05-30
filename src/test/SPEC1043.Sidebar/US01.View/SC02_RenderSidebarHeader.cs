@@ -45,4 +45,21 @@ public class SC02_RenderSidebarHeader : ViewScenario
         el.ClassList.ShouldContain("sidebar-header");
         el.ClassList.ShouldContain("custom");
     }
+
+    [Fact(DisplayName = "UAC05: SidebarBrand renders logo and title")]
+    [Trait(Spec.UAC, "05")]
+    [Then("the rendered markup contains brand logo and title slots")]
+    public void UAC05_SidebarBrandRendersLogoAndTitle()
+    {
+        var cut = Ctx.Render<SidebarBrand>(p => p
+            .Add(x => x.LogoSrc, "_content/LowlandTech.Components/img/session-app-logo.svg")
+            .Add(x => x.LogoAlt, "SessionApp")
+            .Add(x => x.Title, "SessionApp"));
+
+        var logo = cut.Find("[data-slot='sidebar-brand-logo']");
+        logo.GetAttribute("src").ShouldBe("_content/LowlandTech.Components/img/session-app-logo.svg");
+        logo.GetAttribute("alt").ShouldBe("SessionApp");
+        cut.Find("[data-slot='sidebar-brand-title']").TextContent.Trim().ShouldBe("SessionApp");
+        logo.ClassList.ShouldContain("rounded-md");
+    }
 }

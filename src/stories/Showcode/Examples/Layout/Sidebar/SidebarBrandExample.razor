@@ -1,0 +1,53 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Layout
+
+<div class="h-96 w-full border border-border rounded-lg overflow-hidden flex">
+    <SidebarProvider DefaultOpen="true">
+        <Sidebar Collapsible="icon">
+            <SidebarHeader>
+                <SidebarBrand LogoSrc="_content/LowlandTech.Components/img/session-app-logo.svg" LogoAlt="SessionApp" Title="SessionApp" />
+            </SidebarHeader>
+            <SidebarContent>
+                <SidebarGroup>
+                    <SidebarGroupLabel>Sessions</SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton IsActive="true">
+                                    Orders
+                                    <SidebarMenuBadge>4</SidebarMenuBadge>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton>
+                                    Support triage
+                                    <SidebarMenuBadge>2</SidebarMenuBadge>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton>
+                                    Release notes
+                                    <SidebarMenuBadge>2</SidebarMenuBadge>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+            </SidebarContent>
+            <SidebarFooter>
+                <div class="sidebar-menu-text flex h-7 items-center justify-between px-2 text-xs text-muted-foreground">
+                    <span>Page 1 / 1</span>
+                    <span>Rows 10</span>
+                </div>
+            </SidebarFooter>
+        </Sidebar>
+        <SidebarInset>
+            <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
+                <SidebarTrigger class="h-7 w-7"><Icon Name="panel-left" Size="16" /></SidebarTrigger>
+                <span class="text-sm font-medium">SessionApp</span>
+            </header>
+            <div class="p-4">
+                <p class="text-sm text-muted-foreground">A sidebar brand combines a compact mark and title while preserving collapsed icon behavior.</p>
+            </div>
+        </SidebarInset>
+    </SidebarProvider>
+</div>

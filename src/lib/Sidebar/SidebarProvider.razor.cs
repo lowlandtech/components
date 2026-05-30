@@ -9,6 +9,14 @@ public partial class SidebarProvider : TinyComponentBase, IDisposable
     [Parameter] public EventCallback<bool> OpenChanged { get; set; }
     [Parameter] public string Width { get; set; } = "16rem";
     [Parameter] public string MobileWidth { get; set; } = "18rem";
+    [Parameter] public bool IsResizable { get; set; }
+    [Parameter] public int SidebarPanelDefaultSize { get; set; } = 30;
+    [Parameter] public int SidebarPanelMinSize { get; set; } = 16;
+    [Parameter] public int SidebarPanelMaxSize { get; set; } = 45;
+    [Parameter] public int InsetPanelDefaultSize { get; set; } = 70;
+    [Parameter] public int InsetPanelMinSize { get; set; } = 55;
+    [Parameter] public bool RevealHandleOnHover { get; set; } = true;
+    [Parameter] public RenderFragment? Inset { get; set; }
 
     private SidebarState _state = new();
 

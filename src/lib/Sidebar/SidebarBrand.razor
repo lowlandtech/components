@@ -1,0 +1,19 @@
+@namespace LowlandTech.Components.Sidebar
+@inherits TinyComponentBase
+
+<div data-slot="sidebar-brand" class="@GetClass()" @attributes="AdditionalAttributes">
+    @if (!string.IsNullOrWhiteSpace(LogoSrc))
+    {
+        <img data-slot="sidebar-brand-logo"
+             src="@LogoSrc"
+             alt="@LogoAlt"
+             class="@GetLogoClass()" />
+    }
+    @if (!string.IsNullOrWhiteSpace(Title))
+    {
+        <span data-slot="sidebar-brand-title" class="sidebar-menu-text min-w-0 truncate text-sm font-semibold">
+            @Title
+        </span>
+    }
+    @ChildContent
+</div>

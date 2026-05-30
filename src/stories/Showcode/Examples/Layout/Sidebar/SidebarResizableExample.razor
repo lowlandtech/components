@@ -1,0 +1,47 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Layout
+
+<div class="h-96 w-full border border-border rounded-lg overflow-hidden flex">
+    <Resizable>
+        <ResizablePanel DefaultSize="30" MinSize="16" MaxSize="45" Id="sidebar-panel">
+            <SidebarProvider DefaultOpen="true" Width="100%" class="h-full">
+                <Sidebar class="h-full border-r-0">
+                    <SidebarHeader>
+                        <SidebarBrand LogoSrc="_content/LowlandTech.Components/img/session-app-logo.svg" LogoAlt="MyApp" Title="MyApp" />
+                    </SidebarHeader>
+                    <SidebarContent>
+                        <SidebarGroup>
+                            <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+                            <SidebarGroupContent>
+                                <SidebarMenu>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton IsActive="true">Dashboard</SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton>Projects</SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                    <SidebarMenuItem>
+                                        <SidebarMenuButton>Reports</SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                </SidebarMenu>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+                    </SidebarContent>
+                    <SidebarFooter>
+                        <span class="px-2 text-xs text-muted-foreground">© 2025 MyApp</span>
+                    </SidebarFooter>
+                </Sidebar>
+            </SidebarProvider>
+        </ResizablePanel>
+        <ResizableHandle WithHandle="true" RevealOnHover="true" />
+        <ResizablePanel DefaultSize="70" MinSize="55" Id="main-panel">
+            <div class="flex h-full flex-col">
+                <header class="flex h-10 shrink-0 items-center gap-2 border-b px-4">
+                    <span class="text-sm font-medium">Dashboard</span>
+                </header>
+                <div class="flex flex-1 items-center justify-center p-4">
+                    <p class="text-sm text-muted-foreground">Hover over the divider to reveal the resize handle.</p>
+                </div>
+            </div>
+        </ResizablePanel>
+    </Resizable>
+</div>

@@ -80,6 +80,16 @@
     transform: translateX(100%);
 }
 
+/* Resizable variant: sidebar fills its ResizablePanel */
+[data-slot="sidebar-provider"][data-resizable="true"] [data-slot="sidebar"] {
+    width: 100%;
+    flex-shrink: 1;
+}
+
+[data-slot="sidebar-provider"][data-resizable="true"] .app-sidebar {
+    width: 100%;
+}
+
 /* Inset / floating variants */
 [data-slot="sidebar-provider"] .app-sidebar[data-variant="floating"],
 [data-slot="sidebar-provider"] .app-sidebar[data-variant="inset"] {

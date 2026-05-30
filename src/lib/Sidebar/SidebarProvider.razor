@@ -3,12 +3,35 @@
 @implements IDisposable
 
 <CascadingValue Value="_state" IsFixed="false">
-    <div data-slot="sidebar-provider"
-         style="--sidebar-width: @Width; --sidebar-width-mobile: @MobileWidth;"
-         tabindex="-1"
-         @onkeydown="HandleKeyDown"
-         class="@Class"
-         @attributes="AdditionalAttributes">
-        @ChildContent
-    </div>
+    @if (IsResizable)
+    {
+        <div data-slot="sidebar-provider"
+             data-resizable="true"
+             style="--sidebar-width: 100%; --sidebar-width-mobile: 100%;"
+             tabindex="-1"
+             @onkeydown="HandleKeyDown"
+             class="@Class"
+             @attributes="AdditionalAttributes">
+            <Resizable>
+                <ResizablePanel DefaultSize="@SidebarPanelDefaultSize" MinSize="@SidebarPanelMinSize" MaxSize="@SidebarPanelMaxSize" Id="sidebar-panel">
+                    @ChildContent
+                </ResizablePanel>
+                <ResizableHandle WithHandle="true" RevealOnHover="@RevealHandleOnHover" />
+                <ResizablePanel DefaultSize="@InsetPanelDefaultSize" MinSize="@InsetPanelMinSize" Id="inset-panel">
+                    @Inset
+                </ResizablePanel>
+            </Resizable>
+        </div>
+    }
+    else
+    {
+        <div data-slot="sidebar-provider"
+             style="--sidebar-width: @Width; --sidebar-width-mobile: @MobileWidth;"
+             tabindex="-1"
+             @onkeydown="HandleKeyDown"
+             class="@Class"
+             @attributes="AdditionalAttributes">
+            @ChildContent
+        </div>
+    }
 </CascadingValue>
