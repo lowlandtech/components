@@ -1,0 +1,11 @@
+@namespace LowlandTech.Components.Session
+
+<Collapsible data-slot="session-event-log-entry" data-entry-id="@Entry.Id" class="min-w-0">
+    <CollapsibleTrigger class="flex w-full items-center gap-2 text-left text-xs text-foreground">
+        <span class="font-mono text-[10px] text-muted-foreground">@Entry.Timestamp.ToString("HH:mm:ss.fff")</span>
+        <span class="min-w-0 flex-1 truncate">@Entry.ActionType</span>
+    </CollapsibleTrigger>
+    <CollapsibleContent>
+        <pre data-slot="session-event-log-entry-json" class="overflow-auto text-[10px] text-muted-foreground">@GetDeltaJson()</pre>
+    </CollapsibleContent>
+</Collapsible>

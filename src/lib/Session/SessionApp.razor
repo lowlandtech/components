@@ -35,7 +35,6 @@
                                                                     State="ViewState"
                                                                     Projection="ViewState.ContextProjection"
                                                                     Pins="@(ViewState.ContextPins ?? [])"
-                                                                    StateChanged="SetStateAsync"
                                                                     OnProjected="HandleProjectedAsync"
                                                                     OnPinned="HandlePinnedAsync"
                                                                     OnUnpinned="HandleUnpinnedAsync"
@@ -44,6 +43,19 @@
                                         </SidebarGroupContent>
                                     </SidebarGroup>
                                 </SidebarContent>
+                                <SidebarFooter>
+                                    <div class="flex items-center justify-end gap-2 px-2 py-2">
+                                        <button type="button"
+                                                data-testid="session-app-settings-button"
+                                                class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                                @onclick="ShowEventLogPageAsync">
+                                            <Icon Name="settings" Size="14" />
+                                        </button>
+                                        <SidebarTrigger class="border border-border text-muted-foreground hover:bg-muted hover:text-foreground">
+                                            <Icon Name="panel-left-close" Size="14" />
+                                        </SidebarTrigger>
+                                    </div>
+                                </SidebarFooter>
                             }
                             else
                             {
@@ -90,6 +102,11 @@
                                         <span>Page 1 / 1</span>
                                         <span>Rows 10</span>
                                     </div>
+                                    <div class="flex items-center justify-end gap-2 px-2 pb-2">
+                                        <SidebarTrigger class="border border-border text-muted-foreground hover:bg-muted hover:text-foreground">
+                                            <Icon Name="panel-left-close" Size="14" />
+                                        </SidebarTrigger>
+                                    </div>
                                 </SidebarFooter>
                             }
                         </div>
@@ -101,14 +118,26 @@
                 <SidebarInset class="h-full min-h-0 overflow-hidden bg-background">
                     <main class="relative flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden"
                           style="padding:10px;">
-                        <SessionContent State="ViewState"
-                                        OpenNodes="ViewState.OpenNodes"
-                                        SelectedNode="CurrentSessionNode"
-                                        StateChanged="SetStateAsync"
-                                        PinnableTabs="true"
-                                        PinnedTabIds="_pinnedNodeIds"
-                                        OnTabPinnedChanged="HandleTabPinnedChangedAsync"
-                                        class="min-h-0 flex-1">
+                        @if (IsEventLogPage)
+                        {
+                            <SessionEventLog Entries="AppState.EventLogEntries"
+                                             InitialStateJson="@SessionState.GetInitialEventLogStateJson()"
+                                             CurrentStateJson="@SessionState.GetCurrentEventLogStateJson()"
+                                             OnBackRequested="ShowFeedPageAsync"
+                                             OnClearRequested="ClearEventLogAsync"
+                                             class="min-h-0 flex-1" />
+                        }
+                        else
+                        {
+                            <SessionContent State="ViewState"
+                                            OpenNodes="ViewState.OpenNodes"
+                                            SelectedNode="CurrentSessionNode"
+                                            PinnableTabs="true"
+                                            PinnedTabIds="AppState.PinnedNodeIds"
+                                            OnSelected="e => SelectSessionAsync(e.Node)"
+                                            OnClosed="HandleTabClosedAsync"
+                                            OnTabPinnedChanged="HandleTabPinnedChangedAsync"
+                                            class="min-h-0 flex-1">
                             @if (MaximizedBlock is { } maximizedBlock)
                             {
                                 <div class="flex min-h-full"
@@ -219,15 +248,16 @@
                                     }
                                 </div>
                             }
-                        </SessionContent>
+                            </SessionContent>
 
-                        <SessionCommandBar State="ViewState"
-                                           SelectedNode="CurrentCommandContextNode"
-                                           ActiveAgentTypeKey="@ViewState.ActiveAgentTypeKey"
-                                           Value="@ViewState.Input"
-                                           ValueChanged="SetInputAsync"
-                                           StateChanged="SetStateAsync"
-                                           OnSubmit="HandleSubmitAsync" />
+                            <SessionCommandBar State="ViewState"
+                                               SelectedNode="CurrentCommandContextNode"
+                                               ActiveAgentTypeKey="@ViewState.ActiveAgentTypeKey"
+                                               Value="@ViewState.Input"
+                                               ValueChanged="SetInputAsync"
+                                               OnAgentTypeSelected="e => SetAgentTypeAsync(e.AgentTypeKey)"
+                                               OnSubmit="HandleSubmitAsync" />
+                        }
 
                         @if (PageOverlayBlock is { } pageOverlayBlock)
                         {
@@ -281,7 +311,7 @@
                         <section class="flex min-h-0 min-w-0 w-full flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background">
                             <header class="flex h-10 shrink-0 items-center gap-2 border-b border-border px-3">
                                 <span class="text-xs font-semibold">Sections</span>
-                                <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground"
+                                <span class="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground"
                                       data-testid="session-app-sections-count">
                                     @VisibleSections.Count
                                 </span>
@@ -343,7 +373,6 @@
                                                         State="ViewState"
                                                         Projection="ViewState.ContextProjection"
                                                         Pins="@(ViewState.ContextPins ?? [])"
-                                                        StateChanged="SetStateAsync"
                                                         OnProjected="HandleProjectedAsync"
                                                         OnPinned="HandlePinnedAsync"
                                                         OnUnpinned="HandleUnpinnedAsync"
@@ -356,7 +385,7 @@
                             <SessionList Items="DisplaySessions"
                                          State="ViewState"
                                          SelectedNode="CurrentSessionNode"
-                                         StateChanged="SetStateAsync"
+                                         OnSelected="e => SelectSessionAsync(e.Node)"
                                          class="min-h-0 flex-1" />
                         }
                     </div>
@@ -369,9 +398,10 @@
                     <SessionContent State="ViewState"
                                     OpenNodes="ViewState.OpenNodes"
                                     SelectedNode="CurrentSessionNode"
-                                    StateChanged="SetStateAsync"
                                     PinnableTabs="true"
-                                    PinnedTabIds="_pinnedNodeIds"
+                                    PinnedTabIds="AppState.PinnedNodeIds"
+                                    OnSelected="e => SelectSessionAsync(e.Node)"
+                                    OnClosed="HandleTabClosedAsync"
                                     OnTabPinnedChanged="HandleTabPinnedChangedAsync"
                                     class="min-h-0 flex-1">
                         @if (MaximizedBlock is { } maximizedBlock)
@@ -491,7 +521,7 @@
                                        ActiveAgentTypeKey="@ViewState.ActiveAgentTypeKey"
                                        Value="@ViewState.Input"
                                        ValueChanged="SetInputAsync"
-                                       StateChanged="SetStateAsync"
+                                       OnAgentTypeSelected="e => SetAgentTypeAsync(e.AgentTypeKey)"
                                        OnSubmit="HandleSubmitAsync" />
 
                     @if (PageOverlayBlock is { } pageOverlayBlock)
@@ -545,7 +575,7 @@
                         <section class="flex min-h-0 min-w-0 w-full flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background">
                         <header class="flex h-10 shrink-0 items-center gap-2 border-b border-border px-3">
                             <span class="text-xs font-semibold">Sections</span>
-                            <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground"
+                            <span class="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground"
                                   data-testid="session-app-sections-count">
                                 @VisibleSections.Count
                             </span>

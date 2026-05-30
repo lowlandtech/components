@@ -42,10 +42,14 @@ public sealed record SessionContextBlockModel(
     string Id,
     SessionNodeInput Context,
     object? Data = null,
+    [property: JsonIgnore]
     Type? ComponentType = null,
     bool IncludeInContextWindow = true)
 {
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
+
+    [JsonIgnore]
+    public Type? EffectiveComponentType => ComponentType ?? SessionUiReducer.ResolveComponentType(Context.ComponentBlock);
 }
 
 public interface IBlock
@@ -65,6 +69,144 @@ public sealed record SessionUiState(
     IReadOnlyList<SessionContextPinModel>? ContextPins = null,
     IReadOnlyList<SessionContextBlockModel>? ContextBlocks = null);
 
+public enum SessionAppPage
+{
+    Feed,
+    EventLog,
+}
+
+public interface ISessionAction
+{
+}
+
+public interface ISessionEvent
+{
+}
+
+public sealed record SessionStateDeltaItem(
+    string Path,
+    string Kind,
+    string Label,
+    string? Before,
+    string? After,
+    string Description);
+
+public sealed record SessionEventLogItem(
+    Guid Id,
+    string ActionType,
+    DateTimeOffset Timestamp,
+    string BeforeStateJson,
+    string AfterStateJson,
+    IReadOnlyList<SessionStateDeltaItem> Deltas) : ISessionEvent;
+
+public sealed record SessionSectionItem(string Id, string Label, string Kind);
+
+public enum SessionFeedItemKind
+{
+    Response,
+    Block,
+}
+
+public sealed record SessionFeedItemDescriptor(
+    string Key,
+    SessionFeedItemKind Kind,
+    long Sequence,
+    SessionCommandSubmitted? Command = null,
+    SessionContextBlockModel? Block = null);
+
+public sealed record SessionResponseProjection(
+    string Status,
+    string StatusVariant,
+    string Description);
+
+public sealed record SessionSurfaceDescriptor(
+    string SessionId,
+    SessionNodeInput RequestNode,
+    SessionNodeInput ResponseNode);
+
+public sealed record SessionContextPinSnapshot(
+    string Id,
+    string NodeId,
+    string Label);
+
+public sealed record SessionContextBlockSnapshot(
+    string Id,
+    string ContextId,
+    string ContextLabel,
+    string NodeTypeKey,
+    string? ComponentBlock,
+    bool IncludeInContextWindow,
+    string? DataPreview);
+
+public sealed record SessionUiStateSnapshot(
+    string ActiveAgentTypeKey,
+    string Input,
+    string? SelectedNodeId,
+    IReadOnlyList<string> OpenNodeIds,
+    string? ContextProjectionNodeId,
+    IReadOnlyList<SessionContextPinSnapshot> ContextPins,
+    IReadOnlyList<SessionContextBlockSnapshot> ContextBlocks);
+
+public sealed record SessionCommandSnapshot(
+    string Id,
+    string AgentTypeKey,
+    string Input,
+    bool IsStreaming,
+    string? Response);
+
+public sealed record SessionAppStateSnapshot(
+    SessionUiStateSnapshot Ui,
+    string ActivePage,
+    string? ActiveSessionId,
+    string? PendingScrollSectionId,
+    string? MaximizedBlockId,
+    string? MaximizedCommandId,
+    string? PageOverlayBlockId,
+    string? PageOverlayCommandId,
+    string? AppOverlayBlockId,
+    string? AppOverlayCommandId,
+    IReadOnlyList<string> OpenSessionNodeIds,
+    IReadOnlyList<string> PinnedNodeIds,
+    IReadOnlyDictionary<string, long> FeedSequenceByItemKey,
+    IReadOnlyDictionary<string, string> BlockModesByKey,
+    long NextFeedSequence,
+    IReadOnlyDictionary<string, IReadOnlyList<SessionCommandSnapshot>> SessionCommandsBySessionId,
+    IReadOnlyDictionary<string, SessionUiStateSnapshot> SessionStatesBySessionId);
+
+public interface ISessionSurfaceRegistry
+{
+    int Priority => 0;
+
+    SessionSurfaceDescriptor? GetSurface(string sessionId);
+}
+
+public interface ISessionSurfaceDiscovery
+{
+    SessionSurfaceDescriptor Find(string sessionId);
+}
+
+public sealed record SessionAppState
+{
+    public SessionUiState Ui { get; init; } = SessionUiDefaults.Empty;
+    public SessionAppPage ActivePage { get; init; } = SessionAppPage.Feed;
+    public IReadOnlyList<SessionEventLogItem> EventLogEntries { get; init; } = [];
+    public string? ActiveSessionId { get; init; }
+    public string? PendingScrollSectionId { get; init; }
+    public string? MaximizedBlockId { get; init; }
+    public string? MaximizedCommandId { get; init; }
+    public string? PageOverlayBlockId { get; init; }
+    public string? PageOverlayCommandId { get; init; }
+    public string? AppOverlayBlockId { get; init; }
+    public string? AppOverlayCommandId { get; init; }
+    public IReadOnlyList<SessionNodeInput> OpenSessionNodes { get; init; } = [];
+    public HashSet<string> PinnedNodeIds { get; init; } = new(StringComparer.Ordinal);
+    public IReadOnlyDictionary<string, long> FeedSequenceByItemKey { get; init; } = new Dictionary<string, long>(StringComparer.Ordinal);
+    public IReadOnlyDictionary<string, string> BlockModesByKey { get; init; } = new Dictionary<string, string>(StringComparer.Ordinal);
+    public long NextFeedSequence { get; init; }
+    public IReadOnlyDictionary<string, IReadOnlyList<SessionCommandSubmitted>> SessionCommandsBySessionId { get; init; } = new Dictionary<string, IReadOnlyList<SessionCommandSubmitted>>(StringComparer.Ordinal);
+    public IReadOnlyDictionary<string, SessionUiState> SessionStatesBySessionId { get; init; } = new Dictionary<string, SessionUiState>(StringComparer.Ordinal);
+}
+
 public static class SessionUiDefaults
 {
     public static readonly IReadOnlyList<SessionAgentType> AgentTypes =
@@ -78,7 +220,14 @@ public static class SessionUiDefaults
     public static SessionUiState Empty { get; } = new("ask", string.Empty, null, []);
 }
 
-public abstract record SessionUiAction;
+public static class SessionAppDefaults
+{
+    public static SessionAppState Empty { get; } = new();
+}
+
+public abstract record SessionUiAction : ISessionAction;
+
+public abstract record SessionAppAction : ISessionAction;
 
 public sealed record SelectSessionNode(SessionNodeInput Node) : SessionUiAction;
 
@@ -99,6 +248,44 @@ public sealed record UnpinSessionContext(string PinId) : SessionUiAction;
 public sealed record AddSessionContextBlock(SessionContextBlockModel Block) : SessionUiAction;
 
 public sealed record RemoveSessionContextBlock(string BlockId) : SessionUiAction;
+
+public sealed record RestoreSessionUiState(SessionUiState State) : SessionAppAction;
+
+public sealed record ShowSessionFeedPage : SessionAppAction;
+
+public sealed record ShowSessionEventLogPage : SessionAppAction;
+
+public sealed record ClearSessionEventLog : SessionAppAction;
+
+public sealed record SetSessionTabPinned(string NodeId, bool IsPinned) : SessionAppAction;
+
+public sealed record SetSessionBlockMode(string BlockId, string Mode) : SessionAppAction;
+
+public sealed record SetSessionCommandMode(string CommandId, string Mode) : SessionAppAction;
+
+public sealed record SetActiveSession(string? SessionId) : SessionAppAction;
+
+public sealed record SetPendingScrollSection(string? SectionId) : SessionAppAction;
+
+public sealed record SetOpenSessionNodes(IReadOnlyList<SessionNodeInput> Nodes) : SessionAppAction;
+
+public sealed record SetPinnedSessionNodes(IReadOnlySet<string> NodeIds) : SessionAppAction;
+
+public sealed record SetSessionPresentationState(
+    string? MaximizedBlockId,
+    string? MaximizedCommandId,
+    string? PageOverlayBlockId,
+    string? PageOverlayCommandId,
+    string? AppOverlayBlockId,
+    string? AppOverlayCommandId) : SessionAppAction;
+
+public sealed record SetFeedSequence(string Key, long Sequence, long NextFeedSequence) : SessionAppAction;
+
+public sealed record SetBlockModeEntry(string Key, string? Mode) : SessionAppAction;
+
+public sealed record SetSessionCommandHistory(string SessionId, IReadOnlyList<SessionCommandSubmitted> Commands) : SessionAppAction;
+
+public sealed record SetStoredSessionState(string SessionId, SessionUiState State) : SessionAppAction;
 
 public static class SessionUiReducer
 {
@@ -223,7 +410,7 @@ public static class SessionUiReducer
             : blocks.Where(block => block.Context.Id != contextNodeId).ToList();
     }
 
-    private static Type? ResolveComponentType(string? componentBlock)
+    public static Type? ResolveComponentType(string? componentBlock)
     {
         if (string.IsNullOrWhiteSpace(componentBlock))
             return null;
@@ -258,7 +445,230 @@ public static class SessionUiReducer
     }
 }
 
-public abstract record SessionUiEvent(SessionNodeInput Node);
+public static class SessionAppReducer
+{
+    private static readonly JsonSerializerOptions EventLogJsonOptions = new() { WriteIndented = true };
+
+    public static SessionAppState Reduce(SessionAppState state, object action)
+    {
+        var next = action switch
+        {
+            RestoreSessionUiState restore => state with { Ui = restore.State },
+            SessionUiAction uiAction => state with { Ui = SessionUiReducer.Reduce(state.Ui, uiAction) },
+            ShowSessionFeedPage => state with { ActivePage = SessionAppPage.Feed },
+            ShowSessionEventLogPage => state with { ActivePage = SessionAppPage.EventLog },
+            ClearSessionEventLog => state with { EventLogEntries = [] },
+            SetSessionTabPinned => state,
+            SetSessionBlockMode => state,
+            SetSessionCommandMode => state,
+            SetActiveSession a => state with { ActiveSessionId = a.SessionId },
+            SetPendingScrollSection a => state with { PendingScrollSectionId = a.SectionId },
+            SetOpenSessionNodes a => state with { OpenSessionNodes = a.Nodes.ToList() },
+            SetPinnedSessionNodes a => state with { PinnedNodeIds = new HashSet<string>(a.NodeIds, StringComparer.Ordinal) },
+            SetSessionPresentationState a => state with
+            {
+                MaximizedBlockId = a.MaximizedBlockId,
+                MaximizedCommandId = a.MaximizedCommandId,
+                PageOverlayBlockId = a.PageOverlayBlockId,
+                PageOverlayCommandId = a.PageOverlayCommandId,
+                AppOverlayBlockId = a.AppOverlayBlockId,
+                AppOverlayCommandId = a.AppOverlayCommandId,
+            },
+            SetFeedSequence a => state with
+            {
+                FeedSequenceByItemKey = SetDictionaryEntry(state.FeedSequenceByItemKey, a.Key, a.Sequence),
+                NextFeedSequence = a.NextFeedSequence,
+            },
+            SetBlockModeEntry a => state with
+            {
+                BlockModesByKey = string.IsNullOrWhiteSpace(a.Mode)
+                    ? RemoveDictionaryEntry(state.BlockModesByKey, a.Key)
+                    : SetDictionaryEntry(state.BlockModesByKey, a.Key, a.Mode),
+            },
+            SetSessionCommandHistory a => state with
+            {
+                SessionCommandsBySessionId = SetDictionaryEntry(state.SessionCommandsBySessionId, a.SessionId, a.Commands),
+            },
+            SetStoredSessionState a => state with
+            {
+                SessionStatesBySessionId = SetDictionaryEntry(state.SessionStatesBySessionId, a.SessionId, a.State),
+            },
+            _ => state
+        };
+
+        return ShouldAppendEventLog(action)
+            ? next with
+            {
+                EventLogEntries = next.EventLogEntries
+                    .Append(new SessionEventLogItem(
+                        Guid.NewGuid(),
+                        action.GetType().Name,
+                        DateTimeOffset.UtcNow,
+                        SerializeEventLogState(state),
+                        SerializeEventLogState(next),
+                        BuildStateDelta(state, next)))
+                    .ToList()
+            }
+            : next;
+    }
+
+    public static string SerializeEventLogState(SessionAppState state) =>
+        JsonSerializer.Serialize(CreateSnapshot(state), EventLogJsonOptions);
+
+    private static IReadOnlyList<SessionStateDeltaItem> BuildStateDelta(SessionAppState before, SessionAppState after)
+    {
+        var beforeNode = JsonSerializer.SerializeToNode(CreateSnapshot(before));
+        var afterNode = JsonSerializer.SerializeToNode(CreateSnapshot(after));
+        var deltas = new List<SessionStateDeltaItem>();
+        AppendDelta(string.Empty, beforeNode, afterNode, deltas);
+        return deltas;
+    }
+
+    private static void AppendDelta(string path, JsonNode? before, JsonNode? after, List<SessionStateDeltaItem> deltas)
+    {
+        if (JsonNode.DeepEquals(before, after))
+            return;
+
+        if (before is JsonObject beforeObject && after is JsonObject afterObject)
+        {
+            var propertyNames = beforeObject.Select(pair => pair.Key)
+                .Concat(afterObject.Select(pair => pair.Key))
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(name => name, StringComparer.Ordinal);
+
+            foreach (var propertyName in propertyNames)
+            {
+                var nextPath = string.IsNullOrWhiteSpace(path) ? propertyName : $"{path}.{propertyName}";
+                AppendDelta(nextPath, beforeObject[propertyName], afterObject[propertyName], deltas);
+            }
+
+            return;
+        }
+
+        deltas.Add(CreateDeltaItem(path, before, after));
+    }
+
+    private static string? ToDeltaValue(JsonNode? node)
+        => node is null ? null : node.ToJsonString();
+
+    private static SessionStateDeltaItem CreateDeltaItem(string path, JsonNode? before, JsonNode? after)
+    {
+        var beforeValue = ToDeltaValue(before);
+        var afterValue = ToDeltaValue(after);
+
+        return path switch
+        {
+            "ActiveSessionId" => new SessionStateDeltaItem(path, "session", "Active session", FormatValue(before), FormatValue(after), $"Session changed from {FormatValue(before)} to {FormatValue(after)}."),
+            "ActivePage" => new SessionStateDeltaItem(path, "page", "Active page", FormatValue(before), FormatValue(after), $"Page changed from {FormatValue(before)} to {FormatValue(after)}."),
+            "Ui.Input" => new SessionStateDeltaItem(path, "draft", "Draft input", FormatValue(before), FormatValue(after), $"Draft input changed from {FormatValue(before)} to {FormatValue(after)}."),
+            "Ui.ContextPins" => new SessionStateDeltaItem(path, "context", "Pinned context", FormatCollectionValue(before), FormatCollectionValue(after), $"Pinned context changed from {FormatCollectionValue(before)} to {FormatCollectionValue(after)}."),
+            "Ui.ContextBlocks" => new SessionStateDeltaItem(path, "context", "Context blocks", FormatCollectionValue(before), FormatCollectionValue(after), $"Context blocks changed from {FormatCollectionValue(before)} to {FormatCollectionValue(after)}."),
+            "PinnedNodeIds" => new SessionStateDeltaItem(path, "tabs", "Pinned tabs", FormatCollectionValue(before), FormatCollectionValue(after), $"Pinned tabs changed from {FormatCollectionValue(before)} to {FormatCollectionValue(after)}."),
+            _ when path.StartsWith("SessionCommandsBySessionId.", StringComparison.Ordinal) =>
+                new SessionStateDeltaItem(path, "commands", "Command history", FormatCollectionValue(before), FormatCollectionValue(after), $"Command history changed from {FormatCollectionValue(before)} to {FormatCollectionValue(after)}."),
+            _ => new SessionStateDeltaItem(path, "state", HumanizePath(path), FormatValue(before), FormatValue(after), $"{HumanizePath(path)} changed from {FormatValue(before)} to {FormatValue(after)}.")
+        };
+    }
+
+    private static string FormatValue(JsonNode? node)
+    {
+        if (node is null)
+            return "none";
+
+        return node switch
+        {
+            JsonValue value => value.ToJsonString().Trim('"'),
+            JsonArray array => $"{array.Count} item(s)",
+            JsonObject => "object",
+            _ => node.ToJsonString()
+        };
+    }
+
+    private static string FormatCollectionValue(JsonNode? node)
+        => node is JsonArray array
+            ? array.Count == 0 ? "empty" : $"{array.Count} item(s)"
+            : FormatValue(node);
+
+    private static string HumanizePath(string path)
+    {
+        var segment = path.Split('.').LastOrDefault() ?? path;
+        return Regex.Replace(segment, "([a-z])([A-Z])", "$1 $2");
+    }
+
+    private static SessionAppStateSnapshot CreateSnapshot(SessionAppState state)
+        => new(
+            CreateUiSnapshot(state.Ui),
+            state.ActivePage.ToString(),
+            state.ActiveSessionId,
+            state.PendingScrollSectionId,
+            state.MaximizedBlockId,
+            state.MaximizedCommandId,
+            state.PageOverlayBlockId,
+            state.PageOverlayCommandId,
+            state.AppOverlayBlockId,
+            state.AppOverlayCommandId,
+            [.. state.OpenSessionNodes.Select(node => node.Id)],
+            [.. state.PinnedNodeIds.OrderBy(id => id, StringComparer.Ordinal)],
+            new Dictionary<string, long>(state.FeedSequenceByItemKey, StringComparer.Ordinal),
+            new Dictionary<string, string>(state.BlockModesByKey, StringComparer.Ordinal),
+            state.NextFeedSequence,
+            state.SessionCommandsBySessionId.ToDictionary(
+                pair => pair.Key,
+                pair => (IReadOnlyList<SessionCommandSnapshot>)[.. pair.Value.Select(CreateCommandSnapshot)],
+                StringComparer.Ordinal),
+            state.SessionStatesBySessionId.ToDictionary(
+                pair => pair.Key,
+                pair => CreateUiSnapshot(pair.Value),
+                StringComparer.Ordinal));
+
+    private static SessionUiStateSnapshot CreateUiSnapshot(SessionUiState state)
+        => new(
+            state.ActiveAgentTypeKey,
+            state.Input,
+            state.SelectedNode?.Id,
+            [.. state.OpenNodes.Select(node => node.Id)],
+            state.ContextProjection?.Node.Id,
+            [.. (state.ContextPins ?? []).Select(pin => new SessionContextPinSnapshot(pin.Id, pin.Node.Id, pin.Node.Label))],
+            [.. (state.ContextBlocks ?? []).Select(block => new SessionContextBlockSnapshot(
+                block.Id,
+                block.Context.Id,
+                block.Context.Label,
+                block.Context.NodeTypeKey,
+                block.Context.ComponentBlock,
+                block.IncludeInContextWindow,
+                block.Data?.ToString()))]);
+
+    private static SessionCommandSnapshot CreateCommandSnapshot(SessionCommandSubmitted command)
+        => new(command.Id, command.AgentTypeKey, command.Input, command.IsStreaming, command.Response);
+
+    private static bool ShouldAppendEventLog(object action) => action switch
+    {
+        RestoreSessionUiState => false,
+        ClearSessionEventLog => false,
+        _ => true
+    };
+
+    private static IReadOnlyDictionary<TKey, TValue> SetDictionaryEntry<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> source, TKey key, TValue value)
+        where TKey : notnull
+    {
+        var next = source.ToDictionary(pair => pair.Key, pair => pair.Value);
+        next[key] = value;
+        return next;
+    }
+
+    private static IReadOnlyDictionary<TKey, TValue> RemoveDictionaryEntry<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> source, TKey key)
+        where TKey : notnull
+    {
+        if (!source.ContainsKey(key))
+            return source;
+
+        var next = source.ToDictionary(pair => pair.Key, pair => pair.Value);
+        next.Remove(key);
+        return next;
+    }
+}
+
+public abstract record SessionUiEvent(SessionNodeInput Node) : ISessionEvent;
 
 public sealed record SessionNodeSelected(SessionNodeInput Node) : SessionUiEvent(Node);
 

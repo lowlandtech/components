@@ -2,6 +2,7 @@
 
 global using System.ComponentModel;
 global using System.Reflection;
+global using System.Text.Json;
 global using Bunit;
 global using LowlandTech.Components;
 global using LowlandTech.Components.Card;
@@ -16,6 +17,7 @@ global using LowlandTech.Components.Session;
 global using LowlandTech.Components.Session.Agents;
 global using LowlandTech.Components.Tabs;
 global using LowlandTech.Components.Tests.Infrastructure;
+global using LowlandTech.Core;
 global using Microsoft.AspNetCore.Components;
 global using Microsoft.AspNetCore.Components.Rendering;
 global using Microsoft.AspNetCore.Components.Web;

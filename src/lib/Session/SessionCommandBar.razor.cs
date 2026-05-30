@@ -58,9 +58,19 @@ public partial class SessionCommandBar : TinyComponentBase
     {
         var nextValue = e.Value?.ToString() ?? string.Empty;
         Value = nextValue;
-        State = SessionUiReducer.Reduce(State, new SetSessionInput(nextValue));
         await ValueChanged.InvokeAsync(nextValue);
-        await StateChanged.InvokeAsync(State);
+
+        if (StateChanged.HasDelegate)
+        {
+            await StateChanged.InvokeAsync(State with
+            {
+                Input = nextValue,
+                SelectedNode = SelectedNode ?? State.SelectedNode,
+                ActiveAgentTypeKey = string.IsNullOrWhiteSpace(ActiveAgentTypeKey)
+                    ? State.ActiveAgentTypeKey
+                    : ActiveAgentTypeKey
+            });
+        }
     }
 
     private async Task HandleKeyDown(KeyboardEventArgs e)
@@ -75,10 +85,18 @@ public partial class SessionCommandBar : TinyComponentBase
             return;
 
         ActiveAgentTypeKey = agent.Key;
-        State = SessionUiReducer.Reduce(State, new SelectSessionAgentType(agent.Key));
         await agent.OnSelected.InvokeAsync(SelectedNode);
         await OnAgentTypeSelected.InvokeAsync(new SessionAgentTypeSelected(SelectedNode, agent.Key));
-        await StateChanged.InvokeAsync(State);
+
+        if (StateChanged.HasDelegate)
+        {
+            await StateChanged.InvokeAsync(State with
+            {
+                ActiveAgentTypeKey = agent.Key,
+                SelectedNode = SelectedNode,
+                Input = CurrentInput
+            });
+        }
     }
 
     private async Task SubmitAsync()
@@ -92,11 +110,20 @@ public partial class SessionCommandBar : TinyComponentBase
             return;
 
         var submitted = new SessionCommandSubmitted(SelectedNode, ActiveAgentTypeKey, input);
-        State = SessionUiReducer.Reduce(State, new SubmitSessionCommand(SelectedNode, ActiveAgentTypeKey, input));
-        Value = State.Input;
+        Value = string.Empty;
 
         await ValueChanged.InvokeAsync(Value);
-        await StateChanged.InvokeAsync(State);
+
+        if (StateChanged.HasDelegate)
+        {
+            await StateChanged.InvokeAsync(State with
+            {
+                Input = string.Empty,
+                SelectedNode = SelectedNode,
+                ActiveAgentTypeKey = ActiveAgentTypeKey
+            });
+        }
+
         await ResetInputElementAsync();
 
         if (agent is not null)

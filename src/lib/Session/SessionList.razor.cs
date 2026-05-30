@@ -34,14 +34,31 @@ public partial class SessionList : TinyComponentBase
     private async Task SelectAsync(SessionNodeInput node)
     {
         SelectedNode = node;
-        State = SessionUiReducer.Reduce(State, new SelectSessionNode(node));
         await OnSelected.InvokeAsync(new SessionNodeSelected(node));
-        await StateChanged.InvokeAsync(State);
+
+        if (StateChanged.HasDelegate)
+        {
+            await StateChanged.InvokeAsync(State with
+            {
+                SelectedNode = node,
+                OpenNodes = UpsertOpenNode(State.OpenNodes, node)
+            });
+        }
     }
 
     private async Task CreateAsync()
     {
         var node = new SessionNodeInput("new-session", "session", Title);
         await OnCreateRequested.InvokeAsync(node);
+    }
+
+    private static IReadOnlyList<SessionNodeInput> UpsertOpenNode(IReadOnlyList<SessionNodeInput> openNodes, SessionNodeInput node)
+    {
+        if (openNodes.Any(existing => existing.Id == node.Id))
+            return openNodes;
+
+        var next = openNodes.ToList();
+        next.Add(node);
+        return next;
     }
 }

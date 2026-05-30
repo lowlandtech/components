@@ -38,9 +38,9 @@
     @if (ShowsContent)
     {
         <CardContent class="@GetContentClass()">
-            @if (Block.ComponentType is not null)
+            @if (Block.EffectiveComponentType is not null)
             {
-                <DynamicComponent Type="@Block.ComponentType" Parameters="@GetParameters()" />
+                <DynamicComponent Type="@Block.EffectiveComponentType" Parameters="@GetParameters()" />
             }
             else if (ChildContent is not null)
             {

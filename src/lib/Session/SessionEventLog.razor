@@ -1,0 +1,40 @@
+@namespace LowlandTech.Components.Session
+@inherits TinyComponentBase
+
+<section data-slot="session-event-log" class="@GetClass()" @attributes="AdditionalAttributes">
+    <div data-slot="session-event-log-body" class="min-h-0 flex-1 overflow-y-auto">
+        @if (Entries.Count == 0)
+        {
+            <div class="flex h-full min-h-48 items-center justify-center text-xs text-muted-foreground">
+                No SessionApp actions have been dispatched yet.
+            </div>
+        }
+        else
+        {
+            <div class="divide-y divide-border">
+                <Collapsible data-slot="session-event-log-current-state" class="min-w-0">
+                    <CollapsibleTrigger class="flex w-full items-center gap-2 text-left text-xs font-medium text-foreground">
+                        <span>Current state</span>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                        <pre class="overflow-auto text-[10px] text-muted-foreground">@CurrentStateJson</pre>
+                    </CollapsibleContent>
+                </Collapsible>
+
+                @foreach (var entry in Entries.Reverse())
+                {
+                    <SessionEventLogEntry Entry="entry" />
+                }
+
+                <Collapsible data-slot="session-event-log-initial-state" class="min-w-0">
+                    <CollapsibleTrigger class="flex w-full items-center gap-2 text-left text-xs font-medium text-foreground">
+                        <span>Initial state</span>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                        <pre class="overflow-auto text-[10px] text-muted-foreground">@InitialStateJson</pre>
+                    </CollapsibleContent>
+                </Collapsible>
+                </div>
+        }
+    </div>
+</section>

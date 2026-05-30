@@ -14,6 +14,7 @@ public partial class SessionContent : TinyComponentBase
     [Parameter] public bool DraggableTabs { get; set; }
     [Parameter] public IReadOnlySet<string>? PinnedTabIds { get; set; }
     [Parameter] public EventCallback<SessionNodeSelected> OnSelected { get; set; }
+    [Parameter] public EventCallback<SessionNodeInput> OnClosed { get; set; }
     [Parameter] public EventCallback<TabsItem> OnTabPinnedChanged { get; set; }
 
     private IReadOnlyList<TabsItem> TabItems =>
@@ -45,9 +46,16 @@ public partial class SessionContent : TinyComponentBase
     private async Task SelectAsync(SessionNodeInput node)
     {
         SelectedNode = node;
-        State = SessionUiReducer.Reduce(State, new SelectSessionNode(node));
         await OnSelected.InvokeAsync(new SessionNodeSelected(node));
-        await StateChanged.InvokeAsync(State);
+
+        if (StateChanged.HasDelegate)
+        {
+            await StateChanged.InvokeAsync(State with
+            {
+                SelectedNode = node,
+                OpenNodes = UpsertOpenNode(OpenNodes.Count == 0 ? State.OpenNodes : OpenNodes, node)
+            });
+        }
     }
 
     private Task SelectByValueAsync(string? nodeId)
@@ -58,14 +66,41 @@ public partial class SessionContent : TinyComponentBase
 
     private async Task CloseTabAsync(TabsItem item)
     {
-        State = SessionUiReducer.Reduce(State, new CloseSessionNode(item.Value));
-        OpenNodes = State.OpenNodes;
-        SelectedNode = State.SelectedNode ?? OpenNodes.FirstOrDefault();
-        await StateChanged.InvokeAsync(State);
+        var currentNodes = OpenNodes.Count == 0 ? State.OpenNodes : OpenNodes;
+        var nextOpenNodes = currentNodes.Where(node => node.Id != item.Value).ToList();
+        var nextSelected = SelectedNode?.Id == item.Value
+            ? nextOpenNodes.FirstOrDefault()
+            : SelectedNode;
+        var closedNode = currentNodes.FirstOrDefault(node => node.Id == item.Value);
+
+        OpenNodes = nextOpenNodes;
+        SelectedNode = nextSelected;
+
+        if (closedNode is not null)
+            await OnClosed.InvokeAsync(closedNode);
+
+        if (StateChanged.HasDelegate)
+        {
+            await StateChanged.InvokeAsync(State with
+            {
+                OpenNodes = nextOpenNodes,
+                SelectedNode = nextSelected
+            });
+        }
     }
 
     private Task OnTabPinnedChangedAsync(TabsItem item)
     {
         return OnTabPinnedChanged.InvokeAsync(item);
+    }
+
+    private static IReadOnlyList<SessionNodeInput> UpsertOpenNode(IReadOnlyList<SessionNodeInput> openNodes, SessionNodeInput node)
+    {
+        if (openNodes.Any(existing => existing.Id == node.Id))
+            return openNodes;
+
+        var next = openNodes.ToList();
+        next.Add(node);
+        return next;
     }
 }

@@ -25,9 +25,9 @@
         </div>
     </div>
     <div class="min-h-0 flex-1 overflow-auto p-4">
-        @if (Block.ComponentType is not null)
+        @if (Block.EffectiveComponentType is not null)
         {
-            <DynamicComponent Type="@Block.ComponentType" Parameters="@GetParameters()" />
+            <DynamicComponent Type="@Block.EffectiveComponentType" Parameters="@GetParameters()" />
         }
         else if (ChildContent is not null)
         {

@@ -7,6 +7,19 @@ public class SC01_SessionBlocks : ViewScenario
 {
     private static readonly SessionNodeInput OrdersNode = new("orders", "session", "Orders");
 
+    private sealed class PluginSessionSurfaceRegistry : ISessionSurfaceRegistry
+    {
+        public int Priority => 100;
+
+        public SessionSurfaceDescriptor? GetSurface(string sessionId)
+            => string.Equals(sessionId, "orders-session", StringComparison.Ordinal)
+                ? new SessionSurfaceDescriptor(
+                    sessionId,
+                    new SessionNodeInput("plugin-request-orders", "session-request", "Plugin order intake"),
+                    new SessionNodeInput("plugin-response-orders", "session-response", "Plugin order output"))
+                : null;
+    }
+
     [Fact(DisplayName = "UAC01: Reducer selects a node and appends it to open nodes")]
     [Trait(Spec.UAC, "01")]
     public void UAC01_ReducerSelectsNode()
@@ -42,7 +55,7 @@ public class SC01_SessionBlocks : ViewScenario
     public void UAC02_CommandBarSubmitsNodeInput()
     {
         SessionCommandSubmitted? submitted = null;
-        SessionUiState? changedState = null;
+        string? nextValue = null;
         var state = SessionUiDefaults.Empty with
         {
             SelectedNode = OrdersNode,
@@ -53,7 +66,7 @@ public class SC01_SessionBlocks : ViewScenario
         var cut = Ctx.Render<SessionCommandBar>(p => p
             .Add(x => x.State, state)
             .Add(x => x.OnSubmit, e => submitted = e)
-            .Add(x => x.StateChanged, s => changedState = s));
+            .Add(x => x.ValueChanged, value => nextValue = value));
 
         cut.Find("[data-testid='session-command-submit']").Click();
 
@@ -61,8 +74,7 @@ public class SC01_SessionBlocks : ViewScenario
         submitted.Node.ShouldBe(OrdersNode);
         submitted.Input.ShouldBe("Summarize orders");
         submitted.AgentTypeKey.ShouldBe("ask");
-        changedState.ShouldNotBeNull();
-        changedState.Input.ShouldBe("");
+        nextValue.ShouldBe("");
         Ctx.JSInterop.Invocations.Any(invocation =>
             invocation.Identifier == "eval"
             && invocation.Arguments[0]?.ToString()?.Contains("setSelectionRange(0, 0)", StringComparison.Ordinal) == true)
@@ -122,7 +134,6 @@ public class SC01_SessionBlocks : ViewScenario
     public void UAC04_SessionListSelectsNode()
     {
         SessionNodeSelected? selected = null;
-        SessionUiState? changedState = null;
         var items = new[]
         {
             new SessionListEntry("orders", "Orders", 12),
@@ -131,16 +142,13 @@ public class SC01_SessionBlocks : ViewScenario
 
         var cut = Ctx.Render<SessionList>(p => p
             .Add(x => x.Items, items)
-            .Add(x => x.OnSelected, e => selected = e)
-            .Add(x => x.StateChanged, s => changedState = s));
+            .Add(x => x.OnSelected, e => selected = e));
 
         cut.Find("[data-node-id='support']").Click();
 
         selected.ShouldNotBeNull();
         selected.Node.Id.ShouldBe("support");
         selected.Node.NodeTypeKey.ShouldBe("session");
-        changedState.ShouldNotBeNull();
-        changedState.SelectedNode!.Id.ShouldBe("support");
     }
 
     [Fact(DisplayName = "UAC05: SessionCard action emits node-shaped action event")]
@@ -294,15 +302,13 @@ public class SC01_SessionBlocks : ViewScenario
     {
         SessionContextProjected? projected = null;
         SessionContextPinned? pinned = null;
-        SessionUiState? changedState = null;
         var invoice = new SessionNodeInput("invoice", "invoice", "Invoice", "InvoiceBlock");
         var nodes = new[] { new SessionContextNode(invoice) };
 
         var cut = Ctx.Render<SessionContextExplorer>(p => p
             .Add(x => x.RootNodes, nodes)
             .Add(x => x.OnProjected, e => projected = e)
-            .Add(x => x.OnPinned, e => pinned = e)
-            .Add(x => x.StateChanged, s => changedState = s));
+            .Add(x => x.OnPinned, e => pinned = e));
 
         cut.Find("[data-node-id='invoice']").Click();
         cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice']").Click();
@@ -313,8 +319,97 @@ public class SC01_SessionBlocks : ViewScenario
         pinned.ShouldNotBeNull();
         pinned.Node.ShouldBe(invoice);
         pinned.Pin.SessionNode.NodeTypeKey.ShouldBe("session.pin");
-        changedState.ShouldNotBeNull();
-        changedState.ContextPins!.Count.ShouldBe(1);
+    }
+
+    [Fact(DisplayName = "UAC33: SessionApp uses an injected store and shows the event log as a dedicated standalone page")]
+    [Trait(Spec.UAC, "33")]
+    public void UAC33_SessionAppStandaloneSettingsLoadsEventLogPage()
+    {
+        var stateService = new SessionStateService();
+        var cut = Ctx.Render<SessionApp>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.StateService, stateService));
+
+        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-testid='session-command-input']").Input("Trace all state changes");
+        cut.Find("[data-testid='session-command-submit']").Click();
+        cut.Find("[data-testid='session-app-settings-button']").Click();
+
+        cut.Find("[data-slot='session-event-log']").ShouldNotBeNull();
+        cut.FindAll("[data-slot='session-app-feed']").ShouldBeEmpty();
+        cut.FindAll("[data-slot='session-event-log-header']").ShouldBeEmpty();
+        cut.FindAll("[data-testid='session-event-log-back']").ShouldBeEmpty();
+        cut.FindAll("[data-testid='session-event-log-clear']").ShouldBeEmpty();
+        cut.Find("[data-slot='session-event-log-current-state'] [data-slot='collapsible-trigger']").TextContent.ShouldContain("Current state");
+        cut.Find("[data-slot='session-event-log-initial-state'] [data-slot='collapsible-trigger']").TextContent.ShouldContain("Initial state");
+        cut.FindAll("[data-slot='session-event-log-entry']").Count.ShouldBeGreaterThan(0);
+        cut.FindAll("[data-slot='session-event-log-entry-json']")
+            .Any(item => item.TextContent.Contains("Active session", StringComparison.Ordinal))
+            .ShouldBeTrue();
+        cut.FindAll("[data-slot='session-event-log-entry-json']")
+            .Any(item => item.TextContent.Contains("\"Kind\": \"session\"", StringComparison.Ordinal))
+            .ShouldBeTrue();
+        stateService.State.ActivePage.ShouldBe(SessionAppPage.EventLog);
+        stateService.State.EventLogEntries.ShouldContain(entry => entry.ActionType == nameof(SetActiveSession));
+        stateService.State.EventLogEntries.ShouldContain(entry => entry.ActionType == nameof(SetSessionInput));
+        stateService.State.EventLogEntries.ShouldContain(entry => entry.ActionType == nameof(SubmitSessionCommand));
+        stateService.State.EventLogEntries.ShouldContain(entry => entry.ActionType == nameof(ShowSessionEventLogPage));
+    }
+
+    [Fact(DisplayName = "UAC34: SessionEventLog renders as a bare collapsible list without extra chrome")]
+    [Trait(Spec.UAC, "34")]
+    public void UAC34_SessionEventLogRendersBareCollapsibleList()
+    {
+        var stateService = new SessionStateService();
+        var cut = Ctx.Render<SessionApp>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.StateService, stateService));
+
+        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-testid='session-command-input']").Input("Clear journal");
+        cut.Find("[data-testid='session-command-submit']").Click();
+        cut.Find("[data-testid='session-app-settings-button']").Click();
+
+        cut.FindAll("[data-slot='session-event-log-header']").ShouldBeEmpty();
+        cut.FindAll("[data-slot='session-event-log-entry-deltas']").ShouldBeEmpty();
+        cut.FindAll("[data-slot='session-event-log-entry-json']").Count.ShouldBe(stateService.State.EventLogEntries.Count);
+        cut.FindAll("[data-slot='session-event-log-current-state']").Count.ShouldBe(1);
+        cut.FindAll("[data-slot='session-event-log-initial-state']").Count.ShouldBe(1);
+    }
+
+    [Fact(DisplayName = "UAC34b: SessionApp settings button toggles the event log page")]
+    [Trait(Spec.UAC, "34b")]
+    public void UAC34b_SessionAppSettingsButtonTogglesEventLogPage()
+    {
+        var stateService = new SessionStateService();
+        var cut = Ctx.Render<SessionApp>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.StateService, stateService));
+
+        cut.Find("[data-node-id='orders-session']").Click();
+
+        cut.Find("[data-testid='session-app-settings-button']").Click();
+        cut.Find("[data-slot='session-event-log']").ShouldNotBeNull();
+        stateService.State.ActivePage.ShouldBe(SessionAppPage.EventLog);
+
+        cut.Find("[data-testid='session-app-settings-button']").Click();
+        cut.FindAll("[data-slot='session-event-log']").ShouldBeEmpty();
+        cut.Find("[data-slot='session-app-feed']").ShouldNotBeNull();
+        stateService.State.ActivePage.ShouldBe(SessionAppPage.Feed);
+    }
+
+    [Fact(DisplayName = "UAC35: SessionApp resolves request and response cards through DRD discovery")]
+    [Trait(Spec.UAC, "35")]
+    public void UAC35_SessionAppResolvesRequestAndResponseCardsThroughDrdDiscovery()
+    {
+        Ctx.Services.AddSingleton<ISessionSurfaceRegistry, PluginSessionSurfaceRegistry>();
+
+        var cut = Ctx.Render<SessionApp>();
+
+        cut.Find("[data-node-id='orders-session']").Click();
+
+        cut.Markup.ShouldContain("Plugin order intake");
+        cut.Markup.ShouldContain("Plugin order output");
     }
 
     [Fact(DisplayName = "UAC13: SessionContextBlock renders the configured DynamicComponent")]
