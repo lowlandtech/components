@@ -1,0 +1,141 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Navigation
+
+<div class="grid gap-8">
+    <div>
+        <p class="mb-2 text-sm font-medium text-muted-foreground">Top (default)</p>
+        <Tabs DefaultValue="account" class="w-full max-w-lg">
+            <TabsList>
+                <TabsTrigger Value="account">Account</TabsTrigger>
+                <TabsTrigger Value="password">Password</TabsTrigger>
+                <TabsTrigger Value="settings">Settings</TabsTrigger>
+            </TabsList>
+            <TabsContent Value="account">
+                <div class="rounded-lg border bg-card p-4 text-card-foreground">
+                    <h3 class="mb-1 font-medium">Account Settings</h3>
+                    <p class="text-sm text-muted-foreground">Manage your account preferences.</p>
+                </div>
+            </TabsContent>
+            <TabsContent Value="password">
+                <div class="rounded-lg border bg-card p-4 text-card-foreground">
+                    <h3 class="mb-1 font-medium">Password Settings</h3>
+                    <p class="text-sm text-muted-foreground">Update your password.</p>
+                </div>
+            </TabsContent>
+            <TabsContent Value="settings">
+                <div class="rounded-lg border bg-card p-4 text-card-foreground">
+                    <h3 class="mb-1 font-medium">General Settings</h3>
+                    <p class="text-sm text-muted-foreground">Configure app settings.</p>
+                </div>
+            </TabsContent>
+        </Tabs>
+    </div>
+
+    <div>
+        <p class="mb-2 text-sm font-medium text-muted-foreground">Bottom</p>
+        <Tabs Placement="bottom" DefaultValue="account" class="w-full max-w-lg">
+            <TabsList>
+                <TabsTrigger Value="account">Account</TabsTrigger>
+                <TabsTrigger Value="password">Password</TabsTrigger>
+                <TabsTrigger Value="settings">Settings</TabsTrigger>
+            </TabsList>
+            <TabsContent Value="account">
+                <div class="rounded-lg border bg-card p-4 text-card-foreground">
+                    <h3 class="mb-1 font-medium">Account Settings</h3>
+                    <p class="text-sm text-muted-foreground">Manage your account preferences.</p>
+                </div>
+            </TabsContent>
+            <TabsContent Value="password">
+                <div class="rounded-lg border bg-card p-4 text-card-foreground">
+                    <h3 class="mb-1 font-medium">Password Settings</h3>
+                    <p class="text-sm text-muted-foreground">Update your password.</p>
+                </div>
+            </TabsContent>
+            <TabsContent Value="settings">
+                <div class="rounded-lg border bg-card p-4 text-card-foreground">
+                    <h3 class="mb-1 font-medium">General Settings</h3>
+                    <p class="text-sm text-muted-foreground">Configure app settings.</p>
+                </div>
+            </TabsContent>
+        </Tabs>
+    </div>
+
+    <div class="flex gap-8">
+        <div class="w-full max-w-lg">
+            <p class="mb-2 text-sm font-medium text-muted-foreground">Left</p>
+            <Tabs Placement="left" DefaultValue="account" class="h-48">
+                <TabsList>
+                    <TabsTrigger Value="account">Account</TabsTrigger>
+                    <TabsTrigger Value="password">Password</TabsTrigger>
+                    <TabsTrigger Value="settings">Settings</TabsTrigger>
+                </TabsList>
+                <TabsContent Value="account">
+                    <div class="rounded-lg border bg-card p-4 text-card-foreground h-full">
+                        <h3 class="mb-1 font-medium">Account Settings</h3>
+                        <p class="text-sm text-muted-foreground">Manage your account preferences.</p>
+                    </div>
+                </TabsContent>
+                <TabsContent Value="password">
+                    <div class="rounded-lg border bg-card p-4 text-card-foreground h-full">
+                        <h3 class="mb-1 font-medium">Password Settings</h3>
+                        <p class="text-sm text-muted-foreground">Update your password.</p>
+                    </div>
+                </TabsContent>
+                <TabsContent Value="settings">
+                    <div class="rounded-lg border bg-card p-4 text-card-foreground h-full">
+                        <h3 class="mb-1 font-medium">General Settings</h3>
+                        <p class="text-sm text-muted-foreground">Configure app settings.</p>
+                    </div>
+                </TabsContent>
+            </Tabs>
+        </div>
+
+        <div class="w-full max-w-lg">
+            <p class="mb-2 text-sm font-medium text-muted-foreground">Right</p>
+            <Tabs Placement="right" DefaultValue="account" class="h-48">
+                <TabsList>
+                    <TabsTrigger Value="account">Account</TabsTrigger>
+                    <TabsTrigger Value="password">Password</TabsTrigger>
+                    <TabsTrigger Value="settings">Settings</TabsTrigger>
+                </TabsList>
+                <TabsContent Value="account">
+                    <div class="rounded-lg border bg-card p-4 text-card-foreground h-full">
+                        <h3 class="mb-1 font-medium">Account Settings</h3>
+                        <p class="text-sm text-muted-foreground">Manage your account preferences.</p>
+                    </div>
+                </TabsContent>
+                <TabsContent Value="password">
+                    <div class="rounded-lg border bg-card p-4 text-card-foreground h-full">
+                        <h3 class="mb-1 font-medium">Password Settings</h3>
+                        <p class="text-sm text-muted-foreground">Update your password.</p>
+                    </div>
+                </TabsContent>
+                <TabsContent Value="settings">
+                    <div class="rounded-lg border bg-card p-4 text-card-foreground h-full">
+                        <h3 class="mb-1 font-medium">General Settings</h3>
+                        <p class="text-sm text-muted-foreground">Configure app settings.</p>
+                    </div>
+                </TabsContent>
+            </Tabs>
+        </div>
+    </div>
+
+    <div>
+        <p class="mb-2 text-sm font-medium text-muted-foreground">Left with Line Variant</p>
+        <Tabs Placement="left" DefaultValue="preview" class="h-40">
+            <TabsList Variant="line">
+                <TabsTrigger Value="preview">Preview</TabsTrigger>
+                <TabsTrigger Value="code">Code</TabsTrigger>
+                <TabsTrigger Value="settings">Settings</TabsTrigger>
+            </TabsList>
+            <TabsContent Value="preview">
+                <p class="p-3 text-sm text-muted-foreground">Line tabs on the left side.</p>
+            </TabsContent>
+            <TabsContent Value="code">
+                <p class="p-3 text-sm text-muted-foreground">Code content.</p>
+            </TabsContent>
+            <TabsContent Value="settings">
+                <p class="p-3 text-sm text-muted-foreground">Settings content.</p>
+            </TabsContent>
+        </Tabs>
+    </div>
+</div>

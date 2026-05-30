@@ -308,4 +308,101 @@ public class SC02_RenderTabsSubcomponents : ViewScenario
         list.ClassList.ShouldContain("justify-center");
         list.ClassList.ShouldNotContain("justify-start");
     }
+
+    [Fact(DisplayName = "UAC23: Vertical line variant on left placement has right border indicator")]
+    [Trait(Spec.UAC, "23")]
+    public void UAC23_LeftVerticalLineVariantHasRightBorder()
+    {
+        var cut = Ctx.Render<TabsSut>(p => p
+            .Add(x => x.Placement, "left")
+            .Add(x => x.Value, "first")
+            .AddChildContent<TabsList>(list => list
+                .Add(l => l.Variant, "line")
+                .AddChildContent<TabsTrigger>(t => t
+                    .Add(tt => tt.Value, "first")
+                    .AddChildContent("First"))
+                .AddChildContent<TabsTrigger>(t => t
+                    .Add(tt => tt.Value, "second")
+                    .AddChildContent("Second"))));
+
+        var triggers = cut.FindAll("[data-slot='tabs-trigger']");
+        var activeClasses = triggers[0].ClassList;
+
+        activeClasses.ShouldContain("border-r-2");
+        activeClasses.ShouldContain("border-primary");
+    }
+
+    [Fact(DisplayName = "UAC24: Vertical line variant on right placement has left border indicator")]
+    [Trait(Spec.UAC, "24")]
+    public void UAC24_RightVerticalLineVariantHasLeftBorder()
+    {
+        var cut = Ctx.Render<TabsSut>(p => p
+            .Add(x => x.Placement, "right")
+            .Add(x => x.Value, "first")
+            .AddChildContent<TabsList>(list => list
+                .Add(l => l.Variant, "line")
+                .AddChildContent<TabsTrigger>(t => t
+                    .Add(tt => tt.Value, "first")
+                    .AddChildContent("First"))
+                .AddChildContent<TabsTrigger>(t => t
+                    .Add(tt => tt.Value, "second")
+                    .AddChildContent("Second"))));
+
+        var triggers = cut.FindAll("[data-slot='tabs-trigger']");
+        var activeClasses = triggers[0].ClassList;
+
+        activeClasses.ShouldContain("border-l-2");
+        activeClasses.ShouldContain("border-primary");
+    }
+
+    [Fact(DisplayName = "UAC25: TabsContent uses bottom margin for bottom placement")]
+    [Trait(Spec.UAC, "25")]
+    public void UAC25_BottomPlacementContentHasBottomMargin()
+    {
+        var cut = Ctx.Render<TabsSut>(p =>
+        {
+            p.Add(x => x.Placement, "bottom");
+            p.Add(x => x.DefaultValue, "tab1");
+            p.AddChildContent<TabsContent>(cp =>
+            {
+                cp.Add(x => x.Value, "tab1");
+            });
+        });
+        var content = cut.Find("[data-slot='tabs-content']");
+        content.ClassList.ShouldContain("mb-2");
+    }
+
+    [Fact(DisplayName = "UAC26: TabsContent uses left margin for left placement")]
+    [Trait(Spec.UAC, "26")]
+    public void UAC26_LeftPlacementContentHasLeftMargin()
+    {
+        var cut = Ctx.Render<TabsSut>(p =>
+        {
+            p.Add(x => x.Placement, "left");
+            p.Add(x => x.DefaultValue, "tab1");
+            p.AddChildContent<TabsContent>(cp =>
+            {
+                cp.Add(x => x.Value, "tab1");
+            });
+        });
+        var content = cut.Find("[data-slot='tabs-content']");
+        content.ClassList.ShouldContain("ml-2");
+    }
+
+    [Fact(DisplayName = "UAC27: TabsContent uses right margin for right placement")]
+    [Trait(Spec.UAC, "27")]
+    public void UAC27_RightPlacementContentHasRightMargin()
+    {
+        var cut = Ctx.Render<TabsSut>(p =>
+        {
+            p.Add(x => x.Placement, "right");
+            p.Add(x => x.DefaultValue, "tab1");
+            p.AddChildContent<TabsContent>(cp =>
+            {
+                cp.Add(x => x.Value, "tab1");
+            });
+        });
+        var content = cut.Find("[data-slot='tabs-content']");
+        content.ClassList.ShouldContain("mr-2");
+    }
 }

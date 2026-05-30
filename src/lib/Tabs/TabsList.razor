@@ -55,7 +55,7 @@ else
     private DotNetObjectReference<TabsList>? _dotNetRef;
     private bool _isOverflowing;
     
-    private string GetOrientation() => Parent?.Orientation ?? "horizontal";
+    private string GetOrientation() => Parent?.EffectiveOrientation ?? "horizontal";
     private bool IsVertical => GetOrientation() == "vertical";
     private string GetAlign() => Align.ToLowerInvariant() switch
     {
@@ -204,7 +204,9 @@ else
         baseClass += isIdeVariant
             ? " cn-tabs-list-ide bg-transparent rounded-none gap-0 p-0 h-10"
             : isLineVariant
-            ? " bg-transparent border-b rounded-none"
+            ? (isVertical
+                ? (Parent?.Placement == "right" ? " bg-transparent border-l rounded-none" : " bg-transparent border-r rounded-none")
+                : " bg-transparent border-b rounded-none")
             : (isVertical ? " rounded-md bg-muted" : " rounded-lg bg-muted");
 
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";

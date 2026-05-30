@@ -73,4 +73,60 @@ public class SC01_RenderTabs : ViewScenario
         var cut = Ctx.Render<TabsSut>(p => p.Add(x => x.KeyboardActivation, "manual"));
         cut.Find("[data-activation='manual']").ShouldNotBeNull();
     }
+
+    [Fact(DisplayName = "UAC09: Tabs renders with default top placement")]
+    [Trait(Spec.UAC, "09")]
+    public void UAC09_RendersWithDefaultTopPlacement()
+    {
+        var cut = Ctx.Render<TabsSut>();
+        var tabs = cut.Find("[data-slot='tabs']");
+        tabs.GetAttribute("data-placement").ShouldBe("top");
+        tabs.ClassList.ShouldContain("flex-col");
+    }
+
+    [Fact(DisplayName = "UAC10: Tabs renders with bottom placement")]
+    [Trait(Spec.UAC, "10")]
+    public void UAC10_RendersWithBottomPlacement()
+    {
+        var cut = Ctx.Render<TabsSut>(p => p.Add(x => x.Placement, "bottom"));
+        var tabs = cut.Find("[data-slot='tabs']");
+        tabs.GetAttribute("data-placement").ShouldBe("bottom");
+        tabs.ClassList.ShouldContain("flex-col-reverse");
+    }
+
+    [Fact(DisplayName = "UAC11: Tabs renders with left placement")]
+    [Trait(Spec.UAC, "11")]
+    public void UAC11_RendersWithLeftPlacement()
+    {
+        var cut = Ctx.Render<TabsSut>(p => p.Add(x => x.Placement, "left"));
+        var tabs = cut.Find("[data-slot='tabs']");
+        tabs.GetAttribute("data-placement").ShouldBe("left");
+        tabs.ClassList.ShouldContain("flex-row");
+    }
+
+    [Fact(DisplayName = "UAC12: Tabs renders with right placement")]
+    [Trait(Spec.UAC, "12")]
+    public void UAC12_RendersWithRightPlacement()
+    {
+        var cut = Ctx.Render<TabsSut>(p => p.Add(x => x.Placement, "right"));
+        var tabs = cut.Find("[data-slot='tabs']");
+        tabs.GetAttribute("data-placement").ShouldBe("right");
+        tabs.ClassList.ShouldContain("flex-row-reverse");
+    }
+
+    [Fact(DisplayName = "UAC13: Left placement derives vertical orientation")]
+    [Trait(Spec.UAC, "13")]
+    public void UAC13_LeftPlacementDerivesVerticalOrientation()
+    {
+        var cut = Ctx.Render<TabsSut>(p => p.Add(x => x.Placement, "left"));
+        cut.Find("[data-orientation='vertical']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC14: Right placement derives vertical orientation")]
+    [Trait(Spec.UAC, "14")]
+    public void UAC14_RightPlacementDerivesVerticalOrientation()
+    {
+        var cut = Ctx.Render<TabsSut>(p => p.Add(x => x.Placement, "right"));
+        cut.Find("[data-orientation='vertical']").ShouldNotBeNull();
+    }
 }

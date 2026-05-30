@@ -106,7 +106,7 @@
     }
     
     private string GetState() => IsActive ? "active" : "inactive";
-    private string GetOrientation() => Parent?.Orientation ?? "horizontal";
+    private string GetOrientation() => Parent?.EffectiveOrientation ?? "horizontal";
     
     private string GetId() => $"tabs-trigger-{Value}";
     private string GetContentId() => $"tabs-content-{Value}";
@@ -221,7 +221,19 @@
                 ? " bg-background text-foreground shadow-sm"
                 : " bg-background text-foreground shadow";
         else if (IsActive && isLineVariant)
-            baseClass += " text-foreground border-b-2 border-primary -mb-px rounded-none";
+        {
+            if (isVertical)
+            {
+                var isRight = Parent?.Placement == "right";
+                baseClass += isRight
+                    ? " text-foreground border-l-2 border-primary -ml-px rounded-none"
+                    : " text-foreground border-r-2 border-primary -mr-px rounded-none";
+            }
+            else
+            {
+                baseClass += " text-foreground border-b-2 border-primary -mb-px rounded-none";
+            }
+        }
         else if (IsActive && isIdeVariant)
             baseClass += " bg-background text-foreground border-t-2 border-t-primary";
         

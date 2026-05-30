@@ -3,7 +3,8 @@
 
 <CascadingValue Value="this">
     <div data-slot="tabs"
-         data-orientation="@Orientation"
+         data-placement="@Placement"
+         data-orientation="@EffectiveOrientation"
          data-activation="@KeyboardActivation"
          data-tabs-mode="@(HasItems ? "dynamic" : "static")"
          class="@GetClass()"
@@ -44,6 +45,11 @@
 
 @code {
     [Parameter] public string Orientation { get; set; } = "horizontal";
+    [Parameter] public string Placement { get; set; } = "top";
+
+    internal string EffectiveOrientation => Placement != "top"
+        ? Placement switch { "left" or "right" => "vertical", _ => "horizontal" }
+        : Orientation;
     [Parameter] public string DefaultValue { get; set; } = "";
     [Parameter] public string? Value { get; set; }
     [Parameter] public EventCallback<string?> ValueChanged { get; set; }
@@ -231,9 +237,13 @@
     
     private string GetClass()
     {
-        var baseClass = "cn-tabs flex flex-col gap-2";
-        if (Orientation == "vertical")
-            baseClass = "cn-tabs flex flex-row gap-2";
+        var baseClass = Placement switch
+        {
+            "bottom" => "cn-tabs flex flex-col-reverse gap-2",
+            "left" => "cn-tabs flex flex-row gap-2",
+            "right" => "cn-tabs flex flex-row-reverse gap-2",
+            _ => "cn-tabs flex flex-col gap-2"
+        };
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
 }

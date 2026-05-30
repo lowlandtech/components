@@ -22,14 +22,21 @@
     
     private bool IsActive => Parent?.ActiveTab == Value;
     private string GetState() => IsActive ? "active" : "inactive";
-    private string GetOrientation() => Parent?.Orientation ?? "horizontal";
+    private string GetOrientation() => Parent?.EffectiveOrientation ?? "horizontal";
     
     private string GetId() => $"tabs-content-{Value}";
     private string GetTriggerId() => $"tabs-trigger-{Value}";
     
     private string GetClass()
     {
-        var baseClass = "cn-tabs-content mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
+        var marginClass = Parent?.Placement switch
+        {
+            "bottom" => "mb-2",
+            "left" => "ml-2",
+            "right" => "mr-2",
+            _ => "mt-2"
+        };
+        var baseClass = $"cn-tabs-content {marginClass} ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
 }
