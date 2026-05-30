@@ -2,6 +2,7 @@
 @using LowlandTech.Components.Icon
 @using LowlandTech.Components.Spinner
 @inherits TinyComponentBase
+@inject IJSRuntime JS
 
 <div data-slot="session-command-bar" class="@GetClass()" @attributes="AdditionalAttributes">
     @if (SelectedNode is not null)
@@ -77,7 +78,7 @@
     [Parameter] public EventCallback<SessionAgentTypeSelected> OnAgentTypeSelected { get; set; }
     [Parameter] public EventCallback<SessionCommandSubmitted> OnSubmit { get; set; }
 
-    private string CurrentInput => !string.IsNullOrWhiteSpace(Value) ? Value! : State.Input;
+    private string CurrentInput => Value is not null ? Value : State.Input;
 
     protected override void OnParametersSet()
     {
@@ -85,6 +86,14 @@
         Value ??= State.Input;
         if (string.IsNullOrWhiteSpace(ActiveAgentTypeKey))
             ActiveAgentTypeKey = State.ActiveAgentTypeKey;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        await InstallEnterSubmitHandlerAsync();
     }
 
     private string GetClass()
@@ -149,9 +158,64 @@
         // renders with empty input before the response is added.
         await ValueChanged.InvokeAsync(Value);
         await StateChanged.InvokeAsync(State);
+        await ResetInputElementAsync();
 
         if (agent is not null)
             await agent.OnSubmit.InvokeAsync(submitted);
         await OnSubmit.InvokeAsync(submitted);
+    }
+
+    private async Task ResetInputElementAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("eval", """
+                (() => {
+                    const input = document.querySelector('[data-slot="session-command-input"]');
+                    if (!input) return;
+
+                    input.value = '';
+                    input.scrollTop = 0;
+                    input.focus({ preventScroll: true });
+                    input.setSelectionRange(0, 0);
+                })();
+                """);
+        }
+        catch
+        {
+            // Best effort: bUnit, prerendering, and disconnected circuits may not have a DOM.
+        }
+    }
+
+    private async Task InstallEnterSubmitHandlerAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("eval", """
+                (() => {
+                    document.querySelectorAll('[data-slot="session-command-input"]').forEach((input) => {
+                        if (input.dataset.enterSubmitBound === 'true') return;
+                        input.dataset.enterSubmitBound = 'true';
+
+                        input.addEventListener('keydown', (event) => {
+                            if (event.key !== 'Enter' || event.shiftKey || event.isComposing) return;
+
+                            event.preventDefault();
+                            event.stopPropagation();
+
+                            const commandBar = input.closest('[data-slot="session-command-bar"]');
+                            const submit = commandBar?.querySelector('[data-slot="session-command-submit"]');
+                            if (submit && !submit.disabled) {
+                                submit.click();
+                            }
+                        }, true);
+                    });
+                })();
+                """);
+        }
+        catch
+        {
+            // Best effort: bUnit, prerendering, and disconnected circuits may not have a DOM.
+        }
     }
 }

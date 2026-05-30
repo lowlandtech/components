@@ -1,6 +1,6 @@
 namespace LowlandTech.Components.Session.Agents;
 
-/// <summary>Dummy ask agent for test mode — returns random static replies.</summary>
+/// <summary>Dummy ask agent for test mode — returns random static replies and streaming chunks.</summary>
 public sealed class DummyAskAgentGraphService : IAgentGraphService
 {
     public string AgentTypeKey => "ask";
@@ -23,5 +23,32 @@ public sealed class DummyAskAgentGraphService : IAgentGraphService
     {
         context.Response = TestReplies[Random.Shared.Next(TestReplies.Length)];
         return Task.CompletedTask;
+    }
+
+    public static async IAsyncEnumerable<string> StreamReplyAsync(string input, int delayMilliseconds = 35)
+    {
+        var reply = TestReplies[Random.Shared.Next(TestReplies.Length)];
+        var prefix = string.IsNullOrWhiteSpace(input)
+            ? string.Empty
+            : $"You asked: {input.Trim()} ";
+
+        foreach (var chunk in SplitIntoChunks($"{prefix}{reply}"))
+        {
+            if (delayMilliseconds > 0)
+            {
+                await Task.Delay(delayMilliseconds);
+            }
+
+            yield return chunk;
+        }
+    }
+
+    private static IEnumerable<string> SplitIntoChunks(string value)
+    {
+        var words = value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        for (var i = 0; i < words.Length; i++)
+        {
+            yield return i == 0 ? words[i] : $" {words[i]}";
+        }
     }
 }

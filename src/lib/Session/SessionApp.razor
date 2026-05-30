@@ -70,6 +70,30 @@
                                                  ModeChanged="@(mode => HandleBlockModeChangedAsync(maximizedBlock, mode))" />
                         </div>
                     }
+                    else if (MaximizedCommand is { } maximizedCommand)
+                    {
+                        <div class="flex min-h-full"
+                             data-slot="session-app-maximized-card"
+                             data-command-id="@maximizedCommand.Id">
+                            <SessionCard Node="CreateResponseNode(maximizedCommand)"
+                                         Initials="RS"
+                                         Mode="@SessionContextBlock.ModeMaximized"
+                                         Status="@GetResponseStatus(maximizedCommand)"
+                                         StatusVariant="@GetResponseStatusVariant(maximizedCommand)"
+                                         ModeChanged="@(mode => HandleCommandModeChangedAsync(maximizedCommand, mode))">
+                                <div class="space-y-2">
+                                    <p class="rounded-md border border-border bg-background px-2 py-1.5 text-xs text-muted-foreground"
+                                       data-slot="session-turn-prompt">
+                                        @maximizedCommand.Input
+                                    </p>
+                                    <p data-slot="session-turn-response-text"
+                                       data-streaming="@maximizedCommand.IsStreaming.ToString().ToLowerInvariant()">
+                                        @CreateResponseDescription(maximizedCommand)
+                                    </p>
+                                </div>
+                            </SessionCard>
+                        </div>
+                    }
                     else
                     {
                         <div class="space-y-3" data-slot="session-app-feed">
@@ -81,35 +105,48 @@
                                              Description="Summarize the active session and use any pinned context." />
                             </div>
 
+                            <div id="session-turn-response" data-slot="session-app-turn-section">
+                                <SessionCard Node="CurrentResponseNode"
+                                             Initials="RS"
+                                             Status="Ready"
+                                             Description="Pinned context blocks will be included in the assistant context window without creating turns." />
+                            </div>
+
                             @foreach (var item in FeedItems)
                             {
                                 @if (item.Kind == SessionFeedItemKind.Response)
                                 {
-                                    <div id="@GetCommandTurnId(item.CommandIndex)" data-slot="session-app-turn-section">
+                                    <div @key="item.Key"
+                                         id="@GetCommandTurnId(item.Command!)"
+                                         data-slot="session-app-turn-section">
                                         <SessionCard Node="CreateResponseNode(item.Command!)"
                                                      Initials="RS"
-                                                     Status="@item.Command!.AgentTypeKey"
-                                                     Description="@CreateResponseDescription(item.Command)" />
+                                                     Status="@GetResponseStatus(item.Command!)"
+                                                     StatusVariant="@GetResponseStatusVariant(item.Command!)"
+                                                     ModeChanged="@(mode => HandleCommandModeChangedAsync(item.Command!, mode))">
+                                            <div class="space-y-2">
+                                                <p class="rounded-md border border-border bg-background px-2 py-1.5 text-xs text-muted-foreground"
+                                                   data-slot="session-turn-prompt">
+                                                    @item.Command!.Input
+                                                </p>
+                                                <p data-slot="session-turn-response-text"
+                                                   data-streaming="@item.Command.IsStreaming.ToString().ToLowerInvariant()">
+                                                    @CreateResponseDescription(item.Command)
+                                                </p>
+                                            </div>
+                                        </SessionCard>
                                     </div>
                                 }
                                 else
                                 {
-                                    <SessionContextBlock Block="item.Block!"
+                                    <SessionContextBlock @key="item.Key"
+                                                         Block="item.Block!"
                                                          IsPinned="@IsBlockPinned(item.Block!)"
                                                          OnUnpin="@(() => UnpinBlockAsync(item.Block!))"
                                                          ModeChanged="@(mode => HandleBlockModeChangedAsync(item.Block!, mode))" />
                                 }
                             }
 
-                            @if (CurrentSubmittedCommands.Count == 0)
-                            {
-                                <div id="session-turn-response" data-slot="session-app-turn-section">
-                                    <SessionCard Node="CurrentResponseNode"
-                                                 Initials="RS"
-                                                 Status="Ready"
-                                                 Description="Pinned context blocks will be included in the assistant context window without creating turns." />
-                                </div>
-                            }
                         </div>
                     }
                 </SessionContent>
@@ -170,8 +207,11 @@
     private string? _activeSessionId;
     private string? _pendingScrollSectionId;
     private string? _maximizedBlockId;
+    private string? _maximizedCommandId;
     private readonly List<SessionNodeInput> _openSessionNodes = [];
     private readonly HashSet<string> _pinnedNodeIds = [];
+    private readonly Dictionary<string, long> _feedSequenceByItemKey = new(StringComparer.Ordinal);
+    private long _nextFeedSequence;
 
     private readonly Dictionary<string, SessionNodeInput> _requestNodes = new()
     {
@@ -214,6 +254,7 @@
     ];
 
     [Parameter] public bool IsTest { get; set; }
+    [Parameter] public int TestStreamDelayMilliseconds { get; set; } = 35;
 
     public SessionApp()
     {
@@ -269,24 +310,20 @@
 
             var sections = new List<SessionAppSection>
             {
-                new("session-turn-request", CurrentRequestNode.Label, "turn")
+                new("session-turn-request", CurrentRequestNode.Label, "turn"),
+                new("session-turn-response", CurrentResponseNode.Label, "turn")
             };
 
             foreach (var item in FeedItems)
             {
                 if (item.Kind == SessionFeedItemKind.Response)
                 {
-                    sections.Add(new(GetCommandTurnId(item.CommandIndex), CreateResponseNode(item.Command!).Label, "turn"));
+                    sections.Add(new(GetCommandTurnId(item.Command!), CreateResponseNode(item.Command!).Label, "turn"));
                 }
                 else
                 {
                     sections.Add(new SessionAppSection(item.Block!.Id, item.Block.Context.Label, item.Block.Context.NodeTypeKey));
                 }
-            }
-
-            if (CurrentSubmittedCommands.Count == 0)
-            {
-                sections.Add(new("session-turn-response", CurrentResponseNode.Label, "turn"));
             }
 
             return sections;
@@ -298,17 +335,30 @@
             ? null
             : (ViewState.ContextBlocks ?? []).FirstOrDefault(block => string.Equals(block.Id, _maximizedBlockId, StringComparison.Ordinal));
 
+    private SessionCommandSubmitted? MaximizedCommand =>
+        string.IsNullOrWhiteSpace(_maximizedCommandId)
+            ? null
+            : CurrentSubmittedCommands.FirstOrDefault(command => string.Equals(command.Id, _maximizedCommandId, StringComparison.Ordinal));
+
     private IEnumerable<SessionFeedItem> FeedItems
     {
         get
         {
             var responses = CurrentSubmittedCommands
-                .Select((cmd, i) => new SessionFeedItem(SessionFeedItemKind.Response, cmd.CreatedAt, Command: cmd, CommandIndex: i));
+                .Select(cmd =>
+                {
+                    var key = GetFeedItemKey(CurrentSessionId, "command", cmd.Id);
+                    return new SessionFeedItem(key, SessionFeedItemKind.Response, EnsureFeedSequence(key), Command: cmd);
+                });
 
             var blocks = (ViewState.ContextBlocks ?? [])
-                .Select(block => new SessionFeedItem(SessionFeedItemKind.Block, block.CreatedAt, Block: block));
+                .Select(block =>
+                {
+                    var key = GetFeedItemKey(CurrentSessionId, "block", block.Id);
+                    return new SessionFeedItem(key, SessionFeedItemKind.Block, EnsureFeedSequence(key), Block: block);
+                });
 
-            return responses.Concat(blocks).OrderBy(item => item.CreatedAt);
+            return responses.Concat(blocks).OrderBy(item => item.Sequence);
         }
     }
 
@@ -321,7 +371,7 @@
             ? commands.Count
             : 0;
 
-        return commandCount == 0 ? 2 : commandCount + 1;
+        return commandCount + 2;
     }
 
     private int GetSessionBlockSectionCount(string sessionId)
@@ -352,6 +402,7 @@
             var previousActiveId = _activeSessionId;
             _activeSessionId = selectedSessionNode.Id;
             _maximizedBlockId = null;
+            _maximizedCommandId = null;
 
             SyncOpenSessionNodes(state.OpenNodes, previousActiveId);
 
@@ -364,6 +415,7 @@
             var newSelectedNode = ResolveSessionNode(state.SelectedNode);
             _activeSessionId = newSelectedNode?.Id;
             _maximizedBlockId = null;
+            _maximizedCommandId = null;
 
             SyncOpenSessionNodes(state.OpenNodes, null);
 
@@ -388,6 +440,7 @@
         _activeSessionId = null;
         _state = SessionUiDefaults.Empty;
         _maximizedBlockId = null;
+        _maximizedCommandId = null;
         StateHasChanged();
         return Task.CompletedTask;
     }
@@ -402,6 +455,7 @@
 
     private Task HandleProjectedAsync(SessionContextProjected _)
     {
+        EnsureFeedSequence(GetFeedItemKey(CurrentSessionId, "block", "projected-context-block"));
         _pendingScrollSectionId = "projected-context-block";
         StateHasChanged();
         return Task.CompletedTask;
@@ -409,7 +463,9 @@
 
     private Task HandlePinnedAsync(SessionContextPinned pinned)
     {
-        _pendingScrollSectionId = $"context-block:{pinned.Node.Id}";
+        var blockId = $"context-block:{pinned.Node.Id}";
+        EnsureFeedSequence(GetFeedItemKey(CurrentSessionId, "block", blockId));
+        _pendingScrollSectionId = blockId;
         StateHasChanged();
         return Task.CompletedTask;
     }
@@ -440,10 +496,17 @@
 
     private async Task HandleSubmitAsync(SessionCommandSubmitted command)
     {
+        var sessionId = CurrentSessionId;
+
         if (IsTest)
         {
-            var response = DummyAskAgentGraphService.TestReplies[Random.Shared.Next(DummyAskAgentGraphService.TestReplies.Length)];
-            command = command with { Response = response };
+            var streamingCommand = command with { Response = string.Empty, IsStreaming = true };
+            EnsureFeedSequence(GetFeedItemKey(sessionId, "command", streamingCommand.Id));
+            GetSessionCommands(sessionId).Add(streamingCommand);
+            _pendingScrollSectionId = GetCommandTurnId(streamingCommand);
+            StateHasChanged();
+            await StreamTestResponseAsync(sessionId, streamingCommand);
+            return;
         }
         else
         {
@@ -463,8 +526,9 @@
             }
         }
 
-        GetSessionCommands(CurrentSessionId).Add(command);
-        _pendingScrollSectionId = GetCommandTurnId(CurrentSubmittedCommands.Count - 1);
+        EnsureFeedSequence(GetFeedItemKey(sessionId, "command", command.Id));
+        GetSessionCommands(sessionId).Add(command);
+        _pendingScrollSectionId = GetCommandTurnId(command);
 
         StateHasChanged();
 
@@ -484,15 +548,59 @@
     }
 
     private static SessionNodeInput CreateResponseNode(SessionCommandSubmitted command) =>
-        new($"response:{command.AgentTypeKey}:{command.Input.GetHashCode()}", "session-response", $"{command.AgentTypeKey} response");
+        new($"response:{command.Id}", "session-response", $"{command.AgentTypeKey} response");
+
+    private static string GetResponseStatus(SessionCommandSubmitted command) =>
+        command.IsStreaming ? "Streaming" : command.AgentTypeKey;
+
+    private static string GetResponseStatusVariant(SessionCommandSubmitted command) =>
+        command.IsStreaming ? "secondary" : "outline";
 
     private string CreateResponseDescription(SessionCommandSubmitted command)
     {
         if (!string.IsNullOrWhiteSpace(command.Response))
             return command.Response;
 
+        if (command.IsStreaming)
+            return "Thinking...";
+
         var contextCount = ViewState.ContextBlocks?.Count ?? 0;
         return $"{command.AgentTypeKey} processed \"{command.Input}\" with {contextCount} context block(s).";
+    }
+
+    private async Task StreamTestResponseAsync(string sessionId, SessionCommandSubmitted command)
+    {
+        var response = string.Empty;
+
+        await foreach (var chunk in DummyAskAgentGraphService.StreamReplyAsync(command.Input, TestStreamDelayMilliseconds))
+        {
+            response += chunk;
+            UpdateCommand(sessionId, command.Id, existing => existing with
+            {
+                Response = response,
+                IsStreaming = true
+            });
+
+            await InvokeAsync(StateHasChanged);
+        }
+
+        UpdateCommand(sessionId, command.Id, existing => existing with
+        {
+            Response = response,
+            IsStreaming = false
+        });
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void UpdateCommand(string sessionId, string commandId, Func<SessionCommandSubmitted, SessionCommandSubmitted> update)
+    {
+        var commands = GetSessionCommands(sessionId);
+        var index = commands.FindIndex(command => string.Equals(command.Id, commandId, StringComparison.Ordinal));
+        if (index < 0)
+            return;
+
+        commands[index] = update(commands[index]);
     }
 
     private SessionNodeInput? FindSessionNode(string sessionId)
@@ -604,6 +712,7 @@
         if (string.Equals(mode, SessionContextBlock.ModeMaximized, StringComparison.Ordinal))
         {
             _maximizedBlockId = block.Id;
+            _maximizedCommandId = null;
         }
         else if (string.Equals(_maximizedBlockId, block.Id, StringComparison.Ordinal))
         {
@@ -614,7 +723,36 @@
         return Task.CompletedTask;
     }
 
-    private static string GetCommandTurnId(int index) => $"session-turn-response-{index}";
+    private Task HandleCommandModeChangedAsync(SessionCommandSubmitted command, string mode)
+    {
+        if (string.Equals(mode, SessionContextBlock.ModeMaximized, StringComparison.Ordinal))
+        {
+            _maximizedCommandId = command.Id;
+            _maximizedBlockId = null;
+        }
+        else if (string.Equals(_maximizedCommandId, command.Id, StringComparison.Ordinal))
+        {
+            _maximizedCommandId = null;
+        }
+
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private static string GetCommandTurnId(SessionCommandSubmitted command) => $"session-turn-response:{command.Id}";
+
+    private static string GetFeedItemKey(string sessionId, string itemKind, string itemId) =>
+        $"{sessionId}:{itemKind}:{itemId}";
+
+    private long EnsureFeedSequence(string key)
+    {
+        if (_feedSequenceByItemKey.TryGetValue(key, out var sequence))
+            return sequence;
+
+        sequence = ++_nextFeedSequence;
+        _feedSequenceByItemKey[key] = sequence;
+        return sequence;
+    }
 
     private async Task ScrollSectionIntoViewAsync(string sectionId)
     {
@@ -657,9 +795,9 @@
     private enum SessionFeedItemKind { Response, Block }
 
     private sealed record SessionFeedItem(
+        string Key,
         SessionFeedItemKind Kind,
-        DateTimeOffset CreatedAt,
+        long Sequence,
         SessionCommandSubmitted? Command = null,
-        int CommandIndex = -1,
         SessionContextBlockModel? Block = null);
 }

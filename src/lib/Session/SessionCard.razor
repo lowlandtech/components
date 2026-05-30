@@ -6,7 +6,7 @@
 
 <Card data-slot="session-card"
       data-node-id="@Node.Id"
-      Mode="@_mode"
+      Mode="@EffectiveMode"
       class="@GetClass()"
       @attributes="AdditionalAttributes">
     <CardHeader class="border-b border-border bg-muted/30 px-3 py-2">
@@ -19,11 +19,11 @@
             {
                 <Badge Variant="@StatusVariant">@Status</Badge>
             }
-            <CardModeMenu Mode="@_mode" ModeChanged="OnModeChangedAsync" />
+            <CardModeMenu Mode="@EffectiveMode" ModeChanged="OnModeChangedAsync" />
         </CardAction>
     </CardHeader>
 
-    @if (_mode != Card.ModeMinimized && _mode != Card.ModeOverlayPage)
+    @if (EffectiveMode != Card.ModeMinimized && EffectiveMode != Card.ModeOverlayPage)
     {
         <CardContent class="space-y-2 p-3 text-sm">
             @if (ChildContent is not null)
@@ -60,16 +60,27 @@
     [Parameter] public string? Description { get; set; }
     [Parameter] public string? Status { get; set; }
     [Parameter] public string StatusVariant { get; set; } = "outline";
+    [Parameter] public string? Mode { get; set; }
+    [Parameter] public EventCallback<string> ModeChanged { get; set; }
     [Parameter] public IReadOnlyList<SessionCardAction> Actions { get; set; } = [];
     [Parameter] public EventCallback<SessionCardActionSelected> OnActionSelected { get; set; }
 
     private string _mode = Card.ModeNormal;
 
+    private string EffectiveMode => (Mode ?? _mode)?.ToLowerInvariant() switch
+    {
+        Card.ModeMinimized => Card.ModeMinimized,
+        Card.ModeMaximized => Card.ModeMaximized,
+        Card.ModeOverlayPage => Card.ModeOverlayPage,
+        Card.ModeOverlayApp => Card.ModeOverlayApp,
+        _ => Card.ModeNormal
+    };
+
     private string GetClass()
     {
-        var baseClass = _mode switch
+        var baseClass = EffectiveMode switch
         {
-            Card.ModeMaximized => "flex flex-1 w-full flex-col gap-0 overflow-hidden py-0",
+            Card.ModeMaximized => "flex min-h-full w-full flex-col gap-0 overflow-hidden py-0",
             Card.ModeOverlayPage => "w-full gap-0 overflow-hidden py-0 opacity-60",
             _ => "w-full gap-0 overflow-hidden py-0"
         };
@@ -82,13 +93,15 @@
         {
             PageOverlay.Set(BuildOverlayFragment(), Node.Label);
         }
-        else if (_mode == Card.ModeOverlayPage)
+        else if (EffectiveMode == Card.ModeOverlayPage)
         {
             PageOverlay.Clear();
         }
+
+        Mode = mode;
         _mode = mode;
+        await ModeChanged.InvokeAsync(EffectiveMode);
         StateHasChanged();
-        await Task.CompletedTask;
     }
 
     private RenderFragment BuildOverlayFragment() => __builder =>

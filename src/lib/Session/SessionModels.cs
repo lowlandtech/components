@@ -266,7 +266,9 @@ public sealed record SessionAgentTypeSelected(SessionNodeInput Node, string Agen
 
 public sealed record SessionCommandSubmitted(SessionNodeInput Node, string AgentTypeKey, string Input, string? Response = null) : SessionUiEvent(Node)
 {
+    public string Id { get; init; } = $"session-command:{Guid.NewGuid():N}";
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
+    public bool IsStreaming { get; init; }
 }
 
 public sealed record SessionCardActionSelected(SessionNodeInput Node, string ActionKey) : SessionUiEvent(Node);

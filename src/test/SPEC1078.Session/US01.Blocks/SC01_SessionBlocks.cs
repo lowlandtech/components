@@ -63,6 +63,33 @@ public class SC01_SessionBlocks : ViewScenario
         submitted.AgentTypeKey.ShouldBe("ask");
         changedState.ShouldNotBeNull();
         changedState.Input.ShouldBe("");
+        Ctx.JSInterop.Invocations.Any(invocation =>
+            invocation.Identifier == "eval"
+            && invocation.Arguments[0]?.ToString()?.Contains("setSelectionRange(0, 0)", StringComparison.Ordinal) == true)
+            .ShouldBeTrue();
+        Ctx.JSInterop.Invocations.Any(invocation =>
+            invocation.Identifier == "eval"
+            && invocation.Arguments[0]?.ToString()?.Contains("event.preventDefault()", StringComparison.Ordinal) == true
+            && invocation.Arguments[0]?.ToString()?.Contains("submit.click()", StringComparison.Ordinal) == true)
+            .ShouldBeTrue();
+    }
+
+    [Fact(DisplayName = "UAC02b: SessionCommandBar treats an empty controlled value as reset input")]
+    [Trait(Spec.UAC, "02b")]
+    public void UAC02b_CommandBarEmptyControlledValueResetsInput()
+    {
+        var state = SessionUiDefaults.Empty with
+        {
+            SelectedNode = OrdersNode,
+            Input = "stale input"
+        };
+
+        var cut = Ctx.Render<SessionCommandBar>(p => p
+            .Add(x => x.State, state)
+            .Add(x => x.Value, string.Empty));
+
+        cut.Find("[data-testid='session-command-input']").GetAttribute("value").ShouldBe("");
+        cut.Find("[data-testid='session-command-submit']").HasAttribute("disabled").ShouldBeTrue();
     }
 
     [Fact(DisplayName = "UAC03: SessionCommandBar agent type invokes configured node callback")]
@@ -357,11 +384,13 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Markup.ShouldContain("1 context block");
     }
 
-    [Fact(DisplayName = "UAC16b: SessionApp IsTest mode returns a random dummy reply and clears input")]
+    [Fact(DisplayName = "UAC16b: SessionApp IsTest mode streams a dummy reply into the submitted turn")]
     [Trait(Spec.UAC, "16b")]
-    public void UAC16b_SessionAppIsTestReturnsRandomDummyReply()
+    public void UAC16b_SessionAppIsTestStreamsDummyReply()
     {
-        var cut = Ctx.Render<SessionApp>(p => p.Add(x => x.IsTest, true));
+        var cut = Ctx.Render<SessionApp>(p => p
+            .Add(x => x.IsTest, true)
+            .Add(x => x.TestStreamDelayMilliseconds, 0));
 
         cut.Find("[data-node-id='orders-session']").Click();
 
@@ -371,6 +400,11 @@ public class SC01_SessionBlocks : ViewScenario
         var markup = cut.Markup;
         var hasDummyReply = DummyAskAgentGraphService.TestReplies.Any(reply => markup.Contains(reply));
         hasDummyReply.ShouldBeTrue("Expected one of the dummy test replies to be rendered.");
+        cut.Find("#session-turn-response").TextContent.ShouldContain("Pinned context blocks will be included in the assistant context window without creating turns.");
+        cut.Find("[data-slot='session-turn-prompt']").TextContent.ShouldContain("Hello test");
+        cut.Find("[data-slot='session-turn-response-text']").GetAttribute("data-streaming").ShouldBe("false");
+        cut.Find("[data-slot='session-command-input']").GetAttribute("value").ShouldBe("");
+        cut.FindAll("[data-slot='session-app-turn-section']").Count.ShouldBe(3);
     }
 
     [Fact(DisplayName = "UAC16c: SessionApp accumulates multiple submitted commands")]
@@ -395,7 +429,7 @@ public class SC01_SessionBlocks : ViewScenario
         markup.ShouldContain("Second question");
         markup.ShouldContain("Third question");
 
-        cut.FindAll("[data-slot='session-app-turn-section']").Count.ShouldBe(4); // 1 request + 3 responses
+        cut.FindAll("[data-slot='session-app-turn-section']").Count.ShouldBe(5); // request + default response + 3 agent responses
     }
 
     [Fact(DisplayName = "UAC16d: SessionApp interleaves blocks and commands chronologically")]
@@ -446,6 +480,85 @@ public class SC01_SessionBlocks : ViewScenario
         invoiceIndex.ShouldBeLessThan(firstQuestionIndex);
         firstQuestionIndex.ShouldBeLessThan(secondQuestionIndex);
         secondQuestionIndex.ShouldBeLessThan(northwindIndex);
+    }
+
+    [Fact(DisplayName = "UAC16e: SessionApp IsTest mode preserves session history order across turns and blocks")]
+    [Trait(Spec.UAC, "16e")]
+    public void UAC16e_SessionAppIsTestPreservesHistoryOrder()
+    {
+        var cut = Ctx.Render<SessionApp>(p => p
+            .Add(x => x.IsTest, true)
+            .Add(x => x.TestStreamDelayMilliseconds, 0));
+
+        cut.Find("[data-node-id='orders-session']").Click();
+
+        cut.Find("[data-node-id='invoice-approval']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
+        ClickOpenContextNodePin();
+
+        cut.Find("[data-testid='session-command-input']").Input("First test ask");
+        cut.Find("[data-testid='session-command-submit']").Click();
+
+        cut.Find("[data-node-id='northwind']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='northwind']").Click();
+        ClickOpenContextNodePin();
+
+        cut.Find("[data-testid='session-command-input']").Input("Second test ask");
+        cut.Find("[data-testid='session-command-submit']").Click();
+
+        var feed = cut.Find("[data-slot='session-app-feed']");
+        var feedText = feed.TextContent;
+
+        var invoiceIndex = feedText.IndexOf("Invoice approval", StringComparison.Ordinal);
+        var firstAskIndex = feedText.IndexOf("First test ask", StringComparison.Ordinal);
+        var northwindIndex = feedText.IndexOf("Northwind Traders", StringComparison.Ordinal);
+        var secondAskIndex = feedText.IndexOf("Second test ask", StringComparison.Ordinal);
+
+        invoiceIndex.ShouldBeGreaterThan(-1);
+        firstAskIndex.ShouldBeGreaterThan(-1);
+        northwindIndex.ShouldBeGreaterThan(-1);
+        secondAskIndex.ShouldBeGreaterThan(-1);
+
+        invoiceIndex.ShouldBeLessThan(firstAskIndex);
+        firstAskIndex.ShouldBeLessThan(northwindIndex);
+        northwindIndex.ShouldBeLessThan(secondAskIndex);
+        cut.FindAll("[data-slot='session-turn-prompt']").Count.ShouldBe(2);
+        cut.FindAll("[data-slot='session-turn-response-text']")
+            .ShouldAllBe(response => response.GetAttribute("data-streaming") == "false");
+    }
+
+    [Fact(DisplayName = "UAC16f: SessionApp appends repeated runs instead of overwriting the last turn")]
+    [Trait(Spec.UAC, "16f")]
+    public void UAC16f_SessionAppRepeatedRunsAppendTurns()
+    {
+        var cut = Ctx.Render<SessionApp>(p => p
+            .Add(x => x.IsTest, true)
+            .Add(x => x.TestStreamDelayMilliseconds, 0));
+
+        cut.Find("[data-node-id='orders-session']").Click();
+
+        cut.Find("[data-testid='session-command-input']").Input("Same run");
+        cut.Find("[data-testid='session-command-submit']").Click();
+
+        cut.Find("[data-testid='session-command-input']").Input("Same run");
+        cut.Find("[data-testid='session-command-submit']").Click();
+
+        cut.Find("[data-testid='session-command-input']").Input("Same run");
+        cut.Find("[data-testid='session-command-submit']").Click();
+
+        var turns = cut.FindAll("[data-slot='session-app-turn-section']");
+        turns.Count.ShouldBe(5);
+        cut.FindAll("[data-slot='session-turn-prompt']").Count.ShouldBe(3);
+        cut.FindAll("[data-slot='session-turn-response-text']").Count.ShouldBe(3);
+
+        var responseIds = turns
+            .Skip(2)
+            .Select(turn => turn.Id)
+            .ToList();
+
+        responseIds.Count.ShouldBe(3);
+        responseIds.Distinct(StringComparer.Ordinal).Count().ShouldBe(3);
+        cut.FindAll("[data-testid='session-app-section-link']").Count.ShouldBe(5);
     }
 
     [Fact(DisplayName = "UAC17: SessionApp projects one transient feed block and replaces it on context selection change")]
@@ -731,6 +844,34 @@ public class SC01_SessionBlocks : ViewScenario
         ClickOpenCardMode("Normal");
 
         cut.FindAll("[data-slot='session-app-maximized-block']").ShouldBeEmpty();
+        cut.Find("[data-slot='session-app-feed']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC29: SessionApp maximized agent card replaces the tab body content")]
+    [Trait(Spec.UAC, "29")]
+    public void UAC29_SessionAppMaximizedAgentCardOverlaysTabContent()
+    {
+        var cut = Ctx.Render<SessionApp>(p => p
+            .Add(x => x.IsTest, true)
+            .Add(x => x.TestStreamDelayMilliseconds, 0));
+
+        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-testid='session-command-input']").Input("Maximize this answer");
+        cut.Find("[data-testid='session-command-submit']").Click();
+
+        cut.Find("[data-node-id^='response:'] [data-testid='card-mode-menu-trigger']").Click();
+        ClickOpenCardMode("Maximized");
+
+        var maximized = cut.Find("[data-slot='session-app-maximized-card']");
+        maximized.GetAttribute("data-command-id").ShouldNotBeNullOrWhiteSpace();
+        maximized.TextContent.ShouldContain("Maximize this answer");
+        cut.Find("[data-slot='session-app-maximized-card'] [data-mode='maximized']").ShouldNotBeNull();
+        cut.FindAll("[data-slot='session-app-feed']").ShouldBeEmpty();
+
+        cut.Find("[data-slot='session-app-maximized-card'] [data-testid='card-mode-menu-trigger']").Click();
+        ClickOpenCardMode("Normal");
+
+        cut.FindAll("[data-slot='session-app-maximized-card']").ShouldBeEmpty();
         cut.Find("[data-slot='session-app-feed']").ShouldNotBeNull();
     }
 
