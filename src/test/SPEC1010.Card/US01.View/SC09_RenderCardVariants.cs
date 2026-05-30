@@ -138,4 +138,33 @@ public class SC09_RenderCardVariants : ViewScenario
         changedMode.ShouldBe("maximized");
         popover.State.Open.ShouldBeFalse();
     }
+
+    [Fact(DisplayName = "UAC12: CardModeMenu emits mode change when clicked through PopoverProvider")]
+    [Trait(Spec.UAC, "12")]
+    public void UAC12_CardModeMenuEmitsModeChangeThroughPopoverProvider()
+    {
+        string? changedMode = null;
+
+        var cut = Ctx.Render(builder =>
+        {
+            builder.OpenComponent<PopoverProvider>(0);
+            builder.CloseComponent();
+            builder.OpenComponent<CardModeMenu>(1);
+            builder.AddAttribute(2, nameof(CardModeMenu.Mode), CardSut.ModeNormal);
+            builder.AddAttribute(3, nameof(CardModeMenu.ModeChanged),
+                EventCallback.Factory.Create<string>(this, mode => changedMode = mode));
+            builder.CloseComponent();
+        });
+
+        cut.Find("[data-testid='card-mode-menu-trigger']").Click();
+
+        cut.WaitForAssertion(() =>
+            cut.FindAll(".node-menu-item").Count.ShouldBe(5));
+
+        cut.FindAll(".node-menu-item")
+            .Single(item => string.Equals(item.TextContent.Trim(), "Minimized", StringComparison.Ordinal))
+            .Click();
+
+        changedMode.ShouldBe("minimized");
+    }
 }

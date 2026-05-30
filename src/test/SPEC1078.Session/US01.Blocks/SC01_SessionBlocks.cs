@@ -358,11 +358,39 @@ public class SC01_SessionBlocks : ViewScenario
         var overlayApp = Ctx.Render<SessionContextBlock>(p => p
             .Add(x => x.Block, block)
             .Add(x => x.Mode, SessionContextBlock.ModeOverlayApp));
+        var containedOverlayApp = Ctx.Render<SessionContextBlock>(p => p
+            .Add(x => x.Block, block)
+            .Add(x => x.Mode, SessionContextBlock.ModeOverlayApp)
+            .Add(x => x.AppOverlayContainerClass, "absolute inset-0 z-50 flex h-full w-full flex-col"));
 
         maximized.Find("[data-mode='maximized']").ClassList.ShouldContain("flex");
         overlayPage.Find("[data-mode='overlay-page']").ClassList.ShouldContain("opacity-60");
         overlayApp.Find("[data-mode='overlay-app']").ClassList.ShouldContain("fixed");
         overlayApp.Find("[data-mode='overlay-app']").ClassList.ShouldContain("inset-0");
+        containedOverlayApp.Find("[data-mode='overlay-app']").ClassList.ShouldContain("absolute");
+        containedOverlayApp.Find("[data-mode='overlay-app']").ClassList.ShouldNotContain("fixed");
+    }
+
+    [Fact(DisplayName = "UAC15b: Session overlays can project into caller supplied containers")]
+    [Trait(Spec.UAC, "15b")]
+    public void UAC15b_SessionOverlayContainersAreConfigurable()
+    {
+        var block = new SessionContextBlockModel(
+            "context-block:invoice",
+            new("invoice", "invoice", "Invoice", "InvoiceBlock"),
+            "invoice-data");
+        var pageOverlay = Ctx.Services.GetRequiredService<IPageOverlayService>();
+        pageOverlay.Clear();
+
+        var cut = Ctx.Render<SessionContextBlock>(p => p
+            .Add(x => x.Block, block)
+            .Add(x => x.PageOverlayContainerClass, "session-page-overlay absolute inset-2 z-40 flex h-auto w-auto flex-col"));
+
+        cut.Find("[data-testid='card-mode-menu-trigger']").Click();
+        ClickOpenCardMode("Page Overlay");
+
+        pageOverlay.ContainerClass.ShouldBe("session-page-overlay absolute inset-2 z-40 flex h-auto w-auto flex-col");
+        pageOverlay.Content.ShouldNotBeNull();
     }
 
     [Fact(DisplayName = "UAC16: SessionApp composes sessions, context pins, blocks, and command submit")]
@@ -816,6 +844,8 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-panel='session-app-left-panel']").ShouldNotBeNull();
         cut.Find("[data-panel='session-app-main-panel']").ShouldNotBeNull();
         cut.Find("[data-panel='session-app-sections-panel']").ShouldNotBeNull();
+        cut.Find("[data-panel='session-app-main-panel']").ClassList.ShouldContain("h-full");
+        cut.Find("[data-panel='session-app-main-panel'] > main").ClassList.ShouldContain("h-full");
         cut.FindAll("[data-slot='resizable-handle']")
             .ShouldAllBe(handle => handle.GetAttribute("data-reveal-on-hover") == "true");
         cut.FindAll("[data-slot='resizable-handle']")
@@ -847,6 +877,51 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-slot='session-app-feed']").ShouldNotBeNull();
     }
 
+    [Fact(DisplayName = "UAC28b: SessionApp keeps a feed context block minimized after the mode change rerenders the host")]
+    [Trait(Spec.UAC, "28b")]
+    public void UAC28b_SessionAppPersistsMinimizedBlockMode()
+    {
+        var cut = Ctx.Render<SessionApp>();
+
+        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='invoice-approval']").Click();
+
+        cut.Find("[data-block-id='projected-context-block'] [data-testid='card-mode-menu-trigger']").Click();
+        ClickOpenCardMode("Minimized");
+
+        var minimized = cut.Find("[data-block-id='projected-context-block'][data-mode='minimized']");
+        minimized.ShouldNotBeNull();
+        minimized.QuerySelectorAll("[data-slot='card-content']").Count.ShouldBe(0);
+        minimized.TextContent.ShouldContain("Invoice approval");
+
+        cut.Find("[data-node-id='shipment-delay']").Click();
+
+        cut.Find("[data-block-id='projected-context-block'][data-mode='minimized']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC28c: SessionApp keeps a pinned context block minimized in the feed")]
+    [Trait(Spec.UAC, "28c")]
+    public void UAC28c_SessionAppPersistsMinimizedPinnedBlockMode()
+    {
+        var cut = Ctx.Render<SessionApp>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.IsTest, true));
+
+        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='shipment-delay']").Click();
+        ClickOpenContextNodePin();
+
+        cut.Find("[data-block-id='context-block:shipment-delay'] [data-testid='card-mode-menu-trigger']").Click();
+        ClickOpenCardMode("Minimized");
+
+        var minimized = cut.Find("[data-block-id='context-block:shipment-delay'][data-mode='minimized']");
+        minimized.QuerySelectorAll("[data-slot='card-content']").Count.ShouldBe(0);
+
+        cut.Find("[data-node-id='northwind']").Click();
+
+        cut.Find("[data-block-id='context-block:shipment-delay'][data-mode='minimized']").ShouldNotBeNull();
+    }
+
     [Fact(DisplayName = "UAC29: SessionApp maximized agent card replaces the tab body content")]
     [Trait(Spec.UAC, "29")]
     public void UAC29_SessionAppMaximizedAgentCardOverlaysTabContent()
@@ -873,6 +948,97 @@ public class SC01_SessionBlocks : ViewScenario
 
         cut.FindAll("[data-slot='session-app-maximized-card']").ShouldBeEmpty();
         cut.Find("[data-slot='session-app-feed']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC30: SessionApp HasSidebar uses the Sidebar shell")]
+    [Trait(Spec.UAC, "30")]
+    public void UAC30_SessionAppHasSidebarUsesSidebarShell()
+    {
+        var embedded = Ctx.Render<SessionApp>();
+
+        embedded.FindAll("[data-slot='sidebar-provider']").ShouldBeEmpty();
+        embedded.Find("[data-panel='session-app-left-panel']").ShouldNotBeNull();
+        embedded.FindAll("[data-slot='resizable-panel']").Count.ShouldBe(3);
+
+        var standalone = Ctx.Render<SessionApp>(p => p.Add(x => x.HasSidebar, true));
+
+        standalone.Find("[data-slot='sidebar-provider']").ShouldNotBeNull();
+        standalone.Find("[data-slot='sidebar']").ShouldNotBeNull();
+        standalone.Find("[data-slot='sidebar-inset']").ShouldNotBeNull();
+        standalone.FindAll("[data-panel='session-app-left-panel']").ShouldBeEmpty();
+        standalone.FindAll("[data-slot='resizable-panel']").Count.ShouldBe(3);
+        standalone.Find("[data-panel='session-app-sidebar-panel']").ShouldNotBeNull();
+        standalone.Find("[data-panel='session-app-main-panel']").ShouldNotBeNull();
+        standalone.Find("[data-panel='session-app-sections-panel']").ShouldNotBeNull();
+        standalone.Find("[data-panel='session-app-main-panel']").ClassList.ShouldContain("h-full");
+        standalone.Find("[data-slot='sidebar-inset'] > main").ClassList.ShouldContain("h-full");
+        standalone.FindAll("[data-slot='resizable-handle']").Count.ShouldBe(2);
+        standalone.FindAll("[data-slot='resizable-handle']")
+            .All(handle => handle.GetAttribute("data-reveal-on-hover") == "true")
+            .ShouldBeTrue();
+        standalone.Find("[data-slot='sidebar-header']").ShouldNotBeNull();
+        standalone.Find("[data-slot='sidebar-brand-logo']").GetAttribute("src").ShouldBe("_content/LowlandTech.Components/img/session-app-logo.svg");
+        standalone.Find("[data-slot='sidebar-brand-title']").TextContent.Trim().ShouldBe("SessionApp");
+        standalone.Find("[data-slot='sidebar-content']").ShouldNotBeNull();
+        standalone.Find("[data-slot='sidebar-footer']").TextContent.ShouldContain("Page 1 / 1");
+        standalone.Find("[data-slot='sidebar-footer']").TextContent.ShouldContain("Rows 10");
+        standalone.Find("[data-slot='sidebar-group-label']").TextContent.ShouldBe("Sessions");
+        standalone.FindAll("[data-slot='sidebar-menu-item']").Count.ShouldBeGreaterThanOrEqualTo(1);
+        standalone.FindAll("[data-slot='session-list'] [data-testid='session-list-item']").Count.ShouldBe(3);
+        standalone.FindAll("[data-slot='session-list'] [data-slot='sidebar-menu-badge']").Count.ShouldBe(3);
+        standalone.Find("[data-slot='session-app-left-sidebar']").ShouldNotBeNull();
+        standalone.Find("[data-testid='session-app-right-sidebar']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC31: SessionApp supplies overlay containers to rendered session cards")]
+    [Trait(Spec.UAC, "31")]
+    public void UAC31_SessionAppSuppliesOverlayContainers()
+    {
+        var cut = Ctx.Render<SessionApp>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.IsTest, true)
+            .Add(x => x.TestStreamDelayMilliseconds, 0)
+            .Add(x => x.AppOverlayContainerClass, "session-app-overlay absolute inset-0 z-50 flex h-full w-full flex-col"));
+
+        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-testid='session-command-input']").Input("Use the session overlay");
+        cut.Find("[data-testid='session-command-submit']").Click();
+
+        cut.Find("[data-node-id^='response:'] [data-testid='card-mode-menu-trigger']").Click();
+        ClickOpenCardMode("App Overlay");
+
+        var overlayCard = cut.Find("[data-node-id^='response:'][data-mode='overlay-app']");
+        overlayCard.ClassList.ShouldContain("session-app-overlay");
+        overlayCard.ClassList.ShouldContain("absolute");
+        overlayCard.ClassList.ShouldNotContain("fixed");
+    }
+
+    [Fact(DisplayName = "UAC32: SessionApp page overlay is confined to the main page content panel")]
+    [Trait(Spec.UAC, "32")]
+    public void UAC32_SessionAppPageOverlayUsesMainContentPanel()
+    {
+        var pageOverlay = Ctx.Services.GetRequiredService<IPageOverlayService>();
+        pageOverlay.Clear();
+
+        var cut = Ctx.Render<SessionApp>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.IsTest, true)
+            .Add(x => x.TestStreamDelayMilliseconds, 0)
+            .Add(x => x.PageOverlayContainerClass, "session-page-overlay absolute inset-0 z-40 flex h-full w-full flex-col"));
+
+        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-testid='session-command-input']").Input("Use the page overlay");
+        cut.Find("[data-testid='session-command-submit']").Click();
+
+        cut.Find("[data-node-id^='response:'] [data-testid='card-mode-menu-trigger']").Click();
+        ClickOpenCardMode("Page Overlay");
+
+        var main = cut.Find("[data-panel='session-app-main-panel']");
+        var overlay = main.QuerySelector("[data-slot='session-app-page-overlay']");
+
+        overlay.ShouldNotBeNull();
+        overlay!.ClassList.ShouldContain("session-page-overlay");
+        pageOverlay.Content.ShouldBeNull();
     }
 
     public sealed class TestSessionContextBlock : ComponentBase, ISessionContextBlock

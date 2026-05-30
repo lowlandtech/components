@@ -72,6 +72,9 @@
     [Parameter] public bool IsPinned { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnUnpin { get; set; }
     [Parameter] public EventCallback<string> ModeChanged { get; set; }
+    [Parameter] public string? PageOverlayContainerClass { get; set; }
+    [Parameter] public string? AppOverlayContainerClass { get; set; }
+    [Parameter] public bool HostHandlesPageOverlay { get; set; }
 
     private string NormalizedMode => Mode?.ToLowerInvariant() switch
     {
@@ -90,6 +93,7 @@
         {
             ModeMaximized => "flex min-h-full w-full flex-col overflow-hidden bg-background gap-0 py-0",
             ModeOverlayPage => "w-full overflow-hidden bg-background gap-0 py-0 opacity-60",
+            ModeOverlayApp when !string.IsNullOrWhiteSpace(AppOverlayContainerClass) => AppOverlayContainerClass,
             ModeOverlayApp => "fixed inset-0 z-50 flex h-dvh w-dvw flex-col overflow-hidden rounded-none bg-background gap-0 py-0",
             _ => "w-full overflow-hidden bg-background gap-0 py-0"
         };
@@ -103,6 +107,7 @@
         {
             ModeMaximized => "min-h-0 flex-1 overflow-auto p-3 text-sm",
             ModeOverlayPage => "min-h-0 flex-1 overflow-auto p-3 text-sm",
+            ModeOverlayApp when !string.IsNullOrWhiteSpace(AppOverlayContainerClass) => "min-h-0 flex-1 overflow-auto p-3 text-sm",
             ModeOverlayApp => "h-[calc(100dvh-3rem)] overflow-auto p-3 text-sm",
             _ => "p-3 text-sm"
         };
@@ -130,7 +135,10 @@
     {
         if (mode == ModeOverlayPage)
         {
-            PageOverlay.Set(BuildOverlayFragment(), Block.Context.Label);
+            if (!HostHandlesPageOverlay)
+            {
+                PageOverlay.Set(BuildOverlayFragment(), Block.Context.Label, PageOverlayContainerClass);
+            }
         }
         else if (NormalizedMode == ModeOverlayPage)
         {

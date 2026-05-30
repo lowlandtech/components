@@ -4,7 +4,7 @@
 
 @if (Service.Content is not null)
 {
-    <div class="page-overlay-container absolute inset-0 z-40 flex h-full w-full flex-col bg-background">
+    <div class="@GetContainerClass()">
         @Service.Content
     </div>
 }
@@ -16,6 +16,11 @@
     }
 
     private void OnServiceChanged() => InvokeAsync(StateHasChanged);
+
+    private string GetContainerClass() =>
+        string.IsNullOrWhiteSpace(Service.ContainerClass)
+            ? "page-overlay-container absolute inset-0 z-40 flex h-full w-full flex-col bg-background"
+            : Service.ContainerClass;
 
     public void Dispose()
     {

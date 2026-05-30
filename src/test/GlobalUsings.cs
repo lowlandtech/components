@@ -4,6 +4,7 @@ global using System.ComponentModel;
 global using System.Reflection;
 global using Bunit;
 global using LowlandTech.Components;
+global using LowlandTech.Components.Card;
 global using LowlandTech.Components.Feed;
 global using LowlandTech.Components.Popover;
 global using LowlandTech.Components.Resizable;

@@ -6,7 +6,8 @@
 
 <Card data-slot="session-card"
       data-node-id="@Node.Id"
-      Mode="@EffectiveMode"
+      data-mode="@EffectiveMode"
+      Mode="@CardMode"
       class="@GetClass()"
       @attributes="AdditionalAttributes">
     <CardHeader class="border-b border-border bg-muted/30 px-3 py-2">
@@ -64,8 +65,16 @@
     [Parameter] public EventCallback<string> ModeChanged { get; set; }
     [Parameter] public IReadOnlyList<SessionCardAction> Actions { get; set; } = [];
     [Parameter] public EventCallback<SessionCardActionSelected> OnActionSelected { get; set; }
+    [Parameter] public string? PageOverlayContainerClass { get; set; }
+    [Parameter] public string? AppOverlayContainerClass { get; set; }
+    [Parameter] public bool HostHandlesPageOverlay { get; set; }
 
     private string _mode = Card.ModeNormal;
+
+    private string CardMode =>
+        EffectiveMode == Card.ModeOverlayApp && !string.IsNullOrWhiteSpace(AppOverlayContainerClass)
+            ? Card.ModeNormal
+            : EffectiveMode;
 
     private string EffectiveMode => (Mode ?? _mode)?.ToLowerInvariant() switch
     {
@@ -82,6 +91,7 @@
         {
             Card.ModeMaximized => "flex min-h-full w-full flex-col gap-0 overflow-hidden py-0",
             Card.ModeOverlayPage => "w-full gap-0 overflow-hidden py-0 opacity-60",
+            Card.ModeOverlayApp when !string.IsNullOrWhiteSpace(AppOverlayContainerClass) => AppOverlayContainerClass,
             _ => "w-full gap-0 overflow-hidden py-0"
         };
         return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
@@ -91,7 +101,10 @@
     {
         if (mode == Card.ModeOverlayPage)
         {
-            PageOverlay.Set(BuildOverlayFragment(), Node.Label);
+            if (!HostHandlesPageOverlay)
+            {
+                PageOverlay.Set(BuildOverlayFragment(), Node.Label, PageOverlayContainerClass);
+            }
         }
         else if (EffectiveMode == Card.ModeOverlayPage)
         {
