@@ -128,4 +128,25 @@ public class SC02_RenderResizableSubcomponents : ViewScenario
         cut.FindAll("[data-slot='resizable-panel']").Count.ShouldBe(2);
         cut.Find("[data-slot='resizable-handle']").ShouldNotBeNull();
     }
+
+    [Fact(DisplayName = "UAC13: ResizableHandle can reveal splitter and grip on hover")]
+    [Trait(Spec.UAC, "13")]
+    public void UAC13_HandleCanRevealOnHover()
+    {
+        var cut = Ctx.Render<ResizableHandle>(p =>
+        {
+            p.Add(x => x.WithHandle, true);
+            p.Add(x => x.RevealOnHover, true);
+        });
+
+        var handle = cut.Find("[data-slot='resizable-handle']");
+        handle.GetAttribute("data-reveal-on-hover").ShouldBe("true");
+        handle.GetAttribute("data-dragging").ShouldBe("false");
+        handle.ClassList.ShouldContain("bg-transparent");
+        handle.ClassList.ShouldContain("hover:bg-border");
+
+        var grip = cut.Find(".resizable-handle-indicator > div");
+        grip.ClassList.ShouldContain("opacity-0");
+        grip.ClassList.ShouldContain("group-hover/resize-handle:opacity-100");
+    }
 }

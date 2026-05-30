@@ -6,6 +6,8 @@
 <div data-slot="resizable-handle"
       data-orientation="@GetOrientation()"
       data-group="@Group"
+      data-reveal-on-hover="@RevealOnHover.ToString().ToLowerInvariant()"
+      data-dragging="@_isDragging.ToString().ToLowerInvariant()"
       class="@GetClass()"
       role="separator"
       tabindex="0"
@@ -41,6 +43,7 @@
     [CascadingParameter] private Resizable? Parent { get; set; }
 
     [Parameter] public bool WithHandle { get; set; }
+    [Parameter] public bool RevealOnHover { get; set; }
     [Parameter] public string? Group { get; set; }
     [Parameter] public int HandleIndex { get; set; } = -1;
     [Parameter] public ResizablePanel? BeforePanel { get; set; }
@@ -265,13 +268,12 @@
     {
         var isHorizontal = GetOrientation() == "horizontal";
         var baseClass = isHorizontal
-            ? "cn-resizable-handle relative flex w-[4px] shrink-0 cursor-col-resize touch-none select-none items-center justify-center bg-border after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1"
-            : "cn-resizable-handle relative flex h-[4px] shrink-0 cursor-row-resize touch-none select-none items-center justify-center bg-border after:absolute after:inset-x-0 after:top-1/2 after:h-1 after:-translate-y-1/2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1";
+            ? "cn-resizable-handle group/resize-handle relative flex w-[4px] shrink-0 cursor-col-resize touch-none select-none items-center justify-center after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1"
+            : "cn-resizable-handle group/resize-handle relative flex h-[4px] shrink-0 cursor-row-resize touch-none select-none items-center justify-center after:absolute after:inset-x-0 after:top-1/2 after:h-1 after:-translate-y-1/2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1";
 
-        if (_isDragging)
-        {
-            baseClass += " data-[dragging]";
-        }
+        baseClass += RevealOnHover
+            ? " bg-transparent transition-colors hover:bg-border focus-visible:bg-border data-[dragging=true]:bg-border"
+            : " bg-border";
 
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
@@ -279,18 +281,23 @@
     private string GetHandleClass()
     {
         var isHorizontal = GetOrientation() == "horizontal";
-        return isHorizontal
+        var baseClass = isHorizontal
             ? "flex items-center justify-center w-4 h-8 rounded-full bg-muted border border-border"
             : "flex items-center justify-center w-8 h-4 rounded-full bg-muted border border-border";
+        return RevealOnHover ? $"{baseClass} {GetRevealClass()}" : baseClass;
     }
 
     private string GetLineClass()
     {
         var isHorizontal = GetOrientation() == "horizontal";
-        return isHorizontal
+        var baseClass = isHorizontal
             ? "w-px h-8 bg-border"
             : "h-px w-8 bg-border";
+        return RevealOnHover ? $"{baseClass} {GetRevealClass()}" : baseClass;
     }
+
+    private static string GetRevealClass() =>
+        "opacity-0 transition-opacity group-hover/resize-handle:opacity-100 group-focus-visible/resize-handle:opacity-100 group-data-[dragging=true]/resize-handle:opacity-100";
 
     private class ContainerRect
     {

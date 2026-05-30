@@ -40,6 +40,8 @@ public sealed class SessionContext
             })
         });
 
+    public string? Response { get; set; }
+
     public List<Dictionary<string, string>> ToAgentContext()
         => _entries.Values
             .Select(entry => new Dictionary<string, string>

@@ -1,0 +1,137 @@
+@namespace LowlandTech.Components.Card
+@using LowlandTech.Components.Button
+@using LowlandTech.Components.Icon
+@using LowlandTech.Components.Popover
+@inherits TinyComponentBase
+@inject IPopoverService PopoverService
+@implements IDisposable
+
+<span id="popover-anchor-@_popoverId"
+      data-slot="card-mode-menu-anchor"
+      class="inline-flex">
+    <button type="button"
+            data-slot="card-mode-menu-trigger"
+            data-testid="card-mode-menu-trigger"
+            class="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
+            title="View options"
+            @onclick="ToggleMenuAsync">
+        <Icon Paths="@Icons.EllipsisVertical" Size="12" />
+    </button>
+</span>
+
+@code {
+    private readonly Guid _popoverId = Guid.NewGuid();
+    private bool _isOpen;
+
+    [Parameter] public string Mode { get; set; } = Card.ModeNormal;
+    [Parameter] public EventCallback<string> ModeChanged { get; set; }
+
+    private string NormalizedMode => Mode?.ToLowerInvariant() switch
+    {
+        Card.ModeMinimized => Card.ModeMinimized,
+        Card.ModeMaximized => Card.ModeMaximized,
+        Card.ModeOverlayPage => Card.ModeOverlayPage,
+        Card.ModeOverlayApp => Card.ModeOverlayApp,
+        _ => Card.ModeNormal
+    };
+
+    protected override void OnInitialized()
+    {
+        PopoverService.Register(_popoverId);
+    }
+
+    private void ToggleMenuAsync(MouseEventArgs _)
+    {
+        _isOpen = !_isOpen;
+        if (_isOpen)
+        {
+            PopoverService.Update(_popoverId, new PopoverState
+            {
+                Open = true,
+                Placement = PopoverPlacement.BottomStart,
+                CssClass = "min-w-[10rem]",
+                Fragment = BuildMenuContent()
+            });
+        }
+        else
+        {
+            PopoverService.Update(_popoverId, new PopoverState { Open = false });
+        }
+    }
+
+    private void CloseMenu()
+    {
+        _isOpen = false;
+        PopoverService.Update(_popoverId, new PopoverState { Open = false });
+    }
+
+    private async Task SelectModeAsync(string mode)
+    {
+        CloseMenu();
+        await ModeChanged.InvokeAsync(mode);
+    }
+
+    private RenderFragment BuildMenuContent() => __builder =>
+    {
+        <div class="node-menu-backdrop" @onclick="CloseMenu" @onclick:stopPropagation></div>
+        <div class="node-menu relative z-10" @onclick:stopPropagation>
+            <div class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">View</div>
+            <div class="my-1 h-px bg-border"></div>
+            <button class="node-menu-item @(NormalizedMode == Card.ModeNormal ? "bg-muted" : "")"
+                    @onclick="() => SelectModeAsync(Card.ModeNormal)">
+                <span class="mr-2 inline-flex w-4 items-center justify-center">
+                    @if (NormalizedMode == Card.ModeNormal)
+                    {
+                        <span>●</span>
+                    }
+                </span>
+                Normal
+            </button>
+            <button class="node-menu-item @(NormalizedMode == Card.ModeMinimized ? "bg-muted" : "")"
+                    @onclick="() => SelectModeAsync(Card.ModeMinimized)">
+                <span class="mr-2 inline-flex w-4 items-center justify-center">
+                    @if (NormalizedMode == Card.ModeMinimized)
+                    {
+                        <span>●</span>
+                    }
+                </span>
+                Minimized
+            </button>
+            <button class="node-menu-item @(NormalizedMode == Card.ModeMaximized ? "bg-muted" : "")"
+                    @onclick="() => SelectModeAsync(Card.ModeMaximized)">
+                <span class="mr-2 inline-flex w-4 items-center justify-center">
+                    @if (NormalizedMode == Card.ModeMaximized)
+                    {
+                        <span>●</span>
+                    }
+                </span>
+                Maximized
+            </button>
+            <button class="node-menu-item @(NormalizedMode == Card.ModeOverlayPage ? "bg-muted" : "")"
+                    @onclick="() => SelectModeAsync(Card.ModeOverlayPage)">
+                <span class="mr-2 inline-flex w-4 items-center justify-center">
+                    @if (NormalizedMode == Card.ModeOverlayPage)
+                    {
+                        <span>●</span>
+                    }
+                </span>
+                Page Overlay
+            </button>
+            <button class="node-menu-item @(NormalizedMode == Card.ModeOverlayApp ? "bg-muted" : "")"
+                    @onclick="() => SelectModeAsync(Card.ModeOverlayApp)">
+                <span class="mr-2 inline-flex w-4 items-center justify-center">
+                    @if (NormalizedMode == Card.ModeOverlayApp)
+                    {
+                        <span>●</span>
+                    }
+                </span>
+                App Overlay
+            </button>
+        </div>
+    };
+
+    public void Dispose()
+    {
+        PopoverService.Unregister(_popoverId);
+    }
+}

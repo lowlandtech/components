@@ -1,0 +1,24 @@
+@namespace LowlandTech.Components.Card
+@inject IPageOverlayService Service
+@implements IDisposable
+
+@if (Service.Content is not null)
+{
+    <div class="page-overlay-container absolute inset-0 z-40 flex h-full w-full flex-col bg-background">
+        @Service.Content
+    </div>
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        Service.OnChanged += OnServiceChanged;
+    }
+
+    private void OnServiceChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        Service.OnChanged -= OnServiceChanged;
+    }
+}

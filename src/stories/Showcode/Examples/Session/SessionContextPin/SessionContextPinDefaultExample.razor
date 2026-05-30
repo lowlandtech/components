@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Session
+
+<SessionContextPin Pin="_pin" />
+
+@code {
+    private static readonly SessionNodeInput _node = new("invoice-approval", "invoice", "Invoice approval", "InvoiceBlock");
+
+    private readonly SessionContextPinModel _pin = new(
+        "pin:invoice-approval",
+        _node,
+        new("pin:invoice-approval", "session.pin", "Invoice approval", "SessionContextPin"));
+}

@@ -13,4 +13,11 @@ public partial class Badge
     [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Select,
         Options = new[] { "default", "secondary", "destructive", "outline" })]
     public string Variant { get; set; } = "default";
+
+    /// <summary>
+    /// The size of the badge.
+    /// </summary>
+    [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Select,
+        Options = new[] { "default", "sm" })]
+    public string Size { get; set; } = "default";
 }

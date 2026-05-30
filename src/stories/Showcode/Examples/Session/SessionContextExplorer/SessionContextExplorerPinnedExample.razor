@@ -1,0 +1,19 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Session
+
+<SessionContextExplorer RootNodes="_nodes"
+                        State="_state" />
+
+@code {
+    private static readonly SessionNodeInput _orders = new("orders", "workitem", "Orders", "OrdersBlock");
+    private static readonly SessionNodeInput _invoice = new("invoice-approval", "invoice", "Invoice approval", "InvoiceBlock");
+
+    private readonly IReadOnlyList<SessionContextNode> _nodes =
+    [
+        new(_orders, [new(_invoice)])
+    ];
+
+    private readonly SessionUiState _state =
+        SessionUiReducer.Reduce(
+            SessionUiReducer.Reduce(SessionUiDefaults.Empty, new ProjectSessionContext(_invoice)),
+            new PinSessionContext(new SessionContextProjectionModel(_invoice)));
+}

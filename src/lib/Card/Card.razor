@@ -6,12 +6,28 @@
      data-variant="@Variant"
      data-elevation="@Elevation"
      data-square="@(Square ? "true" : null)"
+     data-mode="@NormalizedMode"
      class="@GetClass()"
      @attributes="AdditionalAttributes">
     @ChildContent
 </div>
 
 @code {
+    public const string ModeNormal = "normal";
+    public const string ModeMinimized = "minimized";
+    public const string ModeMaximized = "maximized";
+    public const string ModeOverlayPage = "overlay-page";
+    public const string ModeOverlayApp = "overlay-app";
+
+    private string NormalizedMode => Mode?.ToLowerInvariant() switch
+    {
+        ModeMinimized => ModeMinimized,
+        ModeMaximized => ModeMaximized,
+        ModeOverlayPage => ModeOverlayPage,
+        ModeOverlayApp => ModeOverlayApp,
+        _ => ModeNormal
+    };
+
     private string GetClass()
     {
         var baseClass = "cn-card card group/card";
@@ -20,6 +36,15 @@
         {
             baseClass += " " + GetShadowClass(Elevation);
         }
+
+        baseClass += NormalizedMode switch
+        {
+            ModeMinimized => " overflow-hidden",
+            ModeMaximized => " flex min-h-full w-full flex-col overflow-hidden",
+            ModeOverlayPage => " flex min-h-full w-full flex-col overflow-hidden",
+            ModeOverlayApp => " fixed inset-0 z-50 flex h-dvh w-dvw flex-col overflow-hidden rounded-none",
+            _ => ""
+        };
 
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }

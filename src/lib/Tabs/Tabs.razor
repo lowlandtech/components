@@ -29,7 +29,7 @@
 
             @foreach (var item in OrderedItems)
             {
-                <TabsContent Value="@item.Value">
+                <TabsContent Value="@item.Value" Class="@ContentClass">
                     @if (ItemContent is not null)
                     {
                         @ItemContent(item)
@@ -59,6 +59,7 @@
     [Parameter] public EventCallback<TabsItem> TabPinnedChanged { get; set; }
     [Parameter] public EventCallback<TabsRenameEventArgs> TabRenamed { get; set; }
     [Parameter] public EventCallback<TabsReorderEventArgs> TabReordered { get; set; }
+    [Parameter] public string? ContentClass { get; set; }
     
     internal string? ActiveTab { get; set; }
     internal int FocusedTabIndex { get; set; } = -1;

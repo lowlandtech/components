@@ -1,0 +1,44 @@
+@namespace LowlandTech.Components.Session
+@using LowlandTech.Components.Button
+@using LowlandTech.Components.Icon
+@inherits TinyComponentBase
+
+@if (Projection is not null)
+{
+    <div data-slot="session-context-projection" class="@GetClass()" @attributes="AdditionalAttributes">
+        <div class="min-w-0">
+            <p class="text-[10px] font-semibold uppercase text-muted-foreground">Projection</p>
+            <p class="truncate text-sm font-medium">@Projection.Node.Label</p>
+            <p class="truncate text-xs text-muted-foreground">@Projection.Node.NodeTypeKey</p>
+        </div>
+
+        <Button Variant="outline"
+                Size="sm"
+                data-slot="session-context-projection-pin"
+                data-testid="session-context-projection-pin"
+                class="shrink-0 border-primary/60 text-primary hover:bg-primary/10"
+                title="@PinTitle"
+                OnClick="@PinAsync">
+            <Icon Name="pin" Size="13" />
+            Pin
+        </Button>
+    </div>
+}
+
+@code {
+    [Parameter] public SessionContextProjectionModel? Projection { get; set; }
+    [Parameter] public string PinTitle { get; set; } = "Pin context";
+    [Parameter] public EventCallback<SessionContextProjectionModel> OnPin { get; set; }
+
+    private string GetClass()
+    {
+        var baseClass = "flex w-full items-center justify-between gap-3 border-b border-border bg-primary/5 px-3 py-2";
+        return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private async Task PinAsync(MouseEventArgs _)
+    {
+        if (Projection is not null)
+            await OnPin.InvokeAsync(Projection);
+    }
+}

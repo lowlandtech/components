@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </HeadContent>
 
+<PopoverProvider />
 <SidebarProvider class="group/sidebar-wrapper flex h-svh min-h-0 w-full overflow-hidden">
     <ShowcodeNav />
     <SidebarInset class="min-h-0">
@@ -42,9 +43,10 @@
             }
             <ThemeToggle />
         </header>
-        <main class="min-h-0 flex-1 overflow-y-auto bg-background">
-            <div class="min-h-full">
+        <main class="relative min-h-0 flex-1 overflow-y-auto bg-background">
+            <div class="relative min-h-full">
                 @Body
+                <PageOverlayProvider />
             </div>
         </main>
     </SidebarInset>

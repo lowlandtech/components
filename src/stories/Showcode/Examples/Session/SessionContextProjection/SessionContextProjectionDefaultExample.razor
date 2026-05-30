@@ -1,0 +1,8 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Session
+
+<SessionContextProjection Projection="_projection" />
+
+@code {
+    private readonly SessionContextProjectionModel _projection =
+        new(new("invoice-approval", "invoice", "Invoice approval", "InvoiceBlock"));
+}

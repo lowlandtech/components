@@ -2,11 +2,10 @@
 @inherits StoryComponent
 
 <StoryCard Title="Popover"
-           Description="States can switch the rendered example, while each state keeps its own Razor and service-oriented code."
+           Description="States can switch the rendered example, while each state keeps its own Razor and provider code."
            States="@States" />
 
 @code {
-    private const string ServiceSource = "Showcode/Examples/Overlay/Popover/PopoverServiceExample.cs";
     private const string ProviderSource = "Showcode/Examples/Overlay/Popover/PopoverProviderExample.razor";
 
     private IReadOnlyList<StoryCard.State> States => [
@@ -18,8 +17,7 @@
                 StorySourceRegistry.CodeTab(
                     "basic-razor",
                     "PopoverBasicExample.razor",
-                    "Showcode/Examples/Overlay/Popover/PopoverBasicExample.razor"),
-                StorySourceRegistry.CodeTab("basic-service", "PopoverService.cs", ServiceSource, "csharp")
+                    "Showcode/Examples/Overlay/Popover/PopoverBasicExample.razor")
             ]),
         new(
             "outlined",
@@ -29,8 +27,7 @@
                 StorySourceRegistry.CodeTab(
                     "outlined-razor",
                     "PopoverOutlinedExample.razor",
-                    "Showcode/Examples/Overlay/Popover/PopoverOutlinedExample.razor"),
-                StorySourceRegistry.CodeTab("outlined-service", "PopoverService.cs", ServiceSource, "csharp")
+                    "Showcode/Examples/Overlay/Popover/PopoverOutlinedExample.razor")
             ]),
         new(
             "form",

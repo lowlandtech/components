@@ -1,0 +1,31 @@
+@attribute [DisplayName("Session/SessionApp")]
+@inherits StoryComponent
+
+<StoryCard Title="SessionApp"
+           Description="Working composed session surface with sessions, context projection, pins, context blocks, turns, and command submit."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "default",
+            "Default",
+            @<SessionAppDefaultExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "default-razor",
+                    "SessionAppDefaultExample.razor",
+                    "Showcode/Examples/Session/SessionApp/SessionAppDefaultExample.razor")
+            ]),
+        new(
+            "test-mode",
+            "Test Mode",
+            @<SessionAppTestModeExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "test-mode-razor",
+                    "SessionAppTestModeExample.razor",
+                    "Showcode/Examples/Session/SessionApp/SessionAppTestModeExample.razor")
+            ])
+    ];
+}

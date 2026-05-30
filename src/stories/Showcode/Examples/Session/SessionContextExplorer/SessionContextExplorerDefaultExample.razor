@@ -1,0 +1,21 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Session
+
+<SessionContextExplorer RootNodes="_nodes" />
+
+@code {
+    private readonly IReadOnlyList<SessionContextNode> _nodes =
+    [
+        new(
+            new("orders", "workitem", "Orders", "OrdersBlock"),
+            [
+                new(new("invoice-approval", "invoice", "Invoice approval", "InvoiceBlock")),
+                new(new("shipment-delay", "shipment", "Shipment delay", "ShipmentBlock"))
+            ]),
+        new(
+            new("customers", "table", "Customers", "DataGridBlock"),
+            [
+                new(new("northwind", "customer", "Northwind Traders", "CustomerBlock")),
+                new(new("contoso", "customer", "Contoso", "CustomerBlock"))
+            ])
+    ];
+}

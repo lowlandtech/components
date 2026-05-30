@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Session
+
+<SessionContextBlock Block="_block" Mode="@SessionContextBlock.ModeMinimized">
+    <p>This content is hidden while the block is minimized.</p>
+</SessionContextBlock>
+
+@code {
+    private readonly SessionContextBlockModel _block = new(
+        "context-block:invoice-approval",
+        new("invoice-approval", "invoice", "Invoice approval", "InvoiceBlock"),
+        "Amount: EUR 4,200; Status: pending finance approval");
+}
