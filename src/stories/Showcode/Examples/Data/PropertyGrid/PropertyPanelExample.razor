@@ -1,0 +1,167 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Data
+
+<Card class="w-full max-w-sm">
+    <CardHeader>
+        <CardTitle>Property Panel</CardTitle>
+        <CardDescription>Canvas-style sections with gear menus.</CardDescription>
+    </CardHeader>
+    <CardContent class="p-0">
+        <PropertyPanel ShowToolbar="@_showToolbar"
+                       HiddenPanels="@_hiddenList"
+                       OnRestorePanel="RestorePanel"
+                       OnResetPanels="ResetPanels">
+            <PropertyPanelSection Key="item"
+                                  Title="Item"
+                                  IsExpanded="@_itemExpanded"
+                                  IsHidden="@_itemHidden"
+                                  Order="0"
+                                  IsDefaultOpen="true"
+                                  OnToggleExpand="ToggleItem"
+                                  OnMoveUp="MoveItemUp"
+                                  OnMoveDown="MoveItemDown"
+                                  OnToggleHidden="ToggleItemHidden"
+                                  OnToggleDefaultOpen="ToggleItemDefaultOpen">
+                <ChildContent>
+                    <PropertyGrid TField="PropertyField"
+                                  Items="_itemFields"
+                                  LabelSelector="f => f.Label">
+                        <EditorTemplate Context="field">
+                            @if (field.Label == "IsGrid")
+                            {
+                                <Switch Size="sm" IsChecked="@(field.Value == "true")" />
+                            }
+                            else
+                            {
+                                <Input Value="@field.Value" class="text-sm" />
+                            }
+                        </EditorTemplate>
+                    </PropertyGrid>
+                </ChildContent>
+            </PropertyPanelSection>
+
+            <PropertyPanelSection Key="layout"
+                                  Title="Layout"
+                                  IsExpanded="@_layoutExpanded"
+                                  IsHidden="@_layoutHidden"
+                                  Order="1"
+                                  IsDefaultOpen="true"
+                                  OnToggleExpand="ToggleLayout"
+                                  OnMoveUp="MoveLayoutUp"
+                                  OnMoveDown="MoveLayoutDown"
+                                  OnToggleHidden="ToggleLayoutHidden"
+                                  OnToggleDefaultOpen="ToggleLayoutDefaultOpen">
+                <ChildContent>
+                    <PropertyGrid TField="PropertyField"
+                                  Items="_layoutFields"
+                                  LabelSelector="f => f.Label">
+                        <EditorTemplate Context="field">
+                            <Input type="number" Value="@field.Value" class="text-sm" />
+                        </EditorTemplate>
+                    </PropertyGrid>
+                </ChildContent>
+            </PropertyPanelSection>
+
+            <PropertyPanelSection Key="placement"
+                                  Title="Placement"
+                                  IsExpanded="@_placementExpanded"
+                                  IsHidden="@_placementHidden"
+                                  Order="2"
+                                  IsDefaultOpen="true"
+                                  OnToggleExpand="TogglePlacement"
+                                  OnMoveUp="MovePlacementUp"
+                                  OnMoveDown="MovePlacementDown"
+                                  OnToggleHidden="TogglePlacementHidden"
+                                  OnToggleDefaultOpen="TogglePlacementDefaultOpen">
+                <HeaderExtras>
+                    <span class="lt-placement-breakpoint-badge"
+                          data-testid="canvas-placement-breakpoint-badge"
+                          data-breakpoint="md"
+                          title="Edits at this viewport become per-breakpoint overrides">
+                        md
+                    </span>
+                </HeaderExtras>
+                <ChildContent>
+                    <PropertyGrid TField="PropertyField"
+                                  Items="_placementFields"
+                                  LabelSelector="f => f.Label">
+                        <EditorTemplate Context="field">
+                            <Input type="number" Value="@field.Value" class="text-sm" />
+                        </EditorTemplate>
+                    </PropertyGrid>
+                </ChildContent>
+            </PropertyPanelSection>
+        </PropertyPanel>
+    </CardContent>
+</Card>
+
+@code {
+    private bool _itemExpanded = true;
+    private bool _layoutExpanded = true;
+    private bool _placementExpanded = true;
+    private bool _itemHidden;
+    private bool _layoutHidden;
+    private bool _placementHidden;
+    private bool _showToolbar;
+
+    private IReadOnlyList<string> _hiddenList =>
+        new[] { _itemHidden ? "item" : null, _layoutHidden ? "layout" : null, _placementHidden ? "placement" : null }
+        .Where(x => x != null)
+        .ToList()!;
+
+    private readonly IReadOnlyList<PropertyField> _itemFields =
+    [
+        new("Name", "GraphCanvas"),
+        new("Element", "GraphCanvas"),
+        new("IsGrid", "true")
+    ];
+
+    private readonly IReadOnlyList<PropertyField> _layoutFields =
+    [
+        new("Columns", "12"),
+        new("Rows", "8")
+    ];
+
+    private readonly IReadOnlyList<PropertyField> _placementFields =
+    [
+        new("Column start", "1"),
+        new("Column end", "3"),
+        new("Row start", "1"),
+        new("Row end", "3")
+    ];
+
+    private void ToggleItem() => _itemExpanded = !_itemExpanded;
+    private void MoveItemUp() { }
+    private void MoveItemDown() { }
+    private void ToggleItemHidden() { _itemHidden = !_itemHidden; UpdateToolbar(); }
+    private void ToggleItemDefaultOpen() { }
+
+    private void ToggleLayout() => _layoutExpanded = !_layoutExpanded;
+    private void MoveLayoutUp() { }
+    private void MoveLayoutDown() { }
+    private void ToggleLayoutHidden() { _layoutHidden = !_layoutHidden; UpdateToolbar(); }
+    private void ToggleLayoutDefaultOpen() { }
+
+    private void TogglePlacement() => _placementExpanded = !_placementExpanded;
+    private void MovePlacementUp() { }
+    private void MovePlacementDown() { }
+    private void TogglePlacementHidden() { _placementHidden = !_placementHidden; UpdateToolbar(); }
+    private void TogglePlacementDefaultOpen() { }
+
+    private void UpdateToolbar() => _showToolbar = _itemHidden || _layoutHidden || _placementHidden;
+
+    private void RestorePanel(string key)
+    {
+        if (key == "item") _itemHidden = false;
+        if (key == "layout") _layoutHidden = false;
+        if (key == "placement") _placementHidden = false;
+        UpdateToolbar();
+    }
+
+    private void ResetPanels()
+    {
+        _itemHidden = false;
+        _layoutHidden = false;
+        _placementHidden = false;
+        _showToolbar = false;
+    }
+}

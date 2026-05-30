@@ -4,6 +4,9 @@
    by side, but the component itself is generic over TField so any consumer
    with a row-shaped collection can drive it.
 
+   Also includes PropertyPanel and PropertyPanelSection styles for the
+   collapsible section wrapper, gear menus, toolbar, and shared row layout.
+
    Loaded by hosts via:
      <link rel="stylesheet"
            href="_content/LowlandTech.Components/css/property-grid.css" />
@@ -105,4 +108,277 @@
 .lt-property-grid-editor textarea {
     width: 100%;
     box-sizing: border-box;
+}
+
+/* ── PropertyPanelSection (collapsible section wrapper) ────────────────── */
+
+.lt-style-section {
+    position: relative;
+    border-bottom: 1px solid color-mix(in srgb, var(--border, #2f2a4f) 50%, transparent);
+}
+
+.lt-style-section:last-child {
+    border-bottom: none;
+}
+
+.lt-style-section[data-panel-hidden="true"] {
+    display: none;
+}
+
+/* Section header is a Button — override its default `btn btn-default` styling
+   so it reads like a section bar (full-width, flat, between-flex). */
+.lt-style-section-header.btn {
+    width: 100%;
+    justify-content: space-between;
+    padding: 8px 12px;
+    height: auto;
+    border: none;
+    border-radius: 0;
+    background: color-mix(in srgb, var(--muted, #1a1730) 60%, transparent);
+    color: var(--muted-foreground, #a0a3b8);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.lt-style-section-header.btn:hover {
+    background: color-mix(in srgb, var(--muted, #1a1730) 80%, transparent);
+}
+
+.lt-style-section-title {
+    flex: 1;
+    text-align: left;
+}
+
+.lt-style-section-chevron {
+    flex: 0 0 auto;
+    font-size: 10px;
+    opacity: 0.7;
+}
+
+.lt-style-section-body {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── Shared Row (label-left, control-right) ─────────────────────────────── */
+
+.lt-style-row {
+    display: grid;
+    grid-template-columns: minmax(110px, 40%) 1fr;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    min-height: 36px;
+}
+
+.lt-style-row-label {
+    color: var(--muted-foreground, #a0a3b8);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lt-style-row input:not([type="color"]):not([type="range"]),
+.lt-style-row select,
+.lt-style-row .cn-input,
+.lt-style-row .cn-native-select,
+.lt-style-row .cn-native-select-wrapper {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.lt-style-row input.cn-input {
+    height: 28px;
+    font-size: 12px;
+}
+
+.lt-style-row select.cn-native-select {
+    height: 28px;
+    font-size: 12px;
+    padding-right: 28px;
+}
+
+/* ── Sub-section title (Parameters panel groups) ───────────────────────── */
+
+.lt-style-subsection-title {
+    padding: 8px 12px 4px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted-foreground, #a0a3b8);
+    border-top: 1px solid color-mix(in srgb, var(--border, #2f2a4f) 30%, transparent);
+}
+
+.lt-style-subsection-title:first-child {
+    border-top: none;
+}
+
+/* ── Empty placeholders inside section bodies ──────────────────────────── */
+
+.lt-style-section-empty {
+    padding: 8px 12px;
+}
+
+/* ── PropertyPanel stack & gear menu ───────────────────────────────────── */
+
+.lt-property-panel-stack {
+    display: flex;
+    flex-direction: column;
+}
+
+.lt-property-panel-gear {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--muted-foreground, #a0a3b8);
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.12s ease, background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+    z-index: 2;
+}
+
+.lt-style-section:hover .lt-property-panel-gear,
+.lt-style-section:focus-within .lt-property-panel-gear {
+    opacity: 1;
+}
+
+.lt-property-panel-gear:hover {
+    background: color-mix(in srgb, var(--muted, #1a1730) 70%, transparent);
+    border-color: color-mix(in srgb, var(--border, #2f2a4f) 80%, transparent);
+    color: var(--foreground, #e5e7eb);
+}
+
+.lt-property-panel-gear-menu {
+    position: absolute;
+    top: 30px;
+    right: 6px;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px;
+    min-width: 180px;
+    border-radius: 6px;
+    border: 1px solid var(--border, #2f2a4f);
+    background: var(--popover, #14112a);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.lt-property-panel-menu-item.btn {
+    width: 100%;
+    height: 28px;
+    padding: 0 8px;
+    justify-content: flex-start;
+    font-size: 12px;
+    background: transparent;
+    border: none;
+    color: var(--foreground, #e5e7eb);
+}
+
+.lt-property-panel-menu-item.btn:hover {
+    background: color-mix(in srgb, var(--muted, #1a1730) 80%, transparent);
+}
+
+/* ── Toolbar (hidden panels + reset) ───────────────────────────────────── */
+
+.lt-property-panel-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    border-bottom: 1px solid color-mix(in srgb, var(--border, #2f2a4f) 50%, transparent);
+    background: color-mix(in srgb, var(--muted, #1a1730) 30%, transparent);
+}
+
+.lt-property-panel-hidden-count {
+    font-size: 11px;
+    color: var(--muted-foreground, #a0a3b8);
+    margin-right: 4px;
+}
+
+.lt-property-panel-restore.btn,
+.lt-property-panel-reset.btn {
+    height: 22px;
+    padding: 0 8px;
+    font-size: 11px;
+    background: transparent;
+    color: var(--muted-foreground, #a0a3b8);
+    border: 1px solid color-mix(in srgb, var(--border, #2f2a4f) 60%, transparent);
+    border-radius: 4px;
+}
+
+.lt-property-panel-restore.btn:hover,
+.lt-property-panel-reset.btn:hover {
+    background: color-mix(in srgb, var(--muted, #1a1730) 70%, transparent);
+    color: var(--foreground, #e5e7eb);
+}
+
+/* ── Attributes row delete affordance ──────────────────────────────────── */
+
+.lt-attr-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+}
+
+.lt-attr-input {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.lt-attr-delete.btn {
+    flex: 0 0 auto;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--muted-foreground, #a0a3b8);
+    font-size: 12px;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.12s ease, background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.lt-attr-row:hover .lt-attr-delete.btn,
+.lt-attr-row:focus-within .lt-attr-delete.btn {
+    opacity: 1;
+}
+
+.lt-attr-delete.btn:hover {
+    background: color-mix(in srgb, var(--destructive, #ef4444) 14%, transparent);
+    border-color: color-mix(in srgb, var(--destructive, #ef4444) 50%, transparent);
+    color: var(--destructive, #ef4444);
+}
+
+/* ── Placement breakpoint badge ────────────────────────────────────────── */
+
+.lt-placement-breakpoint-badge {
+    margin-left: 0.5rem;
+    padding: 0 0.4rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    line-height: 1.4;
+    border-radius: 0.25rem;
+    background: color-mix(in srgb, var(--primary, #3b82f6) 14%, transparent);
+    color: var(--primary, #3b82f6);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }

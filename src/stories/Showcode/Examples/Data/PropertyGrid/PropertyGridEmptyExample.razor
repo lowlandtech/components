@@ -1,7 +1,13 @@
 @namespace LowlandTech.Components.Stories.Showcode.Examples.Data
 
-<div class="w-full max-w-md">
-    <PropertyGrid TField="PropertyField"
-                  Items="Array.Empty<PropertyField>()"
-                  EmptyText="No properties configured." />
-</div>
+<Card class="w-full max-w-sm">
+    <CardHeader>
+        <CardTitle>Empty State</CardTitle>
+        <CardDescription>Shown when no properties are configured.</CardDescription>
+    </CardHeader>
+    <CardContent>
+        <PropertyGrid TField="PropertyField"
+                      Items="Array.Empty<PropertyField>()"
+                      EmptyText="No properties configured." />
+    </CardContent>
+</Card>

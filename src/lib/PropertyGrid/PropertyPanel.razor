@@ -1,0 +1,38 @@
+@namespace LowlandTech.Components
+@inherits TinyComponentBase
+
+<div class="lt-property-panel-stack @Class"
+     @attributes="AdditionalAttributes">
+
+    @if (ShowToolbar)
+    {
+        <div class="lt-property-panel-toolbar" data-testid="canvas-property-panel-toolbar" style="order: -10000">
+            @if (HiddenPanels.Count > 0)
+            {
+                <span class="lt-property-panel-hidden-count">
+                    @HiddenPanels.Count hidden
+                </span>
+                @foreach (var key in HiddenPanels)
+                {
+                    <Button Variant="@ButtonVariant.Unstyled"
+                            data-testid="canvas-property-panel-restore"
+                            data-panel-key="@key"
+                            class="lt-property-panel-restore"
+                            title="Restore hidden panel"
+                            @onclick="() => OnRestorePanelClick(key)">
+                        👁 @key
+                    </Button>
+                }
+            }
+            <Button Variant="@ButtonVariant.Unstyled"
+                    data-testid="canvas-property-panel-reset"
+                    class="lt-property-panel-reset"
+                    title="Reset all panels to defaults"
+                    @onclick="OnResetPanelsClick">
+                ↻ Reset
+            </Button>
+        </div>
+    }
+
+    @ChildContent
+</div>

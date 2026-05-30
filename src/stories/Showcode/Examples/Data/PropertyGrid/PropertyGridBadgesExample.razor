@@ -1,15 +1,21 @@
 @namespace LowlandTech.Components.Stories.Showcode.Examples.Data
 
-<div class="w-full max-w-md">
-    <PropertyGrid TField="PropertyField"
-                  Items="_fields"
-                  LabelSelector="f => f.Label"
-                  BadgeSelector="f => f.Badge">
-        <EditorTemplate Context="field">
-            <Input Value="@field.Value" />
-        </EditorTemplate>
-    </PropertyGrid>
-</div>
+<Card class="w-full max-w-sm">
+    <CardHeader>
+        <CardTitle>Badges</CardTitle>
+        <CardDescription>Rows with category badges.</CardDescription>
+    </CardHeader>
+    <CardContent>
+        <PropertyGrid TField="PropertyField"
+                      Items="_fields"
+                      LabelSelector="f => f.Label"
+                      BadgeSelector="f => f.Badge">
+            <EditorTemplate Context="field">
+                <Input Value="@field.Value" />
+            </EditorTemplate>
+        </PropertyGrid>
+    </CardContent>
+</Card>
 
 @code {
     private readonly IReadOnlyList<PropertyField> _fields =

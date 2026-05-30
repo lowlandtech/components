@@ -1,0 +1,73 @@
+@namespace LowlandTech.Components
+@inherits TinyComponentBase
+
+<section data-testid="canvas-property-section"
+         data-section="@Key"
+         data-panel-hidden="@IsHidden.ToString().ToLowerInvariant()"
+         style="@OrderStyle"
+         class="lt-style-section @Class"
+         @attributes="AdditionalAttributes">
+
+    <Button Variant="@ButtonVariant.Unstyled"
+            class="lt-style-section-header"
+            @onclick="OnToggleExpandClick">
+        <span class="lt-style-section-title">@Title</span>
+        @if (HeaderExtras is not null)
+        {
+            @HeaderExtras
+        }
+        <span class="lt-style-section-chevron">@(IsExpanded ? "▾" : "▸")</span>
+    </Button>
+
+    <button class="lt-property-panel-gear"
+            data-testid="canvas-property-panel-gear"
+            data-panel-key="@Key"
+            type="button"
+            title="Configure panel"
+            @onclick="ToggleMenu">
+        ⚙
+    </button>
+
+    @if (_isMenuOpen)
+    {
+        <div class="lt-property-panel-gear-menu"
+             data-testid="canvas-property-panel-menu"
+             data-panel-key="@Key">
+            <Button Variant="@ButtonVariant.Unstyled"
+                    class="lt-property-panel-menu-item"
+                    data-testid="canvas-property-panel-up"
+                    data-panel-key="@Key"
+                    @onclick="OnMoveUpClick">
+                ↑ Move up
+            </Button>
+            <Button Variant="@ButtonVariant.Unstyled"
+                    class="lt-property-panel-menu-item"
+                    data-testid="canvas-property-panel-down"
+                    data-panel-key="@Key"
+                    @onclick="OnMoveDownClick">
+                ↓ Move down
+            </Button>
+            <Button Variant="@ButtonVariant.Unstyled"
+                    class="lt-property-panel-menu-item"
+                    data-testid="canvas-property-panel-hide"
+                    data-panel-key="@Key"
+                    @onclick="OnToggleHiddenClick">
+                @(IsHidden ? "👁 Show" : "🚫 Hide")
+            </Button>
+            <Button Variant="@ButtonVariant.Unstyled"
+                    class="lt-property-panel-menu-item"
+                    data-testid="canvas-property-panel-default-open"
+                    data-panel-key="@Key"
+                    @onclick="OnToggleDefaultOpenClick">
+                @(IsDefaultOpen ? "☐ Default closed" : "☑ Default open")
+            </Button>
+        </div>
+    }
+
+    @if (IsExpanded)
+    {
+        <div class="lt-style-section-body">
+            @ChildContent
+        </div>
+    }
+</section>
