@@ -1,0 +1,20 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Data
+
+<div class="w-full max-w-md">
+    <PropertyGrid TField="PropertyField"
+                  Items="_fields"
+                  LabelSelector="f => f.Label">
+        <EditorTemplate Context="field">
+            <Input Value="@field.Value" />
+        </EditorTemplate>
+    </PropertyGrid>
+</div>
+
+@code {
+    private readonly IReadOnlyList<PropertyField> _fields =
+    [
+        new("Name", "Ada Lovelace"),
+        new("Email", "ada@example.com"),
+        new("Role", "Engineer")
+    ];
+}

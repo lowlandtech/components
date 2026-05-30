@@ -1,0 +1,21 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Data
+
+<div class="w-full max-w-md">
+    <PropertyGrid TField="PropertyField"
+                  Items="_fields"
+                  LabelSelector="f => f.Label"
+                  IsReadOnlySelector="f => f.IsReadOnly">
+        <EditorTemplate Context="field">
+            <Input Value="@field.Value" />
+        </EditorTemplate>
+    </PropertyGrid>
+</div>
+
+@code {
+    private readonly IReadOnlyList<PropertyField> _fields =
+    [
+        new("Name", "Ada Lovelace", IsReadOnly: false),
+        new("ID", "usr-1042", IsReadOnly: true),
+        new("Created", "2026-01-15", IsReadOnly: true)
+    ];
+}

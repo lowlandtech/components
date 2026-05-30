@@ -1,0 +1,71 @@
+@attribute [DisplayName("Data/PropertyGrid")]
+@inherits StoryComponent
+
+<StoryCard Title="PropertyGrid"
+           Description="PropertyGrid states demonstrate labeled rows with custom editors, optional badges, read-only flags, headers, and empty states."
+           States="@States" />
+
+@code {
+    private const string PropertyFieldSource = "Showcode/Examples/Data/PropertyGrid/PropertyField.cs";
+
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "basic",
+            "Basic",
+            @<PropertyGridBasicExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "basic-razor",
+                    "PropertyGridBasicExample.razor",
+                    "Showcode/Examples/Data/PropertyGrid/PropertyGridBasicExample.razor"),
+                SharedModelTab("basic-model")
+            ]),
+        new(
+            "badges",
+            "Badges",
+            @<PropertyGridBadgesExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "badges-razor",
+                    "PropertyGridBadgesExample.razor",
+                    "Showcode/Examples/Data/PropertyGrid/PropertyGridBadgesExample.razor"),
+                SharedModelTab("badges-model")
+            ]),
+        new(
+            "readonly",
+            "Read Only",
+            @<PropertyGridReadOnlyExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "readonly-razor",
+                    "PropertyGridReadOnlyExample.razor",
+                    "Showcode/Examples/Data/PropertyGrid/PropertyGridReadOnlyExample.razor"),
+                SharedModelTab("readonly-model")
+            ]),
+        new(
+            "header",
+            "Header",
+            @<PropertyGridHeaderExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "header-razor",
+                    "PropertyGridHeaderExample.razor",
+                    "Showcode/Examples/Data/PropertyGrid/PropertyGridHeaderExample.razor"),
+                SharedModelTab("header-model")
+            ]),
+        new(
+            "empty",
+            "Empty",
+            @<PropertyGridEmptyExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "empty-razor",
+                    "PropertyGridEmptyExample.razor",
+                    "Showcode/Examples/Data/PropertyGrid/PropertyGridEmptyExample.razor"),
+                SharedModelTab("empty-model")
+            ])
+    ];
+
+    private static StoryCard.CodeTab SharedModelTab(string value) =>
+        StorySourceRegistry.CodeTab(value, "PropertyField.cs", PropertyFieldSource, "csharp");
+}
