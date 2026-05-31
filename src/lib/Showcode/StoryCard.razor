@@ -1,88 +1,167 @@
 @namespace LowlandTech.Components
 @inject IJSRuntime JS
+@inject IComponentDescriptorRegistry DescriptorRegistry
+@inject IPopoverService PopoverService
+@implements IDisposable
 
 @if (States.Count > 0)
 {
     <section data-slot="story-card" class="@GetClass()">
         @if (!string.IsNullOrWhiteSpace(Title) || !string.IsNullOrWhiteSpace(Description))
         {
-            <div class="space-y-1 p-4 pb-2">
-                @if (!string.IsNullOrWhiteSpace(Title))
+            <div class="flex items-start justify-between gap-4 p-4 pb-2">
+                <div class="space-y-1">
+                    @if (!string.IsNullOrWhiteSpace(Title))
+                    {
+                        <h2 class="text-base font-semibold text-foreground">@Title</h2>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Description))
+                    {
+                        <p class="max-w-2xl text-sm text-muted-foreground">@Description</p>
+                    }
+                </div>
+                @if (AvailableDescriptor is not null)
                 {
-                    <h2 class="text-base font-semibold text-foreground">@Title</h2>
-                }
-                @if (!string.IsNullOrWhiteSpace(Description))
-                {
-                    <p class="max-w-2xl text-sm text-muted-foreground">@Description</p>
+                    <label class="story-card-design-toggle">
+                        <span>Design mode</span>
+                        <Switch Size="sm"
+                                IsChecked="@_designMode"
+                                IsCheckedChanged="OnDesignModeChanged" />
+                    </label>
                 }
             </div>
         }
 
-        <Tabs Value="@_activeState" ValueChanged="@((v) => _activeState = v)" class="w-full">
-            @if (States.Count > 1)
-            {
-                <div class="flex items-center px-4 pb-3">
-                    <TabsList class="story-card-pill-tabs">
-                        @foreach (var state in States)
-                        {
-                            <TabsTrigger Value="@state.Value" class="story-card-pill-tab">
-                                @state.Name
-                            </TabsTrigger>
-                        }
-                    </TabsList>
-                </div>
-            }
-
-            @foreach (var state in States)
-            {
-                <TabsContent Value="@state.Value" class="mt-0">
-                    <div class="relative mx-4 flex min-h-32 items-center justify-center rounded-lg border border-border/70 bg-background p-10">
-                        @state.Preview
-                    </div>
-
-                    @if (state.CodeTabs.Count > 0)
-                    {
-                        <Tabs DefaultValue="@state.CodeTabs[0].Value" class="mx-4 mb-4 mt-4 overflow-hidden rounded-lg border border-[#444c56] bg-[#24292E] text-[#c9d1d9] shadow-sm">
-                            <div class="flex min-h-12 items-center justify-between gap-3 border-b border-[#444c56] bg-[#2d333b] px-3">
-                                <TabsList class="story-card-code-tabs">
-                                    @foreach (var codeTab in state.CodeTabs)
-                                    {
-                                        <TabsTrigger Value="@codeTab.Value" class="story-card-code-tab">
-                                            <span class="story-card-file-dot" data-language="@codeTab.Language"></span>
-                                            @codeTab.Name
-                                        </TabsTrigger>
-                                    }
-                                </TabsList>
-                            </div>
-
-                            @foreach (var codeTab in state.CodeTabs)
+        <Tabs Value="@_activeState" ValueChanged="OnActiveStateChanged" Placement="left" class="w-full" style="gap: 0.25rem;">
+            <div class="story-card-tabs-layout">
+                @if (States.Count > 1)
+                {
+                    <div class="tabs-list-container" style="@TabsListContainerStyle">
+                        <TabsList class="story-card-pill-tabs">
+                            @foreach (var state in States)
                             {
-                                <TabsContent Value="@codeTab.Value" class="mt-0">
-                                    <div class="relative">
-                                        <Button Variant="ghost"
-                                                Size="icon-sm"
-                                                class="story-card-copy-button text-[#8b949e] hover:bg-[#444c56] hover:text-[#c9d1d9]"
-                                                title="@($"Copy {codeTab.Name} code")"
-                                                @onclick="() => CopyCode(codeTab)">
-                                            <Icon Name="@(CopiedValue == codeTab.Value ? "check" : "copy")" Size="14" />
-                                            <span class="sr-only">Copy @codeTab.Name code</span>
-                                        </Button>
-                                    <div class="story-card-code-editor" data-language="@codeTab.Language">
-                                        @foreach (var line in GetHighlightedLines(codeTab))
-                                        {
-                                            <div class="story-card-code-line">
-                                                <span class="story-card-line-number">@line.Number</span>
-                                                <code class="story-card-line-code">@((MarkupString)line.Html)</code>
-                                            </div>
-                                        }
-                                    </div>
-                                    </div>
-                                </TabsContent>
+                                <TabsTrigger Value="@state.Value" class="story-card-pill-tab">
+                                    @state.Name
+                                </TabsTrigger>
                             }
-                        </Tabs>
+                        </TabsList>
+                    </div>
+                }
+
+                <div class="story-card-tabs-content-column">
+                    @foreach (var state in States)
+                    {
+                        <TabsContent Value="@state.Value" class="@GetTabsContentClass()">
+                            <div class="flex min-w-0 flex-1 flex-col gap-2">
+                                <div class="flex min-w-0 gap-2">
+                                    <div class="story-card-design-preview relative flex min-h-32 min-w-0 flex-1 items-center justify-center rounded-lg border border-border/70 bg-background p-6">
+                                        <CascadingValue Name="TinyDesignMode" Value="@_designMode">
+                                            <CascadingValue Name="TinySelectedDesignInstanceId" Value="@_selectedDesignInstanceId">
+                                                <CascadingValue Name="TinyDesignPropertyValues" Value="@_designValues">
+                                                    <CascadingValue Name="TinyDesignSelected" Value="@DesignSelectedCallback">
+                                                        @state.Preview
+                                                    </CascadingValue>
+                                                </CascadingValue>
+                                            </CascadingValue>
+                                        </CascadingValue>
+                                    </div>
+                                </div>
+                                @if (state.CodeTabs.Count > 0)
+                                {
+                                    <Tabs DefaultValue="@state.CodeTabs[0].Value" class="mb-4 overflow-hidden rounded-lg border border-[#444c56] bg-[#24292E] text-[#c9d1d9] shadow-sm">
+                                        <div class="flex min-h-12 items-center justify-between gap-3 border-b border-[#444c56] bg-[#2d333b] px-3">
+                                            <TabsList class="story-card-code-tabs">
+                                                @foreach (var codeTab in state.CodeTabs)
+                                                {
+                                                    <TabsTrigger Value="@codeTab.Value" class="story-card-code-tab">
+                                                        <span class="story-card-file-dot" data-language="@codeTab.Language"></span>
+                                                        @codeTab.Name
+                                                    </TabsTrigger>
+                                                }
+                                            </TabsList>
+                                        </div>
+
+                                        @foreach (var codeTab in state.CodeTabs)
+                                        {
+                                            <TabsContent Value="@codeTab.Value" class="mt-0">
+                                                <div class="relative">
+                                                    <Button Variant="ghost"
+                                                            Size="icon-sm"
+                                                            class="story-card-copy-button text-[#8b949e] hover:bg-[#444c56] hover:text-[#c9d1d9]"
+                                                            title="@($"Copy {codeTab.Name} code")"
+                                                            @onclick="() => CopyCode(codeTab)">
+                                                        <Icon Name="@(CopiedValue == codeTab.Value ? "check" : "copy")" Size="14" />
+                                                        <span class="sr-only">Copy @codeTab.Name code</span>
+                                                    </Button>
+                                                    <div class="story-card-code-editor" data-language="@codeTab.Language">
+                                                        @foreach (var line in GetHighlightedLines(codeTab))
+                                                        {
+                                                            <div class="story-card-code-line">
+                                                                <span class="story-card-line-number">@line.Number</span>
+                                                                <code class="story-card-line-code">@((MarkupString)line.Html)</code>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </TabsContent>
+                                        }
+                                    </Tabs>
+                                }
+                            </div>
+                        </TabsContent>
                     }
-                </TabsContent>
-            }
+                </div>
+
+                @if (HasDesignSidebar)
+                {
+                    <div class="story-card-design-sidebar-container">
+                        <aside class="story-card-design-sidebar">
+                            <PropertyGrid TField="PropertyDescriptor"
+                                          Items="@DesignGridProperties"
+                                          LabelSelector="p => p.Label"
+                                          Title="Properties"
+                                          TitleVariant="pill"
+                                          EmptyTitle="Select a component"
+                                          EmptyDescription="Click a highlighted component in the preview."
+                                          class="story-card-design-property-grid">
+                                <EditorTemplate Context="prop">
+                                    @switch (prop.Editor)
+                                    {
+                                        case PropertyEditor.Select:
+                                            <button id="@GetPopoverAnchorId(prop)"
+                                                    type="button"
+                                                    data-slot="select-trigger"
+                                                    class="cn-select-trigger group flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                                                    @onclick="() => ToggleSelectPopover(prop)"
+                                                    @onclick:stopPropagation>
+                                                <span class="truncate">@(GetDesignValue(prop) ?? prop.Placeholder ?? "Select")</span>
+                                                <Icon Name="chevron-down" Size="16" class="ml-2 shrink-0 opacity-50" />
+                                            </button>
+                                            break;
+                                        case PropertyEditor.Switch:
+                                            <Switch Size="sm"
+                                                    IsChecked="@(GetDesignValue(prop) == "true")"
+                                                    IsCheckedChanged="@(value => OnDesignValueChanged(prop, value.ToString().ToLowerInvariant()))" />
+                                            break;
+                                        case PropertyEditor.Number:
+                                            <Input type="number"
+                                                   class="text-sm"
+                                                   Value="@GetDesignValue(prop)"
+                                                   @onchange="@(args => OnDesignValueChanged(prop, args.Value?.ToString()))" />
+                                            break;
+                                        default:
+                                            <Input class="text-sm"
+                                                   Value="@GetDesignValue(prop)"
+                                                   Placeholder="@(prop.Placeholder ?? "")"
+                                                   @onchange="@(args => OnDesignValueChanged(prop, args.Value?.ToString()))" />
+                                            break;
+                                    }
+                                </EditorTemplate>
+                            </PropertyGrid>
+                        </aside>
+                    </div>
+                }
+            </div>
         </Tabs>
     </section>
 }
@@ -92,15 +171,66 @@
     [Parameter] public string? Description { get; set; }
     [Parameter] public string? Class { get; set; }
     [Parameter] public string? DefaultState { get; set; }
+    [Parameter] public string TabsListWidth { get; set; } = "13rem";
+    [Parameter] public Type? DesignComponentType { get; set; }
     [Parameter, EditorRequired] public IReadOnlyList<State> States { get; set; } = [];
 
-    private string? CopiedValue { get; set; }
+    [Inject] private NavigationManager NavigationManager { get; set; } = null!;
 
+    private string? CopiedValue { get; set; }
     private string DefaultStateValue => DefaultState ?? States[0].Value;
+    private string PersistKey => string.IsNullOrWhiteSpace(Title) ? "story" : Title.ToLowerInvariant().Replace(' ', '-');
+
+    private string TabsListContainerStyle => $"--story-card-tabs-list-width: {TabsListWidth};";
 
     private string _activeState = "";
+    private bool _designMode;
+    private string? _selectedDesignInstanceId;
+    private Type? _selectedDesignComponentType;
+    private readonly Dictionary<string, string> _designValues = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, Guid> _popoverIds = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<Guid> _registeredPopoverIds = [];
 
-    protected override void OnInitialized() => _activeState = DefaultStateValue;
+    private State? ActiveState => States.FirstOrDefault(state => state.Value == _activeState);
+
+    private Type? CurrentDesignComponentType => ActiveState?.DesignComponentType ?? DesignComponentType;
+
+    private ComponentDescriptor? AvailableDescriptor =>
+        CurrentDesignComponentType is null ? null : DescriptorRegistry.GetByType(CurrentDesignComponentType);
+
+    private ComponentDescriptor? SelectedDescriptor =>
+        _selectedDesignComponentType is null ? null : DescriptorRegistry.GetByType(_selectedDesignComponentType);
+
+    private IReadOnlyList<PropertyDescriptor> DesignGridProperties =>
+        SelectedDescriptor?.Properties ?? [];
+
+    private EventCallback<TinyDesignSelection> DesignSelectedCallback =>
+        EventCallback.Factory.Create<TinyDesignSelection>(this, OnDesignSelected);
+
+    protected override void OnInitialized()
+    {
+        _activeState = DefaultStateValue;
+        RestoreFromQueryString();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await RestoreFromSessionStorageAsync();
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (States.Count == 0)
+            return;
+
+        if (string.IsNullOrWhiteSpace(_activeState) || States.All(state => state.Value != _activeState))
+        {
+            _activeState = DefaultStateValue;
+        }
+    }
 
     private string GetClass()
     {
@@ -108,17 +238,329 @@
         return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
     }
 
+    private bool HasDesignSidebar => _designMode && AvailableDescriptor is not null;
+
+    private string GetTabsContentClass() => "mt-0 min-w-0 flex-1 pt-4";
+
+    private void OnDesignModeChanged(bool value)
+    {
+        _designMode = value;
+        if (!_designMode)
+        {
+            ClearDesignSelection();
+        }
+        PersistToQueryString();
+    }
+
+    private void OnActiveStateChanged(string? value)
+    {
+        _activeState = value ?? DefaultStateValue;
+        ClearDesignSelection();
+        PersistToQueryString();
+    }
+
+    private void OnDesignSelected(TinyDesignSelection selection)
+    {
+        _selectedDesignInstanceId = selection.InstanceId;
+        _selectedDesignComponentType = selection.ComponentType;
+        _designValues.Clear();
+
+        foreach (var value in selection.Values)
+        {
+            _designValues[value.Key] = value.Value;
+        }
+        PersistToQueryString();
+    }
+
+    private void ClearDesignSelection()
+    {
+        _selectedDesignInstanceId = null;
+        _selectedDesignComponentType = null;
+        _designValues.Clear();
+        PersistToQueryString();
+    }
+
+    private void RestoreFromQueryString()
+    {
+        var query = ParseQueryString(NavigationManager.Uri);
+
+        var scenario = query.GetValueOrDefault($"{PersistKey}-scenario");
+        if (!string.IsNullOrEmpty(scenario) && States.Any(s => s.Value == scenario))
+        {
+            _activeState = scenario;
+        }
+
+        var design = query.GetValueOrDefault($"{PersistKey}-design");
+        if (design == "true")
+        {
+            _designMode = true;
+        }
+
+        var typeName = query.GetValueOrDefault($"{PersistKey}-type");
+        if (!string.IsNullOrEmpty(typeName))
+        {
+            try
+            {
+                _selectedDesignComponentType = Type.GetType(typeName);
+            }
+            catch { /* ignore type resolution errors */ }
+        }
+
+        var valuesJson = query.GetValueOrDefault($"{PersistKey}-values");
+        if (!string.IsNullOrEmpty(valuesJson))
+        {
+            try
+            {
+                var values = JsonSerializer.Deserialize<Dictionary<string, string>>(valuesJson);
+                if (values is not null)
+                {
+                    _designValues.Clear();
+                    foreach (var kvp in values)
+                    {
+                        _designValues[kvp.Key] = kvp.Value;
+                    }
+                }
+            }
+            catch { /* ignore parse errors */ }
+        }
+    }
+
+    private async Task RestoreFromSessionStorageAsync()
+    {
+        try
+        {
+            var json = await JS.InvokeAsync<string?>("sessionStorage.getItem", $"storycard:{PersistKey}");
+            if (string.IsNullOrEmpty(json))
+                return;
+
+            var state = JsonSerializer.Deserialize<SessionPersistedState>(json);
+            if (state is null)
+                return;
+
+            if (!string.IsNullOrEmpty(state.Scenario) && States.Any(s => s.Value == state.Scenario))
+            {
+                _activeState = state.Scenario;
+            }
+
+            if (state.DesignMode)
+            {
+                _designMode = true;
+            }
+
+            if (!string.IsNullOrEmpty(state.TypeName))
+            {
+                try
+                {
+                    _selectedDesignComponentType = Type.GetType(state.TypeName);
+                }
+                catch { /* ignore */ }
+            }
+
+            if (state.Values is not null)
+            {
+                _designValues.Clear();
+                foreach (var kvp in state.Values)
+                {
+                    _designValues[kvp.Key] = kvp.Value;
+                }
+            }
+
+            StateHasChanged();
+        }
+        catch
+        {
+            // Ignore session storage errors (e.g., private browsing)
+        }
+    }
+
+    private void PersistToQueryString()
+    {
+        var uri = new Uri(NavigationManager.Uri);
+        var query = ParseQueryString(NavigationManager.Uri);
+
+        query[$"{PersistKey}-scenario"] = _activeState;
+        query[$"{PersistKey}-design"] = _designMode.ToString().ToLowerInvariant();
+        query[$"{PersistKey}-type"] = _selectedDesignComponentType?.AssemblyQualifiedName ?? string.Empty;
+
+        if (_designValues.Count > 0 && _selectedDesignComponentType is not null)
+        {
+            query[$"{PersistKey}-values"] = JsonSerializer.Serialize(_designValues);
+        }
+        else
+        {
+            query[$"{PersistKey}-values"] = string.Empty;
+        }
+
+        // Remove empty entries to keep URL clean
+        var cleanQuery = query.Where(kvp => !string.IsNullOrEmpty(kvp.Value)).ToList();
+        var queryString = cleanQuery.Count > 0
+            ? "?" + string.Join("&", cleanQuery.Select(kvp => $"{Uri.EscapeDataString(kvp.Key)}={Uri.EscapeDataString(kvp.Value)}"))
+            : string.Empty;
+
+        var newUri = new UriBuilder(uri) { Query = queryString }.Uri.ToString();
+        NavigationManager.NavigateTo(newUri, forceLoad: false);
+
+        _ = PersistToSessionStorageAsync();
+    }
+
+    private async Task PersistToSessionStorageAsync()
+    {
+        try
+        {
+            var state = new SessionPersistedState
+            {
+                Scenario = _activeState,
+                DesignMode = _designMode,
+                TypeName = _selectedDesignComponentType?.AssemblyQualifiedName,
+                Values = _designValues.Count > 0 ? new Dictionary<string, string>(_designValues) : null
+            };
+            var json = JsonSerializer.Serialize(state);
+            await JS.InvokeVoidAsync("sessionStorage.setItem", $"storycard:{PersistKey}", json);
+        }
+        catch
+        {
+            // Ignore session storage errors
+        }
+    }
+
+    private static Dictionary<string, string> ParseQueryString(string uriString)
+    {
+        var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var uri = new Uri(uriString);
+        var query = uri.Query;
+        if (string.IsNullOrEmpty(query)) return result;
+
+        var parts = query.TrimStart('?').Split('&');
+        foreach (var part in parts)
+        {
+            var idx = part.IndexOf('=');
+            if (idx < 0) continue;
+            var key = Uri.UnescapeDataString(part[..idx]);
+            var value = Uri.UnescapeDataString(part[(idx + 1)..]);
+            result[key] = value;
+        }
+        return result;
+    }
+
+    private class SessionPersistedState
+    {
+        public string? Scenario { get; set; }
+        public bool DesignMode { get; set; }
+        public string? TypeName { get; set; }
+        public Dictionary<string, string>? Values { get; set; }
+    }
+
+    private string GetDesignValue(PropertyDescriptor property) =>
+        _designValues.TryGetValue(property.Name, out var value)
+            ? value
+            : property.DefaultValue?.ToString() ?? string.Empty;
+
+    private void OnDesignValueChanged(PropertyDescriptor property, string? value)
+    {
+        _designValues[property.Name] = value ?? string.Empty;
+        PersistToQueryString();
+    }
+
+    private string GetPopoverAnchorId(PropertyDescriptor property)
+    {
+        var id = GetOrRegisterPopoverId(property);
+        return $"popover-anchor-{id}";
+    }
+
+    private void ToggleSelectPopover(PropertyDescriptor property)
+    {
+        var id = GetOrRegisterPopoverId(property);
+        var isOpen = PopoverService.ActivePopovers.FirstOrDefault(popover => popover.Id == id)?.State.Open ?? false;
+        if (isOpen)
+        {
+            CloseSelectPopover(property);
+            return;
+        }
+
+        ClosePropertyPopovers(except: id);
+        PopoverService.Update(id, new PopoverState
+        {
+            Open = true,
+            Placement = PopoverPlacement.BottomStart,
+            CssClass = "min-w-[8rem]",
+            Fragment = BuildSelectPopover(property)
+        });
+    }
+
+    private Guid GetOrRegisterPopoverId(PropertyDescriptor property)
+    {
+        if (_popoverIds.TryGetValue(property.Name, out var id))
+            return id;
+
+        id = Guid.NewGuid();
+        _popoverIds[property.Name] = id;
+        PopoverService.Register(id);
+        _registeredPopoverIds.Add(id);
+        return id;
+    }
+
+    private void CloseSelectPopover(PropertyDescriptor property)
+    {
+        if (_popoverIds.TryGetValue(property.Name, out var id))
+        {
+            PopoverService.Update(id, new PopoverState { Open = false });
+        }
+    }
+
+    private void ClosePropertyPopovers(Guid? except = null)
+    {
+        foreach (var id in _registeredPopoverIds)
+        {
+            if (except is not null && id == except.Value)
+                continue;
+
+            PopoverService.Update(id, new PopoverState { Open = false });
+        }
+    }
+
+    private void SelectDesignOption(PropertyDescriptor property, string value)
+    {
+        OnDesignValueChanged(property, value);
+        CloseSelectPopover(property);
+    }
+
+    private RenderFragment BuildSelectPopover(PropertyDescriptor property) => __builder =>
+    {
+        <div class="node-menu-backdrop" @onclick="() => CloseSelectPopover(property)" @onclick:stopPropagation></div>
+        <div class="node-menu relative z-10" @onclick:stopPropagation>
+            @foreach (var option in property.Options)
+            {
+                var isSelected = string.Equals(GetDesignValue(property), option, StringComparison.Ordinal);
+                <button type="button"
+                        data-value="@option"
+                        class="node-menu-item @(isSelected ? "bg-muted" : "")"
+                        @onclick="() => SelectDesignOption(property, option)">
+                    <span class="mr-2 inline-flex w-4 items-center justify-center">
+                        @if (isSelected)
+                        {
+                            <span>&#x2713;</span>
+                        }
+                    </span>
+                    @option
+                </button>
+            }
+        </div>
+    };
+
     private async Task CopyCode(CodeTab codeTab)
     {
         await JS.InvokeVoidAsync("navigator.clipboard.writeText", codeTab.Code);
         CopiedValue = codeTab.Value;
     }
 
+
+
     public sealed record State(
         string Value,
         string Name,
         RenderFragment Preview,
-        IReadOnlyList<CodeTab> CodeTabs);
+        IReadOnlyList<CodeTab> CodeTabs,
+        Type? DesignComponentType = null);
 
     public sealed record CodeTab(
         string Value,
@@ -421,4 +863,12 @@
 
     private sealed record HighlightCacheKey(string Code, string Language);
     private sealed record CodeLine(int Number, string Html);
+
+    public void Dispose()
+    {
+        foreach (var id in _registeredPopoverIds)
+        {
+            PopoverService.Unregister(id);
+        }
+    }
 }
