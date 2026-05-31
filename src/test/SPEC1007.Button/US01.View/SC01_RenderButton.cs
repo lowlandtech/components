@@ -131,4 +131,190 @@ public class SC01_RenderButton : ViewScenario
         el.ClassList.ShouldNotContain("btn-link");
         el.ClassList.ShouldNotContain("btn-destructive");
     }
+
+    [Fact(DisplayName = "UAC12: Button is design-selectable when design mode is enabled")]
+    [Trait(Spec.UAC, "12")]
+    public void UAC12_DesignModeMakesPropertyGridComponentSelectable()
+    {
+        var cut = Ctx.Render<ButtonSut>(p => p.Add(x => x.IsDesignMode, true));
+        var el = cut.Find("[data-slot='button']");
+
+        el.GetAttribute("data-design-mode").ShouldBe("true");
+        el.GetAttribute("data-design-selectable").ShouldBe("true");
+        el.ClassList.ShouldContain("lt-design-selectable");
+    }
+
+    [Fact(DisplayName = "UAC13: Button is not design-selectable outside design mode")]
+    [Trait(Spec.UAC, "13")]
+    public void UAC13_DesignSelectableAttributeIsAbsentOutsideDesignMode()
+    {
+        var cut = Ctx.Render<ButtonSut>();
+        var el = cut.Find("[data-slot='button']");
+
+        el.GetAttribute("data-design-mode").ShouldBeNull();
+        el.GetAttribute("data-design-selectable").ShouldBeNull();
+        el.ClassList.ShouldNotContain("lt-design-selectable");
+    }
+
+    [Fact(DisplayName = "UAC14: Design-mode click selects the Button")]
+    [Trait(Spec.UAC, "14")]
+    public void UAC14_DesignModeClickSelectsButton()
+    {
+        var cut = Ctx.Render<ButtonSut>(p => p.Add(x => x.IsDesignMode, true));
+
+        cut.Find("[data-slot='button']").Click();
+
+        var el = cut.Find("[data-slot='button']");
+        el.GetAttribute("data-design-selected").ShouldBe("true");
+        el.ClassList.ShouldContain("lt-design-selected");
+    }
+
+    [Fact(DisplayName = "UAC15: Disabled Button remains selectable in design mode")]
+    [Trait(Spec.UAC, "15")]
+    public void UAC15_DisabledButtonRemainsSelectableInDesignMode()
+    {
+        var cut = Ctx.Render<ButtonSut>(p => p
+            .Add(x => x.IsDesignMode, true)
+            .AddUnmatched("disabled", true));
+
+        var el = cut.Find("[data-slot='button']");
+        el.HasAttribute("disabled").ShouldBeFalse();
+        el.GetAttribute("aria-disabled").ShouldBe("true");
+        el.ClassList.ShouldContain("lt-design-disabled");
+
+        el.Click();
+
+        cut.Find("[data-slot='button']").GetAttribute("data-design-selected").ShouldBe("true");
+    }
+
+    [Fact(DisplayName = "UAC18: Disabled parameter renders disabled state")]
+    [Trait(Spec.UAC, "18")]
+    public void UAC18_DisabledParameterRendersDisabledState()
+    {
+        var cut = Ctx.Render<ButtonSut>(p => p.Add(x => x.Disabled, true));
+        var el = cut.Find("[data-slot='button']");
+
+        el.HasAttribute("disabled").ShouldBeTrue();
+        el.GetAttribute("aria-disabled").ShouldBe("true");
+        el.GetAttribute("data-disabled").ShouldBe("true");
+    }
+
+    [Fact(DisplayName = "UAC19: Disabled parameter remains selectable in design mode")]
+    [Trait(Spec.UAC, "19")]
+    public void UAC19_DisabledParameterRemainsSelectableInDesignMode()
+    {
+        var cut = Ctx.Render<ButtonSut>(p => p
+            .Add(x => x.IsDesignMode, true)
+            .Add(x => x.Disabled, true));
+
+        var el = cut.Find("[data-slot='button']");
+        el.HasAttribute("disabled").ShouldBeFalse();
+        el.GetAttribute("aria-disabled").ShouldBe("true");
+        el.ClassList.ShouldContain("lt-design-disabled");
+
+        el.Click();
+
+        cut.Find("[data-slot='button']").GetAttribute("data-design-selected").ShouldBe("true");
+    }
+
+    [Fact(DisplayName = "UAC20: Icon parameter renders core icon")]
+    [Trait(Spec.UAC, "20")]
+    public void UAC20_IconParameterRendersCoreIcon()
+    {
+        var cut = Ctx.Render<ButtonSut>(p => p
+            .Add(x => x.Icon, nameof(Icons.Search))
+            .AddChildContent("Search"));
+
+        cut.Find("[data-slot='icon']").ShouldNotBeNull();
+        cut.Markup.ShouldContain(Icons.Search);
+        cut.Find("[data-slot='button']").TextContent.ShouldContain("Search");
+    }
+
+    [Fact(DisplayName = "UAC21: Button descriptor exposes Disabled and core Icon options")]
+    [Trait(Spec.UAC, "21")]
+    public void UAC21_ButtonDescriptorExposesDisabledAndCoreIconOptions()
+    {
+        var descriptor = new ComponentDescriptorRegistry().GetByType(typeof(ButtonSut));
+
+        descriptor.ShouldNotBeNull();
+        var disabled = descriptor.Properties.Single(p => p.Name == nameof(ButtonSut.Disabled));
+        disabled.Editor.ShouldBe(PropertyEditor.Switch);
+        disabled.DefaultValue.ShouldBe(false);
+
+        var icon = descriptor.Properties.Single(p => p.Name == nameof(ButtonSut.Icon));
+        icon.Editor.ShouldBe(PropertyEditor.Select);
+        icon.DefaultValue.ShouldBe(ButtonIcon.None);
+        icon.Options.First().ShouldBe(ButtonIcon.None);
+        icon.Options.ShouldContain(nameof(Icons.Search));
+    }
+
+    [Fact(DisplayName = "UAC16: StoryCard toggles design mode and shows a property sidebar")]
+    [Trait(Spec.UAC, "16")]
+    public void UAC16_StoryCardDesignModeShowsPropertySidebar()
+    {
+        var cut = RenderDesignableStoryCard();
+
+        cut.FindAll("[data-slot='property-grid']").Count.ShouldBe(0);
+
+        cut.Find("[data-slot='switch']").Click();
+
+        cut.Find("[data-slot='property-grid']").ShouldNotBeNull();
+        cut.Find("[data-slot='button']").GetAttribute("data-design-selectable").ShouldBe("true");
+        cut.FindAll("[data-slot='property-grid-row']").Count.ShouldBe(0);
+    }
+
+    [Fact(DisplayName = "UAC17: StoryCard design PropertyGrid edits only the selected component")]
+    [Trait(Spec.UAC, "17")]
+    public void UAC17_StoryCardDesignPropertyGridUpdatesOnlySelectedPreviewComponent()
+    {
+        var cut = RenderDesignableStoryCard();
+
+        cut.Find("[data-slot='switch']").Click();
+        cut.FindAll("[data-slot='button']")[1].Click();
+
+        cut.Find("[data-slot='select-trigger']").TextContent.ShouldContain(ButtonVariant.Secondary);
+
+        cut.Find("[data-slot='select-trigger']").Click();
+        cut.Find(".node-menu-item[data-value='ghost']").Click();
+
+        var buttons = cut.FindAll("[data-slot='button']");
+        buttons[0].GetAttribute("data-variant").ShouldBe(ButtonVariant.Default);
+        buttons[1].GetAttribute("data-variant").ShouldBe(ButtonVariant.Ghost);
+        buttons[1].GetAttribute("data-design-selected").ShouldBe("true");
+        buttons[0].GetAttribute("data-design-selected").ShouldBeNull();
+    }
+
+    private IRenderedComponent<DesignableStoryHost> RenderDesignableStoryCard() =>
+        Ctx.Render<DesignableStoryHost>();
+
+    private sealed class DesignableStoryHost : ComponentBase
+    {
+        protected override void BuildRenderTree(RenderTreeBuilder builder)
+        {
+            builder.OpenComponent<PopoverProvider>(0);
+            builder.CloseComponent();
+            builder.OpenComponent<StoryCard>(1);
+            builder.AddAttribute(2, nameof(StoryCard.Title), "Button");
+            builder.AddAttribute(3, nameof(StoryCard.DesignComponentType), typeof(ButtonSut));
+            builder.AddAttribute(4, nameof(StoryCard.States), new[]
+            {
+                new StoryCard.State("default", "Default", Preview, [])
+            });
+            builder.CloseComponent();
+        }
+
+        private static RenderFragment Preview => builder =>
+        {
+            builder.OpenComponent<ButtonSut>(0);
+            builder.AddAttribute(1, nameof(ButtonSut.ChildContent), (RenderFragment)(childBuilder =>
+                childBuilder.AddContent(0, "Default")));
+            builder.CloseComponent();
+
+            builder.OpenComponent<ButtonSut>(2);
+            builder.AddAttribute(3, nameof(ButtonSut.Variant), ButtonVariant.Secondary);
+            builder.AddAttribute(4, nameof(ButtonSut.ChildContent), (RenderFragment)(childBuilder =>
+                childBuilder.AddContent(0, "Secondary")));
+            builder.CloseComponent();
+        };
+    }
 }

@@ -405,4 +405,50 @@ public class SC02_RenderTabsSubcomponents : ViewScenario
         var content = cut.Find("[data-slot='tabs-content']");
         content.ClassList.ShouldContain("mr-2");
     }
+
+    [Fact(DisplayName = "UAC28: Collapsable dynamic tabs can start closed and keep the header visible")]
+    [Trait(Spec.UAC, "28")]
+    public void UAC28_CollapsableTabsCanStartClosed()
+    {
+        var items = new[]
+        {
+            new TabsItem { Value = "one", Title = "One" },
+            new TabsItem { Value = "two", Title = "Two" }
+        };
+        RenderFragment<TabsItem> itemContent = item => builder => builder.AddContent(0, $"Content {item.Title}");
+
+        var cut = Ctx.Render<TabsSut>(p => p
+            .Add(x => x.Items, items)
+            .Add(x => x.DefaultValue, "one")
+            .Add(x => x.IsCollapsable, "startclosed")
+            .Add(x => x.ItemContent, itemContent));
+
+        cut.Find("[data-slot='tabs-header']");
+        cut.Find("[data-slot='tabs-collapse-button']");
+        cut.FindAll("[data-slot='tabs-content']").ShouldBeEmpty();
+    }
+
+    [Fact(DisplayName = "UAC29: Collapsable dynamic tabs toggle active content")]
+    [Trait(Spec.UAC, "29")]
+    public void UAC29_CollapsableTabsToggleContent()
+    {
+        var items = new[]
+        {
+            new TabsItem { Value = "one", Title = "One" },
+            new TabsItem { Value = "two", Title = "Two" }
+        };
+        RenderFragment<TabsItem> itemContent = item => builder => builder.AddContent(0, $"Content {item.Title}");
+
+        var cut = Ctx.Render<TabsSut>(p => p
+            .Add(x => x.Items, items)
+            .Add(x => x.DefaultValue, "one")
+            .Add(x => x.IsCollapsable, "startclosed")
+            .Add(x => x.ItemContent, itemContent));
+
+        cut.Find("[data-slot='tabs-collapse-button']").Click();
+
+        var content = cut.Find("[data-slot='tabs-content']");
+        content.TextContent.ShouldContain("Content One");
+        cut.Find("[data-slot='tabs-collapse-button']").GetAttribute("aria-expanded").ShouldBe("true");
+    }
 }

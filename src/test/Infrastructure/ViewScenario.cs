@@ -15,6 +15,7 @@ public abstract class ViewScenario : IAsyncLifetime
     public virtual ValueTask InitializeAsync()
     {
         Ctx = new BunitContext();
+        Ctx.Services.AddSingleton<IComponentDescriptorRegistry, ComponentDescriptorRegistry>();
         Ctx.Services.AddSingleton<IPopoverService, PopoverService>();
         Ctx.Services.AddSingleton<ISonnerService, SonnerService>();
         Ctx.Services.AddSingleton<IPageOverlayService, PageOverlayService>();

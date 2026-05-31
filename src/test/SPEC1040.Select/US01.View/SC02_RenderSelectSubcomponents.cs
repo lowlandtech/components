@@ -305,4 +305,40 @@ public class SC02_RenderSelectSubcomponents : ViewScenario
         cut.Instance.IsOpen.ShouldBeFalse();
         cut.FindAll("[data-slot='select-content']").Count.ShouldBe(0);
     }
+
+    [Fact(DisplayName = "UAC24: SelectContent has default MaxHeight of 15rem")]
+    [Trait(Spec.UAC, "24")]
+    public void UAC24_DefaultMaxHeight()
+    {
+        var cut = Ctx.Render<SelectSut>(p =>
+        {
+            p.Add(x => x.IsOpen, true);
+            p.AddChildContent<SelectContent>(cp => cp.AddChildContent("Content"));
+        });
+
+        var content = cut.Find("[data-slot='select-content']");
+        var style = content.GetAttribute("style");
+        style.ShouldNotBeNull();
+        style.ShouldContain("max-height: 15rem");
+    }
+
+    [Fact(DisplayName = "UAC25: SelectContent renders custom MaxHeight")]
+    [Trait(Spec.UAC, "25")]
+    public void UAC25_CustomMaxHeight()
+    {
+        var cut = Ctx.Render<SelectSut>(p =>
+        {
+            p.Add(x => x.IsOpen, true);
+            p.AddChildContent<SelectContent>(cp =>
+            {
+                cp.Add(x => x.MaxHeight, "10rem");
+                cp.AddChildContent("Content");
+            });
+        });
+
+        var content = cut.Find("[data-slot='select-content']");
+        var style = content.GetAttribute("style");
+        style.ShouldNotBeNull();
+        style.ShouldContain("max-height: 10rem");
+    }
 }

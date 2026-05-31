@@ -18,8 +18,8 @@ public class SC03_DropdownNavigation : ViewScenario
             .Add(x => x.ShowMonthDropdown, true)
             .Add(x => x.ShowYearDropdown, true));
 
-        cut.Find("[data-slot='calendar-month-select']").ShouldNotBeNull();
-        cut.Find("[data-slot='calendar-year-select']").ShouldNotBeNull();
+        cut.Find("[data-slot='calendar-month-select'] [data-slot='select-trigger']").ShouldNotBeNull();
+        cut.Find("[data-slot='calendar-year-select'] [data-slot='select-trigger']").ShouldNotBeNull();
     }
 
     [Fact(DisplayName = "UAC02: Month dropdown changes displayed month")]
@@ -30,7 +30,8 @@ public class SC03_DropdownNavigation : ViewScenario
             .Add(x => x.CurrentMonth, new DateTime(2024, 6, 1))
             .Add(x => x.ShowMonthDropdown, true));
 
-        cut.Find("[data-slot='calendar-month-select']").Change("2");
+        cut.Find("[data-slot='calendar-month-select'] [data-slot='select-trigger']").Click();
+        cut.Find("[data-slot='calendar-month-select'] [data-slot='select-item'][data-value='2']").Click();
 
         cut.Instance.CurrentMonth.Month.ShouldBe(2);
         cut.Instance.CurrentMonth.Year.ShouldBe(2024);
@@ -44,7 +45,8 @@ public class SC03_DropdownNavigation : ViewScenario
             .Add(x => x.CurrentMonth, new DateTime(2024, 6, 1))
             .Add(x => x.ShowYearDropdown, true));
 
-        cut.Find("[data-slot='calendar-year-select']").Change("2028");
+        cut.Find("[data-slot='calendar-year-select'] [data-slot='select-trigger']").Click();
+        cut.Find("[data-slot='calendar-year-select'] [data-slot='select-item'][data-value='2028']").Click();
 
         cut.Instance.CurrentMonth.Year.ShouldBe(2028);
         cut.Instance.CurrentMonth.Month.ShouldBe(6);
