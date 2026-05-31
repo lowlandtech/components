@@ -505,8 +505,20 @@ html:hover                             { scrollbar-color: var(--border) transpar
     @apply inline-flex h-9 items-center gap-1 rounded-full border border-border bg-muted p-1;
   }
 
+  .tabs-list-container {
+    @apply shrink-0 self-stretch py-4 pl-4;
+  }
+
+  .story-card-pill-tabs[data-orientation="vertical"] {
+    @apply flex h-full w-36 flex-col items-stretch rounded-lg;
+  }
+
   .story-card-pill-tab {
     @apply h-7 rounded-full px-3 text-sm font-medium text-muted-foreground transition-colors;
+  }
+
+  .story-card-pill-tab[data-orientation="vertical"] {
+    @apply h-auto w-full justify-start rounded-md py-1.5;
   }
 
   .story-card-pill-tab[data-state="active"] {

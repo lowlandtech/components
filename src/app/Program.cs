@@ -8,6 +8,7 @@ builder.Services.AddScoped<ISonnerService, SonnerService>();
 builder.Services.AddScoped<IPopoverService, PopoverService>();
 builder.Services.AddScoped<IPageOverlayService, PageOverlayService>();
 builder.Services.AddScoped<ShowcodeState>();
+builder.Services.AddDesignableComponents();
 
 // Agent graph services — DRD pattern for session agent types
 builder.Services.AddScoped<IAgentGraphService, AskAgentGraphService>();
