@@ -1,0 +1,22 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Navigation
+
+<Tabs Items="_tabs"
+      DefaultValue="preview"
+      IsCollapsable="startclosed"
+      DynamicVariant="ide"
+      class="w-full max-w-lg overflow-hidden rounded-md border">
+    <ItemContent>
+        <div class="border-t bg-card p-4 text-sm text-card-foreground">
+            @context.Title content is visible.
+        </div>
+    </ItemContent>
+</Tabs>
+
+@code {
+    private readonly IReadOnlyList<TabsItem> _tabs =
+    [
+        new() { Value = "preview", Title = "Preview" },
+        new() { Value = "source", Title = "Source" },
+        new() { Value = "notes", Title = "Notes" }
+    ];
+}

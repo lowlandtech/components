@@ -2,7 +2,7 @@
 @inherits StoryComponent
 
 <StoryCard Title="Tabs"
-           Description="Tabs states demonstrate default, disabled, line, overflow, and IDE-style dynamic tabs."
+           Description="Tabs states demonstrate default, disabled, line, overflow, collapsable, and IDE-style dynamic tabs."
            States="@States" />
 
 @code {
@@ -47,6 +47,16 @@
                     "overflow-razor",
                     "TabsOverflowExample.razor",
                     "Showcode/Examples/Navigation/Tabs/TabsOverflowExample.razor")
+            ]),
+        new(
+            "collapsable",
+            "Collapsable",
+            @<TabsCollapsableExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "collapsable-razor",
+                    "TabsCollapsableExample.razor",
+                    "Showcode/Examples/Navigation/Tabs/TabsCollapsableExample.razor")
             ]),
         new(
             "ide",

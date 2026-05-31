@@ -2,14 +2,14 @@
 
 <Card class="w-full max-w-sm">
     <CardHeader>
-        <CardTitle>Empty State</CardTitle>
-        <CardDescription>Shown when no properties are configured.</CardDescription>
+        <CardTitle>No Component Selected</CardTitle>
+        <CardDescription>Shown when no component is selected for editing.</CardDescription>
     </CardHeader>
     <CardContent>
         <PropertyGrid TField="PropertyField"
                       Items="Array.Empty<PropertyField>()"
                       EmptyIconPaths="<rect x='3' y='3' width='18' height='18' rx='2'/><path d='M3 9h18'/><path d='M9 3v18'/>"
                       EmptyTitle="No properties"
-                      EmptyDescription="Add properties to see them listed here." />
+                      EmptyDescription="Select a component to edit its properties here." />
     </CardContent>
 </Card>

@@ -11,6 +11,7 @@ public sealed class StoriesAppPlugin : IAppPlugin
 
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
+        services.AddDesignableComponents();
         services.AddScoped<ShowcodeState>();
         StoryRegistry.RegisterAllStories(typeof(StoriesAppPlugin).Assembly);
     }
@@ -26,6 +27,7 @@ public sealed class StoriesAppPlugin : IAppPlugin
         "_content/LowlandTech.Components.Stories/css/stories.css",
         "_content/LowlandTech.Components.Stories/css/sonner.css",
         "_content/LowlandTech.Components.Stories/css/rtl.css",
+        "_content/LowlandTech.Components/css/property-grid.css",
     ];
 
     public IReadOnlyList<string> InlineScripts =>

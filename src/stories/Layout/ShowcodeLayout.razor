@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="_content/LowlandTech.Components.Stories/css/stories.css" />
     <link rel="stylesheet" href="_content/LowlandTech.Components.Stories/css/sonner.css" />
     <link rel="stylesheet" href="_content/LowlandTech.Components.Stories/css/rtl.css" />
+    <link rel="stylesheet" href="_content/LowlandTech.Components/css/property-grid.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </HeadContent>
 
@@ -43,10 +44,9 @@
             }
             <ThemeToggle />
         </header>
-        <main class="relative min-h-0 flex-1 overflow-y-auto bg-background">
-            <div class="relative min-h-full">
+        <main class="min-h-0 flex-1 overflow-y-auto bg-background">
+            <div class="min-h-full">
                 @Body
-                <PageOverlayProvider />
             </div>
         </main>
     </SidebarInset>

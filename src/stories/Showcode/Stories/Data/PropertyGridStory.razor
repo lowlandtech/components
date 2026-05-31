@@ -10,6 +10,16 @@
 
     private IReadOnlyList<StoryCard.State> States => [
         new(
+            "descriptor",
+            "Descriptor-Driven",
+            @<PropertyGridDescriptorExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "descriptor-razor",
+                    "PropertyGridDescriptorExample.razor",
+                    "Showcode/Examples/Data/PropertyGrid/PropertyGridDescriptorExample.razor")
+            ]),
+        new(
             "panel",
             "Property Panel",
             @<PropertyPanelExample />,
