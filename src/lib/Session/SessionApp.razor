@@ -357,10 +357,13 @@
     {
         <Resizable>
             <ResizablePanel DefaultSize="24" MinSize="16" MaxSize="38" Id="session-app-left-panel" class="h-full">
-                  <aside class="flex h-full min-h-0 w-full flex-col overflow-hidden border-r border-border bg-sidebar/40"
+                   <aside class="flex h-full min-h-0 w-full flex-col overflow-hidden border-r border-border bg-sidebar/40"
                        data-slot="session-app-left-sidebar">
-                    <div class="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden"
-                         data-slot="session-app-left-sidebar">
+                    <div class="flex h-full min-h-0 w-full flex-1 flex-col"
+                        data-slot="session-app-left-sidebar-body"
+                        style="padding:10px;">
+                        <div class="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden"
+                            data-slot="session-app-left-sidebar">
                         @if (HasActiveSession)
                         {
                             <section class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background">
@@ -396,6 +399,7 @@
                                          OnSelected="e => SelectSessionAsync(e.Node)"
                                          class="min-h-0 flex-1" />
                         }
+                        </div>
                     </div>
                 </aside>
             </ResizablePanel>

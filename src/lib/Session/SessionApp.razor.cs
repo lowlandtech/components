@@ -128,13 +128,15 @@ public partial class SessionApp : TinyComponentBase, IDisposable
         builder.OpenElement(0, "button");
         builder.AddAttribute(1, "type", "button");
         builder.AddAttribute(2, "data-testid", "session-app-sidebar-open");
-        builder.AddAttribute(3, "data-slot", "session-app-sidebar-open-trigger");
-        builder.AddAttribute(4, "class", "cn-tabs-trigger cn-tabs-trigger-ide inline-flex h-10 w-10 cursor-default items-center justify-center border-r border-border px-0 text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring");
-        builder.AddAttribute(5, "title", "Open sidebar");
-        builder.AddAttribute(6, "aria-label", "Open sidebar");
-        builder.AddAttribute(7, "onclick", EventCallback.Factory.Create(this, OpenStandaloneSidebarAsync));
+        builder.AddAttribute(3, "data-slot", "tabs-trigger");
+        builder.AddAttribute(4, "data-state", "inactive");
+        builder.AddAttribute(5, "data-orientation", "horizontal");
+        builder.AddAttribute(6, "class", "cn-tabs-trigger cn-tabs-trigger-ide inline-flex h-10 w-10 min-w-0 cursor-default items-center justify-center gap-1 whitespace-nowrap border-r border-b border-border px-0 text-sm text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring");
+        builder.AddAttribute(7, "title", "Open sidebar");
+        builder.AddAttribute(8, "aria-label", "Open sidebar");
+        builder.AddAttribute(9, "onclick", EventCallback.Factory.Create(this, OpenStandaloneSidebarAsync));
 
-        builder.AddMarkupContent(8, "<svg data-slot=\"icon\" xmlns=\"http://www.w3.org/2000/svg\" width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"cn-icon shrink-0\" aria-hidden=\"true\"><rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"></rect><path d=\"M9 3v18\"></path><path d=\"m13 15 3-3-3-3\"></path></svg>");
+        builder.AddMarkupContent(10, "<svg data-slot=\"icon\" xmlns=\"http://www.w3.org/2000/svg\" width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"cn-icon shrink-0\" aria-hidden=\"true\"><rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"></rect><path d=\"M9 3v18\"></path><path d=\"m13 15 3-3-3-3\"></path></svg>");
 
         builder.CloseElement();
     };

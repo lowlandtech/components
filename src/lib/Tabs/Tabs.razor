@@ -11,7 +11,7 @@
          @attributes="AdditionalAttributes">
         @if (HasItems)
         {
-            <div data-slot="tabs-header" class="flex min-w-0 items-center gap-1">
+            <div data-slot="tabs-header" class="flex min-w-0 items-center @(HeaderLeading is null ? "gap-1" : null)">
                 @if (HeaderLeading is not null)
                 {
                     <div data-slot="tabs-header-leading" class="shrink-0">
