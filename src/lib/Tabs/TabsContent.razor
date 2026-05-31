@@ -1,7 +1,7 @@
 @namespace LowlandTech.Components.Tabs
 @inherits TinyComponentBase
 
-@if (IsActive)
+@if (IsActive && !IsCollapsed)
 {
     <div data-slot="tabs-content"
          data-state="@GetState()"
@@ -21,6 +21,7 @@
     [Parameter, EditorRequired] public string Value { get; set; } = "";
     
     private bool IsActive => Parent?.ActiveTab == Value;
+    private bool IsCollapsed => Parent?.IsContentCollapsed == true;
     private string GetState() => IsActive ? "active" : "inactive";
     private string GetOrientation() => Parent?.EffectiveOrientation ?? "horizontal";
     

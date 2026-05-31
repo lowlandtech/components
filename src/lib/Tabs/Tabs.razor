@@ -36,6 +36,19 @@
                                      Draggable="@item.Draggable" />
                     }
                 </TabsList>
+
+                @if (CanToggleContent)
+                {
+                    <button data-slot="tabs-collapse-button"
+                            type="button"
+                            class="cn-tabs-collapse-button inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                            aria-label="@CollapseButtonLabel"
+                            aria-expanded="@((!IsContentCollapsed).ToString().ToLowerInvariant())"
+                            title="@CollapseButtonLabel"
+                            @onclick="ToggleContent">
+                        <Icon Paths="@CollapseButtonIcon" Size="14" />
+                    </button>
+                }
             </div>
 
             @foreach (var item in OrderedItems)
@@ -77,12 +90,23 @@
     [Parameter] public EventCallback<TabsRenameEventArgs> TabRenamed { get; set; }
     [Parameter] public EventCallback<TabsReorderEventArgs> TabReordered { get; set; }
     [Parameter] public string? ContentClass { get; set; }
+    [Parameter] public string? IsCollapsable { get; set; }
+    [Parameter] public bool? InitialIsContentCollapsed { get; set; }
+    [Parameter] public EventCallback<bool> IsContentCollapsedChanged { get; set; }
     
     internal string? ActiveTab { get; set; }
+    internal bool IsContentCollapsed { get; private set; }
     internal int FocusedTabIndex { get; set; } = -1;
     internal List<TabsTrigger> Triggers { get; } = new();
     internal string? DraggedTabValue { get; private set; }
+    private string? _appliedCollapsableMode;
+    private bool _initialCollapsedApplied;
     private bool HasItems => Items is { Count: > 0 };
+    private bool CanToggleContent => !string.IsNullOrWhiteSpace(IsCollapsable);
+    private string CollapseButtonLabel => IsContentCollapsed ? "Expand" : "Collapse";
+    private string CollapseButtonIcon => IsContentCollapsed
+        ? """<path d="m9 18 6-6-6-6"/>"""
+        : """<path d="m6 9 6 6 6-6"/>""";
     private IReadOnlyList<TabsItem> OrderedItems => Items is null
         ? []
         : [.. Items
@@ -94,11 +118,53 @@
     protected override void OnInitialized()
     {
         ActiveTab = ResolveActiveValue();
+        ApplyCollapsableMode();
     }
 
     protected override void OnParametersSet()
     {
         ActiveTab = ResolveActiveValue();
+        ApplyCollapsableMode();
+
+        if (!_initialCollapsedApplied && InitialIsContentCollapsed.HasValue)
+        {
+            _initialCollapsedApplied = true;
+            IsContentCollapsed = InitialIsContentCollapsed.Value;
+        }
+    }
+
+    private void ApplyCollapsableMode()
+    {
+        var mode = NormalizeCollapsableMode();
+        if (mode == _appliedCollapsableMode)
+            return;
+
+        _appliedCollapsableMode = mode;
+        if (!IsContentCollapsedChanged.HasDelegate)
+            IsContentCollapsed = mode == "startclosed";
+    }
+
+    private string? NormalizeCollapsableMode()
+    {
+        if (string.IsNullOrWhiteSpace(IsCollapsable))
+            return null;
+
+        return IsCollapsable.Trim().ToLowerInvariant() switch
+        {
+            "startclosed" => "startclosed",
+            "startopen" => "startopen",
+            _ => "startopen"
+        };
+    }
+
+    private void ToggleContent()
+    {
+        if (!CanToggleContent)
+            return;
+
+        IsContentCollapsed = !IsContentCollapsed;
+        if (IsContentCollapsedChanged.HasDelegate)
+            _ = IsContentCollapsedChanged.InvokeAsync(IsContentCollapsed);
     }
 
     private string? ResolveActiveValue()

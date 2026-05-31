@@ -1,6 +1,8 @@
 @namespace LowlandTech.Components.Tabs
 @inherits TinyComponentBase
 @implements IDisposable
+@inject IPopoverService PopoverService
+@inject IJSRuntime JS
 
 <div data-slot="tabs-trigger"
      data-state="@GetState()"
@@ -48,7 +50,12 @@
     }
     else
     {
-        <span data-slot="tabs-trigger-label" class="cn-tabs-trigger-label">
+        <span data-slot="tabs-trigger-label"
+              class="cn-tabs-trigger-label"
+              id="@GetPopoverAnchorId()"
+              @ref="_labelRef"
+              @onmouseenter="OnLabelMouseEnter"
+              @onmouseleave="OnLabelMouseLeave">
             @if (ChildContent is not null)
             {
                 @ChildContent
@@ -94,15 +101,69 @@
     private string DisplayTitle => string.IsNullOrWhiteSpace(Title) ? Value : Title!;
     private bool _isRenaming;
     private string _draftTitle = "";
+    private readonly Guid _popoverId = Guid.NewGuid();
+    private ElementReference _labelRef;
+    private IJSObjectReference? _tabsModule;
     
     protected override void OnInitialized()
     {
         Parent?.RegisterTrigger(this);
+        PopoverService.Register(_popoverId);
     }
     
     public void Dispose()
     {
         Parent?.UnregisterTrigger(this);
+        PopoverService.Unregister(_popoverId);
+        _ = DisposeTabsModuleAsync();
+    }
+    
+    private async ValueTask DisposeTabsModuleAsync()
+    {
+        if (_tabsModule is not null)
+        {
+            try { await _tabsModule.DisposeAsync(); }
+            catch { /* ignore */ }
+        }
+    }
+    
+    private string GetPopoverAnchorId() => $"popover-anchor-{_popoverId}";
+    
+    private async Task<IJSObjectReference> EnsureTabsModuleAsync()
+    {
+        _tabsModule ??= await JS.InvokeAsync<IJSObjectReference>("import", "./_content/LowlandTech.Components/js/tabs.js");
+        return _tabsModule;
+    }
+    
+    private async Task OnLabelMouseEnter(MouseEventArgs _)
+    {
+        if (GetOrientation() != "vertical")
+            return;
+        
+        try
+        {
+            var module = await EnsureTabsModuleAsync();
+            var isTruncated = await module.InvokeAsync<bool>("isTextTruncated", _labelRef);
+            if (!isTruncated)
+                return;
+            
+            PopoverService.Update(_popoverId, new PopoverState
+            {
+                Open = true,
+                Placement = PopoverPlacement.Right,
+                CssClass = "px-2 py-1 rounded-md border border-border bg-popover text-popover-foreground text-sm shadow-md whitespace-nowrap",
+                Fragment = builder => builder.AddContent(0, DisplayTitle)
+            });
+        }
+        catch
+        {
+            // Ignore JS interop failures during prerender or disposal
+        }
+    }
+    
+    private void OnLabelMouseLeave(MouseEventArgs _)
+    {
+        PopoverService.Update(_popoverId, new PopoverState { Open = false });
     }
     
     private string GetState() => IsActive ? "active" : "inactive";

@@ -41,6 +41,13 @@ export function observeOverflow(element, dotNetRef) {
   requestAnimationFrame(notify);
 }
 
+export function isTextTruncated(element) {
+  if (!element) {
+    return false;
+  }
+  return element.scrollWidth > element.clientWidth;
+}
+
 export function unobserveOverflow(element) {
   const observer = observers.get(element);
   if (!observer) {
