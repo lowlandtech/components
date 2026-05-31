@@ -6,6 +6,13 @@
      class="@GetClass()"
      @attributes="AdditionalAttributes">
 
+    @if (!string.IsNullOrEmpty(Title))
+    {
+        <div data-slot="property-grid-title" class="@GetTitleClass()">
+            @Title
+        </div>
+    }
+
     @if (Header is not null)
     {
         <div data-slot="property-grid-header" class="lt-property-grid-header">
@@ -87,6 +94,12 @@
     /// <summary>Renders the value editor for a field (right column).</summary>
     [Parameter] public RenderFragment<TField>? EditorTemplate { get; set; }
 
+    /// <summary>Optional title rendered above the rows.</summary>
+    [Parameter] public string? Title { get; set; }
+
+    /// <summary>Visual variant for the title. "normal" (default) or "pill".</summary>
+    [Parameter] public string TitleVariant { get; set; } = "normal";
+
     /// <summary>Optional section header rendered above the rows.</summary>
     [Parameter] public RenderFragment? Header { get; set; }
 
@@ -115,5 +128,15 @@
     {
         var baseClass = "lt-property-grid";
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private string GetTitleClass()
+    {
+        var baseClass = "lt-property-grid-title";
+        return TitleVariant.Trim().ToLowerInvariant() switch
+        {
+            "pill" => $"{baseClass} lt-property-grid-title-pill",
+            _ => baseClass
+        };
     }
 }
