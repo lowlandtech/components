@@ -53,6 +53,10 @@
     
     private string GetIconPath()
     {
+        var coreIcon = Icons.GetByName(Name);
+        if (!string.IsNullOrEmpty(coreIcon))
+            return coreIcon;
+
         return Name?.ToLower() switch
         {
             "check" => "<polyline points=\"20 6 9 17 4 12\"></polyline>",

@@ -30,27 +30,37 @@
         <div class="flex items-center gap-2">
             @if (ShowMonthDropdown)
             {
-                <select data-slot="calendar-month-select"
-                        class="cn-calendar-select rounded border bg-background px-2 py-1 text-sm"
-                        value="@CurrentMonth.Month"
-                        @onchange="HandleMonthChanged">
-                    @for (var month = 1; month <= 12; month++)
-                    {
-                        <option value="@month">@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)</option>
-                    }
-                </select>
+                <Select data-slot="calendar-month-select"
+                        Value="@CurrentMonth.Month.ToString()"
+                        ValueChanged="HandleMonthSelected">
+                    <SelectTrigger Size="sm">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        @for (var month = 1; month <= 12; month++)
+                        {
+                            <SelectItem Value="@month.ToString()"
+                                        Text="@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)" />
+                        }
+                    </SelectContent>
+                </Select>
             }
             @if (ShowYearDropdown)
             {
-                <select data-slot="calendar-year-select"
-                        class="cn-calendar-select rounded border bg-background px-2 py-1 text-sm"
-                        value="@CurrentMonth.Year"
-                        @onchange="HandleYearChanged">
-                    @foreach (var year in GetSelectableYears())
-                    {
-                        <option value="@year">@year</option>
-                    }
-                </select>
+                <Select data-slot="calendar-year-select"
+                        Value="@CurrentMonth.Year.ToString()"
+                        ValueChanged="HandleYearSelected">
+                    <SelectTrigger Size="sm">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        @foreach (var year in GetSelectableYears())
+                        {
+                            <SelectItem Value="@year.ToString()"
+                                        Text="@year.ToString()" />
+                        }
+                    </SelectContent>
+                </Select>
             }
         </div>
     }
@@ -143,17 +153,17 @@
         return Enumerable.Range(startYear, endYear - startYear + 1);
     }
 
-    private async Task HandleMonthChanged(ChangeEventArgs e)
+    private async Task HandleMonthSelected(string? value)
     {
-        if (int.TryParse(e.Value?.ToString(), out var month))
+        if (int.TryParse(value, out var month))
         {
             await OnMonthSelected.InvokeAsync(month);
         }
     }
 
-    private async Task HandleYearChanged(ChangeEventArgs e)
+    private async Task HandleYearSelected(string? value)
     {
-        if (int.TryParse(e.Value?.ToString(), out var year))
+        if (int.TryParse(value, out var year))
         {
             await OnYearSelected.InvokeAsync(year);
         }
