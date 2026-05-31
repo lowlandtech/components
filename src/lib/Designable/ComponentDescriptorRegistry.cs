@@ -148,11 +148,42 @@ public sealed class ComponentDescriptorRegistry : IComponentDescriptorRegistry
 
     private static IReadOnlyList<string> ResolveOptions(PropertyInfo p, PropertyGridAttribute pg, PropertyEditor editor)
     {
-        if (pg.Options is { Length: > 0 }) return pg.Options;
+        if (pg.Options is { Length: > 0 }) return IncludeEmptyOption(pg.Options, pg.EmptyOption);
+        if (pg.OptionsProvider is not null) return IncludeEmptyOption(ResolveProviderOptions(pg.OptionsProvider), pg.EmptyOption);
         if (editor != PropertyEditor.Select) return [];
         var t = Nullable.GetUnderlyingType(p.PropertyType) ?? p.PropertyType;
-        if (t.IsEnum) return Enum.GetNames(t);
+        if (t.IsEnum) return IncludeEmptyOption(Enum.GetNames(t), pg.EmptyOption);
         return [];
+    }
+
+    private static IReadOnlyList<string> ResolveProviderOptions(Type providerType)
+    {
+        var all = providerType.GetProperty("All", BindingFlags.Public | BindingFlags.Static)?.GetValue(null) ??
+            providerType.GetField("All", BindingFlags.Public | BindingFlags.Static)?.GetValue(null);
+
+        if (all is not IEnumerable entries)
+            return [];
+
+        var options = new List<string>();
+        foreach (var entry in entries)
+        {
+            var name = entry?.GetType().GetProperty("Name", BindingFlags.Public | BindingFlags.Instance)?.GetValue(entry)?.ToString();
+            if (!string.IsNullOrWhiteSpace(name))
+                options.Add(name);
+        }
+
+        return options;
+    }
+
+    private static IReadOnlyList<string> IncludeEmptyOption(IReadOnlyList<string> options, string? emptyOption)
+    {
+        if (string.IsNullOrWhiteSpace(emptyOption))
+            return options;
+
+        if (options.Any(option => string.Equals(option, emptyOption, StringComparison.OrdinalIgnoreCase)))
+            return options;
+
+        return [emptyOption, .. options];
     }
 
     private static object? TryCreateInstance(Type type)

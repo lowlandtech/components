@@ -205,6 +205,43 @@
     @apply size-8 px-0 py-0;
   }
 
+  .lt-design-selectable {
+    cursor: pointer;
+    position: relative;
+    transition: filter 0.15s ease;
+  }
+
+  .lt-design-selectable::after {
+    content: "";
+    position: absolute;
+    inset: calc(-0.35rem - 1px);
+    border: 1px dashed color-mix(in oklab, var(--ring) 55%, transparent);
+    border-radius: 0;
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--ring) 0%, transparent);
+    pointer-events: none;
+    transition: border-color 0.15s ease, inset 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .lt-design-selectable:hover::after {
+    inset: calc(-0.45rem - 1px);
+    border-color: var(--ring);
+    box-shadow: 0 0 0 0.25rem color-mix(in oklab, var(--ring) 12%, transparent);
+  }
+
+  .lt-design-selected {
+    filter: none;
+  }
+
+  .lt-design-selected::after {
+    inset: calc(-0.45rem - 2px);
+    border: 2px dashed var(--ring);
+    box-shadow: 0 0 0 0.25rem color-mix(in oklab, var(--ring) 16%, transparent);
+  }
+
+  .lt-design-disabled {
+    opacity: 0.5;
+  }
+
   .cn-toggle-group {
     @apply flex items-center gap-1;
   }

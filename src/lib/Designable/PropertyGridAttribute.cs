@@ -45,6 +45,17 @@ public sealed class PropertyGridAttribute : Attribute
     /// SelectItem in the rendered dropdown.</summary>
     public string[]? Options { get; init; }
 
+    /// <summary>Optional static provider type for select options. When set,
+    /// the descriptor registry reads common catalogs such as
+    /// <c>Icons.All</c> and projects their <c>Name</c> values into the
+    /// select options.</summary>
+    public Type? OptionsProvider { get; init; }
+
+    /// <summary>Optional first option for a select editor, typically used
+    /// for parameter values such as "None" that clear a catalog-backed
+    /// selection.</summary>
+    public string? EmptyOption { get; init; }
+
     /// <summary>Range minimum for <see cref="PropertyEditor.Slider"/>
     /// or <see cref="PropertyEditor.Number"/> editors. <see cref="double.NaN"/>
     /// (the default) means "no minimum specified" — nullable double is
