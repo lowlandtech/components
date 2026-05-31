@@ -1,8 +1,14 @@
 @namespace LowlandTech.Components.Stories.Showcode.Examples.Data
 
-<div class="w-full max-w-lg">
-    <DataForm Model="_model" Layout="grid" ShowDefaultActions="false" />
-</div>
+<Card class="w-full max-w-lg">
+    <CardHeader>
+        <CardTitle>Grid Layout</CardTitle>
+        <CardDescription>Two-column grid layout for denser forms.</CardDescription>
+    </CardHeader>
+    <CardContent>
+        <DataForm Model="_model" Layout="grid" ShowDefaultActions="false" />
+    </CardContent>
+</Card>
 
 @code {
     private readonly CustomerModel _model = new() { Name = "Grace Hopper", Email = "grace@example.com", Status = CustomerStatus.Active, Age = 35 };

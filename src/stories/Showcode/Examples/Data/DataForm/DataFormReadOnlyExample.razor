@@ -1,8 +1,14 @@
 @namespace LowlandTech.Components.Stories.Showcode.Examples.Data
 
-<div class="w-full max-w-md">
-    <DataForm Model="_model" ReadOnly="true" ShowDefaultActions="false" />
-</div>
+<Card class="w-full max-w-md">
+    <CardHeader>
+        <CardTitle>Read Only</CardTitle>
+        <CardDescription>Non-editable display of model values.</CardDescription>
+    </CardHeader>
+    <CardContent>
+        <DataForm Model="_model" ReadOnly="true" ShowDefaultActions="false" />
+    </CardContent>
+</Card>
 
 @code {
     private readonly CustomerModel _model = new() { Name = "Alan Turing", Email = "alan@example.com", IsActive = true, CreditLimit = 10000, Status = CustomerStatus.Pending };

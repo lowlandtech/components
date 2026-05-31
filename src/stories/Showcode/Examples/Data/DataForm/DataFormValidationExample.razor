@@ -1,8 +1,14 @@
 @namespace LowlandTech.Components.Stories.Showcode.Examples.Data
 
-<div class="w-full max-w-md">
-    <DataForm Model="_model" ValidateOnSubmit="true" OnValidSubmit="HandleValid" OnInvalidSubmit="HandleInvalid" />
-</div>
+<Card class="w-full max-w-md">
+    <CardHeader>
+        <CardTitle>Validation</CardTitle>
+        <CardDescription>Form with validation rules and submit handling.</CardDescription>
+    </CardHeader>
+    <CardContent>
+        <DataForm Model="_model" ValidateOnSubmit="true" OnValidSubmit="HandleValid" OnInvalidSubmit="HandleInvalid" />
+    </CardContent>
+</Card>
 
 @code {
     private readonly CustomerModel _model = new() { Name = "", Email = "not-an-email", CreditLimit = 20000 };

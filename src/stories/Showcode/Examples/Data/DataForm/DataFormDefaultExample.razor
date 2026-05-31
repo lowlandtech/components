@@ -1,8 +1,14 @@
 @namespace LowlandTech.Components.Stories.Showcode.Examples.Data
 
-<div class="w-full max-w-md">
-    <DataForm Model="_model" ShowDefaultActions="false" />
-</div>
+<Card class="w-full max-w-md">
+    <CardHeader>
+        <CardTitle>Default</CardTitle>
+        <CardDescription>Basic model-bound form with automatic field generation.</CardDescription>
+    </CardHeader>
+    <CardContent>
+        <DataForm Model="_model" ShowDefaultActions="false" />
+    </CardContent>
+</Card>
 
 @code {
     private readonly CustomerModel _model = new() { Name = "Ada Lovelace", Email = "ada@example.com", IsActive = true, CreditLimit = 5000 };
