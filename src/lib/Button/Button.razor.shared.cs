@@ -32,9 +32,41 @@ public static class ButtonSize
     public const string IconSm  = "icon-sm";
 }
 
+/// <summary>Icon option constants for the Button component.</summary>
+public static class ButtonIcon
+{
+    public const string None = "None";
+}
+
 // This file extends the auto-generated Button partial class.
 public partial class Button
 {
+    protected override bool IsComponentDisabled => Disabled || base.IsComponentDisabled;
+
+    private bool ShouldRenderIcon =>
+        !string.IsNullOrWhiteSpace(Icon) &&
+        !string.Equals(Icon, ButtonIcon.None, StringComparison.OrdinalIgnoreCase);
+
+    private string? NativeDisabledAttribute => IsComponentDisabled && !EffectiveDesignMode ? "disabled" : null;
+
+    private string? AriaDisabledAttribute => IsComponentDisabled ? "true" : null;
+
+    private string? DataDisabledAttribute => IsComponentDisabled ? "true" : null;
+
+    private int IconSize => Size switch
+    {
+        ButtonSize.Sm or ButtonSize.IconSm => 14,
+        _ => 16
+    };
+
+    private async Task HandleButtonClick(MouseEventArgs e)
+    {
+        await SelectInDesignModeAsync();
+
+        if (!IsDisabledInDesignMode && OnClick.HasDelegate)
+            await OnClick.InvokeAsync(e);
+    }
+
     private static string VariantClass(string v) => v switch
     {
         "destructive" => "btn-destructive",

@@ -4,9 +4,19 @@
 <button data-slot="button"
         data-variant="@Variant"
         data-size="@Size"
+        data-design-mode="@DesignModeAttribute"
+        data-design-selectable="@DesignSelectableAttribute"
+        data-design-selected="@DesignSelectedAttribute"
+        disabled="@NativeDisabledAttribute"
+        aria-disabled="@AriaDisabledAttribute"
+        data-disabled="@DataDisabledAttribute"
         class="@GetClass()"
-        @onclick="HandleOnClick"
-        @attributes="AdditionalAttributes">
+        @onclick="HandleButtonClick"
+        @attributes="DesignModeAdditionalAttributes">
+    @if (ShouldRenderIcon)
+    {
+        <Icon Name="@Icon" Size="@IconSize" />
+    }
     @ChildContent
 </button>
 
@@ -18,6 +28,8 @@
             "btn",
             VariantClass(Variant ?? "default"),
             SizeClass(Size ?? "default"),
+            DesignModeClass,
+            DesignDisabledClass,
             Class ?? string.Empty
         };
         return string.Join(" ", parts.Where(p => !string.IsNullOrEmpty(p)));

@@ -20,4 +20,17 @@ public partial class Button
     [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Select,
         Options = new[] { "sm", "default", "lg", "icon" })]
     public string Size { get; set; } = "default";
+
+    /// <summary>
+    /// Whether the button is disabled.
+    /// </summary>
+    [Parameter, PropertyGrid(Group = "State", Editor = PropertyEditor.Switch)]
+    public bool Disabled { get; set; }
+
+    /// <summary>
+    /// Optional leading icon rendered from the core icon catalog.
+    /// </summary>
+    [Parameter, PropertyGrid(Group = "Content", Editor = PropertyEditor.Select,
+        OptionsProvider = typeof(Icons), EmptyOption = ButtonIcon.None)]
+    public string Icon { get; set; } = ButtonIcon.None;
 }
