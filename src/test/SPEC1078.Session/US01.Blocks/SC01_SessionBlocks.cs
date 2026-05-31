@@ -1231,6 +1231,35 @@ public class SC01_SessionBlocks : ViewScenario
         standalone.Find("[data-panel='session-app-sections-panel']").ClassList.ShouldContain("self-stretch");
     }
 
+    [Fact(DisplayName = "UAC30c: Closing the standalone sidebar removes the left panel and keeps a two-panel resizable layout")]
+    [Trait(Spec.UAC, "30c")]
+    public void UAC30c_ClosingStandaloneSidebarRemovesLeftPanel()
+    {
+        var standalone = Ctx.Render<SessionApp>(p => p.Add(x => x.HasSidebar, true));
+
+        standalone.Find("[data-testid='session-app-sidebar-close']").Click();
+
+        standalone.FindAll("[data-panel='session-app-sidebar-panel']").ShouldBeEmpty();
+        standalone.FindAll("[data-slot='sidebar-provider']").ShouldBeEmpty();
+        standalone.FindAll("[data-slot='resizable-panel']").Count.ShouldBe(2);
+        standalone.FindAll("[data-slot='resizable-handle']").Count.ShouldBe(1);
+        standalone.Find("[data-panel='session-app-main-panel']").ShouldNotBeNull();
+        standalone.Find("[data-panel='session-app-sections-panel']").ShouldNotBeNull();
+        standalone.Find("[data-panel='session-app-main-panel']").GetAttribute("style").ShouldContain("84%");
+        standalone.Find("[data-panel='session-app-sections-panel']").GetAttribute("style").ShouldContain("16%");
+        standalone.Find("[data-testid='session-app-sidebar-open']").ShouldNotBeNull();
+        standalone.FindAll("[data-slot='tabs-header-leading'] [data-testid='session-app-sidebar-open']").Count
+            .ShouldBeGreaterThanOrEqualTo(0);
+        standalone.FindAll("[data-slot='session-content-empty-header'] [data-testid='session-app-sidebar-open']").Count
+            .ShouldBe(1);
+
+        standalone.Find("[data-testid='session-app-sidebar-open']").Click();
+
+        standalone.Find("[data-panel='session-app-sidebar-panel']").ShouldNotBeNull();
+        standalone.FindAll("[data-slot='resizable-panel']").Count.ShouldBe(3);
+        standalone.FindAll("[data-slot='resizable-handle']").Count.ShouldBe(2);
+    }
+
     [Fact(DisplayName = "UAC31: SessionApp supplies overlay containers to rendered session cards")]
     [Trait(Spec.UAC, "31")]
     public void UAC31_SessionAppSuppliesOverlayContainers()

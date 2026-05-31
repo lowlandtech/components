@@ -8,6 +8,7 @@ public partial class SessionApp : TinyComponentBase, IDisposable
 
     private SessionStateService? _ownedStateService;
     private SessionStateService? _subscribedStateService;
+    private bool _isStandaloneSidebarOpen = true;
 
     [Parameter] public IReadOnlyList<SessionListEntry> Sessions { get; set; } =
     [
@@ -51,6 +52,9 @@ public partial class SessionApp : TinyComponentBase, IDisposable
     protected override void OnParametersSet()
     {
         EnsureStateServiceSubscription();
+
+        if (!HasSidebar)
+            _isStandaloneSidebarOpen = true;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -66,6 +70,8 @@ public partial class SessionApp : TinyComponentBase, IDisposable
     private bool HasActiveSession => !string.IsNullOrWhiteSpace(AppState.ActiveSessionId);
 
     private bool IsEventLogPage => HasActiveSession && AppState.ActivePage == SessionAppPage.EventLog;
+
+    private bool IsStandaloneSidebarOpen => !HasSidebar || _isStandaloneSidebarOpen;
 
     private string CurrentSessionId => SessionState.CurrentSessionId;
 
@@ -117,9 +123,37 @@ public partial class SessionApp : TinyComponentBase, IDisposable
         PageOverlayContainerClass ??
         "absolute inset-0 z-40 flex h-full w-full flex-col overflow-hidden bg-background";
 
+    private RenderFragment SidebarOpenButton => builder =>
+    {
+        builder.OpenElement(0, "button");
+        builder.AddAttribute(1, "type", "button");
+        builder.AddAttribute(2, "data-testid", "session-app-sidebar-open");
+        builder.AddAttribute(3, "data-slot", "session-app-sidebar-open-trigger");
+        builder.AddAttribute(4, "class", "cn-tabs-trigger cn-tabs-trigger-ide inline-flex h-10 w-10 cursor-default items-center justify-center border-r border-border px-0 text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring");
+        builder.AddAttribute(5, "title", "Open sidebar");
+        builder.AddAttribute(6, "aria-label", "Open sidebar");
+        builder.AddAttribute(7, "onclick", EventCallback.Factory.Create(this, OpenStandaloneSidebarAsync));
+
+        builder.AddMarkupContent(8, "<svg data-slot=\"icon\" xmlns=\"http://www.w3.org/2000/svg\" width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"cn-icon shrink-0\" aria-hidden=\"true\"><rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"></rect><path d=\"M9 3v18\"></path><path d=\"m13 15 3-3-3-3\"></path></svg>");
+
+        builder.CloseElement();
+    };
+
     private Task ShowSessionsAsync()
     {
         SessionState.ShowSessions();
+        return Task.CompletedTask;
+    }
+
+    private Task HandleStandaloneSidebarOpenChanged(bool isOpen)
+    {
+        _isStandaloneSidebarOpen = isOpen;
+        return Task.CompletedTask;
+    }
+
+    private Task OpenStandaloneSidebarAsync()
+    {
+        _isStandaloneSidebarOpen = true;
         return Task.CompletedTask;
     }
 

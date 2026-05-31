@@ -11,22 +11,32 @@
          @attributes="AdditionalAttributes">
         @if (HasItems)
         {
-            <TabsList Variant="@DynamicVariant"
-                      Align="@DynamicListAlign"
-                      Stretch="@DynamicListStretch"
-                      ShowScrollButtons="@ShowScrollButtons">
-                @foreach (var item in OrderedItems)
+            <div data-slot="tabs-header" class="flex min-w-0 items-center gap-1">
+                @if (HeaderLeading is not null)
                 {
-                    <TabsTrigger Value="@item.Value"
-                                 Title="@item.Title"
-                                 Disabled="@item.Disabled"
-                                 Closeable="@item.Closeable"
-                                 Pinned="@item.Pinned"
-                                 Pinnable="@item.Pinnable"
-                                 Renameable="@item.Renameable"
-                                 Draggable="@item.Draggable" />
+                    <div data-slot="tabs-header-leading" class="shrink-0">
+                        @HeaderLeading
+                    </div>
                 }
-            </TabsList>
+
+                <TabsList Variant="@DynamicVariant"
+                          Align="@DynamicListAlign"
+                          Stretch="@DynamicListStretch"
+                          ShowScrollButtons="@ShowScrollButtons"
+                          Class="min-w-0 flex-1">
+                    @foreach (var item in OrderedItems)
+                    {
+                        <TabsTrigger Value="@item.Value"
+                                     Title="@item.Title"
+                                     Disabled="@item.Disabled"
+                                     Closeable="@item.Closeable"
+                                     Pinned="@item.Pinned"
+                                     Pinnable="@item.Pinnable"
+                                     Renameable="@item.Renameable"
+                                     Draggable="@item.Draggable" />
+                    }
+                </TabsList>
+            </div>
 
             @foreach (var item in OrderedItems)
             {
@@ -56,6 +66,7 @@
     [Parameter] public string KeyboardActivation { get; set; } = "automatic";
     [Parameter] public IReadOnlyList<TabsItem>? Items { get; set; }
     [Parameter] public EventCallback<IReadOnlyList<TabsItem>> ItemsChanged { get; set; }
+    [Parameter] public RenderFragment? HeaderLeading { get; set; }
     [Parameter] public RenderFragment<TabsItem>? ItemContent { get; set; }
     [Parameter] public string DynamicVariant { get; set; } = "ide";
     [Parameter] public string DynamicListAlign { get; set; } = "left";

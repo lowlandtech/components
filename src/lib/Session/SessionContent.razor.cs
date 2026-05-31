@@ -13,6 +13,7 @@ public partial class SessionContent : TinyComponentBase
     [Parameter] public bool RenameableTabs { get; set; }
     [Parameter] public bool DraggableTabs { get; set; }
     [Parameter] public IReadOnlySet<string>? PinnedTabIds { get; set; }
+    [Parameter] public RenderFragment? HeaderLeading { get; set; }
     [Parameter] public EventCallback<SessionNodeSelected> OnSelected { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnClosed { get; set; }
     [Parameter] public EventCallback<TabsItem> OnTabPinnedChanged { get; set; }

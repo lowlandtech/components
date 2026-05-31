@@ -4,11 +4,20 @@
 <div data-slot="session-content" class="@GetClass()" @attributes="AdditionalAttributes">
     @if (OpenNodes.Count == 0)
     {
-        <div class="flex h-72 items-center justify-center" data-slot="session-content-empty">
+        <div class="flex h-full min-h-0 flex-col overflow-hidden" data-slot="session-content-empty-shell">
+            @if (HeaderLeading is not null)
+            {
+                <div data-slot="session-content-empty-header" class="flex items-center gap-1 border-b border-border px-1 py-1">
+                    @HeaderLeading
+                </div>
+            }
+
+            <div class="flex h-72 flex-1 items-center justify-center" data-slot="session-content-empty">
             <div class="text-center">
                 <Icon Paths="<path d='M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/><path d='M8 8h8M8 12h5'/>" Size="28" class="mx-auto text-muted-foreground" />
                 <p class="mt-3 text-sm font-medium">@EmptyTitle</p>
                 <p class="mt-1 text-xs text-muted-foreground">@EmptyDescription</p>
+            </div>
             </div>
         </div>
     }
@@ -19,6 +28,7 @@
               ValueChanged="SelectByValueAsync"
               TabClosed="CloseTabAsync"
               TabPinnedChanged="OnTabPinnedChangedAsync"
+              HeaderLeading="@HeaderLeading"
               DynamicVariant="ide"
               DynamicListAlign="left"
               class="min-h-0 w-full flex-1 !gap-0 overflow-hidden"
