@@ -4,16 +4,24 @@
 <div data-slot="session-app" class="@GetClass()" style="@GetStyle()" @attributes="AdditionalAttributes">
     @if (HasSidebar)
     {
-        <Resizable>
+        <div class="relative h-full min-h-0 w-full">
+        <Resizable @key="IsStandaloneSidebarOpen">
+            @if (IsStandaloneSidebarOpen)
+            {
             <ResizablePanel DefaultSize="24" MinSize="16" MaxSize="38" Id="session-app-sidebar-panel" class="h-full">
-                <SidebarProvider DefaultOpen="true" Width="100%" class="h-full min-h-0">
-                    <Sidebar Collapsible="icon" class="h-full min-h-0 border-r-0 bg-sidebar/40">
+                <SidebarProvider Open="@_isStandaloneSidebarOpen" OpenChanged="HandleStandaloneSidebarOpenChanged" Width="100%" class="h-full min-h-0">
+                    <Sidebar Collapsible="offcanvas" class="h-full min-h-0 border-r-0 bg-sidebar/40">
                             <div class="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden"
                              data-slot="session-app-left-sidebar">
                             @if (HasActiveSession)
                             {
                                 <SidebarHeader>
-                                    <SidebarBrand LogoSrc="_content/LowlandTech.Components/img/session-app-logo.svg" LogoAlt="SessionApp" Title="SessionApp" />
+                                    <div class="flex items-center justify-between gap-2">
+                                        <SidebarBrand LogoSrc="_content/LowlandTech.Components/img/session-app-logo.svg" LogoAlt="SessionApp" Title="SessionApp" />
+                                        <SidebarTrigger data-testid="session-app-sidebar-close" class="border border-border text-muted-foreground hover:bg-muted hover:text-foreground">
+                                            <Icon Name="panel-left-close" Size="14" />
+                                        </SidebarTrigger>
+                                    </div>
                                 </SidebarHeader>
                                 <SidebarContent class="min-h-0 w-full flex-1">
                                     <SidebarGroup>
@@ -44,23 +52,25 @@
                                     </SidebarGroup>
                                 </SidebarContent>
                                 <SidebarFooter>
-                                    <div class="flex items-center justify-end gap-2 px-2 py-2">
+                                    <div class="flex items-center justify-end px-2 py-2">
                                         <button type="button"
                                                 data-testid="session-app-settings-button"
                                                 class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                                                 @onclick="ShowEventLogPageAsync">
                                             <Icon Name="settings" Size="14" />
                                         </button>
-                                        <SidebarTrigger class="border border-border text-muted-foreground hover:bg-muted hover:text-foreground">
-                                            <Icon Name="panel-left-close" Size="14" />
-                                        </SidebarTrigger>
                                     </div>
                                 </SidebarFooter>
                             }
                             else
                             {
                                 <SidebarHeader>
-                                    <SidebarBrand LogoSrc="_content/LowlandTech.Components/img/session-app-logo.svg" LogoAlt="SessionApp" Title="SessionApp" />
+                                    <div class="flex items-center justify-between gap-2">
+                                        <SidebarBrand LogoSrc="_content/LowlandTech.Components/img/session-app-logo.svg" LogoAlt="SessionApp" Title="SessionApp" />
+                                        <SidebarTrigger data-testid="session-app-sidebar-close" class="border border-border text-muted-foreground hover:bg-muted hover:text-foreground">
+                                            <Icon Name="panel-left-close" Size="14" />
+                                        </SidebarTrigger>
+                                    </div>
                                 </SidebarHeader>
                                 <SidebarContent class="min-h-0 w-full flex-1">
                                     <SidebarGroup class="min-h-0 w-full flex-1">
@@ -102,11 +112,6 @@
                                         <span>Page 1 / 1</span>
                                         <span>Rows 10</span>
                                     </div>
-                                    <div class="flex items-center justify-end gap-2 px-2 pb-2">
-                                        <SidebarTrigger class="border border-border text-muted-foreground hover:bg-muted hover:text-foreground">
-                                            <Icon Name="panel-left-close" Size="14" />
-                                        </SidebarTrigger>
-                                    </div>
                                 </SidebarFooter>
                             }
                         </div>
@@ -114,7 +119,8 @@
                 </SidebarProvider>
             </ResizablePanel>
             <ResizableHandle WithHandle="true" RevealOnHover="true" class="relative z-20" />
-            <ResizablePanel DefaultSize="60" MinSize="35" Id="session-app-main-panel" class="h-full">
+            }
+            <ResizablePanel DefaultSize="@(IsStandaloneSidebarOpen ? 60 : 84)" MinSize="35" Id="session-app-main-panel" class="h-full">
                 <SidebarInset class="h-full min-h-0 overflow-hidden bg-background">
                     <main class="relative flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden"
                           style="padding:10px;">
@@ -134,6 +140,7 @@
                                             SelectedNode="CurrentSessionNode"
                                             PinnableTabs="true"
                                             PinnedTabIds="AppState.PinnedNodeIds"
+                                            HeaderLeading="@(!IsStandaloneSidebarOpen ? SidebarOpenButton : null)"
                                             OnSelected="e => SelectSessionAsync(e.Node)"
                                             OnClosed="HandleTabClosedAsync"
                                             OnTabPinnedChanged="HandleTabPinnedChangedAsync"
@@ -301,7 +308,7 @@
                 </SidebarInset>
             </ResizablePanel>
             <ResizableHandle WithHandle="true" RevealOnHover="true" class="relative z-20" />
-            <ResizablePanel DefaultSize="16" MinSize="12" MaxSize="28" Id="session-app-sections-panel" class="h-full">
+            <ResizablePanel DefaultSize="16" MinSize="12" MaxSize="100" Id="session-app-sections-panel" class="h-full">
                 <aside class="flex h-full min-h-0 min-w-0 w-full flex-col overflow-hidden border-l border-border bg-sidebar/40"
                       data-slot="session-app-right-sidebar"
                       data-testid="session-app-right-sidebar">
@@ -344,15 +351,19 @@
                 </aside>
             </ResizablePanel>
         </Resizable>
+        </div>
     }
     else
     {
         <Resizable>
             <ResizablePanel DefaultSize="24" MinSize="16" MaxSize="38" Id="session-app-left-panel" class="h-full">
-                  <aside class="flex h-full min-h-0 w-full flex-col overflow-hidden border-r border-border bg-sidebar/40"
+                   <aside class="flex h-full min-h-0 w-full flex-col overflow-hidden border-r border-border bg-sidebar/40"
                        data-slot="session-app-left-sidebar">
-                    <div class="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden"
-                         data-slot="session-app-left-sidebar">
+                    <div class="flex h-full min-h-0 w-full flex-1 flex-col"
+                        data-slot="session-app-left-sidebar-body"
+                        style="padding:10px;">
+                        <div class="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden"
+                            data-slot="session-app-left-sidebar">
                         @if (HasActiveSession)
                         {
                             <section class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background">
@@ -388,6 +399,7 @@
                                          OnSelected="e => SelectSessionAsync(e.Node)"
                                          class="min-h-0 flex-1" />
                         }
+                        </div>
                     </div>
                 </aside>
             </ResizablePanel>
@@ -565,7 +577,7 @@
                 </main>
             </ResizablePanel>
             <ResizableHandle WithHandle="true" RevealOnHover="true" class="z-10" />
-            <ResizablePanel DefaultSize="16" MinSize="12" MaxSize="28" Id="session-app-sections-panel" class="h-full">
+            <ResizablePanel DefaultSize="16" MinSize="12" MaxSize="100" Id="session-app-sections-panel" class="h-full">
                 <aside class="flex h-full min-h-0 min-w-0 w-full flex-col overflow-hidden border-l border-border bg-sidebar/40"
                       data-slot="session-app-right-sidebar"
                       data-testid="session-app-right-sidebar">

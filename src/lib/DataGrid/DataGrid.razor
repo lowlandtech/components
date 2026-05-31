@@ -56,7 +56,9 @@
                                             class="cn-data-grid-sort-button"
                                             @onclick="eventArgs => ToggleSort(column, eventArgs)">
                                         <span>@column.HeaderText</span>
-                                        <span aria-hidden="true" class="cn-data-grid-sort-indicator">@GetSortIndicator(column)</span>
+                                        <span aria-hidden="true"
+                                              class="cn-data-grid-sort-indicator text-[10px]"
+                                              style="transform: translateY(1px);">@GetSortIndicator(column)</span>
                                     </button>
                                 }
                                 else

@@ -221,7 +221,9 @@ else
 
     private string GetShellClass()
     {
-        var baseClass = "cn-tabs-list-shell flex w-full min-w-0 items-center gap-1";
+        var baseClass = IsVariant("ide")
+            ? "cn-tabs-list-shell flex w-full min-w-0 items-center"
+            : "cn-tabs-list-shell flex w-full min-w-0 items-center gap-1";
         return IsVariant("ide") ? $"{baseClass} border-b bg-transparent" : baseClass;
     }
 
