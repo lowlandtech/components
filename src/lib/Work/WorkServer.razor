@@ -2,56 +2,49 @@
 @inherits TinyComponentBase
 
 <div data-slot="work-server" class="@GetClass()" @attributes="AdditionalAttributes">
-    @if (Servers.Count == 0)
-    {
-        <div data-testid="work-server-empty" class="px-3 py-4 text-sm text-muted-foreground">No servers available.</div>
-    }
-    else
-    {
-        <Table>
-            <TableHeader>
-                <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Workers</TableHead>
-                    <TableHead>Queues</TableHead>
-                    <TableHead>Started</TableHead>
-                    <TableHead>Heartbeat</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                @foreach (var server in Servers)
-                {
-                    <TableRow>
-                        <TableCell class="font-medium">@server.Name</TableCell>
-                        <TableCell>@server.Workers</TableCell>
-                        <TableCell>
-                            <div class="flex flex-wrap gap-1">
-                                @foreach (var queue in server.Queues)
-                                {
-                                    <Badge Variant="outline" Size="sm">@queue</Badge>
-                                }
-                            </div>
-                        </TableCell>
-                        <TableCell class="text-muted-foreground">@GetRelativeTime(server.StartedAt)</TableCell>
-                        <TableCell>
-                            <div class="flex items-center gap-1.5">
-                                @if (server.HeartbeatAt.HasValue)
-                                {
-                                    var status = GetHeartbeatStatus(server.HeartbeatAt.Value);
-                                    <Icon Name="@status.Icon" Size="14" class="@status.Class" />
-                                    <span class="text-xs text-muted-foreground">@GetRelativeTime(server.HeartbeatAt.Value)</span>
-                                }
-                                else
-                                {
-                                    <span class="text-xs text-muted-foreground">—</span>
-                                }
-                            </div>
-                        </TableCell>
-                    </TableRow>
-                }
-            </TableBody>
-        </Table>
-    }
+    <DataGrid TItem="WorkServerItem"
+              Items="Servers"
+              SelectionMode="DataGridSelectionMode.None"
+              AllowSorting="false"
+              AllowFiltering="false"
+              AllowPaging="false"
+              EmptyText="No servers available.">
+        <Columns>
+            <DataGridColumn TItem="WorkServerItem" Property="Name" Title="Name" />
+            <DataGridColumn TItem="WorkServerItem" Property="Workers" Title="Workers" />
+            <DataGridColumn TItem="WorkServerItem" Title="Queues">
+                <Template Context="server">
+                    <div class="flex flex-wrap gap-1">
+                        @foreach (var queue in server.Queues)
+                        {
+                            <Badge Variant="outline" Size="sm">@queue</Badge>
+                        }
+                    </div>
+                </Template>
+            </DataGridColumn>
+            <DataGridColumn TItem="WorkServerItem" Title="Started">
+                <Template Context="server">
+                    <span class="text-muted-foreground">@GetRelativeTime(server.StartedAt)</span>
+                </Template>
+            </DataGridColumn>
+            <DataGridColumn TItem="WorkServerItem" Title="Heartbeat">
+                <Template Context="server">
+                    <div class="flex items-center gap-1.5">
+                        @if (server.HeartbeatAt.HasValue)
+                        {
+                            var status = GetHeartbeatStatus(server.HeartbeatAt.Value);
+                            <Icon Name="@status.Icon" Size="14" class="@status.Class" />
+                            <span class="text-xs text-muted-foreground">@GetRelativeTime(server.HeartbeatAt.Value)</span>
+                        }
+                        else
+                        {
+                            <span class="text-xs text-muted-foreground">—</span>
+                        }
+                    </div>
+                </Template>
+            </DataGridColumn>
+        </Columns>
+    </DataGrid>
 </div>
 
 @code {

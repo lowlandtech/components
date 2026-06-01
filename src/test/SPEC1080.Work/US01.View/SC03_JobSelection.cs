@@ -12,8 +12,8 @@ public class SC03_JobSelection : Infrastructure.WorkScenario
         var cut = RenderWorkApp();
         cut.Find("[data-testid='work-sidebar-enqueued']").Click();
 
-        var row = cut.Find("[data-testid='work-list-row']");
-        row.Click();
+        var idCell = cut.Find("[data-slot='work-list'] [data-slot='data-grid-cell'] .cursor-pointer");
+        idCell.Click();
 
         StateService.State.SelectedJob.ShouldNotBeNull();
     }
@@ -25,8 +25,8 @@ public class SC03_JobSelection : Infrastructure.WorkScenario
         var cut = RenderWorkApp();
         cut.Find("[data-testid='work-sidebar-enqueued']").Click();
 
-        var row = cut.Find("[data-testid='work-list-row']");
-        row.Click();
+        var idCell = cut.Find("[data-slot='work-list'] [data-slot='data-grid-cell'] .cursor-pointer");
+        idCell.Click();
 
         cut.FindAll("[data-slot='work-detail']").Count.ShouldBeGreaterThan(0);
     }

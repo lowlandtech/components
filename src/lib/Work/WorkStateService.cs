@@ -3,6 +3,7 @@ namespace LowlandTech.Components.Work;
 public sealed class WorkStateService
 {
     private WorkAppState _state;
+    private readonly IReadOnlyList<WorkItem> _allJobs;
 
     public WorkStateService()
         : this(WorkUseCaseData.HealthyCluster())
@@ -13,6 +14,7 @@ public sealed class WorkStateService
     public WorkStateService(WorkAppState initialState)
     {
         _state = initialState;
+        _allJobs = initialState.Jobs.ToList();
     }
 
     public WorkAppState State => _state;
@@ -43,7 +45,7 @@ public sealed class WorkStateService
         {
             var job = _state.Jobs.FirstOrDefault(j => j.Id == jobId);
             var history = job is not null ? WorkUseCaseData.BuildHistory(job) : [];
-            var continuations = _state.Jobs.Where(j => j.ParentId == jobId).ToList();
+            var continuations = _allJobs.Where(j => j.ParentId == jobId).ToList();
             Dispatch(new SetSelectedWorkJob(job, history, continuations));
         }
         else
@@ -105,7 +107,7 @@ public sealed class WorkStateService
         if (!string.IsNullOrWhiteSpace(queueName))
         {
             Dispatch(new SetWorkView(WorkView.Enqueued));
-            var filtered = _state.Jobs
+            var filtered = _allJobs
                 .Where(j => j.QueueName == queueName)
                 .ToList();
             Dispatch(new SetWorkItems(filtered));
@@ -115,9 +117,9 @@ public sealed class WorkStateService
     public void LoadDashboard()
     {
         Dispatch(new SetWorkView(WorkView.Dashboard));
-        Dispatch(new SetWorkMetrics(WorkUseCaseData.BuildMetrics(_state.Jobs)));
+        Dispatch(new SetWorkMetrics(WorkUseCaseData.BuildMetrics(_allJobs)));
         Dispatch(new SetWorkStatistics(WorkUseCaseData.BuildStatistics(
-            _state.Jobs, _state.Queues, _state.Servers, _state.RecurringJobs)));
+            _allJobs, _state.Queues, _state.Servers, _state.RecurringJobs)));
     }
 
     public void LoadQueues()
@@ -125,7 +127,7 @@ public sealed class WorkStateService
         Dispatch(new SetWorkView(WorkView.Queues));
         if (_state.Queues.Count == 0)
         {
-            Dispatch(new SetWorkQueues(WorkUseCaseData.BuildQueues(_state.Jobs)));
+            Dispatch(new SetWorkQueues(WorkUseCaseData.BuildQueues(_allJobs)));
         }
     }
 
@@ -186,7 +188,7 @@ public sealed class WorkStateService
         Dispatch(new SetWorkLoading(false));
     }
 
-    public WorkItem? GetJob(string jobId) => _state.Jobs.FirstOrDefault(j => j.Id == jobId);
+    public WorkItem? GetJob(string jobId) => _allJobs.FirstOrDefault(j => j.Id == jobId);
 
     public IReadOnlyList<WorkItem> GetVisibleJobs()
     {
@@ -238,20 +240,19 @@ public sealed class WorkStateService
 
     private IReadOnlyList<WorkItem> FilterJobsForView(WorkView view)
     {
-        var all = _state.Jobs;
-        if (all.Count == 0) return [];
+        if (_allJobs.Count == 0) return [];
 
         return view switch
         {
-            WorkView.Enqueued => all.Where(j => j.State == WorkItemState.Enqueued).ToList(),
-            WorkView.Scheduled => all.Where(j => j.State == WorkItemState.Scheduled).ToList(),
-            WorkView.Processing => all.Where(j => j.State == WorkItemState.Processing).ToList(),
-            WorkView.Succeeded => all.Where(j => j.State == WorkItemState.Succeeded).ToList(),
-            WorkView.Failed => all.Where(j => j.State == WorkItemState.Failed).ToList(),
-            WorkView.Deleted => all.Where(j => j.State == WorkItemState.Deleted).ToList(),
-            WorkView.Awaiting => all.Where(j => j.State == WorkItemState.Awaiting).ToList(),
-            WorkView.Retries => all.Where(j => j.State == WorkItemState.Retry).ToList(),
-            _ => all.ToList()
+            WorkView.Enqueued => _allJobs.Where(j => j.State == WorkItemState.Enqueued).ToList(),
+            WorkView.Scheduled => _allJobs.Where(j => j.State == WorkItemState.Scheduled).ToList(),
+            WorkView.Processing => _allJobs.Where(j => j.State == WorkItemState.Processing).ToList(),
+            WorkView.Succeeded => _allJobs.Where(j => j.State == WorkItemState.Succeeded).ToList(),
+            WorkView.Failed => _allJobs.Where(j => j.State == WorkItemState.Failed).ToList(),
+            WorkView.Deleted => _allJobs.Where(j => j.State == WorkItemState.Deleted).ToList(),
+            WorkView.Awaiting => _allJobs.Where(j => j.State == WorkItemState.Awaiting).ToList(),
+            WorkView.Retries => _allJobs.Where(j => j.State == WorkItemState.Retry).ToList(),
+            _ => _allJobs.ToList()
         };
     }
 }

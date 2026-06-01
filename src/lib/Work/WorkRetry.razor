@@ -2,51 +2,85 @@
 @inherits TinyComponentBase
 
 <div data-slot="work-retry" class="@GetClass()" @attributes="AdditionalAttributes">
-    @if (Jobs.Count == 0)
-    {
-        <div data-testid="work-retry-empty" class="px-3 py-4 text-sm text-muted-foreground">No retry jobs.</div>
-    }
-    else
-    {
-        <Table>
-            <TableHeader>
-                <TableRow>
-                    @if (!IsReadOnly)
-                    {
-                        <TableHead class="w-10"><span class="sr-only">Select</span></TableHead>
-                    }
-                    <TableHead>ID</TableHead>
-                    <TableHead>State</TableHead>
-                    <TableHead>Job</TableHead>
-                    <TableHead>Reason</TableHead>
-                    <TableHead>Retry At</TableHead>
-                    <TableHead>Created</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                @foreach (var job in Jobs)
-                {
-                    <TableRow data-testid="work-retry-row"
-                              data-job-id="@job.Id"
-                              @onclick="() => SelectAsync(job)"
-                              class="cursor-pointer hover:bg-muted/40">
-                        @if (!IsReadOnly)
-                        {
-                            <TableCell @onclick:stopPropagation>
-                                <Checkbox data-testid="work-retry-checkbox"
-                                          CheckedChanged="_ => ToggleAsync(job.Id)"
-                                          Disabled="IsReadOnly" />
-                            </TableCell>
-                        }
-                        <TableCell class="font-mono text-xs">@job.Id</TableCell>
-                        <TableCell><WorkStateBadge State="job.State" /></TableCell>
-                        <TableCell class="font-medium">@job.JobDisplayName</TableCell>
-                        <TableCell class="text-muted-foreground text-sm">@job.Reason</TableCell>
-                        <TableCell class="text-muted-foreground text-sm">@GetRelativeTime(job.ScheduledAt ?? job.CreatedAt)</TableCell>
-                        <TableCell class="text-muted-foreground text-sm">@GetRelativeTime(job.CreatedAt)</TableCell>
-                    </TableRow>
-                }
-            </TableBody>
-        </Table>
-    }
+    <DataGrid TItem="WorkItem"
+              Items="Jobs"
+              SelectionMode="DataGridSelectionMode.None"
+              AllowSorting="false"
+              AllowFiltering="false"
+              AllowPaging="false"
+              EmptyText="No retry jobs.">
+        <Columns>
+            @if (!IsReadOnly)
+            {
+                <DataGridColumn TItem="WorkItem" Title="" Class="w-10">
+                    <Template Context="job">
+                        <Checkbox data-testid="work-retry-checkbox"
+                                  CheckedChanged="_ => ToggleAsync(job.Id)"
+                                  Disabled="IsReadOnly" />
+                    </Template>
+                </DataGridColumn>
+            }
+            <DataGridColumn TItem="WorkItem" Property="Id" Title="ID">
+                <Template Context="job">
+                    <span @onclick="() => SelectAsync(job)" class="cursor-pointer font-mono text-xs">
+                        @job.Id
+                    </span>
+                </Template>
+            </DataGridColumn>
+            <DataGridColumn TItem="WorkItem" Title="State">
+                <Template Context="job">
+                    <WorkStateBadge State="job.State" />
+                </Template>
+            </DataGridColumn>
+            <DataGridColumn TItem="WorkItem" Property="JobDisplayName" Title="Job" />
+            <DataGridColumn TItem="WorkItem" Property="Reason" Title="Reason">
+                <Template Context="job">
+                    <span class="text-muted-foreground text-sm">@job.Reason</span>
+                </Template>
+            </DataGridColumn>
+            <DataGridColumn TItem="WorkItem" Title="Retry At">
+                <Template Context="job">
+                    <span class="text-muted-foreground text-sm">@GetRelativeTime(job.ScheduledAt ?? job.CreatedAt)</span>
+                </Template>
+            </DataGridColumn>
+            <DataGridColumn TItem="WorkItem" Title="Created">
+                <Template Context="job">
+                    <span class="text-muted-foreground text-sm">@GetRelativeTime(job.CreatedAt)</span>
+                </Template>
+            </DataGridColumn>
+        </Columns>
+    </DataGrid>
 </div>
+
+@code {
+    [Parameter] public IReadOnlyList<WorkItem> Jobs { get; set; } = [];
+    [Parameter] public bool IsReadOnly { get; set; }
+    [Parameter] public EventCallback<ToggleWorkSelection> OnToggleSelection { get; set; }
+    [Parameter] public EventCallback<WorkItemSelected> OnSelected { get; set; }
+
+    private async Task ToggleAsync(string jobId)
+    {
+        await OnToggleSelection.InvokeAsync(new ToggleWorkSelection(jobId));
+    }
+
+    private async Task SelectAsync(WorkItem job)
+    {
+        await OnSelected.InvokeAsync(new WorkItemSelected(job.Id));
+    }
+
+    private static string GetRelativeTime(DateTimeOffset? value)
+    {
+        if (value is null)
+            return "—";
+
+        var diff = DateTimeOffset.UtcNow - value.Value;
+        if (diff.TotalSeconds < 60) return "just now";
+        if (diff.TotalMinutes < 60) return $"{(int)diff.TotalMinutes}m ago";
+        if (diff.TotalHours < 24) return $"{(int)diff.TotalHours}h ago";
+        return $"{(int)diff.TotalDays}d ago";
+    }
+
+    private string GetClass() => string.IsNullOrEmpty(Class)
+        ? "rounded-lg border border-border bg-card"
+        : $"rounded-lg border border-border bg-card {Class}";
+}

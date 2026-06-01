@@ -23,14 +23,14 @@ public class SC04_FilterBar : Infrastructure.WorkScenario
         StateService.SetView(WorkView.Enqueued);
         cut.Render();
 
-        var before = cut.FindAll("[data-testid='work-list-row']").Count;
+        var before = cut.FindAll("[data-slot='work-list'] [data-slot='data-grid-row']").Count;
         before.ShouldBeGreaterThan(0);
 
         StateService.SetFilter("nonexistent-job-xyz");
         cut.Render();
 
-        cut.FindAll("[data-testid='work-list-row']").Count.ShouldBe(0);
-        cut.Find("[data-testid='work-list-empty']").ShouldNotBeNull();
+        cut.FindAll("[data-slot='work-list'] [data-slot='data-grid-row']").Count.ShouldBe(0);
+        cut.Find("[data-slot='work-list'] [data-slot='data-grid-empty']").ShouldNotBeNull();
     }
 
     [Fact(DisplayName = "UAC03: Filtering by job display name shows matching rows")]
@@ -43,7 +43,7 @@ public class SC04_FilterBar : Infrastructure.WorkScenario
         StateService.SetFilter(targetName);
         cut.Render();
 
-        var rows = cut.FindAll("[data-testid='work-list-row']");
+        var rows = cut.FindAll("[data-slot='work-list'] [data-slot='data-grid-row']");
         rows.Count.ShouldBeGreaterThan(0);
         rows.All(r => r.TextContent.Contains(targetName, StringComparison.OrdinalIgnoreCase)).ShouldBeTrue();
     }
@@ -58,10 +58,10 @@ public class SC04_FilterBar : Infrastructure.WorkScenario
 
         StateService.SetFilter("narrow");
         cut.Render();
-        cut.FindAll("[data-testid='work-list-row']").Count.ShouldBeLessThan(before);
+        cut.FindAll("[data-slot='work-list'] [data-slot='data-grid-row']").Count.ShouldBeLessThan(before);
 
         StateService.SetFilter(string.Empty);
         cut.Render();
-        cut.FindAll("[data-testid='work-list-row']").Count.ShouldBe(StateService.GetPagedJobs().Count);
+        cut.FindAll("[data-slot='work-list'] [data-slot='data-grid-row']").Count.ShouldBe(StateService.GetPagedJobs().Count);
     }
 }
