@@ -1,5 +1,6 @@
 @namespace LowlandTech.Components.Work
 @inherits TinyComponentBase
+@inject IStringLocalizer<WorkStateBadgeStrings> L
 
 <Badge data-slot="work-state-badge"
        class="@GetClass()"
@@ -26,5 +27,5 @@
 
     private string GetLabel() => !string.IsNullOrWhiteSpace(CustomLabel)
         ? CustomLabel
-        : State.ToString();
+        : L[State.ToString()];
 }
