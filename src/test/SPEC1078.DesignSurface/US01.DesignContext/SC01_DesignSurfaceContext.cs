@@ -10,7 +10,7 @@ public class SC01_DesignSurfaceContext : ViewScenario
     [Trait(Spec.UAC, "01")]
     public void UAC01_CascadesDesignMode()
     {
-        var cut = Ctx.Render<DesignSurface>(parameters => parameters
+        var cut = Ctx.Render<Components.DesignSurface>(parameters => parameters
             .Add(p => p.IsDesignMode, true)
             .AddChildContent<LowlandTech.Components.Button.Button>());
 
@@ -23,7 +23,7 @@ public class SC01_DesignSurfaceContext : ViewScenario
     public void UAC02_RaisesSelection()
     {
         TinyDesignSelection? selection = null;
-        var cut = Ctx.Render<DesignSurface>(parameters => parameters
+        var cut = Ctx.Render<Components.DesignSurface>(parameters => parameters
             .Add(p => p.IsDesignMode, true)
             .Add(p => p.OnSelectionChanged, value => selection = value)
             .AddChildContent<LowlandTech.Components.Button.Button>());
@@ -39,7 +39,7 @@ public class SC01_DesignSurfaceContext : ViewScenario
     [Trait(Spec.UAC, "03")]
     public void UAC03_MarksSelectedChild()
     {
-        var cut = Ctx.Render<DesignSurface>(parameters => parameters
+        var cut = Ctx.Render<Components.DesignSurface>(parameters => parameters
             .Add(p => p.IsDesignMode, true)
             .AddChildContent<LowlandTech.Components.Button.Button>());
 

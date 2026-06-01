@@ -86,7 +86,9 @@ public sealed class ComponentThemeService : IComponentThemeResolver
         string? consumerClass = null,
         string? designClass = null)
     {
-        var theme = providerId is null ? null : GetForProvider(providerId);
+        var theme = providerId is null || !_providerThemes.ContainsKey(providerId)
+            ? null
+            : GetForProvider(providerId);
         var classTheme = theme as IComponentClassTheme;
 
         string resolved;
@@ -117,7 +119,7 @@ public sealed class ComponentThemeService : IComponentThemeResolver
         string? providerId,
         ComponentSlotKey key)
     {
-        if (providerId is null) return null;
+        if (providerId is null || !_providerThemes.ContainsKey(providerId)) return null;
         var theme = GetForProvider(providerId) as IComponentFragmentTheme;
         if (theme is null) return null;
 
@@ -132,19 +134,35 @@ public sealed class ComponentThemeService : IComponentThemeResolver
     // ── helpers ──────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Tries to find a matching slot in <paramref name="classTheme"/>.
-    /// Checks the full key first, then falls back to a wildcard key that omits
-    /// variant/size/state, so a theme can override all variants of a slot with
-    /// a single entry.
+    /// Tries to find a matching slot in <paramref name="classTheme"/> using a
+    /// three-level priority cascade:
+    /// <list type="number">
+    ///   <item>Full exact match — component, slot, variant, size, state.</item>
+    ///   <item>Variant-only match — strips size and state, so a theme can
+    ///     target "outline" regardless of size (e.g. sm/lg).</item>
+    ///   <item>Full wildcard — strips all dimensions; catches any
+    ///     variant/size/state the theme did not explicitly list.</item>
+    /// </list>
     /// </summary>
     private static bool TryResolveSlot(
         IComponentClassTheme classTheme,
         ComponentSlotKey key,
         out ThemeClassSlot? slot)
     {
+        // 1. Full exact match
         if (classTheme.ClassSlots.TryGetValue(key, out slot))
             return true;
 
+        // 2. Variant-only: strip size + state so e.g. ("Button","Root","default")
+        //    matches keys the component emits as ("Button","Root","default","default",null).
+        if (key.Variant is not null)
+        {
+            var variantOnly = new ComponentSlotKey(key.Component, key.Slot, key.Variant);
+            if (classTheme.ClassSlots.TryGetValue(variantOnly, out slot))
+                return true;
+        }
+
+        // 3. Full wildcard: strip all dimensions
         var wildcard = new ComponentSlotKey(key.Component, key.Slot);
         if (classTheme.ClassSlots.TryGetValue(wildcard, out slot))
             return true;
