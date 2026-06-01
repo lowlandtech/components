@@ -48,23 +48,19 @@
                     </div>
                 }
 
-                <div class="story-card-tabs-content-column" @ref="_contentColumn">
+                <div class="story-card-tabs-content-column">
                     @foreach (var state in States)
                     {
                         <TabsContent Value="@state.Value" class="@GetTabsContentClass()">
                             <div class="flex min-w-0 flex-1 flex-col gap-2">
                                 <div class="flex min-w-0 gap-2">
-                                    <div class="story-card-design-preview relative flex min-h-32 min-w-0 flex-1 items-center justify-center rounded-lg border border-border/70 bg-background p-6">
-                                        <CascadingValue Name="TinyDesignMode" Value="@_designMode">
-                                            <CascadingValue Name="TinySelectedDesignInstanceId" Value="@_selectedDesignInstanceId">
-                                                <CascadingValue Name="TinyDesignPropertyValues" Value="@_designValues">
-                                                    <CascadingValue Name="TinyDesignSelected" Value="@DesignSelectedCallback">
-                                                        @state.Preview
-                                                    </CascadingValue>
-                                                </CascadingValue>
-                                            </CascadingValue>
-                                        </CascadingValue>
-                                    </div>
+                                    <DesignSurface IsDesignMode="@_designMode"
+                                                   SelectedInstanceId="@_selectedDesignInstanceId"
+                                                   PropertyValues="@_designValues"
+                                                   OnSelectionChanged="@DesignSelectedCallback"
+                                                   Class="story-card-design-preview relative flex min-h-32 min-w-0 flex-1 items-center justify-center rounded-lg border border-border/70 bg-background p-6">
+                                        @state.Preview
+                                    </DesignSurface>
                                 </div>
                                 @if (state.CodeTabs.Count > 0)
                                 {
@@ -188,8 +184,6 @@
     private string? _selectedDesignInstanceId;
     private Type? _selectedDesignComponentType;
     private readonly Dictionary<string, string> _designValues = new(StringComparer.OrdinalIgnoreCase);
-    private ElementReference _contentColumn;
-    private IJSObjectReference? _designModeModule;
     private readonly Dictionary<string, Guid> _popoverIds = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<Guid> _registeredPopoverIds = [];
 
@@ -220,15 +214,6 @@
         if (firstRender)
         {
             await RestoreFromSessionStorageAsync();
-            try
-            {
-                _designModeModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/LowlandTech.Components/js/designMode.js");
-                await _designModeModule.InvokeVoidAsync("initPreviewContainer", _contentColumn);
-            }
-            catch
-            {
-                // Ignore JS interop errors during prerender or tests.
-            }
         }
     }
 
@@ -881,6 +866,5 @@
         {
             PopoverService.Unregister(id);
         }
-        _ = _designModeModule?.DisposeAsync();
     }
 }

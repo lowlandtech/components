@@ -1,0 +1,101 @@
+@namespace LowlandTech.Components
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<div data-slot="design-surface"
+     data-design-mode="@(IsDesignMode ? "true" : null)"
+     class="@GetClass()"
+     @ref="_surface"
+     @attributes="AdditionalAttributes">
+    <CascadingValue Name="TinyDesignMode" Value="@IsDesignMode">
+        <CascadingValue Name="TinySelectedDesignInstanceId" Value="@SelectedInstanceId">
+            <CascadingValue Name="TinyDesignPropertyValues" Value="@PropertyValues">
+                <CascadingValue Name="TinyDesignSelected" Value="@DesignSelectedCallback">
+                    @ChildContent
+                </CascadingValue>
+            </CascadingValue>
+        </CascadingValue>
+    </CascadingValue>
+</div>
+
+@code {
+    [Parameter] public bool IsDesignMode { get; set; }
+    [Parameter] public string? SelectedInstanceId { get; set; }
+    [Parameter] public EventCallback<string?> SelectedInstanceIdChanged { get; set; }
+    [Parameter] public IReadOnlyDictionary<string, string>? PropertyValues { get; set; }
+    [Parameter] public EventCallback<TinyDesignSelection> OnSelectionChanged { get; set; }
+    [Parameter] public string? Class { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private ElementReference _surface;
+    private IJSObjectReference? _module;
+    private IJSObjectReference? _handle;
+
+    private EventCallback<TinyDesignSelection> DesignSelectedCallback =>
+        EventCallback.Factory.Create<TinyDesignSelection>(this, OnDesignSelected);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        try
+        {
+            _module = await JS.InvokeAsync<IJSObjectReference>(
+                "import",
+                "./_content/LowlandTech.Components/js/designMode.js");
+            _handle = await _module.InvokeAsync<IJSObjectReference>("initPreviewContainer", _surface);
+        }
+        catch
+        {
+            // JS is unavailable during prerender and many bUnit tests. The
+            // cascading design context still works without the click bridge.
+        }
+    }
+
+    private async Task OnDesignSelected(TinyDesignSelection selection)
+    {
+        SelectedInstanceId = selection.InstanceId;
+
+        if (SelectedInstanceIdChanged.HasDelegate)
+            await SelectedInstanceIdChanged.InvokeAsync(selection.InstanceId);
+
+        if (OnSelectionChanged.HasDelegate)
+            await OnSelectionChanged.InvokeAsync(selection);
+    }
+
+    private string GetClass()
+    {
+        const string baseClass = "lt-design-surface";
+        return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_handle is not null)
+        {
+            try
+            {
+                await _handle.InvokeVoidAsync("dispose");
+            }
+            catch { }
+
+            try
+            {
+                await _handle.DisposeAsync();
+            }
+            catch { }
+        }
+
+        if (_module is not null)
+        {
+            try
+            {
+                await _module.DisposeAsync();
+            }
+            catch { }
+        }
+    }
+}
