@@ -2,14 +2,15 @@ namespace LowlandTech.Components.E2E.Infrastructure;
 
 /// <summary>
 /// Starts the Blazor WASM Showcode app (<c>LowlandTech.Components.App</c>)
-/// via <c>dotnet run</c> on an ephemeral loopback port and waits until
-/// Kestrel is accepting HTTP requests.
+/// on an ephemeral loopback port and waits until Kestrel is accepting HTTP
+/// requests.
 ///
 /// Dispose kills the process. Intended as a one-per-test-session singleton
 /// managed by xUnit's <see cref="IAsyncLifetime"/> / collection fixtures.
 /// </summary>
 public sealed class ShowcodeProcess : IAsyncDisposable
 {
+    private const int StartupTimeoutSeconds = 180;
     private readonly Process _process;
 
     public string BaseUrl { get; }
@@ -21,8 +22,9 @@ public sealed class ShowcodeProcess : IAsyncDisposable
     }
 
     /// <summary>
-    /// Boot the WASM dev-server and return when it is ready to serve
-    /// HTTP requests (max ~180 s). The project file is located by walking
+    /// Build the WASM app once, then boot the dev-server and return when it is
+    /// ready to serve HTTP requests (max ~180 s for the launch phase). The
+    /// project file is located by walking
     /// up from the compile-time <c>[CallerFilePath]</c> source directory
     /// until a <c>.sln</c> is found, making discovery robust under NCrunch.
     /// </summary>
@@ -41,17 +43,20 @@ public sealed class ShowcodeProcess : IAsyncDisposable
         var projectPath = FindProjectFile(
             ["src", "components", "app", "LowlandTech.Components.App.csproj"]);
 
+        await EnsureBuiltAsync(projectPath, ct);
+
         Exception? lastEx = null;
         for (var attempt = 1; attempt <= 3; attempt++)
         {
             var port = FindFreePort();
             var baseUrl = $"http://127.0.0.1:{port}";
 
+            var stdoutBuf = new StringBuilder();
             var stderrBuf = new StringBuilder();
             var psi = new ProcessStartInfo
             {
                 FileName = "dotnet",
-                Arguments = $"run --project \"{projectPath}\" --configuration Release --urls {baseUrl} --no-launch-profile",
+                Arguments = $"run --project \"{projectPath}\" --configuration Release --urls {baseUrl} --no-launch-profile --no-build",
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
@@ -61,8 +66,7 @@ public sealed class ShowcodeProcess : IAsyncDisposable
             var process = Process.Start(psi)
                 ?? throw new InvalidOperationException("Failed to start dotnet run.");
 
-            // Drain stdout; capture stderr so failures are diagnosable.
-            _ = process.StandardOutput.BaseStream.CopyToAsync(Stream.Null, ct);
+            var stdoutTask = DrainStreamAsync(process.StandardOutput, stdoutBuf, ct);
             var stderrTask = DrainStderrAsync(process.StandardError, stderrBuf, ct);
 
             try
@@ -74,10 +78,10 @@ public sealed class ShowcodeProcess : IAsyncDisposable
             {
                 // dotnet run exited/timed-out before serving; wait for stderr to
                 // flush, then retry on a fresh port.
-                await Task.WhenAny(stderrTask, Task.Delay(500, ct));
+                await Task.WhenAny(Task.WhenAll(stdoutTask, stderrTask), Task.Delay(500, ct));
                 var failure = new InvalidOperationException(
                     $"Attempt {attempt}: dotnet run failed (exit {(process.HasExited ? process.ExitCode : -1)})." +
-                    $" stderr:\n{stderrBuf}", ex);
+                    $" stdout:\n{stdoutBuf}\nstderr:\n{stderrBuf}", ex);
                 try { process.Kill(entireProcessTree: true); } catch { /* already gone */ }
                 process.Dispose();
 
@@ -92,7 +96,50 @@ public sealed class ShowcodeProcess : IAsyncDisposable
         throw lastEx ?? new TimeoutException("Showcode app failed to start after 3 attempts.");
     }
 
+    private static async Task EnsureBuiltAsync(string projectPath, CancellationToken ct)
+    {
+        var psi = new ProcessStartInfo
+        {
+            FileName = "dotnet",
+            Arguments = $"build \"{projectPath}\" --configuration Release --nologo",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+
+        var output = new StringBuilder();
+        using var process = Process.Start(psi)
+            ?? throw new InvalidOperationException("Failed to start dotnet build for Showcode.");
+
+        var stdoutTask = DrainStreamAsync(process.StandardOutput, output, ct);
+        var stderrTask = DrainStderrAsync(process.StandardError, output, ct);
+
+        using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        timeoutCts.CancelAfter(TimeSpan.FromMinutes(5));
+
+        try
+        {
+            await process.WaitForExitAsync(timeoutCts.Token);
+            await Task.WhenAll(stdoutTask, stderrTask);
+        }
+        catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+        {
+            TryKill(process);
+            throw new TimeoutException($"Showcode build did not complete within 300 s. Output:\n{output}");
+        }
+
+        if (process.ExitCode != 0)
+            throw new InvalidOperationException($"Showcode build failed with exit code {process.ExitCode}. Output:\n{output}");
+    }
+
+    private static Task DrainStreamAsync(StreamReader reader, StringBuilder buf, CancellationToken ct)
+        => DrainReaderAsync(reader, buf, ct);
+
     private static async Task DrainStderrAsync(StreamReader reader, StringBuilder buf, CancellationToken ct)
+        => await DrainReaderAsync(reader, buf, ct);
+
+    private static async Task DrainReaderAsync(StreamReader reader, StringBuilder buf, CancellationToken ct)
     {
         try
         {
@@ -109,7 +156,7 @@ public sealed class ShowcodeProcess : IAsyncDisposable
     private static async Task WaitForReadyAsync(Process process, string baseUrl, CancellationToken ct)
     {
         using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
-        var deadline = DateTime.UtcNow.AddSeconds(180);
+        var deadline = DateTime.UtcNow.AddSeconds(StartupTimeoutSeconds);
 
         while (DateTime.UtcNow < deadline && !ct.IsCancellationRequested)
         {
@@ -132,7 +179,7 @@ public sealed class ShowcodeProcess : IAsyncDisposable
             await Task.Delay(1_000, ct);
         }
 
-        throw new TimeoutException($"Showcode app did not start within 180 s at {baseUrl}.");
+        throw new TimeoutException($"Showcode app did not start within {StartupTimeoutSeconds} s at {baseUrl}.");
     }
 
     // [CallerFilePath] is substituted by the compiler with the real source path
@@ -223,13 +270,26 @@ public sealed class ShowcodeProcess : IAsyncDisposable
         return port;
     }
 
+    [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Best-effort process cleanup during fixture shutdown.")]
+    private static void TryKill(Process process)
+    {
+        try
+        {
+            if (!process.HasExited)
+                process.Kill(entireProcessTree: true);
+        }
+        catch
+        {
+            // Ignore cleanup failures.
+        }
+    }
+
     public async ValueTask DisposeAsync()
     {
+        TryKill(_process);
+
         if (!_process.HasExited)
-        {
-            _process.Kill(entireProcessTree: true);
             await _process.WaitForExitAsync();
-        }
 
         _process.Dispose();
     }
