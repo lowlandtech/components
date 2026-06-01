@@ -27,6 +27,9 @@ builder.Services.AddSingleton<IComponentTheme, DarkComponentTheme>();
 builder.Services.AddSingleton<IComponentTheme, OceanComponentTheme>();
 builder.Services.AddSingleton<IComponentTheme, RoseComponentTheme>();
 builder.Services.AddSingleton<IComponentTheme, ForestComponentTheme>();
+builder.Services.AddSingleton<IComponentTheme, GlassComponentTheme>();
+builder.Services.AddSingleton<IComponentTheme, ChadcnBlackComponentTheme>();
+builder.Services.AddSingleton<IComponentTheme, CorporateGreyComponentTheme>();
 builder.Services.AddScoped<ComponentThemeService>();
 
 StoryRegistry.RegisterAllStories(typeof(ShowcodeLayout).Assembly);

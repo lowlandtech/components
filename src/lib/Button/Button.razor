@@ -22,17 +22,12 @@
 </button>
 
 @code {
-    private string GetClass()
-    {
-        var parts = new[]
-        {
-            "btn",
-            VariantClass(Variant ?? "default"),
-            SizeClass(Size ?? "default"),
-            DesignModeClass,
-            DesignDisabledClass,
-            Class ?? string.Empty
-        };
-        return string.Join(" ", parts.Where(p => !string.IsNullOrEmpty(p)));
-    }
+    private string GetClass() => ThemeClass(
+        "Button",
+        "Root",
+        $"btn {VariantClass(Variant ?? "default")} {SizeClass(Size ?? "default")}".Trim(),
+        variant: Variant ?? "default",
+        size: Size ?? "default",
+        consumerClass: Class,
+        designClass: $"{DesignModeClass} {DesignDisabledClass}".Trim());
 }

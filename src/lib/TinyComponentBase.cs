@@ -26,6 +26,14 @@ public abstract class TinyComponentBase : ComponentBase
     [CascadingParameter(Name = "TinyDesignSelected")]
     private EventCallback<TinyDesignSelection> DesignSelected { get; set; }
 
+    /// <summary>
+    /// The enclosing <c>ThemeProvider</c> context, or <c>null</c> when no
+    /// provider wraps this component.  Used by <see cref="ThemeClass"/> to
+    /// resolve active theme class slot overrides.
+    /// </summary>
+    [CascadingParameter]
+    protected ThemeProviderContext? ThemeContext { get; set; }
+
     protected bool HasPropertyGridParameters =>
         DesignableParameterCache.GetOrAdd(GetType(), HasDesignableParameters);
 
@@ -43,6 +51,73 @@ public abstract class TinyComponentBase : ComponentBase
         : string.Empty;
 
     protected string DesignDisabledClass => IsDisabledInDesignMode ? "lt-design-disabled" : string.Empty;
+
+    /// <summary>
+    /// Resolves the effective CSS class string for a named component slot,
+    /// optionally applying the active theme's class override.
+    /// </summary>
+    /// <param name="component">Component name, e.g. <c>"Button"</c>.</param>
+    /// <param name="slot">Slot name, e.g. <c>"Root"</c>.</param>
+    /// <param name="defaultClass">The component's built-in class string.</param>
+    /// <param name="variant">Active variant, or <c>null</c>.</param>
+    /// <param name="size">Active size, or <c>null</c>.</param>
+    /// <param name="state">Active state string, or <c>null</c>.</param>
+    /// <param name="consumerClass">
+    /// The value of the component's <c>Class</c> parameter.  Always placed
+    /// after the resolved class, regardless of merge mode.
+    /// </param>
+    /// <param name="designClass">
+    /// Design-mode classes from <see cref="DesignModeClass"/> /
+    /// <see cref="DesignDisabledClass"/>.  Always placed last.
+    /// </param>
+    protected string ThemeClass(
+        string component,
+        string slot,
+        string defaultClass,
+        string? variant = null,
+        string? size = null,
+        string? state = null,
+        string? consumerClass = null,
+        string? designClass = null)
+    {
+        if (ThemeContext is null)
+        {
+            // No provider — combine defaults directly.
+            return Combine(defaultClass, consumerClass, designClass);
+        }
+
+        var key = new ComponentSlotKey(component, slot, variant, size, state);
+        return ThemeContext.Resolver.Class(
+            ThemeContext.ProviderId,
+            key,
+            defaultClass,
+            consumerClass,
+            designClass);
+    }
+
+    /// <summary>
+    /// Returns a theme-supplied fragment for the given slot, or <c>null</c>
+    /// when the active theme does not override that slot.
+    /// </summary>
+    protected RenderFragment<ThemeFragmentContext>? ThemeFragment(
+        string component,
+        string slot,
+        string? variant = null,
+        string? size = null,
+        string? state = null)
+    {
+        if (ThemeContext is null) return null;
+        var key = new ComponentSlotKey(component, slot, variant, size, state);
+        return ThemeContext.Resolver.Fragment(ThemeContext.ProviderId, key);
+    }
+
+    private static string Combine(string main, string? extra1, string? extra2)
+    {
+        if (string.IsNullOrEmpty(extra1) && string.IsNullOrEmpty(extra2))
+            return main;
+        var parts = new[] { main, extra1 ?? string.Empty, extra2 ?? string.Empty };
+        return string.Join(" ", parts.Where(p => !string.IsNullOrEmpty(p)));
+    }
 
     protected string? DesignModeAttribute => EffectiveDesignMode ? "true" : null;
 

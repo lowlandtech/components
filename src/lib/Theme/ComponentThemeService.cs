@@ -75,4 +75,84 @@ public sealed class ComponentThemeService : IComponentThemeResolver
         var next = _themes[(idx + 1) % _themes.Count];
         Set(providerId, next.Name);
     }
+
+    // ── IComponentThemeResolver ──────────────────────────────────────────────
+
+    /// <inheritdoc/>
+    public string Class(
+        string? providerId,
+        ComponentSlotKey key,
+        string defaultClass,
+        string? consumerClass = null,
+        string? designClass = null)
+    {
+        var theme = providerId is null ? null : GetForProvider(providerId);
+        var classTheme = theme as IComponentClassTheme;
+
+        string resolved;
+        if (classTheme is not null && TryResolveSlot(classTheme, key, out var slot))
+        {
+            resolved = slot!.MergeMode switch
+            {
+                ThemeClassMergeMode.Replace  => slot.Class,
+                ThemeClassMergeMode.Prepend  => $"{slot.Class} {defaultClass}",
+                _                            => $"{defaultClass} {slot.Class}"
+            };
+        }
+        else
+        {
+            resolved = defaultClass;
+        }
+
+        return Combine(resolved, consumerClass, designClass);
+    }
+
+    /// <inheritdoc/>
+    public RenderFragment<ThemeFragmentContext>? Fragment(
+        string? providerId,
+        ComponentSlotKey key)
+    {
+        if (providerId is null) return null;
+        var theme = GetForProvider(providerId) as IComponentFragmentTheme;
+        if (theme is null) return null;
+
+        // Exact match first, then wildcard (no variant/size/state).
+        if (theme.Fragments.TryGetValue(key, out var fragment))
+            return fragment;
+
+        var wildcard = new ComponentSlotKey(key.Component, key.Slot);
+        return theme.Fragments.TryGetValue(wildcard, out var wf) ? wf : null;
+    }
+
+    // ── helpers ──────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Tries to find a matching slot in <paramref name="classTheme"/>.
+    /// Checks the full key first, then falls back to a wildcard key that omits
+    /// variant/size/state, so a theme can override all variants of a slot with
+    /// a single entry.
+    /// </summary>
+    private static bool TryResolveSlot(
+        IComponentClassTheme classTheme,
+        ComponentSlotKey key,
+        out ThemeClassSlot? slot)
+    {
+        if (classTheme.ClassSlots.TryGetValue(key, out slot))
+            return true;
+
+        var wildcard = new ComponentSlotKey(key.Component, key.Slot);
+        if (classTheme.ClassSlots.TryGetValue(wildcard, out slot))
+            return true;
+
+        return false;
+    }
+
+    private static string Combine(string main, string? extra1, string? extra2)
+    {
+        if (string.IsNullOrEmpty(extra1) && string.IsNullOrEmpty(extra2))
+            return main;
+
+        var parts = new[] { main, extra1 ?? string.Empty, extra2 ?? string.Empty };
+        return string.Join(" ", parts.Where(p => !string.IsNullOrEmpty(p)));
+    }
 }

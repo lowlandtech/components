@@ -50,8 +50,13 @@
             _ => ""
         };
 
-        var result = string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
-        return $"{result} {DesignModeClass}".Trim();
+        return ThemeClass(
+            "Card",
+            "Root",
+            baseClass.Trim(),
+            variant: Variant,
+            consumerClass: Class,
+            designClass: DesignModeClass);
     }
 
     private static string GetShadowClass(int elevation)

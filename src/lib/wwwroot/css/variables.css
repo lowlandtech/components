@@ -43,6 +43,25 @@
     --shadow-y: 1px;
     --shadow-blur: 3px;
     --shadow-spread: 0px;
+
+    /* Surface-effect tokens (theme-overridable) */
+    --surface-opacity: 1;
+    --surface-blur: 0px;
+    --surface-saturation: 1;
+    --surface-border-opacity: 1;
+    --surface-shadow-opacity: 0.10;
+
+    /* Density / control sizing tokens */
+    --control-height-sm: 2rem;
+    --control-height-md: 2.25rem;
+    --control-height-lg: 2.5rem;
+    --control-padding-x: 1rem;
+    --density-scale: 1;
+
+    /* Motion tokens */
+    --motion-duration-fast: 120ms;
+    --motion-duration-normal: 180ms;
+    --motion-ease-standard: cubic-bezier(.2, 0, 0, 1);
     --shadow-opacity: 0.1;
     --shadow-color: oklch(0 0 0);
     --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);

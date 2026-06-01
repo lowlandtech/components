@@ -21,8 +21,15 @@
             "sm" => "px-1.5 py-0.5 text-[10px] font-medium",
             _ => string.Empty
         };
-        var result = string.IsNullOrEmpty(sizeClass) ? baseClass : $"{baseClass} {sizeClass}";
-        result = string.IsNullOrEmpty(Class) ? result : $"{result} {Class}";
-        return $"{result} {DesignModeClass}".Trim();
+        var defaultClass = string.IsNullOrEmpty(sizeClass) ? baseClass : $"{baseClass} {sizeClass}";
+
+        return ThemeClass(
+            "Badge",
+            "Root",
+            defaultClass,
+            variant: Variant,
+            size: Size,
+            consumerClass: Class,
+            designClass: DesignModeClass);
     }
 }

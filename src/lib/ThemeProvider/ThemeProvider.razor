@@ -7,6 +7,8 @@
     <style>[data-theme-provider="@Id"]{@((MarkupString)_tokenCss)}</style>
 }
 <div data-theme-provider="@Id"
+     data-theme-name="@_activeThemeName"
+     data-theme-style="@_activeThemeStyle"
      class="@Class"
      @attributes="AdditionalAttributes">
     <CascadingValue Value="_context" IsFixed="false">
@@ -30,6 +32,8 @@
 
     private ThemeProviderContext _context = null!;
     private string _tokenCss = "";
+    private string? _activeThemeName;
+    private string? _activeThemeStyle;
 
     protected override void OnInitialized()
     {
@@ -51,7 +55,20 @@
         _tokenCss = theme is null
             ? ""
             : string.Join(";", theme.Tokens.Select(kv => $"{kv.Key}:{kv.Value}"));
+        _activeThemeName = theme?.Name;
+        _activeThemeStyle = ResolveThemeStyle(theme);
+        // Refresh the context so child components see the updated active theme.
+        _context = new(Id, ThemeService);
     }
+
+    /// <summary>
+    /// Maps a theme to a broad style family name for the
+    /// <c>data-theme-style</c> attribute.  Themes can implement a marker
+    /// interface to declare their style family; otherwise, <c>"default"</c>
+    /// is used.
+    /// </summary>
+    private static string? ResolveThemeStyle(IComponentTheme? theme) =>
+        theme is IThemeStyleFamily family ? family.StyleFamily : null;
 
     public void Dispose()
     {
