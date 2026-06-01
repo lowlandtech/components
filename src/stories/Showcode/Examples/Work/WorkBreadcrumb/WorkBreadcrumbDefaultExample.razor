@@ -1,9 +1,17 @@
 @namespace LowlandTech.Components.Stories.Showcode.Examples.Work
 
 <WorkBreadcrumb Title="Enqueued"
-                Crumbs="@(_crumbs)" />
+                Crumbs="@(_crumbs)"
+                OnHomeClick="@(() => _homeClicked = true)" />
+
+@if (_homeClicked)
+{
+    <p class="mt-2 text-sm text-muted-foreground">Home clicked!</p>
+}
 
 @code {
+    private bool _homeClicked;
+
     private readonly Dictionary<string, string> _crumbs = new()
     {
         ["Queues"] = "/queues",

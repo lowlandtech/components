@@ -4,7 +4,7 @@
 <Breadcrumb data-slot="work-breadcrumb" @attributes="AdditionalAttributes">
     <BreadcrumbList>
         <BreadcrumbItem>
-            <BreadcrumbLink href="/">
+            <BreadcrumbLink href="/" @onclick="OnHomeClick">
                 <Icon Name="home" Size="14" />
                 <span class="sr-only">Home</span>
             </BreadcrumbLink>
@@ -33,4 +33,5 @@
 @code {
     [Parameter] public string Title { get; set; } = string.Empty;
     [Parameter] public IReadOnlyDictionary<string, string> Crumbs { get; set; } = new Dictionary<string, string>();
+    [Parameter] public EventCallback OnHomeClick { get; set; }
 }

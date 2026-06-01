@@ -3,11 +3,18 @@
 
 <a data-slot="breadcrumb-link"
    class="@GetClass()"
+   href="@Href"
+   @onclick="OnClick"
+   @onclick:preventDefault="PreventDefault"
    @attributes="AdditionalAttributes">
     @ChildContent
 </a>
 
 @code {
+    [Parameter] public string? Href { get; set; }
+    [Parameter] public EventCallback<MouseEventArgs> OnClick { get; set; }
+    private bool PreventDefault => OnClick.HasDelegate;
+
     private string GetClass()
     {
         var baseClass = "cn-breadcrumb-link";
