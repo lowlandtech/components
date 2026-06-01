@@ -1,0 +1,19 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Work
+
+<WorkSidebar ActiveView="WorkView.Enqueued" Statistics="@(_stats)" OnViewChanged="@(_ => { })" />
+
+@code {
+    private readonly WorkStatistics _stats = new(
+        SucceededCount: 1234,
+        FailedCount: 12,
+        ProcessingCount: 5,
+        EnqueuedCount: 42,
+        ScheduledCount: 8,
+        AwaitingCount: 3,
+        DeletedCount: 156,
+        RecurringCount: 4,
+        RetriesCount: 2,
+        ServersCount: 3,
+        QueuesCount: 4,
+        FetchedCount: 4);
+}

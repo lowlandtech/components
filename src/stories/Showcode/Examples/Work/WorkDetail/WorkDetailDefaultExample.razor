@@ -1,0 +1,29 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Work
+
+<WorkDetail Job="@(_job)" History="@(_history)" />
+
+@code {
+    private readonly WorkItem _job = new(
+        "job-123456",
+        "Sample.Job.ProcessOrder",
+        WorkItemState.Failed,
+        DateTimeOffset.UtcNow.AddMinutes(-30),
+        EnqueuedAt: DateTimeOffset.UtcNow.AddMinutes(-29),
+        StartedAt: DateTimeOffset.UtcNow.AddMinutes(-25),
+        FailedAt: DateTimeOffset.UtcNow.AddMinutes(-20),
+        ServerName: "server-1",
+        QueueName: "default",
+        Reason: "Database connection failed",
+        ExceptionType: "System.Data.SqlClient.SqlException",
+        ExceptionMessage: "A network-related or instance-specific error occurred",
+        Duration: 4500,
+        Parameters: new Dictionary<string, string> { ["orderId"] = "12345", ["customerId"] = "67890" });
+
+    private readonly List<WorkStateHistory> _history = new()
+    {
+        new("Created", DateTimeOffset.UtcNow.AddMinutes(-30)),
+        new("Enqueued", DateTimeOffset.UtcNow.AddMinutes(-29)),
+        new("Processing", DateTimeOffset.UtcNow.AddMinutes(-25), DurationMs: 4500),
+        new("Failed", DateTimeOffset.UtcNow.AddMinutes(-20), "Database connection failed", DurationMs: 4200)
+    };
+}

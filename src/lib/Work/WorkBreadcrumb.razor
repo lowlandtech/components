@@ -1,0 +1,36 @@
+@namespace LowlandTech.Components.Work
+@inherits TinyComponentBase
+
+<Breadcrumb data-slot="work-breadcrumb" @attributes="AdditionalAttributes">
+    <BreadcrumbList>
+        <BreadcrumbItem>
+            <BreadcrumbLink href="/">
+                <Icon Name="home" Size="14" />
+                <span class="sr-only">Home</span>
+            </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        @foreach (var crumb in Crumbs)
+        {
+            <BreadcrumbItem>
+                @if (!string.IsNullOrWhiteSpace(crumb.Value))
+                {
+                    <BreadcrumbLink href="@crumb.Value">@crumb.Key</BreadcrumbLink>
+                }
+                else
+                {
+                    <BreadcrumbPage>@crumb.Key</BreadcrumbPage>
+                }
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+        }
+        <BreadcrumbItem>
+            <BreadcrumbPage>@Title</BreadcrumbPage>
+        </BreadcrumbItem>
+    </BreadcrumbList>
+</Breadcrumb>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public IReadOnlyDictionary<string, string> Crumbs { get; set; } = new Dictionary<string, string>();
+}

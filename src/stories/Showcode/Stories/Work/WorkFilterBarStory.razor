@@ -1,0 +1,14 @@
+@attribute [DisplayName("Work/WorkFilterBar")]
+@inherits StoryComponent
+
+<StoryCard Title="WorkFilterBar"
+           Description="Filter and page size toolbar for job lists."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new("default", "Default", @<WorkFilterBarDefaultExample />, [
+            StorySourceRegistry.CodeTab("default-razor", "WorkFilterBarDefaultExample.razor", "Showcode/Examples/Work/WorkFilterBar/WorkFilterBarDefaultExample.razor")
+        ])
+    ];
+}

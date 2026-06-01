@@ -1,0 +1,82 @@
+@namespace LowlandTech.Components.Work
+@inherits TinyComponentBase
+
+<div data-slot="work-dashboard" class="@GetClass()" @attributes="AdditionalAttributes">
+    @if (Metrics.Count > 0)
+    {
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            @foreach (var metric in Metrics)
+            {
+                <WorkMetric Metric="metric" OnClick="() => NavigateFromMetric(metric)" />
+            }
+        </div>
+    }
+
+    @if (Statistics is not null)
+    {
+        <div class="rounded-lg border border-border bg-card p-4">
+            <div class="mb-3 flex items-center justify-between">
+                <h3 class="text-sm font-semibold">History</h3>
+                <div class="flex items-center gap-1">
+                    <Button data-testid="work-dash-period-day"
+                            Variant="@(_period == "day" ? "default" : "outline")"
+                            Size="sm"
+                            OnClick="@(() => SetPeriod("day"))">Day</Button>
+                    <Button data-testid="work-dash-period-week"
+                            Variant="@(_period == "week" ? "default" : "outline")"
+                            Size="sm"
+                            OnClick="@(() => SetPeriod("week"))">Week</Button>
+                </div>
+            </div>
+            <WorkGraph SucceededData="@GetSucceededData()"
+                       FailedData="@GetFailedData()"
+                       DeletedData="@GetDeletedData()"
+                       Period="@_period" />
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public IReadOnlyList<WorkMetricItem> Metrics { get; set; } = [];
+    [Parameter] public WorkStatistics? Statistics { get; set; }
+    [Parameter] public WorkGraphData? GraphData { get; set; }
+    [Parameter] public EventCallback<WorkViewChanged> OnViewChanged { get; set; }
+
+    private string _period = "day";
+
+    private void SetPeriod(string period)
+    {
+        _period = period;
+    }
+
+    private async Task NavigateFromMetric(WorkMetricItem metric)
+    {
+        var view = metric.Title.ToLowerInvariant() switch
+        {
+            "succeeded" => WorkView.Succeeded,
+            "failed" => WorkView.Failed,
+            "processing" => WorkView.Processing,
+            "enqueued" => WorkView.Enqueued,
+            "scheduled" => WorkView.Scheduled,
+            "awaiting" => WorkView.Awaiting,
+            _ => WorkView.Dashboard
+        };
+        await OnViewChanged.InvokeAsync(new WorkViewChanged(view));
+    }
+
+    private IReadOnlyList<int> GetSucceededData() => _period == "day"
+        ? (GraphData?.DaySucceeded ?? [45, 62, 38, 75, 55, 80, 42, 68, 50, 73, 60, 48])
+        : (GraphData?.WeekSucceeded ?? [320, 450, 380, 520, 410, 490, 560]);
+
+    private IReadOnlyList<int> GetFailedData() => _period == "day"
+        ? (GraphData?.DayFailed ?? [2, 3, 1, 4, 2, 1, 3, 2, 1, 2, 3, 1])
+        : (GraphData?.WeekFailed ?? [5, 8, 3, 10, 4, 6, 7]);
+
+    private IReadOnlyList<int> GetDeletedData() => _period == "day"
+        ? (GraphData?.DayDeleted ?? [1, 0, 2, 1, 0, 1, 2, 0, 1, 1, 0, 2])
+        : (GraphData?.WeekDeleted ?? [3, 2, 5, 4, 1, 3, 2]);
+
+    private string GetClass() => string.IsNullOrEmpty(Class)
+        ? "flex flex-col gap-4"
+        : $"flex flex-col gap-4 {Class}";
+}

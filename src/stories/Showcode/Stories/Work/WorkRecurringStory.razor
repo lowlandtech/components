@@ -1,0 +1,14 @@
+@attribute [DisplayName("Work/WorkRecurring")]
+@inherits StoryComponent
+
+<StoryCard Title="WorkRecurring"
+           Description="Recurring jobs table with cron badges and execution status."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new("default", "Default", @<WorkRecurringDefaultExample />, [
+            StorySourceRegistry.CodeTab("default-razor", "WorkRecurringDefaultExample.razor", "Showcode/Examples/Work/WorkRecurring/WorkRecurringDefaultExample.razor")
+        ])
+    ];
+}

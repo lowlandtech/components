@@ -1,0 +1,13 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Work
+
+<WorkRecurring Jobs="@(_jobs)" />
+
+@code {
+    private readonly List<WorkRecurringJobItem> _jobs = new()
+    {
+        new("job-daily", "0 0 * * *", "UTC", "Reports.GenerateDaily", DateTimeOffset.UtcNow.AddHours(12), DateTimeOffset.UtcNow.AddHours(-12), "last-1", WorkItemState.Succeeded, CreatedAt: DateTimeOffset.UtcNow.AddDays(-7)),
+        new("job-cleanup", "0 */6 * * *", "UTC", "Maintenance.Cleanup", DateTimeOffset.UtcNow.AddHours(6), DateTimeOffset.UtcNow.AddHours(-6), "last-2", WorkItemState.Succeeded, CreatedAt: DateTimeOffset.UtcNow.AddDays(-3)),
+        new("job-sync", "*/15 * * * *", "America/New_York", "Sync.ExternalData", null, null, null, null, Error: "Cron expression is invalid", CreatedAt: DateTimeOffset.UtcNow.AddDays(-1)),
+        new("job-notify", "0 9 * * 1-5", "Europe/London", "Notifications.SendDigest", DateTimeOffset.UtcNow.AddHours(2), DateTimeOffset.UtcNow.AddHours(-22), "last-4", WorkItemState.Failed, CreatedAt: DateTimeOffset.UtcNow.AddDays(-5))
+    };
+}

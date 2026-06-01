@@ -1,0 +1,18 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Work
+
+<div class="flex flex-wrap gap-3">
+    <WorkMetric Metric="@(_metrics[0])" />
+    <WorkMetric Metric="@(_metrics[1])" />
+    <WorkMetric Metric="@(_metrics[2])" />
+    <WorkMetric Metric="@(_metrics[3])" />
+</div>
+
+@code {
+    private readonly List<WorkMetricItem> _metrics = new()
+    {
+        new("Succeeded", "1,234", Style: WorkMetricStyle.Success),
+        new("Failed", "12", Style: WorkMetricStyle.Danger),
+        new("Processing", "5", Style: WorkMetricStyle.Info),
+        new("Enqueued", "42")
+    };
+}

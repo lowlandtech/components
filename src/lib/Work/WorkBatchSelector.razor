@@ -1,0 +1,24 @@
+@namespace LowlandTech.Components.Work
+@inherits TinyComponentBase
+
+<div data-slot="work-batch-selector" class="@GetClass()" @attributes="AdditionalAttributes">
+    <div class="flex items-center gap-3">
+        <Checkbox data-testid="work-batch-select-all"
+                  Checked="IsAllSelected"
+                  CheckedChanged="OnSelectAllChangedAsync"
+                  Disabled="TotalCount == 0" />
+        <span class="text-sm font-medium">Select All</span>
+        @if (SelectedCount > 0)
+        {
+            <Badge data-testid="work-batch-count" Variant="secondary">@SelectedCount of @TotalCount selected</Badge>
+        }
+    </div>
+</div>
+
+@code {
+    private string GetClass()
+    {
+        var baseClass = "flex h-10 items-center border-b border-border bg-muted/30 px-3";
+        return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}

@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Work
+
+<WorkServer Servers="@(_servers)" />
+
+@code {
+    private readonly List<WorkServerItem> _servers = new()
+    {
+        new("server-1", 5, new[] { "default", "critical" }.ToList(), DateTimeOffset.UtcNow.AddDays(-2), DateTimeOffset.UtcNow.AddSeconds(-5)),
+        new("server-2", 3, new[] { "default", "emails" }.ToList(), DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddMinutes(-2)),
+        new("server-3", 2, new[] { "reports" }.ToList(), DateTimeOffset.UtcNow.AddHours(-12), null)
+    };
+}

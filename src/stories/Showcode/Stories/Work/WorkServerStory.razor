@@ -1,0 +1,14 @@
+@attribute [DisplayName("Work/WorkServer")]
+@inherits StoryComponent
+
+<StoryCard Title="WorkServer"
+           Description="Server status table with heartbeat indicators."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new("default", "Default", @<WorkServerDefaultExample />, [
+            StorySourceRegistry.CodeTab("default-razor", "WorkServerDefaultExample.razor", "Showcode/Examples/Work/WorkServer/WorkServerDefaultExample.razor")
+        ])
+    ];
+}

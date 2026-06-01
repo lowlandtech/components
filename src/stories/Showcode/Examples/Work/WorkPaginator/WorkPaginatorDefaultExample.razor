@@ -1,0 +1,7 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Work
+
+<WorkPaginator Pager="@(_pager)" OnPageChanged="@(_ => { })" />
+
+@code {
+    private readonly WorkPager _pager = new(5, 20, 250, 13);
+}

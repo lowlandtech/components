@@ -1,0 +1,63 @@
+@namespace LowlandTech.Components.Work
+@inherits TinyComponentBase
+
+<aside data-slot="work-sidebar" class="@GetClass()" @attributes="AdditionalAttributes">
+    <div class="flex items-center gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <Icon Name="layout-list" Size="14" />
+        <span>Jobs</span>
+    </div>
+    <nav class="flex flex-col gap-0.5 px-2">
+        @foreach (var item in _items)
+        {
+            <button type="button"
+                    data-testid="work-sidebar-@item.View.ToString().ToLowerInvariant()"
+                    class="@GetItemClass(item.View)"
+                    @onclick="() => OnViewChanged.InvokeAsync(new WorkViewChanged(item.View))">
+                <span class="flex-1 text-left">@item.Label</span>
+                @if (GetCount(item.View) is > 0)
+                {
+                    <Badge Variant="secondary" Size="sm">@GetCount(item.View)</Badge>
+                }
+            </button>
+        }
+    </nav>
+</aside>
+
+@code {
+    [Parameter] public WorkView ActiveView { get; set; }
+    [Parameter] public WorkStatistics? Statistics { get; set; }
+    [Parameter] public EventCallback<WorkViewChanged> OnViewChanged { get; set; }
+
+    private record SidebarItem(string Label, WorkView View);
+
+    private readonly IReadOnlyList<SidebarItem> _items = new List<SidebarItem>
+    {
+        new("Enqueued", WorkView.Enqueued),
+        new("Scheduled", WorkView.Scheduled),
+        new("Processing", WorkView.Processing),
+        new("Succeeded", WorkView.Succeeded),
+        new("Failed", WorkView.Failed),
+        new("Deleted", WorkView.Deleted),
+        new("Awaiting", WorkView.Awaiting)
+    };
+
+    private long? GetCount(WorkView view) => view switch
+    {
+        WorkView.Enqueued => Statistics?.EnqueuedCount,
+        WorkView.Scheduled => Statistics?.ScheduledCount,
+        WorkView.Processing => Statistics?.ProcessingCount,
+        WorkView.Succeeded => Statistics?.SucceededCount,
+        WorkView.Failed => Statistics?.FailedCount,
+        WorkView.Deleted => Statistics?.DeletedCount,
+        WorkView.Awaiting => Statistics?.AwaitingCount,
+        _ => null
+    };
+
+    private string GetItemClass(WorkView view) => ActiveView == view
+        ? "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium bg-primary/10 text-primary transition-colors"
+        : "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/60 transition-colors";
+
+    private string GetClass() => string.IsNullOrEmpty(Class)
+        ? "flex flex-col gap-2 py-2"
+        : $"flex flex-col gap-2 py-2 {Class}";
+}

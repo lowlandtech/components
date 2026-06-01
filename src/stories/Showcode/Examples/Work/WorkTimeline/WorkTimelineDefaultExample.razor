@@ -1,0 +1,31 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Work
+
+<WorkTimeline History="_history" />
+
+@code {
+    private readonly IReadOnlyList<WorkStateHistory> _history =
+    [
+        new(
+            StateName: "Created",
+            CreatedAt: DateTimeOffset.UtcNow.AddMinutes(-15),
+            Data: new Dictionary<string, string> { ["Queue"] = "default", ["Type"] = "BackgroundJob" }),
+        new(
+            StateName: "Enqueued",
+            CreatedAt: DateTimeOffset.UtcNow.AddMinutes(-14)),
+        new(
+            StateName: "Processing",
+            CreatedAt: DateTimeOffset.UtcNow.AddMinutes(-10),
+            DurationMs: 5000,
+            Data: new Dictionary<string, string> { ["Server"] = "server-1", ["Worker"] = "3" }),
+        new(
+            StateName: "Failed",
+            CreatedAt: DateTimeOffset.UtcNow.AddMinutes(-5),
+            Reason: "System.NullReferenceException: Object reference not set",
+            DurationMs: 200,
+            Data: new Dictionary<string, string> { ["ExceptionType"] = "NullReferenceException" }),
+        new(
+            StateName: "Scheduled",
+            CreatedAt: DateTimeOffset.UtcNow.AddMinutes(-4),
+            Data: new Dictionary<string, string> { ["RetryAt"] = DateTimeOffset.UtcNow.AddMinutes(5).ToString("O") })
+    ];
+}

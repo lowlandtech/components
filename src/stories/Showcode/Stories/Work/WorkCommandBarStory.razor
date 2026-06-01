@@ -1,0 +1,14 @@
+@attribute [DisplayName("Work/WorkCommandBar")]
+@inherits StoryComponent
+
+<StoryCard Title="WorkCommandBar"
+           Description="Action toolbar with contextual buttons based on view and selection."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new("default", "With Selection", @<WorkCommandBarDefaultExample />, [
+            StorySourceRegistry.CodeTab("default-razor", "WorkCommandBarDefaultExample.razor", "Showcode/Examples/Work/WorkCommandBar/WorkCommandBarDefaultExample.razor")
+        ])
+    ];
+}

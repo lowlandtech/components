@@ -1,0 +1,85 @@
+@namespace LowlandTech.Components.Work
+@inherits TinyComponentBase
+
+<div data-slot="work-paginator" class="@GetClass()" @attributes="AdditionalAttributes">
+    <ButtonGroup>
+        <Button data-testid="work-paginator-prev"
+                Variant="outline"
+                Size="sm"
+                Disabled="@(_pager.PageNumber <= 1)"
+                OnClick="@(() => GoToPage(_pager.PageNumber - 1))">
+            <Icon Name="chevron-left" Size="14" />
+            <span class="sr-only">Previous</span>
+        </Button>
+
+        @foreach (var pageNum in GetPageNumbers())
+        {
+            if (pageNum == -1)
+            {
+                <Button Variant="outline" Size="sm" Disabled="true">…</Button>
+            }
+            else
+            {
+                <Button data-testid="@($"work-paginator-page-{pageNum}")"
+                        Variant="@(_pager.PageNumber == pageNum ? "default" : "outline")"
+                        Size="sm"
+                        OnClick="@(() => GoToPage(pageNum))">
+                    @pageNum
+                </Button>
+            }
+        }
+
+        <Button data-testid="work-paginator-next"
+                Variant="outline"
+                Size="sm"
+                Disabled="@(_pager.PageNumber >= _pager.PageCount)"
+                OnClick="@(() => GoToPage(_pager.PageNumber + 1))">
+            <Icon Name="chevron-right" Size="14" />
+            <span class="sr-only">Next</span>
+        </Button>
+    </ButtonGroup>
+
+    <span class="text-xs text-muted-foreground">Total items: @_pager.TotalItems</span>
+</div>
+
+@code {
+    [Parameter] public WorkPager Pager { get; set; } = new(1, 20, 0, 1);
+    [Parameter] public EventCallback<int> OnPageChanged { get; set; }
+
+    private WorkPager _pager => Pager;
+
+    private async Task GoToPage(int page)
+    {
+        if (page < 1 || page > _pager.PageCount) return;
+        await OnPageChanged.InvokeAsync(page);
+    }
+
+    private List<int> GetPageNumbers()
+    {
+        var pages = new List<int>();
+        var current = _pager.PageNumber;
+        var total = _pager.PageCount;
+
+        if (total <= 7)
+        {
+            for (var i = 1; i <= total; i++) pages.Add(i);
+            return pages;
+        }
+
+        pages.Add(1);
+        if (current > 3) pages.Add(-1);
+
+        var start = Math.Max(2, current - 1);
+        var end = Math.Min(total - 1, current + 1);
+        for (var i = start; i <= end; i++) pages.Add(i);
+
+        if (current < total - 2) pages.Add(-1);
+        pages.Add(total);
+
+        return pages;
+    }
+
+    private string GetClass() => string.IsNullOrEmpty(Class)
+        ? "flex items-center gap-3"
+        : $"flex items-center gap-3 {Class}";
+}

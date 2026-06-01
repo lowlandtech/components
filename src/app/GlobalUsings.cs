@@ -11,6 +11,7 @@ global using LowlandTech.Components.Stories.Services.Themes;
 global using LowlandTech.Components.Stories.Showcode;
 global using LowlandTech.Components.Popover;
 global using LowlandTech.Components.Session;
+global using LowlandTech.Components.Work;
 global using LowlandTech.Components.Session.Agents;
 global using LowlandTech.Components.Sonner;
 global using Microsoft.AspNetCore.Components.Web;

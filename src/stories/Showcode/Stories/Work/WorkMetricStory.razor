@@ -1,0 +1,14 @@
+@attribute [DisplayName("Work/WorkMetric")]
+@inherits StoryComponent
+
+<StoryCard Title="WorkMetric"
+           Description="Metric card component for dashboard overview."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new("default", "Default", @<WorkMetricDefaultExample />, [
+            StorySourceRegistry.CodeTab("default-razor", "WorkMetricDefaultExample.razor", "Showcode/Examples/Work/WorkMetric/WorkMetricDefaultExample.razor")
+        ])
+    ];
+}

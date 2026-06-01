@@ -1,0 +1,14 @@
+@attribute [DisplayName("Work/WorkList")]
+@inherits StoryComponent
+
+<StoryCard Title="WorkList"
+           Description="Data grid of work items with state badges and selection."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new("default", "Default", @<WorkListDefaultExample />, [
+            StorySourceRegistry.CodeTab("default-razor", "WorkListDefaultExample.razor", "Showcode/Examples/Work/WorkList/WorkListDefaultExample.razor")
+        ])
+    ];
+}

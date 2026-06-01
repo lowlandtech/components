@@ -1,0 +1,26 @@
+@attribute [DisplayName("Work/WorkAwaiting")]
+@inherits StoryComponent
+
+<StoryCard Title="WorkAwaiting"
+           Description="Continuation and awaiting jobs view with parent state linkage and options."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "default",
+            "Default",
+            @<WorkAwaitingDefaultExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "default-razor",
+                    "WorkAwaitingDefaultExample.razor",
+                    "Showcode/Examples/Work/WorkAwaiting/WorkAwaitingDefaultExample.razor")
+            ]),
+        new(
+            "empty",
+            "Empty",
+            @<WorkAwaiting Jobs="[]" IsReadOnly="false" />,
+            [])
+    ];
+}

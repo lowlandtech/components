@@ -1,0 +1,76 @@
+@namespace LowlandTech.Components.Work
+@inherits TinyComponentBase
+
+<div data-slot="work-queue" class="@GetClass()" @attributes="AdditionalAttributes">
+    @if (Queues.Count == 0)
+    {
+        <div data-testid="work-queue-empty" class="px-3 py-4 text-sm text-muted-foreground">No queues available.</div>
+    }
+    else
+    {
+        <Table>
+            <TableHeader>
+                <TableRow>
+                    <TableHead>Queue</TableHead>
+                    <TableHead>Length</TableHead>
+                    <TableHead>Fetched</TableHead>
+                    <TableHead>Next Jobs</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                @foreach (var queue in Queues)
+                {
+                    <TableRow>
+                        <TableCell>
+                            <button data-testid="work-queue-name"
+                                    type="button"
+                                    class="font-medium text-primary hover:underline"
+                                    @onclick="() => OnSelected.InvokeAsync(new WorkQueueSelected(queue.Name))">
+                                @queue.Name
+                            </button>
+                        </TableCell>
+                        <TableCell>@queue.Length</TableCell>
+                        <TableCell>
+                            @if (queue.Fetched > 0)
+                            {
+                                <Badge Variant="outline" Size="sm">@queue.Fetched fetched</Badge>
+                            }
+                            else
+                            {
+                                <span class="text-muted-foreground text-sm">—</span>
+                            }
+                        </TableCell>
+                        <TableCell>
+                            @if (queue.TopJobs.Count > 0)
+                            {
+                                <div class="flex flex-col gap-1">
+                                    @foreach (var job in queue.TopJobs.Take(3))
+                                    {
+                                        <div class="flex items-center gap-2 text-xs">
+                                            <WorkStateBadge State="job.State" />
+                                            <span class="font-mono">@SafeId(job.Id)</span>
+                                            <span class="truncate text-muted-foreground">@job.JobDisplayName</span>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="text-muted-foreground text-sm">—</span>
+                            }
+                        </TableCell>
+                    </TableRow>
+                }
+            </TableBody>
+        </Table>
+    }
+</div>
+
+@code {
+    [Parameter] public IReadOnlyList<WorkQueueItem> Queues { get; set; } = [];
+    [Parameter] public EventCallback<WorkQueueSelected> OnSelected { get; set; }
+
+    private string GetClass() => string.IsNullOrEmpty(Class)
+        ? "rounded-lg border border-border bg-card"
+        : $"rounded-lg border border-border bg-card {Class}";
+}

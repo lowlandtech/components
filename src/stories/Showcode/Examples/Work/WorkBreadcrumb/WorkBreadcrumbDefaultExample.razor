@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Work
+
+<WorkBreadcrumb Title="Enqueued"
+                Crumbs="@(_crumbs)" />
+
+@code {
+    private readonly Dictionary<string, string> _crumbs = new()
+    {
+        ["Queues"] = "/queues",
+        ["Default"] = "/queues/default"
+    };
+}

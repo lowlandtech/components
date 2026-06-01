@@ -1,0 +1,10 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Work
+
+<WorkCommandBar State="@(_state)" ActiveView="WorkView.Enqueued" OnCommand="@(_ => { })" />
+
+@code {
+    private readonly WorkUiState _state = WorkUiDefaults.Empty with
+    {
+        SelectedJobIds = new[] { "job-1", "job-2" }.ToList()
+    };
+}

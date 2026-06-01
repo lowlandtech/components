@@ -1,0 +1,125 @@
+@namespace LowlandTech.Components.Work
+@inherits TinyComponentBase
+
+<div data-slot="work-recurring" class="@GetClass()" @attributes="AdditionalAttributes">
+    @if (Jobs.Count == 0)
+    {
+        <div data-testid="work-recurring-empty" class="px-3 py-4 text-sm text-muted-foreground">No recurring jobs.</div>
+    }
+    else
+    {
+        <Table>
+            <TableHeader>
+                <TableRow>
+                    @if (!IsReadOnly)
+                    {
+                        <TableHead class="w-10"><span class="sr-only">Select</span></TableHead>
+                    }
+                    <TableHead>ID</TableHead>
+                    <TableHead>Cron</TableHead>
+                    <TableHead>TimeZone</TableHead>
+                    <TableHead>Job</TableHead>
+                    <TableHead>Next Execution</TableHead>
+                    <TableHead>Last Execution</TableHead>
+                    <TableHead>Created</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                @foreach (var job in Jobs)
+                {
+                    <TableRow class="@(!string.IsNullOrWhiteSpace(job.Error) ? "bg-rose-50/30 dark:bg-rose-950/10" : string.Empty)">
+                        @if (!IsReadOnly)
+                        {
+                            <TableCell>
+                                <input data-testid="work-recurring-checkbox" type="checkbox" class="h-4 w-4 rounded border-border" />
+                            </TableCell>
+                        }
+                        <TableCell class="font-mono text-xs">@job.Id</TableCell>
+                        <TableCell>
+                            <div class="flex items-center gap-1">
+                                <code class="rounded bg-muted px-1.5 py-0.5 text-xs font-mono">@job.Cron</code>
+                                @if (!string.IsNullOrWhiteSpace(job.Error) && job.Error.Contains("Cron", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <Icon Name="alert-circle" Size="14" class="text-rose-500" />
+                                }
+                            </div>
+                        </TableCell>
+                        <TableCell>
+                            <div class="flex items-center gap-1">
+                                <span class="text-sm">@job.TimeZoneId</span>
+                                @if (!string.IsNullOrWhiteSpace(job.Error) && job.Error.Contains("TimeZone", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    <Icon Name="alert-circle" Size="14" class="text-rose-500" />
+                                }
+                            </div>
+                        </TableCell>
+                        <TableCell class="font-medium">@job.JobDisplayName</TableCell>
+                        <TableCell>
+                            @if (!string.IsNullOrWhiteSpace(job.Error))
+                            {
+                                <Badge Variant="destructive" Size="sm">Error</Badge>
+                            }
+                            else if (job.NextExecutionAt.HasValue)
+                            {
+                                @if (job.RetryAttempt > 0)
+                                {
+                                    <Badge Variant="outline" Size="sm">Retry @job.RetryAttempt</Badge>
+                                }
+                                else
+                                {
+                                    <span class="text-sm text-muted-foreground">@GetRelativeTime(job.NextExecutionAt.Value)</span>
+                                }
+                            }
+                            else
+                            {
+                                <Badge Variant="secondary" Size="sm">Disabled</Badge>
+                            }
+                        </TableCell>
+                        <TableCell>
+                            @if (!string.IsNullOrWhiteSpace(job.LastJobId))
+                            {
+                                <div class="flex items-center gap-1.5">
+                                    <WorkStateBadge State="@(job.LastJobState ?? WorkItemState.Succeeded)" />
+                                    <span class="text-xs text-muted-foreground">@GetRelativeTime(job.LastExecutionAt ?? DateTimeOffset.UtcNow)</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <Badge Variant="outline" Size="sm">Canceled</Badge>
+                            }
+                        </TableCell>
+                        <TableCell class="text-muted-foreground text-sm">@GetRelativeTime(job.CreatedAt)</TableCell>
+                    </TableRow>
+                    @if (!string.IsNullOrWhiteSpace(job.Error))
+                    {
+                        <TableRow class="bg-rose-50/30 dark:bg-rose-950/10">
+                            <TableCell colspan="8">
+                                <pre class="rounded-md bg-rose-100/50 dark:bg-rose-900/20 p-2 text-xs text-rose-800 dark:text-rose-300 overflow-auto">@job.Error</pre>
+                            </TableCell>
+                        </TableRow>
+                    }
+                }
+            </TableBody>
+        </Table>
+    }
+</div>
+
+@code {
+    [Parameter] public IReadOnlyList<WorkRecurringJobItem> Jobs { get; set; } = [];
+    [Parameter] public bool IsReadOnly { get; set; }
+    [Parameter] public EventCallback<ToggleWorkSelection> OnToggleSelection { get; set; }
+    [Parameter] public EventCallback<WorkCommandSubmitted> OnCommand { get; set; }
+
+    private static string GetRelativeTime(DateTimeOffset value)
+    {
+        var diff = DateTimeOffset.UtcNow - value;
+        if (diff.TotalSeconds < 60) return "just now";
+        if (diff.TotalMinutes < 60) return $"{(int)diff.TotalMinutes}m ago";
+        if (diff.TotalHours < 24) return $"{(int)diff.TotalHours}h ago";
+        return $"{(int)diff.TotalDays}d ago";
+    }
+
+    private string GetClass() => string.IsNullOrEmpty(Class)
+        ? "rounded-lg border border-border bg-card"
+        : $"rounded-lg border border-border bg-card {Class}";
+}

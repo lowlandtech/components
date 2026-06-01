@@ -1,0 +1,26 @@
+@attribute [DisplayName("Work/WorkBatchSelector")]
+@inherits StoryComponent
+
+<StoryCard Title="WorkBatchSelector"
+           Description="Bulk selection toolbar with select-all checkbox and selected count badge."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "default",
+            "Default",
+            @<WorkBatchSelectorDefaultExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "default-razor",
+                    "WorkBatchSelectorDefaultExample.razor",
+                    "Showcode/Examples/Work/WorkBatchSelector/WorkBatchSelectorDefaultExample.razor")
+            ]),
+        new(
+            "all-selected",
+            "All Selected",
+            @<WorkBatchSelector IsAllSelected="true" SelectedCount="12" TotalCount="12" />,
+            [])
+    ];
+}

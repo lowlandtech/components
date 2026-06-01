@@ -16,6 +16,7 @@ global using LowlandTech.Components.Select;
 global using LowlandTech.Components.Session;
 global using LowlandTech.Components.Session.Agents;
 global using LowlandTech.Components.Tabs;
+global using LowlandTech.Components.Work;
 global using LowlandTech.Components.Tests.Infrastructure;
 global using LowlandTech.Core;
 global using Microsoft.AspNetCore.Components;

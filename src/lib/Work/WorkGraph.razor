@@ -1,0 +1,77 @@
+@namespace LowlandTech.Components.Work
+@inherits TinyComponentBase
+
+<div data-slot="work-graph" class="@GetClass()" @attributes="AdditionalAttributes">
+    <div class="flex items-end gap-1 h-32 w-full">
+        @foreach (var point in GetDataPoints())
+        {
+            <div class="flex-1 flex flex-col items-center gap-1">
+                <div class="w-full flex gap-px items-end justify-center" style="height: 100px;">
+                    @if (point.Succeeded > 0)
+                    {
+                        <div class="w-full bg-emerald-500/80 dark:bg-emerald-600/80 rounded-t-sm"
+                             style="height: @(GetBarHeight(point.Succeeded))%;"
+                             title="Succeeded: @point.Succeeded"></div>
+                    }
+                    @if (point.Failed > 0)
+                    {
+                        <div class="w-full bg-rose-500/80 dark:bg-rose-600/80 rounded-t-sm"
+                             style="height: @(GetBarHeight(point.Failed))%;"
+                             title="Failed: @point.Failed"></div>
+                    }
+                    @if (point.Deleted > 0)
+                    {
+                        <div class="w-full bg-slate-400/60 dark:bg-slate-500/60 rounded-t-sm"
+                             style="height: @(GetBarHeight(point.Deleted))%;"
+                             title="Deleted: @point.Deleted"></div>
+                    }
+                </div>
+                <span class="text-[9px] text-muted-foreground">@point.Label</span>
+            </div>
+        }
+    </div>
+    <div class="flex items-center justify-center gap-4 mt-2">
+        <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-sm bg-emerald-500/80"></div><span class="text-[10px] text-muted-foreground">Succeeded</span></div>
+        <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-sm bg-rose-500/80"></div><span class="text-[10px] text-muted-foreground">Failed</span></div>
+        <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-sm bg-slate-400/60"></div><span class="text-[10px] text-muted-foreground">Deleted</span></div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public IReadOnlyList<int> SucceededData { get; set; } = [];
+    [Parameter] public IReadOnlyList<int> FailedData { get; set; } = [];
+    [Parameter] public IReadOnlyList<int> DeletedData { get; set; } = [];
+    [Parameter] public string Period { get; set; } = "day";
+
+    private record DataPoint(int Succeeded, int Failed, int Deleted, string Label);
+
+    private List<DataPoint> GetDataPoints()
+    {
+        var count = Math.Max(SucceededData.Count, Math.Max(FailedData.Count, DeletedData.Count));
+        if (count == 0) count = 12;
+
+        var points = new List<DataPoint>();
+        for (var i = 0; i < count; i++)
+        {
+            var s = i < SucceededData.Count ? SucceededData[i] : 0;
+            var f = i < FailedData.Count ? FailedData[i] : 0;
+            var d = i < DeletedData.Count ? DeletedData[i] : 0;
+            var label = Period == "day"
+                ? $"{i:00}:00"
+                : $"Day {i + 1}";
+            points.Add(new DataPoint(s, f, d, label));
+        }
+        return points;
+    }
+
+    private int GetBarHeight(int value)
+    {
+        var max = GetDataPoints().SelectMany(p => new[] { p.Succeeded, p.Failed, p.Deleted }).Max();
+        if (max == 0) return 0;
+        return Math.Min(100, (int)((double)value / max * 100));
+    }
+
+    private string GetClass() => string.IsNullOrEmpty(Class)
+        ? "rounded-lg border border-border bg-card p-4"
+        : $"rounded-lg border border-border bg-card p-4 {Class}";
+}

@@ -1,0 +1,14 @@
+@attribute [DisplayName("Work/WorkDetail")]
+@inherits StoryComponent
+
+<StoryCard Title="WorkDetail"
+           Description="Single work item inspection with parameters and timeline."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new("default", "Default", @<WorkDetailDefaultExample />, [
+            StorySourceRegistry.CodeTab("default-razor", "WorkDetailDefaultExample.razor", "Showcode/Examples/Work/WorkDetail/WorkDetailDefaultExample.razor")
+        ])
+    ];
+}

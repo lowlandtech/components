@@ -1,0 +1,14 @@
+@attribute [DisplayName("Work/WorkGraph")]
+@inherits StoryComponent
+
+<StoryCard Title="WorkGraph"
+           Description="Bar chart for work statistics visualization."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new("default", "Default", @<WorkGraphDefaultExample />, [
+            StorySourceRegistry.CodeTab("default-razor", "WorkGraphDefaultExample.razor", "Showcode/Examples/Work/WorkGraph/WorkGraphDefaultExample.razor")
+        ])
+    ];
+}

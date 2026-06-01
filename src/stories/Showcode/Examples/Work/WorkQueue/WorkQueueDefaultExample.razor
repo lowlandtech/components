@@ -1,0 +1,19 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Work
+
+<WorkQueue Queues="@(_queues)" OnSelected="@(_ => { })" />
+
+@code {
+    private readonly List<WorkQueueItem> _queues = new()
+    {
+        new("default", 42, 3, new List<WorkItem>
+        {
+            new("job-1", "Sample.Job1", WorkItemState.Enqueued, DateTimeOffset.UtcNow.AddMinutes(-5)),
+            new("job-2", "Sample.Job2", WorkItemState.Enqueued, DateTimeOffset.UtcNow.AddMinutes(-10)),
+            new("job-3", "Sample.Job3", WorkItemState.Enqueued, DateTimeOffset.UtcNow.AddMinutes(-15))
+        }),
+        new("critical", 12, 0, new List<WorkItem>
+        {
+            new("job-4", "Sample.Job4", WorkItemState.Enqueued, DateTimeOffset.UtcNow.AddMinutes(-2))
+        })
+    };
+}

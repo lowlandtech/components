@@ -1,0 +1,14 @@
+@attribute [DisplayName("Work/WorkPaginator")]
+@inherits StoryComponent
+
+<StoryCard Title="WorkPaginator"
+           Description="Pagination controls for job lists."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new("default", "Middle Page", @<WorkPaginatorDefaultExample />, [
+            StorySourceRegistry.CodeTab("default-razor", "WorkPaginatorDefaultExample.razor", "Showcode/Examples/Work/WorkPaginator/WorkPaginatorDefaultExample.razor")
+        ])
+    ];
+}

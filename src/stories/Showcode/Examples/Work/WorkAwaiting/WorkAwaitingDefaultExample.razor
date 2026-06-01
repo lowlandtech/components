@@ -1,0 +1,11 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Work
+
+<WorkAwaiting Jobs="@(_jobs)" />
+
+@code {
+    private readonly List<WorkItem> _jobs = new()
+    {
+        new("await-1", "Sample.ContinuationJob1", WorkItemState.Awaiting, DateTimeOffset.UtcNow.AddMinutes(-15), ParentId: "parent-1", ContinuationOptions: "OnSucceededJob"),
+        new("await-2", "Sample.ContinuationJob2", WorkItemState.Awaiting, DateTimeOffset.UtcNow.AddMinutes(-45), ParentId: "parent-2", ContinuationOptions: "OnAnyFinishedState")
+    };
+}

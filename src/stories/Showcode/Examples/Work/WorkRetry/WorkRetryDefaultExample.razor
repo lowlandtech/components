@@ -1,0 +1,11 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Work
+
+<WorkRetry Jobs="@(_jobs)" />
+
+@code {
+    private readonly List<WorkItem> _jobs = new()
+    {
+        new("retry-1", "Sample.RetryJob1", WorkItemState.Retry, DateTimeOffset.UtcNow.AddMinutes(-30), EnqueuedAt: DateTimeOffset.UtcNow.AddMinutes(-5), Reason: "Connection timeout", RetryAttempt: 2),
+        new("retry-2", "Sample.RetryJob2", WorkItemState.Retry, DateTimeOffset.UtcNow.AddMinutes(-60), EnqueuedAt: DateTimeOffset.UtcNow.AddMinutes(-10), Reason: "Service unavailable", RetryAttempt: 1)
+    };
+}

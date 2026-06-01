@@ -1,0 +1,70 @@
+@namespace LowlandTech.Components.Work
+@inherits TinyComponentBase
+
+<div data-slot="work-command-bar" class="@GetClass()" @attributes="AdditionalAttributes">
+    @if (SelectedCount > 0)
+    {
+        <Badge Variant="secondary" Size="sm">@SelectedCount selected</Badge>
+    }
+    <div class="flex items-center gap-2">
+        @if (CanRequeue)
+        {
+            <Button data-testid="work-cmd-requeue"
+                    Variant="outline" Size="sm"
+                    OnClick="@(() => SubmitCommand("requeue"))">
+                <Icon Name="refresh-cw" Size="14" />
+                Requeue
+            </Button>
+        }
+        @if (CanEnqueue)
+        {
+            <Button data-testid="work-cmd-enqueue"
+                    Variant="outline" Size="sm"
+                    OnClick="@(() => SubmitCommand("enqueue"))">
+                <Icon Name="play" Size="14" />
+                Enqueue Now
+            </Button>
+        }
+        @if (CanTrigger)
+        {
+            <Button data-testid="work-cmd-trigger"
+                    Variant="outline" Size="sm"
+                    OnClick="@(() => SubmitCommand("trigger"))">
+                <Icon Name="zap" Size="14" />
+                Trigger Now
+            </Button>
+        }
+        @if (CanDelete)
+        {
+            <Button data-testid="work-cmd-delete"
+                    Variant="destructive" Size="sm"
+                    OnClick="@(() => SubmitCommand("delete"))">
+                <Icon Name="trash-2" Size="14" />
+                Delete
+            </Button>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public WorkUiState State { get; set; } = WorkUiDefaults.Empty;
+    [Parameter] public WorkView ActiveView { get; set; }
+    [Parameter] public bool IsReadOnly { get; set; }
+    [Parameter] public EventCallback<WorkCommandSubmitted> OnCommand { get; set; }
+
+    private int SelectedCount => State.SelectedJobIds.Count;
+
+    private bool CanRequeue => SelectedCount > 0 && !IsReadOnly && ActiveView is WorkView.Enqueued or WorkView.Processing or WorkView.Succeeded or WorkView.Failed or WorkView.Deleted or WorkView.Awaiting or WorkView.Retries;
+    private bool CanEnqueue => SelectedCount > 0 && !IsReadOnly && ActiveView == WorkView.Scheduled;
+    private bool CanTrigger => SelectedCount > 0 && !IsReadOnly && ActiveView == WorkView.Recurring;
+    private bool CanDelete => SelectedCount > 0 && !IsReadOnly && ActiveView is WorkView.Enqueued or WorkView.Scheduled or WorkView.Processing or WorkView.Succeeded or WorkView.Failed or WorkView.Awaiting or WorkView.Retries or WorkView.Recurring;
+
+    private async Task SubmitCommand(string command)
+    {
+        await OnCommand.InvokeAsync(new WorkCommandSubmitted(command, State.SelectedJobIds));
+    }
+
+    private string GetClass() => string.IsNullOrEmpty(Class)
+        ? "flex items-center justify-between gap-3 px-3 py-2 border-t border-border bg-card"
+        : $"flex items-center justify-between gap-3 px-3 py-2 border-t border-border bg-card {Class}";
+}

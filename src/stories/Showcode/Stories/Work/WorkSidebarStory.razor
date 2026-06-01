@@ -1,0 +1,14 @@
+@attribute [DisplayName("Work/WorkSidebar")]
+@inherits StoryComponent
+
+<StoryCard Title="WorkSidebar"
+           Description="Navigation sidebar with job state filters and counts."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new("default", "Default", @<WorkSidebarDefaultExample />, [
+            StorySourceRegistry.CodeTab("default-razor", "WorkSidebarDefaultExample.razor", "Showcode/Examples/Work/WorkSidebar/WorkSidebarDefaultExample.razor")
+        ])
+    ];
+}

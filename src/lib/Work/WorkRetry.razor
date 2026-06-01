@@ -1,0 +1,52 @@
+@namespace LowlandTech.Components.Work
+@inherits TinyComponentBase
+
+<div data-slot="work-retry" class="@GetClass()" @attributes="AdditionalAttributes">
+    @if (Jobs.Count == 0)
+    {
+        <div data-testid="work-retry-empty" class="px-3 py-4 text-sm text-muted-foreground">No retry jobs.</div>
+    }
+    else
+    {
+        <Table>
+            <TableHeader>
+                <TableRow>
+                    @if (!IsReadOnly)
+                    {
+                        <TableHead class="w-10"><span class="sr-only">Select</span></TableHead>
+                    }
+                    <TableHead>ID</TableHead>
+                    <TableHead>State</TableHead>
+                    <TableHead>Job</TableHead>
+                    <TableHead>Reason</TableHead>
+                    <TableHead>Retry At</TableHead>
+                    <TableHead>Created</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                @foreach (var job in Jobs)
+                {
+                    <TableRow data-testid="work-retry-row"
+                              data-job-id="@job.Id"
+                              @onclick="() => SelectAsync(job)"
+                              class="cursor-pointer hover:bg-muted/40">
+                        @if (!IsReadOnly)
+                        {
+                            <TableCell @onclick:stopPropagation>
+                                <Checkbox data-testid="work-retry-checkbox"
+                                          CheckedChanged="_ => ToggleAsync(job.Id)"
+                                          Disabled="IsReadOnly" />
+                            </TableCell>
+                        }
+                        <TableCell class="font-mono text-xs">@job.Id</TableCell>
+                        <TableCell><WorkStateBadge State="job.State" /></TableCell>
+                        <TableCell class="font-medium">@job.JobDisplayName</TableCell>
+                        <TableCell class="text-muted-foreground text-sm">@job.Reason</TableCell>
+                        <TableCell class="text-muted-foreground text-sm">@GetRelativeTime(job.ScheduledAt ?? job.CreatedAt)</TableCell>
+                        <TableCell class="text-muted-foreground text-sm">@GetRelativeTime(job.CreatedAt)</TableCell>
+                    </TableRow>
+                }
+            </TableBody>
+        </Table>
+    }
+</div>

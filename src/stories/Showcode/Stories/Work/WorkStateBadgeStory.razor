@@ -1,0 +1,14 @@
+@attribute [DisplayName("Work/WorkStateBadge")]
+@inherits StoryComponent
+
+<StoryCard Title="WorkStateBadge"
+           Description="Status badge for work item states with color coding."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new("default", "Default", @<WorkStateBadgeDefaultExample />, [
+            StorySourceRegistry.CodeTab("default-razor", "WorkStateBadgeDefaultExample.razor", "Showcode/Examples/Work/WorkStateBadge/WorkStateBadgeDefaultExample.razor")
+        ])
+    ];
+}

@@ -1,0 +1,40 @@
+@namespace LowlandTech.Components.Work
+@inherits TinyComponentBase
+
+<div data-slot="work-filter-bar" class="@GetClass()" @attributes="AdditionalAttributes">
+    <div class="relative flex-1">
+        <Icon Name="search" Size="14" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <Input type="text"
+               data-testid="work-filter-input"
+               placeholder="Filter jobs..."
+               class="pl-8"
+               value="@FilterText"
+               @oninput="e => OnFilterChanged.InvokeAsync(e.Value?.ToString() ?? string.Empty)" />
+    </div>
+    <div class="flex items-center gap-1.5">
+        <span class="text-xs text-muted-foreground">Per page:</span>
+        <ButtonGroup>
+            @foreach (var size in _pageSizes)
+            {
+                <Button Variant="@(PageSize == size ? "default" : "outline")"
+                        Size="sm"
+                        OnClick="@(() => OnPageSizeChanged.InvokeAsync(size))">
+                    @size
+                </Button>
+            }
+        </ButtonGroup>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string FilterText { get; set; } = string.Empty;
+    [Parameter] public int PageSize { get; set; } = 20;
+    [Parameter] public EventCallback<string> OnFilterChanged { get; set; }
+    [Parameter] public EventCallback<int> OnPageSizeChanged { get; set; }
+
+    private static readonly int[] _pageSizes = [10, 20, 50, 100, 500];
+
+    private string GetClass() => string.IsNullOrEmpty(Class)
+        ? "flex items-center gap-3"
+        : $"flex items-center gap-3 {Class}";
+}

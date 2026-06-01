@@ -1,0 +1,14 @@
+@attribute [DisplayName("Work/WorkBreadcrumb")]
+@inherits StoryComponent
+
+<StoryCard Title="WorkBreadcrumb"
+           Description="Breadcrumb trail for work navigation."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new("default", "Default", @<WorkBreadcrumbDefaultExample />, [
+            StorySourceRegistry.CodeTab("default-razor", "WorkBreadcrumbDefaultExample.razor", "Showcode/Examples/Work/WorkBreadcrumb/WorkBreadcrumbDefaultExample.razor")
+        ])
+    ];
+}

@@ -1,0 +1,26 @@
+@attribute [DisplayName("Work/WorkRetry")]
+@inherits StoryComponent
+
+<StoryCard Title="WorkRetry"
+           Description="Retry queue view showing jobs scheduled for retry with state, reason, and timing."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "default",
+            "Default",
+            @<WorkRetryDefaultExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "default-razor",
+                    "WorkRetryDefaultExample.razor",
+                    "Showcode/Examples/Work/WorkRetry/WorkRetryDefaultExample.razor")
+            ]),
+        new(
+            "empty",
+            "Empty",
+            @<WorkRetry Jobs="[]" IsReadOnly="false" />,
+            [])
+    ];
+}

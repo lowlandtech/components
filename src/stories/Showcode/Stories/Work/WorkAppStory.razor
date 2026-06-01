@@ -1,0 +1,14 @@
+@attribute [DisplayName("Work/WorkApp")]
+@inherits StoryComponent
+
+<StoryCard Title="WorkApp"
+           Description="Root work management app with resizable layout and state-driven views."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new("default", "Default", @<WorkAppDefaultExample />, [
+            StorySourceRegistry.CodeTab("default-razor", "WorkAppDefaultExample.razor", "Showcode/Examples/Work/WorkApp/WorkAppDefaultExample.razor")
+        ])
+    ];
+}

@@ -1,0 +1,239 @@
+@namespace LowlandTech.Components.Work
+@inherits TinyComponentBase
+
+<div data-slot="work-app"
+     data-testid="work-app"
+     data-active-view="@AppState.Ui.ActiveView.ToString().ToLowerInvariant()"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
+    <div class="@GetShellClass()">
+        @if (ShowSidebar)
+        {
+            <div data-slot="work-app-sidebar" class="min-h-0 border-b border-border bg-muted/20 lg:border-b-0 lg:border-r">
+                <WorkSidebar ActiveView="AppState.Ui.ActiveView"
+                             Statistics="AppState.Statistics"
+                             OnViewChanged="HandleViewChanged"
+                             Class="max-h-64 overflow-auto lg:max-h-none" />
+            </div>
+        }
+        <main data-slot="work-app-main" class="flex min-h-0 min-w-0 flex-col overflow-hidden">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
+                <WorkBreadcrumb Title="@GetBreadcrumbTitle()" Crumbs="GetBreadcrumbCrumbs()" />
+                @if (ShowFilterBar)
+                {
+                    <WorkFilterBar FilterText="@AppState.Ui.FilterText"
+                                   PageSize="@AppState.Ui.PageSize"
+                                   OnFilterChanged="HandleFilterChanged"
+                                   OnPageSizeChanged="HandlePageSizeChanged" />
+                }
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(AppState.LastPollingError))
+            {
+                <WorkErrorBanner Error="@AppState.LastPollingError" OnDismiss="HandleDismissError" />
+            }
+
+            <div data-slot="work-app-content" class="min-h-0 flex-1 overflow-auto p-4">
+                @switch (AppState.Ui.ActiveView)
+                {
+                    case WorkView.Dashboard:
+                        <WorkDashboard Metrics="@AppState.Metrics"
+                                       Statistics="@AppState.Statistics"
+                                       GraphData="@AppState.GraphData"
+                                       OnViewChanged="HandleViewChanged" />
+                        break;
+                    case WorkView.Queues:
+                        <WorkQueue Queues="@AppState.Queues" OnSelected="HandleQueueSelected" />
+                        break;
+                    case WorkView.Enqueued:
+                    case WorkView.Scheduled:
+                    case WorkView.Processing:
+                    case WorkView.Succeeded:
+                    case WorkView.Failed:
+                    case WorkView.Deleted:
+                    case WorkView.Awaiting:
+                    case WorkView.Retries:
+                        @if (!AppState.IsReadOnly)
+                        {
+                            <WorkBatchSelector IsAllSelected="@IsAllSelected()"
+                                               SelectedCount="@AppState.Ui.SelectedJobIds.Count"
+                                               TotalCount="@GetPagedJobs().Count"
+                                               OnSelectAllChanged="HandleSelectAll" />
+                        }
+                        <WorkList State="@AppState.Ui"
+                                  Jobs="@GetPagedJobs()"
+                                  IsReadOnly="@AppState.IsReadOnly"
+                                  ShowServerColumn="@ShowServerColumn"
+                                  ShowQueueColumn="@ShowQueueColumn"
+                                  OnSelected="HandleJobSelected"
+                                  OnToggleSelection="HandleToggleSelection"
+                                  OnSelectAll="HandleSelectAll" />
+                        <div class="mt-3">
+                            <WorkPaginator Pager="@GetPager()" OnPageChanged="HandlePageChanged" />
+                        </div>
+                        break;
+                    case WorkView.Recurring:
+                        <WorkRecurring Jobs="@AppState.RecurringJobs"
+                                       IsReadOnly="@AppState.IsReadOnly"
+                                       OnToggleSelection="HandleToggleSelection"
+                                       OnCommand="HandleCommand" />
+                        break;
+                    case WorkView.Servers:
+                        <WorkServer Servers="@AppState.Servers" />
+                        break;
+                    case WorkView.Detail:
+                        <WorkDetail Job="@AppState.SelectedJob"
+                                    History="@AppState.SelectedJobHistory"
+                                    Continuations="@AppState.SelectedJobContinuations"
+                                    IsReadOnly="@AppState.IsReadOnly"
+                                    OnCommand="HandleCommand" />
+                        break;
+                    default:
+                        <WorkDashboard Metrics="@AppState.Metrics"
+                                       Statistics="@AppState.Statistics"
+                                       OnViewChanged="HandleViewChanged" />
+                        break;
+                }
+            </div>
+
+            @if (ShowCommandBar)
+            {
+                <WorkCommandBar State="@AppState.Ui"
+                                ActiveView="@AppState.Ui.ActiveView"
+                                IsReadOnly="@AppState.IsReadOnly"
+                                OnCommand="HandleCommand" />
+            }
+        </main>
+
+        @if (ShowDetailPanel)
+        {
+            <aside data-slot="work-app-detail" class="min-h-0 overflow-auto border-t border-border bg-card xl:border-l xl:border-t-0">
+                <WorkDetail Job="@AppState.SelectedJob"
+                            History="@AppState.SelectedJobHistory"
+                            Continuations="@AppState.SelectedJobContinuations"
+                            IsReadOnly="@AppState.IsReadOnly"
+                            OnCommand="HandleCommand"
+                            Class="h-full rounded-none border-0" />
+            </aside>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public WorkStateService? StateService { get; set; }
+    [Parameter] public bool IsTest { get; set; }
+    [Parameter] public int TestStreamDelayMilliseconds { get; set; } = 0;
+
+    private WorkStateService _sessionState => StateService ?? (_ownedStateService ??= new WorkStateService());
+    private WorkStateService? _ownedStateService;
+    private WorkAppState AppState => _sessionState.State;
+
+    private bool ShowSidebar => AppState.Ui.ActiveView != WorkView.Servers
+        && AppState.Ui.ActiveView != WorkView.Recurring;
+
+    private bool ShowDetailPanel => AppState.Ui.ActiveView != WorkView.Detail
+        && AppState.SelectedJob is not null;
+
+    private bool ShowCommandBar => AppState.Ui.ActiveView is WorkView.Enqueued or WorkView.Scheduled
+        or WorkView.Processing or WorkView.Succeeded or WorkView.Failed
+        or WorkView.Deleted or WorkView.Awaiting or WorkView.Retries
+        or WorkView.Recurring;
+
+    private bool ShowFilterBar => AppState.Ui.ActiveView is WorkView.Enqueued or WorkView.Scheduled
+        or WorkView.Processing or WorkView.Succeeded or WorkView.Failed
+        or WorkView.Deleted or WorkView.Awaiting or WorkView.Retries;
+
+    private bool ShowServerColumn => AppState.Ui.ActiveView == WorkView.Processing;
+    private bool ShowQueueColumn => AppState.Ui.ActiveView is WorkView.Enqueued or WorkView.Queues;
+
+    protected override void OnInitialized() => EnsureSubscription();
+
+    protected override void OnParametersSet() => EnsureSubscription();
+
+    private void EnsureSubscription()
+    {
+        _sessionState.StateChanged -= OnStateChanged;
+        _sessionState.StateChanged += OnStateChanged;
+    }
+
+    private void OnStateChanged(WorkAppState _) => InvokeAsync(StateHasChanged);
+
+    private bool IsAllSelected()
+    {
+        var jobs = GetPagedJobs();
+        return jobs.Count > 0 && jobs.All(j => AppState.Ui.SelectedJobIds.Contains(j.Id));
+    }
+
+    private void HandleViewChanged(WorkViewChanged e) => _sessionState.SetView(e.View);
+    private void HandleFilterChanged(string filter) => _sessionState.SetFilter(filter);
+    private void HandlePageChanged(int page) => _sessionState.SetPage(page);
+    private void HandlePageSizeChanged(int size) => _sessionState.SetPageSize(size);
+    private void HandleJobSelected(WorkItemSelected e) => _sessionState.SelectJob(e.JobId);
+    private void HandleQueueSelected(WorkQueueSelected e) => _sessionState.SelectQueue(e.QueueName);
+    private void HandleToggleSelection(ToggleWorkSelection e) => _sessionState.ToggleSelection(e.JobId);
+    private void HandleSelectAll(bool select) { if (select) _sessionState.SelectAll(); else _sessionState.ClearSelection(); }
+    private void HandleCommand(WorkCommandSubmitted e) => _sessionState.ExecuteCommand(e.Command);
+    private void HandleDismissError() => _sessionState.Dispatch(new SetWorkPollingError(null));
+
+    private IReadOnlyList<WorkItem> GetPagedJobs() => _sessionState.GetPagedJobs();
+    private WorkPager GetPager() => _sessionState.GetPager();
+
+    private string GetBreadcrumbTitle() => AppState.Ui.ActiveView switch
+    {
+        WorkView.Dashboard => "Dashboard",
+        WorkView.Queues => "Queues",
+        WorkView.Enqueued => "Enqueued",
+        WorkView.Scheduled => "Scheduled",
+        WorkView.Processing => "Processing",
+        WorkView.Succeeded => "Succeeded",
+        WorkView.Failed => "Failed",
+        WorkView.Deleted => "Deleted",
+        WorkView.Awaiting => "Awaiting",
+        WorkView.Retries => "Retries",
+        WorkView.Recurring => "Recurring Jobs",
+        WorkView.Servers => "Servers",
+        WorkView.Detail => "Job Details",
+        _ => "Work"
+    };
+
+    private IReadOnlyDictionary<string, string> GetBreadcrumbCrumbs()
+    {
+        var crumbs = new Dictionary<string, string>();
+        if (AppState.Ui.ActiveView != WorkView.Dashboard)
+        {
+            crumbs["Dashboard"] = "";
+        }
+        if (!string.IsNullOrWhiteSpace(AppState.SelectedQueueName))
+        {
+            crumbs["Queues"] = "";
+            crumbs[AppState.SelectedQueueName] = "";
+        }
+        return crumbs;
+    }
+
+    private string GetShellClass()
+    {
+        if (ShowSidebar && ShowDetailPanel)
+        {
+            return "grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[14rem_minmax(0,1fr)] xl:grid-cols-[14rem_minmax(0,1fr)_22rem]";
+        }
+
+        if (ShowSidebar)
+        {
+            return "grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[14rem_minmax(0,1fr)]";
+        }
+
+        if (ShowDetailPanel)
+        {
+            return "grid min-h-0 flex-1 grid-cols-1 xl:grid-cols-[minmax(0,1fr)_22rem]";
+        }
+
+        return "grid min-h-0 flex-1 grid-cols-1";
+    }
+
+    private string GetClass() => string.IsNullOrEmpty(Class)
+        ? "flex h-full min-h-[42rem] w-full flex-col overflow-hidden rounded-lg border border-border bg-card"
+        : $"flex h-full min-h-[42rem] w-full flex-col overflow-hidden rounded-lg border border-border bg-card {Class}";
+
+    public void Dispose() => _sessionState.StateChanged -= OnStateChanged;
+}

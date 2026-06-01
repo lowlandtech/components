@@ -1,0 +1,26 @@
+@attribute [DisplayName("Work/WorkTimeline")]
+@inherits StoryComponent
+
+<StoryCard Title="WorkTimeline"
+           Description="Vertical timeline of state history cards showing transitions, durations, and metadata."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "default",
+            "Default",
+            @<WorkTimelineDefaultExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "default-razor",
+                    "WorkTimelineDefaultExample.razor",
+                    "Showcode/Examples/Work/WorkTimeline/WorkTimelineDefaultExample.razor")
+            ]),
+        new(
+            "empty",
+            "Empty",
+            @<WorkTimeline History="[]" />,
+            [])
+    ];
+}

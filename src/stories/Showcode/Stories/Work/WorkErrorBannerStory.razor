@@ -1,0 +1,26 @@
+@attribute [DisplayName("Work/WorkErrorBanner")]
+@inherits StoryComponent
+
+<StoryCard Title="WorkErrorBanner"
+           Description="Polling and error notification banner with dismiss action."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "default",
+            "Error",
+            @<WorkErrorBannerDefaultExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "default-razor",
+                    "WorkErrorBannerDefaultExample.razor",
+                    "Showcode/Examples/Work/WorkErrorBanner/WorkErrorBannerDefaultExample.razor")
+            ]),
+        new(
+            "dismissed",
+            "Dismissed",
+            @<WorkErrorBanner Error="null" />,
+            [])
+    ];
+}

@@ -1,0 +1,14 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Work
+
+<WorkList Jobs="@(_jobs)" ShowQueueColumn="true" />
+
+@code {
+    private readonly List<WorkItem> _jobs = new()
+    {
+        new("job-1", "Sample.Job.Method1", WorkItemState.Enqueued, DateTimeOffset.UtcNow.AddMinutes(-5), QueueName: "default"),
+        new("job-2", "Sample.Job.Method2", WorkItemState.Processing, DateTimeOffset.UtcNow.AddMinutes(-10), ServerName: "server-1", QueueName: "default"),
+        new("job-3", "Sample.Job.Method3", WorkItemState.Succeeded, DateTimeOffset.UtcNow.AddMinutes(-15), QueueName: "critical"),
+        new("job-4", "Sample.Job.Method4", WorkItemState.Failed, DateTimeOffset.UtcNow.AddMinutes(-20), QueueName: "default"),
+        new("job-5", "Sample.Job.Method5", WorkItemState.Scheduled, DateTimeOffset.UtcNow.AddMinutes(30), QueueName: "emails")
+    };
+}

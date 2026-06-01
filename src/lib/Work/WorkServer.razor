@@ -1,0 +1,83 @@
+@namespace LowlandTech.Components.Work
+@inherits TinyComponentBase
+
+<div data-slot="work-server" class="@GetClass()" @attributes="AdditionalAttributes">
+    @if (Servers.Count == 0)
+    {
+        <div data-testid="work-server-empty" class="px-3 py-4 text-sm text-muted-foreground">No servers available.</div>
+    }
+    else
+    {
+        <Table>
+            <TableHeader>
+                <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Workers</TableHead>
+                    <TableHead>Queues</TableHead>
+                    <TableHead>Started</TableHead>
+                    <TableHead>Heartbeat</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                @foreach (var server in Servers)
+                {
+                    <TableRow>
+                        <TableCell class="font-medium">@server.Name</TableCell>
+                        <TableCell>@server.Workers</TableCell>
+                        <TableCell>
+                            <div class="flex flex-wrap gap-1">
+                                @foreach (var queue in server.Queues)
+                                {
+                                    <Badge Variant="outline" Size="sm">@queue</Badge>
+                                }
+                            </div>
+                        </TableCell>
+                        <TableCell class="text-muted-foreground">@GetRelativeTime(server.StartedAt)</TableCell>
+                        <TableCell>
+                            <div class="flex items-center gap-1.5">
+                                @if (server.HeartbeatAt.HasValue)
+                                {
+                                    var status = GetHeartbeatStatus(server.HeartbeatAt.Value);
+                                    <Icon Name="@status.Icon" Size="14" class="@status.Class" />
+                                    <span class="text-xs text-muted-foreground">@GetRelativeTime(server.HeartbeatAt.Value)</span>
+                                }
+                                else
+                                {
+                                    <span class="text-xs text-muted-foreground">—</span>
+                                }
+                            </div>
+                        </TableCell>
+                    </TableRow>
+                }
+            </TableBody>
+        </Table>
+    }
+</div>
+
+@code {
+    [Parameter] public IReadOnlyList<WorkServerItem> Servers { get; set; } = [];
+    [Parameter] public EventCallback<WorkItemSelected> OnSelected { get; set; }
+
+    private record HeartbeatStatus(string Icon, string Class);
+
+    private HeartbeatStatus GetHeartbeatStatus(DateTimeOffset heartbeat)
+    {
+        var diff = DateTimeOffset.UtcNow - heartbeat;
+        return diff.TotalMinutes > 1
+            ? new HeartbeatStatus("alert-triangle", "text-rose-500")
+            : new HeartbeatStatus("check-circle", "text-emerald-500");
+    }
+
+    private static string GetRelativeTime(DateTimeOffset value)
+    {
+        var diff = DateTimeOffset.UtcNow - value;
+        if (diff.TotalSeconds < 60) return "just now";
+        if (diff.TotalMinutes < 60) return $"{(int)diff.TotalMinutes}m ago";
+        if (diff.TotalHours < 24) return $"{(int)diff.TotalHours}h ago";
+        return $"{(int)diff.TotalDays}d ago";
+    }
+
+    private string GetClass() => string.IsNullOrEmpty(Class)
+        ? "rounded-lg border border-border bg-card"
+        : $"rounded-lg border border-border bg-card {Class}";
+}

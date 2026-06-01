@@ -1,0 +1,14 @@
+@attribute [DisplayName("Work/WorkQueue")]
+@inherits StoryComponent
+
+<StoryCard Title="WorkQueue"
+           Description="Queue overview with length, fetched counts, and job previews."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new("default", "Default", @<WorkQueueDefaultExample />, [
+            StorySourceRegistry.CodeTab("default-razor", "WorkQueueDefaultExample.razor", "Showcode/Examples/Work/WorkQueue/WorkQueueDefaultExample.razor")
+        ])
+    ];
+}
