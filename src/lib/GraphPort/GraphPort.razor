@@ -1,7 +1,13 @@
 @namespace LowlandTech.Components.GraphPort
 @inherits TinyComponentBase
 
-<g data-slot="graph-port" @attributes="AdditionalAttributes">
+<g data-slot="graph-port"
+   data-design-mode="@DesignModeAttribute"
+   data-design-selectable="@DesignSelectableAttribute"
+   data-design-selected="@DesignSelectedAttribute"
+   data-design-instance-id="@DesignInstanceIdAttribute"
+   class="@DesignModeClass"
+   @attributes="AdditionalAttributes">
     <circle cx="@X" cy="@Y" r="@Radius" class="@GetClass()" />
     @if (!string.IsNullOrEmpty(Label))
     {

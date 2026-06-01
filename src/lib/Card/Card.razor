@@ -7,6 +7,10 @@
      data-elevation="@Elevation"
      data-square="@(Square ? "true" : null)"
      data-mode="@NormalizedMode"
+     data-design-mode="@DesignModeAttribute"
+     data-design-selectable="@DesignSelectableAttribute"
+     data-design-selected="@DesignSelectedAttribute"
+     data-design-instance-id="@DesignInstanceIdAttribute"
      class="@GetClass()"
      @attributes="AdditionalAttributes">
     @ChildContent
@@ -46,7 +50,8 @@
             _ => ""
         };
 
-        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+        var result = string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+        return $"{result} {DesignModeClass}".Trim();
     }
 
     private static string GetShadowClass(int elevation)

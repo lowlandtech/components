@@ -14,8 +14,12 @@
          @onpointerup="OnPointerUp" />
 }
 
-<svg width="@Width" height="@Height"
-     class="cn-graph-canvas @Class"
+<svg data-design-mode="@DesignModeAttribute"
+     data-design-selectable="@DesignSelectableAttribute"
+     data-design-selected="@DesignSelectedAttribute"
+     data-design-instance-id="@DesignInstanceIdAttribute"
+     width="@Width" height="@Height"
+     class="cn-graph-canvas @Class @DesignModeClass"
      @attributes="AdditionalAttributes">
 
     <defs>

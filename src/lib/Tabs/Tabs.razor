@@ -7,6 +7,10 @@
          data-orientation="@EffectiveOrientation"
          data-activation="@KeyboardActivation"
          data-tabs-mode="@(HasItems ? "dynamic" : "static")"
+         data-design-mode="@DesignModeAttribute"
+         data-design-selectable="@DesignSelectableAttribute"
+         data-design-selected="@DesignSelectedAttribute"
+         data-design-instance-id="@DesignInstanceIdAttribute"
          class="@GetClass()"
          @attributes="AdditionalAttributes">
         @if (HasItems)
@@ -67,33 +71,10 @@
 </CascadingValue>
 
 @code {
-    [Parameter] public string Orientation { get; set; } = "horizontal";
-    [Parameter] public string Placement { get; set; } = "top";
-
     internal string EffectiveOrientation => Placement != "top"
         ? Placement switch { "left" or "right" => "vertical", _ => "horizontal" }
         : Orientation;
-    [Parameter] public string DefaultValue { get; set; } = "";
-    [Parameter] public string? Value { get; set; }
-    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
-    [Parameter] public string KeyboardActivation { get; set; } = "automatic";
-    [Parameter] public IReadOnlyList<TabsItem>? Items { get; set; }
-    [Parameter] public EventCallback<IReadOnlyList<TabsItem>> ItemsChanged { get; set; }
-    [Parameter] public RenderFragment? HeaderLeading { get; set; }
-    [Parameter] public RenderFragment<TabsItem>? ItemContent { get; set; }
-    [Parameter] public string DynamicVariant { get; set; } = "ide";
-    [Parameter] public string DynamicListAlign { get; set; } = "left";
-    [Parameter] public bool DynamicListStretch { get; set; }
-    [Parameter] public bool ShowScrollButtons { get; set; } = true;
-    [Parameter] public EventCallback<TabsItem> TabClosed { get; set; }
-    [Parameter] public EventCallback<TabsItem> TabPinnedChanged { get; set; }
-    [Parameter] public EventCallback<TabsRenameEventArgs> TabRenamed { get; set; }
-    [Parameter] public EventCallback<TabsReorderEventArgs> TabReordered { get; set; }
-    [Parameter] public string? ContentClass { get; set; }
-    [Parameter] public string? IsCollapsable { get; set; }
-    [Parameter] public bool? InitialIsContentCollapsed { get; set; }
-    [Parameter] public EventCallback<bool> IsContentCollapsedChanged { get; set; }
-    
+
     internal string? ActiveTab { get; set; }
     internal bool IsContentCollapsed { get; private set; }
     internal int FocusedTabIndex { get; set; } = -1;
@@ -117,12 +98,14 @@
     
     protected override void OnInitialized()
     {
+        base.OnInitialized();
         ActiveTab = ResolveActiveValue();
         ApplyCollapsableMode();
     }
 
     protected override void OnParametersSet()
     {
+        base.OnParametersSet();
         ActiveTab = ResolveActiveValue();
         ApplyCollapsableMode();
 
@@ -314,13 +297,15 @@
     
     private string GetClass()
     {
+        var gapClass = HasGap ? " gap-2" : "";
         var baseClass = Placement switch
         {
-            "bottom" => "cn-tabs flex flex-col-reverse gap-2",
-            "left" => "cn-tabs flex flex-row gap-2",
-            "right" => "cn-tabs flex flex-row-reverse gap-2",
-            _ => "cn-tabs flex flex-col gap-2"
+            "bottom" => $"cn-tabs flex flex-col-reverse{gapClass}",
+            "left" => $"cn-tabs flex flex-row{gapClass}",
+            "right" => $"cn-tabs flex flex-row-reverse{gapClass}",
+            _ => $"cn-tabs flex flex-col{gapClass}"
         };
-        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+        var result = string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+        return $"{result} {DesignModeClass}".Trim();
     }
 }

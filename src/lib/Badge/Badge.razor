@@ -3,6 +3,10 @@
 
 <span data-slot="badge"
       data-variant="@Variant"
+      data-design-mode="@DesignModeAttribute"
+      data-design-selectable="@DesignSelectableAttribute"
+      data-design-selected="@DesignSelectedAttribute"
+      data-design-instance-id="@DesignInstanceIdAttribute"
       class="@GetClass()"
       @attributes="AdditionalAttributes">
     @ChildContent
@@ -18,6 +22,7 @@
             _ => string.Empty
         };
         var result = string.IsNullOrEmpty(sizeClass) ? baseClass : $"{baseClass} {sizeClass}";
-        return string.IsNullOrEmpty(Class) ? result : $"{result} {Class}";
+        result = string.IsNullOrEmpty(Class) ? result : $"{result} {Class}";
+        return $"{result} {DesignModeClass}".Trim();
     }
 }

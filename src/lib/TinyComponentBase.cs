@@ -3,6 +3,7 @@ namespace LowlandTech.Components;
 public abstract class TinyComponentBase : ComponentBase
 {
     private static readonly ConcurrentDictionary<Type, bool> DesignableParameterCache = new();
+    private static readonly ConcurrentDictionary<string, WeakReference<TinyComponentBase>> DesignableInstances = new();
     private readonly string _designInstanceId = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
 
     [Parameter] public string? Class { get; set; }
@@ -48,6 +49,8 @@ public abstract class TinyComponentBase : ComponentBase
     protected string? DesignSelectableAttribute => IsDesignSelectable ? "true" : null;
 
     protected string? DesignSelectedAttribute => IsDesignSelectable && EffectiveDesignSelected ? "true" : null;
+
+    protected string? DesignInstanceIdAttribute => IsDesignSelectable ? _designInstanceId : null;
 
     protected bool IsDisabledInDesignMode => EffectiveDesignMode && IsComponentDisabled;
 
@@ -104,6 +107,15 @@ public abstract class TinyComponentBase : ComponentBase
         }
     }
 
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        if (IsDesignSelectable)
+        {
+            DesignableInstances[_designInstanceId] = new WeakReference<TinyComponentBase>(this);
+        }
+    }
+
     protected override void OnParametersSet()
     {
         if (!EffectiveDesignMode ||
@@ -115,6 +127,20 @@ public abstract class TinyComponentBase : ComponentBase
         }
 
         ApplyDesignPropertyValues();
+    }
+
+    [JSInvokable]
+    public static Task OnDesignElementClicked(string instanceId)
+    {
+        if (DesignableInstances.TryGetValue(instanceId, out var weakRef))
+        {
+            if (weakRef.TryGetTarget(out var instance))
+            {
+                return instance.SelectInDesignModeAsync();
+            }
+            DesignableInstances.TryRemove(instanceId, out _);
+        }
+        return Task.CompletedTask;
     }
 
     private static bool HasDesignableParameters(Type componentType) =>

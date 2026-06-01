@@ -1,7 +1,14 @@
 @namespace LowlandTech.Components.GraphNode
 @inherits TinyComponentBase
 
-<g data-slot="graph-node" transform="translate(@X, @Y)" class="cn-graph-node" @attributes="AdditionalAttributes">
+<g data-slot="graph-node"
+   transform="translate(@X, @Y)"
+   data-design-mode="@DesignModeAttribute"
+   data-design-selectable="@DesignSelectableAttribute"
+   data-design-selected="@DesignSelectedAttribute"
+   data-design-instance-id="@DesignInstanceIdAttribute"
+   class="cn-graph-node @DesignModeClass"
+   @attributes="AdditionalAttributes">
     <rect width="@Width" height="@Height" rx="6" class="@GetRectClass()" />
     @if (!string.IsNullOrEmpty(Subtitle))
     {

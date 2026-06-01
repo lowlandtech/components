@@ -205,13 +205,15 @@
     @apply size-8 px-0 py-0;
   }
 
-  .lt-design-selectable {
+  .lt-design-selectable,
+  [data-design-selectable="true"] {
     cursor: pointer;
     position: relative;
     transition: filter 0.15s ease;
   }
 
-  .lt-design-selectable::after {
+  .lt-design-selectable::after,
+  [data-design-selectable="true"]::after {
     content: "";
     position: absolute;
     inset: calc(-0.35rem - 1px);
@@ -222,17 +224,20 @@
     transition: border-color 0.15s ease, inset 0.15s ease, box-shadow 0.15s ease;
   }
 
-  .lt-design-selectable:hover::after {
+  .lt-design-selectable:hover::after,
+  [data-design-selectable="true"]:hover::after {
     inset: calc(-0.45rem - 1px);
     border-color: var(--ring);
     box-shadow: 0 0 0 0.25rem color-mix(in oklab, var(--ring) 12%, transparent);
   }
 
-  .lt-design-selected {
+  .lt-design-selected,
+  [data-design-selected="true"] {
     filter: none;
   }
 
-  .lt-design-selected::after {
+  .lt-design-selected::after,
+  [data-design-selected="true"]::after {
     inset: calc(-0.45rem - 2px);
     border: 2px dashed var(--ring);
     box-shadow: 0 0 0 0.25rem color-mix(in oklab, var(--ring) 16%, transparent);

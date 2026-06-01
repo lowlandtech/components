@@ -48,7 +48,7 @@
                     </div>
                 }
 
-                <div class="story-card-tabs-content-column">
+                <div class="story-card-tabs-content-column" @ref="_contentColumn">
                     @foreach (var state in States)
                     {
                         <TabsContent Value="@state.Value" class="@GetTabsContentClass()">
@@ -188,6 +188,8 @@
     private string? _selectedDesignInstanceId;
     private Type? _selectedDesignComponentType;
     private readonly Dictionary<string, string> _designValues = new(StringComparer.OrdinalIgnoreCase);
+    private ElementReference _contentColumn;
+    private IJSObjectReference? _designModeModule;
     private readonly Dictionary<string, Guid> _popoverIds = new(StringComparer.OrdinalIgnoreCase);
     private readonly HashSet<Guid> _registeredPopoverIds = [];
 
@@ -218,6 +220,15 @@
         if (firstRender)
         {
             await RestoreFromSessionStorageAsync();
+            try
+            {
+                _designModeModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/LowlandTech.Components/js/designMode.js");
+                await _designModeModule.InvokeVoidAsync("initPreviewContainer", _contentColumn);
+            }
+            catch
+            {
+                // Ignore JS interop errors during prerender or tests.
+            }
         }
     }
 
@@ -870,5 +881,6 @@
         {
             PopoverService.Unregister(id);
         }
+        _ = _designModeModule?.DisposeAsync();
     }
 }

@@ -3,7 +3,11 @@
 
 @if (Variant == "floating")
 {
-    <div class="lt-fl-wrap">
+    <div class="lt-fl-wrap"
+         data-design-mode="@DesignModeAttribute"
+         data-design-selectable="@DesignSelectableAttribute"
+         data-design-selected="@DesignSelectedAttribute"
+         data-design-instance-id="@DesignInstanceIdAttribute">
         <input data-slot="input"
                data-variant="@Variant"
                data-size="@Size"
@@ -28,6 +32,10 @@ else
            data-variant="@Variant"
            data-size="@Size"
            data-invalid="@(Invalid ? "true" : null)"
+           data-design-mode="@DesignModeAttribute"
+           data-design-selectable="@DesignSelectableAttribute"
+           data-design-selected="@DesignSelectedAttribute"
+           data-design-instance-id="@DesignInstanceIdAttribute"
            type="@Type"
            class="@GetClass()"
            placeholder="@Placeholder"
@@ -72,7 +80,8 @@ else
         };
 
         var result = $"{baseClass}{borderClass}{sizeClass}{variantClass}";
-        return string.IsNullOrEmpty(Class) ? result : $"{result} {Class}";
+        result = string.IsNullOrEmpty(Class) ? result : $"{result} {Class}";
+        return $"{result} {DesignModeClass}".Trim();
     }
 
     private async Task HandleInput(ChangeEventArgs e)

@@ -3,10 +3,14 @@
 
 <CascadingValue Value="@_id" Name="GraphCanvasId">
     <svg data-slot="graph-canvas"
+         data-design-mode="@DesignModeAttribute"
+         data-design-selectable="@DesignSelectableAttribute"
+         data-design-selected="@DesignSelectedAttribute"
+         data-design-instance-id="@DesignInstanceIdAttribute"
          width="@Width"
          height="@Height"
          viewBox="0 0 @Width @Height"
-         class="@GetClass()"
+         class="@GetClass() @DesignModeClass"
          @attributes="AdditionalAttributes">
         <defs>
             <pattern id="graph-dot-@_id" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
