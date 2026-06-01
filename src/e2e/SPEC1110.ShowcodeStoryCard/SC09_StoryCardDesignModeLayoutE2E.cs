@@ -58,7 +58,7 @@ public sealed class SC09_StoryCardDesignModeLayoutE2E(ShowcodeCollection collect
         var emptyContent = card.Locator(".story-card-design-property-grid .lt-property-grid-empty-content").First;
         await Assertions.Expect(emptyContent).ToBeVisibleAsync();
         var emptyPaddingBottom = await emptyContent.EvaluateAsync<string>("element => getComputedStyle(element).paddingBottom");
-        emptyPaddingBottom.ShouldBe("50px");
+        emptyPaddingBottom.ShouldBe("40px");
 
         var previewButtons = card.Locator("[data-slot='button'][data-design-selectable='true']");
         (await previewButtons.CountAsync()).ShouldBeGreaterThanOrEqualTo(2);
