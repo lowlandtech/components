@@ -8,6 +8,17 @@
 @code {
     private IReadOnlyList<StoryCard.State> States => [
         new(
+            "showcase",
+            "Showcase",
+            @<ThemeShowcaseExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "showcase-razor",
+                    "ThemeShowcaseExample.razor",
+                    "Showcode/Examples/Misc/ThemeProvider/ThemeShowcaseExample.razor")
+            ],
+            DesignComponentType: typeof(ThemeProvider)),
+        new(
             "boundary",
             "Boundary",
             @<ThemeProviderBoundaryExample />,

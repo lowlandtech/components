@@ -6,6 +6,13 @@ namespace LowlandTech.Components;
 /// Use only when class overrides via <see cref="IComponentClassTheme"/> are
 /// insufficient — fragments change markup structure, not just styling.
 /// </summary>
+/// <remarks>
+/// <b>Fragment system: Phase 5 — deferred.</b>
+/// The interface, resolver method, and context wrapper are in place but no
+/// production component renders a fragment slot yet.  Do not add fragment
+/// slots to components until a concrete UX requirement exists that class
+/// overrides cannot satisfy.  See <c>ThemingArchitecturePlan.md § Fragment System</c>.
+/// </remarks>
 public interface IComponentFragmentTheme
 {
     /// <summary>

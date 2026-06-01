@@ -1,0 +1,54 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Misc
+@implements IDisposable
+@inject ComponentThemeService ThemeService
+
+<div class="space-y-6">
+    @foreach (var (providerId, themeName, label) in Providers)
+    {
+        <ThemeProvider Id="@providerId" Theme="@themeName"
+                       class="rounded-xl border p-5 bg-background text-foreground">
+            <div class="mb-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <Badge Variant="secondary">@label</Badge>
+                    <span class="text-xs text-muted-foreground">@(ThemeService.GetNameForProvider(providerId) ?? themeName)</span>
+                </div>
+                <ThemeToggle AriaLabel="Cycle theme" />
+            </div>
+            <div class="space-y-3">
+                <div class="flex flex-wrap gap-2">
+                    <Button Variant="default" Size="sm">Default</Button>
+                    <Button Variant="outline" Size="sm">Outline</Button>
+                    <Button Variant="secondary" Size="sm">Secondary</Button>
+                    <Button Variant="ghost" Size="sm">Ghost</Button>
+                    <Button Variant="destructive" Size="sm">Destructive</Button>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <Badge Variant="default">Default</Badge>
+                    <Badge Variant="secondary">Secondary</Badge>
+                    <Badge Variant="outline">Outline</Badge>
+                    <Badge Variant="destructive">Destructive</Badge>
+                </div>
+                <Card Size="sm" class="p-4">
+                    <p class="text-sm">Card surface inside the <strong>@(ThemeService.GetNameForProvider(providerId) ?? themeName)</strong> theme boundary. Tokens are fully scoped here.</p>
+                </Card>
+            </div>
+        </ThemeProvider>
+    }
+</div>
+
+@code {
+    private static readonly (string Id, string Theme, string Label)[] Providers =
+    [
+        ("showcase-glass",      "Glass",         "Glass"),
+        ("showcase-chadcn",     "ChadcnBlack",   "Chadcn Black"),
+        ("showcase-corporate",  "CorporateGrey", "Corporate Grey"),
+    ];
+
+    protected override void OnInitialized() =>
+        ThemeService.ThemeChanged += OnChanged;
+
+    public void Dispose() =>
+        ThemeService.ThemeChanged -= OnChanged;
+
+    private void OnChanged(string _) => StateHasChanged();
+}

@@ -108,6 +108,11 @@ public sealed class ComponentThemeService : IComponentThemeResolver
     }
 
     /// <inheritdoc/>
+    /// <remarks>
+    /// Fragment system: Phase 5 — deferred.  No production component has a
+    /// fragment slot yet.  This method is wired up and correct but untested
+    /// against real components until a concrete slot is introduced.
+    /// </remarks>
     public RenderFragment<ThemeFragmentContext>? Fragment(
         string? providerId,
         ComponentSlotKey key)

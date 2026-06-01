@@ -5,6 +5,8 @@ global using System.Reflection;
 global using System.Text.Json;
 global using Bunit;
 global using LowlandTech.Components;
+global using LowlandTech.Components.Badge;
+global using LowlandTech.Components.Button;
 global using LowlandTech.Components.Card;
 global using LowlandTech.Components.Feed;
 global using LowlandTech.Components.Popover;
@@ -26,3 +28,7 @@ global using Microsoft.Extensions.DependencyInjection;
 // Alias for ThemeProvider component — the class name matches its namespace,
 // so a direct reference competes with the namespace. Use TP everywhere in tests.
 global using TP = LowlandTech.Components.ThemeProvider.ThemeProvider;
+// Component aliases to disambiguate type from namespace (class name == namespace name).
+global using BadgeSut = LowlandTech.Components.Badge.Badge;
+global using ButtonSut = LowlandTech.Components.Button.Button;
+global using CardSut = LowlandTech.Components.Card.Card;

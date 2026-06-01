@@ -2,6 +2,7 @@ namespace LowlandTech.Components.Tests.SPEC1071.ComponentThemes.US05.DemoAppInte
 
 // ============================================================
 //  SC01 – Real theme implementations register correctly
+//  Mirrors the registration order in the app's Program.cs.
 // ============================================================
 [Trait(Spec.SPEC, "1071")]
 [Trait(Spec.US, "05")]
@@ -9,6 +10,8 @@ namespace LowlandTech.Components.Tests.SPEC1071.ComponentThemes.US05.DemoAppInte
 [UserStory("05", "Demo App Integration")]
 public class SC01_RealThemesRegisterCorrectly
 {
+    // Registration order must match the app's Program.cs exactly because
+    // ThemeToggle cycling depends on DI enumeration order.
     private static ServiceProvider BuildProvider()
     {
         var services = new ServiceCollection();
@@ -17,41 +20,41 @@ public class SC01_RealThemesRegisterCorrectly
         services.AddSingleton<IComponentTheme, OceanComponentTheme>();
         services.AddSingleton<IComponentTheme, RoseComponentTheme>();
         services.AddSingleton<IComponentTheme, ForestComponentTheme>();
+        services.AddSingleton<IComponentTheme, GlassComponentTheme>();
+        services.AddSingleton<IComponentTheme, ChadcnBlackComponentTheme>();
+        services.AddSingleton<IComponentTheme, CorporateGreyComponentTheme>();
         services.AddScoped<ComponentThemeService>();
         return services.BuildServiceProvider();
     }
 
-    [Fact(DisplayName = "UAC01: Exactly 5 IComponentTheme implementations are registered")]
+    [Fact(DisplayName = "UAC01: Exactly 8 IComponentTheme implementations are registered")]
     [Trait(Spec.UAC, "01")]
-    [Then("there should be exactly 5 IComponentTheme registrations")]
-    public void UAC01_FiveThemesRegistered()
+    [Then("there should be exactly 8 IComponentTheme registrations")]
+    public void UAC01_EightThemesRegistered()
     {
         using var provider = BuildProvider();
-        provider.GetServices<IComponentTheme>().Count().ShouldBe(5);
+        provider.GetServices<IComponentTheme>().Count().ShouldBe(8);
     }
 
-    [Fact(DisplayName = "UAC02: Themes include 'Light', 'Dark', 'Ocean', 'Rose', 'Forest'")]
+    [Fact(DisplayName = "UAC02: Themes include all 8 expected names")]
     [Trait(Spec.UAC, "02")]
-    [Then("themes should include Light, Dark, Ocean, Rose, Forest")]
+    [Then("themes should include Light, Dark, Ocean, Rose, Forest, Glass, ChadcnBlack, CorporateGrey")]
     public void UAC02_ThemeNamesCorrect()
     {
         using var provider = BuildProvider();
         var names = provider.GetServices<IComponentTheme>().Select(t => t.Name).ToList();
-        names.ShouldContain("Light");
-        names.ShouldContain("Dark");
-        names.ShouldContain("Ocean");
-        names.ShouldContain("Rose");
-        names.ShouldContain("Forest");
+        foreach (var expected in new[] { "Light", "Dark", "Ocean", "Rose", "Forest", "Glass", "ChadcnBlack", "CorporateGrey" })
+            names.ShouldContain(expected);
     }
 
-    [Fact(DisplayName = "UAC03: Theme registration order matches Light→Dark→Ocean→Rose→Forest")]
+    [Fact(DisplayName = "UAC03: Theme registration order matches app Program.cs")]
     [Trait(Spec.UAC, "03")]
-    [Then("themes should be registered in the order Light, Dark, Ocean, Rose, Forest")]
+    [Then("themes should be registered in the order defined in Program.cs")]
     public void UAC03_RegistrationOrderCorrect()
     {
         using var provider = BuildProvider();
         provider.GetServices<IComponentTheme>().Select(t => t.Name)
-            .ShouldBe(new[] { "Light", "Dark", "Ocean", "Rose", "Forest" });
+            .ShouldBe(new[] { "Light", "Dark", "Ocean", "Rose", "Forest", "Glass", "ChadcnBlack", "CorporateGrey" });
     }
 
     [Fact(DisplayName = "UAC04: Each real theme has at least 19 tokens")]

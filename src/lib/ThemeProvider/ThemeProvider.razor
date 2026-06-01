@@ -1,4 +1,5 @@
 @namespace LowlandTech.Components.ThemeProvider
+@inherits TinyComponentBase
 @implements IDisposable
 @inject ComponentThemeService ThemeService
 
@@ -9,6 +10,10 @@
 <div data-theme-provider="@Id"
      data-theme-name="@_activeThemeName"
      data-theme-style="@_activeThemeStyle"
+     data-design-mode="@DesignModeAttribute"
+     data-design-selectable="@DesignSelectableAttribute"
+     data-design-selected="@DesignSelectedAttribute"
+     data-design-instance-id="@DesignInstanceIdAttribute"
      class="@Class"
      @attributes="AdditionalAttributes">
     <CascadingValue Value="_context" IsFixed="false">
@@ -17,30 +22,31 @@
 </div>
 
 @code {
-    /// <summary>
-    /// Unique identifier for this provider. Used by <see cref="ComponentThemeService"/>
-    /// to track which theme is active at this boundary.
-    /// </summary>
-    [Parameter, EditorRequired] public string Id { get; set; } = "";
-
-    /// <summary>Name of the initial <see cref="IComponentTheme"/> to apply.</summary>
-    [Parameter] public string? Theme { get; set; }
-
-    [Parameter] public string? Class { get; set; }
-    [Parameter] public RenderFragment? ChildContent { get; set; }
-    [Parameter(CaptureUnmatchedValues = true)] public Dictionary<string, object>? AdditionalAttributes { get; set; }
-
     private ThemeProviderContext _context = null!;
     private string _tokenCss = "";
     private string? _activeThemeName;
     private string? _activeThemeStyle;
+    private string? _syncedTheme;
 
     protected override void OnInitialized()
     {
+        base.OnInitialized();
         _context = new(Id, ThemeService);
+        _syncedTheme = Theme;
         ThemeService.Register(Id, Theme);
         ThemeService.ThemeChanged += OnThemeChanged;
         UpdateStyle();
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet(); // applies design property values when selected in design mode
+        if (_syncedTheme != Theme)
+        {
+            _syncedTheme = Theme;
+            ThemeService.Register(Id, Theme);
+            UpdateStyle();
+        }
     }
 
     private void OnThemeChanged(string providerId)
