@@ -5,7 +5,12 @@ namespace LowlandTech.Components;
 /// <see cref="IComponentTheme"/>.  Multiple providers can be active simultaneously,
 /// each with a different theme.
 /// </summary>
-public sealed class ComponentThemeService
+/// <remarks>
+/// Also implements <see cref="IComponentThemeResolver"/> so that components
+/// with a <see cref="ThemeProviderContext"/> can resolve slot classes and
+/// fragments without injecting an extra service.
+/// </remarks>
+public sealed class ComponentThemeService : IComponentThemeResolver
 {
     private readonly List<IComponentTheme> _themes;
     private readonly Dictionary<string, string> _providerThemes = new();
