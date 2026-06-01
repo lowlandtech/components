@@ -1,6 +1,6 @@
 @namespace LowlandTech.Components.Work
 @inherits TinyComponentBase
-@inject IStringLocalizer<WorkStateBadgeStrings> L
+@inject IServiceProvider Services
 
 <Badge data-slot="work-state-badge"
        class="@GetClass()"
@@ -11,6 +11,13 @@
 @code {
     [Parameter] public WorkItemState State { get; set; }
     [Parameter] public string? CustomLabel { get; set; }
+
+    private IStringLocalizer<WorkStateBadgeStrings>? _localizer;
+
+    protected override void OnInitialized()
+    {
+        _localizer = Services.GetService<IStringLocalizer<WorkStateBadgeStrings>>();
+    }
 
     private string GetClass() => State switch
     {
@@ -27,5 +34,5 @@
 
     private string GetLabel() => !string.IsNullOrWhiteSpace(CustomLabel)
         ? CustomLabel
-        : L[State.ToString()];
+        : _localizer?[State.ToString()] ?? State.ToString();
 }
