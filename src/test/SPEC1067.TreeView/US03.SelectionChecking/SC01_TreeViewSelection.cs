@@ -119,12 +119,12 @@ public class SC01_TreeViewSelection : ViewScenario
         parentCheckbox.GetAttribute("data-indeterminate").ShouldBe("true");
     }
 
-    [Fact(DisplayName = "UAC15: click focus does not masquerade as selection when selection is disabled")]
+    [Fact(DisplayName = "UAC15: click focus keeps primary outline when selection is disabled")]
     [Trait(Spec.UAC, "15")]
     [Given("a tree in Checkbox mode with SelectionMode=None")]
     [When("node 'a' is clicked")]
-    [Then("node 'a' receives focus for keyboard navigation but no selected or focus-outline class")]
-    public void UAC15_ClickFocusDoesNotShowSelectionOutlineWhenSelectionDisabled()
+    [Then("node 'a' receives committed focus and the focus-outline class without becoming selected")]
+    public void UAC15_ClickFocusKeepsOutlineWhenSelectionDisabled()
     {
         var cut = RenderTree(
             mode: TreeViewSelectionMode.None,
@@ -138,7 +138,53 @@ public class SC01_TreeViewSelection : ViewScenario
         var node = cut.Find("[data-tree-node='a']");
         node.GetAttribute("tabindex").ShouldBe("0");
         node.ClassList.ShouldNotContain("lt-tree-node-selected");
-        node.ClassList.ShouldNotContain("lt-tree-node-focused");
+        node.ClassList.ShouldContain("lt-tree-node-focused");
         node.ClassList.ShouldNotContain("lt-tree-node-keyboard-focused");
+    }
+
+    [Fact(DisplayName = "UAC16: keyboard candidate commits with Enter and Tab toggles focused checkbox")]
+    [Trait(Spec.UAC, "16")]
+    [Given("a checkbox tree with SelectionMode=None where node 'a' has committed focus")]
+    [When("ArrowDown hovers child 'a1', Enter commits it, and Tab is pressed twice")]
+    [Then("node 'a1' becomes the focused node and its checkbox toggles checked then unchecked")]
+    public void UAC16_EnterCommitsKeyboardCandidateAndTabTogglesFocusedCheckbox()
+    {
+        var cut = RenderTree(
+            mode: TreeViewSelectionMode.None,
+            checkMode: TreeViewCheckMode.Checkbox,
+            checkedKeys: [],
+            expandedKeys: ["a"]);
+
+        cut.Find("[data-tree-node='a']").Click();
+        cut.Render();
+
+        cut.Find("[data-slot='tree-view']").KeyDown("ArrowDown");
+        cut.Render();
+
+        var hovered = cut.Find("[data-tree-node='a1']");
+        hovered.ClassList.ShouldContain("lt-tree-node-keyboard-focused");
+        hovered.ClassList.ShouldNotContain("lt-tree-node-focused");
+
+        cut.Find("[data-slot='tree-view']").KeyDown("Enter");
+        cut.Render();
+
+        var focused = cut.Find("[data-tree-node='a1']");
+        focused.GetAttribute("tabindex").ShouldBe("0");
+        focused.ClassList.ShouldContain("lt-tree-node-focused");
+        focused.ClassList.ShouldNotContain("lt-tree-node-keyboard-focused");
+
+        cut.Find("[data-slot='tree-view']").KeyDown("Tab");
+        cut.Render();
+
+        cut.Find("[data-tree-node='a1'] .lt-tree-node-checkbox")
+            .GetAttribute("checked")
+            .ShouldNotBeNull();
+
+        cut.Find("[data-slot='tree-view']").KeyDown("Tab");
+        cut.Render();
+
+        cut.Find("[data-tree-node='a1'] .lt-tree-node-checkbox")
+            .GetAttribute("checked")
+            .ShouldBeNull();
     }
 }

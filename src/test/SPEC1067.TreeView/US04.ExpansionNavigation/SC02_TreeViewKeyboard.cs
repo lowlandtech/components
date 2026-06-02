@@ -39,6 +39,9 @@ public class SC02_TreeViewKeyboard : ViewScenario
 
     [Fact(DisplayName = "UAC15: ArrowDown on expanded node moves focus to first child")]
     [Trait(Spec.UAC, "15")]
+    [Given("a tree where node 'a' is expanded and has child node 'a1'")]
+    [When("ArrowDown is pressed from committed focus node 'a'")]
+    [Then("node 'a1' receives the keyboard hover class while node 'a' keeps committed focus")]
     public void UAC15_ArrowDownIntoFirstChild()
     {
         var cut = RenderTree(expandedKeys: ["a"]);
@@ -46,7 +49,8 @@ public class SC02_TreeViewKeyboard : ViewScenario
         cut.Find("[data-slot='tree-view']").KeyDown("ArrowDown");
         cut.Render();
 
-        cut.Find("[data-tree-node='a1']").GetAttribute("tabindex").ShouldBe("0");
+        cut.Find("[data-tree-node='a']").GetAttribute("tabindex").ShouldBe("0");
+        cut.Find("[data-tree-node='a1']").ClassList.ShouldContain("lt-tree-node-keyboard-focused");
     }
 
     [Fact(DisplayName = "UAC16: ArrowDown on collapsed node moves focus to next sibling")]
@@ -60,7 +64,8 @@ public class SC02_TreeViewKeyboard : ViewScenario
         cut.Find("[data-slot='tree-view']").KeyDown("ArrowDown");
         cut.Render();
 
-        cut.Find("[data-tree-node='b']").GetAttribute("tabindex").ShouldBe("0");
+        cut.Find("[data-tree-node='a']").GetAttribute("tabindex").ShouldBe("0");
+        cut.Find("[data-tree-node='b']").ClassList.ShouldContain("lt-tree-node-keyboard-focused");
     }
 
     [Fact(DisplayName = "UAC17: ArrowDown on leaf moves to next visible branch")]
@@ -78,7 +83,7 @@ public class SC02_TreeViewKeyboard : ViewScenario
         cut.Find("[data-slot='tree-view']").KeyDown("ArrowDown");
         cut.Render();
 
-        cut.Find("[data-tree-node='b']").GetAttribute("tabindex").ShouldBe("0");
+        cut.Find("[data-tree-node='b']").ClassList.ShouldContain("lt-tree-node-keyboard-focused");
     }
 
     [Fact(DisplayName = "UAC18: ArrowUp on first child moves focus to parent")]
@@ -97,6 +102,7 @@ public class SC02_TreeViewKeyboard : ViewScenario
         cut.Render();
 
         cut.Find("[data-tree-node='a']").GetAttribute("tabindex").ShouldBe("0");
+        cut.Find("[data-tree-node='a']").ClassList.ShouldContain("lt-tree-node-keyboard-focused");
     }
 
     [Fact(DisplayName = "UAC19: ArrowUp moves focus to previous visible node")]
@@ -115,6 +121,7 @@ public class SC02_TreeViewKeyboard : ViewScenario
         cut.Render();
 
         cut.Find("[data-tree-node='a']").GetAttribute("tabindex").ShouldBe("0");
+        cut.Find("[data-tree-node='a']").ClassList.ShouldContain("lt-tree-node-keyboard-focused");
     }
 
     [Fact(DisplayName = "UAC20: ArrowUp on first root does nothing")]
@@ -142,6 +149,9 @@ public class SC02_TreeViewKeyboard : ViewScenario
 
     [Fact(DisplayName = "UAC22: End moves focus to last visible node")]
     [Trait(Spec.UAC, "22")]
+    [Given("a tree with both root branches expanded")]
+    [When("End is pressed")]
+    [Then("the last visible node receives the keyboard hover class")]
     public void UAC22_EndMovesToLast()
     {
         var cut = RenderTree();
@@ -149,11 +159,14 @@ public class SC02_TreeViewKeyboard : ViewScenario
         cut.Render();
 
         var last = cut.Find("[data-tree-node='b1']");
-        last.GetAttribute("tabindex").ShouldBe("0");
+        last.ClassList.ShouldContain("lt-tree-node-keyboard-focused");
     }
 
     [Fact(DisplayName = "UAC23: Home moves focus to first visible node")]
     [Trait(Spec.UAC, "23")]
+    [Given("a tree where End has moved keyboard hover to the last visible node")]
+    [When("Home is pressed")]
+    [Then("the first visible node receives the keyboard hover class")]
     public void UAC23_HomeMovesToFirst()
     {
         var cut = RenderTree();
@@ -164,6 +177,7 @@ public class SC02_TreeViewKeyboard : ViewScenario
 
         var first = cut.Find("[data-tree-node='a']");
         first.GetAttribute("tabindex").ShouldBe("0");
+        first.ClassList.ShouldContain("lt-tree-node-keyboard-focused");
     }
 
     [Fact(DisplayName = "UAC24: Enter selects focused node")]
@@ -196,7 +210,6 @@ public class SC02_TreeViewKeyboard : ViewScenario
         selected.ClassList.ShouldNotContain("lt-tree-node-keyboard-focused");
 
         var focused = cut.Find("[data-tree-node='a1']");
-        focused.GetAttribute("tabindex").ShouldBe("0");
         focused.ClassList.ShouldContain("lt-tree-node-keyboard-focused");
         focused.ClassList.ShouldNotContain("lt-tree-node-selected");
     }
@@ -215,6 +228,6 @@ public class SC02_TreeViewKeyboard : ViewScenario
         cut.Find("[data-slot='tree-view']").KeyDown("ArrowDown");
         cut.Render();
 
-        cut.Find("[data-tree-node='b']").GetAttribute("tabindex").ShouldBe("0");
+        cut.Find("[data-tree-node='b']").ClassList.ShouldContain("lt-tree-node-keyboard-focused");
     }
 }

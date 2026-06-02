@@ -24,6 +24,10 @@
 .lt-tree-node-selected .lt-tree-node-row {
     background-color: var(--accent);
     color: var(--accent-foreground);
+}
+
+.lt-tree-node-focused .lt-tree-node-row,
+.lt-tree-node-selected .lt-tree-node-row {
     outline: 2px solid color-mix(in srgb, var(--primary) 40%, transparent);
     outline-offset: -2px;
 }

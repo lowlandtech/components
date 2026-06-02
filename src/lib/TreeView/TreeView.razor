@@ -18,7 +18,8 @@
      data-design-instance-id="@DesignInstanceIdAttribute"
      @attributes="AdditionalAttributes"
      @onclick="HandleTreeViewClick"
-     @onkeydown="HandleKeyDown">
+     @onkeydown="HandleKeyDown"
+     @onkeydown:preventDefault="true">
 
     @if (!Items.Any())
     {

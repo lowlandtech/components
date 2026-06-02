@@ -71,7 +71,7 @@ public partial class TreeView<TItem> : TinyComponentBase
     private HashSet<string> _selectedKeys = new();
     private HashSet<string> _checkedKeys = new();
     private string? _focusedKey;
-    private bool _keyboardFocus;
+    private string? _hoveredKey;
     private string[]? _lastExpandedKeys;
     private string[]? _lastSelectedKeys;
     private string? _lastSelectedKey;
@@ -387,7 +387,7 @@ public partial class TreeView<TItem> : TinyComponentBase
             return;
 
         _focusedKey = selectedKey;
-        _keyboardFocus = false;
+        _hoveredKey = null;
     }
 
     private void ApplyCheckedKeys(IReadOnlyList<string> keys)
@@ -613,22 +613,26 @@ public partial class TreeView<TItem> : TinyComponentBase
     internal void FocusNode(TItem item)
     {
         _focusedKey = GetItemKey(item);
-        _keyboardFocus = false;
+        _hoveredKey = null;
     }
 
-    internal bool IsKeyboardFocused(TItem item) => _keyboardFocus && GetItemKey(item) == _focusedKey;
+    internal bool IsKeyboardFocused(TItem item) => GetItemKey(item) == _hoveredKey;
 
     internal void HandleKeyDown(KeyboardEventArgs e)
     {
-        _keyboardFocus = true;
         var visible = GetVisibleItems().ToList();
         if (visible.Count == 0) return;
 
-        var focusedIndex = visible.FindIndex(i => GetItemKey(i) == _focusedKey);
-        if (focusedIndex < 0)
+        var navigationKey = _hoveredKey ?? _focusedKey;
+        var focusedIndex = visible.FindIndex(i => GetItemKey(i) == navigationKey);
+        if (focusedIndex < 0 && _focusedKey is null)
         {
             focusedIndex = 0;
             _focusedKey = GetItemKey(visible[0]);
+        }
+        else if (focusedIndex < 0)
+        {
+            focusedIndex = 0;
         }
         var current = visible[focusedIndex];
 
@@ -637,11 +641,11 @@ public partial class TreeView<TItem> : TinyComponentBase
         {
             case "ArrowDown":
                 if (focusedIndex < visible.Count - 1)
-                    _focusedKey = GetItemKey(visible[focusedIndex + 1]);
+                    _hoveredKey = GetItemKey(visible[focusedIndex + 1]);
                 break;
             case "ArrowUp":
                 if (focusedIndex > 0)
-                    _focusedKey = GetItemKey(visible[focusedIndex - 1]);
+                    _hoveredKey = GetItemKey(visible[focusedIndex - 1]);
                 break;
             case "ArrowRight":
                 if (!IsItemExpanded(current) && NodeHasChildren(current))
@@ -652,14 +656,32 @@ public partial class TreeView<TItem> : TinyComponentBase
                     ToggleExpand(current);
                 break;
             case "Home":
-                _focusedKey = GetItemKey(visible[0]);
+                _hoveredKey = GetItemKey(visible[0]);
                 break;
             case "End":
-                _focusedKey = GetItemKey(visible[^1]);
+                _hoveredKey = GetItemKey(visible[^1]);
                 break;
             case "Enter":
-            case " ":
+                FocusNode(current);
                 SelectNode(current);
+                break;
+            case " ":
+                if (CheckMode != TreeViewCheckMode.None)
+                    ToggleCheck(current);
+                else
+                    SelectNode(current);
+                break;
+            case "Tab":
+                if (CheckMode != TreeViewCheckMode.None)
+                {
+                    var committedIndex = visible.FindIndex(i => GetItemKey(i) == _focusedKey);
+                    if (committedIndex >= 0)
+                        ToggleCheck(visible[committedIndex]);
+                }
+                else
+                {
+                    handled = false;
+                }
                 break;
             default:
                 handled = false;
