@@ -48,113 +48,181 @@
                     </div>
                 }
 
-                <div class="story-card-tabs-content-column">
-                    @foreach (var state in States)
-                    {
-                        <TabsContent Value="@state.Value" class="@GetTabsContentClass()">
-                            <div class="flex min-w-0 flex-1 flex-col gap-2">
-                                <div class="flex min-w-0 gap-2">
-                                    <DesignSurface IsDesignMode="@_designMode"
-                                                   SelectedInstanceId="@_selectedDesignInstanceId"
-                                                   PropertyValues="@_designValues"
-                                                   OnSelectionChanged="@DesignSelectedCallback"
-                                                   Class="story-card-design-preview relative flex min-h-32 min-w-0 flex-1 items-center justify-center rounded-lg border border-border/70 bg-background p-6">
-                                        @state.Preview
-                                    </DesignSurface>
-                                </div>
-                                @if (state.CodeTabs.Count > 0)
-                                {
-                                    <Tabs Value="@GetActiveCodeTab(state)" ValueChanged="OnActiveCodeTabChanged" DefaultValue="@state.CodeTabs[0].Value" class="mb-4 overflow-hidden rounded-lg border border-[#444c56] bg-[#24292E] text-[#c9d1d9] shadow-sm">
-                                        <div class="flex min-h-12 items-center justify-between gap-3 border-b border-[#444c56] bg-[#2d333b] px-3">
-                                            <TabsList class="story-card-code-tabs">
-                                                @foreach (var codeTab in state.CodeTabs)
-                                                {
-                                                    <TabsTrigger Value="@codeTab.Value" class="story-card-code-tab">
-                                                        <span class="story-card-file-dot" data-language="@codeTab.Language"></span>
-                                                        @codeTab.Name
-                                                    </TabsTrigger>
-                                                }
-                                            </TabsList>
-                                        </div>
-
-                                        @foreach (var codeTab in state.CodeTabs)
-                                        {
-                                            <TabsContent Value="@codeTab.Value" class="mt-0">
-                                                <div class="relative">
-                                                    <Button Variant="ghost"
-                                                            Size="icon-sm"
-                                                            class="story-card-copy-button text-[#8b949e] hover:bg-[#444c56] hover:text-[#c9d1d9]"
-                                                            title="@($"Copy {codeTab.Name} code")"
-                                                            @onclick="() => CopyCode(codeTab)">
-                                                        <Icon Name="@(CopiedValue == codeTab.Value ? "check" : "copy")" Size="14" />
-                                                        <span class="sr-only">Copy @codeTab.Name code</span>
-                                                    </Button>
-                                                    <div class="story-card-code-editor" data-language="@codeTab.Language">
-                                                        @foreach (var line in GetHighlightedLines(codeTab))
-                                                        {
-                                                            <div class="story-card-code-line">
-                                                                <span class="story-card-line-number">@line.Number</span>
-                                                                <code class="story-card-line-code">@((MarkupString)line.Html)</code>
-                                                            </div>
-                                                        }
-                                                    </div>
-                                                </div>
-                                            </TabsContent>
-                                        }
-                                    </Tabs>
-                                }
-                            </div>
-                        </TabsContent>
-                    }
-                </div>
-
                 @if (HasDesignSidebar)
                 {
-                    <div class="story-card-design-sidebar-container">
-                        <aside class="story-card-design-sidebar">
-                            <PropertyGrid TField="PropertyDescriptor"
-                                          Items="@DesignGridProperties"
-                                          LabelSelector="p => p.Label"
-                                          Title="Properties"
-                                          TitleVariant="pill"
-                                          EmptyTitle="Select a component"
-                                          EmptyDescription="Click a highlighted component in the preview."
-                                          class="story-card-design-property-grid">
-                                <EditorTemplate Context="prop">
-                                    @switch (prop.Editor)
+                    <Resizable Direction="horizontal" class="flex-1 min-w-0">
+                        <ResizablePanel DefaultSize="75" MinSize="50" MaxSize="90" Id="story-content">
+                            <div class="story-card-tabs-content-column h-full">
+                                @foreach (var state in States)
+                                {
+                                    <TabsContent Value="@state.Value" class="@GetTabsContentClass()">
+                                        <div class="flex min-w-0 flex-1 flex-col gap-2">
+                                            <div class="flex min-w-0 gap-2">
+                                                <DesignSurface IsDesignMode="@_designMode"
+                                                               SelectedInstanceId="@_selectedDesignInstanceId"
+                                                               PropertyValues="@_designValues"
+                                                               OnSelectionChanged="@DesignSelectedCallback"
+                                                               Class="story-card-design-preview relative flex min-h-32 min-w-0 flex-1 items-center justify-center rounded-lg border border-border/70 bg-background p-6">
+                                                    @state.Preview
+                                                </DesignSurface>
+                                            </div>
+                                            @if (state.CodeTabs.Count > 0)
+                                            {
+                                                <Tabs Value="@GetActiveCodeTab(state)" ValueChanged="OnActiveCodeTabChanged" DefaultValue="@state.CodeTabs[0].Value" class="mb-4 overflow-hidden rounded-lg border border-[#444c56] bg-[#24292E] text-[#c9d1d9] shadow-sm">
+                                                    <div class="flex min-h-12 items-center justify-between gap-3 border-b border-[#444c56] bg-[#2d333b] px-3">
+                                                        <TabsList class="story-card-code-tabs">
+                                                            @foreach (var codeTab in state.CodeTabs)
+                                                            {
+                                                                <TabsTrigger Value="@codeTab.Value" class="story-card-code-tab">
+                                                                    <span class="story-card-file-dot" data-language="@codeTab.Language"></span>
+                                                                    @codeTab.Name
+                                                                </TabsTrigger>
+                                                            }
+                                                        </TabsList>
+                                                    </div>
+
+                                                    @foreach (var codeTab in state.CodeTabs)
+                                                    {
+                                                        <TabsContent Value="@codeTab.Value" class="mt-0">
+                                                            <div class="relative">
+                                                                <Button Variant="ghost"
+                                                                        Size="icon-sm"
+                                                                        class="story-card-copy-button text-[#8b949e] hover:bg-[#444c56] hover:text-[#c9d1d9]"
+                                                                        title="@($"Copy {codeTab.Name} code")"
+                                                                        @onclick="() => CopyCode(codeTab)">
+                                                                    <Icon Name="@(CopiedValue == codeTab.Value ? "check" : "copy")" Size="14" />
+                                                                    <span class="sr-only">Copy @codeTab.Name code</span>
+                                                                </Button>
+                                                                <div class="story-card-code-editor" data-language="@codeTab.Language">
+                                                                    @foreach (var line in GetHighlightedLines(codeTab))
+                                                                    {
+                                                                        <div class="story-card-code-line">
+                                                                            <span class="story-card-line-number">@line.Number</span>
+                                                                            <code class="story-card-line-code">@((MarkupString)line.Html)</code>
+                                                                        </div>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </TabsContent>
+                                                    }
+                                                </Tabs>
+                                            }
+                                        </div>
+                                    </TabsContent>
+                                }
+                            </div>
+                        </ResizablePanel>
+                        <ResizableHandle WithHandle="true" />
+                        <ResizablePanel DefaultSize="25" MinSize="15" MaxSize="50" Id="story-sidebar">
+                            <div class="story-card-design-sidebar-container h-full" style="width: 100%; margin-left: 0; padding: 1rem 1rem 1rem 0.5rem;">
+                                <aside class="story-card-design-sidebar">
+                                    <PropertyGrid TField="PropertyDescriptor"
+                                                  Items="@DesignGridProperties"
+                                                  LabelSelector="p => p.Label"
+                                                  Title="Properties"
+                                                  TitleVariant="pill"
+                                                  EmptyTitle="Select a component"
+                                                  EmptyDescription="Click a highlighted component in the preview."
+                                                  class="story-card-design-property-grid">
+                                        <EditorTemplate Context="prop">
+                                            @switch (prop.Editor)
+                                            {
+                                                case PropertyEditor.Select:
+                                                    <button id="@GetPopoverAnchorId(prop)"
+                                                            type="button"
+                                                            data-slot="select-trigger"
+                                                            class="cn-select-trigger group flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                                                            @onclick="() => ToggleSelectPopover(prop)"
+                                                            @onclick:stopPropagation>
+                                                        <span class="truncate">@(GetDesignValue(prop) ?? prop.Placeholder ?? "Select")</span>
+                                                        <Icon Name="chevron-down" Size="16" class="ml-2 shrink-0 opacity-50" />
+                                                    </button>
+                                                    break;
+                                                case PropertyEditor.Switch:
+                                                    <Switch Size="sm"
+                                                            IsChecked="@(GetDesignValue(prop) == "true")"
+                                                            IsCheckedChanged="@(value => OnDesignValueChanged(prop, value.ToString().ToLowerInvariant()))" />
+                                                    break;
+                                                case PropertyEditor.Number:
+                                                    <Input type="number"
+                                                           class="text-sm"
+                                                           Value="@GetDesignValue(prop)"
+                                                           @onchange="@(args => OnDesignValueChanged(prop, args.Value?.ToString()))" />
+                                                    break;
+                                                default:
+                                                    <Input class="text-sm"
+                                                           Value="@GetDesignValue(prop)"
+                                                           Placeholder="@(prop.Placeholder ?? "")"
+                                                           @onchange="@(args => OnDesignValueChanged(prop, args.Value?.ToString()))" />
+                                                    break;
+                                            }
+                                        </EditorTemplate>
+                                    </PropertyGrid>
+                                </aside>
+                            </div>
+                        </ResizablePanel>
+                    </Resizable>
+                }
+                else
+                {
+                    <div class="story-card-tabs-content-column">
+                        @foreach (var state in States)
+                        {
+                            <TabsContent Value="@state.Value" class="@GetTabsContentClass()">
+                                <div class="flex min-w-0 flex-1 flex-col gap-2">
+                                    <div class="flex min-w-0 gap-2">
+                                        <DesignSurface IsDesignMode="@_designMode"
+                                                       SelectedInstanceId="@_selectedDesignInstanceId"
+                                                       PropertyValues="@_designValues"
+                                                       OnSelectionChanged="@DesignSelectedCallback"
+                                                       Class="story-card-design-preview relative flex min-h-32 min-w-0 flex-1 items-center justify-center rounded-lg border border-border/70 bg-background p-6">
+                                            @state.Preview
+                                        </DesignSurface>
+                                    </div>
+                                    @if (state.CodeTabs.Count > 0)
                                     {
-                                        case PropertyEditor.Select:
-                                            <button id="@GetPopoverAnchorId(prop)"
-                                                    type="button"
-                                                    data-slot="select-trigger"
-                                                    class="cn-select-trigger group flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                                                    @onclick="() => ToggleSelectPopover(prop)"
-                                                    @onclick:stopPropagation>
-                                                <span class="truncate">@(GetDesignValue(prop) ?? prop.Placeholder ?? "Select")</span>
-                                                <Icon Name="chevron-down" Size="16" class="ml-2 shrink-0 opacity-50" />
-                                            </button>
-                                            break;
-                                        case PropertyEditor.Switch:
-                                            <Switch Size="sm"
-                                                    IsChecked="@(GetDesignValue(prop) == "true")"
-                                                    IsCheckedChanged="@(value => OnDesignValueChanged(prop, value.ToString().ToLowerInvariant()))" />
-                                            break;
-                                        case PropertyEditor.Number:
-                                            <Input type="number"
-                                                   class="text-sm"
-                                                   Value="@GetDesignValue(prop)"
-                                                   @onchange="@(args => OnDesignValueChanged(prop, args.Value?.ToString()))" />
-                                            break;
-                                        default:
-                                            <Input class="text-sm"
-                                                   Value="@GetDesignValue(prop)"
-                                                   Placeholder="@(prop.Placeholder ?? "")"
-                                                   @onchange="@(args => OnDesignValueChanged(prop, args.Value?.ToString()))" />
-                                            break;
+                                        <Tabs Value="@GetActiveCodeTab(state)" ValueChanged="OnActiveCodeTabChanged" DefaultValue="@state.CodeTabs[0].Value" class="mb-4 overflow-hidden rounded-lg border border-[#444c56] bg-[#24292E] text-[#c9d1d9] shadow-sm">
+                                            <div class="flex min-h-12 items-center justify-between gap-3 border-b border-[#444c56] bg-[#2d333b] px-3">
+                                                <TabsList class="story-card-code-tabs">
+                                                    @foreach (var codeTab in state.CodeTabs)
+                                                    {
+                                                        <TabsTrigger Value="@codeTab.Value" class="story-card-code-tab">
+                                                            <span class="story-card-file-dot" data-language="@codeTab.Language"></span>
+                                                            @codeTab.Name
+                                                        </TabsTrigger>
+                                                    }
+                                                </TabsList>
+                                            </div>
+
+                                            @foreach (var codeTab in state.CodeTabs)
+                                            {
+                                                <TabsContent Value="@codeTab.Value" class="mt-0">
+                                                    <div class="relative">
+                                                        <Button Variant="ghost"
+                                                                Size="icon-sm"
+                                                                class="story-card-copy-button text-[#8b949e] hover:bg-[#444c56] hover:text-[#c9d1d9]"
+                                                                title="@($"Copy {codeTab.Name} code")"
+                                                                @onclick="() => CopyCode(codeTab)">
+                                                            <Icon Name="@(CopiedValue == codeTab.Value ? "check" : "copy")" Size="14" />
+                                                            <span class="sr-only">Copy @codeTab.Name code</span>
+                                                        </Button>
+                                                        <div class="story-card-code-editor" data-language="@codeTab.Language">
+                                                            @foreach (var line in GetHighlightedLines(codeTab))
+                                                            {
+                                                                <div class="story-card-code-line">
+                                                                    <span class="story-card-line-number">@line.Number</span>
+                                                                    <code class="story-card-line-code">@((MarkupString)line.Html)</code>
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </TabsContent>
+                                            }
+                                        </Tabs>
                                     }
-                                </EditorTemplate>
-                            </PropertyGrid>
-                        </aside>
+                                </div>
+                            </TabsContent>
+                        }
                     </div>
                 }
             </div>
