@@ -16,6 +16,7 @@ public class SC02_PersistSelection : JsViewScenario
 
     private IRenderedComponent<TreeView<Node>> RenderTree(
         string? persistKey = null,
+        bool noPersist = false,
         TreeViewSelectionMode selectionMode = TreeViewSelectionMode.Single,
         IReadOnlyList<string>? selectedKeys = null) =>
         Ctx.Render<TreeView<Node>>(p =>
@@ -25,7 +26,8 @@ public class SC02_PersistSelection : JsViewScenario
              .Add(c => c.GetKey, n => n.Id)
              .Add(c => c.HasChildren, n => n.Children.Count > 0)
              .Add(c => c.SelectionMode, selectionMode)
-             .Add(c => c.PersistKey, persistKey);
+             .Add(c => c.PersistKey, persistKey)
+             .Add(c => c.NoPersist, noPersist);
             if (selectedKeys != null)
                 p.Add(c => c.SelectedKeys, selectedKeys);
         });
@@ -77,14 +79,14 @@ public class SC02_PersistSelection : JsViewScenario
         keys.ShouldBeEmpty();
     }
 
-    [Fact(DisplayName = "UAC03: no selected-key localStorage calls when PersistKey is not set")]
+    [Fact(DisplayName = "UAC03: no selected-key localStorage calls when NoPersist is set")]
     [Trait(Spec.UAC, "03")]
-    [Given("a tree rendered without a PersistKey in Single selection mode")]
+    [Given("a tree rendered with NoPersist=true in Single selection mode")]
     [When("node 'a' is clicked")]
     [Then("no localStorage.setItem call is made for a ':selected' key")]
-    public void UAC03_NoPersistKeyNoSelectedStorageCalls()
+    public void UAC03_NoPersistSkipsSelectedStorage()
     {
-        var cut = RenderTree(persistKey: null);
+        var cut = RenderTree(noPersist: true);
 
         cut.Find("[data-tree-node='a']").Click();
 

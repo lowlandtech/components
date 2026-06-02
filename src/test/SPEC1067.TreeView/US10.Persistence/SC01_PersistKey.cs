@@ -14,14 +14,15 @@ public class SC01_PersistKey : JsViewScenario
         new("b", "Beta",  [new("b1", "Beta-1",  [])])
     ];
 
-    private IRenderedComponent<TreeView<Node>> RenderTree(string? persistKey = null, IReadOnlyList<string>? expandedKeys = null) =>
+    private IRenderedComponent<TreeView<Node>> RenderTree(string? persistKey = null, bool noPersist = false, IReadOnlyList<string>? expandedKeys = null) =>
         Ctx.Render<TreeView<Node>>(p =>
         {
             p.Add(c => c.Items, Roots)
              .Add(c => c.GetChildren, n => n.Children)
              .Add(c => c.GetKey, n => n.Id)
              .Add(c => c.HasChildren, n => n.Children.Count > 0)
-             .Add(c => c.PersistKey, persistKey);
+             .Add(c => c.PersistKey, persistKey)
+             .Add(c => c.NoPersist, noPersist);
             if (expandedKeys != null)
                 p.Add(c => c.ExpandedKeys, expandedKeys);
         });
@@ -72,14 +73,14 @@ public class SC01_PersistKey : JsViewScenario
         keys.ShouldNotContain("a");
     }
 
-    [Fact(DisplayName = "UAC03: no localStorage calls when PersistKey is not set")]
+    [Fact(DisplayName = "UAC03: no localStorage calls when NoPersist is set")]
     [Trait(Spec.UAC, "03")]
-    [Given("a tree rendered without a PersistKey")]
+    [Given("a tree rendered with NoPersist=true")]
     [When("a node is expanded")]
     [Then("no localStorage.setItem calls are made")]
-    public void UAC03_NoPersistKeyNoLocalStorageCalls()
+    public void UAC03_NoPersistSkipsLocalStorage()
     {
-        var cut = RenderTree(persistKey: null);
+        var cut = RenderTree(noPersist: true);
 
         cut.Find("[data-tree-node='a'] .lt-tree-node-toggle").Click();
 

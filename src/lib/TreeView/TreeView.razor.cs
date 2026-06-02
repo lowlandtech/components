@@ -13,6 +13,8 @@ public partial class TreeView<TItem> : TinyComponentBase
     [Parameter] public IReadOnlyList<string>? ExpandedKeys { get; set; }
     [Parameter] public EventCallback<IReadOnlyList<string>> ExpandedKeysChanged { get; set; }
     [Parameter] public EventCallback<TreeViewExpandEventArgs<TItem>> ExpandedChanged { get; set; }
+    protected override Type DesignType => typeof(TreeViewDesigner);
+
     [Parameter, PropertyGrid(Group = "Behavior", Editor = PropertyEditor.Switch)]
     public bool SingleExpand { get; set; }
 
@@ -46,6 +48,10 @@ public partial class TreeView<TItem> : TinyComponentBase
 
     // Persistence
     [Parameter] public string? PersistKey { get; set; }
+    [Parameter] public bool NoPersist { get; set; }
+
+    private string EffectivePersistKey =>
+        PersistKey ?? GuidV5.Create(TreeViewKeyNamespace, string.Join("|", Items?.Select(GetItemKey) ?? [])).ToString("N");
 
     // Appearance
     [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Switch)]
@@ -252,13 +258,13 @@ public partial class TreeView<TItem> : TinyComponentBase
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && !string.IsNullOrEmpty(PersistKey))
+        if (firstRender && !NoPersist)
         {
             var needsRender = false;
 
             if (ExpandedKeys == null)
             {
-                var expandJson = await JS.InvokeAsync<string?>("localStorage.getItem", $"treeview:{PersistKey}:expanded");
+                var expandJson = await JS.InvokeAsync<string?>("localStorage.getItem", $"treeview:{EffectivePersistKey}:expanded");
                 if (!string.IsNullOrEmpty(expandJson))
                 {
                     var keys = JsonSerializer.Deserialize<List<string>>(expandJson);
@@ -275,7 +281,7 @@ public partial class TreeView<TItem> : TinyComponentBase
 
             if (SelectedKeys == null && SelectedKey == null && SelectionMode != TreeViewSelectionMode.None)
             {
-                var selectedJson = await JS.InvokeAsync<string?>("localStorage.getItem", $"treeview:{PersistKey}:selected");
+                var selectedJson = await JS.InvokeAsync<string?>("localStorage.getItem", $"treeview:{EffectivePersistKey}:selected");
                 if (!string.IsNullOrEmpty(selectedJson))
                 {
                     var keys = JsonSerializer.Deserialize<List<string>>(selectedJson);
@@ -293,16 +299,16 @@ public partial class TreeView<TItem> : TinyComponentBase
 
     private void PersistExpandedKeys()
     {
-        if (string.IsNullOrEmpty(PersistKey)) return;
+        if (NoPersist) return;
         var json = JsonSerializer.Serialize(_expandedKeys.ToList());
-        JS.InvokeVoidAsync("localStorage.setItem", $"treeview:{PersistKey}:expanded", json);
+        JS.InvokeVoidAsync("localStorage.setItem", $"treeview:{EffectivePersistKey}:expanded", json);
     }
 
     private void PersistSelectedKeys()
     {
-        if (string.IsNullOrEmpty(PersistKey)) return;
+        if (NoPersist) return;
         var json = JsonSerializer.Serialize(_selectedKeys.ToList());
-        JS.InvokeVoidAsync("localStorage.setItem", $"treeview:{PersistKey}:selected", json);
+        JS.InvokeVoidAsync("localStorage.setItem", $"treeview:{EffectivePersistKey}:selected", json);
     }
 
     internal void ToggleExpand(TItem item)
