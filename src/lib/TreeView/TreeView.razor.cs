@@ -13,11 +13,15 @@ public partial class TreeView<TItem> : TinyComponentBase
     [Parameter] public IReadOnlyList<string>? ExpandedKeys { get; set; }
     [Parameter] public EventCallback<IReadOnlyList<string>> ExpandedKeysChanged { get; set; }
     [Parameter] public EventCallback<TreeViewExpandEventArgs<TItem>> ExpandedChanged { get; set; }
-    [Parameter] public bool SingleExpand { get; set; }
-    [Parameter] public bool AutoExpand { get; set; }
+    [Parameter, PropertyGrid(Group = "Behavior", Editor = PropertyEditor.Switch)]
+    public bool SingleExpand { get; set; }
+
+    [Parameter, PropertyGrid(Group = "Behavior", Editor = PropertyEditor.Switch)]
+    public bool AutoExpand { get; set; }
 
     // Selection
-    [Parameter] public TreeViewSelectionMode SelectionMode { get; set; } = TreeViewSelectionMode.None;
+    [Parameter, PropertyGrid(Group = "Behavior")]
+    public TreeViewSelectionMode SelectionMode { get; set; } = TreeViewSelectionMode.None;
     [Parameter] public string? SelectedKey { get; set; }
     [Parameter] public EventCallback<string?> SelectedKeyChanged { get; set; }
     [Parameter] public IReadOnlyList<string>? SelectedKeys { get; set; }
@@ -25,12 +29,14 @@ public partial class TreeView<TItem> : TinyComponentBase
     [Parameter] public EventCallback<TreeViewSelectEventArgs<TItem>> SelectedChanged { get; set; }
 
     // Checking
-    [Parameter] public TreeViewCheckMode CheckMode { get; set; } = TreeViewCheckMode.None;
+    [Parameter, PropertyGrid(Group = "Behavior")]
+    public TreeViewCheckMode CheckMode { get; set; } = TreeViewCheckMode.None;
     [Parameter] public IReadOnlyList<string>? CheckedKeys { get; set; }
     [Parameter] public EventCallback<IReadOnlyList<string>> CheckedKeysChanged { get; set; }
 
     // Filtering
-    [Parameter] public string? FilterQuery { get; set; }
+    [Parameter, PropertyGrid(Group = "Content", Editor = PropertyEditor.Text, Placeholder = "Filter nodes…")]
+    public string? FilterQuery { get; set; }
     [Parameter] public Func<TItem, string>? GetText { get; set; }
 
     // Templates
@@ -42,10 +48,16 @@ public partial class TreeView<TItem> : TinyComponentBase
     [Parameter] public string? PersistKey { get; set; }
 
     // Appearance
-    [Parameter] public bool Dense { get; set; }
-    [Parameter] public bool Hover { get; set; } = true;
-    [Parameter] public string? Width { get; set; }
-    [Parameter] public string? MaxHeight { get; set; }
+    [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Switch)]
+    public bool Dense { get; set; }
+
+    [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Switch)]
+    public bool Hover { get; set; } = true;
+    [Parameter, PropertyGrid(Group = "Sizing", Editor = PropertyEditor.Text, Placeholder = "e.g. 100%")]
+    public string? Width { get; set; }
+
+    [Parameter, PropertyGrid(Group = "Sizing", Editor = PropertyEditor.Text, Placeholder = "e.g. 400px")]
+    public string? MaxHeight { get; set; }
 
     [Inject] private IJSRuntime JS { get; set; } = default!;
 

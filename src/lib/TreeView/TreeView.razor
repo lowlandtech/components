@@ -12,7 +12,12 @@
      class="lt-tree-view @GetRootClass()"
      style="@(string.Join(";", rootStyle))"
      tabindex="0"
+     data-design-mode="@DesignModeAttribute"
+     data-design-selectable="@DesignSelectableAttribute"
+     data-design-selected="@DesignSelectedAttribute"
+     data-design-instance-id="@DesignInstanceIdAttribute"
      @attributes="AdditionalAttributes"
+     @onclick="HandleTreeViewClick"
      @onkeydown="HandleKeyDown">
 
     @if (!Items.Any())
@@ -44,6 +49,9 @@
         if (Dense) classes.Add("lt-tree-view-dense");
         if (Hover) classes.Add("lt-tree-view-hover");
         if (!string.IsNullOrEmpty(Class)) classes.Add(Class);
+        if (!string.IsNullOrEmpty(DesignModeClass)) classes.Add(DesignModeClass);
         return string.Join(" ", classes);
     }
+
+    private Task HandleTreeViewClick(MouseEventArgs _) => SelectInDesignModeAsync();
 }
