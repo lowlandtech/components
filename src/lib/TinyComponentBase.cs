@@ -34,6 +34,14 @@ public abstract class TinyComponentBase : ComponentBase
     [CascadingParameter]
     protected ThemeProviderContext? ThemeContext { get; set; }
 
+    /// <summary>
+    /// The component type the descriptor registry should use when looking up
+    /// or reporting this component's design-time metadata.  Defaults to
+    /// <see cref="object.GetType"/> — override in generic subclasses that
+    /// register a concrete non-generic proxy (e.g. <c>TreeViewDesigner</c>).
+    /// </summary>
+    protected virtual Type DesignType => GetType();
+
     protected bool HasPropertyGridParameters =>
         DesignableParameterCache.GetOrAdd(GetType(), HasDesignableParameters);
 
@@ -161,7 +169,7 @@ public abstract class TinyComponentBase : ComponentBase
         if (DesignSelected.HasDelegate)
             await DesignSelected.InvokeAsync(new TinyDesignSelection(
                 _designInstanceId,
-                GetType(),
+                DesignType,
                 CaptureDesignValues()));
     }
 
