@@ -12,6 +12,12 @@ namespace LowlandTech.Components;
     Description = "A designable label row for use inside TreeView item templates")]
 public partial class TreeViewItem : TinyComponentBase
 {
+    [CascadingParameter(Name = "TreeViewNodeDesignPersistenceKey")]
+    private string? CascadedDesignPersistenceKey { get; set; }
+
+    protected override string? EffectiveDesignPersistenceKey =>
+        DesignPersistenceKey ?? CascadedDesignPersistenceKey;
+
     /// <summary>Icon name rendered to the left of the label.</summary>
     [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Select,
         OptionsProvider = typeof(Icons), EmptyOption = "")]

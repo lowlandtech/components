@@ -150,7 +150,9 @@ public abstract class TinyComponentBase : ComponentBase
 
     protected string? DesignInstanceIdAttribute => IsDesignSelectable ? _designInstanceId : null;
 
-    protected string? DesignPersistenceKeyAttribute => IsDesignSelectable ? DesignPersistenceKey : null;
+    protected virtual string? EffectiveDesignPersistenceKey => DesignPersistenceKey;
+
+    protected string? DesignPersistenceKeyAttribute => IsDesignSelectable ? EffectiveDesignPersistenceKey : null;
 
     protected bool IsDisabledInDesignMode => EffectiveDesignMode && IsComponentDisabled;
 
@@ -186,7 +188,7 @@ public abstract class TinyComponentBase : ComponentBase
         if (DesignSelected.HasDelegate)
             await DesignSelected.InvokeAsync(new TinyDesignSelection(
                 _designInstanceId,
-                DesignPersistenceKey,
+                EffectiveDesignPersistenceKey,
                 DesignType,
                 CaptureDesignValues()));
     }
@@ -285,7 +287,7 @@ public abstract class TinyComponentBase : ComponentBase
             if (sid != surfaceId) continue;
             if (!weakRef.TryGetTarget(out var instance)) continue;
             if (designType is not null && instance.DesignType != designType) continue;
-            if (!string.Equals(instance.DesignPersistenceKey, persistenceKey, StringComparison.Ordinal))
+            if (!string.Equals(instance.EffectiveDesignPersistenceKey, persistenceKey, StringComparison.Ordinal))
                 continue;
 
             return kvp.Key;

@@ -41,7 +41,11 @@
 
     @if (Parent.ItemTemplate != null)
     {
-        @Parent.ItemTemplate(ctx)
+        <CascadingValue Name="TreeViewNodeDesignPersistenceKey"
+                        Value="@GetDesignPersistenceKey(key)"
+                        IsFixed="true">
+            @Parent.ItemTemplate(ctx)
+        </CascadingValue>
     }
     else
     {
@@ -75,7 +79,11 @@
 
             @if (Parent.BodyContent != null)
             {
-                @Parent.BodyContent(ctx)
+                <CascadingValue Name="TreeViewNodeDesignPersistenceKey"
+                                Value="@GetDesignPersistenceKey(key)"
+                                IsFixed="true">
+                    @Parent.BodyContent(ctx)
+                </CascadingValue>
             }
             else
             {
@@ -120,6 +128,8 @@
     {
         return Parent.GetText?.Invoke(Item) ?? Item?.ToString() ?? string.Empty;
     }
+
+    private static string GetDesignPersistenceKey(string key) => $"treeview-item:{key}";
 
     private void HandleClick(MouseEventArgs e)
     {

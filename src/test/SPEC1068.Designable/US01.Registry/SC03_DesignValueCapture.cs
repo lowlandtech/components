@@ -212,4 +212,58 @@ public class SC03_DesignValueCapture
 
         resolved.ShouldBe(instanceId);
     }
+
+    [Fact(DisplayName = "UAC27: TreeViewItem emits cascaded node persistence key")]
+    [Trait(Spec.UAC, "27")]
+    [Given("A TreeViewItem is rendered inside a TreeNode design persistence key cascade")]
+    [When("The TreeViewItem is clicked in design mode")]
+    [Then("The emitted design selection uses the cascaded tree node key")]
+    public void UAC27_TreeViewItemEmitsCascadedNodePersistenceKey()
+    {
+        var ctx = new BunitContext();
+        ctx.Services.AddSingleton<IComponentDescriptorRegistry, ComponentDescriptorRegistry>();
+        ctx.Services.AddSingleton<IPopoverService, PopoverService>();
+
+        TinyDesignSelection? captured = null;
+        var callback = EventCallback.Factory.Create<TinyDesignSelection>(this, s => captured = s);
+
+        var cut = ctx.Render(builder =>
+        {
+            builder.OpenComponent<CascadingValue<bool>>(0);
+            builder.AddAttribute(1, "Name", "TinyDesignMode");
+            builder.AddAttribute(2, "Value", true);
+            builder.AddAttribute(3, "ChildContent", (RenderFragment)(childBuilder =>
+            {
+                childBuilder.OpenComponent<CascadingValue<EventCallback<TinyDesignSelection>>>(4);
+                childBuilder.AddAttribute(5, "Name", "TinyDesignSelected");
+                childBuilder.AddAttribute(6, "Value", callback);
+                childBuilder.AddAttribute(7, "ChildContent", (RenderFragment)(selectionBuilder =>
+                {
+                    selectionBuilder.OpenComponent<CascadingValue<string>>(8);
+                    selectionBuilder.AddAttribute(9, "Name", "TreeViewNodeDesignPersistenceKey");
+                    selectionBuilder.AddAttribute(10, "Value", "treeview-item:Button.razor");
+                    selectionBuilder.AddAttribute(11, "ChildContent", (RenderFragment)(itemBuilder =>
+                    {
+                        itemBuilder.OpenComponent<TreeViewItem>(12);
+                        itemBuilder.AddAttribute(13, nameof(TreeViewItem.Icon), "file");
+                        itemBuilder.AddAttribute(14, nameof(TreeViewItem.Suffix), "42");
+                        itemBuilder.CloseComponent();
+                    }));
+                    selectionBuilder.CloseComponent();
+                }));
+                childBuilder.CloseComponent();
+            }));
+            builder.CloseComponent();
+        });
+
+        var item = cut.Find("[data-slot='tree-view-item']");
+        item.GetAttribute("data-design-persistence-key").ShouldBe("treeview-item:Button.razor");
+
+        item.Click();
+
+        captured.ShouldNotBeNull();
+        captured!.PersistenceKey.ShouldBe("treeview-item:Button.razor");
+        captured.ComponentType.ShouldBe(typeof(TreeViewItem));
+        captured.Values["Suffix"].ShouldBe("42");
+    }
 }
