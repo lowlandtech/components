@@ -8,7 +8,7 @@
               HasChildren="f => f.Children.Count > 0"
               class="space-y-1">
         <ItemTemplate Context="ctx">
-            <div class="flex items-center gap-1 rounded px-2 py-1 hover:bg-muted"
+            <div class="flex items-center gap-1 rounded px-2 py-1 hover:bg-muted min-w-0"
                  style="padding-left: @(ctx.Depth * 16 + 8)px">
                 @if (ctx.HasChildren)
                 {

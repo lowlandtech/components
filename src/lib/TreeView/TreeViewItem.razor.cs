@@ -13,7 +13,8 @@ namespace LowlandTech.Components;
 public partial class TreeViewItem : TinyComponentBase
 {
     /// <summary>Icon name rendered to the left of the label.</summary>
-    [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Text, Placeholder = "e.g. file")]
+    [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Select,
+        OptionsProvider = typeof(Icons), EmptyOption = "")]
     public string? Icon { get; set; }
 
     /// <summary>Short text rendered to the right of the label (e.g. a count badge).</summary>
