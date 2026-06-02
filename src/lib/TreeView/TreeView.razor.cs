@@ -295,7 +295,7 @@ public partial class TreeView<TItem> : TinyComponentBase
                 }
             }
 
-            if (SelectedKey == null && SelectionMode != TreeViewSelectionMode.None)
+            if (SelectedKey == null)
             {
                 var selectedJson = await JS.InvokeAsync<string?>("localStorage.getItem", $"treeview:{EffectivePersistKey}:selected");
                 if (!string.IsNullOrEmpty(selectedJson))

@@ -5,6 +5,7 @@ public abstract class TinyComponentBase : ComponentBase
     private static readonly ConcurrentDictionary<Type, bool> DesignableParameterCache = new();
     private static readonly ConcurrentDictionary<string, WeakReference<TinyComponentBase>> DesignableInstances = new();
     private readonly string _designInstanceId = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+    private bool _registeredAsDesignable;
 
     [Parameter] public string? Class { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }
@@ -58,7 +59,8 @@ public abstract class TinyComponentBase : ComponentBase
     protected bool IsDesignSelectable => EffectiveDesignMode && HasPropertyGridParameters;
 
     protected bool EffectiveDesignSelected =>
-        IsDesignSelected || string.Equals(CascadedSelectedDesignInstanceId, _designInstanceId, StringComparison.Ordinal);
+        IsDesignSelected ||
+        string.Equals(CascadedSelectedDesignInstanceId, _designInstanceId, StringComparison.Ordinal);
 
     protected string DesignModeClass => IsDesignSelectable
         ? EffectiveDesignSelected
@@ -209,21 +211,39 @@ public abstract class TinyComponentBase : ComponentBase
 
     protected override void OnParametersSet()
     {
+        // Lazy registration: if design mode just turned on (e.g. after session restore)
+        // and this component hasn't registered yet, do it now.
+        if (IsDesignSelectable && !_registeredAsDesignable)
+        {
+            DesignableInstances[_designInstanceId] = new WeakReference<TinyComponentBase>(this);
+            _registeredAsDesignable = true;
+        }
+
         if (!EffectiveDesignMode ||
+            !EffectiveDesignSelected ||
             DesignPropertyValues is null ||
             DesignPropertyValues.Count == 0)
         {
             return;
         }
 
-        // Primary path: instance ID matches — the user just clicked this component.
-        // Fallback path: type matches — values were restored from session/URL after a
-        // reload, so the old instance ID is stale. Apply to the first component whose
-        // DesignType matches the persisted component type.
-        if (EffectiveDesignSelected || DesignType == CascadedDesignComponentType)
+        ApplyDesignPropertyValues();
+    }
+
+    /// <summary>
+    /// Returns the instance ID of the first live registered component whose
+    /// <see cref="DesignType"/> matches <paramref name="designType"/>.
+    /// Used by <c>DesignSurface</c> to promote a valid instance after a page
+    /// reload when the original instance ID is no longer valid.
+    /// </summary>
+    internal static string? FindFirstInstanceIdOfType(Type designType)
+    {
+        foreach (var kvp in DesignableInstances)
         {
-            ApplyDesignPropertyValues();
+            if (kvp.Value.TryGetTarget(out var instance) && instance.DesignType == designType)
+                return kvp.Key;
         }
+        return null;
     }
 
     [JSInvokable]

@@ -52,7 +52,7 @@
                 {
                     <Resizable Direction="horizontal" PersistKey="@PersistKey" class="flex-1 min-w-0">
                         <ResizablePanel DefaultSize="75" MinSize="50" MaxSize="90" Id="story-content">
-                            <div class="story-card-tabs-content-column h-full pr-[3px]">
+                            <div class="story-card-tabs-content-column h-full pr-[3px] py-4">
                                 @foreach (var state in States)
                                 {
                                     <TabsContent Value="@state.Value" class="@GetTabsContentClass()">
@@ -60,6 +60,7 @@
                                             <div class="flex min-w-0 gap-2">
                                                 <DesignSurface IsDesignMode="@_designMode"
                                                                SelectedInstanceId="@_selectedDesignInstanceId"
+                                                               SelectedInstanceIdChanged="@OnRestoredInstanceIdChanged"
                                                                DesignComponentType="@_selectedDesignComponentType"
                                                                PropertyValues="@_designValues"
                                                                OnSelectionChanged="@DesignSelectedCallback"
@@ -115,8 +116,8 @@
                         </ResizablePanel>
                         <ResizableHandle WithHandle="true" RevealOnHover="true" />
                         <ResizablePanel DefaultSize="25" MinSize="15" MaxSize="50" Id="story-sidebar">
-                            <div class="story-card-design-sidebar-container h-full" style="width: 100%; margin-left: 0; padding: 1rem 1rem 1rem 3px;">
-                                <aside class="story-card-design-sidebar">
+                            <div class="story-card-design-sidebar-container h-full" style="width: 100%; margin-left: 0; padding: 0 1rem 0 3px;">
+                                <aside class="story-card-design-sidebar my-4">
                                     <PropertyGrid TField="PropertyDescriptor"
                                                   Items="@DesignGridProperties"
                                                   LabelSelector="p => p.Label"
@@ -174,6 +175,7 @@
                                     <div class="flex min-w-0 gap-2">
                                         <DesignSurface IsDesignMode="@_designMode"
                                                        SelectedInstanceId="@_selectedDesignInstanceId"
+                                                       SelectedInstanceIdChanged="@OnRestoredInstanceIdChanged"
                                                        DesignComponentType="@_selectedDesignComponentType"
                                                        PropertyValues="@_designValues"
                                                        OnSelectionChanged="@DesignSelectedCallback"
@@ -358,6 +360,18 @@
             _designValues[value.Key] = value.Value;
         }
         PersistToQueryString();
+    }
+
+    /// <summary>
+    /// Called by <c>DesignSurface</c> when it promotes a live instance after a
+    /// page reload (instance ID was cleared; type-based lookup found the first
+    /// matching instance). Unlike <see cref="OnDesignSelected"/>, this must NOT
+    /// clear <c>_designValues</c> — the persisted values are already loaded and
+    /// must survive to be applied to the promoted instance.
+    /// </summary>
+    private void OnRestoredInstanceIdChanged(string? instanceId)
+    {
+        _selectedDesignInstanceId = instanceId;
     }
 
     private void ClearDesignSelection()

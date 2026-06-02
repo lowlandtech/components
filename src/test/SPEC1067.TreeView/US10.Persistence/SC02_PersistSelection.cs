@@ -206,4 +206,37 @@ public class SC02_PersistSelection : JsViewScenario
         captured.Count.ShouldBe(1);
         captured[0].ShouldContain("b");
     }
+
+    [Fact(DisplayName = "UAC09: persisted SelectedKeys hydrate before selection mode is enabled")]
+    [Trait(Spec.UAC, "09")]
+    [Given("localStorage contains '[\"b\"]' and the first render has SelectionMode=None")]
+    [When("the host rerenders with SelectionMode=Single")]
+    [Then("node 'b' is selected from the persisted selected-key state")]
+    public async Task UAC09_PersistedSelectedKeysHydrateBeforeSelectionModeIsEnabled()
+    {
+        Ctx.JSInterop.Setup<string?>("localStorage.getItem", "treeview:test-tree:expanded")
+            .SetResult(null);
+        Ctx.JSInterop.Setup<string?>("localStorage.getItem", "treeview:test-tree:selected")
+            .SetResult("[\"b\"]");
+
+        var selectedKeys = new List<string>();
+        var cb = EventCallback.Factory.Create<IReadOnlyList<string>>(this, keys =>
+        {
+            selectedKeys.Clear();
+            selectedKeys.AddRange(keys);
+        });
+        var cut = RenderTree(
+            persistKey: "test-tree",
+            selectionMode: TreeViewSelectionMode.None,
+            selectedKeys: selectedKeys,
+            selectedKeysChanged: cb);
+
+        await cut.InvokeAsync(() => Task.CompletedTask);
+        cut.Render(p => p
+            .Add(c => c.SelectionMode, TreeViewSelectionMode.Single)
+            .Add(c => c.SelectedKeys, selectedKeys));
+
+        cut.Find("[data-tree-node='b']").ClassList.ShouldContain("lt-tree-node-selected");
+        cut.Find("[data-tree-node='a']").ClassList.ShouldNotContain("lt-tree-node-selected");
+    }
 }

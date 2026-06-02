@@ -41,20 +41,33 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender)
-            return;
-
-        try
+        if (firstRender)
         {
-            _module = await JS.InvokeAsync<IJSObjectReference>(
-                "import",
-                "./_content/LowlandTech.Components/js/designMode.js");
-            _handle = await _module.InvokeAsync<IJSObjectReference>("initPreviewContainer", _surface);
+            try
+            {
+                _module = await JS.InvokeAsync<IJSObjectReference>(
+                    "import",
+                    "./_content/LowlandTech.Components/js/designMode.js");
+                _handle = await _module.InvokeAsync<IJSObjectReference>("initPreviewContainer", _surface);
+            }
+            catch
+            {
+                // JS is unavailable during prerender and many bUnit tests. The
+                // cascading design context still works without the click bridge.
+            }
         }
-        catch
+
+        // After a page reload the SelectedInstanceId is cleared (old Guid is invalid).
+        // Once children have registered themselves, promote the first live instance of
+        // the target type so that only that one instance gets the selection highlight
+        // and has its property values applied — without touching the caller's value dict.
+        if (IsDesignMode && DesignComponentType is not null && string.IsNullOrEmpty(SelectedInstanceId))
         {
-            // JS is unavailable during prerender and many bUnit tests. The
-            // cascading design context still works without the click bridge.
+            var instanceId = TinyComponentBase.FindFirstInstanceIdOfType(DesignComponentType);
+            if (instanceId is not null && SelectedInstanceIdChanged.HasDelegate)
+            {
+                await SelectedInstanceIdChanged.InvokeAsync(instanceId);
+            }
         }
     }
 
