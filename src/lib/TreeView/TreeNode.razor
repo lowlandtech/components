@@ -117,8 +117,6 @@
         var classes = new List<string> { "lt-tree-node" };
         if (ctx.IsSelected && Parent.SelectionMode != TreeViewSelectionMode.None)
             classes.Add("lt-tree-node-selected");
-        if (ctx.IsFocused && !Parent.IsKeyboardFocused(Item))
-            classes.Add("lt-tree-node-focused");
         if (Parent.IsKeyboardFocused(Item))
             classes.Add("lt-tree-node-keyboard-focused");
         if (Parent.Hover)

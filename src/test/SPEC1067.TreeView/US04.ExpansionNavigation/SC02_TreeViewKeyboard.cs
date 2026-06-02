@@ -1,5 +1,3 @@
-using Bunit;
-
 namespace LowlandTech.Components.Tests.SPEC1067.TreeView.US04.ExpansionNavigation;
 
 [Trait(Spec.SPEC, "1067")]
@@ -165,5 +163,29 @@ public class SC02_TreeViewKeyboard : ViewScenario
         cut.Render();
 
         cut.Find("[data-tree-node='a']").ClassList.ShouldContain("lt-tree-node-selected");
+    }
+
+    [Fact(DisplayName = "UAC25: ArrowDown moves keyboard focus without clearing selected outline class")]
+    [Trait(Spec.UAC, "25")]
+    [Given("a tree in Single selection mode with node 'a' selected by click")]
+    [When("ArrowDown moves keyboard focus to the next visible node")]
+    [Then("node 'a' keeps the selected class and the focused node gets only the keyboard focus class")]
+    public void UAC25_ArrowDownKeepsSelectedClassOnClickedNode()
+    {
+        var cut = RenderTree(TreeViewSelectionMode.Single, expandedKeys: ["a"]);
+        cut.Find("[data-tree-node='a']").Click();
+        cut.Render();
+
+        cut.Find("[data-slot='tree-view']").KeyDown("ArrowDown");
+        cut.Render();
+
+        var selected = cut.Find("[data-tree-node='a']");
+        selected.ClassList.ShouldContain("lt-tree-node-selected");
+        selected.ClassList.ShouldNotContain("lt-tree-node-keyboard-focused");
+
+        var focused = cut.Find("[data-tree-node='a1']");
+        focused.GetAttribute("tabindex").ShouldBe("0");
+        focused.ClassList.ShouldContain("lt-tree-node-keyboard-focused");
+        focused.ClassList.ShouldNotContain("lt-tree-node-selected");
     }
 }

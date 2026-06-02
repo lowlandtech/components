@@ -21,11 +21,6 @@
     background-color: color-mix(in srgb, var(--muted) 50%, transparent);
 }
 
-.lt-tree-node-focused .lt-tree-node-row {
-    outline: 2px solid color-mix(in srgb, var(--primary) 40%, transparent);
-    outline-offset: -2px;
-}
-
 .lt-tree-node-selected .lt-tree-node-row {
     background-color: var(--accent);
     color: var(--accent-foreground);

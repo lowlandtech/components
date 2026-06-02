@@ -1,5 +1,3 @@
-using Bunit;
-
 namespace LowlandTech.Components.Tests.SPEC1067.TreeView.US03.SelectionChecking;
 
 [Trait(Spec.SPEC, "1067")]
@@ -119,5 +117,28 @@ public class SC01_TreeViewSelection : ViewScenario
         // Parent should become indeterminate
         var parentCheckbox = cut.Find("[data-tree-node='a'] .lt-tree-node-checkbox");
         parentCheckbox.GetAttribute("data-indeterminate").ShouldBe("true");
+    }
+
+    [Fact(DisplayName = "UAC15: click focus does not masquerade as selection when selection is disabled")]
+    [Trait(Spec.UAC, "15")]
+    [Given("a tree in Checkbox mode with SelectionMode=None")]
+    [When("node 'a' is clicked")]
+    [Then("node 'a' receives focus for keyboard navigation but no selected or focus-outline class")]
+    public void UAC15_ClickFocusDoesNotShowSelectionOutlineWhenSelectionDisabled()
+    {
+        var cut = RenderTree(
+            mode: TreeViewSelectionMode.None,
+            checkMode: TreeViewCheckMode.Checkbox,
+            checkedKeys: [],
+            expandedKeys: ["a"]);
+
+        cut.Find("[data-tree-node='a']").Click();
+        cut.Render();
+
+        var node = cut.Find("[data-tree-node='a']");
+        node.GetAttribute("tabindex").ShouldBe("0");
+        node.ClassList.ShouldNotContain("lt-tree-node-selected");
+        node.ClassList.ShouldNotContain("lt-tree-node-focused");
+        node.ClassList.ShouldNotContain("lt-tree-node-keyboard-focused");
     }
 }
