@@ -83,6 +83,9 @@ public class SC01_TreeViewSelection : ViewScenario
 
     [Fact(DisplayName = "UAC11: checkbox checks only the clicked node")]
     [Trait(Spec.UAC, "11")]
+    [Given("a tree in Checkbox mode with empty CheckedKeys and node 'a' expanded")]
+    [When("the checkbox for node 'a' is clicked")]
+    [Then("only node 'a' has the checked attribute — child 'a1' remains unchecked (no cascade)")]
     public void UAC11_CheckboxChecksOnlyClickedNode()
     {
         var cut = RenderTree(checkMode: TreeViewCheckMode.Checkbox, checkedKeys: [], expandedKeys: ["a"]);
@@ -99,6 +102,9 @@ public class SC01_TreeViewSelection : ViewScenario
 
     [Fact(DisplayName = "UAC14: tri-state parent becomes indeterminate when child checked")]
     [Trait(Spec.UAC, "14")]
+    [Given("a tree in TriState mode with empty CheckedKeys and node 'a' expanded")]
+    [When("the checkbox for child 'a1' is clicked")]
+    [Then("child 'a1' gets the checked attribute and parent 'a' gets data-indeterminate='true'")]
     public void UAC14_TriStateChildCheck()
     {
         var cut = RenderTree(checkMode: TreeViewCheckMode.TriState, checkedKeys: [], expandedKeys: ["a"]);
