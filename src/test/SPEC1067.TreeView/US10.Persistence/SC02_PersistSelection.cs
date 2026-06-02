@@ -135,4 +135,22 @@ public class SC02_PersistSelection : JsViewScenario
         cut.Find("[data-tree-node='a']").ClassList.ShouldContain("lt-tree-node-selected");
         cut.Find("[data-tree-node='b']").ClassList.ShouldNotContain("lt-tree-node-selected");
     }
+
+    [Fact(DisplayName = "UAC06: controlled SelectedKeys rehydrate when the same list instance changes")]
+    [Trait(Spec.UAC, "06")]
+    [Given("a tree bound to a reusable SelectedKeys list containing 'a'")]
+    [When("the host rehydrates the same list instance with only 'b' and rerenders")]
+    [Then("node 'b' is selected and node 'a' is not selected")]
+    public void UAC06_ControlledSelectedKeysRehydrateWhenSameListChanges()
+    {
+        var selectedKeys = new List<string> { "a" };
+        var cut = RenderTree(persistKey: "test-tree", selectedKeys: selectedKeys);
+
+        selectedKeys.Clear();
+        selectedKeys.Add("b");
+        cut.Render(p => p.Add(c => c.SelectedKeys, selectedKeys));
+
+        cut.Find("[data-tree-node='b']").ClassList.ShouldContain("lt-tree-node-selected");
+        cut.Find("[data-tree-node='a']").ClassList.ShouldNotContain("lt-tree-node-selected");
+    }
 }

@@ -125,4 +125,22 @@ public class SC01_PersistKey : JsViewScenario
         // "a1" is NOT visible — the localStorage mock returns null (no stored state)
         cut.FindAll("[data-tree-node='a1']").Count.ShouldBe(0);
     }
+
+    [Fact(DisplayName = "UAC06: controlled ExpandedKeys rehydrate when the same list instance changes")]
+    [Trait(Spec.UAC, "06")]
+    [Given("a tree bound to a reusable ExpandedKeys list containing 'a'")]
+    [When("the host rehydrates the same list instance with only 'b' and rerenders")]
+    [Then("node 'b1' is visible and node 'a1' is hidden")]
+    public void UAC06_ControlledExpandedKeysRehydrateWhenSameListChanges()
+    {
+        var expandedKeys = new List<string> { "a" };
+        var cut = RenderTree(persistKey: "test-tree", expandedKeys: expandedKeys);
+
+        expandedKeys.Clear();
+        expandedKeys.Add("b");
+        cut.Render(p => p.Add(c => c.ExpandedKeys, expandedKeys));
+
+        cut.FindAll("[data-tree-node='b1']").Count.ShouldBe(1);
+        cut.FindAll("[data-tree-node='a1']").Count.ShouldBe(0);
+    }
 }

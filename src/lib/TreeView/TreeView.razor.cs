@@ -71,10 +71,10 @@ public partial class TreeView<TItem> : TinyComponentBase
     private HashSet<string> _selectedKeys = new();
     private HashSet<string> _checkedKeys = new();
     private string? _focusedKey;
-    private IReadOnlyList<string>? _lastExpandedKeys;
-    private IReadOnlyList<string>? _lastSelectedKeys;
+    private string[]? _lastExpandedKeys;
+    private string[]? _lastSelectedKeys;
     private string? _lastSelectedKey;
-    private IReadOnlyList<string>? _lastCheckedKeys;
+    private string[]? _lastCheckedKeys;
     private bool _expandedKeysBound;
     private bool _selectedKeysBound;
     private bool _checkedKeysBound;
@@ -190,16 +190,17 @@ public partial class TreeView<TItem> : TinyComponentBase
             _lastItems = Items;
         }
 
-        // Bind controlled ExpandedKeys only when the parameter reference changes
+        // Bind controlled key parameters when their contents change. Hosts may
+        // reuse the same list instance when hydrating URL or storage state.
         if (ExpandedKeys != null)
         {
-            if (!_expandedKeysBound || !ReferenceEquals(_lastExpandedKeys, ExpandedKeys))
+            if (!_expandedKeysBound || !HaveSameKeys(_lastExpandedKeys, ExpandedKeys))
             {
                 _expandedKeys = new HashSet<string>(ExpandedKeys);
                 _expandedKeyDepths.Clear();
                 foreach (var k in _expandedKeys)
                     _expandedKeyDepths[k] = GetDepthByKey(k);
-                _lastExpandedKeys = ExpandedKeys;
+                _lastExpandedKeys = SnapshotKeys(ExpandedKeys);
                 _expandedKeysBound = true;
             }
         }
@@ -211,13 +212,14 @@ public partial class TreeView<TItem> : TinyComponentBase
             _expandedKeysBound = false;
         }
 
-        // Bind controlled SelectedKeys / SelectedKey only when the parameter reference changes
+        // Bind controlled SelectedKeys / SelectedKey when their contents change.
         if (SelectedKeys != null)
         {
-            if (!_selectedKeysBound || !ReferenceEquals(_lastSelectedKeys, SelectedKeys))
+            if (!_selectedKeysBound || !HaveSameKeys(_lastSelectedKeys, SelectedKeys))
             {
                 _selectedKeys = new HashSet<string>(SelectedKeys);
-                _lastSelectedKeys = SelectedKeys;
+                _lastSelectedKeys = SnapshotKeys(SelectedKeys);
+                _lastSelectedKey = null;
                 _selectedKeysBound = true;
             }
         }
@@ -238,13 +240,13 @@ public partial class TreeView<TItem> : TinyComponentBase
             _selectedKeysBound = false;
         }
 
-        // Bind controlled CheckedKeys only when the parameter reference changes
+        // Bind controlled CheckedKeys when its contents change.
         if (CheckedKeys != null)
         {
-            if (!_checkedKeysBound || !ReferenceEquals(_lastCheckedKeys, CheckedKeys))
+            if (!_checkedKeysBound || !HaveSameKeys(_lastCheckedKeys, CheckedKeys))
             {
                 _checkedKeys = new HashSet<string>(CheckedKeys);
-                _lastCheckedKeys = CheckedKeys;
+                _lastCheckedKeys = SnapshotKeys(CheckedKeys);
                 _checkedKeysBound = true;
             }
         }
@@ -254,6 +256,22 @@ public partial class TreeView<TItem> : TinyComponentBase
             _lastCheckedKeys = null;
             _checkedKeysBound = false;
         }
+    }
+
+    private static string[] SnapshotKeys(IReadOnlyList<string> keys) => keys.ToArray();
+
+    private static bool HaveSameKeys(string[]? previousKeys, IReadOnlyList<string> nextKeys)
+    {
+        if (previousKeys is null || previousKeys.Length != nextKeys.Count)
+            return false;
+
+        for (var i = 0; i < previousKeys.Length; i++)
+        {
+            if (!string.Equals(previousKeys[i], nextKeys[i], StringComparison.Ordinal))
+                return false;
+        }
+
+        return true;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
