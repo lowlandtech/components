@@ -64,7 +64,7 @@
                                 </div>
                                 @if (state.CodeTabs.Count > 0)
                                 {
-                                    <Tabs DefaultValue="@state.CodeTabs[0].Value" class="mb-4 overflow-hidden rounded-lg border border-[#444c56] bg-[#24292E] text-[#c9d1d9] shadow-sm">
+                                    <Tabs Value="@GetActiveCodeTab(state)" ValueChanged="OnActiveCodeTabChanged" DefaultValue="@state.CodeTabs[0].Value" class="mb-4 overflow-hidden rounded-lg border border-[#444c56] bg-[#24292E] text-[#c9d1d9] shadow-sm">
                                         <div class="flex min-h-12 items-center justify-between gap-3 border-b border-[#444c56] bg-[#2d333b] px-3">
                                             <TabsList class="story-card-code-tabs">
                                                 @foreach (var codeTab in state.CodeTabs)
@@ -175,7 +175,10 @@
 
     private string? CopiedValue { get; set; }
     private string DefaultStateValue => DefaultState ?? States[0].Value;
-    private string PersistKey => string.IsNullOrWhiteSpace(Title) ? "story" : Title.ToLowerInvariant().Replace(' ', '-');
+    private string PersistKey => string.IsNullOrWhiteSpace(Title)
+        ? "story"
+        : GuidV5.Create(GuidV5.Namespace, Title).ToString("N");
+    private string? _activeCodeTab;
 
     private string TabsListContainerStyle => $"--story-card-tabs-list-width: {TabsListWidth};";
 
@@ -206,6 +209,7 @@
     protected override void OnInitialized()
     {
         _activeState = DefaultStateValue;
+        _activeCodeTab = States.FirstOrDefault()?.CodeTabs.FirstOrDefault()?.Value;
         RestoreFromQueryString();
     }
 
@@ -226,6 +230,12 @@
         {
             _activeState = DefaultStateValue;
         }
+
+        var active = ActiveState;
+        if (active is not null && (string.IsNullOrEmpty(_activeCodeTab) || active.CodeTabs.All(c => c.Value != _activeCodeTab)))
+        {
+            _activeCodeTab = active.CodeTabs.FirstOrDefault()?.Value;
+        }
     }
 
     private string GetClass()
@@ -235,6 +245,11 @@
     }
 
     private bool HasDesignSidebar => _designMode && AvailableDescriptor is not null;
+
+    private string? GetActiveCodeTab(State state) =>
+        !string.IsNullOrEmpty(_activeCodeTab) && state.CodeTabs.Any(c => c.Value == _activeCodeTab)
+            ? _activeCodeTab
+            : state.CodeTabs.FirstOrDefault()?.Value;
 
     private string GetTabsContentClass() => "mt-0 min-w-0 flex-1 pt-4";
 
@@ -251,7 +266,14 @@
     private void OnActiveStateChanged(string? value)
     {
         _activeState = value ?? DefaultStateValue;
+        _activeCodeTab = ActiveState?.CodeTabs.FirstOrDefault()?.Value;
         ClearDesignSelection();
+        PersistToQueryString();
+    }
+
+    private void OnActiveCodeTabChanged(string? value)
+    {
+        _activeCodeTab = value;
         PersistToQueryString();
     }
 
@@ -284,6 +306,12 @@
         if (!string.IsNullOrEmpty(scenario) && States.Any(s => s.Value == scenario))
         {
             _activeState = scenario;
+        }
+
+        var codeTab = query.GetValueOrDefault($"{PersistKey}-codetab");
+        if (!string.IsNullOrEmpty(codeTab))
+        {
+            _activeCodeTab = codeTab;
         }
 
         var design = query.GetValueOrDefault($"{PersistKey}-design");
@@ -338,6 +366,11 @@
                 _activeState = state.Scenario;
             }
 
+            if (!string.IsNullOrEmpty(state.CodeTab))
+            {
+                _activeCodeTab = state.CodeTab;
+            }
+
             if (state.DesignMode)
             {
                 _designMode = true;
@@ -375,6 +408,7 @@
         var query = ParseQueryString(NavigationManager.Uri);
 
         query[$"{PersistKey}-scenario"] = _activeState;
+        query[$"{PersistKey}-codetab"] = _activeCodeTab ?? string.Empty;
         query[$"{PersistKey}-design"] = _designMode.ToString().ToLowerInvariant();
         query[$"{PersistKey}-type"] = _selectedDesignComponentType?.AssemblyQualifiedName ?? string.Empty;
 
@@ -406,6 +440,7 @@
             var state = new SessionPersistedState
             {
                 Scenario = _activeState,
+                CodeTab = _activeCodeTab,
                 DesignMode = _designMode,
                 TypeName = _selectedDesignComponentType?.AssemblyQualifiedName,
                 Values = _designValues.Count > 0 ? new Dictionary<string, string>(_designValues) : null
@@ -441,6 +476,7 @@
     private class SessionPersistedState
     {
         public string? Scenario { get; set; }
+        public string? CodeTab { get; set; }
         public bool DesignMode { get; set; }
         public string? TypeName { get; set; }
         public Dictionary<string, string>? Values { get; set; }

@@ -5,6 +5,8 @@ namespace LowlandTech.Components;
 /// </summary>
 internal static class GuidV5
 {
+    public static readonly Guid Namespace = new("d7f3a1b2-4c5e-6f78-9a0b-c1d2e3f4a5b6");
+
     public static Guid Create(Guid namespaceId, string name)
     {
         // Convert namespace UUID to network byte order (big-endian)
