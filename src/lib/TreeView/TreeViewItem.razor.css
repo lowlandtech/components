@@ -1,0 +1,22 @@
+.lt-tree-view-item {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem; /* gap-1.5 */
+    min-width: 0;
+    flex: 1;
+}
+
+.lt-tree-view-item-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    flex: 1;
+}
+
+.lt-tree-view-item-suffix {
+    margin-left: auto;
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    color: var(--muted-foreground, #888);
+}
