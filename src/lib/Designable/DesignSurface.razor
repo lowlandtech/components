@@ -9,10 +9,12 @@
      @attributes="AdditionalAttributes">
     <CascadingValue Name="TinyDesignMode" Value="@IsDesignMode">
         <CascadingValue Name="TinySelectedDesignInstanceId" Value="@SelectedInstanceId">
-            <CascadingValue Name="TinyDesignComponentType" Value="@DesignComponentType">
-                <CascadingValue Name="TinyDesignPropertyValues" Value="@PropertyValues">
-                    <CascadingValue Name="TinyDesignSelected" Value="@DesignSelectedCallback">
-                        @ChildContent
+            <CascadingValue Name="TinyDesignSurfaceId" Value="@_surfaceId">
+                <CascadingValue Name="TinyDesignComponentType" Value="@DesignComponentType">
+                    <CascadingValue Name="TinyDesignPropertyValues" Value="@PropertyValues">
+                        <CascadingValue Name="TinyDesignSelected" Value="@DesignSelectedCallback">
+                            @ChildContent
+                        </CascadingValue>
                     </CascadingValue>
                 </CascadingValue>
             </CascadingValue>
@@ -35,6 +37,10 @@
     private ElementReference _surface;
     private IJSObjectReference? _module;
     private IJSObjectReference? _handle;
+    private readonly string _surfaceId = Guid.NewGuid().ToString("N");
+
+    /// <summary>Stable ID for this surface instance, scoping design-instance lookups.</summary>
+    public string SurfaceId => _surfaceId;
 
     private EventCallback<TinyDesignSelection> DesignSelectedCallback =>
         EventCallback.Factory.Create<TinyDesignSelection>(this, OnDesignSelected);
@@ -57,16 +63,22 @@
             }
         }
 
-        // After a page reload the SelectedInstanceId is cleared (old Guid is invalid).
-        // Once children have registered themselves, promote the first live instance of
-        // the target type so that only that one instance gets the selection highlight
-        // and has its property values applied — without touching the caller's value dict.
-        if (IsDesignMode && DesignComponentType is not null && string.IsNullOrEmpty(SelectedInstanceId))
+        // After a page reload the SelectedInstanceId may be a stale runtime Guid.
+        // If it is empty or no longer points to a live registered instance, promote
+        // the first matching component of the target type so selection highlight and
+        // property values are reapplied — without touching the caller's value dict.
+        if (IsDesignMode && DesignComponentType is not null)
         {
-            var instanceId = TinyComponentBase.FindFirstInstanceIdOfType(DesignComponentType);
-            if (instanceId is not null && SelectedInstanceIdChanged.HasDelegate)
+            var hasValidInstance = !string.IsNullOrEmpty(SelectedInstanceId)
+                && TinyComponentBase.HasLiveInstance(SelectedInstanceId);
+
+            if (!hasValidInstance)
             {
-                await SelectedInstanceIdChanged.InvokeAsync(instanceId);
+                var instanceId = TinyComponentBase.FindFirstInstanceIdOfType(DesignComponentType, _surfaceId);
+                if (instanceId is not null && SelectedInstanceIdChanged.HasDelegate)
+                {
+                    await SelectedInstanceIdChanged.InvokeAsync(instanceId);
+                }
             }
         }
     }

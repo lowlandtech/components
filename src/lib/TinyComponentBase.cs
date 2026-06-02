@@ -3,7 +3,8 @@ namespace LowlandTech.Components;
 public abstract class TinyComponentBase : ComponentBase
 {
     private static readonly ConcurrentDictionary<Type, bool> DesignableParameterCache = new();
-    private static readonly ConcurrentDictionary<string, WeakReference<TinyComponentBase>> DesignableInstances = new();
+    private static readonly ConcurrentDictionary<string, (WeakReference<TinyComponentBase> Ref, string SurfaceId, long Order)> DesignableInstances = new();
+    private static long _globalRegistrationOrder;
     private readonly string _designInstanceId = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
     private bool _registeredAsDesignable;
 
@@ -34,6 +35,9 @@ public abstract class TinyComponentBase : ComponentBase
     /// </summary>
     [CascadingParameter(Name = "TinyDesignComponentType")]
     private Type? CascadedDesignComponentType { get; set; }
+
+    [CascadingParameter(Name = "TinyDesignSurfaceId")]
+    private string? CascadedDesignSurfaceId { get; set; }
 
     /// <summary>
     /// The enclosing <c>ThemeProvider</c> context, or <c>null</c> when no
@@ -203,21 +207,24 @@ public abstract class TinyComponentBase : ComponentBase
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        if (IsDesignSelectable)
-        {
-            DesignableInstances[_designInstanceId] = new WeakReference<TinyComponentBase>(this);
-        }
+        TryRegister();
+    }
+
+    private void TryRegister()
+    {
+        if (!IsDesignSelectable || _registeredAsDesignable)
+            return;
+        var surfaceId = CascadedDesignSurfaceId ?? string.Empty;
+        var order = Interlocked.Increment(ref _globalRegistrationOrder);
+        DesignableInstances[_designInstanceId] = (new WeakReference<TinyComponentBase>(this), surfaceId, order);
+        _registeredAsDesignable = true;
     }
 
     protected override void OnParametersSet()
     {
         // Lazy registration: if design mode just turned on (e.g. after session restore)
         // and this component hasn't registered yet, do it now.
-        if (IsDesignSelectable && !_registeredAsDesignable)
-        {
-            DesignableInstances[_designInstanceId] = new WeakReference<TinyComponentBase>(this);
-            _registeredAsDesignable = true;
-        }
+        TryRegister();
 
         if (!EffectiveDesignMode ||
             !EffectiveDesignSelected ||
@@ -231,27 +238,49 @@ public abstract class TinyComponentBase : ComponentBase
     }
 
     /// <summary>
-    /// Returns the instance ID of the first live registered component whose
-    /// <see cref="DesignType"/> matches <paramref name="designType"/>.
-    /// Used by <c>DesignSurface</c> to promote a valid instance after a page
-    /// reload when the original instance ID is no longer valid.
+    /// Returns the instance ID of the first live registered component (in DOM/render order)
+    /// whose <see cref="DesignType"/> matches <paramref name="designType"/> and that
+    /// belongs to the given <paramref name="surfaceId"/>.
+    /// Scoping by surface prevents instances from other story cards on the same page
+    /// from being picked up. Ordering by registration sequence gives the first
+    /// component in document order rather than a random hash-bucket element.
     /// </summary>
-    internal static string? FindFirstInstanceIdOfType(Type designType)
+    public static string? FindFirstInstanceIdOfType(Type designType, string surfaceId)
     {
+        string? bestKey = null;
+        long bestOrder = long.MaxValue;
+
         foreach (var kvp in DesignableInstances)
         {
-            if (kvp.Value.TryGetTarget(out var instance) && instance.DesignType == designType)
-                return kvp.Key;
+            var (weakRef, sid, order) = kvp.Value;
+            if (sid != surfaceId) continue;
+            if (order >= bestOrder) continue;
+            if (!weakRef.TryGetTarget(out var instance)) continue;
+            if (instance.DesignType != designType) continue;
+
+            bestKey = kvp.Key;
+            bestOrder = order;
         }
-        return null;
+
+        return bestKey;
+    }
+
+    /// <summary>
+    /// Returns <c>true</c> if a live component with the given <paramref name="instanceId"/>
+    /// is currently registered in <see cref="DesignableInstances"/>.
+    /// </summary>
+    public static bool HasLiveInstance(string instanceId)
+    {
+        return DesignableInstances.TryGetValue(instanceId, out var entry)
+            && entry.Ref.TryGetTarget(out _);
     }
 
     [JSInvokable]
     public static Task OnDesignElementClicked(string instanceId)
     {
-        if (DesignableInstances.TryGetValue(instanceId, out var weakRef))
+        if (DesignableInstances.TryGetValue(instanceId, out var entry))
         {
-            if (weakRef.TryGetTarget(out var instance))
+            if (entry.Ref.TryGetTarget(out var instance))
             {
                 return instance.SelectInDesignModeAsync();
             }

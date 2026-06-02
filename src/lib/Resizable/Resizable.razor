@@ -21,6 +21,13 @@
     [Parameter] public string? PersistKey { get; set; }
 
     /// <summary>
+    /// CSS classes applied to every child <see cref="ResizableHandle"/>.
+    /// Useful for adding consistent margin/padding (e.g. <c>py-4</c>) so the
+    /// handle rail aligns with padded panel content.
+    /// </summary>
+    [Parameter] public string? HandleClass { get; set; }
+
+    /// <summary>
     /// Callback fired when any panel is resized.
     /// </summary>
     [Parameter] public EventCallback<ResizeEventArgs> OnResize { get; set; }

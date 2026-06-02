@@ -50,7 +50,7 @@
 
                 @if (HasDesignSidebar)
                 {
-                    <Resizable Direction="horizontal" PersistKey="@PersistKey" class="flex-1 min-w-0">
+                    <Resizable Direction="horizontal" PersistKey="@PersistKey" class="flex-1 min-w-0" HandleClass="py-4">
                         <ResizablePanel DefaultSize="75" MinSize="50" MaxSize="90" Id="story-content">
                             <div class="story-card-tabs-content-column h-full pr-[3px]">
                                 @foreach (var state in States)
@@ -114,7 +114,7 @@
                                 }
                             </div>
                         </ResizablePanel>
-                        <ResizableHandle WithHandle="true" RevealOnHover="true" class="py-4" />
+                        <ResizableHandle WithHandle="true" RevealOnHover="true" />
                         <ResizablePanel DefaultSize="25" MinSize="15" MaxSize="50" Id="story-sidebar">
                             <div class="story-card-design-sidebar-container h-full" style="width: 100%; margin-left: 0; padding: 1rem 1rem 1rem 3px;">
                                 <aside class="story-card-design-sidebar">
@@ -414,8 +414,11 @@
             catch { /* ignore type resolution errors */ }
         }
 
-        // Do NOT restore the raw instance ID — it is a runtime Guid and is invalid after
-        // a reload. Type-based matching via CascadedDesignComponentType handles reapply.
+        var instanceId = query.GetValueOrDefault($"{PersistKey}-instance");
+        if (!string.IsNullOrEmpty(instanceId))
+        {
+            _selectedDesignInstanceId = instanceId;
+        }
 
         var valuesJson = query.GetValueOrDefault($"{PersistKey}-values");
         if (!string.IsNullOrEmpty(valuesJson))
@@ -472,10 +475,10 @@
                 catch { /* ignore */ }
             }
 
-            // Do NOT restore the raw instance ID — it was generated at runtime and is
-            // not valid after a reload. Clearing it lets TinyComponentBase fall back to
-            // type-based matching so persisted property values are reapplied via
-            // the CascadedDesignComponentType path instead of the instance-ID path.
+            if (!string.IsNullOrEmpty(state.InstanceId))
+            {
+                _selectedDesignInstanceId = state.InstanceId;
+            }
 
             if (state.Values is not null)
             {

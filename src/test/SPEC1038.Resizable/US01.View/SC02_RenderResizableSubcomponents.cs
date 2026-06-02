@@ -153,4 +153,20 @@ public class SC02_RenderResizableSubcomponents : ViewScenario
         grip.ClassList.ShouldContain("opacity-0");
         grip.ClassList.ShouldContain("group-hover/resize-handle:opacity-100");
     }
+
+    [Fact(DisplayName = "UAC14: ResizableHandle inherits HandleClass from parent Resizable")]
+    [Trait(Spec.UAC, "14")]
+    public void UAC14_HandleInheritsHandleClassFromParent()
+    {
+        var cut = Ctx.Render<ResizableSut>(p =>
+        {
+            p.Add(x => x.HandleClass, "py-4");
+            p.AddChildContent<ResizablePanel>(panel => panel.AddChildContent("A"));
+            p.AddChildContent<ResizableHandle>();
+            p.AddChildContent<ResizablePanel>(panel => panel.AddChildContent("B"));
+        });
+
+        var handle = cut.Find("[data-slot='resizable-handle']");
+        handle.ClassList.ShouldContain("py-4");
+    }
 }

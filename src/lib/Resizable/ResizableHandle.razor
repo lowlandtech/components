@@ -277,6 +277,9 @@
             ? " bg-transparent transition-colors hover:bg-border focus-visible:bg-border data-[dragging=true]:bg-border"
             : " bg-border";
 
+        if (!string.IsNullOrEmpty(Parent?.HandleClass))
+            baseClass += $" {Parent.HandleClass}";
+
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
 
