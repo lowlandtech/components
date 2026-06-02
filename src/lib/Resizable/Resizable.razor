@@ -1,5 +1,6 @@
 @namespace LowlandTech.Components.Resizable
 @inherits TinyComponentBase
+@inject IJSRuntime JS
 
 <CascadingValue Value="this">
     <div data-slot="resizable-panel-group"
@@ -13,6 +14,11 @@
 
 @code {
     [Parameter] public string Direction { get; set; } = "horizontal";
+
+    /// <summary>
+    /// Key used to persist panel sizes to localStorage. When set, sizes survive reloads.
+    /// </summary>
+    [Parameter] public string? PersistKey { get; set; }
 
     /// <summary>
     /// Callback fired when any panel is resized.
@@ -57,6 +63,14 @@
         Handles.Remove(handle);
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !string.IsNullOrEmpty(PersistKey))
+        {
+            await RestoreSizesAsync();
+        }
+    }
+
     internal async Task NotifyResizeAsync(ResizablePanel panel, int newSize)
     {
         var args = new ResizeEventArgs
@@ -96,6 +110,54 @@
     }
 
     /// <summary>
+    /// Persists current panel sizes to localStorage when PersistKey is set.
+    /// </summary>
+    internal async Task PersistSizesAsync()
+    {
+        if (string.IsNullOrEmpty(PersistKey))
+            return;
+
+        try
+        {
+            var sizes = Panels.ToDictionary(p => p.PanelId, p => p.CurrentSize);
+            var json = JsonSerializer.Serialize(sizes);
+            await JS.InvokeVoidAsync("localStorage.setItem", $"resizable:{PersistKey}", json);
+        }
+        catch
+        {
+            // Ignore storage errors (e.g., private browsing)
+        }
+    }
+
+    private async Task RestoreSizesAsync()
+    {
+        try
+        {
+            var json = await JS.InvokeAsync<string?>("localStorage.getItem", $"resizable:{PersistKey}");
+            if (string.IsNullOrEmpty(json))
+                return;
+
+            var sizes = JsonSerializer.Deserialize<Dictionary<string, int>>(json);
+            if (sizes is null)
+                return;
+
+            foreach (var panel in Panels)
+            {
+                if (sizes.TryGetValue(panel.PanelId, out var size))
+                {
+                    await panel.SetSizeAsync(size);
+                }
+            }
+
+            StateHasChanged();
+        }
+        catch
+        {
+            // Ignore storage errors
+        }
+    }
+
+    /// <summary>
     /// Sets the size of a panel by its ID (imperative API).
     /// </summary>
     public async Task SetPanelSizeAsync(string panelId, int size)
@@ -104,6 +166,7 @@
         if (panel != null)
         {
             await panel.SetSizeAsync(size);
+            await PersistSizesAsync();
         }
     }
 

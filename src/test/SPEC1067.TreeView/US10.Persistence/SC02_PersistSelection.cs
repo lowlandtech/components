@@ -18,7 +18,8 @@ public class SC02_PersistSelection : JsViewScenario
         string? persistKey = null,
         bool noPersist = false,
         TreeViewSelectionMode selectionMode = TreeViewSelectionMode.Single,
-        IReadOnlyList<string>? selectedKeys = null) =>
+        IReadOnlyList<string>? selectedKeys = null,
+        EventCallback<IReadOnlyList<string>>? selectedKeysChanged = null) =>
         Ctx.Render<TreeView<Node>>(p =>
         {
             p.Add(c => c.Items, Roots)
@@ -30,6 +31,8 @@ public class SC02_PersistSelection : JsViewScenario
              .Add(c => c.NoPersist, noPersist);
             if (selectedKeys != null)
                 p.Add(c => c.SelectedKeys, selectedKeys);
+            if (selectedKeysChanged.HasValue)
+                p.Add(c => c.SelectedKeysChanged, selectedKeysChanged.Value);
         });
 
     [Fact(DisplayName = "UAC01: selecting a node calls localStorage.setItem with 'treeview:{key}:selected'")]
@@ -152,5 +155,30 @@ public class SC02_PersistSelection : JsViewScenario
 
         cut.Find("[data-tree-node='b']").ClassList.ShouldContain("lt-tree-node-selected");
         cut.Find("[data-tree-node='a']").ClassList.ShouldNotContain("lt-tree-node-selected");
+    }
+
+    [Fact(DisplayName = "UAC07: controlled empty SelectedKeys restore from localStorage on reload")]
+    [Trait(Spec.UAC, "07")]
+    [Given("localStorage contains '[\"b\"]' and the host passes an empty controlled SelectedKeys list")]
+    [When("the tree renders for the first time with PersistKey='test-tree'")]
+    [Then("node 'b' is selected and SelectedKeysChanged is fired with 'b'")]
+    public async Task UAC07_ControlledEmptySelectedKeysRestoreFromLocalStorage()
+    {
+        Ctx.JSInterop.Setup<string?>("localStorage.getItem", "treeview:test-tree:expanded")
+            .SetResult(null);
+        Ctx.JSInterop.Setup<string?>("localStorage.getItem", "treeview:test-tree:selected")
+            .SetResult("[\"b\"]");
+
+        var captured = new List<IReadOnlyList<string>>();
+        var cb = EventCallback.Factory.Create<IReadOnlyList<string>>(this, keys => captured.Add(keys));
+        var cut = RenderTree(persistKey: "test-tree", selectedKeys: [], selectedKeysChanged: cb);
+
+        await cut.InvokeAsync(() => Task.CompletedTask);
+        cut.Render();
+
+        cut.Find("[data-tree-node='b']").ClassList.ShouldContain("lt-tree-node-selected");
+        cut.Find("[data-tree-node='a']").ClassList.ShouldNotContain("lt-tree-node-selected");
+        captured.Count.ShouldBe(1);
+        captured[0].ShouldContain("b");
     }
 }

@@ -280,7 +280,7 @@ public partial class TreeView<TItem> : TinyComponentBase
         {
             var needsRender = false;
 
-            if (ExpandedKeys == null)
+            if (ExpandedKeys == null || ExpandedKeys.Count == 0)
             {
                 var expandJson = await JS.InvokeAsync<string?>("localStorage.getItem", $"treeview:{EffectivePersistKey}:expanded");
                 if (!string.IsNullOrEmpty(expandJson))
@@ -288,16 +288,17 @@ public partial class TreeView<TItem> : TinyComponentBase
                     var keys = JsonSerializer.Deserialize<List<string>>(expandJson);
                     if (keys != null && keys.Count > 0)
                     {
-                        _expandedKeys = new HashSet<string>(keys);
-                        _expandedKeyDepths.Clear();
-                        foreach (var k in _expandedKeys)
-                            _expandedKeyDepths[k] = GetDepthByKey(k);
+                        ApplyExpandedKeys(keys);
+                        if (ExpandedKeys != null)
+                        {
+                            await ExpandedKeysChanged.InvokeAsync(keys);
+                        }
                         needsRender = true;
                     }
                 }
             }
 
-            if (SelectedKeys == null && SelectedKey == null && SelectionMode != TreeViewSelectionMode.None)
+            if ((SelectedKeys == null || SelectedKeys.Count == 0) && SelectedKey == null && SelectionMode != TreeViewSelectionMode.None)
             {
                 var selectedJson = await JS.InvokeAsync<string?>("localStorage.getItem", $"treeview:{EffectivePersistKey}:selected");
                 if (!string.IsNullOrEmpty(selectedJson))
@@ -305,7 +306,30 @@ public partial class TreeView<TItem> : TinyComponentBase
                     var keys = JsonSerializer.Deserialize<List<string>>(selectedJson);
                     if (keys != null && keys.Count > 0)
                     {
-                        _selectedKeys = new HashSet<string>(keys);
+                        ApplySelectedKeys(keys);
+                        if (SelectedKeys != null)
+                        {
+                            await SelectedKeysChanged.InvokeAsync(keys);
+                            await SelectedKeyChanged.InvokeAsync(keys.Count == 1 ? keys[0] : null);
+                        }
+                        needsRender = true;
+                    }
+                }
+            }
+
+            if ((CheckedKeys == null || CheckedKeys.Count == 0) && CheckMode != TreeViewCheckMode.None)
+            {
+                var checkedJson = await JS.InvokeAsync<string?>("localStorage.getItem", $"treeview:{EffectivePersistKey}:checked");
+                if (!string.IsNullOrEmpty(checkedJson))
+                {
+                    var keys = JsonSerializer.Deserialize<List<string>>(checkedJson);
+                    if (keys != null && keys.Count > 0)
+                    {
+                        ApplyCheckedKeys(keys);
+                        if (CheckedKeys != null)
+                        {
+                            await CheckedKeysChanged.InvokeAsync(keys);
+                        }
                         needsRender = true;
                     }
                 }
@@ -327,6 +351,31 @@ public partial class TreeView<TItem> : TinyComponentBase
         if (NoPersist) return;
         var json = JsonSerializer.Serialize(_selectedKeys.ToList());
         JS.InvokeVoidAsync("localStorage.setItem", $"treeview:{EffectivePersistKey}:selected", json);
+    }
+
+    private void PersistCheckedKeys()
+    {
+        if (NoPersist) return;
+        var json = JsonSerializer.Serialize(_checkedKeys.ToList());
+        JS.InvokeVoidAsync("localStorage.setItem", $"treeview:{EffectivePersistKey}:checked", json);
+    }
+
+    private void ApplyExpandedKeys(IReadOnlyList<string> keys)
+    {
+        _expandedKeys = new HashSet<string>(keys);
+        _expandedKeyDepths.Clear();
+        foreach (var k in _expandedKeys)
+            _expandedKeyDepths[k] = GetDepthByKey(k);
+    }
+
+    private void ApplySelectedKeys(IReadOnlyList<string> keys)
+    {
+        _selectedKeys = new HashSet<string>(keys);
+    }
+
+    private void ApplyCheckedKeys(IReadOnlyList<string> keys)
+    {
+        _checkedKeys = new HashSet<string>(keys);
     }
 
     internal void ToggleExpand(TItem item)
@@ -446,6 +495,7 @@ public partial class TreeView<TItem> : TinyComponentBase
         }
 
         CheckedKeysChanged.InvokeAsync(_checkedKeys.ToList());
+        PersistCheckedKeys();
         StateHasChanged();
     }
 

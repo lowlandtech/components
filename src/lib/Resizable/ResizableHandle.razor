@@ -187,6 +187,7 @@
             await Parent.NotifyResizeEndAsync(afterPanel);
         }
 
+        await Parent.PersistSizesAsync();
         StateHasChanged();
     }
 
@@ -210,6 +211,7 @@
 
         await beforePanel.SetSizeAsync(beforePanel.CurrentSize + appliedDelta);
         await afterPanel.SetSizeAsync(afterPanel.CurrentSize - appliedDelta);
+        await Parent.PersistSizesAsync();
         StateHasChanged();
     }
 

@@ -14,7 +14,11 @@ public class SC01_PersistKey : JsViewScenario
         new("b", "Beta",  [new("b1", "Beta-1",  [])])
     ];
 
-    private IRenderedComponent<TreeView<Node>> RenderTree(string? persistKey = null, bool noPersist = false, IReadOnlyList<string>? expandedKeys = null) =>
+    private IRenderedComponent<TreeView<Node>> RenderTree(
+        string? persistKey = null,
+        bool noPersist = false,
+        IReadOnlyList<string>? expandedKeys = null,
+        EventCallback<IReadOnlyList<string>>? expandedKeysChanged = null) =>
         Ctx.Render<TreeView<Node>>(p =>
         {
             p.Add(c => c.Items, Roots)
@@ -25,6 +29,8 @@ public class SC01_PersistKey : JsViewScenario
              .Add(c => c.NoPersist, noPersist);
             if (expandedKeys != null)
                 p.Add(c => c.ExpandedKeys, expandedKeys);
+            if (expandedKeysChanged.HasValue)
+                p.Add(c => c.ExpandedKeysChanged, expandedKeysChanged.Value);
         });
 
     [Fact(DisplayName = "UAC01: expanding a node calls localStorage.setItem with the persist key")]
@@ -142,5 +148,27 @@ public class SC01_PersistKey : JsViewScenario
 
         cut.FindAll("[data-tree-node='b1']").Count.ShouldBe(1);
         cut.FindAll("[data-tree-node='a1']").Count.ShouldBe(0);
+    }
+
+    [Fact(DisplayName = "UAC07: controlled empty ExpandedKeys restore from localStorage on reload")]
+    [Trait(Spec.UAC, "07")]
+    [Given("localStorage contains '[\"b\"]' and the host passes an empty controlled ExpandedKeys list")]
+    [When("the tree renders for the first time with PersistKey='test-tree'")]
+    [Then("node 'b1' is visible and ExpandedKeysChanged is fired with 'b'")]
+    public async Task UAC07_ControlledEmptyExpandedKeysRestoreFromLocalStorage()
+    {
+        Ctx.JSInterop.Setup<string?>("localStorage.getItem", "treeview:test-tree:expanded")
+            .SetResult("[\"b\"]");
+
+        var captured = new List<IReadOnlyList<string>>();
+        var cb = EventCallback.Factory.Create<IReadOnlyList<string>>(this, keys => captured.Add(keys));
+        var cut = RenderTree(persistKey: "test-tree", expandedKeys: [], expandedKeysChanged: cb);
+
+        await cut.InvokeAsync(() => Task.CompletedTask);
+        cut.Render();
+
+        cut.FindAll("[data-tree-node='b1']").Count.ShouldBe(1);
+        captured.Count.ShouldBe(1);
+        captured[0].ShouldContain("b");
     }
 }
