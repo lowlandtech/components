@@ -617,42 +617,12 @@ public partial class TreeView<TItem> : TinyComponentBase
         switch (e.Key)
         {
             case "ArrowDown":
-                {
-                    // If expanded, descend into first child
-                    if (IsItemExpanded(current) && NodeHasChildren(current))
-                    {
-                        var children = GetChildren(current)?.ToList();
-                        if (children is { Count: > 0 })
-                        {
-                            _focusedKey = GetItemKey(children[0]);
-                            break;
-                        }
-                    }
-
-                    var siblings = GetSiblings(current).ToList();
-                    var idx = siblings.FindIndex(i => KeyEquals(i, current));
-                    if (idx >= 0 && idx < siblings.Count - 1)
-                        _focusedKey = GetItemKey(siblings[idx + 1]);
-                    else if (siblings.Count > 0)
-                        _focusedKey = GetItemKey(siblings[0]);
-                }
+                if (focusedIndex < visible.Count - 1)
+                    _focusedKey = GetItemKey(visible[focusedIndex + 1]);
                 break;
             case "ArrowUp":
-                {
-                    var siblings = GetSiblings(current).ToList();
-                    var idx = siblings.FindIndex(i => KeyEquals(i, current));
-                    if (idx > 0)
-                        _focusedKey = GetItemKey(siblings[idx - 1]);
-                    else if (idx == 0)
-                    {
-                        // First sibling: move up to parent
-                        var parent = FindParent(current);
-                        if (parent != null)
-                            _focusedKey = GetItemKey(parent);
-                    }
-                    else if (siblings.Count > 0)
-                        _focusedKey = GetItemKey(siblings[^1]);
-                }
+                if (focusedIndex > 0)
+                    _focusedKey = GetItemKey(visible[focusedIndex - 1]);
                 break;
             case "ArrowRight":
                 if (!IsItemExpanded(current) && NodeHasChildren(current))
@@ -681,21 +651,6 @@ public partial class TreeView<TItem> : TinyComponentBase
         {
             StateHasChanged();
         }
-    }
-
-    private bool KeyEquals(TItem a, TItem b)
-    {
-        return typeof(TItem).IsValueType
-            ? EqualityComparer<TItem>.Default.Equals(a, b)
-            : ReferenceEquals(a, b);
-    }
-
-    private IEnumerable<TItem> GetSiblings(TItem item)
-    {
-        var parent = FindParent(item);
-        if (parent != null)
-            return GetChildren(parent) ?? Enumerable.Empty<TItem>();
-        return Items;
     }
 
     private IEnumerable<TItem> GetVisibleItems()

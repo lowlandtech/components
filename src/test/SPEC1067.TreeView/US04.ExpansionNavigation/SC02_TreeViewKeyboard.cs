@@ -51,6 +51,9 @@ public class SC02_TreeViewKeyboard : ViewScenario
 
     [Fact(DisplayName = "UAC16: ArrowDown on collapsed node moves focus to next sibling")]
     [Trait(Spec.UAC, "16")]
+    [Given("a tree where node 'a' is collapsed")]
+    [When("ArrowDown is pressed from node 'a'")]
+    [Then("focus moves to the next visible root node 'b'")]
     public void UAC16_ArrowDownToNextSibling()
     {
         var cut = RenderTree(expandedKeys: []);
@@ -60,23 +63,29 @@ public class SC02_TreeViewKeyboard : ViewScenario
         cut.Find("[data-tree-node='b']").GetAttribute("tabindex").ShouldBe("0");
     }
 
-    [Fact(DisplayName = "UAC17: ArrowDown on last sibling wraps to first sibling")]
+    [Fact(DisplayName = "UAC17: ArrowDown on leaf moves to next visible branch")]
     [Trait(Spec.UAC, "17")]
-    public void UAC17_ArrowDownWrapsToFirstSibling()
+    [Given("a tree where node 'a' is expanded and focus is on leaf node 'a1'")]
+    [When("ArrowDown is pressed")]
+    [Then("focus moves to the next visible branch node 'b'")]
+    public void UAC17_ArrowDownFromLeafMovesToNextVisibleBranch()
     {
-        var cut = RenderTree(expandedKeys: []);
-        // Move focus to 'b' (last root)
+        var cut = RenderTree(expandedKeys: ["a"]);
+        // Move focus to 'a1'
         cut.Find("[data-slot='tree-view']").KeyDown("ArrowDown");
         cut.Render();
-        // ArrowDown again wraps to 'a'
+        // ArrowDown from leaf continues to next visible branch.
         cut.Find("[data-slot='tree-view']").KeyDown("ArrowDown");
         cut.Render();
 
-        cut.Find("[data-tree-node='a']").GetAttribute("tabindex").ShouldBe("0");
+        cut.Find("[data-tree-node='b']").GetAttribute("tabindex").ShouldBe("0");
     }
 
     [Fact(DisplayName = "UAC18: ArrowUp on first child moves focus to parent")]
     [Trait(Spec.UAC, "18")]
+    [Given("a tree where node 'a' is expanded and focus is on child node 'a1'")]
+    [When("ArrowUp is pressed")]
+    [Then("focus moves to the previous visible node, parent node 'a'")]
     public void UAC18_ArrowUpFromChildToParent()
     {
         var cut = RenderTree(expandedKeys: ["a"]);
@@ -90,9 +99,12 @@ public class SC02_TreeViewKeyboard : ViewScenario
         cut.Find("[data-tree-node='a']").GetAttribute("tabindex").ShouldBe("0");
     }
 
-    [Fact(DisplayName = "UAC19: ArrowUp on non-first sibling moves focus to previous sibling")]
+    [Fact(DisplayName = "UAC19: ArrowUp moves focus to previous visible node")]
     [Trait(Spec.UAC, "19")]
-    public void UAC19_ArrowUpToPreviousSibling()
+    [Given("a tree where node 'a' is collapsed and focus is on root node 'b'")]
+    [When("ArrowUp is pressed")]
+    [Then("focus moves to previous visible root node 'a'")]
+    public void UAC19_ArrowUpToPreviousVisibleNode()
     {
         var cut = RenderTree(expandedKeys: []);
         // Focus 'b'
@@ -187,5 +199,22 @@ public class SC02_TreeViewKeyboard : ViewScenario
         focused.GetAttribute("tabindex").ShouldBe("0");
         focused.ClassList.ShouldContain("lt-tree-node-keyboard-focused");
         focused.ClassList.ShouldNotContain("lt-tree-node-selected");
+    }
+
+    [Fact(DisplayName = "UAC26: ArrowDown on last visible node does not wrap")]
+    [Trait(Spec.UAC, "26")]
+    [Given("a tree where focus is on the last visible node")]
+    [When("ArrowDown is pressed")]
+    [Then("focus remains on the last visible node")]
+    public void UAC26_ArrowDownOnLastVisibleNodeDoesNotWrap()
+    {
+        var cut = RenderTree(expandedKeys: []);
+        cut.Find("[data-slot='tree-view']").KeyDown("End");
+        cut.Render();
+
+        cut.Find("[data-slot='tree-view']").KeyDown("ArrowDown");
+        cut.Render();
+
+        cut.Find("[data-tree-node='b']").GetAttribute("tabindex").ShouldBe("0");
     }
 }
