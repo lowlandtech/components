@@ -27,6 +27,14 @@ public abstract class TinyComponentBase : ComponentBase
     private EventCallback<TinyDesignSelection> DesignSelected { get; set; }
 
     /// <summary>
+    /// The component type currently selected in the design surface, cascaded from
+    /// <c>DesignSurface</c>. Used to reapply persisted property values after a
+    /// reload when the original instance ID is no longer valid.
+    /// </summary>
+    [CascadingParameter(Name = "TinyDesignComponentType")]
+    private Type? CascadedDesignComponentType { get; set; }
+
+    /// <summary>
     /// The enclosing <c>ThemeProvider</c> context, or <c>null</c> when no
     /// provider wraps this component.  Used by <see cref="ThemeClass"/> to
     /// resolve active theme class slot overrides.
@@ -202,14 +210,20 @@ public abstract class TinyComponentBase : ComponentBase
     protected override void OnParametersSet()
     {
         if (!EffectiveDesignMode ||
-            !EffectiveDesignSelected ||
             DesignPropertyValues is null ||
             DesignPropertyValues.Count == 0)
         {
             return;
         }
 
-        ApplyDesignPropertyValues();
+        // Primary path: instance ID matches — the user just clicked this component.
+        // Fallback path: type matches — values were restored from session/URL after a
+        // reload, so the old instance ID is stale. Apply to the first component whose
+        // DesignType matches the persisted component type.
+        if (EffectiveDesignSelected || DesignType == CascadedDesignComponentType)
+        {
+            ApplyDesignPropertyValues();
+        }
     }
 
     [JSInvokable]

@@ -280,25 +280,22 @@ public partial class TreeView<TItem> : TinyComponentBase
         {
             var needsRender = false;
 
-            if (ExpandedKeys == null || ExpandedKeys.Count == 0)
+            var expandJson = await JS.InvokeAsync<string?>("localStorage.getItem", $"treeview:{EffectivePersistKey}:expanded");
+            if (!string.IsNullOrEmpty(expandJson))
             {
-                var expandJson = await JS.InvokeAsync<string?>("localStorage.getItem", $"treeview:{EffectivePersistKey}:expanded");
-                if (!string.IsNullOrEmpty(expandJson))
+                var keys = JsonSerializer.Deserialize<List<string>>(expandJson);
+                if (keys != null && keys.Count > 0)
                 {
-                    var keys = JsonSerializer.Deserialize<List<string>>(expandJson);
-                    if (keys != null && keys.Count > 0)
+                    ApplyExpandedKeys(keys);
+                    if (ExpandedKeys != null)
                     {
-                        ApplyExpandedKeys(keys);
-                        if (ExpandedKeys != null)
-                        {
-                            await ExpandedKeysChanged.InvokeAsync(keys);
-                        }
-                        needsRender = true;
+                        await ExpandedKeysChanged.InvokeAsync(keys);
                     }
+                    needsRender = true;
                 }
             }
 
-            if ((SelectedKeys == null || SelectedKeys.Count == 0) && SelectedKey == null && SelectionMode != TreeViewSelectionMode.None)
+            if (SelectedKey == null && SelectionMode != TreeViewSelectionMode.None)
             {
                 var selectedJson = await JS.InvokeAsync<string?>("localStorage.getItem", $"treeview:{EffectivePersistKey}:selected");
                 if (!string.IsNullOrEmpty(selectedJson))
@@ -317,7 +314,7 @@ public partial class TreeView<TItem> : TinyComponentBase
                 }
             }
 
-            if ((CheckedKeys == null || CheckedKeys.Count == 0) && CheckMode != TreeViewCheckMode.None)
+            if (CheckMode != TreeViewCheckMode.None)
             {
                 var checkedJson = await JS.InvokeAsync<string?>("localStorage.getItem", $"treeview:{EffectivePersistKey}:checked");
                 if (!string.IsNullOrEmpty(checkedJson))

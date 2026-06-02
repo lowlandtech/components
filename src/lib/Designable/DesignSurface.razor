@@ -9,9 +9,11 @@
      @attributes="AdditionalAttributes">
     <CascadingValue Name="TinyDesignMode" Value="@IsDesignMode">
         <CascadingValue Name="TinySelectedDesignInstanceId" Value="@SelectedInstanceId">
-            <CascadingValue Name="TinyDesignPropertyValues" Value="@PropertyValues">
-                <CascadingValue Name="TinyDesignSelected" Value="@DesignSelectedCallback">
-                    @ChildContent
+            <CascadingValue Name="TinyDesignComponentType" Value="@DesignComponentType">
+                <CascadingValue Name="TinyDesignPropertyValues" Value="@PropertyValues">
+                    <CascadingValue Name="TinyDesignSelected" Value="@DesignSelectedCallback">
+                        @ChildContent
+                    </CascadingValue>
                 </CascadingValue>
             </CascadingValue>
         </CascadingValue>
@@ -22,6 +24,7 @@
     [Parameter] public bool IsDesignMode { get; set; }
     [Parameter] public string? SelectedInstanceId { get; set; }
     [Parameter] public EventCallback<string?> SelectedInstanceIdChanged { get; set; }
+    [Parameter] public Type? DesignComponentType { get; set; }
     [Parameter] public IReadOnlyDictionary<string, string>? PropertyValues { get; set; }
     [Parameter] public EventCallback<TinyDesignSelection> OnSelectionChanged { get; set; }
     [Parameter] public string? Class { get; set; }

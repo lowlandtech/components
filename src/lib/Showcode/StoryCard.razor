@@ -52,7 +52,7 @@
                 {
                     <Resizable Direction="horizontal" PersistKey="@PersistKey" class="flex-1 min-w-0">
                         <ResizablePanel DefaultSize="75" MinSize="50" MaxSize="90" Id="story-content">
-                            <div class="story-card-tabs-content-column h-full">
+                            <div class="story-card-tabs-content-column h-full pr-[3px]">
                                 @foreach (var state in States)
                                 {
                                     <TabsContent Value="@state.Value" class="@GetTabsContentClass()">
@@ -60,6 +60,7 @@
                                             <div class="flex min-w-0 gap-2">
                                                 <DesignSurface IsDesignMode="@_designMode"
                                                                SelectedInstanceId="@_selectedDesignInstanceId"
+                                                               DesignComponentType="@_selectedDesignComponentType"
                                                                PropertyValues="@_designValues"
                                                                OnSelectionChanged="@DesignSelectedCallback"
                                                                Class="story-card-design-preview relative flex min-h-32 min-w-0 flex-1 items-center justify-center rounded-lg border border-border/70 bg-background p-6">
@@ -112,9 +113,9 @@
                                 }
                             </div>
                         </ResizablePanel>
-                        <ResizableHandle RevealOnHover="true" />
+                        <ResizableHandle WithHandle="true" RevealOnHover="true" />
                         <ResizablePanel DefaultSize="25" MinSize="15" MaxSize="50" Id="story-sidebar">
-                            <div class="story-card-design-sidebar-container h-full" style="width: 100%; margin-left: 0; padding: 1rem 1rem 1rem 0.5rem;">
+                            <div class="story-card-design-sidebar-container h-full" style="width: 100%; margin-left: 0; padding: 1rem 1rem 1rem 3px;">
                                 <aside class="story-card-design-sidebar">
                                     <PropertyGrid TField="PropertyDescriptor"
                                                   Items="@DesignGridProperties"
@@ -173,6 +174,7 @@
                                     <div class="flex min-w-0 gap-2">
                                         <DesignSurface IsDesignMode="@_designMode"
                                                        SelectedInstanceId="@_selectedDesignInstanceId"
+                                                       DesignComponentType="@_selectedDesignComponentType"
                                                        PropertyValues="@_designValues"
                                                        OnSelectionChanged="@DesignSelectedCallback"
                                                        Class="story-card-design-preview relative flex min-h-32 min-w-0 flex-1 items-center justify-center rounded-lg border border-border/70 bg-background p-6">
@@ -398,11 +400,8 @@
             catch { /* ignore type resolution errors */ }
         }
 
-        var instanceId = query.GetValueOrDefault($"{PersistKey}-instance");
-        if (!string.IsNullOrEmpty(instanceId))
-        {
-            _selectedDesignInstanceId = instanceId;
-        }
+        // Do NOT restore the raw instance ID — it is a runtime Guid and is invalid after
+        // a reload. Type-based matching via CascadedDesignComponentType handles reapply.
 
         var valuesJson = query.GetValueOrDefault($"{PersistKey}-values");
         if (!string.IsNullOrEmpty(valuesJson))
@@ -459,10 +458,10 @@
                 catch { /* ignore */ }
             }
 
-            if (!string.IsNullOrEmpty(state.InstanceId))
-            {
-                _selectedDesignInstanceId = state.InstanceId;
-            }
+            // Do NOT restore the raw instance ID — it was generated at runtime and is
+            // not valid after a reload. Clearing it lets TinyComponentBase fall back to
+            // type-based matching so persisted property values are reapplied via
+            // the CascadedDesignComponentType path instead of the instance-ID path.
 
             if (state.Values is not null)
             {

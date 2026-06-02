@@ -1,5 +1,3 @@
-using LowlandTech.Components.E2E.Infrastructure;
-
 namespace LowlandTech.Components.E2E.SPEC1101.NavigationStories;
 
 /// <summary>
@@ -75,5 +73,37 @@ public sealed class SC01_NavigationStoriesE2E(ShowcodeCollection collection) : S
         var second = pageLinks.Nth(1);
         await second.ClickAsync();
         await Assertions.Expect(second).ToBeVisibleAsync();
+    }
+
+    [Fact(DisplayName = "UAC05: TreeView story — selection and expansion survive reload")]
+    [Trait(Spec.UAC, "05")]
+    [Given("the TreeView story is open on the Single Selection scenario")]
+    [When("the app node is expanded, Program.cs is selected, and the page reloads")]
+    [Then("Program.cs remains visible and selected using the persisted treeview keys")]
+    public async Task UAC05_TreeViewSelectionAndExpansionSurviveReload()
+    {
+        await Showcode.GoToStoryAsync("TreeView");
+
+        await Showcode.Page.GetByRole(AriaRole.Tab, new() { Name = "Single Selection" }).ClickAsync();
+        await Assertions.Expect(Showcode.Page.Locator("[data-tree-node='src']")).ToBeVisibleAsync();
+
+        var appToggle = Showcode.Page.Locator("[data-tree-node='app'] .lt-tree-node-toggle").First;
+        await appToggle.ClickAsync();
+
+        var programNode = Showcode.Page.Locator("[data-tree-node='Program.cs']").First;
+        await Assertions.Expect(programNode).ToBeVisibleAsync();
+        await programNode.ClickAsync();
+
+        var storageBefore = await Showcode.Page.EvaluateAsync<Dictionary<string, string>>(
+            "Object.fromEntries(Object.entries(localStorage).filter(([key]) => key.includes('treeview:')))");
+        storageBefore.Values.ShouldContain(value => value.Contains("Program.cs", StringComparison.Ordinal));
+        storageBefore.Values.ShouldContain(value => value.Contains("app", StringComparison.Ordinal));
+
+        await Showcode.Page.ReloadAsync();
+        await Assertions.Expect(Showcode.Page.Locator("[data-tree-node='Program.cs']").First).ToBeVisibleAsync();
+
+        var selectedAfter = await Showcode.Page.Locator("[data-tree-node='Program.cs']").First
+            .EvaluateAsync<bool>("node => node.classList.contains('lt-tree-node-selected')");
+        selectedAfter.ShouldBeTrue();
     }
 }

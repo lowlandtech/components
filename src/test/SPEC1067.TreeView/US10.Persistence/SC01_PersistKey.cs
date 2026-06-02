@@ -171,4 +171,27 @@ public class SC01_PersistKey : JsViewScenario
         captured.Count.ShouldBe(1);
         captured[0].ShouldContain("b");
     }
+
+    [Fact(DisplayName = "UAC08: persisted ExpandedKeys override controlled defaults on reload")]
+    [Trait(Spec.UAC, "08")]
+    [Given("localStorage contains '[\"a\",\"b\"]' and the host passes controlled ExpandedKeys=['a']")]
+    [When("the tree renders for the first time with PersistKey='test-tree'")]
+    [Then("both 'a1' and 'b1' are visible and ExpandedKeysChanged includes 'b'")]
+    public async Task UAC08_PersistedExpandedKeysOverrideControlledDefaults()
+    {
+        Ctx.JSInterop.Setup<string?>("localStorage.getItem", "treeview:test-tree:expanded")
+            .SetResult("[\"a\",\"b\"]");
+
+        var captured = new List<IReadOnlyList<string>>();
+        var cb = EventCallback.Factory.Create<IReadOnlyList<string>>(this, keys => captured.Add(keys));
+        var cut = RenderTree(persistKey: "test-tree", expandedKeys: ["a"], expandedKeysChanged: cb);
+
+        await cut.InvokeAsync(() => Task.CompletedTask);
+        cut.Render();
+
+        cut.FindAll("[data-tree-node='a1']").Count.ShouldBe(1);
+        cut.FindAll("[data-tree-node='b1']").Count.ShouldBe(1);
+        captured.Count.ShouldBe(1);
+        captured[0].ShouldContain("b");
+    }
 }
