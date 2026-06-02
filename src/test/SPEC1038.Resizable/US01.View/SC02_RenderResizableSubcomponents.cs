@@ -160,13 +160,13 @@ public class SC02_RenderResizableSubcomponents : ViewScenario
     {
         var cut = Ctx.Render<ResizableSut>(p =>
         {
-            p.Add(x => x.HandleClass, "py-4");
+            p.Add(x => x.HandleClass, "my-4");
             p.AddChildContent<ResizablePanel>(panel => panel.AddChildContent("A"));
             p.AddChildContent<ResizableHandle>();
             p.AddChildContent<ResizablePanel>(panel => panel.AddChildContent("B"));
         });
 
         var handle = cut.Find("[data-slot='resizable-handle']");
-        handle.ClassList.ShouldContain("py-4");
+        handle.ClassList.ShouldContain("my-4");
     }
 }

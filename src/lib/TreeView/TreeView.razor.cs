@@ -71,6 +71,7 @@ public partial class TreeView<TItem> : TinyComponentBase
     private HashSet<string> _selectedKeys = new();
     private HashSet<string> _checkedKeys = new();
     private string? _focusedKey;
+    private bool _keyboardFocus;
     private string[]? _lastExpandedKeys;
     private string[]? _lastSelectedKeys;
     private string? _lastSelectedKey;
@@ -593,10 +594,14 @@ public partial class TreeView<TItem> : TinyComponentBase
     internal void FocusNode(TItem item)
     {
         _focusedKey = GetItemKey(item);
+        _keyboardFocus = false;
     }
+
+    internal bool IsKeyboardFocused(TItem item) => _keyboardFocus && GetItemKey(item) == _focusedKey;
 
     internal void HandleKeyDown(KeyboardEventArgs e)
     {
+        _keyboardFocus = true;
         var visible = GetVisibleItems().ToList();
         if (visible.Count == 0) return;
 

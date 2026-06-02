@@ -13,8 +13,13 @@
 
 .lt-tree-view-hover .lt-tree-node:not(.lt-tree-node-selected):hover .lt-tree-node-row,
 .lt-tree-node-hoverable:not(.lt-tree-node-selected):hover .lt-tree-node-row,
-.lt-tree-node-focused:not(.lt-tree-node-selected) .lt-tree-node-row {
+.lt-tree-node-keyboard-focused:not(.lt-tree-node-selected) .lt-tree-node-row {
     background-color: color-mix(in srgb, var(--muted) 50%, transparent);
+}
+
+.lt-tree-node-focused .lt-tree-node-row {
+    outline: 2px solid color-mix(in srgb, var(--primary) 40%, transparent);
+    outline-offset: -2px;
 }
 
 .lt-tree-node-selected .lt-tree-node-row {
