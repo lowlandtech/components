@@ -125,6 +125,13 @@
     {
         Parent.FocusNode(Item);
 
+        // When a custom ItemTemplate is used there is no dedicated toggle button,
+        // so a single click on the row should toggle expansion for nodes with children.
+        if (Parent.ItemTemplate != null && Parent.NodeHasChildren(Item))
+        {
+            Parent.ToggleExpand(Item);
+        }
+
         if (Parent.SelectionMode != TreeViewSelectionMode.None)
         {
             Parent.SelectNode(Item);
@@ -133,9 +140,13 @@
 
     private void HandleDoubleClick(MouseEventArgs e)
     {
-        Parent.FocusNode(Item);
-        if (Parent.NodeHasChildren(Item))
+        // Double-click expands/collapses the default template (which has a dedicated toggle button
+        // for single-click; double-clicking the row is a secondary expansion affordance).
+        // When a custom ItemTemplate is used, single-click already handles expansion, so
+        // double-click must not fire a second toggle.
+        if (Parent.ItemTemplate == null && Parent.NodeHasChildren(Item))
         {
+            Parent.FocusNode(Item);
             Parent.ToggleExpand(Item);
         }
     }
