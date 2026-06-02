@@ -43,7 +43,7 @@ public partial class TreeView<TItem> : TinyComponentBase
 
     // Appearance
     [Parameter] public bool Dense { get; set; }
-    [Parameter] public bool Hover { get; set; }
+    [Parameter] public bool Hover { get; set; } = true;
     [Parameter] public string? Width { get; set; }
     [Parameter] public string? MaxHeight { get; set; }
 

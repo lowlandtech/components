@@ -71,8 +71,11 @@ public class SC01_TreeViewTemplating : ViewScenario
         root.ClassList.ShouldContain("lt-tree-view-dense");
     }
 
-    [Fact(DisplayName = "UAC04: Hover parameter emits hoverable CSS class")]
+    [Fact(DisplayName = "UAC04: Hover=true emits lt-tree-view-hover CSS class")]
     [Trait(Spec.UAC, "04")]
+    [Given("a TreeView with Hover explicitly set to true")]
+    [When("the component renders")]
+    [Then("the root element has the 'lt-tree-view-hover' class")]
     public void UAC04_HoverClass()
     {
         var cut = Ctx.Render<TreeView<Node>>(p => p
@@ -80,6 +83,22 @@ public class SC01_TreeViewTemplating : ViewScenario
             .Add(c => c.GetChildren, n => n.Children)
             .Add(c => c.GetKey, n => n.Id)
             .Add(c => c.Hover, true));
+
+        var root = cut.Find("[data-slot='tree-view']");
+        root.ClassList.ShouldContain("lt-tree-view-hover");
+    }
+
+    [Fact(DisplayName = "UAC07: Hover defaults to true — hover state active without explicit parameter")]
+    [Trait(Spec.UAC, "07")]
+    [Given("a TreeView with no Hover parameter supplied")]
+    [When("the component renders")]
+    [Then("the root element has the 'lt-tree-view-hover' class by default")]
+    public void UAC07_HoverDefaultsToTrue()
+    {
+        var cut = Ctx.Render<TreeView<Node>>(p => p
+            .Add(c => c.Items, Roots)
+            .Add(c => c.GetChildren, n => n.Children)
+            .Add(c => c.GetKey, n => n.Id));
 
         var root = cut.Find("[data-slot='tree-view']");
         root.ClassList.ShouldContain("lt-tree-view-hover");
