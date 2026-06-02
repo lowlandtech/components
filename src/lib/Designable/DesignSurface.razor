@@ -9,11 +9,13 @@
      @attributes="AdditionalAttributes">
     <CascadingValue Name="TinyDesignMode" Value="@IsDesignMode">
         <CascadingValue Name="TinySelectedDesignInstanceId" Value="@SelectedInstanceId">
-            <CascadingValue Name="TinyDesignSurfaceId" Value="@_surfaceId">
-                <CascadingValue Name="TinyDesignComponentType" Value="@DesignComponentType">
-                    <CascadingValue Name="TinyDesignPropertyValues" Value="@PropertyValues">
-                        <CascadingValue Name="TinyDesignSelected" Value="@DesignSelectedCallback">
-                            @ChildContent
+            <CascadingValue Name="TinySelectedDesignPersistenceKey" Value="@SelectedPersistenceKey">
+                <CascadingValue Name="TinyDesignSurfaceId" Value="@_surfaceId">
+                    <CascadingValue Name="TinyDesignComponentType" Value="@DesignComponentType">
+                        <CascadingValue Name="TinyDesignPropertyValues" Value="@PropertyValues">
+                            <CascadingValue Name="TinyDesignSelected" Value="@DesignSelectedCallback">
+                                @ChildContent
+                            </CascadingValue>
                         </CascadingValue>
                     </CascadingValue>
                 </CascadingValue>
@@ -71,13 +73,18 @@
         if (IsDesignMode && DesignComponentType is not null)
         {
             var hasValidInstance = !string.IsNullOrEmpty(SelectedInstanceId)
-                && TinyComponentBase.HasLiveInstance(SelectedInstanceId);
+                && TinyComponentBase.HasLiveInstance(
+                    SelectedInstanceId,
+                    DesignComponentType,
+                    _surfaceId,
+                    SelectedPersistenceKey);
 
             if (!hasValidInstance)
             {
                 var instanceId =
-                    TinyComponentBase.FindInstanceIdByPersistenceKey(DesignComponentType, _surfaceId, SelectedPersistenceKey)
-                    ?? TinyComponentBase.FindFirstInstanceIdOfType(DesignComponentType, _surfaceId);
+                    !string.IsNullOrWhiteSpace(SelectedPersistenceKey)
+                        ? TinyComponentBase.FindInstanceIdByPersistenceKey(DesignComponentType, _surfaceId, SelectedPersistenceKey)
+                        : TinyComponentBase.FindFirstInstanceIdOfType(DesignComponentType, _surfaceId);
                 if (instanceId is not null && SelectedInstanceIdChanged.HasDelegate)
                 {
                     await SelectedInstanceIdChanged.InvokeAsync(instanceId);

@@ -266,4 +266,115 @@ public class SC03_DesignValueCapture
         captured.ComponentType.ShouldBe(typeof(TreeViewItem));
         captured.Values["Suffix"].ShouldBe("42");
     }
+
+    [Fact(DisplayName = "UAC28: stale instance id cannot hydrate values onto mismatched TreeViewItem key")]
+    [Trait(Spec.UAC, "28")]
+    [Given("A stale TreeViewItem instance id is restored with a different persisted tree node key")]
+    [When("The design surface hydrates persisted property values")]
+    [Then("The mismatched instance is not selected and does not receive the persisted values")]
+    public void UAC28_StaleInstanceIdDoesNotHydrateMismatchedTreeViewItem()
+    {
+        var ctx = new BunitContext();
+        ctx.Services.AddSingleton<IComponentDescriptorRegistry, ComponentDescriptorRegistry>();
+        ctx.Services.AddSingleton<IPopoverService, PopoverService>();
+
+        var values = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Icon"] = "file",
+            ["Suffix"] = "42"
+        };
+
+        var cut = ctx.Render<TreeViewItemHydrationHarness>();
+
+        var staleSrcInstanceId = cut.Find("[data-design-persistence-key='treeview-item:src']")
+            .GetAttribute("data-design-instance-id");
+        var buttonInstanceId = cut.Find("[data-design-persistence-key='treeview-item:Button.razor']")
+            .GetAttribute("data-design-instance-id");
+
+        cut.Instance.SelectedInstanceId = staleSrcInstanceId;
+        cut.Instance.SelectedPersistenceKey = "treeview-item:Button.razor";
+        cut.Instance.PropertyValues = values;
+        cut.Render();
+
+        var src = cut.Find("[data-design-persistence-key='treeview-item:src']");
+        src.GetAttribute("data-design-selected").ShouldBeNull();
+        src.TextContent.ShouldNotContain("42");
+
+        cut.Instance.SelectedInstanceId = buttonInstanceId;
+        cut.Render();
+
+        var button = cut.Find("[data-design-persistence-key='treeview-item:Button.razor']");
+        button.GetAttribute("data-design-selected").ShouldBe("true");
+        button.TextContent.ShouldContain("42");
+    }
+
+    private static RenderFragment RenderTreeViewItems() => builder =>
+    {
+        builder.OpenComponent<CascadingValue<string>>(0);
+        builder.AddAttribute(1, "Name", "TreeViewNodeDesignPersistenceKey");
+        builder.AddAttribute(2, "Value", "treeview-item:src");
+        builder.AddAttribute(3, "ChildContent", (RenderFragment)(srcBuilder =>
+        {
+            srcBuilder.OpenComponent<TreeViewItem>(4);
+            srcBuilder.AddAttribute(5, nameof(TreeViewItem.Icon), "folder");
+            srcBuilder.AddAttribute(6, "ChildContent", (RenderFragment)(labelBuilder =>
+            {
+                labelBuilder.AddContent(7, "src");
+            }));
+            srcBuilder.CloseComponent();
+        }));
+        builder.CloseComponent();
+
+        builder.OpenComponent<CascadingValue<string>>(8);
+        builder.AddAttribute(9, "Name", "TreeViewNodeDesignPersistenceKey");
+        builder.AddAttribute(10, "Value", "treeview-item:Button.razor");
+        builder.AddAttribute(11, "ChildContent", (RenderFragment)(buttonBuilder =>
+        {
+            buttonBuilder.OpenComponent<TreeViewItem>(12);
+            buttonBuilder.AddAttribute(13, nameof(TreeViewItem.Icon), "file");
+            buttonBuilder.AddAttribute(14, "ChildContent", (RenderFragment)(labelBuilder =>
+            {
+                labelBuilder.AddContent(15, "Button.razor");
+            }));
+            buttonBuilder.CloseComponent();
+        }));
+        builder.CloseComponent();
+    };
+
+    private sealed class TreeViewItemHydrationHarness : ComponentBase
+    {
+        public string? SelectedInstanceId { get; set; }
+        public string? SelectedPersistenceKey { get; set; }
+        public IReadOnlyDictionary<string, string>? PropertyValues { get; set; }
+
+        protected override void BuildRenderTree(RenderTreeBuilder builder)
+        {
+            builder.OpenComponent<CascadingValue<bool>>(0);
+            builder.AddAttribute(1, "Name", "TinyDesignMode");
+            builder.AddAttribute(2, "Value", true);
+            builder.AddAttribute(3, "ChildContent", (RenderFragment)(designBuilder =>
+            {
+                designBuilder.OpenComponent<CascadingValue<string?>>(4);
+                designBuilder.AddAttribute(5, "Name", "TinySelectedDesignInstanceId");
+                designBuilder.AddAttribute(6, "Value", SelectedInstanceId);
+                designBuilder.AddAttribute(7, "ChildContent", (RenderFragment)(selectedBuilder =>
+                {
+                    selectedBuilder.OpenComponent<CascadingValue<string?>>(8);
+                    selectedBuilder.AddAttribute(9, "Name", "TinySelectedDesignPersistenceKey");
+                    selectedBuilder.AddAttribute(10, "Value", SelectedPersistenceKey);
+                    selectedBuilder.AddAttribute(11, "ChildContent", (RenderFragment)(keyBuilder =>
+                    {
+                        keyBuilder.OpenComponent<CascadingValue<IReadOnlyDictionary<string, string>?>>(12);
+                        keyBuilder.AddAttribute(13, "Name", "TinyDesignPropertyValues");
+                        keyBuilder.AddAttribute(14, "Value", PropertyValues);
+                        keyBuilder.AddAttribute(15, "ChildContent", RenderTreeViewItems());
+                        keyBuilder.CloseComponent();
+                    }));
+                    selectedBuilder.CloseComponent();
+                }));
+                designBuilder.CloseComponent();
+            }));
+            builder.CloseComponent();
+        }
+    }
 }

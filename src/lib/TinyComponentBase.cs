@@ -26,6 +26,9 @@ public abstract class TinyComponentBase : ComponentBase
     [CascadingParameter(Name = "TinySelectedDesignInstanceId")]
     private string? CascadedSelectedDesignInstanceId { get; set; }
 
+    [CascadingParameter(Name = "TinySelectedDesignPersistenceKey")]
+    private string? CascadedSelectedDesignPersistenceKey { get; set; }
+
     [CascadingParameter(Name = "TinyDesignSelected")]
     private EventCallback<TinyDesignSelection> DesignSelected { get; set; }
 
@@ -65,7 +68,9 @@ public abstract class TinyComponentBase : ComponentBase
 
     protected bool EffectiveDesignSelected =>
         IsDesignSelected ||
-        string.Equals(CascadedSelectedDesignInstanceId, _designInstanceId, StringComparison.Ordinal);
+        (string.Equals(CascadedSelectedDesignInstanceId, _designInstanceId, StringComparison.Ordinal) &&
+            (string.IsNullOrWhiteSpace(CascadedSelectedDesignPersistenceKey) ||
+                string.Equals(CascadedSelectedDesignPersistenceKey, EffectiveDesignPersistenceKey, StringComparison.Ordinal)));
 
     protected string DesignModeClass => IsDesignSelectable
         ? EffectiveDesignSelected
@@ -304,6 +309,28 @@ public abstract class TinyComponentBase : ComponentBase
     {
         return DesignableInstances.TryGetValue(instanceId, out var entry)
             && entry.Ref.TryGetTarget(out _);
+    }
+
+    public static bool HasLiveInstance(
+        string instanceId,
+        Type? designType,
+        string surfaceId,
+        string? persistenceKey)
+    {
+        if (!DesignableInstances.TryGetValue(instanceId, out var entry))
+            return false;
+
+        if (entry.SurfaceId != surfaceId)
+            return false;
+
+        if (!entry.Ref.TryGetTarget(out var instance))
+            return false;
+
+        if (designType is not null && instance.DesignType != designType)
+            return false;
+
+        return string.IsNullOrWhiteSpace(persistenceKey) ||
+            string.Equals(instance.EffectiveDesignPersistenceKey, persistenceKey, StringComparison.Ordinal);
     }
 
     [JSInvokable]
