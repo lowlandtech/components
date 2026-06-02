@@ -69,9 +69,8 @@
                        class="lt-tree-node-checkbox"
                        checked="@checkedState"
                        data-indeterminate="@(indeterminate ? "true" : "false")"
-                       @onclick:preventDefault
                        @onclick:stopPropagation
-                       @onclick="() => ctx.ToggleCheck()" />
+                       @onchange="() => ctx.ToggleCheck()" />
             }
 
             @if (Parent.BodyContent != null)

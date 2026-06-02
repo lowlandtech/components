@@ -43,7 +43,7 @@
 }
 
 .lt-tree-node-toggle:hover {
-    background-color: hsl(var(--muted) / 0.5);
+    background-color: color-mix(in srgb, var(--muted) 50%, transparent);
 }
 
 .lt-tree-node-toggle-icon {
@@ -68,7 +68,7 @@
     transform: translateY(1px);
     border-width: 1px;
     border-style: solid;
-    border-color: hsl(var(--foreground) / 0.5);
+    border-color: color-mix(in srgb, var(--foreground) 50%, transparent);
     border-radius: 0.25rem;
     background-color: transparent;
     cursor: pointer;
@@ -77,28 +77,26 @@
     transition: background-color 150ms ease, border-color 150ms ease;
 }
 
-.lt-tree-node-checkbox:checked {
-    background-color: hsl(var(--primary));
-    border-color: hsl(var(--primary));
+.lt-tree-node-checkbox:checked,
+.lt-tree-node-checkbox[data-indeterminate="true"] {
+    background-color: var(--primary);
+    border-color: var(--primary);
 }
 
-.lt-tree-node-checkbox:checked::after {
+/* Checkmark — hidden when indeterminate overrides */
+.lt-tree-node-checkbox:checked:not([data-indeterminate="true"])::after {
     content: "";
     position: absolute;
     left: 3px;
     top: 4px;
     width: 6px;
     height: 3px;
-    border-left: 2px solid hsl(var(--primary-foreground));
-    border-bottom: 2px solid hsl(var(--primary-foreground));
+    border-left: 2px solid var(--primary-foreground);
+    border-bottom: 2px solid var(--primary-foreground);
     transform: rotate(-45deg);
 }
 
-.lt-tree-node-checkbox[data-indeterminate="true"] {
-    background-color: hsl(var(--primary));
-    border-color: hsl(var(--primary));
-}
-
+/* Indeterminate dash */
 .lt-tree-node-checkbox[data-indeterminate="true"]::after {
     content: "";
     position: absolute;
@@ -106,7 +104,7 @@
     right: 3px;
     top: 50%;
     height: 2px;
-    background-color: hsl(var(--primary-foreground));
+    background-color: var(--primary-foreground);
     transform: translateY(-50%);
 }
 
