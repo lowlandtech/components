@@ -137,6 +137,7 @@ public class SC02_PersistSelection : JsViewScenario
 
         cut.Find("[data-tree-node='a']").ClassList.ShouldContain("lt-tree-node-selected");
         cut.Find("[data-tree-node='b']").ClassList.ShouldNotContain("lt-tree-node-selected");
+        cut.Find("[data-tree-node='a']").GetAttribute("tabindex").ShouldBe("0");
     }
 
     [Fact(DisplayName = "UAC06: controlled SelectedKeys rehydrate when the same list instance changes")]
@@ -155,6 +156,7 @@ public class SC02_PersistSelection : JsViewScenario
 
         cut.Find("[data-tree-node='b']").ClassList.ShouldContain("lt-tree-node-selected");
         cut.Find("[data-tree-node='a']").ClassList.ShouldNotContain("lt-tree-node-selected");
+        cut.Find("[data-tree-node='b']").GetAttribute("tabindex").ShouldBe("0");
     }
 
     [Fact(DisplayName = "UAC07: controlled empty SelectedKeys restore from localStorage on reload")]
@@ -238,5 +240,26 @@ public class SC02_PersistSelection : JsViewScenario
 
         cut.Find("[data-tree-node='b']").ClassList.ShouldContain("lt-tree-node-selected");
         cut.Find("[data-tree-node='a']").ClassList.ShouldNotContain("lt-tree-node-selected");
+        cut.Find("[data-tree-node='b']").GetAttribute("tabindex").ShouldBe("0");
+    }
+
+    [Fact(DisplayName = "UAC10: controlled SelectedKey hydrates focus to selected node")]
+    [Trait(Spec.UAC, "10")]
+    [Given("a tree rendered with controlled SelectedKey='b'")]
+    [When("the component hydrates controlled selection state")]
+    [Then("node 'b' is selected and receives roving tabindex focus")]
+    public void UAC10_ControlledSelectedKeyHydratesFocus()
+    {
+        var cut = Ctx.Render<TreeView<Node>>(p => p
+            .Add(c => c.Items, Roots)
+            .Add(c => c.GetChildren, n => n.Children)
+            .Add(c => c.GetKey, n => n.Id)
+            .Add(c => c.HasChildren, n => n.Children.Count > 0)
+            .Add(c => c.SelectionMode, TreeViewSelectionMode.Single)
+            .Add(c => c.SelectedKey, "b"));
+
+        cut.Find("[data-tree-node='b']").ClassList.ShouldContain("lt-tree-node-selected");
+        cut.Find("[data-tree-node='b']").GetAttribute("tabindex").ShouldBe("0");
+        cut.Find("[data-tree-node='a']").GetAttribute("tabindex").ShouldBe("-1");
     }
 }

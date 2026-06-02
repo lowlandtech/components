@@ -219,6 +219,7 @@ public partial class TreeView<TItem> : TinyComponentBase
             if (!_selectedKeysBound || !HaveSameKeys(_lastSelectedKeys, SelectedKeys))
             {
                 _selectedKeys = new HashSet<string>(SelectedKeys);
+                FocusSelectedKeyIfVisible();
                 _lastSelectedKeys = SnapshotKeys(SelectedKeys);
                 _lastSelectedKey = null;
                 _selectedKeysBound = true;
@@ -229,6 +230,7 @@ public partial class TreeView<TItem> : TinyComponentBase
             if (!_selectedKeysBound || _lastSelectedKey != SelectedKey)
             {
                 _selectedKeys = new HashSet<string> { SelectedKey };
+                FocusSelectedKeyIfVisible();
                 _lastSelectedKey = SelectedKey;
                 _selectedKeysBound = true;
             }
@@ -369,6 +371,23 @@ public partial class TreeView<TItem> : TinyComponentBase
     private void ApplySelectedKeys(IReadOnlyList<string> keys)
     {
         _selectedKeys = new HashSet<string>(keys);
+        FocusSelectedKeyIfVisible();
+    }
+
+    private void FocusSelectedKeyIfVisible()
+    {
+        if (_selectedKeys.Count == 0)
+            return;
+
+        var visibleKeys = GetVisibleItems()
+            .Select(GetItemKey)
+            .ToHashSet(StringComparer.Ordinal);
+        var selectedKey = _selectedKeys.FirstOrDefault(visibleKeys.Contains);
+        if (selectedKey is null)
+            return;
+
+        _focusedKey = selectedKey;
+        _keyboardFocus = false;
     }
 
     private void ApplyCheckedKeys(IReadOnlyList<string> keys)
