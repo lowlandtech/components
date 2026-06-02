@@ -240,21 +240,42 @@ public partial class TreeView<TItem> : TinyComponentBase
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && !string.IsNullOrEmpty(PersistKey) && ExpandedKeys == null)
+        if (firstRender && !string.IsNullOrEmpty(PersistKey))
         {
-            var json = await JS.InvokeAsync<string?>("localStorage.getItem", $"treeview:{PersistKey}:expanded");
-            if (!string.IsNullOrEmpty(json))
+            var needsRender = false;
+
+            if (ExpandedKeys == null)
             {
-                var keys = JsonSerializer.Deserialize<List<string>>(json);
-                if (keys != null && keys.Count > 0)
+                var expandJson = await JS.InvokeAsync<string?>("localStorage.getItem", $"treeview:{PersistKey}:expanded");
+                if (!string.IsNullOrEmpty(expandJson))
                 {
-                    _expandedKeys = new HashSet<string>(keys);
-                    _expandedKeyDepths.Clear();
-                    foreach (var k in _expandedKeys)
-                        _expandedKeyDepths[k] = GetDepthByKey(k);
-                    StateHasChanged();
+                    var keys = JsonSerializer.Deserialize<List<string>>(expandJson);
+                    if (keys != null && keys.Count > 0)
+                    {
+                        _expandedKeys = new HashSet<string>(keys);
+                        _expandedKeyDepths.Clear();
+                        foreach (var k in _expandedKeys)
+                            _expandedKeyDepths[k] = GetDepthByKey(k);
+                        needsRender = true;
+                    }
                 }
             }
+
+            if (SelectedKeys == null && SelectedKey == null && SelectionMode != TreeViewSelectionMode.None)
+            {
+                var selectedJson = await JS.InvokeAsync<string?>("localStorage.getItem", $"treeview:{PersistKey}:selected");
+                if (!string.IsNullOrEmpty(selectedJson))
+                {
+                    var keys = JsonSerializer.Deserialize<List<string>>(selectedJson);
+                    if (keys != null && keys.Count > 0)
+                    {
+                        _selectedKeys = new HashSet<string>(keys);
+                        needsRender = true;
+                    }
+                }
+            }
+
+            if (needsRender) StateHasChanged();
         }
     }
 
@@ -263,6 +284,13 @@ public partial class TreeView<TItem> : TinyComponentBase
         if (string.IsNullOrEmpty(PersistKey)) return;
         var json = JsonSerializer.Serialize(_expandedKeys.ToList());
         JS.InvokeVoidAsync("localStorage.setItem", $"treeview:{PersistKey}:expanded", json);
+    }
+
+    private void PersistSelectedKeys()
+    {
+        if (string.IsNullOrEmpty(PersistKey)) return;
+        var json = JsonSerializer.Serialize(_selectedKeys.ToList());
+        JS.InvokeVoidAsync("localStorage.setItem", $"treeview:{PersistKey}:selected", json);
     }
 
     internal void ToggleExpand(TItem item)
@@ -351,6 +379,8 @@ public partial class TreeView<TItem> : TinyComponentBase
                 Key = key,
                 Selected = selected
             });
+
+            PersistSelectedKeys();
         }
 
         if (AutoExpand && selected)
