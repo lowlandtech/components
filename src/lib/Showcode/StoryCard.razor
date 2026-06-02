@@ -52,7 +52,7 @@
                 {
                     <Resizable Direction="horizontal" PersistKey="@PersistKey" class="flex-1 min-w-0">
                         <ResizablePanel DefaultSize="75" MinSize="50" MaxSize="90" Id="story-content">
-                            <div class="story-card-tabs-content-column h-full pr-[3px] py-4">
+                            <div class="story-card-tabs-content-column h-full pr-[3px]">
                                 @foreach (var state in States)
                                 {
                                     <TabsContent Value="@state.Value" class="@GetTabsContentClass()">
@@ -114,10 +114,10 @@
                                 }
                             </div>
                         </ResizablePanel>
-                        <ResizableHandle WithHandle="true" RevealOnHover="true" />
+                        <ResizableHandle WithHandle="true" RevealOnHover="true" class="py-4" />
                         <ResizablePanel DefaultSize="25" MinSize="15" MaxSize="50" Id="story-sidebar">
-                            <div class="story-card-design-sidebar-container h-full" style="width: 100%; margin-left: 0; padding: 0 1rem 0 3px;">
-                                <aside class="story-card-design-sidebar my-4">
+                            <div class="story-card-design-sidebar-container h-full" style="width: 100%; margin-left: 0; padding: 1rem 1rem 1rem 3px;">
+                                <aside class="story-card-design-sidebar">
                                     <PropertyGrid TField="PropertyDescriptor"
                                                   Items="@DesignGridProperties"
                                                   LabelSelector="p => p.Label"
