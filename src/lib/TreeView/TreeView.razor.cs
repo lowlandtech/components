@@ -601,7 +601,11 @@ public partial class TreeView<TItem> : TinyComponentBase
         if (visible.Count == 0) return;
 
         var focusedIndex = visible.FindIndex(i => GetItemKey(i) == _focusedKey);
-        if (focusedIndex < 0) focusedIndex = 0;
+        if (focusedIndex < 0)
+        {
+            focusedIndex = 0;
+            _focusedKey = GetItemKey(visible[0]);
+        }
         var current = visible[focusedIndex];
 
         var handled = true;
@@ -609,6 +613,17 @@ public partial class TreeView<TItem> : TinyComponentBase
         {
             case "ArrowDown":
                 {
+                    // If expanded, descend into first child
+                    if (IsItemExpanded(current) && NodeHasChildren(current))
+                    {
+                        var children = GetChildren(current)?.ToList();
+                        if (children is { Count: > 0 })
+                        {
+                            _focusedKey = GetItemKey(children[0]);
+                            break;
+                        }
+                    }
+
                     var siblings = GetSiblings(current).ToList();
                     var idx = siblings.FindIndex(i => KeyEquals(i, current));
                     if (idx >= 0 && idx < siblings.Count - 1)
@@ -623,6 +638,13 @@ public partial class TreeView<TItem> : TinyComponentBase
                     var idx = siblings.FindIndex(i => KeyEquals(i, current));
                     if (idx > 0)
                         _focusedKey = GetItemKey(siblings[idx - 1]);
+                    else if (idx == 0)
+                    {
+                        // First sibling: move up to parent
+                        var parent = FindParent(current);
+                        if (parent != null)
+                            _focusedKey = GetItemKey(parent);
+                    }
                     else if (siblings.Count > 0)
                         _focusedKey = GetItemKey(siblings[^1]);
                 }
