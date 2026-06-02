@@ -79,6 +79,9 @@ public class SC03_DesignValueCapture
 
     [Fact(DisplayName = "UAC24: design-mode click on Button emits TinyDesignSelection with all values")]
     [Trait(Spec.UAC, "24")]
+    [Given("A Button is rendered in design mode with multiple [PropertyGrid] values")]
+    [When("The Button is clicked")]
+    [Then("The emitted design selection includes the selected component type and captured values")]
     public void UAC24_DesignModeClickEmitsAllValues()
     {
         var ctx = new BunitContext();
@@ -124,5 +127,89 @@ public class SC03_DesignValueCapture
         captured.Values["Disabled"].ShouldBe("True");
         captured.Values.ShouldContainKey("Icon");
         captured.Values["Icon"].ShouldBe(nameof(Icons.Search));
+    }
+
+    [Fact(DisplayName = "UAC25: design-mode click includes stable design persistence key")]
+    [Trait(Spec.UAC, "25")]
+    [Given("A Button is rendered in design mode with a stable design persistence key")]
+    [When("The Button is clicked")]
+    [Then("The emitted design selection carries the same persistence key for reload hydration")]
+    public void UAC25_DesignModeClickEmitsPersistenceKey()
+    {
+        var ctx = new BunitContext();
+        ctx.Services.AddSingleton<IComponentDescriptorRegistry, ComponentDescriptorRegistry>();
+        ctx.Services.AddSingleton<IPopoverService, PopoverService>();
+
+        TinyDesignSelection? captured = null;
+        var callback = EventCallback.Factory.Create<TinyDesignSelection>(this, s => captured = s);
+
+        var cut = ctx.Render(builder =>
+        {
+            builder.OpenComponent<CascadingValue<bool>>(0);
+            builder.AddAttribute(1, "Name", "TinyDesignMode");
+            builder.AddAttribute(2, "Value", true);
+            builder.AddAttribute(3, "ChildContent", (RenderFragment)(childBuilder =>
+            {
+                childBuilder.OpenComponent<CascadingValue<EventCallback<TinyDesignSelection>>>(4);
+                childBuilder.AddAttribute(5, "Name", "TinyDesignSelected");
+                childBuilder.AddAttribute(6, "Value", callback);
+                childBuilder.AddAttribute(7, "ChildContent", (RenderFragment)(innerBuilder =>
+                {
+                    innerBuilder.OpenComponent<ButtonSut>(8);
+                    innerBuilder.AddAttribute(9, nameof(ButtonSut.DesignPersistenceKey), "button:primary");
+                    innerBuilder.CloseComponent();
+                }));
+                childBuilder.CloseComponent();
+            }));
+            builder.CloseComponent();
+        });
+
+        cut.Find("[data-slot='button']").Click();
+
+        captured.ShouldNotBeNull();
+        captured!.PersistenceKey.ShouldBe("button:primary");
+    }
+
+    [Fact(DisplayName = "UAC26: design registry resolves a live instance by stable persistence key")]
+    [Trait(Spec.UAC, "26")]
+    [Given("A designable Button is registered on a design surface with a stable persistence key")]
+    [When("The runtime instance id is resolved by that persistence key")]
+    [Then("The registry returns the live instance id created for the rendered Button")]
+    public void UAC26_DesignRegistryResolvesInstanceByPersistenceKey()
+    {
+        const string surfaceId = "surface:selection-reload";
+
+        var ctx = new BunitContext();
+        ctx.Services.AddSingleton<IComponentDescriptorRegistry, ComponentDescriptorRegistry>();
+        ctx.Services.AddSingleton<IPopoverService, PopoverService>();
+
+        var cut = ctx.Render(builder =>
+        {
+            builder.OpenComponent<CascadingValue<bool>>(0);
+            builder.AddAttribute(1, "Name", "TinyDesignMode");
+            builder.AddAttribute(2, "Value", true);
+            builder.AddAttribute(3, "ChildContent", (RenderFragment)(childBuilder =>
+            {
+                childBuilder.OpenComponent<CascadingValue<string>>(4);
+                childBuilder.AddAttribute(5, "Name", "TinyDesignSurfaceId");
+                childBuilder.AddAttribute(6, "Value", surfaceId);
+                childBuilder.AddAttribute(7, "ChildContent", (RenderFragment)(innerBuilder =>
+                {
+                    innerBuilder.OpenComponent<ButtonSut>(8);
+                    innerBuilder.AddAttribute(9, nameof(ButtonSut.DesignPersistenceKey), "button:primary");
+                    innerBuilder.CloseComponent();
+                }));
+                childBuilder.CloseComponent();
+            }));
+            builder.CloseComponent();
+        });
+
+        var instanceId = cut.Find("[data-slot='button']").GetAttribute("data-design-instance-id");
+        var resolved = TinyComponentBase.FindInstanceIdByPersistenceKey(
+            typeof(ButtonSut),
+            surfaceId,
+            "button:primary");
+
+        resolved.ShouldBe(instanceId);
     }
 }

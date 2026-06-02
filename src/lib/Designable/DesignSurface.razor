@@ -25,6 +25,7 @@
 @code {
     [Parameter] public bool IsDesignMode { get; set; }
     [Parameter] public string? SelectedInstanceId { get; set; }
+    [Parameter] public string? SelectedPersistenceKey { get; set; }
     [Parameter] public EventCallback<string?> SelectedInstanceIdChanged { get; set; }
     [Parameter] public Type? DesignComponentType { get; set; }
     [Parameter] public IReadOnlyDictionary<string, string>? PropertyValues { get; set; }
@@ -74,7 +75,9 @@
 
             if (!hasValidInstance)
             {
-                var instanceId = TinyComponentBase.FindFirstInstanceIdOfType(DesignComponentType, _surfaceId);
+                var instanceId =
+                    TinyComponentBase.FindInstanceIdByPersistenceKey(DesignComponentType, _surfaceId, SelectedPersistenceKey)
+                    ?? TinyComponentBase.FindFirstInstanceIdOfType(DesignComponentType, _surfaceId);
                 if (instanceId is not null && SelectedInstanceIdChanged.HasDelegate)
                 {
                     await SelectedInstanceIdChanged.InvokeAsync(instanceId);

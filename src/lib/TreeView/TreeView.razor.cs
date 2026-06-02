@@ -602,40 +602,38 @@ public partial class TreeView<TItem> : TinyComponentBase
 
         var focusedIndex = visible.FindIndex(i => GetItemKey(i) == _focusedKey);
         if (focusedIndex < 0) focusedIndex = 0;
+        var current = visible[focusedIndex];
 
         var handled = true;
         switch (e.Key)
         {
             case "ArrowDown":
-                if (focusedIndex < visible.Count - 1)
-                    _focusedKey = GetItemKey(visible[focusedIndex + 1]);
+                {
+                    var siblings = GetSiblings(current).ToList();
+                    var idx = siblings.FindIndex(i => KeyEquals(i, current));
+                    if (idx >= 0 && idx < siblings.Count - 1)
+                        _focusedKey = GetItemKey(siblings[idx + 1]);
+                    else if (siblings.Count > 0)
+                        _focusedKey = GetItemKey(siblings[0]);
+                }
                 break;
             case "ArrowUp":
-                if (focusedIndex > 0)
-                    _focusedKey = GetItemKey(visible[focusedIndex - 1]);
+                {
+                    var siblings = GetSiblings(current).ToList();
+                    var idx = siblings.FindIndex(i => KeyEquals(i, current));
+                    if (idx > 0)
+                        _focusedKey = GetItemKey(siblings[idx - 1]);
+                    else if (siblings.Count > 0)
+                        _focusedKey = GetItemKey(siblings[^1]);
+                }
                 break;
             case "ArrowRight":
-                {
-                    var current = visible[focusedIndex];
-                    if (!IsItemExpanded(current) && NodeHasChildren(current))
-                        ToggleExpand(current);
-                    else if (focusedIndex < visible.Count - 1)
-                        _focusedKey = GetItemKey(visible[focusedIndex + 1]);
-                }
+                if (!IsItemExpanded(current) && NodeHasChildren(current))
+                    ToggleExpand(current);
                 break;
             case "ArrowLeft":
-                {
-                    var current = visible[focusedIndex];
-                    if (IsItemExpanded(current))
-                        ToggleExpand(current);
-                    else
-                    {
-                        // Move focus to parent
-                        var parent = FindParent(current);
-                        if (parent != null)
-                            _focusedKey = GetItemKey(parent);
-                    }
-                }
+                if (IsItemExpanded(current))
+                    ToggleExpand(current);
                 break;
             case "Home":
                 _focusedKey = GetItemKey(visible[0]);
@@ -645,7 +643,7 @@ public partial class TreeView<TItem> : TinyComponentBase
                 break;
             case "Enter":
             case " ":
-                SelectNode(visible[focusedIndex]);
+                SelectNode(current);
                 break;
             default:
                 handled = false;
@@ -656,6 +654,21 @@ public partial class TreeView<TItem> : TinyComponentBase
         {
             StateHasChanged();
         }
+    }
+
+    private bool KeyEquals(TItem a, TItem b)
+    {
+        return typeof(TItem).IsValueType
+            ? EqualityComparer<TItem>.Default.Equals(a, b)
+            : ReferenceEquals(a, b);
+    }
+
+    private IEnumerable<TItem> GetSiblings(TItem item)
+    {
+        var parent = FindParent(item);
+        if (parent != null)
+            return GetChildren(parent) ?? Enumerable.Empty<TItem>();
+        return Items;
     }
 
     private IEnumerable<TItem> GetVisibleItems()

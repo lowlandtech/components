@@ -39,37 +39,74 @@ public class SC02_TreeViewKeyboard : ViewScenario
         cut.FindAll("[data-tree-node='a1']").Count.ShouldBe(1);
     }
 
-    [Fact(DisplayName = "UAC16: ArrowDown moves focus to next visible node")]
-    [Trait(Spec.UAC, "16")]
-    public void UAC16_ArrowDownMovesFocus()
+    [Fact(DisplayName = "UAC15: ArrowDown moves focus to next sibling")]
+    [Trait(Spec.UAC, "15")]
+    public void UAC15_ArrowDownMovesToNextSibling()
     {
-        var cut = RenderTree();
+        var cut = RenderTree(expandedKeys: []);
         cut.Find("[data-slot='tree-view']").KeyDown("ArrowDown");
         cut.Render();
 
-        var a1 = cut.Find("[data-tree-node='a1']");
-        a1.GetAttribute("tabindex").ShouldBe("0");
+        cut.Find("[data-tree-node='b']").GetAttribute("tabindex").ShouldBe("0");
     }
 
-    [Fact(DisplayName = "UAC17: ArrowLeft on child moves focus to parent")]
-    [Trait(Spec.UAC, "17")]
-    public void UAC17_ArrowLeftToParent()
+    [Fact(DisplayName = "UAC16: ArrowDown on last sibling wraps to first sibling")]
+    [Trait(Spec.UAC, "16")]
+    public void UAC16_ArrowDownWrapsToFirstSibling()
     {
-        var cut = RenderTree();
-        // Focus a1 first
+        var cut = RenderTree(expandedKeys: []);
+        // Move focus to 'b' (last root)
         cut.Find("[data-slot='tree-view']").KeyDown("ArrowDown");
         cut.Render();
-        // Arrow left should move to parent 'a'
+        // ArrowDown again wraps to 'a'
+        cut.Find("[data-slot='tree-view']").KeyDown("ArrowDown");
+        cut.Render();
+
+        cut.Find("[data-tree-node='a']").GetAttribute("tabindex").ShouldBe("0");
+    }
+
+    [Fact(DisplayName = "UAC17: ArrowUp moves focus to previous sibling")]
+    [Trait(Spec.UAC, "17")]
+    public void UAC17_ArrowUpMovesToPreviousSibling()
+    {
+        var cut = RenderTree(expandedKeys: []);
+        // Move focus to 'b'
+        cut.Find("[data-slot='tree-view']").KeyDown("ArrowDown");
+        cut.Render();
+        // ArrowUp goes back to 'a'
+        cut.Find("[data-slot='tree-view']").KeyDown("ArrowUp");
+        cut.Render();
+
+        cut.Find("[data-tree-node='a']").GetAttribute("tabindex").ShouldBe("0");
+    }
+
+    [Fact(DisplayName = "UAC18: ArrowUp on first sibling wraps to last sibling")]
+    [Trait(Spec.UAC, "18")]
+    public void UAC18_ArrowUpWrapsToLastSibling()
+    {
+        var cut = RenderTree(expandedKeys: []);
+        // ArrowUp on 'a' wraps to 'b'
+        cut.Find("[data-slot='tree-view']").KeyDown("ArrowUp");
+        cut.Render();
+
+        cut.Find("[data-tree-node='b']").GetAttribute("tabindex").ShouldBe("0");
+    }
+
+    [Fact(DisplayName = "UAC19: ArrowLeft collapses expanded node")]
+    [Trait(Spec.UAC, "19")]
+    public void UAC19_ArrowLeftCollapses()
+    {
+        var cut = RenderTree(expandedKeys: ["a"]);
         cut.Find("[data-slot='tree-view']").KeyDown("ArrowLeft");
         cut.Render();
+        cut.Render();
 
-        var a = cut.Find("[data-tree-node='a']");
-        a.GetAttribute("tabindex").ShouldBe("0");
+        cut.FindAll("[data-tree-node='a1']").Count.ShouldBe(0);
     }
 
-    [Fact(DisplayName = "UAC19: End moves focus to last visible node")]
-    [Trait(Spec.UAC, "19")]
-    public void UAC19_EndMovesToLast()
+    [Fact(DisplayName = "UAC20: End moves focus to last visible node")]
+    [Trait(Spec.UAC, "20")]
+    public void UAC20_EndMovesToLast()
     {
         var cut = RenderTree();
         cut.Find("[data-slot='tree-view']").KeyDown("End");
@@ -79,9 +116,9 @@ public class SC02_TreeViewKeyboard : ViewScenario
         last.GetAttribute("tabindex").ShouldBe("0");
     }
 
-    [Fact(DisplayName = "UAC20: Home moves focus to first visible node")]
-    [Trait(Spec.UAC, "20")]
-    public void UAC20_HomeMovesToFirst()
+    [Fact(DisplayName = "UAC21: Home moves focus to first visible node")]
+    [Trait(Spec.UAC, "21")]
+    public void UAC21_HomeMovesToFirst()
     {
         var cut = RenderTree();
         cut.Find("[data-slot='tree-view']").KeyDown("End");
@@ -93,9 +130,9 @@ public class SC02_TreeViewKeyboard : ViewScenario
         first.GetAttribute("tabindex").ShouldBe("0");
     }
 
-    [Fact(DisplayName = "UAC21: Enter selects focused node")]
-    [Trait(Spec.UAC, "21")]
-    public void UAC21_EnterSelects()
+    [Fact(DisplayName = "UAC22: Enter selects focused node")]
+    [Trait(Spec.UAC, "22")]
+    public void UAC22_EnterSelects()
     {
         var cut = RenderTree(TreeViewSelectionMode.Single);
         cut.Find("[data-slot='tree-view']").KeyDown("Enter");

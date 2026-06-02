@@ -29,7 +29,9 @@
                 {
                     <span class="w-3.5"></span>
                 }
-                <TreeViewItem Icon="@TreeViewSampleData.GetIcon(ctx.Item)" class="text-sm">
+                <TreeViewItem Icon="@TreeViewSampleData.GetIcon(ctx.Item)"
+                              DesignPersistenceKey="@($"treeview-item:{ctx.Key}")"
+                              class="text-sm">
                     @ctx.Item.Name
                 </TreeViewItem>
             </div>

@@ -6,6 +6,7 @@
      data-design-selectable="@DesignSelectableAttribute"
      data-design-selected="@DesignSelectedAttribute"
      data-design-instance-id="@DesignInstanceIdAttribute"
+     data-design-persistence-key="@DesignPersistenceKeyAttribute"
      class="@GetClass()"
      @onclick="HandleItemClick"
      @onclick:stopPropagation="@EffectiveDesignMode"
@@ -24,7 +25,7 @@
 @code {
     private string GetClass()
     {
-        var classes = new System.Collections.Generic.List<string> { "lt-tree-view-item" };
+        var classes = new List<string> { "lt-tree-view-item" };
         if (!string.IsNullOrEmpty(Class)) classes.Add(Class);
         if (!string.IsNullOrEmpty(DesignModeClass)) classes.Add(DesignModeClass);
         return string.Join(" ", classes);
