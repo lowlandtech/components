@@ -13,6 +13,7 @@ public abstract class TinyComponentBase : ComponentBase
     [Parameter] public bool IsDesignMode { get; set; }
     [Parameter] public bool IsDesignSelected { get; set; }
     [Parameter] public EventCallback<bool> IsDesignSelectedChanged { get; set; }
+    [Parameter] public string? DesignPersistenceKey { get; set; }
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
@@ -149,6 +150,8 @@ public abstract class TinyComponentBase : ComponentBase
 
     protected string? DesignInstanceIdAttribute => IsDesignSelectable ? _designInstanceId : null;
 
+    protected string? DesignPersistenceKeyAttribute => IsDesignSelectable ? DesignPersistenceKey : null;
+
     protected bool IsDisabledInDesignMode => EffectiveDesignMode && IsComponentDisabled;
 
     protected virtual bool IsComponentDisabled => HasDisabledAttribute;
@@ -183,6 +186,7 @@ public abstract class TinyComponentBase : ComponentBase
         if (DesignSelected.HasDelegate)
             await DesignSelected.InvokeAsync(new TinyDesignSelection(
                 _designInstanceId,
+                DesignPersistenceKey,
                 DesignType,
                 CaptureDesignValues()));
     }
@@ -263,6 +267,31 @@ public abstract class TinyComponentBase : ComponentBase
         }
 
         return bestKey;
+    }
+
+    /// <summary>
+    /// Returns the live instance ID for a component with the same persisted
+    /// design key on the given surface. This lets the canvas outbox remap a
+    /// reload-stable key to the new runtime instance ID created after reload.
+    /// </summary>
+    public static string? FindInstanceIdByPersistenceKey(Type? designType, string surfaceId, string? persistenceKey)
+    {
+        if (string.IsNullOrWhiteSpace(persistenceKey))
+            return null;
+
+        foreach (var kvp in DesignableInstances)
+        {
+            var (weakRef, sid, _) = kvp.Value;
+            if (sid != surfaceId) continue;
+            if (!weakRef.TryGetTarget(out var instance)) continue;
+            if (designType is not null && instance.DesignType != designType) continue;
+            if (!string.Equals(instance.DesignPersistenceKey, persistenceKey, StringComparison.Ordinal))
+                continue;
+
+            return kvp.Key;
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -349,5 +378,6 @@ public abstract class TinyComponentBase : ComponentBase
 
 public sealed record TinyDesignSelection(
     string InstanceId,
+    string? PersistenceKey,
     Type ComponentType,
     IReadOnlyDictionary<string, string> Values);
