@@ -87,7 +87,7 @@ public class SC01_TreeViewSelection : ViewScenario
     {
         var cut = RenderTree(checkMode: TreeViewCheckMode.Checkbox, checkedKeys: [], expandedKeys: ["a"]);
         var checkbox = cut.Find("[data-tree-node='a'] .lt-tree-node-checkbox");
-        checkbox.Click();
+        checkbox.Change(true);
         cut.Render();
 
         // In checkbox mode, only the clicked node is checked (no cascade)
@@ -103,7 +103,7 @@ public class SC01_TreeViewSelection : ViewScenario
     {
         var cut = RenderTree(checkMode: TreeViewCheckMode.TriState, checkedKeys: [], expandedKeys: ["a"]);
         var checkbox = cut.Find("[data-tree-node='a1'] .lt-tree-node-checkbox");
-        checkbox.Click();
+        checkbox.Change(true);
         cut.Render();
 
         // Child should be checked

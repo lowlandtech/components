@@ -32,7 +32,7 @@ public class SC02_TreeViewTriState : ViewScenario
     {
         var cut = RenderTree();
         var parentCheckbox = cut.Find("[data-tree-node='a'] .lt-tree-node-checkbox");
-        parentCheckbox.Click();
+        parentCheckbox.Change(true);
         cut.Render();
 
         cut.Find("[data-tree-node='a'] .lt-tree-node-checkbox").GetAttribute("checked").ShouldNotBeNull();
@@ -45,9 +45,9 @@ public class SC02_TreeViewTriState : ViewScenario
     public void UAC02_CheckAllChildrenChecksParent()
     {
         var cut = RenderTree();
-        cut.Find("[data-tree-node='a1'] .lt-tree-node-checkbox").Click();
+        cut.Find("[data-tree-node='a1'] .lt-tree-node-checkbox").Change(true);
         cut.Render();
-        cut.Find("[data-tree-node='a2'] .lt-tree-node-checkbox").Click();
+        cut.Find("[data-tree-node='a2'] .lt-tree-node-checkbox").Change(true);
         cut.Render();
 
         // Parent should be checked, not indeterminate
@@ -62,7 +62,7 @@ public class SC02_TreeViewTriState : ViewScenario
     {
         // Start with parent checked (all children checked)
         var cut = RenderTree(checkedKeys: ["a", "a1", "a2"]);
-        cut.Find("[data-tree-node='a1'] .lt-tree-node-checkbox").Click();
+        cut.Find("[data-tree-node='a1'] .lt-tree-node-checkbox").Change(false);
         cut.Render();
 
         var parentCheckbox = cut.Find("[data-tree-node='a'] .lt-tree-node-checkbox");
@@ -75,7 +75,7 @@ public class SC02_TreeViewTriState : ViewScenario
     public void UAC04_UncheckParentUnchecksChildren()
     {
         var cut = RenderTree(checkedKeys: ["a", "a1", "a2"]);
-        cut.Find("[data-tree-node='a'] .lt-tree-node-checkbox").Click();
+        cut.Find("[data-tree-node='a'] .lt-tree-node-checkbox").Change(false);
         cut.Render();
 
         cut.Find("[data-tree-node='a'] .lt-tree-node-checkbox").GetAttribute("checked").ShouldBeNull();
@@ -98,7 +98,7 @@ public class SC02_TreeViewTriState : ViewScenario
             .Add(c => c.ExpandedKeys, ["a", "b"])
             .Add(c => c.CheckedKeysChanged, keys => capturedKeys.Add(keys.ToList())));
 
-        cut.Find("[data-tree-node='a'] .lt-tree-node-checkbox").Click();
+        cut.Find("[data-tree-node='a'] .lt-tree-node-checkbox").Change(true);
         cut.Render();
 
         capturedKeys.Count.ShouldBe(1);
