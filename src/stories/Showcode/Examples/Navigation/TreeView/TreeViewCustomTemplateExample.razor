@@ -8,7 +8,7 @@
               HasChildren="f => f.Children.Count > 0"
               class="space-y-1">
         <ItemTemplate Context="ctx">
-            <div class="flex items-center gap-2 rounded px-2 py-1 hover:bg-muted"
+            <div class="flex items-center gap-1 rounded px-2 py-1 hover:bg-muted"
                  style="padding-left: @(ctx.Depth * 16 + 8)px">
                 @if (ctx.HasChildren)
                 {
@@ -29,8 +29,9 @@
                 {
                     <span class="w-3.5"></span>
                 }
-                <Icon Name="@TreeViewSampleData.GetIcon(ctx.Item)" Size="14" />
-                <span class="text-sm">@ctx.Item.Name</span>
+                <TreeViewItem Icon="@TreeViewSampleData.GetIcon(ctx.Item)" class="text-sm gap-2 flex-1">
+                    @ctx.Item.Name
+                </TreeViewItem>
             </div>
         </ItemTemplate>
     </TreeView>

@@ -1,0 +1,34 @@
+@namespace LowlandTech.Components
+@inherits TinyComponentBase
+
+<div data-slot="tree-view-item"
+     data-design-mode="@DesignModeAttribute"
+     data-design-selectable="@DesignSelectableAttribute"
+     data-design-selected="@DesignSelectedAttribute"
+     data-design-instance-id="@DesignInstanceIdAttribute"
+     class="@GetClass()"
+     @onclick="HandleItemClick"
+     @onclick:stopPropagation="@EffectiveDesignMode"
+     @attributes="AdditionalAttributes">
+    @if (!string.IsNullOrEmpty(Icon))
+    {
+        <Icon Name="@Icon" Size="14" />
+    }
+    <span class="lt-tree-view-item-label">@ChildContent</span>
+    @if (!string.IsNullOrEmpty(Suffix))
+    {
+        <span class="lt-tree-view-item-suffix">@Suffix</span>
+    }
+</div>
+
+@code {
+    private string GetClass()
+    {
+        var classes = new System.Collections.Generic.List<string> { "lt-tree-view-item" };
+        if (!string.IsNullOrEmpty(Class)) classes.Add(Class);
+        if (!string.IsNullOrEmpty(DesignModeClass)) classes.Add(DesignModeClass);
+        return string.Join(" ", classes);
+    }
+
+    private Task HandleItemClick(MouseEventArgs _) => SelectInDesignModeAsync();
+}

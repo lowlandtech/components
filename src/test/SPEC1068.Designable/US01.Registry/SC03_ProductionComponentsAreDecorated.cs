@@ -25,11 +25,12 @@ public class SC03_ProductionComponentsAreDecorated
     [Theory(DisplayName = "UAC21: each first-wave production component appears in the registry under its expected Group")]
     [Trait(Spec.UAC, "21")]
     [InlineData("Input",  "Forms")]
-    [InlineData("Button",   "Forms")]
-    [InlineData("Select",   "Forms")]
-    [InlineData("Card",     "Layout")]
-    [InlineData("Badge",    "Display")]
-    [InlineData("TreeView", "Navigation")]
+    [InlineData("Button",       "Forms")]
+    [InlineData("Select",       "Forms")]
+    [InlineData("Card",         "Layout")]
+    [InlineData("Badge",        "Display")]
+    [InlineData("TreeView",     "Navigation")]
+    [InlineData("TreeViewItem", "Navigation")]
     public void UAC21_ComponentDiscovered(string element, string expectedGroup)
     {
         var d = _registry.GetByElement(element);
