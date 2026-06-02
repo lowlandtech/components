@@ -38,11 +38,16 @@ public partial class TreeView<TItem> : TinyComponentBase
     [Parameter] public RenderFragment<TreeNodeContext<TItem>>? BodyContent { get; set; }
     [Parameter] public RenderFragment? EmptyContent { get; set; }
 
+    // Persistence
+    [Parameter] public string? PersistKey { get; set; }
+
     // Appearance
     [Parameter] public bool Dense { get; set; }
     [Parameter] public bool Hover { get; set; }
     [Parameter] public string? Width { get; set; }
     [Parameter] public string? MaxHeight { get; set; }
+
+    [Inject] private IJSRuntime JS { get; set; } = default!;
 
     private HashSet<string> _expandedKeys = new();
     private HashSet<string> _selectedKeys = new();
@@ -59,10 +64,33 @@ public partial class TreeView<TItem> : TinyComponentBase
     // Tracks depth of each expanded key for SingleExpand sibling logic
     private readonly Dictionary<string, int> _expandedKeyDepths = new();
 
+    // Namespace UUID for TreeView key derivation (stable, arbitrary v4 constant)
+    private static readonly Guid TreeViewKeyNamespace = new("7f3e2a1b-4c5d-5000-8000-9e8f7a6b5c4d");
+    // Cache: item → stable key (cleared when Items reference changes)\n    // Uses reference equality so structurally-identical but distinct instances
+    // each get their own path-derived key.
+    private readonly Dictionary<TItem, string> _keyCache =
+        typeof(TItem).IsValueType
+            ? new Dictionary<TItem, string>()
+#pragma warning disable CS8714
+            : new Dictionary<TItem, string>(TreeViewRefComparer<TItem>.Instance);
+#pragma warning restore CS8714
+    private IEnumerable<TItem>? _lastItems;
+
     internal string GetItemKey(TItem item)
     {
         if (GetKey != null) return GetKey(item);
-        return item?.GetHashCode().ToString() ?? string.Empty;
+        if (_keyCache.TryGetValue(item, out var cached)) return cached;
+        var path = BuildItemPath(item);
+        var key = GuidV5.Create(TreeViewKeyNamespace, path).ToString("N");
+        _keyCache[item] = key;
+        return key;
+    }
+
+    private string BuildItemPath(TItem item)
+    {
+        var label = GetText?.Invoke(item) ?? item?.ToString() ?? string.Empty;
+        var parent = FindParent(item);
+        return parent == null ? label : BuildItemPath(parent) + "/" + label;
     }
 
     private int GetDepth(TItem item)
@@ -137,6 +165,13 @@ public partial class TreeView<TItem> : TinyComponentBase
 
     protected override void OnParametersSet()
     {
+        // Invalidate key cache when the Items collection reference changes
+        if (!ReferenceEquals(_lastItems, Items))
+        {
+            _keyCache.Clear();
+            _lastItems = Items;
+        }
+
         // Bind controlled ExpandedKeys only when the parameter reference changes
         if (ExpandedKeys != null)
         {
@@ -203,6 +238,33 @@ public partial class TreeView<TItem> : TinyComponentBase
         }
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !string.IsNullOrEmpty(PersistKey) && ExpandedKeys == null)
+        {
+            var json = await JS.InvokeAsync<string?>("localStorage.getItem", $"treeview:{PersistKey}:expanded");
+            if (!string.IsNullOrEmpty(json))
+            {
+                var keys = JsonSerializer.Deserialize<List<string>>(json);
+                if (keys != null && keys.Count > 0)
+                {
+                    _expandedKeys = new HashSet<string>(keys);
+                    _expandedKeyDepths.Clear();
+                    foreach (var k in _expandedKeys)
+                        _expandedKeyDepths[k] = GetDepthByKey(k);
+                    StateHasChanged();
+                }
+            }
+        }
+    }
+
+    private void PersistExpandedKeys()
+    {
+        if (string.IsNullOrEmpty(PersistKey)) return;
+        var json = JsonSerializer.Serialize(_expandedKeys.ToList());
+        JS.InvokeVoidAsync("localStorage.setItem", $"treeview:{PersistKey}:expanded", json);
+    }
+
     internal void ToggleExpand(TItem item)
     {
         var key = GetItemKey(item);
@@ -234,6 +296,7 @@ public partial class TreeView<TItem> : TinyComponentBase
             _expandedKeyDepths.Remove(key);
         }
 
+        PersistExpandedKeys();
         ExpandedKeysChanged.InvokeAsync(_expandedKeys.ToList());
         ExpandedChanged.InvokeAsync(new TreeViewExpandEventArgs<TItem>
         {
@@ -525,7 +588,13 @@ public partial class TreeView<TItem> : TinyComponentBase
 
         foreach (var child in children)
         {
-            if (EqualityComparer<TItem>.Default.Equals(child, target))
+            // Use reference equality for reference types so structurally-identical
+            // but distinct instances (e.g. two Node("lib", []) records) are located
+            // correctly without confusing them.
+            var match = typeof(TItem).IsValueType
+                ? EqualityComparer<TItem>.Default.Equals(child, target)
+                : object.ReferenceEquals(child, target);
+            if (match)
                 return current;
             var found = FindParentRecursive(child, target);
             if (found != null) return found;
