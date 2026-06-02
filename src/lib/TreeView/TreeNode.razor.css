@@ -2,6 +2,10 @@
     cursor: pointer;
 }
 
+.lt-tree-node:focus-visible {
+    outline: none;
+}
+
 .lt-tree-node-row {
     display: flex;
     align-items: center;
