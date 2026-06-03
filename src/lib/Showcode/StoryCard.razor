@@ -755,11 +755,7 @@
         encoded = HighlightStrings(encoded);
         encoded = HighlightRazorExpressions(encoded);
 
-        foreach (var tag in MarkupTags)
-        {
-            encoded = encoded.Replace($"&lt;{tag}", $"&lt;<span class=\"story-card-token-tag\">{tag}</span>", StringComparison.Ordinal);
-            encoded = encoded.Replace($"&lt;/{tag}", $"&lt;/<span class=\"story-card-token-tag\">{tag}</span>", StringComparison.Ordinal);
-        }
+        encoded = HighlightMarkupTags(encoded);
 
         encoded = HighlightMarkupToken(encoded, "&lt;/", "story-card-token-punctuation");
         encoded = HighlightMarkupToken(encoded, "&lt;", "story-card-token-punctuation");
@@ -1002,6 +998,14 @@
     private static string HighlightMarkupToken(string encoded, string token, string cssClass)
     {
         return encoded.Replace(token, $"<span class=\"{cssClass}\">{token}</span>", StringComparison.Ordinal);
+    }
+
+    private static string HighlightMarkupTags(string encoded)
+    {
+        return Regex.Replace(
+            encoded,
+            @"(&lt;/?)([A-Za-z][A-Za-z0-9_]*)(?=(?:\s|/|&gt;))",
+            "$1<span class=\"story-card-token-tag\">$2</span>");
     }
 
     private static string Encode(string value)

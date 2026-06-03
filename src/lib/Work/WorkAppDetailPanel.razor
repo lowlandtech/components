@@ -1,0 +1,14 @@
+@namespace LowlandTech.Components.Work
+@inherits TinyComponentBase
+
+@if (Context?.ShowDetailPanel is true)
+{
+    <aside data-slot="work-app-detail" class="@GetClass()" @attributes="AdditionalAttributes">
+        <WorkDetail Job="@Context.State.SelectedJob"
+                    History="@Context.State.SelectedJobHistory"
+                    Continuations="@Context.State.SelectedJobContinuations"
+                    IsReadOnly="@Context.State.IsReadOnly"
+                    OnCommand="@Context.HandleCommand"
+                    Class="h-full rounded-none border-0" />
+    </aside>
+}

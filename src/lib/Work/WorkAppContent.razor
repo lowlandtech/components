@@ -1,0 +1,73 @@
+@namespace LowlandTech.Components.Work
+@inherits TinyComponentBase
+
+@if (Context is not null)
+{
+    <div data-slot="work-app-content" class="@GetClass()" @attributes="AdditionalAttributes">
+        @if (ChildContent is not null)
+        {
+            @ChildContent
+        }
+        else
+        {
+            @switch (Context.State.Ui.ActiveView)
+            {
+                case WorkView.Dashboard:
+                    <WorkDashboard Metrics="@Context.State.Metrics"
+                                   Statistics="@Context.State.Statistics"
+                                   GraphData="@Context.State.GraphData"
+                                   OnViewChanged="@Context.HandleViewChanged" />
+                    break;
+                case WorkView.Queues:
+                    <WorkQueue Queues="@Context.State.Queues"
+                               OnSelected="@Context.HandleQueueSelected" />
+                    break;
+                case WorkView.Enqueued:
+                case WorkView.Scheduled:
+                case WorkView.Processing:
+                case WorkView.Succeeded:
+                case WorkView.Failed:
+                case WorkView.Deleted:
+                case WorkView.Awaiting:
+                case WorkView.Retries:
+                    @if (!Context.State.IsReadOnly)
+                    {
+                        <WorkBatchSelector IsAllSelected="@Context.IsAllSelected()"
+                                           SelectedCount="@Context.State.Ui.SelectedJobIds.Count"
+                                           TotalCount="@Context.GetPagedJobs().Count"
+                                           OnSelectAllChanged="@Context.HandleSelectAll" />
+                    }
+                    <WorkList State="@Context.State.Ui"
+                              Jobs="@Context.GetPagedJobs()"
+                              IsReadOnly="@Context.State.IsReadOnly"
+                              ShowServerColumn="@Context.ShowServerColumn"
+                              ShowQueueColumn="@Context.ShowQueueColumn"
+                              OnSelected="@Context.HandleJobSelected"
+                              OnToggleSelection="@Context.HandleToggleSelection"
+                              OnSelectAll="@Context.HandleSelectAll" />
+                    break;
+                case WorkView.Recurring:
+                    <WorkRecurring Jobs="@Context.State.RecurringJobs"
+                                   IsReadOnly="@Context.State.IsReadOnly"
+                                   OnToggleSelection="@Context.HandleToggleSelection"
+                                   OnCommand="@Context.HandleCommand" />
+                    break;
+                case WorkView.Servers:
+                    <WorkServer Servers="@Context.State.Servers" />
+                    break;
+                case WorkView.Detail:
+                    <WorkDetail Job="@Context.State.SelectedJob"
+                                History="@Context.State.SelectedJobHistory"
+                                Continuations="@Context.State.SelectedJobContinuations"
+                                IsReadOnly="@Context.State.IsReadOnly"
+                                OnCommand="@Context.HandleCommand" />
+                    break;
+                default:
+                    <WorkDashboard Metrics="@Context.State.Metrics"
+                                   Statistics="@Context.State.Statistics"
+                                   OnViewChanged="@Context.HandleViewChanged" />
+                    break;
+            }
+        }
+    </div>
+}

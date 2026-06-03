@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Work
+@inherits TinyComponentBase
+
+@if (Context?.ShowCommandBar is true)
+{
+    <WorkCommandBar State="@Context.State.Ui"
+                    ActiveView="@Context.State.Ui.ActiveView"
+                    IsReadOnly="@Context.State.IsReadOnly"
+                    OnCommand="@Context.HandleCommand"
+                    Class="@Class"
+                    @attributes="AdditionalAttributes" />
+}

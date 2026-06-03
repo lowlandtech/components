@@ -5,6 +5,7 @@
 @import "./tooltip.css";
 
 @source "../../**/*.razor";
+@source "../../**/*.cs";
 
 @layer base {
   * {

@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Work
+@inherits TinyComponentBase
+
+@if (Context?.ShowPaginator is true)
+{
+    <div data-slot="work-app-footer" class="@GetClass()" @attributes="AdditionalAttributes">
+        <WorkPaginator Pager="@Context.GetPager()"
+                       PageSize="@Context.State.Ui.PageSize"
+                       OnPageChanged="@Context.HandlePageChanged"
+                       OnPageSizeChanged="@Context.HandlePageSizeChanged" />
+    </div>
+}

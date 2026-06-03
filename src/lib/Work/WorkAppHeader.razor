@@ -1,0 +1,23 @@
+@namespace LowlandTech.Components.Work
+@inherits TinyComponentBase
+
+@if (Context is not null)
+{
+    <div data-slot="work-app-header" class="@GetClass()" @attributes="AdditionalAttributes">
+        <WorkBreadcrumb Title="@Context.GetBreadcrumbTitle()"
+                        Crumbs="@Context.GetBreadcrumbCrumbs()"
+                        OnHomeClick="@Context.HandleHomeClick" />
+        @if (Context.ShowFilterBar)
+        {
+            <WorkFilterBar FilterText="@Context.State.Ui.FilterText"
+                           OnFilterChanged="@Context.HandleFilterChanged"
+                           Class="min-w-64 flex-1 sm:max-w-xl lg:max-w-2xl" />
+        }
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Context.State.LastPollingError))
+    {
+        <WorkErrorBanner Error="@Context.State.LastPollingError"
+                         OnDismiss="@Context.HandleDismissError" />
+    }
+}

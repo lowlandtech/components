@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.Work
+@inherits TinyComponentBase
+
+@if (Context?.ShowSidebar is true)
+{
+    <div data-slot="work-app-sidebar" class="@GetClass()" @attributes="AdditionalAttributes">
+        <WorkSidebar ActiveView="@Context.State.Ui.ActiveView"
+                     Statistics="@Context.State.Statistics"
+                     OnViewChanged="@Context.HandleViewChanged"
+                     Class="max-h-64 overflow-auto lg:max-h-none" />
+    </div>
+}
