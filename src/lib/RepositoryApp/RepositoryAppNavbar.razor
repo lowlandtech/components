@@ -1,0 +1,38 @@
+@namespace LowlandTech.Components.RepositoryApp
+@inherits TinyComponentBase
+
+@if (Context?.State.Current is not null)
+{
+    <nav data-slot="repository-app-navbar" class="@GetClass()" @attributes="AdditionalAttributes">
+        <Tabs Value="@Context.State.Ui.ActiveView.ToString().ToLowerInvariant()"
+              ValueChanged="@HandleViewChangedAsync"
+              HasGap="false"
+              Class="w-full">
+            <TabsList Variant="default" ShowScrollButtons="true" Stretch="true" Class="repo-tabs-list">
+                @foreach (var item in BuildItems())
+                {
+                    if (item.RequiresCodeAccess && Context.State.Current.IsEmpty)
+                    {
+                        continue;
+                    }
+                    if (item.RequiresNonEmpty && Context.State.Current.IsEmpty)
+                    {
+                        continue;
+                    }
+
+                    var badge = GetBadge(item.View);
+                    <TabsTrigger Value="@item.View.ToString().ToLowerInvariant()"
+                                 Class="repo-tabs-trigger repo-nav-trigger"
+                                 data-testid="@($"repo-nav-{item.View.ToString().ToLowerInvariant()}")">
+                        <Icon Name="@item.Icon" Size="14" />
+                        <span>@item.Label</span>
+                        @if (badge is not null)
+                        {
+                            <Badge Variant="secondary" Size="sm">@badge</Badge>
+                        }
+                    </TabsTrigger>
+                }
+            </TabsList>
+        </Tabs>
+    </nav>
+}

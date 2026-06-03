@@ -1,0 +1,46 @@
+@namespace LowlandTech.Components.RepositoryApp
+@inherits TinyComponentBase
+
+@if (Context?.State.Current is not null)
+{
+    <div data-slot="repository-file-tree" class="@GetClass()" @attributes="AdditionalAttributes">
+        <div class="sticky top-0 z-10 border-b border-border bg-card/95 px-4 py-3 backdrop-blur">
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Files</span>
+                <Button data-testid="repo-tree-refresh"
+                        Variant="ghost"
+                        Size="icon-sm"
+                        Title="Refresh"
+                        OnClick="@(() => Context.StateService.Dispatch(new SetRepositoryLoading(true)))">
+                    <Icon Name="refresh-cw" Size="12" />
+                </Button>
+            </div>
+        </div>
+        <div class="flex-1 overflow-y-auto px-1 py-1 text-sm">
+            @foreach (var file in Context.State.TreeFiles)
+            {
+                var isActive = string.Equals(Context.State.Ui.CurrentPath, file.Path, StringComparison.OrdinalIgnoreCase);
+                var depth = file.Path.Contains('/') ? file.Path.Count(c => c == '/') : 0;
+                <Button data-testid="repo-tree-item"
+                        data-path="@file.Path"
+                        data-kind="@file.Kind.ToString().ToLowerInvariant()"
+                        data-active="@(isActive ? "true" : "false")"
+                        Variant="unstyled"
+                        Class="@GetRowClass(isActive, depth)"
+                        OnClick="@(args => Context.HandlePathChanged(new RepositoryPathChanged(file.Path)))">
+                    <span class="inline-flex w-4 shrink-0 items-center justify-center text-muted-foreground">
+                        <Icon Name="@GetFileIcon(file.Kind)" Size="13" />
+                    </span>
+                    <span class="min-w-0 flex-1 truncate text-left">@file.Name</span>
+                    @if (file.LastCommit is not null)
+                    {
+                        <span class="ml-1 inline-flex shrink-0 items-center gap-1 text-[10px] text-muted-foreground">
+                            <Icon Name="git-commit" Size="10" />
+                            <span>@file.LastCommit.ShortSha</span>
+                        </span>
+                    }
+                </Button>
+            }
+        </div>
+    </div>
+}

@@ -1,0 +1,34 @@
+@namespace LowlandTech.Components.RepositoryApp
+@inherits TinyComponentBase
+
+@if (Context?.State.CloneInfo is not null)
+{
+    <div data-slot="repository-clone-panel" class="@GetClass()" @attributes="AdditionalAttributes">
+        <div class="flex flex-wrap items-center gap-2 px-4 py-2">
+            @foreach (var protocol in _protocols)
+            {
+                var isActive = protocol.Key == _activeProtocol;
+                <Button data-testid="repo-clone-protocol"
+                        data-protocol="@protocol.Key"
+                        data-active="@(isActive ? "true" : "false")"
+                        Variant="@(isActive ? "default" : "outline")"
+                        Size="sm"
+                        OnClick="@(() => SelectProtocol(protocol.Key))">
+                    <Icon Name="@protocol.Icon" Size="14" />
+                    <span>@protocol.Label</span>
+                </Button>
+            }
+            <div class="ml-auto flex items-center gap-2 rounded-md border border-border bg-muted/40 px-2 py-1 font-mono text-xs">
+                <span class="truncate text-foreground/80">@GetCommandText()</span>
+                <Button data-testid="repo-clone-copy"
+                        Variant="ghost"
+                        Size="icon-sm"
+                        Title="Copy to clipboard"
+                        OnClick="@(async () => await CopyCommandAsync())">
+                    <Icon Name="@(_copied ? "check" : "copy")" Size="12" />
+                </Button>
+            </div>
+        </div>
+        <p class="px-4 pb-2 text-xs text-muted-foreground">@GetHintText()</p>
+    </div>
+}

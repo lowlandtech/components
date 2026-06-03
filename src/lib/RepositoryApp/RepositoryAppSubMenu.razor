@@ -1,0 +1,25 @@
+@namespace LowlandTech.Components.RepositoryApp
+@inherits TinyComponentBase
+
+@if (Context?.ShowSubMenu == true)
+{
+    <div data-slot="repository-app-submenu" class="@GetClass()" @attributes="AdditionalAttributes">
+        <Tabs Value="@Context.State.Ui.ActiveCodeView.ToString().ToLowerInvariant()"
+              ValueChanged="@HandleCodeViewChangedAsync"
+              HasGap="false"
+              Class="w-full">
+            <TabsList Variant="default" ShowScrollButtons="false" Stretch="true" Class="repo-tabs-list">
+                @foreach (var item in _items)
+                {
+                    <TabsTrigger Value="@item.View.ToString().ToLowerInvariant()"
+                                 Class="repo-tabs-trigger repo-submenu-trigger"
+                                 data-testid="@($"repo-submenu-{item.View.ToString().ToLowerInvariant()}")">
+                        <Icon Name="@item.Icon" Size="14" />
+                        <span class="font-semibold">@GetCount(item.View).ToString("N0")</span>
+                        <span>@item.Label</span>
+                    </TabsTrigger>
+                }
+            </TabsList>
+        </Tabs>
+    </div>
+}

@@ -1,0 +1,22 @@
+@namespace LowlandTech.Components.RepositoryApp
+@inherits TinyComponentBase
+
+<div data-slot="repository-placeholder-view" class="@GetClass()" @attributes="AdditionalAttributes">
+    <div class="flex flex-col items-center justify-center gap-2 px-4 py-16 text-center text-sm text-muted-foreground">
+        <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
+            <Icon Name="@Icon" Size="20" />
+        </span>
+        <h3 class="text-base font-semibold text-foreground">@Title</h3>
+        <p>@Description</p>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Description { get; set; } = string.Empty;
+    [Parameter] public string Icon { get; set; } = "box";
+
+    private string GetClass() => string.IsNullOrEmpty(Class)
+        ? "flex h-full w-full flex-col"
+        : $"flex h-full w-full flex-col {Class}";
+}

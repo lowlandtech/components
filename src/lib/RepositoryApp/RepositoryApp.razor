@@ -1,0 +1,24 @@
+@namespace LowlandTech.Components.RepositoryApp
+@inherits TinyComponentBase
+
+<div data-slot="repository-app"
+     data-testid="repository-app"
+     data-active-view="@Context?.State.Ui.ActiveView.ToString().ToLowerInvariant()"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
+    <CascadingValue Value="Context" IsFixed="false">
+        @if (ChildContent is null)
+        {
+            <RepositoryAppHeader />
+            <RepositoryAppNavbar />
+            <RepositoryAppMain>
+                <RepositoryAppSubMenu />
+                <RepositoryAppContent />
+            </RepositoryAppMain>
+        }
+        else
+        {
+            @ChildContent
+        }
+    </CascadingValue>
+</div>

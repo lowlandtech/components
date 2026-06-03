@@ -756,6 +756,59 @@
     @apply text-foreground;
   }
 
+  [data-slot="repository-app-navbar"] .repo-tabs-list,
+  [data-slot="repository-app-submenu"] .repo-tabs-list {
+    @apply h-9 w-full gap-1 rounded-md bg-muted/50 p-1;
+  }
+
+  [data-slot="repository-app-navbar"] .cn-tabs-list-viewport {
+    @apply flex min-w-0;
+  }
+
+  [data-slot="repository-app-navbar"] .cn-tabs-list-shell,
+  [data-slot="repository-app-submenu"] .cn-tabs-list-shell {
+    @apply w-full;
+  }
+
+  [data-slot="repository-app-navbar"] .repo-tabs-trigger,
+  [data-slot="repository-app-submenu"] .repo-tabs-trigger {
+    @apply h-7 gap-2 rounded-sm border-0 bg-transparent px-3 py-0 text-sm font-medium text-muted-foreground shadow-none hover:bg-background/60 hover:text-foreground;
+  }
+
+  [data-slot="repository-app-navbar"] .repo-tabs-trigger [data-slot="tabs-trigger-label"],
+  [data-slot="repository-app-submenu"] .repo-tabs-trigger [data-slot="tabs-trigger-label"] {
+    @apply inline-flex items-center gap-2;
+  }
+
+  [data-slot="repository-app-navbar"] .repo-tabs-trigger[data-state="active"],
+  [data-slot="repository-app-submenu"] .repo-tabs-trigger[data-state="active"] {
+    @apply bg-background text-foreground shadow-sm;
+  }
+
+  [data-slot="repository-app-submenu"] .repo-submenu-trigger {
+    @apply px-4;
+  }
+
+  .repository-code-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 768px) {
+    .repository-code-layout.repository-code-layout--tree {
+      grid-template-columns: 14rem minmax(0, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .repository-code-layout.repository-code-layout--sidebar {
+      grid-template-columns: minmax(0, 1fr) 18rem;
+    }
+
+    .repository-code-layout.repository-code-layout--tree.repository-code-layout--sidebar {
+      grid-template-columns: 14rem minmax(0, 1fr) 18rem;
+    }
+  }
+
   /* AppLayout Component Styles */
   .lt-app-layout {
     container-type: inline-size;

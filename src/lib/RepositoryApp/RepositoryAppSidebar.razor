@@ -1,0 +1,146 @@
+@namespace LowlandTech.Components.RepositoryApp
+@inherits TinyComponentBase
+
+@if (Context?.State.Current is not null)
+{
+    var selectedFile = GetSelectedFile();
+    var selectedCommit = selectedFile?.LastCommit;
+    <aside data-slot="repository-app-sidebar" class="@GetClass()" @attributes="AdditionalAttributes">
+        <div class="flex-1 overflow-y-auto px-4 py-4 text-sm">
+            @if (selectedFile is not null)
+            {
+                <section data-slot="repo-sidebar-file" class="space-y-3">
+                    <header class="flex items-start gap-2">
+                        <span class="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                            <Icon Name="@GetFileIcon(selectedFile.Kind)" Size="12" />
+                        </span>
+                        <div class="min-w-0 flex-1">
+                            <a class="block truncate font-mono text-sm font-semibold text-primary hover:underline"
+                               href="@($"/{Context.State.Current.FullName}/blob/{Context.State.Ui.SelectedBranch}/{selectedFile.Path}")">
+                                @selectedFile.Name
+                            </a>
+                            <div class="truncate text-xs text-muted-foreground" title="@selectedFile.Path">@selectedFile.Path</div>
+                        </div>
+                    </header>
+
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Last commit</h3>
+                    @if (selectedCommit is not null)
+                    {
+                        <div data-slot="repo-sidebar-file-commit" class="space-y-2">
+                            <p class="text-sm font-medium leading-snug text-foreground">@selectedCommit.Message</p>
+                            <div class="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                                <span class="inline-flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted font-mono text-[10px] font-semibold text-muted-foreground">
+                                    @GetAuthorInitials(selectedCommit.Author)
+                                </span>
+                                <span class="font-medium text-foreground/80">@selectedCommit.Author.Name</span>
+                                <span>authored @FormatRelative(selectedCommit.CommittedAt)</span>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                                <span class="inline-flex items-center rounded-md border border-border bg-card px-1.5 py-0.5 font-mono text-[11px]">
+                                    <Icon Name="git-commit" Size="11" class="mr-1" />
+                                    @selectedCommit.ShortSha
+                                </span>
+                                <span class="inline-flex items-center gap-1">
+                                    <Icon Name="git-branch" Size="11" />
+                                    @Context.State.Ui.SelectedBranch
+                                </span>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-xs italic text-muted-foreground">No commit history for this file yet.</p>
+                    }
+                </section>
+
+                <hr class="my-4 border-border" />
+            }
+
+            <section data-slot="repo-sidebar-about" class="space-y-2">
+                <h3 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">About</h3>
+                @if (!string.IsNullOrWhiteSpace(Context.GetRepoDescription()))
+                {
+                    <p class="text-sm text-foreground/90">@Context.GetRepoDescription()</p>
+                }
+                else
+                {
+                    <p class="text-sm italic text-muted-foreground">No description provided.</p>
+                }
+            </section>
+
+            @if (Context.State.Current.Topics.Count > 0)
+            {
+                <section data-slot="repo-sidebar-topics" class="mt-4 space-y-2">
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Topics</h3>
+                    <div class="flex flex-wrap gap-1.5">
+                        @foreach (var topic in Context.State.Current.Topics)
+                        {
+                            <a class="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary hover:bg-primary/20 transition-colors"
+                               href="#">
+                                @topic.Name
+                            </a>
+                        }
+                    </div>
+                </section>
+            }
+
+            @if (Context.HasReleases)
+            {
+                <section data-slot="repo-sidebar-releases" class="mt-4 space-y-2">
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Releases</h3>
+                    <ul class="space-y-2">
+                        @foreach (var release in Context.State.Releases.Take(3))
+                        {
+                            <li class="rounded-md border border-border bg-card p-2">
+                                <a class="block text-sm font-medium text-primary hover:underline"
+                                   href="@(release.Url ?? "#")">
+                                    <Icon Name="tag" Size="12" class="-mt-0.5 mr-1 inline" />
+                                    @release.Title
+                                </a>
+                                <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                                    <span class="font-mono">@release.TagName</span>
+                                    <span>·</span>
+                                    <span>@FormatRelative(release.PublishedAt)</span>
+                                    @if (release.IsPreRelease)
+                                    {
+                                        <Badge Variant="secondary" Size="sm">Pre-release</Badge>
+                                    }
+                                    @if (release.IsDraft)
+                                    {
+                                        <Badge Variant="secondary" Size="sm">Draft</Badge>
+                                    }
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </section>
+            }
+
+            @if (Context.HasLanguages)
+            {
+                <section data-slot="repo-sidebar-languages" class="mt-4 space-y-2">
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Languages</h3>
+                    <div class="flex h-2 w-full overflow-hidden rounded-full bg-muted">
+                        @foreach (var lang in Context.State.Current.Languages)
+                        {
+                            <span class="block h-full"
+                                  style="width:@(lang.Percentage.ToString(System.Globalization.CultureInfo.InvariantCulture))%;background-color:@lang.Color"
+                                  title="@lang.Name (@lang.Percentage.ToString("F1")%)"></span>
+                        }
+                    </div>
+                    <ul class="grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                        @foreach (var lang in Context.State.Current.Languages)
+                        {
+                            <li class="flex items-center gap-1.5">
+                                <span class="inline-block h-2 w-2 shrink-0 rounded-full"
+                                      style="background-color:@lang.Color"></span>
+                                <span class="truncate">@lang.Name</span>
+                                <span class="ml-auto font-mono">@lang.Percentage.ToString("F1")%</span>
+                            </li>
+                        }
+                    </ul>
+                </section>
+            }
+        </div>
+    </aside>
+}

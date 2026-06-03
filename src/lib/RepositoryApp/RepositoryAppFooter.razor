@@ -1,0 +1,12 @@
+@namespace LowlandTech.Components.RepositoryApp
+@inherits TinyComponentBase
+
+@if (Context?.ShowPaginator is true)
+{
+    <div data-slot="repository-app-footer" class="@GetClass()" @attributes="AdditionalAttributes">
+        <RepositoryAppPaginator Pager="@Context.GetPager()"
+                               PageSize="@Context.State.Ui.PageSize"
+                               OnPageChanged="@Context.HandlePageChanged"
+                               OnPageSizeChanged="@Context.HandlePageSizeChanged" />
+    </div>
+}

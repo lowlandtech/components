@@ -87,21 +87,16 @@ public partial class TreeView<TItem> : TinyComponentBase
     private static readonly Guid TreeViewKeyNamespace = new("7f3e2a1b-4c5d-5000-8000-9e8f7a6b5c4d");
     // Cache: item → stable key (cleared when Items reference changes)\n    // Uses reference equality so structurally-identical but distinct instances
     // each get their own path-derived key.
-    private readonly Dictionary<TItem, string> _keyCache =
-        typeof(TItem).IsValueType
-            ? new Dictionary<TItem, string>()
-#pragma warning disable CS8714
-            : new Dictionary<TItem, string>(TreeViewRefComparer<TItem>.Instance);
-#pragma warning restore CS8714
+    private readonly Dictionary<object, string> _keyCache = new(TreeViewObjectKeyComparer.Instance);
     private IEnumerable<TItem>? _lastItems;
 
     internal string GetItemKey(TItem item)
     {
         if (GetKey != null) return GetKey(item);
-        if (_keyCache.TryGetValue(item, out var cached)) return cached;
+        if (_keyCache.TryGetValue(item!, out var cached)) return cached;
         var path = BuildItemPath(item);
         var key = GuidV5.Create(TreeViewKeyNamespace, path).ToString("N");
-        _keyCache[item] = key;
+        _keyCache[item!] = key;
         return key;
     }
 

@@ -1,0 +1,134 @@
+@namespace LowlandTech.Components.RepositoryApp
+@inherits TinyComponentBase
+
+@if (Context?.State.Current is not null)
+{
+    <div data-slot="repository-file-list" class="@GetClass()" @attributes="AdditionalAttributes">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-card px-4 py-2.5">
+            <div class="flex flex-wrap items-center gap-2">
+                <Button data-testid="repo-file-tree-toggle"
+                        data-active="@(Context.State.Ui.ShowFileTree ? "true" : "false")"
+                        Variant="outline"
+                        Size="sm"
+                        Title="Toggle file tree"
+                        OnClick="@(() => Context.HandleFileTreeToggled())">
+                    <Icon Name="panel-left" Size="14" />
+                </Button>
+                <Button data-testid="repo-branch-dropdown"
+                        Variant="outline"
+                        Size="sm">
+                    <Icon Name="git-branch" Size="14" />
+                    <span class="font-semibold">@GetBranchLabel()</span>
+                    <Icon Name="chevron-down" Size="12" />
+                </Button>
+                @foreach (var crumb in GetBreadcrumbs())
+                {
+                    <span class="text-sm text-muted-foreground">/</span>
+                    <Button data-testid="repo-crumb"
+                            data-path="@(crumb.Path ?? string.Empty)"
+                            Variant="unstyled"
+                            Class="@(crumb.IsCurrent
+                                ? "px-1.5 py-0.5 text-sm font-semibold text-foreground"
+                                : "px-1.5 py-0.5 text-sm font-normal text-muted-foreground hover:text-foreground transition-colors")"
+                            OnClick="@(args => Context.HandlePathChanged(new RepositoryPathChanged(crumb.Path ?? string.Empty)))">
+                        @crumb.Label
+                    </Button>
+                }
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <Button data-testid="repo-clone-toggle"
+                        data-active="@(Context.ShowClonePanel ? "true" : "false")"
+                        Variant="outline"
+                        Size="sm"
+                        OnClick="@(() => Context.HandleClonePanelToggled())">
+                    <Icon Name="copy" Size="14" />
+                    <span>Clone</span>
+                </Button>
+                <Button data-testid="repo-add-file"
+                        Variant="outline"
+                        Size="sm">
+                    <Icon Name="plus" Size="14" />
+                    <span>Add file</span>
+                </Button>
+            </div>
+        </div>
+
+        @if (Context.ShowClonePanel)
+        {
+            <RepositoryAppClonePanel />
+        }
+
+        <div class="flex-1 overflow-auto">
+            <div class="grid h-10 grid-cols-[2.5rem_minmax(0,1fr)_minmax(0,2fr)_minmax(0,2.5fr)_6rem] items-center border-b border-border bg-muted/30 px-4 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <span></span>
+                <Button data-testid="repo-sort-name"
+                        data-active="@(Context.State.Ui.SortColumn == RepositorySortColumn.Name ? "true" : "false")"
+                        data-asc="@(Context.State.Ui.SortAscending ? "true" : "false")"
+                        Variant="unstyled"
+                        Class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors"
+                        OnClick="@(() => Context.HandleSortChanged(new RepositorySortChanged(RepositorySortColumn.Name, ToggleAscending(RepositorySortColumn.Name))))">
+                    <span>Name</span>
+                    @if (Context.State.Ui.SortColumn == RepositorySortColumn.Name)
+                    {
+                        <Icon Name="@(Context.State.Ui.SortAscending ? "chevron-up" : "chevron-down")" Size="12" />
+                    }
+                </Button>
+                <span class="px-2">Commit message</span>
+                <span>Author &amp; committed at</span>
+                <Button data-testid="repo-sort-size"
+                        data-active="@(Context.State.Ui.SortColumn == RepositorySortColumn.Size ? "true" : "false")"
+                        Variant="unstyled"
+                        Class="inline-flex items-center gap-1 px-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors"
+                        OnClick="@(() => Context.HandleSortChanged(new RepositorySortChanged(RepositorySortColumn.Size, ToggleAscending(RepositorySortColumn.Size))))">
+                    <span>Size</span>
+                    @if (Context.State.Ui.SortColumn == RepositorySortColumn.Size)
+                    {
+                        <Icon Name="@(Context.State.Ui.SortAscending ? "chevron-up" : "chevron-down")" Size="12" />
+                    }
+                </Button>
+            </div>
+            @foreach (var file in GetPagedFiles())
+            {
+                var isSelected = Context.State.Ui.SelectedFilePaths.Contains(file.Path);
+                <div data-slot="repo-file-row"
+                     data-path="@file.Path"
+                     data-selected="@(isSelected ? "true" : "false")"
+                     class="grid grid-cols-[2.5rem_minmax(0,1fr)_minmax(0,2fr)_minmax(0,2.5fr)_6rem] items-center border-b border-border px-4 py-2 text-sm transition-colors hover:bg-muted/40 @(isSelected ? "bg-primary/5" : string.Empty)">
+                    <Button data-testid="repo-file-select"
+                            Variant="ghost"
+                            Size="icon-sm"
+                            Title="Select"
+                            OnClick="@(() => Context.HandleFileSelected(new RepositoryFileSelected(file.Path)))">
+                        <Icon Name="@(isSelected ? "check-square" : "square")" Size="14" />
+                    </Button>
+                    <div class="flex min-w-0 items-center gap-2 pr-2">
+                        <span class="inline-flex w-4 shrink-0 items-center justify-center text-muted-foreground">
+                            <Icon Name="@GetFileIcon(file.Kind)" Size="14" />
+                        </span>
+                        <a class="min-w-0 truncate font-mono text-sm text-primary hover:underline"
+                           href="@($"/{Context.State.Current.FullName}/blob/{Context.State.Ui.SelectedBranch}/{file.Path}")">
+                            @file.Name
+                        </a>
+                    </div>
+                    <div class="min-w-0 truncate pr-2 text-muted-foreground">@file.LastCommit?.Message</div>
+                    <div class="flex min-w-0 flex-col pr-2 text-xs text-muted-foreground">
+                        <span class="min-w-0 truncate text-foreground/80">@file.LastCommit?.Author.Name</span>
+                        <span class="min-w-0 truncate">committed @FormatRelative(file.LastCommit?.CommittedAt) · @file.LastCommit?.ShortSha</span>
+                    </div>
+                    <span class="px-2 text-right font-mono text-xs text-muted-foreground">@FormatSize(file.Size)</span>
+                </div>
+            }
+            @if (GetPagedFiles().Count == 0)
+            {
+                <div class="flex flex-col items-center justify-center gap-2 px-4 py-16 text-center text-sm text-muted-foreground">
+                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                        <Icon Name="folder-open" Size="20" />
+                    </span>
+                    <p>This directory is empty.</p>
+                </div>
+            }
+        </div>
+
+        <RepositoryAppFooter />
+    </div>
+}

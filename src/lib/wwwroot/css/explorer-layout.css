@@ -9,6 +9,26 @@
    Doubled .explorer-layout class raises specificity above Tailwind utility atoms
    (e.g. .h-\[calc\(100vh-3\.5rem\)\] and .overflow-hidden) so the media-query
    rules win even when Tailwind CSS is loaded later in the document. */
+.repository-code-layout {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 768px) {
+  .repository-code-layout.repository-code-layout--tree {
+    grid-template-columns: 14rem minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .repository-code-layout.repository-code-layout--sidebar {
+    grid-template-columns: minmax(0, 1fr) 18rem;
+  }
+
+  .repository-code-layout.repository-code-layout--tree.repository-code-layout--sidebar {
+    grid-template-columns: 14rem minmax(0, 1fr) 18rem;
+  }
+}
+
 @media (max-width: 1024px) {
   .explorer-layout.explorer-layout {
     flex-direction: column;

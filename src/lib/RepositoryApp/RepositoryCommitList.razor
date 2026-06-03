@@ -1,0 +1,58 @@
+@namespace LowlandTech.Components.RepositoryApp
+@inherits TinyComponentBase
+
+@if (Context?.State.Current is not null)
+{
+    <div data-slot="repository-commit-list" class="@GetClass()" @attributes="AdditionalAttributes">
+        <div class="border-b border-border bg-card px-4 py-3">
+            <div class="flex flex-wrap items-center gap-2">
+                <Button data-testid="repo-commits-filter"
+                        Variant="outline"
+                        Size="sm">
+                    <Icon Name="search" Size="14" />
+                    <span>Filter commits</span>
+                </Button>
+                <Button data-testid="repo-commits-author"
+                        Variant="outline"
+                        Size="sm">
+                    <span>Author</span>
+                    <Icon Name="chevron-down" Size="12" />
+                </Button>
+                <Button data-testid="repo-commits-branch"
+                        Variant="outline"
+                        Size="sm">
+                    <Icon Name="git-branch" Size="14" />
+                    <span class="font-semibold">@GetBranchLabel()</span>
+                    <Icon Name="chevron-down" Size="12" />
+                </Button>
+                <span class="ml-auto text-xs text-muted-foreground">@Commits.Count.ToString("N0") commits</span>
+            </div>
+        </div>
+        <div class="flex-1 overflow-auto">
+            @foreach (var commit in Commits)
+            {
+                <div data-slot="repo-commit-row"
+                     data-sha="@commit.ShortSha"
+                     class="flex items-start gap-3 border-b border-border px-4 py-3 transition-colors hover:bg-muted/40">
+                    <span class="mt-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                        <Icon Name="git-commit" Size="14" />
+                    </span>
+                    <div class="min-w-0 flex-1">
+                        <p class="truncate text-sm font-medium text-foreground">@commit.Message</p>
+                        <div class="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                            <a class="font-mono text-primary hover:underline"
+                               href="@($"/{Context.State.Current.FullName}/commit/{commit.Sha}")">
+                                @commit.ShortSha
+                            </a>
+                            <span>by <span class="text-foreground/80">@commit.Author.Name</span></span>
+                            <span>·</span>
+                            <span>@FormatRelative(commit.CommittedAt)</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <RepositoryAppFooter />
+    </div>
+}

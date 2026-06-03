@@ -21,6 +21,7 @@ global using LowlandTech.Components.Session.Agents;
 global using LowlandTech.Components.Sonner;
 global using LowlandTech.Components.Tabs;
 global using LowlandTech.Components.Work;
+global using LowlandTech.Components.RepositoryApp;
 global using LowlandTech.Core;
 global using LowlandTech.Core.Graph;
 global using Microsoft.AspNetCore.Components;

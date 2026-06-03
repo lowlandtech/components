@@ -1,0 +1,14 @@
+@attribute [DisplayName("RepositoryApp/RepositoryApp")]
+@inherits StoryComponent
+
+<StoryCard Title="RepositoryApp"
+           Description="Gitea-style repository home page with file tree, file list, submenu tabs, sidebar, and clone panel."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new("default", "Default", @<RepositoryAppDefaultExample />, [
+            StorySourceRegistry.CodeTab("default-razor", "RepositoryAppDefaultExample.razor", "Showcode/Examples/RepositoryApp/RepositoryAppDefaultExample.razor")
+        ])
+    ];
+}

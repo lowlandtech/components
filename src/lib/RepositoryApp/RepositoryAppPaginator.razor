@@ -1,0 +1,121 @@
+@namespace LowlandTech.Components.RepositoryApp
+@inherits TinyComponentBase
+
+<div data-slot="repository-app-paginator" class="@GetClass()" @attributes="AdditionalAttributes">
+    <div data-slot="repository-page-size-selector" class="flex items-center gap-2">
+        <span class="text-xs text-muted-foreground">Per page:</span>
+        <Select Value="@PageSize.ToString()" ValueChanged="HandlePageSizeChanged" Class="w-24">
+            <SelectTrigger Size="sm" data-testid="repo-page-size-select">
+                <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+                @foreach (var size in _pageSizes)
+                {
+                    <SelectItem data-testid="@($"repo-page-size-{size}")"
+                                Value="@size.ToString()"
+                                Text="@size.ToString()">
+                        @size
+                    </SelectItem>
+                }
+            </SelectContent>
+        </Select>
+    </div>
+
+    <div data-slot="repository-page-selector" class="flex items-center gap-3">
+        <span data-slot="repository-total-items"
+              data-testid="repo-footer-count"
+              class="whitespace-nowrap text-xs text-muted-foreground">
+            @_pager.TotalItems.ToString("N0") items · page @_pager.PageNumber of @_pager.PageCount
+        </span>
+        <Pagination Count="@_pager.PageCount"
+                    Page="@_pager.PageNumber"
+                    OnPageChange="GoToPage"
+                    Class="w-auto justify-end">
+            <PaginationContent Class="gap-1">
+                <PaginationItem>
+                    <PaginationPrevious data-testid="repo-footer-prev"
+                                        Text="Previous"
+                                        Class="h-8 px-2 text-xs" />
+                </PaginationItem>
+
+                @foreach (var pageNum in GetPageNumbers())
+                {
+                    <PaginationItem>
+                        @if (pageNum == -1)
+                        {
+                            <PaginationEllipsis Class="h-8 w-8" />
+                        }
+                        else
+                        {
+                            <PaginationLink data-testid="@($"repo-footer-page-{pageNum}")"
+                                            Page="@pageNum"
+                                            IsActive="@(_pager.PageNumber == pageNum)"
+                                            Class="h-8 min-w-8 px-2 text-xs">
+                                @pageNum
+                            </PaginationLink>
+                        }
+                    </PaginationItem>
+                }
+
+                <PaginationItem>
+                    <PaginationNext data-testid="repo-footer-next"
+                                    Text="Next"
+                                    Class="h-8 px-2 text-xs" />
+                </PaginationItem>
+            </PaginationContent>
+        </Pagination>
+    </div>
+</div>
+
+@code {
+    [Parameter] public RepositoryPager Pager { get; set; } = new(1, 20, 0, 1);
+    [Parameter] public int PageSize { get; set; } = 20;
+    [Parameter] public EventCallback<int> OnPageChanged { get; set; }
+    [Parameter] public EventCallback<int> OnPageSizeChanged { get; set; }
+
+    private RepositoryPager _pager => Pager;
+    private static readonly int[] _pageSizes = [10, 20, 50, 100, 500];
+
+    private async Task GoToPage(int page)
+    {
+        if (page < 1 || page > _pager.PageCount) return;
+        await OnPageChanged.InvokeAsync(page);
+    }
+
+    private async Task HandlePageSizeChanged(string? value)
+    {
+        if (int.TryParse(value, out var size))
+        {
+            await OnPageSizeChanged.InvokeAsync(size);
+        }
+    }
+
+    private List<int> GetPageNumbers()
+    {
+        var pages = new List<int>();
+        var current = _pager.PageNumber;
+        var total = _pager.PageCount;
+
+        if (total <= 7)
+        {
+            for (var i = 1; i <= total; i++) pages.Add(i);
+            return pages;
+        }
+
+        pages.Add(1);
+        if (current > 3) pages.Add(-1);
+
+        var start = Math.Max(2, current - 1);
+        var end = Math.Min(total - 1, current + 1);
+        for (var i = start; i <= end; i++) pages.Add(i);
+
+        if (current < total - 2) pages.Add(-1);
+        pages.Add(total);
+
+        return pages;
+    }
+
+    private string GetClass() => string.IsNullOrEmpty(Class)
+        ? "flex w-full items-center justify-between gap-3"
+        : $"flex w-full items-center justify-between gap-3 {Class}";
+}

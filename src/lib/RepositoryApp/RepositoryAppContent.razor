@@ -1,0 +1,108 @@
+@namespace LowlandTech.Components.RepositoryApp
+@inherits TinyComponentBase
+
+@if (Context?.State.Current is not null)
+{
+    <div data-slot="repository-app-content" class="@GetClass()" @attributes="AdditionalAttributes">
+        @if (ChildContent is not null)
+        {
+            @ChildContent
+        }
+        else
+        {
+            @switch (Context.State.Ui.ActiveView)
+            {
+                case RepositoryView.Code:
+                    @RenderCodeView()
+                    break;
+                case RepositoryView.Issues:
+                    <RepositoryPlaceholderView Title="Issues"
+                                               Description="Issue list placeholder."
+                                               Icon="issue-opened" />
+                    break;
+                case RepositoryView.Pulls:
+                    <RepositoryPlaceholderView Title="Pull Requests"
+                                               Description="Pull request list placeholder."
+                                               Icon="git-pull-request" />
+                    break;
+                case RepositoryView.Actions:
+                    <RepositoryPlaceholderView Title="Actions"
+                                               Description="Workflow runs placeholder."
+                                               Icon="play" />
+                    break;
+                case RepositoryView.Packages:
+                    <RepositoryPlaceholderView Title="Packages"
+                                               Description="Container & package registry placeholder."
+                                               Icon="package" />
+                    break;
+                case RepositoryView.Projects:
+                    <RepositoryPlaceholderView Title="Projects"
+                                               Description="Project board placeholder."
+                                               Icon="project" />
+                    break;
+                case RepositoryView.Releases:
+                    <RepositoryPlaceholderView Title="Releases"
+                                               Description="Release history placeholder."
+                                               Icon="tag" />
+                    break;
+                case RepositoryView.Wiki:
+                    <RepositoryPlaceholderView Title="Wiki"
+                                               Description="Wiki pages placeholder."
+                                               Icon="book" />
+                    break;
+                case RepositoryView.Activity:
+                    <RepositoryPlaceholderView Title="Activity"
+                                               Description="Pulse / contributors / frequency placeholder."
+                                               Icon="pulse" />
+                    break;
+                case RepositoryView.Settings:
+                    <RepositoryPlaceholderView Title="Settings"
+                                               Description="Repository settings placeholder."
+                                               Icon="settings" />
+                    break;
+                default:
+                    <RepositoryPlaceholderView Title="Repository"
+                                               Description="Select a section above."
+                                               Icon="repo" />
+                    break;
+            }
+        }
+    </div>
+}
+
+@code {
+    private RenderFragment RenderCodeView() => __builder =>
+    {
+        var showTree = Context!.State.Ui.ShowFileTree;
+        var showRight = Context.ShowSidebar;
+        <div class="@GetCodeLayoutClass(showTree, showRight)">
+            @if (showTree)
+            {
+                <RepositoryFileTree Files="@Context.State.TreeFiles"
+                                    OnPathChanged="@(path => Context.HandlePathChanged(new RepositoryPathChanged(path)))"
+                                    Class="border-r border-border bg-muted/10" />
+            }
+            <div class="flex min-h-0 min-w-0 flex-1 flex-col">
+                @switch (Context.State.Ui.ActiveCodeView)
+                {
+                    case RepositoryCodeView.Files:
+                        <RepositoryFileList Context="@Context" />
+                        break;
+                    case RepositoryCodeView.Commits:
+                        <RepositoryCommitList Commits="@Context.State.Commits" />
+                        break;
+                    case RepositoryCodeView.Branches:
+                        <RepositoryBranchList Branches="@Context.State.Branches" />
+                        break;
+                    case RepositoryCodeView.Tags:
+                        <RepositoryTagList Tags="@Context.State.Tags" />
+                        break;
+                }
+            </div>
+            @if (showRight)
+            {
+                <RepositoryAppSidebar />
+            }
+        </div>
+    };
+}
