@@ -12,6 +12,7 @@
          data-design-selected="@DesignSelectedAttribute"
          data-design-instance-id="@DesignInstanceIdAttribute"
          class="@GetClass()"
+         style="@GetStyle()"
          @attributes="AdditionalAttributes">
         @if (HasItems)
         {
@@ -297,15 +298,28 @@
     
     private string GetClass()
     {
-        var gapClass = HasGap ? " gap-2" : "";
         var baseClass = Placement switch
         {
-            "bottom" => $"cn-tabs flex flex-col-reverse{gapClass}",
-            "left" => $"cn-tabs flex flex-row{gapClass}",
-            "right" => $"cn-tabs flex flex-row-reverse{gapClass}",
-            _ => $"cn-tabs flex flex-col{gapClass}"
+            "bottom" => "cn-tabs flex flex-col-reverse",
+            "left" => "cn-tabs flex flex-row",
+            "right" => "cn-tabs flex flex-row-reverse",
+            _ => "cn-tabs flex flex-col"
         };
         var result = string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
         return $"{result} {DesignModeClass}".Trim();
+    }
+
+    private string? GetStyle()
+    {
+        var gapSize = ResolveGapSize();
+        return string.IsNullOrWhiteSpace(gapSize) ? null : $"gap: {gapSize};";
+    }
+
+    private string? ResolveGapSize()
+    {
+        if (!string.IsNullOrWhiteSpace(GapSize))
+            return GapSize;
+
+        return HasGap ? "10px" : null;
     }
 }

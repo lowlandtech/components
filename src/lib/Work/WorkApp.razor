@@ -22,9 +22,8 @@
                 @if (ShowFilterBar)
                 {
                     <WorkFilterBar FilterText="@AppState.Ui.FilterText"
-                                   PageSize="@AppState.Ui.PageSize"
                                    OnFilterChanged="HandleFilterChanged"
-                                   OnPageSizeChanged="HandlePageSizeChanged" />
+                                   Class="min-w-64 flex-1 sm:max-w-xl lg:max-w-2xl" />
                 }
             </div>
 
@@ -68,9 +67,6 @@
                                   OnSelected="HandleJobSelected"
                                   OnToggleSelection="HandleToggleSelection"
                                   OnSelectAll="HandleSelectAll" />
-                        <div class="mt-3">
-                            <WorkPaginator Pager="@GetPager()" OnPageChanged="HandlePageChanged" />
-                        </div>
                         break;
                     case WorkView.Recurring:
                         <WorkRecurring Jobs="@AppState.RecurringJobs"
@@ -95,6 +91,16 @@
                         break;
                 }
             </div>
+
+            @if (ShowPaginator)
+            {
+                <div data-slot="work-app-footer" class="flex shrink-0 px-4 py-3">
+                    <WorkPaginator Pager="@GetPager()"
+                                   PageSize="@AppState.Ui.PageSize"
+                                   OnPageChanged="HandlePageChanged"
+                                   OnPageSizeChanged="HandlePageSizeChanged" />
+                </div>
+            }
 
             @if (ShowCommandBar)
             {
@@ -142,6 +148,8 @@
     private bool ShowFilterBar => AppState.Ui.ActiveView is WorkView.Enqueued or WorkView.Scheduled
         or WorkView.Processing or WorkView.Succeeded or WorkView.Failed
         or WorkView.Deleted or WorkView.Awaiting or WorkView.Retries;
+
+    private bool ShowPaginator => ShowFilterBar;
 
     private bool ShowServerColumn => AppState.Ui.ActiveView == WorkView.Processing;
     private bool ShowQueueColumn => AppState.Ui.ActiveView is WorkView.Enqueued or WorkView.Queues;

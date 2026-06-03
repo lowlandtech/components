@@ -1,5 +1,7 @@
 @namespace LowlandTech.Components.Select
 @inherits TinyComponentBase
+@implements IDisposable
+@inject IPopoverService PopoverService
 @attribute [Properties(Group = "Forms", Icon = "select",
     Description = "Dropdown — wrap a SelectTrigger + SelectContent")]
 
@@ -11,21 +13,15 @@
          data-design-instance-id="@DesignInstanceIdAttribute"
          class="@GetClass()"
          @attributes="AdditionalAttributes">
-        @if (IsOpen)
-        {
-            @* Click-outside catcher — fixed inset-0 sits below the open
-               content (z-40 vs content's z-50) so any click outside the
-               trigger / list dismisses the popover. *@
-            <div data-slot="select-backdrop"
-                 class="fixed inset-0 z-40"
-                  @onclick="Close"
-                  @onclick:preventDefault="true"></div>
-        }
         @ChildContent
     </div>
 </CascadingValue>
 
 @code {
+    private readonly Guid _popoverId = Guid.NewGuid();
+    private RenderFragment? _contentFragment;
+    private PopoverPlacement _placement = PopoverPlacement.BottomStart;
+
     /// <summary>
     /// The currently selected value.
     /// </summary>
@@ -47,12 +43,34 @@
     /// </summary>
     internal string? SelectedText { get; set; }
 
+    internal string PopoverAnchorId => $"popover-anchor-{_popoverId}";
+
+    protected override void OnInitialized()
+    {
+        PopoverService.Register(_popoverId);
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (IsOpen)
+        {
+            UpdatePopover(true);
+        }
+    }
+
     /// <summary>
     /// Toggles the select dropdown.
     /// </summary>
     internal void Toggle()
     {
-        IsOpen = !IsOpen;
+        if (IsOpen)
+        {
+            Close();
+            return;
+        }
+
+        IsOpen = true;
+        UpdatePopover(true);
         StateHasChanged();
     }
 
@@ -62,7 +80,18 @@
     internal void Close()
     {
         IsOpen = false;
+        UpdatePopover(false);
         StateHasChanged();
+    }
+
+    internal void SetContent(RenderFragment fragment, PopoverPlacement placement)
+    {
+        _contentFragment = fragment;
+        _placement = placement;
+        if (IsOpen)
+        {
+            UpdatePopover(true);
+        }
     }
 
     /// <summary>
@@ -97,6 +126,22 @@
 
     internal string? GetTextForValue(string? value)
         => value is not null && _itemText.TryGetValue(value, out var text) ? text : null;
+
+    private void UpdatePopover(bool open)
+    {
+        PopoverService.Update(_popoverId, new PopoverState
+        {
+            Open = open,
+            Placement = _placement,
+            CssClass = "cn-select-popover",
+            Fragment = open ? _contentFragment : null
+        });
+    }
+
+    public void Dispose()
+    {
+        PopoverService.Unregister(_popoverId);
+    }
 
     private string GetClass()
     {

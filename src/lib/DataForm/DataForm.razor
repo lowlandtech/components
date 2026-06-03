@@ -56,14 +56,12 @@
                         @switch (field.InputKind)
                         {
                             case "checkbox":
-                                <input type="checkbox"
-                                       id="@fieldId"
-                                       data-field-input="@field.PropertyName"
-                                       checked="@(GetValue(field.PropertyName) is true)"
-                                       class="h-4 w-4 rounded border-input text-primary focus:ring-ring"
-                                       aria-invalid="@(hasErrors ? "true" : null)"
-                                       aria-describedby="@(hasErrors ? validationId : null)"
-                                       @onchange="e => HandleCheckboxChange(field.PropertyName, e)" />
+                                <Checkbox id="@fieldId"
+                                          data-field-input="@field.PropertyName"
+                                          Checked="@(GetValue(field.PropertyName) is true)"
+                                          CheckedChanged="value => SetValue(field.PropertyName, value)"
+                                          aria-invalid="@(hasErrors ? "true" : null)"
+                                          aria-describedby="@(hasErrors ? validationId : null)" />
                                 break;
 
                             case "select" when field.PropertyType.IsEnum:

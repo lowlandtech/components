@@ -8,6 +8,32 @@ namespace LowlandTech.Components.Tests.SPEC1040.Select.US01.View;
 [UserStory("01", "Render Select subcomponents")]
 public class SC02_RenderSelectSubcomponents : ViewScenario
 {
+    private RenderFragment OpenSelectWithProvider(
+        string content = "Content",
+        string side = "bottom",
+        string maxHeight = "15rem")
+        => builder =>
+        {
+            builder.OpenComponent<PopoverProvider>(0);
+            builder.CloseComponent();
+            builder.OpenComponent<SelectSut>(1);
+            builder.AddAttribute(2, nameof(SelectSut.IsOpen), true);
+            builder.AddAttribute(3, nameof(SelectSut.ChildContent), (RenderFragment)(selectBuilder =>
+            {
+                selectBuilder.OpenComponent<SelectTrigger>(0);
+                selectBuilder.AddAttribute(1, nameof(SelectTrigger.ChildContent), (RenderFragment)(triggerBuilder =>
+                    triggerBuilder.AddContent(0, "Select")));
+                selectBuilder.CloseComponent();
+                selectBuilder.OpenComponent<SelectContent>(2);
+                selectBuilder.AddAttribute(3, nameof(SelectContent.Side), side);
+                selectBuilder.AddAttribute(4, nameof(SelectContent.MaxHeight), maxHeight);
+                selectBuilder.AddAttribute(5, nameof(SelectContent.ChildContent), (RenderFragment)(contentBuilder =>
+                    contentBuilder.AddContent(0, content)));
+                selectBuilder.CloseComponent();
+            }));
+            builder.CloseComponent();
+        };
+
     [Fact(DisplayName = "UAC01: SelectTrigger renders data-slot attribute")]
     [Trait(Spec.UAC, "01")]
     public void UAC01_TriggerRendersDataSlot()
@@ -74,11 +100,8 @@ public class SC02_RenderSelectSubcomponents : ViewScenario
     [Trait(Spec.UAC, "07")]
     public void UAC07_ContentRendersWhenOpen()
     {
-        var cut = Ctx.Render<SelectSut>(p =>
-        {
-            p.Add(x => x.IsOpen, true);
-            p.AddChildContent<SelectContent>(cp => cp.AddChildContent("Content"));
-        });
+        var cut = Ctx.Render(OpenSelectWithProvider());
+
         cut.Markup.ShouldContain("Content");
         cut.Find("[data-slot='select-content']").ShouldNotBeNull();
     }
@@ -253,32 +276,21 @@ public class SC02_RenderSelectSubcomponents : ViewScenario
     [Trait(Spec.UAC, "21")]
     public void UAC21_ContentSupportsTopSidePlacement()
     {
-        var cut = Ctx.Render<SelectSut>(p =>
-        {
-            p.Add(x => x.IsOpen, true);
-            p.AddChildContent<SelectContent>(cp =>
-                cp.Add(x => x.Side, "top")
-                  .AddChildContent("Content"));
-        });
+        var cut = Ctx.Render(OpenSelectWithProvider(side: "top"));
 
         var content = cut.Find("[data-slot='select-content']");
         content.GetAttribute("data-side").ShouldBe("top");
-        content.ClassList.ShouldContain("bottom-full");
+        cut.Find(".cn-select-popover").GetAttribute("data-placement").ShouldBe("topstart");
     }
 
     [Fact(DisplayName = "UAC22: Backdrop closes dropdown when clicked")]
     [Trait(Spec.UAC, "22")]
     public void UAC22_BackdropClosesDropdownWhenClicked()
     {
-        var cut = Ctx.Render<SelectSut>(p =>
-        {
-            p.Add(x => x.IsOpen, true);
-            p.AddChildContent<SelectContent>(cp => cp.AddChildContent("Content"));
-        });
+        var cut = Ctx.Render(OpenSelectWithProvider());
 
         cut.Find("[data-slot='select-backdrop']").Click();
 
-        cut.Instance.IsOpen.ShouldBeFalse();
         cut.FindAll("[data-slot='select-content']").Count.ShouldBe(0);
         cut.FindAll("[data-slot='select-backdrop']").Count.ShouldBe(0);
     }
@@ -310,11 +322,7 @@ public class SC02_RenderSelectSubcomponents : ViewScenario
     [Trait(Spec.UAC, "24")]
     public void UAC24_DefaultMaxHeight()
     {
-        var cut = Ctx.Render<SelectSut>(p =>
-        {
-            p.Add(x => x.IsOpen, true);
-            p.AddChildContent<SelectContent>(cp => cp.AddChildContent("Content"));
-        });
+        var cut = Ctx.Render(OpenSelectWithProvider());
 
         var content = cut.Find("[data-slot='select-content']");
         var style = content.GetAttribute("style");
@@ -326,15 +334,7 @@ public class SC02_RenderSelectSubcomponents : ViewScenario
     [Trait(Spec.UAC, "25")]
     public void UAC25_CustomMaxHeight()
     {
-        var cut = Ctx.Render<SelectSut>(p =>
-        {
-            p.Add(x => x.IsOpen, true);
-            p.AddChildContent<SelectContent>(cp =>
-            {
-                cp.Add(x => x.MaxHeight, "10rem");
-                cp.AddChildContent("Content");
-            });
-        });
+        var cut = Ctx.Render(OpenSelectWithProvider(maxHeight: "10rem"));
 
         var content = cut.Find("[data-slot='select-content']");
         var style = content.GetAttribute("style");

@@ -14,6 +14,7 @@ public class SC05_CommandBar : Infrastructure.WorkScenario
         StateService.ClearSelection();
         cut.Render();
 
+        cut.FindAll("[data-slot='work-command-bar']").Count.ShouldBe(0);
         cut.FindAll("[data-testid='work-cmd-requeue']").Count.ShouldBe(0);
     }
 
@@ -74,5 +75,23 @@ public class SC05_CommandBar : Infrastructure.WorkScenario
         cut.Render();
 
         cut.Find("[data-testid='work-cmd-enqueue']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC06: Delete command renders trash icon")]
+    [Trait(Spec.UAC, "06")]
+    [Given("A job is selected in the enqueued view")]
+    [When("The command bar renders the delete command")]
+    [Then("The delete button should include the trash icon")]
+    public void UAC06_DeleteCommandRendersTrashIcon()
+    {
+        var cut = RenderWorkApp();
+        StateService.SetView(WorkView.Enqueued);
+        var jobId = StateService.State.Jobs.First().Id;
+        StateService.ToggleSelection(jobId);
+        cut.Render();
+
+        var delete = cut.Find("[data-testid='work-cmd-delete']");
+        delete.QuerySelector("svg path[d='M3 6h18']").ShouldNotBeNull();
+        delete.QuerySelector("svg line[x1='10'][y1='11']").ShouldNotBeNull();
     }
 }

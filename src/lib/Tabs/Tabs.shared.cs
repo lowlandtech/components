@@ -68,6 +68,9 @@ public partial class Tabs
     [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Switch)]
     public bool HasGap { get; set; } = true;
 
+    [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Text)]
+    public string? GapSize { get; set; }
+
     [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Switch)]
     public bool GapOutline { get; set; }
 }

@@ -8,32 +8,47 @@
     @ChildContent
 </div>
 
-@if (Parent?.IsOpen == true)
-{
-    <div data-slot="select-content"
-         data-state="open"
-         data-side="@Side"
-         class="@GetClass()"
-         style="max-height: @MaxHeight;"
-         @onclick:stopPropagation="true"
-         @onclick:preventDefault="true"
-         @attributes="AdditionalAttributes">
-        <div class="cn-select-list">
-            @ChildContent
-        </div>
-    </div>
-}
-
 @code {
     [CascadingParameter] private Select? Parent { get; set; }
 
     [Parameter] public string Side { get; set; } = "bottom";
     [Parameter] public string MaxHeight { get; set; } = "15rem";
 
+    protected override void OnParametersSet()
+    {
+        Parent?.SetContent(BuildContent(), GetPlacement());
+    }
+
+    private RenderFragment BuildContent() => __builder =>
+    {
+        <CascadingValue Value="Parent" IsFixed="true">
+            <div data-slot="select-backdrop"
+                 class="fixed inset-0 z-0"
+                 @onclick="() => Parent?.Close()"
+                 @onclick:preventDefault="true"></div>
+            <div data-slot="select-content"
+                 data-state="open"
+                 data-side="@Side"
+                 class="@GetClass()"
+                 style="max-height: @MaxHeight;"
+                 @onclick:stopPropagation="true"
+                 @onclick:preventDefault="true"
+                 @attributes="AdditionalAttributes">
+                <div class="cn-select-list">
+                    @ChildContent
+                </div>
+            </div>
+        </CascadingValue>
+    };
+
+    private PopoverPlacement GetPlacement()
+        => string.Equals(Side, "top", StringComparison.OrdinalIgnoreCase)
+            ? PopoverPlacement.TopStart
+            : PopoverPlacement.BottomStart;
+
     private string GetClass()
     {
-        var sideClass = string.Equals(Side, "top", StringComparison.OrdinalIgnoreCase) ? "bottom-full mb-1" : "top-full mt-1";
-        var baseClass = $"cn-select-content absolute z-50 {sideClass} left-0 min-w-full overflow-x-hidden overflow-y-auto rounded-md border border-input bg-popover text-popover-foreground shadow-md p-1";
+        var baseClass = "cn-select-content relative z-10 min-w-full overflow-x-hidden overflow-y-auto rounded-md border border-input bg-popover text-popover-foreground shadow-md p-1";
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
     }
 }

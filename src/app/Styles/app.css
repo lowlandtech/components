@@ -525,40 +525,40 @@ html:hover                             { scrollbar-color: var(--border) transpar
     @apply bg-background text-foreground shadow-sm;
   }
 
-  .story-card-code-tabs {
-    @apply inline-flex h-8 items-center gap-1 rounded-full bg-[#24292E] p-1;
-  }
-
-  .story-card-code-tab {
-    @apply h-6 gap-1.5 rounded-full px-2.5 font-mono text-xs text-[#8b949e] transition-colors;
-  }
-
-  .story-card-code-tab[data-state="active"] {
-    @apply bg-[#444c56] text-[#c9d1d9] shadow-none;
-  }
-
-  .story-card-file-dot {
-    @apply size-1.5 rounded-full bg-[#8b949e];
-  }
-
-  .story-card-file-dot[data-language="razor"] {
-    @apply bg-primary;
-  }
-
-  .story-card-file-dot[data-language="csharp"] {
-    @apply bg-green-500;
+  .story-card-code-panel {
+    @apply mb-4 flex min-w-0 flex-col text-sm;
   }
 
   .story-card-code-header {
-    @apply flex min-h-11 items-center justify-between gap-3 border-b border-[#444c56] bg-[#24292E] px-4 pb-2 pt-3 font-mono text-xs text-[#8b949e];
+    @apply flex min-h-9 items-center gap-2 overflow-x-auto;
+  }
+
+  .story-card-code-tabs {
+    @apply flex w-full min-w-0 items-center gap-1 rounded-lg border border-border bg-muted p-1;
+  }
+
+  .story-card-code-tab {
+    @apply h-7 flex-none rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors;
+  }
+
+  .story-card-code-tab[data-state="active"] {
+    @apply bg-background text-foreground shadow-sm;
+  }
+
+  .story-card-file-dot {
+    @apply hidden;
+  }
+
+  .story-card-code-card {
+    @apply relative min-w-0 overflow-hidden rounded-lg border border-border bg-card p-2;
   }
 
   .story-card-copy-button {
-    @apply ml-auto shrink-0;
+    @apply absolute right-4 top-4 z-10 text-[#8b949e] hover:bg-[#30363d] hover:text-[#e6edf3];
   }
 
   .story-card-code-editor {
-    @apply max-h-96 overflow-auto bg-[#24292E] py-3 font-mono text-sm leading-6 text-[#c9d1d9];
+    @apply max-h-96 overflow-auto rounded-lg bg-[#24292E] py-4 font-mono text-sm leading-6 text-[#e6edf3];
   }
 
   .story-card-code-line {
@@ -566,7 +566,7 @@ html:hover                             { scrollbar-color: var(--border) transpar
   }
 
   .story-card-code-line:hover {
-    background-color: rgba(45, 51, 59, 0.7);
+    background-color: rgba(48, 54, 61, 0.58);
   }
 
   .story-card-line-number {
@@ -574,7 +574,7 @@ html:hover                             { scrollbar-color: var(--border) transpar
   }
 
   .story-card-line-code {
-    @apply whitespace-pre pr-6;
+    @apply whitespace-pre pr-8;
   }
 
   .story-card-token-punctuation {
@@ -713,4 +713,3 @@ html:hover                             { scrollbar-color: var(--border) transpar
     @apply pb-4 pt-0 text-sm;
   }
 }
-

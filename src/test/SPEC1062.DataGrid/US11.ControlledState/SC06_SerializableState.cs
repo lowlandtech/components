@@ -50,12 +50,15 @@ public class SC06_SerializableState : ViewScenario
 
     [Fact(DisplayName = "UAC21: StateChanged includes selected row keys")]
     [Trait(Spec.UAC, "21")]
+    [Given("A controlled grid has multiple selection enabled")]
+    [When("A row Checkbox is clicked")]
+    [Then("StateChanged should include the selected row key")]
     public void UAC21_StateIncludesSelectedRowKeys()
     {
         var state = new TestState();
         var cut = RenderGrid(state, selectionMode: DataGridSelectionMode.Multiple);
 
-        cut.FindAll("[data-slot='data-grid-selection-input']")[0].Change(true);
+        cut.FindAll("[data-slot='data-grid-selection-input']")[0].Click();
 
         state.LastState.ShouldNotBeNull();
         state.LastState.SelectedRowKeys.Count.ShouldBe(1);
@@ -76,6 +79,9 @@ public class SC06_SerializableState : ViewScenario
 
     [Fact(DisplayName = "UAC23: State payload does not contain component instances or RenderFragment values")]
     [Trait(Spec.UAC, "23")]
+    [Given("A controlled grid has sorting, filtering, selection, expansion, and paging state")]
+    [When("Each interactive state changes")]
+    [Then("The exported state payload should contain only serializable values")]
     public void UAC23_StatePayloadIsSerializable()
     {
         var state = new TestState();
@@ -99,7 +105,7 @@ public class SC06_SerializableState : ViewScenario
 
         cut.Find("[data-slot='data-grid-sort-button']").Click();
         cut.FindAll("[data-slot='data-grid-filter-input']")[1].Input("Engineer");
-        cut.FindAll("[data-slot='data-grid-selection-input']")[0].Change(true);
+        cut.FindAll("[data-slot='data-grid-selection-input']")[0].Click();
         cut.Find("[data-slot='data-grid-expand-button']").Click();
         cut.Find("[data-slot='data-grid-page-next']").Click();
 

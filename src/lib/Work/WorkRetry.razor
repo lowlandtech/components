@@ -22,9 +22,15 @@
             }
             <DataGridColumn TItem="WorkItem" Property="Id" Title="ID">
                 <Template Context="job">
-                    <span @onclick="() => SelectAsync(job)" class="cursor-pointer font-mono text-xs">
+                    <button type="button"
+                            data-testid="work-retry-job-detail-trigger"
+                            title="View job details"
+                            aria-label="View details for @job.Id"
+                            @onclick="() => SelectAsync(job)"
+                            class="inline-flex cursor-pointer items-center gap-1 rounded-md border border-transparent px-1.5 py-1 font-mono text-xs text-foreground transition-colors hover:border-border hover:bg-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
                         @job.Id
-                    </span>
+                        <Icon Name="eye" Size="12" Class="opacity-60" />
+                    </button>
                 </Template>
             </DataGridColumn>
             <DataGridColumn TItem="WorkItem" Title="State">

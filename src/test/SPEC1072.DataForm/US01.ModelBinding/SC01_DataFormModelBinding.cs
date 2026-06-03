@@ -85,13 +85,36 @@ public class SC01_DataFormModelBinding : ViewScenario
         cut.Find("[data-field-input='CreditLimit']").GetAttribute("type").ShouldBe("number");
     }
 
-    [Fact(DisplayName = "UAC11: boolean properties render checkbox inputs by default")]
+    [Fact(DisplayName = "UAC11: boolean properties render Checkbox component by default")]
     [Trait(Spec.UAC, "11")]
+    [Given("A model with a boolean property")]
+    [When("DataForm generates its default fields")]
+    [Then("The boolean field should render through the shared Checkbox component")]
     public void UAC11_BooleanPropertyRendersCheckbox()
     {
         var model = new CustomerFormModel();
         var cut = Ctx.Render<DataFormSut>(p => p.Add(x => x.Model, model));
-        cut.Find("[data-field-input='IsActive']").GetAttribute("type").ShouldBe("checkbox");
+
+        var checkbox = cut.Find("[data-field-input='IsActive']");
+
+        checkbox.GetAttribute("data-slot").ShouldBe("checkbox");
+        checkbox.GetAttribute("role").ShouldBe("checkbox");
+        cut.FindAll("input[type='checkbox']").Count.ShouldBe(0);
+    }
+
+    [Fact(DisplayName = "UAC32: clicking generated Checkbox updates boolean property")]
+    [Trait(Spec.UAC, "32")]
+    [Given("A generated boolean field is unchecked")]
+    [When("The generated Checkbox is clicked")]
+    [Then("The model boolean property should be updated")]
+    public void UAC32_ClickingGeneratedCheckboxUpdatesBooleanProperty()
+    {
+        var model = new CustomerFormModel { IsActive = false };
+        var cut = Ctx.Render<DataFormSut>(p => p.Add(x => x.Model, model));
+
+        cut.Find("[data-field-input='IsActive']").Click();
+
+        model.IsActive.ShouldBeTrue();
     }
 
     [Fact(DisplayName = "UAC12: enum properties render Select component by default")]

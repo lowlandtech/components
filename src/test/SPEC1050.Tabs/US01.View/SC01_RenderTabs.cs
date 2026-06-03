@@ -129,4 +129,45 @@ public class SC01_RenderTabs : ViewScenario
         var cut = Ctx.Render<TabsSut>(p => p.Add(x => x.Placement, "right"));
         cut.Find("[data-orientation='vertical']").ShouldNotBeNull();
     }
+
+    [Fact(DisplayName = "UAC15: Tabs renders default gap size")]
+    [Trait(Spec.UAC, "15")]
+    [Given("Tabs is rendered with default spacing")]
+    [When("The component root is inspected")]
+    [Then("The default gap is applied as an inline style")]
+    public void UAC15_RendersDefaultGapSize()
+    {
+        var cut = Ctx.Render<TabsSut>();
+        var tabs = cut.Find("[data-slot='tabs']");
+        tabs.GetAttribute("style").ShouldBe("gap: 10px;");
+    }
+
+    [Fact(DisplayName = "UAC16: Tabs renders custom gap size when HasGap is false")]
+    [Trait(Spec.UAC, "16")]
+    [Given("Tabs is rendered with HasGap disabled and a custom gap size")]
+    [When("The component root is inspected")]
+    [Then("The custom gap remains applied")]
+    public void UAC16_RendersCustomGapSizeWhenHasGapIsFalse()
+    {
+        var cut = Ctx.Render<TabsSut>(p => p
+            .Add(x => x.HasGap, false)
+            .Add(x => x.GapSize, "8px"));
+
+        var tabs = cut.Find("[data-slot='tabs']");
+        tabs.GetAttribute("style").ShouldBe("gap: 8px;");
+        tabs.ClassList.ShouldNotContain("gap-2");
+    }
+
+    [Fact(DisplayName = "UAC17: Tabs omits gap when HasGap is false")]
+    [Trait(Spec.UAC, "17")]
+    [Given("Tabs is rendered with HasGap disabled")]
+    [When("The component root is inspected")]
+    [Then("No gap style is rendered")]
+    public void UAC17_OmitsGapWhenHasGapIsFalse()
+    {
+        var cut = Ctx.Render<TabsSut>(p => p.Add(x => x.HasGap, false));
+        var tabs = cut.Find("[data-slot='tabs']");
+        tabs.GetAttribute("style").ShouldBeNull();
+        tabs.ClassList.ShouldNotContain("gap-2");
+    }
 }

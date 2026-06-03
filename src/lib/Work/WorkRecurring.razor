@@ -14,7 +14,9 @@
             {
                 <DataGridColumn TItem="WorkRecurringJobItem" Title="" Class="w-10">
                     <Template Context="job">
-                        <input data-testid="work-recurring-checkbox" type="checkbox" class="h-4 w-4 rounded border-border" />
+                        <Checkbox data-testid="work-recurring-checkbox"
+                                  CheckedChanged="_ => ToggleAsync(job.Id)"
+                                  Disabled="IsReadOnly" />
                     </Template>
                 </DataGridColumn>
             }
@@ -98,6 +100,11 @@
     [Parameter] public bool IsReadOnly { get; set; }
     [Parameter] public EventCallback<ToggleWorkSelection> OnToggleSelection { get; set; }
     [Parameter] public EventCallback<WorkCommandSubmitted> OnCommand { get; set; }
+
+    private async Task ToggleAsync(string jobId)
+    {
+        await OnToggleSelection.InvokeAsync(new ToggleWorkSelection(jobId));
+    }
 
     private static string GetRelativeTime(DateTimeOffset value)
     {

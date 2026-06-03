@@ -12,7 +12,7 @@
     else
     {
         <div class="flex flex-col gap-4 p-4">
-            <header class="flex items-start justify-between gap-4">
+            <header>
                 <div class="space-y-1">
                     <div class="flex items-center gap-2">
                         <WorkStateBadge State="Job.State" />
@@ -20,23 +20,6 @@
                     </div>
                     <h3 class="text-lg font-semibold">@Job.JobDisplayName</h3>
                 </div>
-                @if (!IsReadOnly)
-                {
-                    <div class="flex items-center gap-2">
-                        <Button data-testid="work-detail-requeue"
-                                Variant="outline" Size="sm"
-                                OnClick="@(() => OnCommand.InvokeAsync(new WorkCommandSubmitted("requeue", new List<string> { Job.Id })))">
-                            <Icon Name="refresh-cw" Size="14" />
-                            Requeue
-                        </Button>
-                        <Button data-testid="work-detail-delete"
-                                Variant="destructive" Size="sm"
-                                OnClick="@(() => OnCommand.InvokeAsync(new WorkCommandSubmitted("delete", new List<string> { Job.Id })))">
-                            <Icon Name="trash-2" Size="14" />
-                            Delete
-                        </Button>
-                    </div>
-                }
             </header>
 
             @if (Job.IsExpired)

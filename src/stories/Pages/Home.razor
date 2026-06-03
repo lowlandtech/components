@@ -2,7 +2,7 @@
 @inject ShowcodeState State
 @inject NavigationManager Nav
 
-<div class="flex h-[calc(100dvh-9rem)] min-h-0 items-stretch gap-2 overflow-x-auto overflow-y-hidden px-6 pb-6" style="padding-top: 2rem;">
+<div class="flex h-full min-h-0 items-stretch gap-2 overflow-x-auto overflow-y-hidden px-6 pb-6 pt-8">
         @foreach (var group in _groups)
         {
             var colors = GetGroupColors(group.Name);
@@ -10,7 +10,7 @@
                 <div class="@colors.Header rounded-md px-1 py-1.5 text-center">
                     <span class="text-[10px] font-bold uppercase tracking-widest leading-none">@group.Name</span>
                 </div>
-                <div class="min-h-0 flex-1 space-y-1.5 overflow-y-auto pr-1">
+                <div class="story-home-column-scroll min-h-0 flex-1 space-y-1.5 overflow-y-auto pr-1">
                     @foreach (var story in group.Stories)
                     {
                         var num = _nums[(group.Name, story.Name)];

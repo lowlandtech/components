@@ -10,6 +10,9 @@ window.ltPopover = {
 
         const anchorRect = anchor.getBoundingClientRect();
         const gap = 4;
+        if (content.classList.contains('cn-select-popover')) {
+            content.style.minWidth = `${anchorRect.width}px`;
+        }
 
         // Measure content size with a temporary visibility trick
         const prevVisibility = content.style.visibility;

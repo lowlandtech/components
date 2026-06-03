@@ -57,9 +57,9 @@ public class SC03_JobSelection : Infrastructure.WorkScenario
         cut.Find("[data-slot='work-detail'] [data-slot='work-state-badge']").ShouldNotBeNull();
     }
 
-    [Fact(DisplayName = "UAC05: Detail view shows requeue and delete buttons")]
+    [Fact(DisplayName = "UAC05: Detail view does not duplicate command buttons")]
     [Trait(Spec.UAC, "05")]
-    public void UAC05_DetailViewShowsActionButtons()
+    public void UAC05_DetailViewDoesNotDuplicateCommandButtons()
     {
         var cut = RenderWorkApp();
         StateService.SetView(WorkView.Enqueued);
@@ -67,7 +67,23 @@ public class SC03_JobSelection : Infrastructure.WorkScenario
         StateService.SelectJob(jobId);
         cut.Render();
 
-        cut.Find("[data-testid='work-detail-requeue']").ShouldNotBeNull();
-        cut.Find("[data-testid='work-detail-delete']").ShouldNotBeNull();
+        cut.FindAll("[data-testid='work-detail-requeue']").Count.ShouldBe(0);
+        cut.FindAll("[data-testid='work-detail-delete']").Count.ShouldBe(0);
+    }
+
+    [Fact(DisplayName = "UAC06: Job rows expose a visible detail affordance")]
+    [Trait(Spec.UAC, "06")]
+    public void UAC06_JobRowsExposeVisibleDetailAffordance()
+    {
+        var cut = RenderWorkApp();
+        cut.Find("[data-testid='work-sidebar-enqueued']").Click();
+
+        var trigger = cut.Find("[data-testid='work-list-job-detail-trigger']");
+
+        trigger.TagName.ShouldBe("BUTTON");
+        trigger.GetAttribute("title").ShouldBe("View job details");
+        trigger.GetAttribute("aria-label").ShouldStartWith("View details for ");
+        trigger.ClassList.ShouldContain("hover:bg-muted");
+        trigger.QuerySelector("[data-slot='icon']").ShouldNotBeNull();
     }
 }

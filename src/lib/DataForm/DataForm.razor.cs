@@ -137,19 +137,6 @@ public partial class DataForm : TinyComponentBase
         return $"{baseClass}{borderClass}";
     }
 
-    internal void HandleCheckboxChange(string propertyName, ChangeEventArgs e)
-    {
-        try
-        {
-            var value = e.Value is true || e.Value?.ToString() == "on" || (e.Value?.ToString() is { } s && bool.TryParse(s, out var b) && b);
-            SetValue(propertyName, value);
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"DataForm checkbox error: {ex.Message}");
-        }
-    }
-
     internal void SetValue(string propertyName, object? value)
     {
         try

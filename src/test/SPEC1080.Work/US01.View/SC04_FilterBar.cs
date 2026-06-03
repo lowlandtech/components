@@ -64,4 +64,19 @@ public class SC04_FilterBar : Infrastructure.WorkScenario
         cut.Render();
         cut.FindAll("[data-slot='work-list'] [data-slot='data-grid-row']").Count.ShouldBe(StateService.GetPagedJobs().Count);
     }
+
+    [Fact(DisplayName = "UAC05: Filter bar does not render page size controls")]
+    [Trait(Spec.UAC, "05")]
+    [Given("A listing view is rendered")]
+    [When("The filter bar is inspected")]
+    [Then("Page-size controls should not share the filter bar row")]
+    public void UAC05_FilterBarDoesNotRenderPageSizeControls()
+    {
+        var cut = RenderWorkApp();
+        StateService.SetView(WorkView.Enqueued);
+        cut.Render();
+
+        var filterBar = cut.Find("[data-slot='work-filter-bar']");
+        filterBar.QuerySelector("[data-testid='work-page-size-20']").ShouldBeNull();
+    }
 }

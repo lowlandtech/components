@@ -71,13 +71,12 @@
                                             </div>
                                             @if (state.CodeTabs.Count > 0)
                                             {
-                                                <Tabs Value="@GetActiveCodeTab(state)" ValueChanged="OnActiveCodeTabChanged" DefaultValue="@state.CodeTabs[0].Value" class="mb-4 overflow-hidden rounded-lg border border-[#444c56] bg-[#24292E] text-[#c9d1d9] shadow-sm">
-                                                    <div class="flex min-h-12 items-center justify-between gap-3 border-b border-[#444c56] bg-[#2d333b] px-3">
+                                                <Tabs Value="@GetActiveCodeTab(state)" ValueChanged="OnActiveCodeTabChanged" DefaultValue="@state.CodeTabs[0].Value" HasGap="false" GapSize="8px" class="story-card-code-panel">
+                                                    <div class="story-card-code-header">
                                                         <TabsList class="story-card-code-tabs">
                                                             @foreach (var codeTab in state.CodeTabs)
                                                             {
                                                                 <TabsTrigger Value="@codeTab.Value" class="story-card-code-tab">
-                                                                    <span class="story-card-file-dot" data-language="@codeTab.Language"></span>
                                                                     @codeTab.Name
                                                                 </TabsTrigger>
                                                             }
@@ -87,10 +86,10 @@
                                                     @foreach (var codeTab in state.CodeTabs)
                                                     {
                                                         <TabsContent Value="@codeTab.Value" class="mt-0">
-                                                            <div class="relative">
+                                                            <div class="story-card-code-card">
                                                                 <Button Variant="ghost"
                                                                         Size="icon-sm"
-                                                                        class="story-card-copy-button text-[#8b949e] hover:bg-[#444c56] hover:text-[#c9d1d9]"
+                                                                        class="story-card-copy-button"
                                                                         title="@($"Copy {codeTab.Name} code")"
                                                                         @onclick="() => CopyCode(codeTab)">
                                                                     <Icon Name="@(CopiedValue == codeTab.Value ? "check" : "copy")" Size="14" />
@@ -187,13 +186,12 @@
                                     </div>
                                     @if (state.CodeTabs.Count > 0)
                                     {
-                                        <Tabs Value="@GetActiveCodeTab(state)" ValueChanged="OnActiveCodeTabChanged" DefaultValue="@state.CodeTabs[0].Value" class="mb-4 overflow-hidden rounded-lg border border-[#444c56] bg-[#24292E] text-[#c9d1d9] shadow-sm">
-                                            <div class="flex min-h-12 items-center justify-between gap-3 border-b border-[#444c56] bg-[#2d333b] px-3">
+                                        <Tabs Value="@GetActiveCodeTab(state)" ValueChanged="OnActiveCodeTabChanged" DefaultValue="@state.CodeTabs[0].Value" HasGap="false" GapSize="8px" class="story-card-code-panel">
+                                            <div class="story-card-code-header">
                                                 <TabsList class="story-card-code-tabs">
                                                     @foreach (var codeTab in state.CodeTabs)
                                                     {
                                                         <TabsTrigger Value="@codeTab.Value" class="story-card-code-tab">
-                                                            <span class="story-card-file-dot" data-language="@codeTab.Language"></span>
                                                             @codeTab.Name
                                                         </TabsTrigger>
                                                     }
@@ -203,10 +201,10 @@
                                             @foreach (var codeTab in state.CodeTabs)
                                             {
                                                 <TabsContent Value="@codeTab.Value" class="mt-0">
-                                                    <div class="relative">
+                                                    <div class="story-card-code-card">
                                                         <Button Variant="ghost"
                                                                 Size="icon-sm"
-                                                                class="story-card-copy-button text-[#8b949e] hover:bg-[#444c56] hover:text-[#c9d1d9]"
+                                                                class="story-card-copy-button"
                                                                 title="@($"Copy {codeTab.Name} code")"
                                                                 @onclick="() => CopyCode(codeTab)">
                                                             <Icon Name="@(CopiedValue == codeTab.Value ? "check" : "copy")" Size="14" />

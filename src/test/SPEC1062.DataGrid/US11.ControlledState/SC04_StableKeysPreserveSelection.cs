@@ -11,6 +11,9 @@ public class SC04_StableKeysPreserveSelection : ViewScenario
 {
     [Fact(DisplayName = "UAC12: Selection preserved after item instances refresh")]
     [Trait(Spec.UAC, "12")]
+    [Given("A grid uses stable row keys with multiple selection")]
+    [When("A selected row is refreshed with a new item instance")]
+    [Then("The selected row should remain selected by stable key")]
     public void UAC12_SelectionPreservedAfterRefresh()
     {
         var state = new TestState();
@@ -21,7 +24,7 @@ public class SC04_StableKeysPreserveSelection : ViewScenario
             .Add(p => p.SelectedItemsChanged, (ISet<DataGridPerson> items) => state.SelectedItems = items.ToList())
             .Add(p => p.ChildContent, BuildColumns()));
 
-        cut.FindAll("[data-slot='data-grid-selection-input']")[1].Change(true);
+        cut.FindAll("[data-slot='data-grid-selection-input']")[1].Click();
 
         cut.Instance.Items = new List<DataGridPerson>
         {
@@ -38,6 +41,9 @@ public class SC04_StableKeysPreserveSelection : ViewScenario
 
     [Fact(DisplayName = "UAC13: Selection does not depend on object reference equality")]
     [Trait(Spec.UAC, "13")]
+    [Given("A selected row is tracked by stable key")]
+    [When("The grid receives equivalent rows as new object instances")]
+    [Then("Selection should still resolve to the matching refreshed row")]
     public void UAC13_SelectionNotByReference()
     {
         var state = new TestState();
@@ -55,7 +61,7 @@ public class SC04_StableKeysPreserveSelection : ViewScenario
             .Add(p => p.SelectedItemsChanged, (ISet<DataGridPerson> items) => state.SelectedItems = items.ToList())
             .Add(p => p.ChildContent, BuildColumns()));
 
-        cut.FindAll("[data-slot='data-grid-selection-input']")[1].Change(true);
+        cut.FindAll("[data-slot='data-grid-selection-input']")[1].Click();
 
         var newInstances = new List<DataGridPerson>
         {
@@ -73,6 +79,9 @@ public class SC04_StableKeysPreserveSelection : ViewScenario
 
     [Fact(DisplayName = "UAC14: RowsReconciled includes retained selected row keys")]
     [Trait(Spec.UAC, "14")]
+    [Given("A grid publishes controlled state")]
+    [When("A row selection changes")]
+    [Then("RowsReconciled should include the retained selected row keys")]
     public void UAC14_RowsReconciledRetainsKeys()
     {
         var state = new TestState();
@@ -83,7 +92,7 @@ public class SC04_StableKeysPreserveSelection : ViewScenario
             .Add(p => p.StateChanged, (DataGridStateRepresentation s) => state.LastState = s)
             .Add(p => p.ChildContent, BuildColumns()));
 
-        cut.FindAll("[data-slot='data-grid-selection-input']")[1].Change(true);
+        cut.FindAll("[data-slot='data-grid-selection-input']")[1].Click();
 
         state.LastState.ShouldNotBeNull();
         state.LastState.SelectedRowKeys.ShouldContain("2");

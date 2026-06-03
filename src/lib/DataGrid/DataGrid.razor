@@ -34,11 +34,10 @@
                         @if (SelectionMode == DataGridSelectionMode.Multiple)
                         {
                             <th data-slot="data-grid-header-cell" class="cn-data-grid-head cn-data-grid-selection-cell">
-                                <input data-slot="data-grid-select-all"
-                                       type="checkbox"
-                                       checked="@IsAllVisibleSelected()"
-                                       aria-label="Select all visible rows"
-                                       @onchange="ToggleSelectAll" />
+                                <Checkbox data-slot="data-grid-select-all"
+                                          Checked="@IsAllVisibleSelected()"
+                                          CheckedChanged="ToggleSelectAll"
+                                          aria-label="Select all visible rows" />
                             </th>
                         }
                         @foreach (var column in VisibleColumns)
@@ -152,12 +151,12 @@
                                 @if (SelectionMode == DataGridSelectionMode.Multiple)
                                 {
                                     <td data-slot="data-grid-cell" class="cn-data-grid-cell cn-data-grid-selection-cell">
-                                        <input data-slot="data-grid-selection-input"
-                                               type="checkbox"
-                                               checked="@IsSelected(item)"
-                                               aria-label="Select row"
-                                               @onclick:stopPropagation="true"
-                                               @onchange="() => ToggleSelection(item)" />
+                                        <span @onclick:stopPropagation="true">
+                                            <Checkbox data-slot="data-grid-selection-input"
+                                                      Checked="@IsSelected(item)"
+                                                      CheckedChanged="async _ => await ToggleSelection(item)"
+                                                      aria-label="Select row" />
+                                        </span>
                                     </td>
                                 }
                                 @if (RowTemplate is not null)
@@ -559,14 +558,14 @@
         return visible.Count > 0 && visible.All(item => _selectedRowKeys.Contains(GetRowKey(item)));
     }
 
-    private async Task ToggleSelectAll(ChangeEventArgs args)
+    private async Task ToggleSelectAll(bool selected)
     {
         if (SelectionMode != DataGridSelectionMode.Multiple)
         {
             return;
         }
 
-        if (args.Value is true)
+        if (selected)
         {
             foreach (var item in CurrentPageItems)
             {

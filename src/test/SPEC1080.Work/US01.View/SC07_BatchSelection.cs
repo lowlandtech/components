@@ -80,4 +80,75 @@ public class SC07_BatchSelection : Infrastructure.WorkScenario
 
         StateService.State.EventLogEntries.Count.ShouldBeGreaterThan(beforeCount);
     }
+
+    [Fact(DisplayName = "UAC06: Work list selection uses Checkbox component")]
+    [Trait(Spec.UAC, "06")]
+    [Given("The enqueued work list is rendered")]
+    [When("Selection controls are inspected")]
+    [Then("Rows use the shared Checkbox component instead of native checkbox inputs")]
+    public void UAC06_WorkListSelectionUsesCheckboxComponent()
+    {
+        var cut = RenderWorkApp();
+        StateService.SetView(WorkView.Enqueued);
+        cut.Render();
+
+        var checkbox = cut.Find("[data-testid='work-list-checkbox']");
+        checkbox.GetAttribute("data-slot").ShouldBe("checkbox");
+        checkbox.GetAttribute("role").ShouldBe("checkbox");
+        cut.FindAll("input[type='checkbox']").Count.ShouldBe(0);
+    }
+
+    [Fact(DisplayName = "UAC07: Recurring list selection uses Checkbox component")]
+    [Trait(Spec.UAC, "07")]
+    [Given("The recurring work list is rendered")]
+    [When("Selection controls are inspected")]
+    [Then("Rows use the shared Checkbox component instead of native checkbox inputs")]
+    public void UAC07_RecurringListSelectionUsesCheckboxComponent()
+    {
+        var cut = RenderWorkApp();
+        StateService.SetView(WorkView.Recurring);
+        cut.Render();
+
+        var checkbox = cut.Find("[data-testid='work-recurring-checkbox']");
+        checkbox.GetAttribute("data-slot").ShouldBe("checkbox");
+        checkbox.GetAttribute("role").ShouldBe("checkbox");
+        cut.FindAll("input[type='checkbox']").Count.ShouldBe(0);
+    }
+
+    [Fact(DisplayName = "UAC08: Batch selector renders as standalone panel")]
+    [Trait(Spec.UAC, "08")]
+    [Given("The enqueued work list is rendered")]
+    [When("The batch selector is inspected")]
+    [Then("It should have rounded corners, full border, and bottom spacing")]
+    public void UAC08_BatchSelectorRendersAsStandalonePanel()
+    {
+        var cut = RenderWorkApp();
+        StateService.SetView(WorkView.Enqueued);
+        cut.Render();
+
+        var selector = cut.Find("[data-slot='work-batch-selector']");
+        selector.ClassList.ShouldContain("rounded-md");
+        selector.ClassList.ShouldContain("border");
+        selector.ClassList.ShouldContain("mb-3");
+        selector.ClassList.ShouldNotContain("border-b");
+    }
+
+    [Fact(DisplayName = "UAC09: Batch selected count aligns to the end")]
+    [Trait(Spec.UAC, "09")]
+    [Given("A partial batch selection is rendered")]
+    [When("The batch selector layout is inspected")]
+    [Then("The selected count is separated from the select-all control with leading spacing")]
+    public void UAC09_BatchSelectedCountAlignsToEnd()
+    {
+        var cut = Ctx.Render<WorkBatchSelector>(parameters => parameters
+            .Add(x => x.SelectedCount, 3)
+            .Add(x => x.TotalCount, 12));
+
+        var selector = cut.Find("[data-slot='work-batch-selector']");
+        var status = cut.Find("[data-slot='work-batch-status']");
+
+        selector.ClassList.ShouldContain("justify-between");
+        status.ClassList.ShouldContain("ml-3");
+        status.TextContent.ShouldContain("3 of 12 selected");
+    }
 }

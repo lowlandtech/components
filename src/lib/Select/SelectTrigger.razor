@@ -2,6 +2,7 @@
 @inherits TinyComponentBase
 
 <button data-slot="select-trigger"
+        id="@Parent?.PopoverAnchorId"
         data-size="@Size"
         data-value="@(Parent?.Value)"
         data-invalid="@(Invalid ? "true" : null)"

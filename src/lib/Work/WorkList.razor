@@ -14,20 +14,25 @@
             {
                 <DataGridColumn TItem="WorkItem" Title="" Class="w-10">
                     <Template Context="job">
-                        <input type="checkbox"
-                               class="h-4 w-4 rounded border-border"
-                               checked="@State.SelectedJobIds.Contains(job.Id)"
-                               @onclick:stopPropagation
-                               @onchange="() => OnToggleSelection.InvokeAsync(new ToggleWorkSelection(job.Id))" />
+                        <Checkbox data-testid="work-list-checkbox"
+                                  Checked="@State.SelectedJobIds.Contains(job.Id)"
+                                  CheckedChanged="_ => OnToggleSelection.InvokeAsync(new ToggleWorkSelection(job.Id))"
+                                  Disabled="IsReadOnly"
+                                  @onclick:stopPropagation />
                     </Template>
                 </DataGridColumn>
             }
             <DataGridColumn TItem="WorkItem" Property="Id" Title="ID">
                 <Template Context="job">
-                    <span @onclick="() => OnSelected.InvokeAsync(new WorkItemSelected(job.Id))"
-                          class="cursor-pointer font-mono text-xs">
+                    <button type="button"
+                            data-testid="work-list-job-detail-trigger"
+                            title="View job details"
+                            aria-label="View details for @job.Id"
+                            @onclick="() => OnSelected.InvokeAsync(new WorkItemSelected(job.Id))"
+                            class="inline-flex cursor-pointer items-center gap-1 rounded-md border border-transparent px-1.5 py-1 font-mono text-xs text-foreground transition-colors hover:border-border hover:bg-muted hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background">
                         @SafeId(job.Id)
-                    </span>
+                        <Icon Name="eye" Size="12" Class="opacity-60" />
+                    </button>
                 </Template>
             </DataGridColumn>
             <DataGridColumn TItem="WorkItem" Title="State">
