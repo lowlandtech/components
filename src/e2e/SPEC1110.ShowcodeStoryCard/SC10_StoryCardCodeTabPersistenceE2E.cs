@@ -11,59 +11,54 @@ public sealed class SC10_StoryCardCodeTabPersistenceE2E(ShowcodeCollection colle
     [Fact(DisplayName = "UAC01: selecting a non-first code tab writes codetab to the URL query string")]
     [Trait(Spec.UAC, "01")]
     [Given("the Popover story is displayed with multiple code tabs")]
-    [When("the user clicks the second code tab 'PopoverFormExample.razor'")]
-    [Then("the page URL contains the codetab query parameter with value 'PopoverFormExample.razor'")]
+    [When("the user clicks the second code tab 'PopoverProvider.razor'")]
+    [Then("the page URL contains the codetab query parameter with value 'form-service'")]
     public async Task UAC01_CodeTabSelectionWritesToQueryString()
     {
         await Showcode.GoToStoryAsync("Popover");
 
         var card = Showcode.Page.Locator("main [data-slot='story-card']").First;
-        var formTab = card.Locator("[data-slot='tabs-trigger']").Filter(new LocatorFilterOptions
-        {
-            HasText = "PopoverFormExample.razor"
-        }).First;
+        await SelectWithFormScenarioAsync(card);
 
-        await formTab.ClickAsync();
-        await Showcode.Page.WaitForTimeoutAsync(300);
+        var providerTab = ProviderCodeTab(card);
+        await providerTab.ClickAsync();
+        await Assertions.Expect(providerTab).ToHaveAttributeAsync("data-state", "active");
+        await WaitForUrlCodeTabAsync();
 
         var url = Showcode.Page.Url;
         url.ShouldContain("codetab=");
-        url.ShouldContain("PopoverFormExample.razor");
+        url.ShouldContain("form-service");
     }
 
     [Fact(DisplayName = "UAC02: reloading the page restores the previously selected code tab")]
     [Trait(Spec.UAC, "02")]
-    [Given("the Popover story is displayed and the user selected 'PopoverFormExample.razor'")]
+    [Given("the Popover story is displayed and the user selected 'PopoverProvider.razor'")]
     [When("the page is reloaded")]
-    [Then("the 'PopoverFormExample.razor' code tab is active and its content is visible")]
+    [Then("the 'PopoverProvider.razor' code tab is active and its content is visible")]
     public async Task UAC02_ReloadRestoresSelectedCodeTab()
     {
         await Showcode.GoToStoryAsync("Popover");
 
         var card = Showcode.Page.Locator("main [data-slot='story-card']").First;
-        var formTab = card.Locator("[data-slot='tabs-trigger']").Filter(new LocatorFilterOptions
-        {
-            HasText = "PopoverFormExample.razor"
-        }).First;
+        await SelectWithFormScenarioAsync(card);
 
-        await formTab.ClickAsync();
-        await Showcode.Page.WaitForTimeoutAsync(300);
+        var providerTab = ProviderCodeTab(card);
+        await providerTab.ClickAsync();
+        await Assertions.Expect(providerTab).ToHaveAttributeAsync("data-state", "active");
+        await WaitForSessionStorageCodeTabAsync();
 
         await Showcode.Page.ReloadAsync();
-        await Showcode.Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
-        await Showcode.Page.WaitForSelectorAsync("[data-slot='story-card']",
-            new PageWaitForSelectorOptions { Timeout = 30_000 });
+        await Showcode.GoToStoryAsync("Popover");
 
         card = Showcode.Page.Locator("main [data-slot='story-card']").First;
-        var restoredTab = card.Locator("[data-slot='tabs-trigger']").Filter(new LocatorFilterOptions
-        {
-            HasText = "PopoverFormExample.razor"
-        }).First;
+        await Assertions.Expect(card.GetByRole(AriaRole.Heading, new() { Name = "Popover", Exact = true }))
+            .ToBeVisibleAsync();
 
-        (await restoredTab.GetAttributeAsync("data-state")).ShouldBe("active");
+        var restoredTab = ProviderCodeTab(card);
+        await Assertions.Expect(restoredTab).ToHaveAttributeAsync("data-state", "active");
 
         var activeCode = card.Locator("[data-slot='tabs-content'][data-state='active'] .story-card-code-editor").First;
-        await Assertions.Expect(activeCode).ToContainTextAsync("<PopoverFormExample />");
+        await Assertions.Expect(activeCode).ToContainTextAsync("<PopoverProvider />");
     }
 
     [Fact(DisplayName = "UAC03: switching scenario tabs resets the code tab to the first file")]
@@ -83,15 +78,12 @@ public sealed class SC10_StoryCardCodeTabPersistenceE2E(ShowcodeCollection colle
             HasText = "With form"
         }).First;
         await withFormTab.ClickAsync();
-        await Showcode.Page.WaitForTimeoutAsync(300);
+        await Assertions.Expect(withFormTab).ToHaveAttributeAsync("data-state", "active");
 
         // Select a non-first code tab in that scenario
-        var formTab = card.Locator("[data-slot='tabs-trigger']").Filter(new LocatorFilterOptions
-        {
-            HasText = "PopoverFormExample.razor"
-        }).First;
+        var formTab = FormCodeTab(card);
         await formTab.ClickAsync();
-        await Showcode.Page.WaitForTimeoutAsync(300);
+        await Assertions.Expect(formTab).ToHaveAttributeAsync("data-state", "active");
 
         // Switch to "Outlined" scenario
         var outlinedTab = card.Locator("[data-slot='tabs-trigger']").Filter(new LocatorFilterOptions
@@ -99,32 +91,30 @@ public sealed class SC10_StoryCardCodeTabPersistenceE2E(ShowcodeCollection colle
             HasText = "Outlined"
         }).First;
         await outlinedTab.ClickAsync();
-        await Showcode.Page.WaitForTimeoutAsync(300);
 
-        (await outlinedTab.GetAttributeAsync("data-state")).ShouldBe("active");
+        await Assertions.Expect(outlinedTab).ToHaveAttributeAsync("data-state", "active");
 
         // The first code tab of the new scenario should be active
         var firstCodeTab = card.Locator(".story-card-code-tabs [data-slot='tabs-trigger']").First;
-        (await firstCodeTab.GetAttributeAsync("data-state")).ShouldBe("active");
+        await Assertions.Expect(firstCodeTab).ToHaveAttributeAsync("data-state", "active");
     }
 
     [Fact(DisplayName = "UAC04: code tab selection is written to sessionStorage")]
     [Trait(Spec.UAC, "04")]
     [Given("the Popover story is displayed")]
-    [When("the user clicks the 'PopoverFormExample.razor' code tab")]
-    [Then("sessionStorage contains the persisted state with CodeTab set to 'PopoverFormExample.razor'")]
+    [When("the user clicks the 'PopoverProvider.razor' code tab")]
+    [Then("sessionStorage contains the persisted state with CodeTab set to 'form-service'")]
     public async Task UAC04_CodeTabIsPersistedToSessionStorage()
     {
         await Showcode.GoToStoryAsync("Popover");
 
         var card = Showcode.Page.Locator("main [data-slot='story-card']").First;
-        var formTab = card.Locator("[data-slot='tabs-trigger']").Filter(new LocatorFilterOptions
-        {
-            HasText = "PopoverFormExample.razor"
-        }).First;
+        await SelectWithFormScenarioAsync(card);
 
-        await formTab.ClickAsync();
-        await Showcode.Page.WaitForTimeoutAsync(300);
+        var providerTab = ProviderCodeTab(card);
+        await providerTab.ClickAsync();
+        await Assertions.Expect(providerTab).ToHaveAttributeAsync("data-state", "active");
+        await WaitForSessionStorageCodeTabAsync();
 
         var storageJson = await Showcode.Page.EvaluateAsync<string?>(@"() => {
             const keys = Object.keys(sessionStorage).filter(k => k.startsWith('storycard:'));
@@ -133,7 +123,7 @@ public sealed class SC10_StoryCardCodeTabPersistenceE2E(ShowcodeCollection colle
 
         storageJson.ShouldNotBeNullOrEmpty();
         storageJson.ShouldContain("\"CodeTab\"");
-        storageJson.ShouldContain("PopoverFormExample.razor");
+        storageJson.ShouldContain("form-service");
     }
 
     [Fact(DisplayName = "UAC05: persistence key is a deterministic GuidV5 derived from the story title")]
@@ -148,15 +138,52 @@ public sealed class SC10_StoryCardCodeTabPersistenceE2E(ShowcodeCollection colle
         await Showcode.GoToStoryAsync("Popover");
 
         var card = Showcode.Page.Locator("main [data-slot='story-card']").First;
-        var formTab = card.Locator("[data-slot='tabs-trigger']").Filter(new LocatorFilterOptions
+        await SelectWithFormScenarioAsync(card);
+
+        var providerTab = ProviderCodeTab(card);
+        await providerTab.ClickAsync();
+        await Assertions.Expect(providerTab).ToHaveAttributeAsync("data-state", "active");
+        await WaitForUrlCodeTabAsync();
+
+        var url = Showcode.Page.Url;
+        url.ShouldContain($"{expectedKey}-codetab=");
+    }
+
+    private static ILocator FormCodeTab(ILocator card) =>
+        card.Locator("[data-slot='tabs-trigger']").Filter(new LocatorFilterOptions
         {
             HasText = "PopoverFormExample.razor"
         }).First;
 
-        await formTab.ClickAsync();
-        await Showcode.Page.WaitForTimeoutAsync(300);
+    private static ILocator ProviderCodeTab(ILocator card) =>
+        card.Locator("[data-slot='tabs-trigger']").Filter(new LocatorFilterOptions
+        {
+            HasText = "PopoverProvider.razor"
+        }).First;
 
-        var url = Showcode.Page.Url;
-        url.ShouldContain($"{expectedKey}-codetab=");
+    private static async Task SelectWithFormScenarioAsync(ILocator card)
+    {
+        var withFormTab = card.Locator("[data-slot='tabs-trigger']").Filter(new LocatorFilterOptions
+        {
+            HasText = "With form"
+        }).First;
+
+        await withFormTab.ClickAsync();
+        await Assertions.Expect(withFormTab).ToHaveAttributeAsync("data-state", "active");
+        await Assertions.Expect(FormCodeTab(card)).ToBeVisibleAsync();
+    }
+
+    private async Task WaitForUrlCodeTabAsync()
+    {
+        await Showcode.Page.WaitForFunctionAsync(
+            "() => window.location.href.includes('codetab=') && window.location.href.includes('form-service')");
+    }
+
+    private async Task WaitForSessionStorageCodeTabAsync()
+    {
+        await Showcode.Page.WaitForFunctionAsync(@"() => {
+            const keys = Object.keys(sessionStorage).filter(k => k.startsWith('storycard:'));
+            return keys.some(k => sessionStorage.getItem(k)?.includes('""CodeTab"":""form-service""'));
+        }");
     }
 }
