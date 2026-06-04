@@ -279,6 +279,8 @@ public sealed class SessionStateService
 
     public void ShowEventLogPage() => Dispatch(new ShowSessionEventLogPage());
 
+    public void ShowSettingsPage() => Dispatch(new ShowSessionSettingsPage());
+
     public void ShowFeedPage() => Dispatch(new ShowSessionFeedPage());
 
     public void ClearEventLog() => Dispatch(new ClearSessionEventLog());

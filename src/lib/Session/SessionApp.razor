@@ -8,7 +8,7 @@
         <Resizable @key="IsStandaloneSidebarOpen">
             @if (IsStandaloneSidebarOpen)
             {
-            <ResizablePanel DefaultSize="24" MinSize="16" MaxSize="38" Id="session-app-sidebar-panel" class="h-full">
+            <ResizablePanel DefaultSize="@(HasActiveSession ? 16 : 24)" MinSize="16" MaxSize="38" Id="session-app-sidebar-panel" class="h-full">
                 <SidebarProvider Open="@_isStandaloneSidebarOpen" OpenChanged="HandleStandaloneSidebarOpenChanged" Width="100%" class="h-full min-h-0">
                     <Sidebar Collapsible="offcanvas" class="h-full min-h-0 border-r-0 bg-sidebar/40">
                             <div class="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden"
@@ -47,7 +47,7 @@
                                                                     OnPinned="HandlePinnedAsync"
                                                                     OnUnpinned="HandleUnpinnedAsync"
                                                                     ShowHeader="false"
-                                                                    class="min-h-0 flex-1 rounded-none border-0 bg-transparent" />
+                                                                    class="min-h-0 flex-1 border-0 bg-transparent" />
                                         </SidebarGroupContent>
                                     </SidebarGroup>
                                 </SidebarContent>
@@ -56,7 +56,7 @@
                                         <button type="button"
                                                 data-testid="session-app-settings-button"
                                                 class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                                                @onclick="ShowEventLogPageAsync">
+                                                @onclick="ShowSettingsPageAsync">
                                             <Icon Name="settings" Size="14" />
                                         </button>
                                     </div>
@@ -120,11 +120,24 @@
             </ResizablePanel>
             <ResizableHandle WithHandle="true" RevealOnHover="true" class="relative z-20" />
             }
-            <ResizablePanel DefaultSize="@(HasActiveSession ? 100 : IsStandaloneSidebarOpen ? 60 : 84)" MinSize="35" Id="session-app-main-panel" class="h-full">
+            <ResizablePanel DefaultSize="100" MinSize="35" Id="session-app-main-panel" class="h-full">
                 <SidebarInset class="h-full min-h-0 overflow-hidden bg-background">
                     <main class="relative flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden"
                           style="padding:10px;">
-                        @if (IsEventLogPage)
+                        @if (IsSettingsPage)
+                        {
+                            <SessionSettings class="min-h-0 flex-1">
+                                <ActivityContent>
+                                    <SessionEventLog Entries="AppState.EventLogEntries"
+                                                     InitialStateJson="@SessionState.GetInitialEventLogStateJson()"
+                                                     CurrentStateJson="@SessionState.GetCurrentEventLogStateJson()"
+                                                     OnBackRequested="ShowFeedPageAsync"
+                                                     OnClearRequested="ClearEventLogAsync"
+                                                     class="min-h-0 flex-1" />
+                                </ActivityContent>
+                            </SessionSettings>
+                        }
+                        else if (IsEventLogPage)
                         {
                             <SessionEventLog Entries="AppState.EventLogEntries"
                                              InitialStateJson="@SessionState.GetInitialEventLogStateJson()"

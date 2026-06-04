@@ -321,8 +321,11 @@ public class SC01_SessionBlocks : ViewScenario
         pinned.Pin.SessionNode.NodeTypeKey.ShouldBe("session.pin");
     }
 
-    [Fact(DisplayName = "UAC33: SessionApp uses an injected store and shows the event log as a dedicated standalone page")]
+    [Fact(DisplayName = "UAC33: SessionApp uses an injected store and shows settings as a dedicated standalone page")]
     [Trait(Spec.UAC, "33")]
+    [Given("a standalone SessionApp with an active session and a submitted command")]
+    [When("the settings button is clicked")]
+    [Then("the app opens the settings page with API keys as the default section")]
     public void UAC33_SessionAppStandaloneSettingsLoadsEventLogPage()
     {
         var stateService = new SessionStateService();
@@ -335,29 +338,21 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-testid='session-command-submit']").Click();
         cut.Find("[data-testid='session-app-settings-button']").Click();
 
-        cut.Find("[data-slot='session-event-log']").ShouldNotBeNull();
+        cut.Find("[data-slot='session-settings']").ShouldNotBeNull();
+        cut.Find("[data-slot='session-settings-api-keys']").ShouldNotBeNull();
         cut.FindAll("[data-slot='session-app-feed']").ShouldBeEmpty();
-        cut.FindAll("[data-slot='session-event-log-header']").ShouldBeEmpty();
-        cut.FindAll("[data-testid='session-event-log-back']").ShouldBeEmpty();
-        cut.FindAll("[data-testid='session-event-log-clear']").ShouldBeEmpty();
-        cut.Find("[data-slot='session-event-log-current-state'] [data-slot='collapsible-trigger']").TextContent.ShouldContain("Current state");
-        cut.Find("[data-slot='session-event-log-initial-state'] [data-slot='collapsible-trigger']").TextContent.ShouldContain("Initial state");
-        cut.FindAll("[data-slot='session-event-log-entry']").Count.ShouldBeGreaterThan(0);
-        cut.FindAll("[data-slot='session-event-log-entry-json']")
-            .Any(item => item.TextContent.Contains("Active session", StringComparison.Ordinal))
-            .ShouldBeTrue();
-        cut.FindAll("[data-slot='session-event-log-entry-json']")
-            .Any(item => item.TextContent.Contains("\"Kind\": \"session\"", StringComparison.Ordinal))
-            .ShouldBeTrue();
-        stateService.State.ActivePage.ShouldBe(SessionAppPage.EventLog);
+        stateService.State.ActivePage.ShouldBe(SessionAppPage.Settings);
         stateService.State.EventLogEntries.ShouldContain(entry => entry.ActionType == nameof(SetActiveSession));
         stateService.State.EventLogEntries.ShouldContain(entry => entry.ActionType == nameof(SetSessionInput));
         stateService.State.EventLogEntries.ShouldContain(entry => entry.ActionType == nameof(SubmitSessionCommand));
-        stateService.State.EventLogEntries.ShouldContain(entry => entry.ActionType == nameof(ShowSessionEventLogPage));
+        stateService.State.EventLogEntries.ShouldContain(entry => entry.ActionType == nameof(ShowSessionSettingsPage));
     }
 
     [Fact(DisplayName = "UAC34: SessionEventLog renders as a bare collapsible list without extra chrome")]
     [Trait(Spec.UAC, "34")]
+    [Given("a standalone SessionApp on the settings page with command history")]
+    [When("the Activity settings section is selected")]
+    [Then("the event log renders as the existing bare collapsible list")]
     public void UAC34_SessionEventLogRendersBareCollapsibleList()
     {
         var stateService = new SessionStateService();
@@ -369,6 +364,7 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-testid='session-command-input']").Input("Clear journal");
         cut.Find("[data-testid='session-command-submit']").Click();
         cut.Find("[data-testid='session-app-settings-button']").Click();
+        cut.Find("[data-testid='session-settings-activity-tab']").Click();
 
         cut.FindAll("[data-slot='session-event-log-header']").ShouldBeEmpty();
         cut.FindAll("[data-slot='session-event-log-entry-deltas']").ShouldBeEmpty();
@@ -377,8 +373,11 @@ public class SC01_SessionBlocks : ViewScenario
         cut.FindAll("[data-slot='session-event-log-initial-state']").Count.ShouldBe(1);
     }
 
-    [Fact(DisplayName = "UAC34b: SessionApp settings button toggles the event log page")]
+    [Fact(DisplayName = "UAC34b: SessionApp settings button toggles the settings page")]
     [Trait(Spec.UAC, "34b")]
+    [Given("a standalone SessionApp with an active session")]
+    [When("the settings button is clicked twice")]
+    [Then("the app opens settings and then returns to the feed")]
     public void UAC34b_SessionAppSettingsButtonTogglesEventLogPage()
     {
         var stateService = new SessionStateService();
@@ -389,13 +388,39 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-node-id='orders-session']").Click();
 
         cut.Find("[data-testid='session-app-settings-button']").Click();
-        cut.Find("[data-slot='session-event-log']").ShouldNotBeNull();
-        stateService.State.ActivePage.ShouldBe(SessionAppPage.EventLog);
+        cut.Find("[data-slot='session-settings']").ShouldNotBeNull();
+        stateService.State.ActivePage.ShouldBe(SessionAppPage.Settings);
 
         cut.Find("[data-testid='session-app-settings-button']").Click();
-        cut.FindAll("[data-slot='session-event-log']").ShouldBeEmpty();
+        cut.FindAll("[data-slot='session-settings']").ShouldBeEmpty();
         cut.Find("[data-slot='session-app-feed']").ShouldNotBeNull();
         stateService.State.ActivePage.ShouldBe(SessionAppPage.Feed);
+    }
+
+    [Fact(DisplayName = "UAC34c: SessionApp settings can create and remove API keys")]
+    [Trait(Spec.UAC, "34c")]
+    [Given("a standalone SessionApp on the API Keys settings section")]
+    [When("an API key is created and then removed")]
+    [Then("the one-time secret appears and the key row is removed")]
+    public void UAC34c_SessionAppSettingsCreatesAndRemovesApiKeys()
+    {
+        var stateService = new SessionStateService();
+        var cut = Ctx.Render<SessionApp>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.StateService, stateService));
+
+        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-testid='session-app-settings-button']").Click();
+        var initialRows = cut.FindAll("[data-testid='session-settings-api-key-row']").Count;
+
+        cut.Find("[data-testid='session-settings-create-api-key']").Click();
+
+        cut.Find("[data-testid='session-settings-api-key-secret']").TextContent.ShouldContain("ltg_");
+        cut.FindAll("[data-testid='session-settings-api-key-row']").Count.ShouldBe(initialRows + 1);
+
+        cut.FindAll("[data-testid='session-settings-revoke-api-key']").Last().Click();
+
+        cut.FindAll("[data-testid='session-settings-api-key-row']").Count.ShouldBe(initialRows);
     }
 
     [Fact(DisplayName = "UAC35: SessionApp resolves request and response cards through DRD discovery")]
@@ -1150,7 +1175,9 @@ public class SC01_SessionBlocks : ViewScenario
         standalone.Find("[data-slot='sidebar-inset']").ShouldNotBeNull();
         var shellStyle = standalone.Find("[data-slot='session-app']").GetAttribute("style");
         shellStyle.ShouldNotBeNull();
-        shellStyle.ShouldContain("height:42rem");
+        // Standalone SessionApp fills its container (height:100%) rather than
+        // a fixed 42rem — the parent component sizes the shell.
+        shellStyle.ShouldContain("height:100%");
         standalone.FindAll("[data-panel='session-app-left-panel']").ShouldBeEmpty();
         standalone.FindAll("[data-slot='resizable-panel']").Count.ShouldBe(3);
         standalone.Find("[data-panel='session-app-sidebar-panel']").ShouldNotBeNull();
@@ -1204,8 +1231,10 @@ public class SC01_SessionBlocks : ViewScenario
 
         var appShellStyle = standalone.Find("[data-slot='session-app']").GetAttribute("style");
         appShellStyle.ShouldNotBeNull();
-        appShellStyle.ShouldContain("height:42rem");
-        appShellStyle.ShouldContain("min-height:42rem");
+        // Standalone SessionApp fills its container (height:100%) rather than
+        // a fixed 42rem — the parent component sizes the shell.
+        appShellStyle.ShouldContain("height:100%");
+        appShellStyle.ShouldContain("min-height:0");
 
         var sidebarContent = standalone.Find("[data-slot='sidebar-content']");
         sidebarContent.ClassList.ShouldContain("w-full");
@@ -1243,7 +1272,9 @@ public class SC01_SessionBlocks : ViewScenario
         standalone.FindAll("[data-slot='resizable-handle']").Count.ShouldBe(1);
         standalone.Find("[data-panel='session-app-main-panel']").ShouldNotBeNull();
         standalone.Find("[data-panel='session-app-sections-panel']").ShouldNotBeNull();
-        standalone.Find("[data-panel='session-app-main-panel']").GetAttribute("style").ShouldContain("84%");
+        // Standalone main panel fills the available width (height:100% pattern
+        // repeated for width); the right Sections panel keeps its 16% default.
+        standalone.Find("[data-panel='session-app-main-panel']").GetAttribute("style").ShouldContain("100%");
         standalone.Find("[data-panel='session-app-sections-panel']").GetAttribute("style").ShouldContain("16%");
         standalone.Find("[data-testid='session-app-sidebar-open']").ShouldNotBeNull();
         standalone.FindAll("[data-slot='tabs-header-leading'] [data-testid='session-app-sidebar-open']").Count

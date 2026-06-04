@@ -73,6 +73,26 @@ public enum SessionAppPage
 {
     Feed,
     EventLog,
+    Settings,
+}
+
+public sealed record SessionClientKeyEntry(
+    string Id,
+    string Name,
+    string KeyPreview,
+    string CreatedBy,
+    DateTimeOffset CreatedAt,
+    bool IsRevoked = false);
+
+public sealed record SessionClientKeyIssued(
+    SessionClientKeyEntry Entry,
+    string Secret);
+
+public interface ISessionClientSettingsService
+{
+    Task<IReadOnlyList<SessionClientKeyEntry>> ListAsync(CancellationToken ct = default);
+    Task<SessionClientKeyIssued> CreateAsync(string name, CancellationToken ct = default);
+    Task RevokeAsync(string id, CancellationToken ct = default);
 }
 
 public interface ISessionAction
@@ -254,6 +274,8 @@ public sealed record RestoreSessionUiState(SessionUiState State) : SessionAppAct
 public sealed record ShowSessionFeedPage : SessionAppAction;
 
 public sealed record ShowSessionEventLogPage : SessionAppAction;
+
+public sealed record ShowSessionSettingsPage : SessionAppAction;
 
 public sealed record ClearSessionEventLog : SessionAppAction;
 
@@ -457,6 +479,7 @@ public static class SessionAppReducer
             SessionUiAction uiAction => state with { Ui = SessionUiReducer.Reduce(state.Ui, uiAction) },
             ShowSessionFeedPage => state with { ActivePage = SessionAppPage.Feed },
             ShowSessionEventLogPage => state with { ActivePage = SessionAppPage.EventLog },
+            ShowSessionSettingsPage => state with { ActivePage = SessionAppPage.Settings },
             ClearSessionEventLog => state with { EventLogEntries = [] },
             SetSessionTabPinned => state,
             SetSessionBlockMode => state,

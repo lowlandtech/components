@@ -71,6 +71,8 @@ public partial class SessionApp : TinyComponentBase, IDisposable
 
     private bool IsEventLogPage => HasActiveSession && AppState.ActivePage == SessionAppPage.EventLog;
 
+    private bool IsSettingsPage => HasActiveSession && AppState.ActivePage == SessionAppPage.Settings;
+
     private bool IsStandaloneSidebarOpen => !HasSidebar || _isStandaloneSidebarOpen;
 
     private string CurrentSessionId => SessionState.CurrentSessionId;
@@ -111,7 +113,7 @@ public partial class SessionApp : TinyComponentBase, IDisposable
         return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
     }
 
-    private static string GetStyle() => "height:42rem; min-height:42rem;";
+    private static string GetStyle() => "width:100%; height:100%; min-height:0;";
 
     private string EffectiveAppOverlayContainerClass =>
         AppOverlayContainerClass ??
@@ -259,17 +261,23 @@ public partial class SessionApp : TinyComponentBase, IDisposable
 
     private string GetBlockMode(SessionContextBlockModel block) => SessionState.GetBlockMode(CurrentSessionId, block);
 
-    private Task ShowEventLogPageAsync()
+    private Task ShowSettingsPageAsync()
     {
-        if (IsEventLogPage)
+        if (IsSettingsPage)
         {
             SessionState.ShowFeedPage();
         }
         else
         {
-            SessionState.ShowEventLogPage();
+            SessionState.ShowSettingsPage();
         }
 
+        return Task.CompletedTask;
+    }
+
+    private Task ShowEventLogPageAsync()
+    {
+        SessionState.ShowEventLogPage();
         return Task.CompletedTask;
     }
 
