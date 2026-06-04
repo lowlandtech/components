@@ -42,6 +42,14 @@ public sealed class SessionContext
 
     public string? Response { get; set; }
 
+    /// <summary>
+    /// The user's input text for the current command. Set by
+    /// <see cref="LowlandTech.Components.Session.SessionStateService.SubmitAsync"/>
+    /// before invoking the agent, so streaming agents can read it from the
+    /// context rather than receiving it as a separate parameter.
+    /// </summary>
+    public string? Input { get; set; }
+
     public List<Dictionary<string, string>> ToAgentContext()
         => _entries.Values
             .Select(entry => new Dictionary<string, string>

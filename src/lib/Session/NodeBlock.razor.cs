@@ -1,6 +1,6 @@
 namespace LowlandTech.Components.Session;
 
-public partial class OrdersBlock : TinyComponentBase
+public partial class NodeBlock : TinyComponentBase
 {
     [Parameter] public SessionContextBlockModel? Block { get; set; }
     [Parameter] public SessionNodeInput? Context { get; set; }

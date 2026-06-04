@@ -1,0 +1,20 @@
+@namespace LowlandTech.Components.Session
+@inherits TinyComponentBase
+
+@*
+    Generic visual representation of any graph node. Renders the node's Label
+    and NodeTypeKey without committing to a specific data shape. Pinned or
+    projected context nodes from the graph flow into the SessionApp feed and
+    surface here so the user can see the materialised chain (user → workspaces
+    → workspace → session, etc.) without bespoke block code per NodeType.
+*@
+
+<div data-slot="node-block"
+     data-node-id="@Context?.Id"
+     data-node-type="@Context?.NodeTypeKey"
+     class="rounded-md border border-border bg-muted/20 p-3">
+    <p class="text-sm font-medium">@Context?.Label</p>
+    <p class="mt-1 text-xs text-muted-foreground">
+        Node type: <span class="font-mono">@Context?.NodeTypeKey</span>
+    </p>
+</div>

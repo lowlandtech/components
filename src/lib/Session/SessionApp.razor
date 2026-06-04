@@ -120,7 +120,7 @@
             </ResizablePanel>
             <ResizableHandle WithHandle="true" RevealOnHover="true" class="relative z-20" />
             }
-            <ResizablePanel DefaultSize="@(IsStandaloneSidebarOpen ? 60 : 84)" MinSize="35" Id="session-app-main-panel" class="h-full">
+            <ResizablePanel DefaultSize="@(HasActiveSession ? 100 : IsStandaloneSidebarOpen ? 60 : 84)" MinSize="35" Id="session-app-main-panel" class="h-full">
                 <SidebarInset class="h-full min-h-0 overflow-hidden bg-background">
                     <main class="relative flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden"
                           style="padding:10px;">
@@ -307,6 +307,8 @@
                     </main>
                 </SidebarInset>
             </ResizablePanel>
+            @if (!HasActiveSession)
+            {
             <ResizableHandle WithHandle="true" RevealOnHover="true" class="relative z-20" />
             <ResizablePanel DefaultSize="16" MinSize="12" MaxSize="100" Id="session-app-sections-panel" class="h-full">
                 <aside class="flex h-full min-h-0 min-w-0 w-full flex-col overflow-hidden border-l border-border bg-sidebar/40"
@@ -350,6 +352,7 @@
                     </div>
                 </aside>
             </ResizablePanel>
+            }
         </Resizable>
         </div>
     }
@@ -403,8 +406,11 @@
                     </div>
                 </aside>
             </ResizablePanel>
-            <ResizableHandle WithHandle="true" RevealOnHover="true" class="relative z-20" />
-            <ResizablePanel DefaultSize="60" MinSize="35" Id="session-app-main-panel" class="h-full">
+            @if (!HasActiveSession)
+            {
+                <ResizableHandle WithHandle="true" RevealOnHover="true" class="relative z-20" />
+            }
+            <ResizablePanel DefaultSize="@(HasActiveSession ? 84 : 60)" MinSize="35" Id="session-app-main-panel" class="h-full">
                 <main class="relative flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden"
                       style="padding:10px;">
                     <SessionContent State="ViewState"

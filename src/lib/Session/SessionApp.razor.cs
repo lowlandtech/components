@@ -20,16 +20,16 @@ public partial class SessionApp : TinyComponentBase, IDisposable
     [Parameter] public IReadOnlyList<SessionContextNode> ContextNodes { get; set; } =
     [
         new(
-            new("orders", "workitem", "Orders", "OrdersBlock"),
+            new("orders", "workitem", "Orders", "NodeBlock"),
             [
-                new(new("invoice-approval", "invoice", "Invoice approval", "InvoiceBlock")),
-                new(new("shipment-delay", "shipment", "Shipment delay", "ShipmentBlock"))
+                new(new("invoice-approval", "invoice", "Invoice approval", "NodeBlock")),
+                new(new("shipment-delay", "shipment", "Shipment delay", "NodeBlock"))
             ]),
         new(
-            new("customers", "table", "Customers", "DataGridBlock"),
+            new("customers", "table", "Customers", "NodeBlock"),
             [
-                new(new("northwind", "customer", "Northwind Traders", "CustomerBlock")),
-                new(new("contoso", "customer", "Contoso", "CustomerBlock"))
+                new(new("northwind", "customer", "Northwind Traders", "NodeBlock")),
+                new(new("contoso", "customer", "Contoso", "NodeBlock"))
             ])
     ];
 

@@ -11,6 +11,18 @@ public interface IAgentGraphService
 
     /// <summary>Execute the agent logic against the session context.</summary>
     Task ExecuteAsync(SessionContext context);
+
+    /// <summary>
+    /// Stream the agent's response token-by-token. Default implementation throws
+    /// <see cref="NotSupportedException"/>; agents that can stream (e.g. remote LLMs
+    /// that expose SSE) override this. <see cref="SessionStateService.SubmitAsync"/>
+    /// prefers <c>StreamAsync</c> when available and falls back to
+    /// <see cref="ExecuteAsync"/> otherwise.
+    /// </summary>
+    IAsyncEnumerable<string> StreamAsync(SessionContext context)
+        => throw new NotSupportedException(
+            $"Agent '{AgentTypeKey}' does not support streaming; " +
+            $"override {nameof(IAgentGraphService)}.{nameof(StreamAsync)} or use ExecuteAsync.");
 }
 
 /// <summary>

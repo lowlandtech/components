@@ -155,28 +155,67 @@ public sealed class SessionStateService
 
         if (isTest)
         {
-            var streamingCommand = command with { Response = string.Empty, IsStreaming = true };
-            EnsureFeedSequence(GetFeedItemKey(sessionId, "command", streamingCommand.Id));
-            SetCommandHistory(sessionId, GetSessionCommands(sessionId).Append(streamingCommand).ToList());
+            var testCommand = command with { Response = string.Empty, IsStreaming = true };
+            EnsureFeedSequence(GetFeedItemKey(sessionId, "command", testCommand.Id));
+            SetCommandHistory(sessionId, GetSessionCommands(sessionId).Append(testCommand).ToList());
             MoveProjectedBlockToEnd(sessionId);
-            Dispatch(new SetPendingScrollSection(GetCommandTurnId(streamingCommand)));
-            await StreamTestResponseAsync(sessionId, streamingCommand, testStreamDelayMilliseconds);
+            Dispatch(new SetPendingScrollSection(GetCommandTurnId(testCommand)));
+            await StreamTestResponseAsync(sessionId, testCommand, testStreamDelayMilliseconds);
             return;
         }
 
         var service = discovery.Get(command.AgentTypeKey);
-        if (service is not null)
+        if (service is null)
         {
-            var context = new SessionContext();
+            EnsureFeedSequence(GetFeedItemKey(sessionId, "command", command.Id));
+            SetCommandHistory(sessionId, GetSessionCommands(sessionId).Append(command).ToList());
+            MoveProjectedBlockToEnd(sessionId);
+            Dispatch(new SetPendingScrollSection(GetCommandTurnId(command)));
+            return;
+        }
+
+        var context = new SessionContext { Input = command.Input };
+
+        // Prefer streaming when the agent supports it. The default interface
+        // implementation throws NotSupportedException; catch it at the call site
+        // to fall back to ExecuteAsync for agents that haven't opted in.
+        IAsyncEnumerable<string>? stream = null;
+        try
+        {
+            stream = service.StreamAsync(context);
+        }
+        catch (NotSupportedException)
+        {
+            stream = null;
+        }
+
+        if (stream is null)
+        {
             await service.ExecuteAsync(context);
             if (!string.IsNullOrWhiteSpace(context.Response))
                 command = command with { Response = context.Response };
+
+            EnsureFeedSequence(GetFeedItemKey(sessionId, "command", command.Id));
+            SetCommandHistory(sessionId, GetSessionCommands(sessionId).Append(command).ToList());
+            MoveProjectedBlockToEnd(sessionId);
+            Dispatch(new SetPendingScrollSection(GetCommandTurnId(command)));
+            return;
         }
 
-        EnsureFeedSequence(GetFeedItemKey(sessionId, "command", command.Id));
-        SetCommandHistory(sessionId, GetSessionCommands(sessionId).Append(command).ToList());
+        var streamingCommand = command with { Response = string.Empty, IsStreaming = true };
+        EnsureFeedSequence(GetFeedItemKey(sessionId, "command", streamingCommand.Id));
+        SetCommandHistory(sessionId, GetSessionCommands(sessionId).Append(streamingCommand).ToList());
         MoveProjectedBlockToEnd(sessionId);
-        Dispatch(new SetPendingScrollSection(GetCommandTurnId(command)));
+        Dispatch(new SetPendingScrollSection(GetCommandTurnId(streamingCommand)));
+
+        var response = string.Empty;
+        await foreach (var chunk in stream)
+        {
+            response += chunk;
+            UpdateCommand(sessionId, streamingCommand.Id, existing => existing with { Response = response, IsStreaming = true });
+        }
+
+        UpdateCommand(sessionId, streamingCommand.Id, existing => existing with { Response = response, IsStreaming = false });
     }
 
     public void UnpinBlock(SessionContextBlockModel block)
