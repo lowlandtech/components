@@ -320,8 +320,6 @@
                     </main>
                 </SidebarInset>
             </ResizablePanel>
-            @if (!HasActiveSession)
-            {
             <ResizableHandle WithHandle="true" RevealOnHover="true" class="relative z-20" />
             <ResizablePanel DefaultSize="16" MinSize="12" MaxSize="100" Id="session-app-sections-panel" class="h-full">
                 <aside class="flex h-full min-h-0 min-w-0 w-full flex-col overflow-hidden border-l border-border bg-sidebar/40"
@@ -365,7 +363,6 @@
                     </div>
                 </aside>
             </ResizablePanel>
-            }
         </Resizable>
         </div>
     }
