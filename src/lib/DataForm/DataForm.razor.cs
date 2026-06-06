@@ -18,6 +18,11 @@ public partial class DataForm : TinyComponentBase
     [Parameter] public RenderFragment<DataFormField>? LabelTemplate { get; set; }
     [Parameter] public RenderFragment<DataFormField>? ValidationTemplate { get; set; }
     [Parameter] public RenderFragment<DataForm>? ActionsTemplate { get; set; }
+    [Parameter] public Store<DataFormState>? Store { get; set; }
+    [Parameter] public IReadOnlyList<IValidatorDescription>? Validators { get; set; }
+    [Parameter] public FieldEventDiscoveryService? DiscoveryService { get; set; }
+    [Parameter] public bool UseStore { get; set; }
+    [Parameter] public EventCallback<FormFieldIntent> OnIntentDispatched { get; set; }
 
     private EditContext _editContext = null!;
     private object _currentModel = null!;
@@ -27,6 +32,7 @@ public partial class DataForm : TinyComponentBase
     private List<string> _validationSummary = [];
     private readonly Dictionary<string, List<string>> _fieldMessages = new();
     private readonly Dictionary<string, object?> _originalValues = new();
+    private bool _storeSubscribed;
 
     protected override void OnParametersSet()
     {
@@ -41,7 +47,109 @@ public partial class DataForm : TinyComponentBase
             _validationSummary.Clear();
             DiscoverFields();
             SnapshotValues();
+
+            if (UseStore && Store != null && !_storeSubscribed)
+            {
+                _storeSubscribed = true;
+                Store.StateChanged += OnStoreStateChanged;
+                Store.Dispatch(new DataFormActions.InitForm(_fields.ToList(), Model));
+            }
         }
+    }
+
+    private void OnStoreStateChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        if (_storeSubscribed && Store != null)
+        {
+            Store.StateChanged -= OnStoreStateChanged;
+        }
+    }
+
+    private static FormFieldType MapToFormFieldType(DataFormField field)
+    {
+        return field.InputKind switch
+        {
+            "checkbox" => FormFieldType.Bool,
+            "select" => FormFieldType.Enum,
+            "number" => field.PropertyType == typeof(decimal) || field.PropertyType == typeof(decimal?)
+                ? FormFieldType.Decimal
+                : FormFieldType.Number,
+            "date" => field.PropertyType == typeof(DateTime) || field.PropertyType == typeof(DateTime?)
+                ? FormFieldType.DateTime
+                : FormFieldType.Date,
+            _ => FormFieldType.Text
+        };
+    }
+
+    private IValidatorDescription? GetValidatorForField(string propertyName)
+    {
+        return Validators?.FirstOrDefault(v =>
+            string.Equals(v.FieldName, propertyName, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private async Task OnFieldChanging(FormFieldChangeArgs args)
+    {
+        if (UseStore && Store != null)
+        {
+            Store.Dispatch(new DataFormActions.FieldChanging(args.FieldName, args.NewValue));
+        }
+    }
+
+    private async Task OnFieldChanged(FormFieldChangeArgs args)
+    {
+        if (UseStore && Store != null)
+        {
+            Store.Dispatch(new DataFormActions.FieldChanged(args.FieldName, args.NewValue));
+            Store.Dispatch(new DataFormActions.SetFieldValue(args.FieldName, args.NewValue));
+
+            var validator = GetValidatorForField(args.FieldName);
+            var errors = new List<string>();
+            if (validator?.Rules != null)
+            {
+                foreach (var rule in validator.Rules)
+                {
+                    try
+                    {
+                        var expr = new NCalc.Expression(rule.Condition);
+                        expr.Parameters["value"] = args.NewValue;
+                        if (expr.Evaluate() is not bool b || !b)
+                            errors.Add(rule.Message);
+                    }
+                    catch
+                    {
+                        errors.Add(rule.Message);
+                    }
+                }
+            }
+            Store.Dispatch(new DataFormActions.ValidateField(args.FieldName, errors));
+        }
+        else
+        {
+            SetValue(args.FieldName, args.NewValue);
+        }
+    }
+
+    private async Task OnFieldChange(FormFieldChangeArgs args)
+    {
+        if (UseStore && Store != null)
+        {
+            // Additional change handling if needed
+        }
+    }
+
+    private async Task OnFieldBlur(FocusEventArgs args)
+    {
+        // Blur handling is per-field in FormField component
+    }
+
+    private async Task OnFieldFocus(FocusEventArgs args)
+    {
+        // Focus handling is per-field in FormField component
     }
 
     private void DiscoverFields()
@@ -285,6 +393,20 @@ public partial class DataForm : TinyComponentBase
 
     private async Task HandleSubmit()
     {
+        if (UseStore && Store != null)
+        {
+            Store.Dispatch(new DataFormActions.SubmitForm());
+            if (Store.State.IsValid)
+            {
+                await OnValidSubmit.InvokeAsync(_editContext);
+            }
+            else
+            {
+                await OnInvalidSubmit.InvokeAsync(_editContext);
+            }
+            return;
+        }
+
         if (ValidateOnSubmit)
         {
             _messageStore?.Clear();

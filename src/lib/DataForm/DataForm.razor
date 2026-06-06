@@ -1,5 +1,6 @@
 @namespace LowlandTech.Components
 @inherits TinyComponentBase
+@implements IDisposable
 
 <CascadingValue Value="_editContext">
     <form data-slot="data-form"
@@ -44,6 +45,40 @@
                     @if (FieldTemplate != null)
                     {
                         @FieldTemplate(field)
+                    }
+                    else if (UseStore)
+                    {
+                        var fieldType = MapToFormFieldType(field);
+                        var validator = GetValidatorForField(field.PropertyName);
+                        var fieldValue = Store?.State.Values.TryGetValue(field.PropertyName, out var v) == true ? v : GetValue(field.PropertyName);
+
+                        var storeErrors = Store?.State.Errors.TryGetValue(field.PropertyName, out var se) == true ? se : null;
+                        var hasStoreErrors = storeErrors?.Count > 0;
+
+                        <FormField FieldName="@field.PropertyName"
+                                   FieldType="@fieldType"
+                                   Label="@field.DisplayName"
+                                   Value="@fieldValue"
+                                   ValueChanged="async v => { SetValue(field.PropertyName, v); await OnFieldChanged(new FormFieldChangeArgs { FieldName = field.PropertyName, NewValue = v }); }"
+                                   Validator="@validator"
+                                   Mask="@validator?.Mask"
+                                   Required="@field.Required"
+                                   Disabled="@ReadOnly"
+                                   EnumType="@(field.PropertyType.IsEnum ? field.PropertyType : null)"
+                                   OnChanging="OnFieldChanging"
+                                   OnChange="OnFieldChange"
+                                   OnBlur="async e => { if (Store != null) Store.Dispatch(new DataFormActions.FieldBlurred(field.PropertyName)); }"
+                                   OnFocus="async e => { if (Store != null) Store.Dispatch(new DataFormActions.FieldFocused(field.PropertyName)); }" />
+
+                        @if (hasStoreErrors)
+                        {
+                            <div data-field-validation="@field.PropertyName" class="text-sm font-medium text-destructive" role="alert">
+                                @foreach (var error in storeErrors!)
+                                {
+                                    <div>@error</div>
+                                }
+                            </div>
+                        }
                     }
                     else if (ReadOnly || field.ReadOnly)
                     {

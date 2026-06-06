@@ -1,0 +1,196 @@
+@namespace LowlandTech.Components
+@inherits TinyComponentBase
+
+<div data-slot="form-field"
+     data-field-type="@FieldType"
+     data-field-name="@FieldName"
+     class="@GetWrapperClass()"
+     @attributes="AdditionalAttributes">
+
+    @if (LabelTemplate != null)
+    {
+        @LabelTemplate(this)
+    }
+    else if (!string.IsNullOrEmpty(Label))
+    {
+        <label data-field-label="@FieldName"
+               for="@FieldId"
+               class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            @Label
+            @if (Required)
+            {
+                <span class="text-destructive ml-0.5" aria-hidden="true">*</span>
+            }
+        </label>
+    }
+
+    <div class="relative">
+        @switch (FieldType)
+        {
+            case FormFieldType.Bool:
+                <Checkbox id="@FieldId"
+                          data-field-input="@FieldName"
+                          Checked="@(Value is true)"
+                          CheckedChanged="OnBoolChanged"
+                          Disabled="@Disabled"
+                          aria-invalid="@(HasErrors ? "true" : null)"
+                          aria-describedby="@(HasErrors ? ValidationId : null)" />
+                break;
+
+            case FormFieldType.Enum when EnumType != null:
+                <Select Value="@(_valueString)"
+                        ValueChanged="OnSelectChanged"
+                        data-field-input="@FieldName">
+                    <SelectTrigger id="@FieldId" Invalid="@HasErrors">
+                        <SelectValue Placeholder="Select..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        @foreach (var name in Enum.GetNames(EnumType))
+                        {
+                            <SelectItem Value="@name" Text="@name">@name</SelectItem>
+                        }
+                    </SelectContent>
+                </Select>
+                break;
+
+            case FormFieldType.Number:
+                <input type="number"
+                       id="@FieldId"
+                       data-field-input="@FieldName"
+                       value="@_valueString"
+                       class="@GetInputClass()"
+                       disabled="@Disabled"
+                       aria-invalid="@(HasErrors ? "true" : null)"
+                       aria-describedby="@(HasErrors ? ValidationId : null)"
+                       @oninput="OnInputChanging"
+                       @onchange="OnInputChanged"
+                       @onblur="OnInputBlur"
+                       @onfocus="OnInputFocus" />
+                break;
+
+            case FormFieldType.Decimal:
+                <input type="number"
+                       step="0.01"
+                       id="@FieldId"
+                       data-field-input="@FieldName"
+                       value="@_valueString"
+                       class="@GetInputClass()"
+                       disabled="@Disabled"
+                       aria-invalid="@(HasErrors ? "true" : null)"
+                       aria-describedby="@(HasErrors ? ValidationId : null)"
+                       @oninput="OnInputChanging"
+                       @onchange="OnInputChanged"
+                       @onblur="OnInputBlur"
+                       @onfocus="OnInputFocus" />
+                break;
+
+            case FormFieldType.Date:
+                <input type="date"
+                       id="@FieldId"
+                       data-field-input="@FieldName"
+                       value="@_valueString"
+                       class="@GetInputClass()"
+                       disabled="@Disabled"
+                       aria-invalid="@(HasErrors ? "true" : null)"
+                       aria-describedby="@(HasErrors ? ValidationId : null)"
+                       @oninput="OnInputChanging"
+                       @onchange="OnInputChanged"
+                       @onblur="OnInputBlur"
+                       @onfocus="OnInputFocus" />
+                break;
+
+            case FormFieldType.DateTime:
+                <input type="datetime-local"
+                       id="@FieldId"
+                       data-field-input="@FieldName"
+                       value="@_valueString"
+                       class="@GetInputClass()"
+                       disabled="@Disabled"
+                       aria-invalid="@(HasErrors ? "true" : null)"
+                       aria-describedby="@(HasErrors ? ValidationId : null)"
+                       @oninput="OnInputChanging"
+                       @onchange="OnInputChanged"
+                       @onblur="OnInputBlur"
+                       @onfocus="OnInputFocus" />
+                break;
+
+            case FormFieldType.Guid:
+                <input type="text"
+                       id="@FieldId"
+                       data-field-input="@FieldName"
+                       value="@_valueString"
+                       class="@GetInputClass()"
+                       disabled="@Disabled"
+                       placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                       aria-invalid="@(HasErrors ? "true" : null)"
+                       aria-describedby="@(HasErrors ? ValidationId : null)"
+                       @oninput="OnInputChanging"
+                       @onchange="OnInputChanged"
+                       @onblur="OnInputBlur"
+                       @onfocus="OnInputFocus" />
+                break;
+
+            case FormFieldType.Json:
+                <textarea id="@FieldId"
+                          data-field-input="@FieldName"
+                          value="@_valueString"
+                          class="@GetInputClass() min-h-[120px] resize-y"
+                          disabled="@Disabled"
+                          aria-invalid="@(HasErrors ? "true" : null)"
+                          aria-describedby="@(HasErrors ? ValidationId : null)"
+                          @oninput="OnInputChanging"
+                          @onchange="OnInputChanged"
+                          @onblur="OnInputBlur"
+                          @onfocus="OnInputFocus"></textarea>
+                break;
+
+            case FormFieldType.NodeRef:
+                <input type="text"
+                       id="@FieldId"
+                       data-field-input="@FieldName"
+                       value="@_valueString"
+                       class="@GetInputClass()"
+                       disabled="@Disabled"
+                       placeholder="Node reference..."
+                       aria-invalid="@(HasErrors ? "true" : null)"
+                       aria-describedby="@(HasErrors ? ValidationId : null)"
+                       @oninput="OnInputChanging"
+                       @onchange="OnInputChanged"
+                       @onblur="OnInputBlur"
+                       @onfocus="OnInputFocus" />
+                break;
+
+            default:
+                <input type="text"
+                       id="@FieldId"
+                       data-field-input="@FieldName"
+                       value="@_valueString"
+                       class="@GetInputClass()"
+                       disabled="@Disabled"
+                       aria-invalid="@(HasErrors ? "true" : null)"
+                       aria-describedby="@(HasErrors ? ValidationId : null)"
+                       @oninput="OnInputChanging"
+                       @onchange="OnInputChanged"
+                       @onblur="OnInputBlur"
+                       @onfocus="OnInputFocus" />
+                break;
+        }
+    </div>
+
+    @if (ValidationTemplate != null)
+    {
+        @ValidationTemplate(this)
+    }
+    else if (HasErrors)
+    {
+        <div data-field-validation="@FieldName"
+              id="@ValidationId"
+              class="text-sm font-medium text-destructive"
+              role="alert">
+            @foreach (var error in _errors)
+            {
+                <div>@error</div>
+            }
+        </div>
+    }
+</div>
