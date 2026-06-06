@@ -25,6 +25,9 @@ public abstract class ViewScenario : IAsyncLifetime
         Ctx.Services.AddSingleton<IAgentGraphRegistry, AgentGraphRegistry>();
         Ctx.Services.AddSingleton<IGraphDiscoveryService, GraphDiscoveryService>();
         Ctx.Services.AddScoped<ISessionSurfaceDiscovery, SessionSurfaceDiscovery>();
+        Ctx.Services.AddSingleton<ISessionBlockRegistry, DefaultSessionBlockRegistry>();
+        Ctx.Services.AddSingleton<ISessionBlockRegistry, AssemblyScanningSessionBlockRegistry>();
+        Ctx.Services.AddSingleton<ISessionBlockDiscovery, SessionBlockDiscovery>();
         return ValueTask.CompletedTask;
     }
 

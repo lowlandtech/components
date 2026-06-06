@@ -49,7 +49,7 @@ public sealed record SessionContextBlockModel(
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;
 
     [JsonIgnore]
-    public Type? EffectiveComponentType => ComponentType ?? SessionUiReducer.ResolveComponentType(Context.ComponentBlock);
+    public Type? EffectiveComponentType => ComponentType;
 }
 
 public interface ISessionBlock
@@ -392,8 +392,7 @@ public static class SessionUiReducer
         new(
             blockId ?? $"context-block:{node.Id}",
             node,
-            node.Properties,
-            ResolveComponentType(node.ComponentBlock));
+            node.Properties);
 
     private static IReadOnlyList<SessionContextPinModel> UpsertPin(IReadOnlyList<SessionContextPinModel> pins, SessionContextPinModel pin)
     {
@@ -432,39 +431,6 @@ public static class SessionUiReducer
             : blocks.Where(block => block.Context.Id != contextNodeId).ToList();
     }
 
-    public static Type? ResolveComponentType(string? componentBlock)
-    {
-        if (string.IsNullOrWhiteSpace(componentBlock))
-            return null;
-
-        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-        {
-            Type[] types;
-
-            try
-            {
-                types = assembly.GetTypes();
-            }
-            catch (ReflectionTypeLoadException ex)
-            {
-                types = ex.Types.Where(type => type is not null).Cast<Type>().ToArray();
-            }
-            catch
-            {
-                continue;
-            }
-
-            var match = types.FirstOrDefault(type =>
-                !type.IsAbstract &&
-                typeof(ComponentBase).IsAssignableFrom(type) &&
-                string.Equals(type.Name, componentBlock, StringComparison.Ordinal));
-
-            if (match is not null)
-                return match;
-        }
-
-        return null;
-    }
 }
 
 public static class SessionAppReducer

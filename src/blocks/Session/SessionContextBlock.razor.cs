@@ -3,6 +3,7 @@ namespace LowlandTech.Components;
 public partial class SessionContextBlock : TinyComponentBase
 {
     [Inject] private IPageOverlayService PageOverlay { get; set; } = default!;
+    [Inject] private ISessionBlockDiscovery BlockDiscovery { get; set; } = default!;
 
     public const string ModeMinimized = "minimized";
     public const string ModeNormal = "normal";
@@ -46,6 +47,9 @@ public partial class SessionContextBlock : TinyComponentBase
 
         return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
     }
+
+    private Type? ResolvedComponentType =>
+        Block.ComponentType ?? BlockDiscovery.ResolveComponentType(Block.Context.ComponentBlock ?? Block.Context.NodeTypeKey);
 
     private string GetContentClass()
     {
