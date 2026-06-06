@@ -3,7 +3,7 @@
 
 @if (Parent?.IsOpen == true)
 {
-    @if (Parent.Modal)
+    @if (Parent.Modal && !Parent.Portal)
     {
         <div data-slot="context-menu-overlay"
              data-state="@GetDataState()"
@@ -15,7 +15,7 @@
     <div data-slot="context-menu-content"
           data-state="@GetDataState()"
           class="@GetClass()"
-          style="@GetStyle()"
+          style="@GetCombinedStyle()"
           @attributes="AdditionalAttributes">
         @ChildContent
     </div>
@@ -28,6 +28,16 @@
     /// Whether to close the menu when clicking on the overlay.
     /// </summary>
     [Parameter] public bool CloseOnOverlayClick { get; set; } = true;
+
+    protected override void OnInitialized()
+    {
+        Parent?.SetMenuContent(ChildContent);
+    }
+
+    protected override void OnParametersSet()
+    {
+        Parent?.SetMenuContent(ChildContent);
+    }
 
     private async Task OnOverlayClick()
     {
@@ -49,5 +59,11 @@
     {
         if (Parent == null) return "";
         return $"position: absolute; left: {Parent.Position.X}px; top: {Parent.Position.Y}px;";
+    }
+
+    private string GetCombinedStyle()
+    {
+        var portalHide = Parent?.Portal == true ? "visibility:hidden;" : "";
+        return portalHide + GetStyle();
     }
 }

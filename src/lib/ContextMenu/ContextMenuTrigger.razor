@@ -16,6 +16,7 @@
     {
         if (Parent != null)
         {
+            // Use offset coordinates (relative to trigger element) for backward compatibility
             await Parent.OpenAt(e.OffsetX, e.OffsetY);
         }
     }

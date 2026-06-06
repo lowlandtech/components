@@ -1,16 +1,37 @@
 @namespace LowlandTech.Components
 @inherits TinyComponentBase
+@inject IPopoverService PopoverService
+@implements IDisposable
 
 <CascadingValue Value="this">
-    <div data-slot="context-menu"
-         data-state="@GetDataState()"
-         class="@GetClass()"
-         @attributes="AdditionalAttributes">
-        @ChildContent
-    </div>
+    @if (!Portal)
+    {
+        <!-- Inline rendering (original behavior) -->
+        <div data-slot="context-menu"
+             data-state="@GetDataState()"
+             class="@GetClass()"
+             @attributes="AdditionalAttributes">
+            @ChildContent
+        </div>
+    }
+    else
+    {
+        <!-- Portal rendering: only render the trigger/content children;
+             the actual menu is rendered via PopoverProvider -->
+        <div data-slot="context-menu"
+             data-state="@GetDataState()"
+             data-portal="true"
+             class="@GetClass()"
+             @attributes="AdditionalAttributes">
+            @ChildContent
+        </div>
+    }
 </CascadingValue>
 
 @code {
+    private readonly Guid _popoverId = Guid.NewGuid();
+    private RenderFragment? _menuContent;
+
     /// <summary>
     /// Whether the context menu is open.
     /// </summary>
@@ -28,15 +49,20 @@
     [Parameter] public bool Modal { get; set; } = true;
 
     /// <summary>
-    /// Whether to render the menu content in a portal at body level.
-    /// Default is false (will be implemented when Portal component is available).
+    /// Whether to render the menu content in a portal at body level via PopoverService.
+    /// Default is false for backward compatibility.
     /// </summary>
     [Parameter] public bool Portal { get; set; } = false;
 
     /// <summary>
     /// The position of the context menu.
     /// </summary>
-    internal (double X, double Y) Position { get; set; }
+    internal (double X, double Y) Position { get; private set; }
+
+    /// <summary>
+    /// Sets the menu content fragment (called by ContextMenuContent).
+    /// </summary>
+    internal void SetMenuContent(RenderFragment? content) => _menuContent = content;
 
     /// <summary>
     /// Opens the context menu at the specified position.
@@ -46,6 +72,20 @@
         Position = (x, y);
         IsOpen = true;
         await IsOpenChanged.InvokeAsync(IsOpen);
+
+        if (Portal)
+        {
+            var fragment = BuildPortalFragment();
+            PopoverService.Update(_popoverId, new PopoverState
+            {
+                Open = true,
+                Fragment = fragment,
+                X = x,
+                Y = y,
+                CssClass = "cn-context-menu-portal"
+            });
+        }
+
         StateHasChanged();
     }
 
@@ -56,7 +96,57 @@
     {
         IsOpen = false;
         await IsOpenChanged.InvokeAsync(IsOpen);
+
+        if (Portal)
+        {
+            PopoverService.Update(_popoverId, new PopoverState { Open = false });
+        }
+
         StateHasChanged();
+    }
+
+    protected override void OnInitialized()
+    {
+        if (Portal)
+        {
+            PopoverService.Register(_popoverId);
+        }
+    }
+
+    private RenderFragment? BuildPortalFragment()
+    {
+        if (_menuContent is null) return null;
+
+        return builder =>
+        {
+            var seq = 0;
+
+            // Modal overlay
+            if (Modal)
+            {
+                builder.OpenElement(seq++, "div");
+                builder.AddAttribute(seq++, "data-slot", "context-menu-overlay");
+                builder.AddAttribute(seq++, "data-state", "open");
+                builder.AddAttribute(seq++, "class", "cn-context-menu-overlay fixed inset-0 z-50 bg-transparent");
+                builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, _ => Close()));
+                builder.CloseElement();
+            }
+
+            // Menu content wrapper with cascade
+            builder.OpenElement(seq++, "div");
+            builder.AddAttribute(seq++, "data-slot", "context-menu-content");
+            builder.AddAttribute(seq++, "data-state", "open");
+            builder.AddAttribute(seq++, "class", GetContentClass());
+            builder.AddAttribute(seq++, "style", $"position: absolute; left: 0; top: 0;");
+
+            // Re-provide cascading value so items work inside the portal
+            builder.OpenComponent<CascadingValue<ContextMenu>>(seq++);
+            builder.AddAttribute(seq++, "Value", this);
+            builder.AddAttribute(seq++, "ChildContent", _menuContent);
+            builder.CloseComponent();
+
+            builder.CloseElement();
+        };
     }
 
     private string GetDataState() => IsOpen ? "open" : "closed";
@@ -65,5 +155,19 @@
     {
         var baseClass = "cn-context-menu relative";
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    private string GetContentClass()
+    {
+        var baseClass = "cn-context-menu-content z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md outline-hidden";
+        return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    public void Dispose()
+    {
+        if (Portal)
+        {
+            PopoverService.Unregister(_popoverId);
+        }
     }
 }

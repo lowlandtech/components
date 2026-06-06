@@ -19,10 +19,18 @@
 <div id="lt-popover-provider" class="lt-popover-provider">
     @foreach (var popover in PopoverService.ActivePopovers)
     {
+        var isCoordBased = popover.State.X.HasValue && popover.State.Y.HasValue;
+        var x = popover.State.X;
+        var y = popover.State.Y;
+        var style = isCoordBased && x.HasValue && y.HasValue
+            ? $"left: {x.Value}px; top: {y.Value}px;"
+            : "";
+
         <div id="@($"popover-content-{popover.Id}")"
              class="lt-popover @(popover.State.Open ? "lt-popover-open" : "") @popover.State.CssClass"
              data-placement="@popover.State.Placement.ToString().ToLowerInvariant()"
-             style="@(popover.State.Open ? "" : "display:none")">
+             data-coord-based="@isCoordBased.ToString().ToLowerInvariant()"
+             style="@(popover.State.Open ? style : "display:none")">
             @if (popover.State.Open && popover.State.Fragment is not null)
             {
                 @popover.State.Fragment
@@ -50,10 +58,10 @@
                 await JS.InvokeVoidAsync("ltPopover.initialize");
                 _jsInitialized = true;
             }
-            // Reposition all open popovers after render
+            // Reposition placement-based popovers via JS (coordinate-based are already positioned via inline styles)
             foreach (var p in PopoverService.ActivePopovers)
             {
-                if (p.State.Open)
+                if (p.State.Open && (!p.State.X.HasValue || !p.State.Y.HasValue))
                     await JS.InvokeVoidAsync("ltPopover.position", p.Id.ToString(), p.State.Placement.ToString().ToLowerInvariant());
             }
         });
