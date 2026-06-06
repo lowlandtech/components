@@ -22,9 +22,11 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
     private bool _registered;
     private bool _menuOpen;
 
-    private string IndentStyle => $"padding-left:{Math.Max(0, Depth) * 0.75 + 0.5}rem";
+    private bool _isExpanded = true;
+
     private bool HasChildren => VisibleChildren.Count > 0;
     private string PopoverId => _popoverId.ToString();
+    private string NodeIcon => Icons.GetByName(Item.Node.NodeTypeKey) ?? string.Empty;
     private IReadOnlyList<SessionContextNode> VisibleChildren =>
         [.. (Item.Children ?? []).Where(child => !IsPinned(child.Node.Id))];
 
@@ -35,6 +37,12 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
     }
 
     private bool IsPinned(string nodeId) => Pins.Any(pin => pin.Node.Id == nodeId);
+
+    private void ToggleExpand() => _isExpanded = !_isExpanded;
+
+    private string GetChevronClass() => _isExpanded
+        ? "text-muted-foreground transition-transform duration-100 rotate-90"
+        : "text-muted-foreground transition-transform duration-100";
 
     private Task ProjectAsync() => OnProject.InvokeAsync(Item.Node);
 

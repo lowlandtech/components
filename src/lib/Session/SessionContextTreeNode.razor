@@ -2,23 +2,33 @@
 @inherits TinyComponentBase
 
 <div>
-    <div class="flex items-center gap-1 rounded-sm px-2 hover:bg-muted/60 data-[projected=true]:bg-primary/10"
+    <div class="flex items-center gap-1 rounded-sm hover:bg-muted/60 data-[projected=true]:bg-primary/10"
+         style="padding-left: @(Math.Max(0, Depth) * 0.75 + 0.5)rem; padding-right: 0.5rem;"
          data-projected="@(Projection?.Node.Id == Item.Node.Id ? "true" : "false")">
         <button type="button"
                 data-slot="session-context-node"
                 data-node-id="@Item.Node.Id"
                 class="flex min-h-8 flex-1 items-center justify-start gap-2 px-2 py-1 text-left text-sm font-normal"
-                style="@IndentStyle"
                 @onclick="ProjectAsync"
                 @ondblclick="PinAsync">
             @if (HasChildren)
             {
-                <Icon Name="chevron-right" Size="12" class="text-muted-foreground" />
+                <span class="inline-flex h-3 w-3 shrink-0 cursor-pointer items-center justify-center"
+                      @onclick:stopPropagation
+                      @onclick="ToggleExpand">
+                    <Icon Name="chevron-right" Size="12" class="@GetChevronClass()" />
+                </span>
             }
             else
             {
-                <span class="w-3"></span>
+                <span class="inline-flex h-3 w-3 shrink-0"></span>
             }
+
+            @if (!string.IsNullOrEmpty(NodeIcon))
+            {
+                <Icon Paths="@NodeIcon" Size="14" class="shrink-0 text-muted-foreground" />
+            }
+
             <span class="min-w-0 flex-1 truncate">@Item.Node.Label</span>
             <span class="shrink-0 text-[10px] text-muted-foreground">@Item.Node.NodeTypeKey</span>
         </button>
@@ -33,20 +43,23 @@
             </button>
         </span>
     </div>
-    @foreach (var (child, i) in VisibleChildren.Select((node, idx) => (node, idx)))
+    @if (_isExpanded)
     {
-        <SessionContextTreeNode Item="child"
-                                Depth="@(Depth + 1)"
-                                Index="i"
-                                SiblingCount="@VisibleChildren.Count"
-                                Projection="Projection"
-                                Pins="Pins"
-                                OnProject="OnProject"
-                                OnPin="OnPin"
-                                OnNodeNew="OnNodeNew"
-                                OnNodeRename="OnNodeRename"
-                                OnNodeMoveUp="OnNodeMoveUp"
-                                OnNodeMoveDown="OnNodeMoveDown"
-                                OnNodeDelete="OnNodeDelete" />
+        @foreach (var (child, i) in VisibleChildren.Select((node, idx) => (node, idx)))
+        {
+            <SessionContextTreeNode Item="child"
+                                    Depth="@(Depth + 1)"
+                                    Index="i"
+                                    SiblingCount="@VisibleChildren.Count"
+                                    Projection="Projection"
+                                    Pins="Pins"
+                                    OnProject="OnProject"
+                                    OnPin="OnPin"
+                                    OnNodeNew="OnNodeNew"
+                                    OnNodeRename="OnNodeRename"
+                                    OnNodeMoveUp="OnNodeMoveUp"
+                                    OnNodeMoveDown="OnNodeMoveDown"
+                                    OnNodeDelete="OnNodeDelete" />
+        }
     }
 </div>
