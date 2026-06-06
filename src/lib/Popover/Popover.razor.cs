@@ -42,7 +42,7 @@ public partial class Popover : TinyComponentBase
     [Parameter] public bool Modal { get; set; }
 
     /// <summary>
-    /// Whether to render the popover in a portal (outside parent DOM).
+    /// Whether to render the popover in a portal (outside parent DOM) via PopoverService.
     /// </summary>
     [Parameter] public bool Portal { get; set; }
 
@@ -64,6 +64,7 @@ public partial class Popover : TinyComponentBase
         _previousIsOpen = IsOpen;
         IsOpen = !IsOpen;
         await IsOpenChanged.InvokeAsync(IsOpen);
+        UpdatePopoverService();
         StateHasChanged();
     }
 
@@ -75,6 +76,7 @@ public partial class Popover : TinyComponentBase
         _previousIsOpen = IsOpen;
         IsOpen = false;
         await IsOpenChanged.InvokeAsync(IsOpen);
+        UpdatePopoverService();
         StateHasChanged();
     }
 
@@ -86,6 +88,7 @@ public partial class Popover : TinyComponentBase
         _previousIsOpen = IsOpen;
         IsOpen = true;
         await IsOpenChanged.InvokeAsync(IsOpen);
+        UpdatePopoverService();
         StateHasChanged();
     }
 }

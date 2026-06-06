@@ -1,7 +1,7 @@
 @namespace LowlandTech.Components
 @inherits TinyComponentBase
 
-@if (Parent?.IsOpen == true)
+@if (!IsPortal && Parent?.IsOpen == true)
 {
     @if (IsModal)
     {
@@ -11,34 +11,16 @@
         </div>
     }
 
-    @if (IsPortal)
-    {
-        <Portal>
-            <div data-slot="popover-content"
-                 data-state="@GetState()"
-                 data-variant="@Variant"
-                 data-align="@Align"
-                 data-side="@Side"
-                 class="@GetClass()"
-                 style="@GetPositionStyle()"
-                 @attributes="AdditionalAttributes">
-                @ChildContent
-            </div>
-        </Portal>
-    }
-    else
-    {
-        <div data-slot="popover-content"
-             data-state="@GetState()"
-             data-variant="@Variant"
-             data-align="@Align"
-             data-side="@Side"
-             class="@GetClass()"
-             style="@GetPositionStyle()"
-             @attributes="AdditionalAttributes">
-            @ChildContent
-        </div>
-    }
+    <div data-slot="popover-content"
+          data-state="@GetState()"
+          data-variant="@Variant"
+          data-align="@Align"
+          data-side="@Side"
+          class="@GetClass()"
+          style="@GetPositionStyle()"
+          @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
 }
 
 @code {
@@ -65,12 +47,29 @@
     [Parameter] public bool Modal { get; set; }
 
     /// <summary>
-    /// Whether to render the content in a portal.
+    /// Whether to render the content in a portal via PopoverService.
+    /// When true, content is not rendered inline but sent to PopoverProvider.
     /// </summary>
     [Parameter] public bool Portal { get; set; }
 
     private bool IsModal => Modal || (Parent?.Modal ?? false);
     private bool IsPortal => Portal || (Parent?.Portal ?? false);
+
+    protected override void OnInitialized()
+    {
+        if (IsPortal && Parent != null)
+        {
+            Parent.SetPortalContent(ChildContent);
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (IsPortal && Parent != null)
+        {
+            Parent.SetPortalContent(ChildContent);
+        }
+    }
 
     private string GetState() => Parent?.IsOpen == true ? "open" : "closed";
 

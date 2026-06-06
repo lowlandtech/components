@@ -1,17 +1,26 @@
 @namespace LowlandTech.Components
 @inherits TinyComponentBase
+@inject IPopoverService PopoverService
+@implements IDisposable
 
 <CascadingValue Value="this">
-    <div data-slot="popover"
-         data-state="@GetState()"
-         class="@GetClass()"
-         @attributes="AdditionalAttributes">
-        @ChildContent
-        @Content
-    </div>
+    <span id="popover-anchor-@_popoverId"
+          style="display: inline-block; position: relative;">
+        <div data-slot="popover"
+             data-state="@GetState()"
+             data-portal="@Portal.ToString().ToLowerInvariant()"
+             class="@GetClass()"
+             @attributes="AdditionalAttributes">
+            @ChildContent
+            @Content
+        </div>
+    </span>
 </CascadingValue>
 
 @code {
+    private readonly Guid _popoverId = Guid.NewGuid();
+    private RenderFragment? _portalContent;
+
     /// <summary>
     /// The popover content (for explicit Content parameter pattern).
     /// </summary>
@@ -23,5 +32,105 @@
     {
         var baseClass = "cn-popover relative inline-block";
         return string.IsNullOrEmpty(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+
+    /// <summary>
+    /// The unique ID for this popover (used for anchor-based positioning).
+    /// </summary>
+    public Guid PopoverId => _popoverId;
+
+    /// <summary>
+    /// Sets the content to render in the portal.
+    /// </summary>
+    public void SetPortalContent(RenderFragment? content) => _portalContent = content;
+
+    /// <summary>
+    /// Builds the portal fragment for PopoverProvider.
+    /// </summary>
+    public RenderFragment? BuildPortalFragment()
+    {
+        if (_portalContent is null) return null;
+
+        return builder =>
+        {
+            var seq = 0;
+
+            // Modal overlay
+            if (Modal)
+            {
+                builder.OpenElement(seq++, "div");
+                builder.AddAttribute(seq++, "data-slot", "popover-overlay");
+                builder.AddAttribute(seq++, "class", "cn-popover-overlay fixed inset-0 z-40 bg-black/20");
+                builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, _ => Close()));
+                builder.CloseElement();
+            }
+
+            // Content wrapper with cascade re-provision
+            builder.OpenElement(seq++, "div");
+            builder.AddAttribute(seq++, "data-slot", "popover-content");
+            builder.AddAttribute(seq++, "data-state", "open");
+            builder.AddAttribute(seq++, "class", "cn-popover-content z-50 w-72 origin-(--transform-origin) outline-hidden cn-popover-content-none");
+            builder.AddAttribute(seq++, "style", "position: absolute; left: 0; top: 0;");
+
+            builder.OpenComponent<CascadingValue<Popover>>(seq++);
+            builder.AddAttribute(seq++, "Value", this);
+            builder.AddAttribute(seq++, "ChildContent", _portalContent);
+            builder.CloseComponent();
+
+            builder.CloseElement();
+        };
+    }
+
+    /// <summary>
+    /// Updates the PopoverService with the current state.
+    /// </summary>
+    public void UpdatePopoverService()
+    {
+        if (!Portal) return;
+
+        var placement = ParsePlacement();
+        PopoverService.Update(_popoverId, new PopoverState
+        {
+            Open = IsOpen,
+            Fragment = IsOpen ? BuildPortalFragment() : null,
+            Placement = placement,
+            CssClass = "cn-popover-portal"
+        });
+    }
+
+    private PopoverPlacement ParsePlacement()
+    {
+        return Placement?.ToLowerInvariant() switch
+        {
+            "topstart" => PopoverPlacement.TopStart,
+            "top" => PopoverPlacement.Top,
+            "topend" => PopoverPlacement.TopEnd,
+            "bottomstart" => PopoverPlacement.BottomStart,
+            "bottom" => PopoverPlacement.Bottom,
+            "bottomend" => PopoverPlacement.BottomEnd,
+            "leftstart" => PopoverPlacement.LeftStart,
+            "left" => PopoverPlacement.Left,
+            "leftend" => PopoverPlacement.LeftEnd,
+            "rightstart" => PopoverPlacement.RightStart,
+            "right" => PopoverPlacement.Right,
+            "rightend" => PopoverPlacement.RightEnd,
+            _ => PopoverPlacement.BottomStart
+        };
+    }
+
+    protected override void OnInitialized()
+    {
+        if (Portal)
+        {
+            PopoverService.Register(_popoverId);
+        }
+    }
+
+    public void Dispose()
+    {
+        if (Portal)
+        {
+            PopoverService.Unregister(_popoverId);
+        }
     }
 }
