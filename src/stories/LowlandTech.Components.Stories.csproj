@@ -24,7 +24,6 @@
   <ItemGroup>
     <ProjectReference Include="..\lib\LowlandTech.Components.csproj" />
     <ProjectReference Include="..\blocks\LowlandTech.Components.Blocks.csproj" />
-    <ProjectReference Include="..\..\core\LowlandTech.Core.csproj" />
   </ItemGroup>
 
   <Target Name="GenerateShowcodeSources" BeforeTargets="BeforeCompile" Condition="'$(OS)' == 'Windows_NT' And Exists('$(MSBuildProjectDirectory)\..\..\..\scripts\update-showcode-sources.ps1')">

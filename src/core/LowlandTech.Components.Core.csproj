@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>LowlandTech.Components.Core</RootNamespace>
+    <AssemblyName>LowlandTech.Components.Core</AssemblyName>
+    <IsPackable>true</IsPackable>
+    <PackageId>LowlandTech.Components.Core</PackageId>
+    <Version>2026.5.29</Version>
+    <Authors>LowlandTech</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>icon.png</PackageIcon>
+    <Description>Framework-neutral contracts and utilities shared by LowlandTech component packages.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\icon.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

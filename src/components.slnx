@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="app/LowlandTech.Components.App.csproj" />
+    <Project Path="core/LowlandTech.Components.Core.csproj" />
     <Project Path="e2e/LowlandTech.Components.E2E.csproj" />
     <Project Path="lib/LowlandTech.Components.csproj" />
     <Project Path="stories/LowlandTech.Components.Stories.csproj" />
