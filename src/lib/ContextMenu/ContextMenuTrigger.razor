@@ -1,23 +1,52 @@
 @namespace LowlandTech.Components
 @inherits TinyComponentBase
 
-<div data-slot="context-menu-trigger"
-     class="@GetClass()"
-     @oncontextmenu="OnContextMenu"
-     @oncontextmenu:preventDefault="true"
-     @attributes="AdditionalAttributes">
-    @ChildContent
-</div>
+<span id="popover-anchor-@Parent?.PopoverId"
+      style="display: inline-block;">
+    <div data-slot="context-menu-trigger"
+         class="@GetClass()"
+         @onclick="OnClick"
+         @oncontextmenu="OnContextMenu"
+         @oncontextmenu:preventDefault="true"
+         @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+</span>
 
 @code {
     [CascadingParameter] private ContextMenu? Parent { get; set; }
+
+    private async Task OnClick(MouseEventArgs e)
+    {
+        if (Parent != null)
+        {
+            if (Parent.Portal)
+            {
+                // Anchor-based positioning for portal mode
+                await Parent.Open();
+            }
+            else
+            {
+                // Coordinate-based for inline mode
+                await Parent.OpenAt(e.OffsetX, e.OffsetY);
+            }
+        }
+    }
 
     private async Task OnContextMenu(MouseEventArgs e)
     {
         if (Parent != null)
         {
-            // Use offset coordinates (relative to trigger element) for backward compatibility
-            await Parent.OpenAt(e.OffsetX, e.OffsetY);
+            if (Parent.Portal)
+            {
+                // For right-click in portal mode, use viewport coordinates
+                await Parent.OpenAt(e.ClientX, e.ClientY);
+            }
+            else
+            {
+                // For inline mode, use element-relative coordinates
+                await Parent.OpenAt(e.OffsetX, e.OffsetY);
+            }
         }
     }
 

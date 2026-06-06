@@ -55,9 +55,20 @@
     [Parameter] public bool Portal { get; set; } = false;
 
     /// <summary>
-    /// The position of the context menu.
+    /// The placement of the context menu relative to the anchor element.
+    /// Only used when Portal is true. Default is BottomEnd (opens below, right-aligned).
+    /// </summary>
+    [Parameter] public PopoverPlacement Placement { get; set; } = PopoverPlacement.BottomEnd;
+
+    /// <summary>
+    /// The position of the context menu (for coordinate-based positioning).
     /// </summary>
     internal (double X, double Y) Position { get; private set; }
+
+    /// <summary>
+    /// The popover ID used for anchor-based portal positioning.
+    /// </summary>
+    internal Guid PopoverId => _popoverId;
 
     /// <summary>
     /// Sets the menu content fragment (called by ContextMenuContent).
@@ -65,7 +76,31 @@
     internal void SetMenuContent(RenderFragment? content) => _menuContent = content;
 
     /// <summary>
-    /// Opens the context menu at the specified position.
+    /// Opens the context menu anchored to the trigger element (for button-click menus).
+    /// Uses PopoverService anchor-based positioning when Portal=true.
+    /// </summary>
+    internal async Task Open()
+    {
+        IsOpen = true;
+        await IsOpenChanged.InvokeAsync(IsOpen);
+
+        if (Portal)
+        {
+            var fragment = BuildPortalFragment();
+            PopoverService.Update(_popoverId, new PopoverState
+            {
+                Open = true,
+                Fragment = fragment,
+                Placement = Placement,
+                CssClass = "cn-context-menu-portal"
+            });
+        }
+
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Opens the context menu at the specified position (for right-click context menus).
     /// </summary>
     internal async Task OpenAt(double x, double y)
     {
@@ -127,7 +162,7 @@
                 builder.OpenElement(seq++, "div");
                 builder.AddAttribute(seq++, "data-slot", "context-menu-overlay");
                 builder.AddAttribute(seq++, "data-state", "open");
-                builder.AddAttribute(seq++, "class", "cn-context-menu-overlay fixed inset-0 z-50 bg-transparent");
+                builder.AddAttribute(seq++, "class", "cn-context-menu-overlay fixed inset-0 z-50 bg-black/20");
                 builder.AddAttribute(seq++, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, _ => Close()));
                 builder.CloseElement();
             }
@@ -137,7 +172,7 @@
             builder.AddAttribute(seq++, "data-slot", "context-menu-content");
             builder.AddAttribute(seq++, "data-state", "open");
             builder.AddAttribute(seq++, "class", GetContentClass());
-            builder.AddAttribute(seq++, "style", $"position: absolute; left: 0; top: 0;");
+            builder.AddAttribute(seq++, "style", "position: absolute; left: 0; top: 0;");
 
             // Re-provide cascading value so items work inside the portal
             builder.OpenComponent<CascadingValue<ContextMenu>>(seq++);
