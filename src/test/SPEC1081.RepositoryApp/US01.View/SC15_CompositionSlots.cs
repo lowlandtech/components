@@ -1,5 +1,5 @@
 using LowlandTech.Components;
-using RepositoryAppRoot = LowlandTech.Components.RepositoryApp;
+using RepositoryAppRoot = LowlandTech.Components.RepositoryBlock;
 
 namespace LowlandTech.Components.Tests.SPEC1081.RepositoryApp.US01.View;
 

@@ -1,6 +1,6 @@
 namespace LowlandTech.Components;
 
-public partial class RepositoryApp
+public partial class RepositoryBlock
 {
     [Parameter] public RepositoryStateService? StateService { get; set; }
     [Parameter] public bool IsTest { get; set; }

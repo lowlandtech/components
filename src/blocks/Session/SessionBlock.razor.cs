@@ -1,6 +1,6 @@
 namespace LowlandTech.Components;
 
-public partial class SessionApp : TinyComponentBase, IDisposable
+public partial class SessionBlock : TinyComponentBase, IDisposable
 {
     [Inject] private IJSRuntime JS { get; set; } = default!;
     [Inject] private IGraphDiscoveryService Discovery { get; set; } = default!;

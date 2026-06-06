@@ -1,6 +1,6 @@
 namespace LowlandTech.Components;
 
-public partial class WorkApp
+public partial class WorkBlock
 {
     [Parameter] public WorkStateService? StateService { get; set; }
     [Parameter] public bool IsTest { get; set; }

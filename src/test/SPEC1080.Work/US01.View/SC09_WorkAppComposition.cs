@@ -27,7 +27,7 @@ public class SC09_WorkAppComposition : Infrastructure.WorkScenario
     [Then("the supplied layout is rendered inside the WorkApp state provider")]
     public void UAC02_ConsumerChildContentReplacesDefaultLayout()
     {
-        var cut = Ctx.Render<WorkApp>(parameters => parameters
+        var cut = Ctx.Render<WorkBlock>(parameters => parameters
             .Add(x => x.StateService, StateService)
             .Add(x => x.ChildContent, builder =>
             {

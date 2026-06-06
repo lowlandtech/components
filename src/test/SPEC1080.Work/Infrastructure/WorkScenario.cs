@@ -12,12 +12,12 @@ public abstract class WorkScenario : ViewScenario
         return ValueTask.CompletedTask;
     }
 
-    protected IRenderedComponent<WorkApp> RenderWorkApp()
-        => Ctx.Render<WorkApp>(p => p
+    protected IRenderedComponent<WorkBlock> RenderWorkApp()
+        => Ctx.Render<WorkBlock>(p => p
             .Add(x => x.StateService, StateService)
             .Add(x => x.IsTest, true));
 
-    protected IRenderedComponent<WorkApp> RenderWorkAppWithState(WorkAppState state)
+    protected IRenderedComponent<WorkBlock> RenderWorkAppWithState(WorkAppState state)
     {
         StateService = new WorkStateService(state);
         return RenderWorkApp();

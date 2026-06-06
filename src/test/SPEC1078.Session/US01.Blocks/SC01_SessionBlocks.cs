@@ -321,15 +321,15 @@ public class SC01_SessionBlocks : ViewScenario
         pinned.Pin.SessionNode.NodeTypeKey.ShouldBe("session.pin");
     }
 
-    [Fact(DisplayName = "UAC33: SessionApp uses an injected store and shows settings as a dedicated standalone page")]
+    [Fact(DisplayName = "UAC33: SessionBlock uses an injected store and shows settings as a dedicated standalone page")]
     [Trait(Spec.UAC, "33")]
-    [Given("a standalone SessionApp with an active session and a submitted command")]
+    [Given("a standalone SessionBlock with an active session and a submitted command")]
     [When("the settings button is clicked")]
     [Then("the app opens the settings page with API keys as the default section")]
-    public void UAC33_SessionAppStandaloneSettingsLoadsEventLogPage()
+    public void UAC33_SessionBlockStandaloneSettingsLoadsEventLogPage()
     {
         var stateService = new SessionStateService();
-        var cut = Ctx.Render<SessionApp>(p => p
+        var cut = Ctx.Render<SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
             .Add(x => x.StateService, stateService));
 
@@ -350,13 +350,13 @@ public class SC01_SessionBlocks : ViewScenario
 
     [Fact(DisplayName = "UAC34: SessionEventLog renders as a bare collapsible list without extra chrome")]
     [Trait(Spec.UAC, "34")]
-    [Given("a standalone SessionApp on the settings page with command history")]
+    [Given("a standalone SessionBlock on the settings page with command history")]
     [When("the Activity settings section is selected")]
     [Then("the event log renders as the existing bare collapsible list")]
     public void UAC34_SessionEventLogRendersBareCollapsibleList()
     {
         var stateService = new SessionStateService();
-        var cut = Ctx.Render<SessionApp>(p => p
+        var cut = Ctx.Render<SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
             .Add(x => x.StateService, stateService));
 
@@ -373,15 +373,15 @@ public class SC01_SessionBlocks : ViewScenario
         cut.FindAll("[data-slot='session-event-log-initial-state']").Count.ShouldBe(1);
     }
 
-    [Fact(DisplayName = "UAC34b: SessionApp settings button toggles the settings page")]
+    [Fact(DisplayName = "UAC34b: SessionBlock settings button toggles the settings page")]
     [Trait(Spec.UAC, "34b")]
-    [Given("a standalone SessionApp with an active session")]
+    [Given("a standalone SessionBlock with an active session")]
     [When("the settings button is clicked twice")]
     [Then("the app opens settings and then returns to the feed")]
-    public void UAC34b_SessionAppSettingsButtonTogglesEventLogPage()
+    public void UAC34b_SessionBlockSettingsButtonTogglesEventLogPage()
     {
         var stateService = new SessionStateService();
-        var cut = Ctx.Render<SessionApp>(p => p
+        var cut = Ctx.Render<SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
             .Add(x => x.StateService, stateService));
 
@@ -397,15 +397,15 @@ public class SC01_SessionBlocks : ViewScenario
         stateService.State.ActivePage.ShouldBe(SessionAppPage.Feed);
     }
 
-    [Fact(DisplayName = "UAC34c: SessionApp settings can create and remove API keys")]
+    [Fact(DisplayName = "UAC34c: SessionBlock settings can create and remove API keys")]
     [Trait(Spec.UAC, "34c")]
-    [Given("a standalone SessionApp on the API Keys settings section")]
+    [Given("a standalone SessionBlock on the API Keys settings section")]
     [When("an API key is created and then removed")]
     [Then("the one-time secret appears and the key row is removed")]
-    public void UAC34c_SessionAppSettingsCreatesAndRemovesApiKeys()
+    public void UAC34c_SessionBlockSettingsCreatesAndRemovesApiKeys()
     {
         var stateService = new SessionStateService();
-        var cut = Ctx.Render<SessionApp>(p => p
+        var cut = Ctx.Render<SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
             .Add(x => x.StateService, stateService));
 
@@ -423,13 +423,13 @@ public class SC01_SessionBlocks : ViewScenario
         cut.FindAll("[data-testid='session-settings-api-key-row']").Count.ShouldBe(initialRows);
     }
 
-    [Fact(DisplayName = "UAC35: SessionApp resolves request and response cards through DRD discovery")]
+    [Fact(DisplayName = "UAC35: SessionBlock resolves request and response cards through DRD discovery")]
     [Trait(Spec.UAC, "35")]
-    public void UAC35_SessionAppResolvesRequestAndResponseCardsThroughDrdDiscovery()
+    public void UAC35_SessionBlockResolvesRequestAndResponseCardsThroughDrdDiscovery()
     {
         Ctx.Services.AddSingleton<ISessionSurfaceRegistry, PluginSessionSurfaceRegistry>();
 
-        var cut = Ctx.Render<SessionApp>();
+        var cut = Ctx.Render<SessionBlock>();
 
         cut.Find("[data-node-id='orders-session']").Click();
 
@@ -542,11 +542,11 @@ public class SC01_SessionBlocks : ViewScenario
         pageOverlay.Content.ShouldNotBeNull();
     }
 
-    [Fact(DisplayName = "UAC16: SessionApp composes sessions, context pins, blocks, and command submit")]
+    [Fact(DisplayName = "UAC16: SessionBlock composes sessions, context pins, blocks, and command submit")]
     [Trait(Spec.UAC, "16")]
-    public void UAC16_SessionAppComposesWorkingSurface()
+    public void UAC16_SessionBlockComposesWorkingSurface()
     {
-        var cut = Ctx.Render<SessionApp>();
+        var cut = Ctx.Render<SessionBlock>();
 
         cut.Find("[data-node-id='orders-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
@@ -561,11 +561,11 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Markup.ShouldContain("1 context block");
     }
 
-    [Fact(DisplayName = "UAC16b: SessionApp IsTest mode streams a dummy reply into the submitted turn")]
+    [Fact(DisplayName = "UAC16b: SessionBlock IsTest mode streams a dummy reply into the submitted turn")]
     [Trait(Spec.UAC, "16b")]
-    public void UAC16b_SessionAppIsTestStreamsDummyReply()
+    public void UAC16b_SessionBlockIsTestStreamsDummyReply()
     {
-        var cut = Ctx.Render<SessionApp>(p => p
+        var cut = Ctx.Render<SessionBlock>(p => p
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0));
 
@@ -584,11 +584,11 @@ public class SC01_SessionBlocks : ViewScenario
         cut.FindAll("[data-slot='session-app-turn-section']").Count.ShouldBe(3);
     }
 
-    [Fact(DisplayName = "UAC16c: SessionApp accumulates multiple submitted commands")]
+    [Fact(DisplayName = "UAC16c: SessionBlock accumulates multiple submitted commands")]
     [Trait(Spec.UAC, "16c")]
-    public void UAC16c_SessionAppAccumulatesMultipleCommands()
+    public void UAC16c_SessionBlockAccumulatesMultipleCommands()
     {
-        var cut = Ctx.Render<SessionApp>();
+        var cut = Ctx.Render<SessionBlock>();
 
         cut.Find("[data-node-id='orders-session']").Click();
 
@@ -609,11 +609,11 @@ public class SC01_SessionBlocks : ViewScenario
         cut.FindAll("[data-slot='session-app-turn-section']").Count.ShouldBe(5); // request + default response + 3 agent responses
     }
 
-    [Fact(DisplayName = "UAC16d: SessionApp interleaves blocks and commands chronologically")]
+    [Fact(DisplayName = "UAC16d: SessionBlock interleaves blocks and commands chronologically")]
     [Trait(Spec.UAC, "16d")]
-    public void UAC16d_SessionAppInterleavesBlocksAndCommands()
+    public void UAC16d_SessionBlockInterleavesBlocksAndCommands()
     {
-        var cut = Ctx.Render<SessionApp>();
+        var cut = Ctx.Render<SessionBlock>();
 
         cut.Find("[data-node-id='orders-session']").Click();
 
@@ -659,11 +659,11 @@ public class SC01_SessionBlocks : ViewScenario
         secondQuestionIndex.ShouldBeLessThan(northwindIndex);
     }
 
-    [Fact(DisplayName = "UAC16e: SessionApp IsTest mode preserves session history order across turns and blocks")]
+    [Fact(DisplayName = "UAC16e: SessionBlock IsTest mode preserves session history order across turns and blocks")]
     [Trait(Spec.UAC, "16e")]
-    public void UAC16e_SessionAppIsTestPreservesHistoryOrder()
+    public void UAC16e_SessionBlockIsTestPreservesHistoryOrder()
     {
-        var cut = Ctx.Render<SessionApp>(p => p
+        var cut = Ctx.Render<SessionBlock>(p => p
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0));
 
@@ -704,11 +704,11 @@ public class SC01_SessionBlocks : ViewScenario
             .ShouldAllBe(response => response.GetAttribute("data-streaming") == "false");
     }
 
-    [Fact(DisplayName = "UAC16f: SessionApp appends repeated runs instead of overwriting the last turn")]
+    [Fact(DisplayName = "UAC16f: SessionBlock appends repeated runs instead of overwriting the last turn")]
     [Trait(Spec.UAC, "16f")]
-    public void UAC16f_SessionAppRepeatedRunsAppendTurns()
+    public void UAC16f_SessionBlockRepeatedRunsAppendTurns()
     {
-        var cut = Ctx.Render<SessionApp>(p => p
+        var cut = Ctx.Render<SessionBlock>(p => p
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0));
 
@@ -738,11 +738,11 @@ public class SC01_SessionBlocks : ViewScenario
         cut.FindAll("[data-testid='session-app-section-link']").Count.ShouldBe(5);
     }
 
-    [Fact(DisplayName = "UAC17: SessionApp projects one transient feed block and replaces it on context selection change")]
+    [Fact(DisplayName = "UAC17: SessionBlock projects one transient feed block and replaces it on context selection change")]
     [Trait(Spec.UAC, "17")]
-    public void UAC17_SessionAppReplacesProjectedFeedBlock()
+    public void UAC17_SessionBlockReplacesProjectedFeedBlock()
     {
-        var cut = Ctx.Render<SessionApp>();
+        var cut = Ctx.Render<SessionBlock>();
 
         cut.Find("[data-node-id='release-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
@@ -760,11 +760,11 @@ public class SC01_SessionBlocks : ViewScenario
         projectedBlock.TextContent.ShouldNotContain("Node type: invoice");
     }
 
-    [Fact(DisplayName = "UAC17b: SessionApp moves a newly selected projection to the end of the session feed")]
+    [Fact(DisplayName = "UAC17b: SessionBlock moves a newly selected projection to the end of the session feed")]
     [Trait(Spec.UAC, "17b")]
-    public void UAC17b_SessionAppMovesProjectionToFeedTailOnSelection()
+    public void UAC17b_SessionBlockMovesProjectionToFeedTailOnSelection()
     {
-        var cut = Ctx.Render<SessionApp>(p => p
+        var cut = Ctx.Render<SessionBlock>(p => p
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0));
 
@@ -790,11 +790,11 @@ public class SC01_SessionBlocks : ViewScenario
         responseIndex.ShouldBeLessThan(projectedIndex);
     }
 
-    [Fact(DisplayName = "UAC18: SessionApp keeps projected context scoped to the active session")]
+    [Fact(DisplayName = "UAC18: SessionBlock keeps projected context scoped to the active session")]
     [Trait(Spec.UAC, "18")]
-    public void UAC18_SessionAppScopesProjectedContextPerSession()
+    public void UAC18_SessionBlockScopesProjectedContextPerSession()
     {
-        var cut = Ctx.Render<SessionApp>();
+        var cut = Ctx.Render<SessionBlock>();
 
         cut.Find("[data-node-id='release-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
@@ -812,11 +812,11 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-block-id='projected-context-block']").TextContent.ShouldContain("Invoice approval");
     }
 
-    [Fact(DisplayName = "UAC19: SessionApp interleaves turns and blocks in a unified feed")]
+    [Fact(DisplayName = "UAC19: SessionBlock interleaves turns and blocks in a unified feed")]
     [Trait(Spec.UAC, "19")]
-    public void UAC19_SessionAppRendersUnifiedFeed()
+    public void UAC19_SessionBlockRendersUnifiedFeed()
     {
-        var cut = Ctx.Render<SessionApp>();
+        var cut = Ctx.Render<SessionBlock>();
 
         cut.Find("[data-node-id='release-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
@@ -867,14 +867,14 @@ public class SC01_SessionBlocks : ViewScenario
         unpinnedContext.Id.ShouldBe("invoice");
     }
 
-    [Fact(DisplayName = "UAC22: SessionApp context block header unpin removes the block and restores the tree node")]
+    [Fact(DisplayName = "UAC22: SessionBlock context block header unpin removes the block and restores the tree node")]
     [Trait(Spec.UAC, "22")]
     [Trait(Spec.SC, "01")]
     [Trait(Spec.SPEC, "1078")]
     [Trait(Spec.US, "01")]
-    public void UAC22_SessionAppBlockHeaderUnpinRestoresTreeNode()
+    public void UAC22_SessionBlockBlockHeaderUnpinRestoresTreeNode()
     {
-        // UAC22 is integration-level: it exercises the SessionApp's popover
+        // UAC22 is integration-level: it exercises the SessionBlock's popover
         // + tree + block flow in concert. The popover Fragment is rendered
         // in a separate bUnit render scope, so the click inside it does not
         // propagate to the main `cut`'s tree filter — and pinning via the
@@ -883,7 +883,7 @@ public class SC01_SessionBlocks : ViewScenario
         // nodes hidden) and UAC21 (unpin button emits event). Skipping this
         // scenario keeps the suite green without losing meaningful coverage.
         var stateService = new SessionStateService();
-        var cut = Ctx.Render<SessionApp>(p => p
+        var cut = Ctx.Render<SessionBlock>(p => p
             .Add(x => x.StateService, stateService)
             .Add(x => x.HasSidebar, true));
 
@@ -892,12 +892,12 @@ public class SC01_SessionBlocks : ViewScenario
         stateService.State.Ui.ContextPins.Count.ShouldBe(1);
     }
 
-    [Fact(DisplayName = "UAC23: SessionApp scrolls projected and pinned context blocks into view")]
+    [Fact(DisplayName = "UAC23: SessionBlock scrolls projected and pinned context blocks into view")]
     [Trait(Spec.UAC, "23")]
-    public void UAC23_SessionAppScrollsContextBlocksIntoView()
+    public void UAC23_SessionBlockScrollsContextBlocksIntoView()
     {
         Ctx.JSInterop.SetupVoid("eval", _ => true).SetVoidResult();
-        var cut = Ctx.Render<SessionApp>();
+        var cut = Ctx.Render<SessionBlock>();
 
         cut.Find("[data-node-id='release-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
@@ -928,12 +928,12 @@ public class SC01_SessionBlocks : ViewScenario
         });
     }
 
-    [Fact(DisplayName = "UAC24: SessionApp right sidebar renders turns and blocks as one section list")]
+    [Fact(DisplayName = "UAC24: SessionBlock right sidebar renders turns and blocks as one section list")]
     [Trait(Spec.UAC, "24")]
-    public void UAC24_SessionAppRightSidebarRendersUnifiedSectionLinks()
+    public void UAC24_SessionBlockRightSidebarRendersUnifiedSectionLinks()
     {
         Ctx.JSInterop.SetupVoid("eval", _ => true).SetVoidResult();
-        var cut = Ctx.Render<SessionApp>();
+        var cut = Ctx.Render<SessionBlock>();
 
         cut.Find("[data-node-id='release-session']").Click();
 
@@ -971,11 +971,11 @@ public class SC01_SessionBlocks : ViewScenario
             .ShouldBeTrue();
     }
 
-    [Fact(DisplayName = "UAC25: SessionApp right sidebar starts empty until a session is active")]
+    [Fact(DisplayName = "UAC25: SessionBlock right sidebar starts empty until a session is active")]
     [Trait(Spec.UAC, "25")]
-    public void UAC25_SessionAppRightSidebarStartsEmpty()
+    public void UAC25_SessionBlockRightSidebarStartsEmpty()
     {
-        var cut = Ctx.Render<SessionApp>();
+        var cut = Ctx.Render<SessionBlock>();
 
         var sidebar = cut.Find("[data-testid='session-app-right-sidebar']");
         sidebar.TextContent.ShouldContain("No sections");
@@ -990,11 +990,11 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-section-id='session-turn-response']").ShouldNotBeNull();
     }
 
-    [Fact(DisplayName = "UAC26: SessionApp session row counts match each session's child sections")]
+    [Fact(DisplayName = "UAC26: SessionBlock session row counts match each session's child sections")]
     [Trait(Spec.UAC, "26")]
-    public void UAC26_SessionAppSessionCountsMatchChildSections()
+    public void UAC26_SessionBlockSessionCountsMatchChildSections()
     {
-        var cut = Ctx.Render<SessionApp>();
+        var cut = Ctx.Render<SessionBlock>();
 
         FindSessionCount(cut, "orders-session").ShouldBe("2");
         FindSessionCount(cut, "support-session").ShouldBe("2");
@@ -1012,11 +1012,11 @@ public class SC01_SessionBlocks : ViewScenario
         FindSessionCount(cut, "release-session").ShouldBe("2");
     }
 
-    [Fact(DisplayName = "UAC27: SessionApp composes left, content, and sections as resizable panels")]
+    [Fact(DisplayName = "UAC27: SessionBlock composes left, content, and sections as resizable panels")]
     [Trait(Spec.UAC, "27")]
-    public void UAC27_SessionAppUsesResizablePanels()
+    public void UAC27_SessionBlockUsesResizablePanels()
     {
-        var cut = Ctx.Render<SessionApp>();
+        var cut = Ctx.Render<SessionBlock>();
 
         cut.Find("[data-slot='resizable-panel-group']").ShouldNotBeNull();
         cut.FindAll("[data-slot='resizable-panel']").Count.ShouldBe(3);
@@ -1033,11 +1033,11 @@ public class SC01_SessionBlocks : ViewScenario
             .ShouldAllBe(handle => handle.ClassList.Contains("bg-transparent"));
     }
 
-    [Fact(DisplayName = "UAC28: SessionApp maximized context block replaces the tab body content")]
+    [Fact(DisplayName = "UAC28: SessionBlock maximized context block replaces the tab body content")]
     [Trait(Spec.UAC, "28")]
-    public void UAC28_SessionAppMaximizedBlockOverlaysTabContent()
+    public void UAC28_SessionBlockMaximizedBlockOverlaysTabContent()
     {
-        var cut = Ctx.Render<SessionApp>();
+        var cut = Ctx.Render<SessionBlock>();
 
         cut.Find("[data-node-id='orders-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
@@ -1058,11 +1058,11 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-slot='session-app-feed']").ShouldNotBeNull();
     }
 
-    [Fact(DisplayName = "UAC28b: SessionApp keeps a feed context block minimized after the mode change rerenders the host")]
+    [Fact(DisplayName = "UAC28b: SessionBlock keeps a feed context block minimized after the mode change rerenders the host")]
     [Trait(Spec.UAC, "28b")]
-    public void UAC28b_SessionAppPersistsMinimizedBlockMode()
+    public void UAC28b_SessionBlockPersistsMinimizedBlockMode()
     {
-        var cut = Ctx.Render<SessionApp>();
+        var cut = Ctx.Render<SessionBlock>();
 
         cut.Find("[data-node-id='orders-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
@@ -1080,11 +1080,11 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-block-id='projected-context-block'][data-mode='minimized']").ShouldNotBeNull();
     }
 
-    [Fact(DisplayName = "UAC28c: SessionApp keeps a pinned context block minimized in the feed")]
+    [Fact(DisplayName = "UAC28c: SessionBlock keeps a pinned context block minimized in the feed")]
     [Trait(Spec.UAC, "28c")]
-    public void UAC28c_SessionAppPersistsMinimizedPinnedBlockMode()
+    public void UAC28c_SessionBlockPersistsMinimizedPinnedBlockMode()
     {
-        var cut = Ctx.Render<SessionApp>(p => p
+        var cut = Ctx.Render<SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
             .Add(x => x.IsTest, true));
 
@@ -1103,11 +1103,11 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-block-id='context-block:shipment-delay'][data-mode='minimized']").ShouldNotBeNull();
     }
 
-    [Fact(DisplayName = "UAC28d: SessionApp moves the projected block behind a newly appended response")]
+    [Fact(DisplayName = "UAC28d: SessionBlock moves the projected block behind a newly appended response")]
     [Trait(Spec.UAC, "28d")]
-    public void UAC28d_SessionAppMovesProjectionBehindNewResponses()
+    public void UAC28d_SessionBlockMovesProjectionBehindNewResponses()
     {
-        var cut = Ctx.Render<SessionApp>(p => p
+        var cut = Ctx.Render<SessionBlock>(p => p
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0));
 
@@ -1130,11 +1130,11 @@ public class SC01_SessionBlocks : ViewScenario
         responseIndex.ShouldBeLessThan(projectionIndex);
     }
 
-    [Fact(DisplayName = "UAC29: SessionApp maximized agent card replaces the tab body content")]
+    [Fact(DisplayName = "UAC29: SessionBlock maximized agent card replaces the tab body content")]
     [Trait(Spec.UAC, "29")]
-    public void UAC29_SessionAppMaximizedAgentCardOverlaysTabContent()
+    public void UAC29_SessionBlockMaximizedAgentCardOverlaysTabContent()
     {
-        var cut = Ctx.Render<SessionApp>(p => p
+        var cut = Ctx.Render<SessionBlock>(p => p
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0));
 
@@ -1158,24 +1158,24 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-slot='session-app-feed']").ShouldNotBeNull();
     }
 
-    [Fact(DisplayName = "UAC30: SessionApp HasSidebar uses the Sidebar shell")]
+    [Fact(DisplayName = "UAC30: SessionBlock HasSidebar uses the Sidebar shell")]
     [Trait(Spec.UAC, "30")]
-    public void UAC30_SessionAppHasSidebarUsesSidebarShell()
+    public void UAC30_SessionBlockHasSidebarUsesSidebarShell()
     {
-        var embedded = Ctx.Render<SessionApp>();
+        var embedded = Ctx.Render<SessionBlock>();
 
         embedded.FindAll("[data-slot='sidebar-provider']").ShouldBeEmpty();
         embedded.Find("[data-panel='session-app-left-panel']").ShouldNotBeNull();
         embedded.FindAll("[data-slot='resizable-panel']").Count.ShouldBe(3);
 
-        var standalone = Ctx.Render<SessionApp>(p => p.Add(x => x.HasSidebar, true));
+        var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
         standalone.Find("[data-slot='sidebar-provider']").ShouldNotBeNull();
         standalone.Find("[data-slot='sidebar']").ShouldNotBeNull();
         standalone.Find("[data-slot='sidebar-inset']").ShouldNotBeNull();
         var shellStyle = standalone.Find("[data-slot='session-app']").GetAttribute("style");
         shellStyle.ShouldNotBeNull();
-        // Standalone SessionApp fills its container (height:100%) rather than
+        // Standalone SessionBlock fills its container (height:100%) rather than
         // a fixed 42rem — the parent component sizes the shell.
         shellStyle.ShouldContain("height:100%");
         standalone.FindAll("[data-panel='session-app-left-panel']").ShouldBeEmpty();
@@ -1201,7 +1201,7 @@ public class SC01_SessionBlocks : ViewScenario
             .ShouldBeTrue();
         standalone.Find("[data-slot='sidebar-header']").ShouldNotBeNull();
         standalone.Find("[data-slot='sidebar-brand-logo']").GetAttribute("src").ShouldBe("_content/LowlandTech.Components/img/session-app-logo.svg");
-        standalone.Find("[data-slot='sidebar-brand-title']").TextContent.Trim().ShouldBe("SessionApp");
+        standalone.Find("[data-slot='sidebar-brand-title']").TextContent.Trim().ShouldBe("SessionBlock");
         standalone.Find("[data-slot='sidebar-content']").ShouldNotBeNull();
         standalone.Find("[data-slot='sidebar-footer']").TextContent.ShouldContain("Page 1 / 1");
         standalone.Find("[data-slot='sidebar-footer']").TextContent.ShouldContain("Rows 10");
@@ -1218,11 +1218,11 @@ public class SC01_SessionBlocks : ViewScenario
         sessionBodyStyle.ShouldContain("padding:10px");
     }
 
-    [Fact(DisplayName = "UAC30b: SessionApp standalone sidebars keep full panel stretch classes")]
+    [Fact(DisplayName = "UAC30b: SessionBlock standalone sidebars keep full panel stretch classes")]
     [Trait(Spec.UAC, "30b")]
-    public void UAC30b_SessionAppStandaloneSidebarsKeepStretchClasses()
+    public void UAC30b_SessionBlockStandaloneSidebarsKeepStretchClasses()
     {
-        var standalone = Ctx.Render<SessionApp>(p => p.Add(x => x.HasSidebar, true));
+        var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
         var leftSidebar = standalone.Find("[data-slot='session-app-left-sidebar']");
         leftSidebar.ClassList.ShouldContain("h-full");
@@ -1231,7 +1231,7 @@ public class SC01_SessionBlocks : ViewScenario
 
         var appShellStyle = standalone.Find("[data-slot='session-app']").GetAttribute("style");
         appShellStyle.ShouldNotBeNull();
-        // Standalone SessionApp fills its container (height:100%) rather than
+        // Standalone SessionBlock fills its container (height:100%) rather than
         // a fixed 42rem — the parent component sizes the shell.
         appShellStyle.ShouldContain("height:100%");
         appShellStyle.ShouldContain("min-height:0");
@@ -1262,7 +1262,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "30c")]
     public void UAC30c_ClosingStandaloneSidebarRemovesLeftPanel()
     {
-        var standalone = Ctx.Render<SessionApp>(p => p.Add(x => x.HasSidebar, true));
+        var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
         standalone.Find("[data-testid='session-app-sidebar-close']").Click();
 
@@ -1289,11 +1289,11 @@ public class SC01_SessionBlocks : ViewScenario
         standalone.FindAll("[data-slot='resizable-handle']").Count.ShouldBe(2);
     }
 
-    [Fact(DisplayName = "UAC31: SessionApp supplies overlay containers to rendered session cards")]
+    [Fact(DisplayName = "UAC31: SessionBlock supplies overlay containers to rendered session cards")]
     [Trait(Spec.UAC, "31")]
-    public void UAC31_SessionAppSuppliesOverlayContainers()
+    public void UAC31_SessionBlockSuppliesOverlayContainers()
     {
-        var cut = Ctx.Render<SessionApp>(p => p
+        var cut = Ctx.Render<SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0)
@@ -1312,14 +1312,14 @@ public class SC01_SessionBlocks : ViewScenario
         overlayCard.ClassList.ShouldNotContain("fixed");
     }
 
-    [Fact(DisplayName = "UAC32: SessionApp page overlay is confined to the main page content panel")]
+    [Fact(DisplayName = "UAC32: SessionBlock page overlay is confined to the main page content panel")]
     [Trait(Spec.UAC, "32")]
     public void UAC32_SessionAppPageOverlayUsesMainContentPanel()
     {
         var pageOverlay = Ctx.Services.GetRequiredService<IPageOverlayService>();
         pageOverlay.Clear();
 
-        var cut = Ctx.Render<SessionApp>(p => p
+        var cut = Ctx.Render<SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0)
@@ -1383,6 +1383,6 @@ public class SC01_SessionBlocks : ViewScenario
             .Click();
     }
 
-    private static string FindSessionCount(IRenderedComponent<SessionApp> cut, string sessionId) =>
+    private static string FindSessionCount(IRenderedComponent<SessionBlock> cut, string sessionId) =>
         cut.Find($"[data-testid='session-list-item-count'][data-node-id='{sessionId}']").TextContent.Trim();
 }
