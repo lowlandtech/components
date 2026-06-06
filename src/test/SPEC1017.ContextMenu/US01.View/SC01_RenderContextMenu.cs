@@ -1,5 +1,5 @@
 using Bunit;
-using ContextMenuSut = LowlandTech.Components.ContextMenu.ContextMenu;
+using ContextMenuSut = LowlandTech.Components.ContextMenu;
 
 namespace LowlandTech.Components.Tests.SPEC1017.ContextMenu.US01.View;
 

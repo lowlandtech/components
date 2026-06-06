@@ -1,7 +1,6 @@
 using Bunit;
-using PopoverSut = LowlandTech.Components.Popover.Popover;
-using LowlandTech.Components.Popover;
-
+using PopoverSut = LowlandTech.Components.Popover;
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1035.Popover.US02.Behavior;
 
 [Trait(Spec.SPEC, "1035")]

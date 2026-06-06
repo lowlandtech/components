@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Session.Agents;
+namespace LowlandTech.Components;
 
 /// <summary>Dummy ask agent for test mode — returns random static replies and streaming chunks.</summary>
 public sealed class DummyAskAgentGraphService : IAgentGraphService

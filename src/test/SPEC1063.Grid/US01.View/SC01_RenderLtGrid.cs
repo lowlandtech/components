@@ -1,6 +1,5 @@
 using LowlandTech.Components;
-using LowlandTech.Components.Grid;
-using GridComponent = global::LowlandTech.Components.Grid.Grid;
+using GridComponent = global::LowlandTech.Components.Grid;
 
 namespace LowlandTech.Components.Tests.SPEC1063.Grid.US01.View;
 

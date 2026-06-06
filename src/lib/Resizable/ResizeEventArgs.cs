@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Resizable;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Event arguments for resize operations.

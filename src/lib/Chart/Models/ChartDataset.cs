@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Chart.Models;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Represents a dataset for chart rendering.

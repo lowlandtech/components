@@ -193,14 +193,14 @@ public class SC01_NarrowViewportStackingContract
                 "Without it, the rules never reach the browser running on port 7088.");
     }
 
-    [Fact(DisplayName = "UAC09: src/shell/Components/App.razor links explorer-layout.css")]
+    [Fact(DisplayName = "UAC09: src/shell/Features/Shell/App.razor links explorer-layout.css")]
     [Trait(Spec.UAC, "09")]
     public void UAC09_ShellAppLinksCss()
     {
         var html = ReadEmbedded("shell.App.razor");
         html.ShouldContain(CssLink,
             customMessage:
-                "src/shell/Components/App.razor must link " +
+                "src/shell/Features/Shell/App.razor must link " +
                 "`_content/LowlandTech.Components/css/explorer-layout.css` in <head>.");
     }
 

@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Tabs;
+namespace LowlandTech.Components;
 
 public sealed record TabsItem
 {

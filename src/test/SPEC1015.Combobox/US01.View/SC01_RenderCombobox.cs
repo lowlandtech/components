@@ -1,7 +1,6 @@
 using Bunit;
-using ComboboxComponent = LowlandTech.Components.Combobox.Combobox;
-using LowlandTech.Components.Combobox;
-
+using ComboboxComponent = LowlandTech.Components.Combobox;
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1015.Combobox.US01.View;
 
 [Trait(Spec.SPEC, "1015")]

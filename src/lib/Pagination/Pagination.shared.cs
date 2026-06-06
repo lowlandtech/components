@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Pagination;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Represents an item in the pagination (page number or ellipsis).

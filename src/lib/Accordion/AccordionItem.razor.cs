@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Accordion;
+namespace LowlandTech.Components;
 
 public partial class AccordionItem : TinyComponentBase, IDisposable
 {

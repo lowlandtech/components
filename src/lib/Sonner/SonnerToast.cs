@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Sonner;
+namespace LowlandTech.Components;
 
 public enum ToastType { Default, Success, Info, Warning, Error, Promise, Loading }
 

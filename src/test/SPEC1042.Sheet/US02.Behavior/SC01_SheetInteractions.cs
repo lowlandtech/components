@@ -1,6 +1,5 @@
 using Bunit;
-using LowlandTech.Components.Sheet;
-
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1042.Sheet.US02.Behavior;
 
 [Trait(Spec.SPEC, "1042")]

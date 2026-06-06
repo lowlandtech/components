@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Accordion;
+namespace LowlandTech.Components;
 
 // This file extends the auto-generated Accordion partial class.
 public partial class Accordion : IDisposable

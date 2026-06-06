@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Work;
+namespace LowlandTech.Components;
 
 public partial class WorkAppDetailPanel
 {

@@ -1,7 +1,6 @@
 using Bunit;
-using AlertDialogSut = LowlandTech.Components.AlertDialog.AlertDialog;
-using LowlandTech.Components.AlertDialog;
-
+using AlertDialogSut = LowlandTech.Components.AlertDialog;
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1002.AlertDialog.US01.View;
 
 [Trait(Spec.SPEC, "1002")]

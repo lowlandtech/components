@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Alert;
+namespace LowlandTech.Components;
 
 public partial class Alert : TinyComponentBase
 {

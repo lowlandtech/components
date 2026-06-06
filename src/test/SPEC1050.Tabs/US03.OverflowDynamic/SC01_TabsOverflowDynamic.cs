@@ -10,7 +10,7 @@ public class SC01_TabsOverflowDynamic : ViewScenario
     [Trait(Spec.UAC, "01")]
     public void UAC01_TabsListHidesScrollButtonsUntilOverflow()
     {
-        var cut = Ctx.Render<LowlandTech.Components.Tabs.Tabs>(p => p.AddChildContent<TabsList>(list => list
+        var cut = Ctx.Render<LowlandTech.Components.Tabs>(p => p.AddChildContent<TabsList>(list => list
             .Add(l => l.ShowScrollButtons, true)
             .AddChildContent<TabsTrigger>(trigger => trigger
                 .Add(t => t.Value, "tab-1")
@@ -25,7 +25,7 @@ public class SC01_TabsOverflowDynamic : ViewScenario
     [Trait(Spec.UAC, "07")]
     public async Task UAC07_TabsListShowsScrollButtonsAfterOverflow()
     {
-        var cut = Ctx.Render<LowlandTech.Components.Tabs.Tabs>(p => p.AddChildContent<TabsList>(list => list
+        var cut = Ctx.Render<LowlandTech.Components.Tabs>(p => p.AddChildContent<TabsList>(list => list
             .Add(l => l.ShowScrollButtons, true)
             .AddChildContent<TabsTrigger>(trigger => trigger
                 .Add(t => t.Value, "tab-1")
@@ -50,7 +50,7 @@ public class SC01_TabsOverflowDynamic : ViewScenario
 
         RenderFragment<TabsItem> content = item => builder => builder.AddContent(0, $"Content {item.Title}");
 
-        var cut = Ctx.Render<LowlandTech.Components.Tabs.Tabs>(p => p
+        var cut = Ctx.Render<LowlandTech.Components.Tabs>(p => p
             .Add(t => t.Items, items)
             .Add(t => t.ItemContent, content));
 
@@ -72,7 +72,7 @@ public class SC01_TabsOverflowDynamic : ViewScenario
 
         var callback = EventCallback.Factory.Create<IReadOnlyList<TabsItem>>(this, next => changed = next);
 
-        var cut = Ctx.Render<LowlandTech.Components.Tabs.Tabs>(p => p
+        var cut = Ctx.Render<LowlandTech.Components.Tabs>(p => p
             .Add(t => t.Items, items)
             .Add(t => t.ItemsChanged, callback));
 
@@ -96,7 +96,7 @@ public class SC01_TabsOverflowDynamic : ViewScenario
 
         var callback = EventCallback.Factory.Create<IReadOnlyList<TabsItem>>(this, next => changed = next);
 
-        var cut = Ctx.Render<LowlandTech.Components.Tabs.Tabs>(p => p
+        var cut = Ctx.Render<LowlandTech.Components.Tabs>(p => p
             .Add(t => t.Items, items)
             .Add(t => t.ItemsChanged, callback));
 
@@ -116,7 +116,7 @@ public class SC01_TabsOverflowDynamic : ViewScenario
             new TabsItem { Value = "two", Title = "Two" }
         };
 
-        var cut = Ctx.Render<LowlandTech.Components.Tabs.Tabs>(p => p
+        var cut = Ctx.Render<LowlandTech.Components.Tabs>(p => p
             .Add(t => t.Items, items)
             .Add(t => t.Value, "two")
             .Add(t => t.DynamicVariant, "ide"));
@@ -140,7 +140,7 @@ public class SC01_TabsOverflowDynamic : ViewScenario
 
         var callback = EventCallback.Factory.Create<IReadOnlyList<TabsItem>>(this, next => changed = next);
 
-        var cut = Ctx.Render<LowlandTech.Components.Tabs.Tabs>(p => p
+        var cut = Ctx.Render<LowlandTech.Components.Tabs>(p => p
             .Add(t => t.Items, items)
             .Add(t => t.ItemsChanged, callback));
 
@@ -156,7 +156,7 @@ public class SC01_TabsOverflowDynamic : ViewScenario
     [Trait(Spec.UAC, "25")]
     public void UAC25_TabHeaderKeepsDefaultCursor()
     {
-        var cut = Ctx.Render<LowlandTech.Components.Tabs.Tabs>(p => p.AddChildContent<TabsList>(list => list
+        var cut = Ctx.Render<LowlandTech.Components.Tabs>(p => p.AddChildContent<TabsList>(list => list
             .AddChildContent<TabsTrigger>(trigger => trigger
                 .Add(t => t.Value, "tab-1")
                 .Add(t => t.Draggable, true)

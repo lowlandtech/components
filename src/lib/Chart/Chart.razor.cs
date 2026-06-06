@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Chart;
+namespace LowlandTech.Components;
 
 public partial class Chart : TinyComponentBase
 {

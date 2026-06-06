@@ -1,5 +1,5 @@
 using Bunit;
-using InputOTPComponent = LowlandTech.Components.InputOTP.InputOTP;
+using InputOTPComponent = LowlandTech.Components.InputOTP;
 
 namespace LowlandTech.Components.Tests.SPEC1027.InputOTP.US02.Behavior;
 

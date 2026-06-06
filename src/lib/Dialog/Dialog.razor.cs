@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Dialog;
+namespace LowlandTech.Components;
 
 public partial class Dialog : TinyComponentBase
 {

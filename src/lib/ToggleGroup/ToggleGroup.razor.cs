@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.ToggleGroup;
+namespace LowlandTech.Components;
 
 public partial class ToggleGroup : TinyComponentBase
 {

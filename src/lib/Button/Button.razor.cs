@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Button;
+namespace LowlandTech.Components;
 
 public partial class Button : TinyComponentBase
 {

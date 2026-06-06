@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.CliAgent;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Process lifecycle surface for CLI-agent state machines. Mockable so the

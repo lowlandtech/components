@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Bunit;
-using LowlandTech.Components.ContainerGrid;
-
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1066.ContainerGrid.US03.DragResize;
 
 /// <summary>
@@ -16,10 +15,10 @@ namespace LowlandTech.Components.Tests.SPEC1066.ContainerGrid.US03.DragResize;
 [UserStory("03", "ContainerGrid drag + resize data-* contract")]
 public class SC00_DragResizeContract : JsViewScenario
 {
-    private IRenderedComponent<LowlandTech.Components.ContainerGrid.ContainerGrid> RenderGridWithSection(
+    private IRenderedComponent<LowlandTech.Components.ContainerGrid> RenderGridWithSection(
         bool resizable = true)
     {
-        return Ctx.Render<LowlandTech.Components.ContainerGrid.ContainerGrid>(p => p
+        return Ctx.Render<LowlandTech.Components.ContainerGrid>(p => p
             .Add(c => c.Columns, 12)
             .Add(c => c.Rows, 8)
             .Add(c => c.ResolveCollisions, true)

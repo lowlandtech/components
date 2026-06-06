@@ -1,5 +1,5 @@
 using Bunit;
-using CodeEditorSut = LowlandTech.Components.CodeEditor.CodeEditor;
+using CodeEditorSut = LowlandTech.Components.CodeEditor;
 
 namespace LowlandTech.Components.Tests.SPEC1011.CodeEditor.US01.View;
 

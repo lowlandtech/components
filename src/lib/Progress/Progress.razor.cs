@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Progress;
+namespace LowlandTech.Components;
 
 public partial class Progress : TinyComponentBase
 {

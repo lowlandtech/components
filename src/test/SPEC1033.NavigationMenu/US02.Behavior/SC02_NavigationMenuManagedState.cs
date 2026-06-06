@@ -1,6 +1,5 @@
 using Bunit;
-using LowlandTech.Components.NavigationMenu;
-
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1033.NavigationMenu.US02.Behavior;
 
 [Trait(Spec.SPEC, "1033")]

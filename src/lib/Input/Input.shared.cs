@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Input;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Extends the auto-generated Input partial class.

@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Skeleton;
+namespace LowlandTech.Components;
 
 public partial class Skeleton : TinyComponentBase
 {

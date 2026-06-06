@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Separator;
+namespace LowlandTech.Components;
 
 public partial class Separator : TinyComponentBase
 {

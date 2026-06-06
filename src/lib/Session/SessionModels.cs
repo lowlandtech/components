@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Session;
+namespace LowlandTech.Components;
 
 public sealed record SessionNodeInput(
     string Id,
@@ -52,11 +52,11 @@ public sealed record SessionContextBlockModel(
     public Type? EffectiveComponentType => ComponentType ?? SessionUiReducer.ResolveComponentType(Context.ComponentBlock);
 }
 
-public interface IBlock
+public interface ISessionBlock
 {
 }
 
-public interface ISessionContextBlock : IBlock
+public interface ISessionContextBlock : ISessionBlock
 {
 }
 

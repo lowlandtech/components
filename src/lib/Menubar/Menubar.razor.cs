@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Menubar;
+namespace LowlandTech.Components;
 
 public partial class Menubar : TinyComponentBase
 {

@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Checkbox;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Extends the auto-generated Checkbox partial class.

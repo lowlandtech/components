@@ -1,7 +1,6 @@
 using Bunit;
-using TabsSut = LowlandTech.Components.Tabs.Tabs;
-using LowlandTech.Components.Tabs;
-
+using TabsSut = LowlandTech.Components.Tabs;
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1050.Tabs.US01.View;
 
 [Trait(Spec.SPEC, "1050")]

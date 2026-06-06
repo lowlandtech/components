@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.GraphPort;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// A connection port (socket) rendered as a small circle, typically on the

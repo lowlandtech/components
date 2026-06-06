@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Session.Agents;
+namespace LowlandTech.Components;
 
 /// <summary>Run agent — executes actions against the graph.</summary>
 public sealed class RunAgentGraphService : IAgentGraphService

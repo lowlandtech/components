@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Badge;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Extends the auto-generated Badge partial class.

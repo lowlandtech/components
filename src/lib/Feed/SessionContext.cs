@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace LowlandTech.Components.Feed;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Aggregated context for a single session.
@@ -44,7 +44,7 @@ public sealed class SessionContext
 
     /// <summary>
     /// The user's input text for the current command. Set by
-    /// <see cref="LowlandTech.Components.Session.SessionStateService.SubmitAsync"/>
+    /// <see cref="LowlandTech.Components.SessionStateService.SubmitAsync"/>
     /// before invoking the agent, so streaming agents can read it from the
     /// context rather than receiving it as a separate parameter.
     /// </summary>

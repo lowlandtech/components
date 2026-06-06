@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Textarea;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Extends the auto-generated Textarea partial class.

@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Switch;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Extends the auto-generated Switch partial class.

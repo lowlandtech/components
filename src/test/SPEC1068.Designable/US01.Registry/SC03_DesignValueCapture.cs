@@ -24,8 +24,8 @@ public class SC03_DesignValueCapture
     {
         var button = new ButtonSut
         {
-            Variant = LowlandTech.Components.Button.ButtonVariant.Outline,
-            Size = LowlandTech.Components.Button.ButtonSize.Sm,
+            Variant = LowlandTech.Components.ButtonVariant.Outline,
+            Size = LowlandTech.Components.ButtonSize.Sm,
             Disabled = true,
             Icon = nameof(Icons.Search)
         };
@@ -34,11 +34,11 @@ public class SC03_DesignValueCapture
 
         values.ShouldContainKey("Variant",
             customMessage: "Variant is decorated with [PropertyGrid] and must be captured.");
-        values["Variant"].ShouldBe(LowlandTech.Components.Button.ButtonVariant.Outline);
+        values["Variant"].ShouldBe(LowlandTech.Components.ButtonVariant.Outline);
 
         values.ShouldContainKey("Size",
             customMessage: "Size is decorated with [PropertyGrid] and must be captured.");
-        values["Size"].ShouldBe(LowlandTech.Components.Button.ButtonSize.Sm);
+        values["Size"].ShouldBe(LowlandTech.Components.ButtonSize.Sm);
 
         values.ShouldContainKey("Disabled",
             customMessage: "Disabled is decorated with [PropertyGrid] and must be captured.");
@@ -60,7 +60,7 @@ public class SC03_DesignValueCapture
         values["Variant"].ShouldBe("default");
         values["Size"].ShouldBe("default");
         values["Disabled"].ShouldBe("False");
-        values["Icon"].ShouldBe(LowlandTech.Components.Button.ButtonIcon.None);
+        values["Icon"].ShouldBe(LowlandTech.Components.ButtonIcon.None);
     }
 
     [Fact(DisplayName = "UAC23: CaptureDesignValues skips plain [Parameter] properties without [PropertyGrid]")]
@@ -104,8 +104,8 @@ public class SC03_DesignValueCapture
                 childBuilder.AddAttribute(7, "ChildContent", (RenderFragment)(innerBuilder =>
                 {
                     innerBuilder.OpenComponent<ButtonSut>(8);
-                    innerBuilder.AddAttribute(9, nameof(ButtonSut.Variant), LowlandTech.Components.Button.ButtonVariant.Ghost);
-                    innerBuilder.AddAttribute(10, nameof(ButtonSut.Size), LowlandTech.Components.Button.ButtonSize.Lg);
+                    innerBuilder.AddAttribute(9, nameof(ButtonSut.Variant), LowlandTech.Components.ButtonVariant.Ghost);
+                    innerBuilder.AddAttribute(10, nameof(ButtonSut.Size), LowlandTech.Components.ButtonSize.Lg);
                     innerBuilder.AddAttribute(11, nameof(ButtonSut.Disabled), true);
                     innerBuilder.AddAttribute(12, nameof(ButtonSut.Icon), nameof(Icons.Search));
                     innerBuilder.CloseComponent();
@@ -120,9 +120,9 @@ public class SC03_DesignValueCapture
         captured.ShouldNotBeNull();
         captured!.ComponentType.ShouldBe(typeof(ButtonSut));
         captured.Values.ShouldContainKey("Variant");
-        captured.Values["Variant"].ShouldBe(LowlandTech.Components.Button.ButtonVariant.Ghost);
+        captured.Values["Variant"].ShouldBe(LowlandTech.Components.ButtonVariant.Ghost);
         captured.Values.ShouldContainKey("Size");
-        captured.Values["Size"].ShouldBe(LowlandTech.Components.Button.ButtonSize.Lg);
+        captured.Values["Size"].ShouldBe(LowlandTech.Components.ButtonSize.Lg);
         captured.Values.ShouldContainKey("Disabled");
         captured.Values["Disabled"].ShouldBe("True");
         captured.Values.ShouldContainKey("Icon");

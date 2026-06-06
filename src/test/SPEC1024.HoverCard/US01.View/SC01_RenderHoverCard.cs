@@ -1,5 +1,5 @@
 ﻿using Bunit;
-using HoverCardSut = LowlandTech.Components.HoverCard.HoverCard;
+using HoverCardSut = LowlandTech.Components.HoverCard;
 
 namespace LowlandTech.Components.Tests.SPEC1024.HoverCard.US01.View;
 
@@ -51,7 +51,7 @@ public class SC01_RenderHoverCard : ViewScenario
     [Then("HoverCardTrigger emits data-slot='hover-card-trigger'")]
     public void UAC05_TriggerRendersDataSlot()
     {
-        var cut = Ctx.Render<LowlandTech.Components.HoverCard.HoverCardTrigger>();
+        var cut = Ctx.Render<LowlandTech.Components.HoverCardTrigger>();
         cut.Find("[data-slot='hover-card-trigger']").ShouldNotBeNull();
     }
 
@@ -60,7 +60,7 @@ public class SC01_RenderHoverCard : ViewScenario
     [Then("HoverCardContent has data-slot, data-side='bottom', data-align='center'")]
     public void UAC06_ContentRendersDefaults()
     {
-        var cut = Ctx.Render<LowlandTech.Components.HoverCard.HoverCardContent>();
+        var cut = Ctx.Render<LowlandTech.Components.HoverCardContent>();
         var el = cut.Find("[data-slot='hover-card-content']");
         el.ShouldNotBeNull();
         el.GetAttribute("data-side").ShouldBe("bottom");

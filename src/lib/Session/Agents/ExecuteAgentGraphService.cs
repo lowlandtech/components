@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Session.Agents;
+namespace LowlandTech.Components;
 
 /// <summary>Execute agent — executes commands against the graph.</summary>
 public sealed class ExecuteAgentGraphService : IAgentGraphService

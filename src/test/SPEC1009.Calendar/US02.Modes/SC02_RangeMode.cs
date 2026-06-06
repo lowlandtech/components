@@ -1,6 +1,6 @@
 using Bunit;
-using CalendarSut = LowlandTech.Components.Calendar.Calendar;
-using LowlandTech.Components.Calendar;
+using CalendarSut = LowlandTech.Components.Calendar;
+using LowlandTech.Components;
 using LowlandTech.Components.Tests.Infrastructure;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;

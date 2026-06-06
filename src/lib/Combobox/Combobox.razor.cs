@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Combobox;
+namespace LowlandTech.Components;
 
 public partial class Combobox : TinyComponentBase
 {

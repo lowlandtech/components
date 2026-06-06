@@ -1,5 +1,5 @@
 using Bunit;
-using DirectionSut = LowlandTech.Components.Direction.Direction;
+using DirectionSut = LowlandTech.Components.Direction;
 
 namespace LowlandTech.Components.Tests.SPEC1019.Direction.US01.View;
 

@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Field;
+namespace LowlandTech.Components;
 
 public partial class Field : TinyComponentBase
 {

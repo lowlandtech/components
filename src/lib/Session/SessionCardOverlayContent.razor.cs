@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Session;
+namespace LowlandTech.Components;
 
 public partial class SessionCardOverlayContent : TinyComponentBase
 {

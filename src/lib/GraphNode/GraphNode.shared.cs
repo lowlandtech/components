@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.GraphNode;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// A node in a graph — renders as an SVG rect with a title label.

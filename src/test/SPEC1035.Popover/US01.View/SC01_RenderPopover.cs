@@ -1,5 +1,5 @@
 using Bunit;
-using PopoverSut = LowlandTech.Components.Popover.Popover;
+using PopoverSut = LowlandTech.Components.Popover;
 
 namespace LowlandTech.Components.Tests.SPEC1035.Popover.US01.View;
 

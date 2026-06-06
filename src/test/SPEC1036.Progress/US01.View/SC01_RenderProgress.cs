@@ -1,5 +1,5 @@
 using Bunit;
-using ProgressSut = LowlandTech.Components.Progress.Progress;
+using ProgressSut = LowlandTech.Components.Progress;
 
 namespace LowlandTech.Components.Tests.SPEC1036.Progress.US01.View;
 

@@ -1,6 +1,5 @@
 using Bunit;
-using LowlandTech.Components.NativeSelect;
-
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1032.NativeSelect.US01.View;
 
 [Trait(Spec.SPEC, "1032")]

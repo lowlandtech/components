@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Slider;
+namespace LowlandTech.Components;
 
 public partial class Slider : TinyComponentBase
 {

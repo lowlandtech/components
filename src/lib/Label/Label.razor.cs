@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Label;
+namespace LowlandTech.Components;
 
 public partial class Label : TinyComponentBase
 {

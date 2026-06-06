@@ -1,5 +1,4 @@
-using LowlandTech.Components.ContainerGrid;
-
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1066.ContainerGrid.US02.Layout;
 
 [Trait(Spec.SPEC, "1066")]
@@ -12,7 +11,7 @@ public class SC01_GetNextFreeSpace : JsViewScenario
     [Trait(Spec.UAC, "01")]
     public void UAC01_EmptyGridFirstCell()
     {
-        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid.ContainerGrid>(
+        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid>(
             p => p.Add(x => x.Columns, 3).Add(x => x.Rows, 3));
 
         var result = cut.Instance.GetNextFreeSpace();
@@ -26,7 +25,7 @@ public class SC01_GetNextFreeSpace : JsViewScenario
     public void UAC02_SkipsOccupiedCell()
     {
         // Fill (1,1) with a 1×1 section
-        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid.ContainerGrid>(
+        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid>(
             p => p.Add(x => x.Columns, 2)
                   .Add(x => x.Rows, 2)
                   .AddChildContent<ContainerGridSection>(
@@ -47,7 +46,7 @@ public class SC01_GetNextFreeSpace : JsViewScenario
     public void UAC03_FullGridReturnsNull()
     {
         // 1×1 grid fully occupied
-        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid.ContainerGrid>(
+        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid>(
             p => p.Add(x => x.Columns, 1)
                   .Add(x => x.Rows, 1)
                   .AddChildContent<ContainerGridSection>(

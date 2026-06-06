@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.GraphEditor;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Interactive SVG graph editor.  Pass a <see cref="GraphDiagram"/> built from

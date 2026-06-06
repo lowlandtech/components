@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Session;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Aggregates all <see cref="IAgentGraphRegistry"/> instances and resolves

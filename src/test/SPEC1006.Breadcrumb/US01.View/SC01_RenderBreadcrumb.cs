@@ -1,5 +1,5 @@
 using Bunit;
-using BreadcrumbSut = LowlandTech.Components.Breadcrumb.Breadcrumb;
+using BreadcrumbSut = LowlandTech.Components.Breadcrumb;
 
 namespace LowlandTech.Components.Tests.SPEC1006.Breadcrumb.US01.View;
 

@@ -1,6 +1,6 @@
 using Bunit;
-using ContextMenuSut = LowlandTech.Components.ContextMenu.ContextMenu;
-using LowlandTech.Components.ContextMenu;
+using ContextMenuSut = LowlandTech.Components.ContextMenu;
+using LowlandTech.Components;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace LowlandTech.Components.Tests.SPEC1017.ContextMenu.US01.View;

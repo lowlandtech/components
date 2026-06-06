@@ -1,7 +1,6 @@
 using Bunit;
-using ContextMenuSut = LowlandTech.Components.ContextMenu.ContextMenu;
-using LowlandTech.Components.ContextMenu;
-
+using ContextMenuSut = LowlandTech.Components.ContextMenu;
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1017.ContextMenu.US01.View;
 
 [Trait(Spec.SPEC, "1017")]

@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Popover;
+namespace LowlandTech.Components;
 
 public partial class Popover : TinyComponentBase
 {

@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.DropdownMenu;
+namespace LowlandTech.Components;
 
 public partial class DropdownMenu : TinyComponentBase
 {

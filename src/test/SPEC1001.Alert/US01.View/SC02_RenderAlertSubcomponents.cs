@@ -1,6 +1,5 @@
 using Bunit;
-using LowlandTech.Components.Alert;
-
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1001.Alert.US01.View;
 
 [Trait(Spec.SPEC, "1001")]
@@ -60,7 +59,7 @@ public class SC02_RenderAlertSubcomponents : ViewScenario
     [Trait(Spec.UAC, "07")]
     public void UAC07_CompleteCompositionWorks()
     {
-        var cut = Ctx.Render<LowlandTech.Components.Alert.Alert>(p =>
+        var cut = Ctx.Render<LowlandTech.Components.Alert>(p =>
         {
             p.AddChildContent<AlertTitle>(title => title.AddChildContent("Alert Title"));
             p.AddChildContent<AlertDescription>(desc => desc.AddChildContent("Alert description"));

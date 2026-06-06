@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Calendar;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Represents a date range with start and end dates.

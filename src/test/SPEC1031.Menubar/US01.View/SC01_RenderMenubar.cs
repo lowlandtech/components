@@ -1,7 +1,6 @@
 using Bunit;
-using MenubarComponent = LowlandTech.Components.Menubar.Menubar;
-using LowlandTech.Components.Menubar;
-
+using MenubarComponent = LowlandTech.Components.Menubar;
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1031.Menubar.US01.View;
 
 [Trait(Spec.SPEC, "1031")]

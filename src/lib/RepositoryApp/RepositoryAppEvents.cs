@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.RepositoryApp;
+namespace LowlandTech.Components;
 
 public abstract record RepositoryUiEvent : IRepositoryEvent;
 

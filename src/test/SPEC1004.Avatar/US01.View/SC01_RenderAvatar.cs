@@ -1,5 +1,5 @@
 using Bunit;
-using AvatarSut = LowlandTech.Components.Avatar.Avatar;
+using AvatarSut = LowlandTech.Components.Avatar;
 
 namespace LowlandTech.Components.Tests.SPEC1004.Avatar.US01.View;
 

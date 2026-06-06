@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.EdgeForm;
+namespace LowlandTech.Components;
 
 public class EdgeRequiredRule(string fieldName) : IEdgeRule
 {

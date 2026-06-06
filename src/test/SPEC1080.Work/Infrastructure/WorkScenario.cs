@@ -1,5 +1,4 @@
-using LowlandTech.Components.Work;
-
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1080.Work.Infrastructure;
 
 public abstract class WorkScenario : ViewScenario

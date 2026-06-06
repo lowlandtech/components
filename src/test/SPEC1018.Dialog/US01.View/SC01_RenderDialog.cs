@@ -1,7 +1,6 @@
 using Bunit;
-using DialogSut = LowlandTech.Components.Dialog.Dialog;
-using LowlandTech.Components.Dialog;
-
+using DialogSut = LowlandTech.Components.Dialog;
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1018.Dialog.US01.View;
 
 [Trait(Spec.SPEC, "1018")]

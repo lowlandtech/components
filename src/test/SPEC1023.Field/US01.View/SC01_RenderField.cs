@@ -1,5 +1,5 @@
 using Bunit;
-using FieldSut = LowlandTech.Components.Field.Field;
+using FieldSut = LowlandTech.Components.Field;
 
 namespace LowlandTech.Components.Tests.SPEC1023.Field.US01.View;
 

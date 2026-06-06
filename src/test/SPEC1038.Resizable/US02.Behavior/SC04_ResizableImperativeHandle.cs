@@ -1,6 +1,6 @@
 using Bunit;
-using ResizableSut = LowlandTech.Components.Resizable.Resizable;
-using LowlandTech.Components.Resizable;
+using ResizableSut = LowlandTech.Components.Resizable;
+using LowlandTech.Components;
 using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1038.Resizable.US02.Behavior;

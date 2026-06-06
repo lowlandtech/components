@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Direction;
+namespace LowlandTech.Components;
 
 public partial class Direction : TinyComponentBase
 {

@@ -1,8 +1,7 @@
 using Bunit;
 using Microsoft.AspNetCore.Components.Rendering;
-using TooltipSut = LowlandTech.Components.Tooltip.Tooltip;
-using LowlandTech.Components.Tooltip;
-
+using TooltipSut = LowlandTech.Components.Tooltip;
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1054.Tooltip.US01.View;
 
 [Trait(Spec.SPEC, "1054")]

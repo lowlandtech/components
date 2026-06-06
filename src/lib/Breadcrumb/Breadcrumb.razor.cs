@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Breadcrumb;
+namespace LowlandTech.Components;
 
 public partial class Breadcrumb : TinyComponentBase
 {

@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Session.Agents;
+namespace LowlandTech.Components;
 
 /// <summary>Create agent — creates new graph nodes from the session context.</summary>
 public sealed class CreateAgentGraphService : IAgentGraphService

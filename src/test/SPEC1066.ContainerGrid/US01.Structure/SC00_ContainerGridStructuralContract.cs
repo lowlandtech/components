@@ -1,5 +1,4 @@
-using LowlandTech.Components.ContainerGrid;
-
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1066.ContainerGrid.US01.Structure;
 
 [Trait(Spec.SPEC, "1066")]
@@ -12,7 +11,7 @@ public class SC00_ContainerGridStructuralContract : JsViewScenario
     [Trait(Spec.UAC, "01")]
     public void UAC01_RendersDataSlot()
     {
-        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid.ContainerGrid>();
+        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid>();
         cut.Find("[data-slot='container-grid']").ShouldNotBeNull();
     }
 
@@ -20,7 +19,7 @@ public class SC00_ContainerGridStructuralContract : JsViewScenario
     [Trait(Spec.UAC, "02")]
     public void UAC02_RendersOverlayAndPlaceholder()
     {
-        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid.ContainerGrid>();
+        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid>();
         cut.Find(".lt-container-grid-overlay").ShouldNotBeNull();
         cut.Find(".lt-container-grid-placeholder").ShouldNotBeNull();
     }
@@ -29,7 +28,7 @@ public class SC00_ContainerGridStructuralContract : JsViewScenario
     [Trait(Spec.UAC, "03")]
     public void UAC03_DefaultColumnsStyle()
     {
-        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid.ContainerGrid>();
+        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid>();
         var style = cut.Find("[data-slot='container-grid']").GetAttribute("style")!;
         style.ShouldContain("grid-template-columns:repeat(12,1fr)");
     }
@@ -38,7 +37,7 @@ public class SC00_ContainerGridStructuralContract : JsViewScenario
     [Trait(Spec.UAC, "04")]
     public void UAC04_CustomColumnsStyle()
     {
-        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid.ContainerGrid>(
+        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid>(
             p => p.Add(x => x.Columns, 6));
         var style = cut.Find("[data-slot='container-grid']").GetAttribute("style")!;
         style.ShouldContain("grid-template-columns:repeat(6,1fr)");
@@ -48,7 +47,7 @@ public class SC00_ContainerGridStructuralContract : JsViewScenario
     [Trait(Spec.UAC, "05")]
     public void UAC05_DefaultRowsStyle()
     {
-        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid.ContainerGrid>();
+        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid>();
         var style = cut.Find("[data-slot='container-grid']").GetAttribute("style")!;
         style.ShouldContain("grid-template-rows:repeat(4,1fr)");
     }
@@ -57,7 +56,7 @@ public class SC00_ContainerGridStructuralContract : JsViewScenario
     [Trait(Spec.UAC, "06")]
     public void UAC06_RendersChildContent()
     {
-        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid.ContainerGrid>(
+        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid>(
             p => p.AddChildContent("<span id='test-child'>hello</span>"));
         cut.Find("#test-child").ShouldNotBeNull();
     }
@@ -69,7 +68,7 @@ public class SC00_ContainerGridStructuralContract : JsViewScenario
     [Trait(Spec.UAC, "11")]
     public void UAC11_EmitsGridColsCssVariable()
     {
-        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid.ContainerGrid>(
+        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid>(
             p => p.Add(x => x.Columns, 12));
         var style = cut.Find("[data-slot='container-grid']").GetAttribute("style") ?? string.Empty;
         style.ShouldContain("--lt-grid-cols:12");
@@ -79,7 +78,7 @@ public class SC00_ContainerGridStructuralContract : JsViewScenario
     [Trait(Spec.UAC, "12")]
     public void UAC12_EmitsGridRowsCssVariable()
     {
-        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid.ContainerGrid>(
+        var cut = Ctx.Render<LowlandTech.Components.ContainerGrid>(
             p => p.Add(x => x.Rows, 8));
         var style = cut.Find("[data-slot='container-grid']").GetAttribute("style") ?? string.Empty;
         style.ShouldContain("--lt-grid-rows:8");

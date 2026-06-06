@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Chart.Models;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Represents a single item in the chart legend.

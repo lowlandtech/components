@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.SelectInput;
+namespace LowlandTech.Components;
 
 public partial class SelectInput<TValue>
 {

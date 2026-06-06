@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Sheet;
+namespace LowlandTech.Components;
 
 public partial class Sheet : TinyComponentBase
 {

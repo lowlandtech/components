@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Sonner;
+namespace LowlandTech.Components;
 
 public partial class Sonner : TinyComponentBase
 {

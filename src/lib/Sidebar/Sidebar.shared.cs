@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Sidebar;
+namespace LowlandTech.Components;
 
 // This file extends the auto-generated Sidebar partial class.
 // Add custom parameters, methods, and lifecycle overrides here.

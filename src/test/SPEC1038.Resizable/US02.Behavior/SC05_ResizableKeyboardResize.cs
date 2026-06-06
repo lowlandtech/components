@@ -1,5 +1,5 @@
 using Bunit;
-using LowlandTech.Components.Resizable;
+using LowlandTech.Components;
 using LowlandTech.Components.Tests.Infrastructure;
 using Microsoft.AspNetCore.Components.Web;
 

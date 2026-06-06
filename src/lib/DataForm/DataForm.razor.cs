@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.DataForm;
+namespace LowlandTech.Components;
 
 public partial class DataForm : TinyComponentBase
 {

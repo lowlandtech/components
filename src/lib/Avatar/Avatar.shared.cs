@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Avatar;
+namespace LowlandTech.Components;
 
 public partial class Avatar
 {

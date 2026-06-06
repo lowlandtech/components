@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace LowlandTech.Components.Feed;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Provides shared context for blocks rendered inside the session feed.

@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.AspectRatio;
+namespace LowlandTech.Components;
 
 public partial class AspectRatio : TinyComponentBase
 {

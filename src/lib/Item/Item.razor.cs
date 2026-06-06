@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Item;
+namespace LowlandTech.Components;
 
 public partial class Item : TinyComponentBase
 {

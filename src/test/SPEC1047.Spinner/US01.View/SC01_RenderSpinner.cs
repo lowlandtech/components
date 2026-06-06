@@ -1,5 +1,5 @@
 using Bunit;
-using SpinnerSut = LowlandTech.Components.Spinner.Spinner;
+using SpinnerSut = LowlandTech.Components.Spinner;
 
 namespace LowlandTech.Components.Tests.SPEC1047.Spinner.US01.View;
 

@@ -1,7 +1,5 @@
 using Bunit;
 using LowlandTech.Components;
-using LowlandTech.Components.SelectInput;
-
 namespace LowlandTech.Components.Tests.SPEC1061.SelectInput.US02.Behavior;
 
 [Trait(Spec.SPEC, "1061")]

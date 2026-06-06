@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Resizable;
+namespace LowlandTech.Components;
 
 public partial class Resizable : TinyComponentBase
 {

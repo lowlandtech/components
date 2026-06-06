@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.DataGrid;
+namespace LowlandTech.Components;
 
 public enum DataGridSelectionMode
 {

@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Card;
+namespace LowlandTech.Components;
 
 public partial class CardTitle : TinyComponentBase
 {

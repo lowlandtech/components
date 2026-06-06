@@ -1,6 +1,5 @@
 using Bunit;
-using LowlandTech.Components.GraphEditor;
-
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1070.GraphEditor.US02.Component;
 
 /// <summary>
@@ -24,10 +23,10 @@ public class SC01_GraphEditorRendering : JsViewScenario
         return d;
     }
 
-    private IRenderedComponent<LowlandTech.Components.GraphEditor.GraphEditor> Render(
+    private IRenderedComponent<LowlandTech.Components.GraphEditor> Render(
         GraphDiagram? diagram = null,
         int width = 400, int height = 200, bool showGrid = false) =>
-        Ctx.Render<LowlandTech.Components.GraphEditor.GraphEditor>(p => p
+        Ctx.Render<LowlandTech.Components.GraphEditor>(p => p
             .Add(c => c.Diagram, diagram ?? TwoNodeDiagram())
             .Add(c => c.Width, width)
             .Add(c => c.Height, height)

@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Pagination;
+namespace LowlandTech.Components;
 
 public partial class Pagination : TinyComponentBase
 {

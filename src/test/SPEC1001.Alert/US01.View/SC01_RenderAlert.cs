@@ -1,7 +1,6 @@
 using Bunit;
-using AlertSut = LowlandTech.Components.Alert.Alert;
-using LowlandTech.Components.Alert;
-
+using AlertSut = LowlandTech.Components.Alert;
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1001.Alert.US01.View;
 
 [Trait(Spec.SPEC, "1001")]

@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Feed;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// <see cref="BlockBase"/>-derived component base for generated entity pages.

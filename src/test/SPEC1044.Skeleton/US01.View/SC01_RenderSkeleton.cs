@@ -1,4 +1,4 @@
-using SkeletonSut = LowlandTech.Components.Skeleton.Skeleton;
+using SkeletonSut = LowlandTech.Components.Skeleton;
 
 namespace LowlandTech.Components.Tests.SPEC1044.Skeleton.US01.View;
 

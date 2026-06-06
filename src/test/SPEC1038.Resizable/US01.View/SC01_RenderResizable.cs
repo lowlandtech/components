@@ -1,5 +1,5 @@
 using Bunit;
-using ResizableSut = LowlandTech.Components.Resizable.Resizable;
+using ResizableSut = LowlandTech.Components.Resizable;
 
 namespace LowlandTech.Components.Tests.SPEC1038.Resizable.US01.View;
 

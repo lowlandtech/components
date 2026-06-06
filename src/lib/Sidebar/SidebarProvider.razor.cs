@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components.Web;
 
-namespace LowlandTech.Components.Sidebar;
+namespace LowlandTech.Components;
 
 public partial class SidebarProvider : TinyComponentBase, IDisposable
 {

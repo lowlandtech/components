@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Sidebar;
+namespace LowlandTech.Components;
 
 public partial class SidebarGroupContent : TinyComponentBase
 {

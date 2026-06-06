@@ -1,6 +1,6 @@
 using Bunit;
 using Microsoft.AspNetCore.Components.Web;
-using SwitchSut = LowlandTech.Components.Switch.Switch;
+using SwitchSut = LowlandTech.Components.Switch;
 
 namespace LowlandTech.Components.Tests.SPEC1048.Switch.US02.Interaction;
 

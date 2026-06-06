@@ -1,5 +1,4 @@
-using LowlandTech.Components.EdgeForm;
-
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1065.EdgeForm.US01.View;
 
 [Trait(Spec.SPEC, "1065")]

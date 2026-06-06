@@ -1,7 +1,6 @@
 using Bunit;
-using SheetComponent = LowlandTech.Components.Sheet.Sheet;
-using LowlandTech.Components.Sheet;
-
+using SheetComponent = LowlandTech.Components.Sheet;
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1042.Sheet.US01.View;
 
 [Trait(Spec.SPEC, "1042")]

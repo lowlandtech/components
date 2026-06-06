@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Alert;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Extends the auto-generated Alert partial class.

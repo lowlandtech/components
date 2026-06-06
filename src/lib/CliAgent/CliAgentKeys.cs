@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.CliAgent;
+namespace LowlandTech.Components;
 
 public static class CliAgentKeys
 {

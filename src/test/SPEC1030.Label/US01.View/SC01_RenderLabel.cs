@@ -1,5 +1,5 @@
 using Bunit;
-using LabelSut = LowlandTech.Components.Label.Label;
+using LabelSut = LowlandTech.Components.Label;
 
 namespace LowlandTech.Components.Tests.SPEC1030.Label.US01.View;
 

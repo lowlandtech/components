@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components.Web;
 
-namespace LowlandTech.Components.Input;
+namespace LowlandTech.Components;
 
 public partial class Input : TinyComponentBase
 {

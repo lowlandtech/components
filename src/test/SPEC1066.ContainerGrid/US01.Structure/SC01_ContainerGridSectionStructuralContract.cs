@@ -1,5 +1,4 @@
-using LowlandTech.Components.ContainerGrid;
-
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1066.ContainerGrid.US01.Structure;
 
 [Trait(Spec.SPEC, "1066")]
@@ -8,9 +7,9 @@ namespace LowlandTech.Components.Tests.SPEC1066.ContainerGrid.US01.Structure;
 [UserStory("01", "ContainerGridSection structural contract")]
 public class SC01_ContainerGridSectionStructuralContract : JsViewScenario
 {
-    private IRenderedComponent<LowlandTech.Components.ContainerGrid.ContainerGrid> RenderWithSection(
+    private IRenderedComponent<LowlandTech.Components.ContainerGrid> RenderWithSection(
         Action<Bunit.ComponentParameterCollectionBuilder<ContainerGridSection>> sectionConfig)
-        => Ctx.Render<LowlandTech.Components.ContainerGrid.ContainerGrid>(
+        => Ctx.Render<LowlandTech.Components.ContainerGrid>(
             g => g.AddChildContent<ContainerGridSection>(sectionConfig));
 
     [Fact(DisplayName = "UAC01: ContainerGridSection renders data-slot='container-grid-section'")]

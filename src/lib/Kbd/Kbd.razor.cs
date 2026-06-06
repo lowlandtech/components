@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Kbd;
+namespace LowlandTech.Components;
 
 public partial class Kbd : TinyComponentBase
 {

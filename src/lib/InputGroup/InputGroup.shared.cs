@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.InputGroup;
+namespace LowlandTech.Components;
 
 public partial class InputGroup
 {

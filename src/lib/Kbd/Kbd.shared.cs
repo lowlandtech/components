@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Kbd;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Extends the auto-generated Kbd partial class.

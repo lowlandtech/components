@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Popover;
+namespace LowlandTech.Components;
 
 public class PopoverReference
 {

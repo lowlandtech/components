@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Tabs;
+namespace LowlandTech.Components;
 
 [Properties(Group = "Navigation", Icon = "tabs", Description = "Tabbed content with collapsible and dynamic variants")]
 public partial class Tabs

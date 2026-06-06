@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Switch;
+namespace LowlandTech.Components;
 
 public partial class Switch : TinyComponentBase
 {

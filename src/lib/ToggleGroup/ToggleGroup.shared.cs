@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.ToggleGroup;
+namespace LowlandTech.Components;
 
 public record ToggleGroupContext(string Variant, string Size, int Spacing, string Orientation);
 

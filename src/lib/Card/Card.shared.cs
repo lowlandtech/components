@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Card;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Extends the auto-generated Card partial class.

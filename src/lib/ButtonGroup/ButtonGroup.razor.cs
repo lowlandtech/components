@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.ButtonGroup;
+namespace LowlandTech.Components;
 
 public partial class ButtonGroup : TinyComponentBase
 {

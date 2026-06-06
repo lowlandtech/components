@@ -1,5 +1,5 @@
 using Bunit;
-using TooltipSut = LowlandTech.Components.Tooltip.Tooltip;
+using TooltipSut = LowlandTech.Components.Tooltip;
 
 namespace LowlandTech.Components.Tests.SPEC1054.Tooltip.US01.View;
 

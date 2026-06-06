@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components.Web;
 
-namespace LowlandTech.Components.Accordion;
+namespace LowlandTech.Components;
 
 public partial class AccordionTrigger : TinyComponentBase
 {

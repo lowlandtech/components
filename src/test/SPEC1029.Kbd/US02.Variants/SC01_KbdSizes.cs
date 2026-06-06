@@ -1,5 +1,5 @@
 using Bunit;
-using KbdSut = LowlandTech.Components.Kbd.Kbd;
+using KbdSut = LowlandTech.Components.Kbd;
 
 namespace LowlandTech.Components.Tests.SPEC1029.Kbd.US02.Variants;
 

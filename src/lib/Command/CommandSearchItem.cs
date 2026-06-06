@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Command;
+namespace LowlandTech.Components;
 
 public class CommandSearchItem
 {

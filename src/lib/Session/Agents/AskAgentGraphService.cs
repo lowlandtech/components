@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Session.Agents;
+namespace LowlandTech.Components;
 
 /// <summary>Ask agent — queries the graph and returns information.</summary>
 public sealed class AskAgentGraphService : IAgentGraphService

@@ -49,7 +49,7 @@ public class SC01_ButtonThemeSlot : JsViewScenario
     [Trait(Spec.UAC, "01")]
     public void UAC01_NoContext_DefaultClasses()
     {
-        var cut = Ctx.Render<LowlandTech.Components.Button.Button>(p => p
+        var cut = Ctx.Render<LowlandTech.Components.Button>(p => p
             .Add(b => b.Variant, "default")
             .Add(b => b.ChildContent, (RenderFragment)(rb => rb.AddContent(0, "Click"))));
         var classes = cut.Find("[data-slot='button']").ClassName;
@@ -62,7 +62,7 @@ public class SC01_ButtonThemeSlot : JsViewScenario
     public void UAC02_ExactVariantSlot_Append()
     {
         var ctx = BuildContext();
-        var cut = Ctx.Render<LowlandTech.Components.Button.Button>(p => p
+        var cut = Ctx.Render<LowlandTech.Components.Button>(p => p
             .Add(b => b.Variant, "default")
             .Add(b => b.ChildContent, (RenderFragment)(rb => rb.AddContent(0, "X")))
             .AddCascadingValue(ctx));
@@ -76,7 +76,7 @@ public class SC01_ButtonThemeSlot : JsViewScenario
     public void UAC03_ExactVariantSlot_Replace()
     {
         var ctx = BuildContext();
-        var cut = Ctx.Render<LowlandTech.Components.Button.Button>(p => p
+        var cut = Ctx.Render<LowlandTech.Components.Button>(p => p
             .Add(b => b.Variant, "outline")
             .Add(b => b.ChildContent, (RenderFragment)(rb => rb.AddContent(0, "X")))
             .AddCascadingValue(ctx));
@@ -91,7 +91,7 @@ public class SC01_ButtonThemeSlot : JsViewScenario
     public void UAC04_WildcardSlotApplies()
     {
         var ctx = BuildContext();
-        var cut = Ctx.Render<LowlandTech.Components.Button.Button>(p => p
+        var cut = Ctx.Render<LowlandTech.Components.Button>(p => p
             .Add(b => b.Variant, "ghost")   // no exact ghost slot — hits wildcard
             .Add(b => b.ChildContent, (RenderFragment)(rb => rb.AddContent(0, "X")))
             .AddCascadingValue(ctx));
@@ -104,7 +104,7 @@ public class SC01_ButtonThemeSlot : JsViewScenario
     public void UAC05_ConsumerClassPreserved()
     {
         var ctx = BuildContext();
-        var cut = Ctx.Render<LowlandTech.Components.Button.Button>(p => p
+        var cut = Ctx.Render<LowlandTech.Components.Button>(p => p
             .Add(b => b.Variant, "default")
             .Add(b => b.Class, "my-custom")
             .Add(b => b.ChildContent, (RenderFragment)(rb => rb.AddContent(0, "X")))

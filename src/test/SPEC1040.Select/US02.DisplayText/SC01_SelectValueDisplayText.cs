@@ -1,4 +1,4 @@
-using SelectSut = LowlandTech.Components.Select.Select;
+using SelectSut = LowlandTech.Components.Select;
 
 namespace LowlandTech.Components.Tests.SPEC1040.Select.US02.DisplayText;
 

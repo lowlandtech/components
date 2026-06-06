@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.ScrollArea;
+namespace LowlandTech.Components;
 
 public partial class ScrollArea
 {

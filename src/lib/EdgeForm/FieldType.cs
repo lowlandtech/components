@@ -1,3 +1,3 @@
-namespace LowlandTech.Components.EdgeForm;
+namespace LowlandTech.Components;
 
 public enum FieldType { Text, Number, Date, Select, Boolean }

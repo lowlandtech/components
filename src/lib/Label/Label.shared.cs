@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Label;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Extends the auto-generated Label partial class.

@@ -1,5 +1,4 @@
-using LowlandTech.Components.Sidebar;
-
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1043.Sidebar.US02.State;
 
 [Trait(Spec.SPEC, "1043")]

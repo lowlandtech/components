@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Session.Agents;
+namespace LowlandTech.Components;
 
 /// <summary>Edit agent — modifies graph nodes based on the session context.</summary>
 public sealed class EditAgentGraphService : IAgentGraphService

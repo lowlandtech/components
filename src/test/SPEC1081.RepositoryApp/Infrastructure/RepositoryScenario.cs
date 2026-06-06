@@ -1,5 +1,5 @@
-using LowlandTech.Components.RepositoryApp;
-using RepositoryAppComponent = LowlandTech.Components.RepositoryApp.RepositoryApp;
+using LowlandTech.Components;
+using RepositoryAppComponent = LowlandTech.Components.RepositoryApp;
 
 namespace LowlandTech.Components.Tests.SPEC1081.RepositoryApp.Infrastructure;
 

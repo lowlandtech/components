@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.NavigationMenu;
+namespace LowlandTech.Components;
 
 public partial class NavigationMenu : TinyComponentBase
 {

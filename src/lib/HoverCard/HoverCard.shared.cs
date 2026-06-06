@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.HoverCard;
+namespace LowlandTech.Components;
 
 public partial class HoverCard
 {

@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 
-namespace LowlandTech.Components.Popover;
+namespace LowlandTech.Components;
 
 public class PopoverService : IPopoverService
 {

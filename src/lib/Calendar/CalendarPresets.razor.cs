@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Calendar;
+namespace LowlandTech.Components;
 
 public partial class CalendarPresets : TinyComponentBase
 {

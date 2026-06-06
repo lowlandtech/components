@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Collapsible;
+namespace LowlandTech.Components;
 
 public partial class Collapsible : TinyComponentBase
 {

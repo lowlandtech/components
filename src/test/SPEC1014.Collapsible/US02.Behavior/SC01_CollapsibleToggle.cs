@@ -1,7 +1,6 @@
 using Bunit;
-using CollapsibleSut = LowlandTech.Components.Collapsible.Collapsible;
-using LowlandTech.Components.Collapsible;
-
+using CollapsibleSut = LowlandTech.Components.Collapsible;
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1014.Collapsible.US02.Behavior;
 
 [Trait(Spec.SPEC, "1014")]

@@ -1,6 +1,5 @@
 using Bunit;
-using LowlandTech.Components.Table;
-
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1049.Table.US01.View;
 
 [Trait(Spec.SPEC, "1049")]

@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Session;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Descriptor for an agent-type-specific graph execution strategy.

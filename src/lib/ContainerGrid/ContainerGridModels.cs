@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.ContainerGrid;
+namespace LowlandTech.Components;
 
 /// <summary>Layout snapshot for a single ContainerGridSection.</summary>
 public record ContainerSectionLayout(string Id, int Row, int Column, int RowSpan, int ColSpan);

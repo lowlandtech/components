@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Grid;
+namespace LowlandTech.Components;
 
 public enum Justify
 {

@@ -1,5 +1,5 @@
 using Bunit;
-using AspectRatioSut = LowlandTech.Components.AspectRatio.AspectRatio;
+using AspectRatioSut = LowlandTech.Components.AspectRatio;
 
 namespace LowlandTech.Components.Tests.SPEC1003.AspectRatio.US01.View;
 

@@ -1,6 +1,5 @@
 using Bunit;
-using LowlandTech.Components.Card;
-
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1010.Card.US01.View;
 
 [Trait(Spec.SPEC, "1010")]

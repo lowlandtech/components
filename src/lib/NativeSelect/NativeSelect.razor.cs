@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.NativeSelect;
+namespace LowlandTech.Components;
 
 public partial class NativeSelect : TinyComponentBase
 {

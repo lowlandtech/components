@@ -1,7 +1,6 @@
 using Bunit;
-using SidebarSut = LowlandTech.Components.Sidebar.Sidebar;
-using LowlandTech.Components.Sidebar;
-
+using SidebarSut = LowlandTech.Components.Sidebar;
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1043.Sidebar.US01.View;
 
 [Trait(Spec.SPEC, "1043")]

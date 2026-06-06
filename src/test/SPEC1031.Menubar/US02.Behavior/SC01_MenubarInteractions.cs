@@ -1,6 +1,5 @@
 using Bunit;
-using LowlandTech.Components.Menubar;
-
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1031.Menubar.US02.Behavior;
 
 [Trait(Spec.SPEC, "1031")]

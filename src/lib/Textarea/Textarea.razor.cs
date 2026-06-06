@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Textarea;
+namespace LowlandTech.Components;
 
 public partial class Textarea : TinyComponentBase
 {

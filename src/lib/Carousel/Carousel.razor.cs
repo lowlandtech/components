@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Carousel;
+namespace LowlandTech.Components;
 
 public partial class Carousel : TinyComponentBase
 {

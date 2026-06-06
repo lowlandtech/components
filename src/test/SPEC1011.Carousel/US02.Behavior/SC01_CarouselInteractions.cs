@@ -1,6 +1,5 @@
 using Bunit;
-using LowlandTech.Components.Carousel;
-
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1011.Carousel.US02.Behavior;
 
 [Trait(Spec.SPEC, "1011")]

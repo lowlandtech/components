@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.GraphCanvas;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// SVG canvas container for graph visualization. Provides a dot-grid background,

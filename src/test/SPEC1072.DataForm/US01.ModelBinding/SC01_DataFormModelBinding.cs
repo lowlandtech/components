@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components.Forms;
 
 namespace LowlandTech.Components.Tests.SPEC1072.DataForm.US01.ModelBinding;
 
-using DataFormSut = LowlandTech.Components.DataForm.DataForm;
+using DataFormSut = LowlandTech.Components.DataForm;
 
 [Trait(Spec.SPEC, "1072")]
 [Trait(Spec.US, "01")]

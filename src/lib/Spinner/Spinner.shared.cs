@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Spinner;
+namespace LowlandTech.Components;
 
 public partial class Spinner
 {

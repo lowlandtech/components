@@ -1,5 +1,5 @@
 ﻿using Bunit;
-using InputGroupSut = LowlandTech.Components.InputGroup.InputGroup;
+using InputGroupSut = LowlandTech.Components.InputGroup;
 
 namespace LowlandTech.Components.Tests.SPEC1026.InputGroup.US01.View;
 
@@ -51,7 +51,7 @@ public class SC01_RenderInputGroup : ViewScenario
     [Then("InputGroupAddon data-align defaults to 'inline-start'")]
     public void UAC05_AddonDefaultAlign()
     {
-        var cut = Ctx.Render<LowlandTech.Components.InputGroup.InputGroupAddon>();
+        var cut = Ctx.Render<LowlandTech.Components.InputGroupAddon>();
         var el = cut.Find("[data-slot='input-group-addon']");
         el.GetAttribute("data-align").ShouldBe("inline-start");
         el.ClassList.ShouldContain("cn-input-group-addon");
@@ -63,7 +63,7 @@ public class SC01_RenderInputGroup : ViewScenario
     [Then("align='inline-end' gives order-last class")]
     public void UAC06_AddonInlineEndAlign()
     {
-        var cut = Ctx.Render<LowlandTech.Components.InputGroup.InputGroupAddon>(
+        var cut = Ctx.Render<LowlandTech.Components.InputGroupAddon>(
             p => p.Add(x => x.Align, "inline-end"));
         var el = cut.Find("[data-slot='input-group-addon']");
         el.GetAttribute("data-align").ShouldBe("inline-end");

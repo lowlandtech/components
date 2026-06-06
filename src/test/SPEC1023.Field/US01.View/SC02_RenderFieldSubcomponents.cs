@@ -1,6 +1,5 @@
 using Bunit;
-using LowlandTech.Components.Field;
-
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1023.Field.US01.View;
 
 [Trait(Spec.SPEC, "1023")]

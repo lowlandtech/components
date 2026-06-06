@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Session.Agents;
+namespace LowlandTech.Components;
 
 /// <summary>Plan agent — generates an implementation plan from the session context.</summary>
 public sealed class PlanAgentGraphService : IAgentGraphService

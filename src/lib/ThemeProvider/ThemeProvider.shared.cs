@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.ThemeProvider;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Designable parameter extensions for <see cref="ThemeProvider"/>.

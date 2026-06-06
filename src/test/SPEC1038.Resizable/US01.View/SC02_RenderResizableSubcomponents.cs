@@ -1,7 +1,6 @@
 using Bunit;
-using ResizableSut = LowlandTech.Components.Resizable.Resizable;
-using LowlandTech.Components.Resizable;
-
+using ResizableSut = LowlandTech.Components.Resizable;
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1038.Resizable.US01.View;
 
 [Trait(Spec.SPEC, "1038")]

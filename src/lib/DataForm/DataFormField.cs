@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.DataForm;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Represents a discovered field in a DataForm.

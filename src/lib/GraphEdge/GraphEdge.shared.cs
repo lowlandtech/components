@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace LowlandTech.Components.GraphEdge;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// A directed or undirected edge connecting two points in a graph.

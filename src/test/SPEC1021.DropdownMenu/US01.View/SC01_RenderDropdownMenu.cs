@@ -1,7 +1,6 @@
 using Bunit;
-using DropdownMenuComponent = LowlandTech.Components.DropdownMenu.DropdownMenu;
-using LowlandTech.Components.DropdownMenu;
-
+using DropdownMenuComponent = LowlandTech.Components.DropdownMenu;
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1021.DropdownMenu.US01.View;
 
 [Trait(Spec.SPEC, "1021")]

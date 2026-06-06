@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 
-namespace LowlandTech.Components.ContainerGrid;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// A drag-and-drop resizable grid component whose sections snap to column/row tracks.

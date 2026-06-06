@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Chart.Models;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Chart options for configuring chart behavior and appearance.

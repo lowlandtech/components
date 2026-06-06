@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Card;
+namespace LowlandTech.Components;
 
 public interface IPageOverlayService
 {

@@ -1,5 +1,5 @@
 using Bunit;
-using SeparatorSut = LowlandTech.Components.Separator.Separator;
+using SeparatorSut = LowlandTech.Components.Separator;
 
 namespace LowlandTech.Components.Tests.SPEC1041.Separator.US01.View;
 

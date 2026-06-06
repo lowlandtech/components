@@ -1,5 +1,5 @@
 using Bunit;
-using LowlandTech.Components.Resizable;
+using LowlandTech.Components;
 using LowlandTech.Components.Tests.Infrastructure;
 
 namespace LowlandTech.Components.Tests.SPEC1038.Resizable.US02.Behavior;

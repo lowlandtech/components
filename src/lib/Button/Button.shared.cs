@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Button;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Extends the auto-generated Button partial class.

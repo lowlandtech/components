@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Tooltip;
+namespace LowlandTech.Components;
 
 public partial class TooltipContent : TinyComponentBase
 {

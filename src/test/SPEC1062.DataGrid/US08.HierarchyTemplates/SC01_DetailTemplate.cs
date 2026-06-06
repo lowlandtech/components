@@ -1,6 +1,6 @@
 using Bunit;
-using LowlandTech.Components.DataGrid;
-using DataGridSut = LowlandTech.Components.DataGrid.DataGrid<LowlandTech.Components.Tests.SPEC1062.DataGrid.DataGridPerson>;
+using LowlandTech.Components;
+using DataGridSut = LowlandTech.Components.DataGrid<LowlandTech.Components.Tests.SPEC1062.DataGrid.DataGridPerson>;
 
 namespace LowlandTech.Components.Tests.SPEC1062.DataGrid.US08.HierarchyTemplates;
 

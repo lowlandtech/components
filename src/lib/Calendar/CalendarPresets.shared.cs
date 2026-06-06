@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components.Web;
 
-namespace LowlandTech.Components.Calendar;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Represents a preset date option for quick selection.

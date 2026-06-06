@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.ContextMenu;
+namespace LowlandTech.Components;
 
 public partial class ContextMenu : TinyComponentBase
 {

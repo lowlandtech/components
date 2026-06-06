@@ -1,7 +1,6 @@
 using Bunit;
-using PaginationSut = LowlandTech.Components.Pagination.Pagination;
-using LowlandTech.Components.Pagination;
-
+using PaginationSut = LowlandTech.Components.Pagination;
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1034.Pagination.US02.Behavior;
 
 [Trait(Spec.SPEC, "1034")]

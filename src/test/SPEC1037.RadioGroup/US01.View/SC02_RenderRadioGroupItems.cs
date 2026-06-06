@@ -1,7 +1,6 @@
 using Bunit;
-using RadioGroupSut = LowlandTech.Components.RadioGroup.RadioGroup;
-using LowlandTech.Components.RadioGroup;
-
+using RadioGroupSut = LowlandTech.Components.RadioGroup;
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1037.RadioGroup.US01.View;
 
 [Trait(Spec.SPEC, "1037")]

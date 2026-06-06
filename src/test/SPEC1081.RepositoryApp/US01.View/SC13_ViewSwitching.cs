@@ -1,4 +1,4 @@
-using LowlandTech.Components.RepositoryApp;
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1081.RepositoryApp.US01.View;
 
 [Trait(Spec.SPEC, "1081")]

@@ -1,6 +1,6 @@
 using Bunit;
-using LowlandTech.Components.Pagination;
-using PaginationComponent = LowlandTech.Components.Pagination.Pagination;
+using LowlandTech.Components;
+using PaginationComponent = LowlandTech.Components.Pagination;
 
 namespace LowlandTech.Components.Tests.SPEC1034.Pagination.US01.View;
 

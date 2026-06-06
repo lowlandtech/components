@@ -1,4 +1,4 @@
-@namespace LowlandTech.Components.Grid
+@namespace LowlandTech.Components
 @inherits TinyComponentBase
 
 <div data-slot="stack"
@@ -46,22 +46,22 @@
 
     private static string JustifyCss(Justify j) => j switch
     {
-        LowlandTech.Components.Grid.Justify.Start        => "flex-start",
-        LowlandTech.Components.Grid.Justify.Center       => "center",
-        LowlandTech.Components.Grid.Justify.End          => "flex-end",
-        LowlandTech.Components.Grid.Justify.SpaceBetween => "space-between",
-        LowlandTech.Components.Grid.Justify.SpaceAround  => "space-around",
-        LowlandTech.Components.Grid.Justify.SpaceEvenly  => "space-evenly",
+        LowlandTech.Components.Justify.Start        => "flex-start",
+        LowlandTech.Components.Justify.Center       => "center",
+        LowlandTech.Components.Justify.End          => "flex-end",
+        LowlandTech.Components.Justify.SpaceBetween => "space-between",
+        LowlandTech.Components.Justify.SpaceAround  => "space-around",
+        LowlandTech.Components.Justify.SpaceEvenly  => "space-evenly",
         _                    => "flex-start"
     };
 
     private static string AlignItemsCss(AlignItems a) => a switch
     {
-        LowlandTech.Components.Grid.AlignItems.Start    => "flex-start",
-        LowlandTech.Components.Grid.AlignItems.Center   => "center",
-        LowlandTech.Components.Grid.AlignItems.End      => "flex-end",
-        LowlandTech.Components.Grid.AlignItems.Baseline => "baseline",
-        LowlandTech.Components.Grid.AlignItems.Stretch  => "stretch",
+        LowlandTech.Components.AlignItems.Start    => "flex-start",
+        LowlandTech.Components.AlignItems.Center   => "center",
+        LowlandTech.Components.AlignItems.End      => "flex-end",
+        LowlandTech.Components.AlignItems.Baseline => "baseline",
+        LowlandTech.Components.AlignItems.Stretch  => "stretch",
         _                   => "stretch"
     };
 }

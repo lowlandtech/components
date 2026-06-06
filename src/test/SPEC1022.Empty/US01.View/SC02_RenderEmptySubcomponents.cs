@@ -1,6 +1,5 @@
 using Bunit;
-using LowlandTech.Components.Empty;
-
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1022.Empty.US01.View;
 
 [Trait(Spec.SPEC, "1022")]

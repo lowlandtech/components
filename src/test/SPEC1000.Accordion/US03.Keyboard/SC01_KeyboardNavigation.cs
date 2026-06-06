@@ -1,8 +1,7 @@
 using Bunit;
 using Microsoft.AspNetCore.Components.Web;
-using AccordionSut = LowlandTech.Components.Accordion.Accordion;
-using LowlandTech.Components.Accordion;
-
+using AccordionSut = LowlandTech.Components.Accordion;
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1000.Accordion.US03.Keyboard;
 
 [Trait(Spec.SPEC, "1000")]

@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Feed;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Marks a parameterless method to run during Blazor's <c>OnInitialized</c>

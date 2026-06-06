@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 
-namespace LowlandTech.Components.CliAgent;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Registry of live CLI-agent sessions. One entry per CliAgentBlock.

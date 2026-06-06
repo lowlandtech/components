@@ -12,7 +12,7 @@ public class SC01_DesignSurfaceContext : ViewScenario
     {
         var cut = Ctx.Render<Components.DesignSurface>(parameters => parameters
             .Add(p => p.IsDesignMode, true)
-            .AddChildContent<LowlandTech.Components.Button.Button>());
+            .AddChildContent<LowlandTech.Components.Button>());
 
         cut.Find("[data-slot='design-surface']").GetAttribute("data-design-mode").ShouldBe("true");
         cut.Find("[data-slot='button']").GetAttribute("data-design-selectable").ShouldBe("true");
@@ -26,12 +26,12 @@ public class SC01_DesignSurfaceContext : ViewScenario
         var cut = Ctx.Render<Components.DesignSurface>(parameters => parameters
             .Add(p => p.IsDesignMode, true)
             .Add(p => p.OnSelectionChanged, value => selection = value)
-            .AddChildContent<LowlandTech.Components.Button.Button>());
+            .AddChildContent<LowlandTech.Components.Button>());
 
         cut.Find("[data-slot='button']").Click();
 
         selection.ShouldNotBeNull();
-        selection.ComponentType.ShouldBe(typeof(LowlandTech.Components.Button.Button));
+        selection.ComponentType.ShouldBe(typeof(LowlandTech.Components.Button));
         selection.Values.ShouldContainKey("Variant");
     }
 
@@ -41,7 +41,7 @@ public class SC01_DesignSurfaceContext : ViewScenario
     {
         var cut = Ctx.Render<Components.DesignSurface>(parameters => parameters
             .Add(p => p.IsDesignMode, true)
-            .AddChildContent<LowlandTech.Components.Button.Button>());
+            .AddChildContent<LowlandTech.Components.Button>());
 
         cut.Find("[data-slot='button']").Click();
 

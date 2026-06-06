@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Badge;
+namespace LowlandTech.Components;
 
 public partial class Badge : TinyComponentBase
 {

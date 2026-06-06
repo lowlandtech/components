@@ -1,7 +1,7 @@
 using Bunit;
-using LowlandTech.Components.Sidebar;
+using LowlandTech.Components;
 using Microsoft.AspNetCore.Components.Web;
-using SidebarSut = LowlandTech.Components.Sidebar.Sidebar;
+using SidebarSut = LowlandTech.Components.Sidebar;
 
 namespace LowlandTech.Components.Tests.SPEC1043.Sidebar.US02.State;
 

@@ -1,3 +1,3 @@
-namespace LowlandTech.Components.EdgeForm;
+namespace LowlandTech.Components;
 
 public record SelectOption(string Value, string Label);

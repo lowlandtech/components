@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 
-namespace LowlandTech.Components.ContainerGrid;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// A positioned section placed inside a <see cref="ContainerGrid"/>.

@@ -273,6 +273,8 @@ public class SC01_RenderButton : ViewScenario
         cut.Find("[data-slot='select-trigger']").TextContent.ShouldContain(ButtonVariant.Secondary);
 
         cut.Find("[data-slot='select-trigger']").Click();
+        cut.WaitForAssertion(() =>
+            cut.FindAll(".node-menu-item").Count.ShouldBeGreaterThanOrEqualTo(1));
         cut.Find(".node-menu-item[data-value='ghost']").Click();
 
         var buttons = cut.FindAll("[data-slot='button']");

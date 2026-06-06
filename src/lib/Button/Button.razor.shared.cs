@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Button;
+namespace LowlandTech.Components;
 
 /// <summary>Visual style variant constants for the Button component.</summary>
 public static class ButtonVariant

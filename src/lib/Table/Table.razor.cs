@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Table;
+namespace LowlandTech.Components;
 
 public partial class Table : TinyComponentBase
 {

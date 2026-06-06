@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Feed;
+namespace LowlandTech.Components;
 
 public abstract class BlockBase : ComponentBase, IBlock, IDisposable
 {

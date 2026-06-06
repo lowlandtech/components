@@ -1,5 +1,5 @@
 using Bunit;
-using InputSut = LowlandTech.Components.Input.Input;
+using InputSut = LowlandTech.Components.Input;
 
 namespace LowlandTech.Components.Tests.SPEC1025.Input.US01.View;
 

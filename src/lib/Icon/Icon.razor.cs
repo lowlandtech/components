@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Icon;
+namespace LowlandTech.Components;
 
 public partial class Icon
 {

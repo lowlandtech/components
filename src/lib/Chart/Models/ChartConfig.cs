@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Chart.Models;
+namespace LowlandTech.Components;
 
 /// <summary>
 /// Configuration for a single chart series (color and label).

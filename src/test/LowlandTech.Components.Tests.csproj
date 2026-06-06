@@ -56,7 +56,7 @@
 		<EmbeddedResource Include="..\..\web\Components\App.razor">
 			<LogicalName>web.App.razor</LogicalName>
 		</EmbeddedResource>
-		<EmbeddedResource Include="..\..\shell\Components\App.razor">
+		<EmbeddedResource Include="..\..\shell\Features\Shell\App.razor">
 			<LogicalName>shell.App.razor</LogicalName>
 		</EmbeddedResource>
 		<EmbeddedResource Include="..\..\app\Components\App.razor">

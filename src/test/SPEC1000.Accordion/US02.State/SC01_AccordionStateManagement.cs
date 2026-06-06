@@ -1,5 +1,4 @@
-using LowlandTech.Components.Accordion;
-
+using LowlandTech.Components;
 namespace LowlandTech.Components.Tests.SPEC1000.Accordion.US02.State;
 
 [Trait(Spec.SPEC, "1000")]
