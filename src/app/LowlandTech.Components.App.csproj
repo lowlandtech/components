@@ -18,6 +18,7 @@
     <None Remove="LowlandTech.Components.App.csproj.Backup.tmp" />
     <None Remove="LowlandTech.Components.App.csproj.DotSettings" />
     <None Remove="LowlandTech.Components.App.csproj.lscache" />
+    <None Remove="LowlandTech.Components.App.v3.ncrunchproject" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,26 +1,38 @@
 @namespace LowlandTech.Components
 @inherits TinyComponentBase
 
-<div data-slot="select-item"
-    data-value="@Value"
-    data-disabled="@Disabled"
-    class="@GetClass()"
-    @onclick="OnClick"
-    @onclick:stopPropagation="true"
-    @onclick:preventDefault="true"
-    @attributes="AdditionalAttributes">
-    <span class="cn-select-item-text shrink-0 whitespace-nowrap">
-        @ChildContent
-    </span>
-    @if (IsSelected)
-    {
-        <span class="cn-select-item-indicator">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cn-select-item-indicator-icon pointer-events-none">
-                <path d="M20 6 9 17l-5-5" />
-            </svg>
+@if (Parent is null)
+{
+    @* Hidden pre-instantiation copy mounted by SelectContent.razor so
+       OnParametersSet fires on first render and registers value→text in
+       the parent's lookup map before the popover has been opened. This
+       copy intentionally has no data-testid and no click handler — tests
+       should target the popover copy, not this one. *@
+    <span data-slot="select-item-hidden" data-value="@Value" style="display:none">@ChildContent</span>
+}
+else
+{
+    <div data-slot="select-item"
+        data-value="@Value"
+        data-disabled="@Disabled"
+        class="@GetClass()"
+        @onclick="OnClick"
+        @onclick:stopPropagation="true"
+        @onclick:preventDefault="true"
+        @attributes="AdditionalAttributes">
+        <span class="cn-select-item-text shrink-0 whitespace-nowrap">
+            @ChildContent
         </span>
-    }
-</div>
+        @if (IsSelected)
+        {
+            <span class="cn-select-item-indicator">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cn-select-item-indicator-icon pointer-events-none">
+                    <path d="M20 6 9 17l-5-5" />
+                </svg>
+            </span>
+        }
+    </div>
+}
 
 @code {
     [CascadingParameter] private Select? Parent { get; set; }

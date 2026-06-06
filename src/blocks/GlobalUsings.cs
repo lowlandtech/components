@@ -1,1 +1,13 @@
 global using Microsoft.AspNetCore.Components;
+global using Microsoft.AspNetCore.Components.Forms;
+global using Microsoft.AspNetCore.Components.Web;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Localization;
+global using Microsoft.JSInterop;
+global using System.Reflection;
+global using System.Text.Json;
+global using System.Text.Json.Nodes;
+global using System.Text.Json.Serialization;
+global using System.Text.RegularExpressions;
+global using LowlandTech.Components;
+global using LowlandTech.Core;
