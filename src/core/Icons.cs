@@ -233,6 +233,16 @@ public static class Icons
             && _byName.TryGetValue(normalized[..^1], out paths)) return paths;
         if (_byName.TryGetValue(normalized + "s", out paths)) return paths;
 
+        // For dotted names like "flow.header" fall back to the last segment ("header")
+        // so sub-typed node keys inherit the base type's icon.
+        if (name.Contains('.'))
+        {
+            var lastSegment = name[(name.LastIndexOf('.') + 1)..];
+            if (_byName.TryGetValue(lastSegment, out paths)) return paths;
+            var normalizedLast = lastSegment.Replace("-", "").Replace("_", "").Replace(" ", "");
+            if (_byName.TryGetValue(normalizedLast, out paths)) return paths;
+        }
+
         return null;
     }
 }

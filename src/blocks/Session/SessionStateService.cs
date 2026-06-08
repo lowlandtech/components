@@ -197,10 +197,22 @@ public sealed class SessionStateService
             return;
         }
 
+        var previousCommands = GetSessionCommands(sessionId)
+            .Where(c => !string.IsNullOrWhiteSpace(c.Response))
+            .ToList();
+
         var context = new SessionContext
         {
+            SessionId = sessionId,
             Input = command.Input,
-            Completion = command.Completion
+            Completion = command.Completion,
+            History = previousCommands
+                .SelectMany(c => new (string Role, string Content)[]
+                {
+                    ("user", c.Input),
+                    ("agent", c.Response!)
+                })
+                .ToList()
         };
 
         // Prefer streaming when the agent supports it. The default interface

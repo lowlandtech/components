@@ -41,6 +41,12 @@ public sealed class SessionContext
     public string? Response { get; set; }
 
     /// <summary>
+    /// The session identifier this context belongs to. Passed to the A2A
+    /// server as <c>SessionId</c> so the server can correlate tasks.
+    /// </summary>
+    public string? SessionId { get; set; }
+
+    /// <summary>
     /// The user's input text for the current command. Set by
     /// <see cref="LowlandTech.Components.SessionStateService.SubmitAsync"/>
     /// before invoking the agent, so streaming agents can read it from the
@@ -49,6 +55,13 @@ public sealed class SessionContext
     public string? Input { get; set; }
 
     public SessionCompletionSelection? Completion { get; set; }
+
+    /// <summary>
+    /// Conversation history as (role, content) turns to be included in the
+    /// LLM prompt. Populated by <see cref="SessionStateService.SubmitAsync" />
+    /// so the assistant sees prior questions and answers.
+    /// </summary>
+    public List<(string Role, string Content)> History { get; set; } = [];
 
     public List<Dictionary<string, string>> ToAgentContext()
         => _entries.Values
