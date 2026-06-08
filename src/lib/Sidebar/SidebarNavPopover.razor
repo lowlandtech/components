@@ -1,0 +1,186 @@
+@namespace LowlandTech.Components
+@inherits TinyComponentBase
+@implements IDisposable
+@inject IPopoverService PopoverService
+@inject NavigationManager Nav
+
+<span id="popover-anchor-@_popoverId"
+      data-slot="sidebar-nav-popover"
+      data-popover-open="@(_isOpen ? "true" : "false")"
+      class="@CssClass"
+      @onmouseenter="HandleItemEnter"
+      @onmouseleave="HandleItemLeave"
+      @onfocusin="HandleItemEnter"
+      @onfocusout="HandleItemLeave"
+      @attributes="AdditionalAttributes">
+    @ChildContent
+</span>
+
+@code {
+    [Parameter, EditorRequired] public string Route { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Label { get; set; } = string.Empty;
+    [Parameter] public string? Subtitle { get; set; }
+    [Parameter] public int OpenDelayMs { get; set; } = 80;
+    [Parameter] public int CloseDelayMs { get; set; } = 150;
+
+    private readonly Guid _popoverId = Guid.NewGuid();
+    private bool _isOpen;
+    private bool _isOverItem;
+    private bool _isOverPopover;
+    private System.Timers.Timer? _openTimer;
+    private System.Timers.Timer? _closeTimer;
+
+    private string CssClass =>
+        string.IsNullOrEmpty(Class) ? "block w-full" : $"block w-full {Class}";
+
+    protected override void OnInitialized()
+    {
+        PopoverService.Register(_popoverId);
+        Nav.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        ClosePopover();
+    }
+
+    private void HandleItemEnter()
+    {
+        _isOverItem = true;
+        StopCloseTimer();
+
+        if (_isOpen) return;
+
+        if (OpenDelayMs > 0)
+        {
+            StartOpenTimer();
+        }
+        else
+        {
+            OpenPopover();
+        }
+    }
+
+    private void HandleItemLeave()
+    {
+        _isOverItem = false;
+        ScheduleClose();
+    }
+
+    private void HandlePopoverEnter()
+    {
+        _isOverPopover = true;
+        StopCloseTimer();
+    }
+
+    private void HandlePopoverLeave()
+    {
+        _isOverPopover = false;
+        ScheduleClose();
+    }
+
+    private void StartOpenTimer()
+    {
+        StopOpenTimer();
+        _openTimer = new System.Timers.Timer(OpenDelayMs) { AutoReset = false };
+        _openTimer.Elapsed += (_, _) =>
+        {
+            StopOpenTimer();
+            InvokeAsync(() =>
+            {
+                if (_isOverItem) OpenPopover();
+            });
+        };
+        _openTimer.Start();
+    }
+
+    private void StopOpenTimer()
+    {
+        if (_openTimer is null) return;
+        _openTimer.Stop();
+        _openTimer.Dispose();
+        _openTimer = null;
+    }
+
+    private void OpenPopover()
+    {
+        if (_isOpen) return;
+        _isOpen = true;
+        PopoverService.Update(_popoverId, new PopoverState
+        {
+            Open = true,
+            Placement = PopoverPlacement.RightStart,
+            CssClass = "lt-sidebar-nav-popover",
+            Fragment = BuildPopoverFragment()
+        });
+    }
+
+    private void ClosePopover()
+    {
+        if (!_isOpen) return;
+        _isOpen = false;
+        PopoverService.Update(_popoverId, new PopoverState { Open = false });
+    }
+
+    private void ScheduleClose()
+    {
+        StopCloseTimer();
+        if (CloseDelayMs <= 0)
+        {
+            if (!_isOverItem && !_isOverPopover) ClosePopover();
+            return;
+        }
+        _closeTimer = new System.Timers.Timer(CloseDelayMs) { AutoReset = false };
+        _closeTimer.Elapsed += (_, _) =>
+        {
+            StopCloseTimer();
+            InvokeAsync(() =>
+            {
+                if (!_isOverItem && !_isOverPopover) ClosePopover();
+            });
+        };
+        _closeTimer.Start();
+    }
+
+    private void StopCloseTimer()
+    {
+        if (_closeTimer is null) return;
+        _closeTimer.Stop();
+        _closeTimer.Dispose();
+        _closeTimer = null;
+    }
+
+    private RenderFragment BuildPopoverFragment() => __builder =>
+    {
+        <div class="lt-sidebar-nav-popover-inner"
+             @onmouseenter="HandlePopoverEnter"
+             @onmouseleave="HandlePopoverLeave">
+            <button type="button"
+                    class="lt-sidebar-nav-popover-button"
+                    data-slot="sidebar-nav-popover-button"
+                    data-testid="sidebar-nav-popover-button"
+                    @onclick="NavigateAsync">
+                <span class="lt-sidebar-nav-popover-label">@Label</span>
+                @if (!string.IsNullOrWhiteSpace(Subtitle))
+                {
+                    <span class="lt-sidebar-nav-popover-subtitle">@Subtitle</span>
+                }
+                <span class="lt-sidebar-nav-popover-route" aria-hidden="true">@Route</span>
+            </button>
+        </div>
+    };
+
+    private void NavigateAsync()
+    {
+        ClosePopover();
+        Nav.NavigateTo(Route);
+    }
+
+    public void Dispose()
+    {
+        Nav.LocationChanged -= OnLocationChanged;
+        StopCloseTimer();
+        StopOpenTimer();
+        PopoverService.Unregister(_popoverId);
+    }
+}
