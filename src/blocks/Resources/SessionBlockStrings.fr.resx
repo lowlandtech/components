@@ -5,27 +5,27 @@
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <data name="Title" xml:space="preserve"><value>SessionBlock</value></data>
-  <data name="AllSessions" xml:space="preserve"><value>All sessions</value></data>
-  <data name="Context" xml:space="preserve"><value>Context</value></data>
+  <data name="AllSessions" xml:space="preserve"><value>Toutes les sessions</value></data>
+  <data name="Context" xml:space="preserve"><value>Contexte</value></data>
   <data name="Sessions" xml:space="preserve"><value>Sessions</value></data>
-  <data name="NoSessionsYet" xml:space="preserve"><value>No sessions yet</value></data>
+  <data name="NoSessionsYet" xml:space="preserve"><value>Aucune session pour le moment</value></data>
   <data name="PageLabel" xml:space="preserve"><value>Page</value></data>
-  <data name="RowsLabel" xml:space="preserve"><value>Rows</value></data>
+  <data name="RowsLabel" xml:space="preserve"><value>Lignes</value></data>
   <data name="Sections" xml:space="preserve"><value>Sections</value></data>
-  <data name="NoSections" xml:space="preserve"><value>No sections</value></data>
-  <data name="Back" xml:space="preserve"><value>Back</value></data>
-  <data name="ContextLabel" xml:space="preserve"><value>Context:</value></data>
-  <data name="RequestStatus" xml:space="preserve"><value>Request</value></data>
-  <data name="ReadyStatus" xml:space="preserve"><value>Ready</value></data>
-  <data name="RequestDescription" xml:space="preserve"><value>Summarize the active session and use any pinned context.</value></data>
-  <data name="ResponseDescription" xml:space="preserve"><value>Pinned context blocks will be included in the assistant context window without creating turns.</value></data>
-  <data name="OpenSidebar" xml:space="preserve"><value>Open sidebar</value></data>
-  <data name="EmptySessionTitle" xml:space="preserve"><value>Select a session</value></data>
-  <data name="EmptySessionDescription" xml:space="preserve"><value>SessionContent stays idle until a session tab is active.</value></data>
-  <data name="CommandPlaceholder" xml:space="preserve"><value>Ask about the active session...</value></data>
-  <data name="CommandSubmitTitle" xml:space="preserve"><value>Send</value></data>
-  <data name="AgentAsk" xml:space="preserve"><value>Ask</value></data>
-  <data name="AgentPlan" xml:space="preserve"><value>Plan</value></data>
-  <data name="AgentEdit" xml:space="preserve"><value>Edit</value></data>
-  <data name="AgentRun" xml:space="preserve"><value>Run</value></data>
+  <data name="NoSections" xml:space="preserve"><value>Aucune section</value></data>
+  <data name="Back" xml:space="preserve"><value>Retour</value></data>
+  <data name="ContextLabel" xml:space="preserve"><value>Contexte :</value></data>
+  <data name="RequestStatus" xml:space="preserve"><value>Demande</value></data>
+  <data name="ReadyStatus" xml:space="preserve"><value>Prêt</value></data>
+  <data name="RequestDescription" xml:space="preserve"><value>Résumez la session active et utilisez tout contexte épinglé.</value></data>
+  <data name="ResponseDescription" xml:space="preserve"><value>Les blocs de contexte épinglés seront inclus dans la fenêtre contextuelle de l'assistant sans créer de tours.</value></data>
+  <data name="OpenSidebar" xml:space="preserve"><value>Ouvrir la barre latérale</value></data>
+  <data name="EmptySessionTitle" xml:space="preserve"><value>Sélectionner une session</value></data>
+  <data name="EmptySessionDescription" xml:space="preserve"><value>Le contenu de la session reste inactif jusqu'à ce qu'un onglet de session soit actif.</value></data>
+  <data name="CommandPlaceholder" xml:space="preserve"><value>Posez une question sur la session active...</value></data>
+  <data name="CommandSubmitTitle" xml:space="preserve"><value>Envoyer</value></data>
+  <data name="AgentAsk" xml:space="preserve"><value>Demander</value></data>
+  <data name="AgentPlan" xml:space="preserve"><value>Planifier</value></data>
+  <data name="AgentEdit" xml:space="preserve"><value>Modifier</value></data>
+  <data name="AgentRun" xml:space="preserve"><value>Exécuter</value></data>
 </root>

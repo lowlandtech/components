@@ -5,27 +5,27 @@
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <data name="Title" xml:space="preserve"><value>SessionBlock</value></data>
-  <data name="AllSessions" xml:space="preserve"><value>All sessions</value></data>
-  <data name="Context" xml:space="preserve"><value>Context</value></data>
-  <data name="Sessions" xml:space="preserve"><value>Sessions</value></data>
-  <data name="NoSessionsYet" xml:space="preserve"><value>No sessions yet</value></data>
-  <data name="PageLabel" xml:space="preserve"><value>Page</value></data>
-  <data name="RowsLabel" xml:space="preserve"><value>Rows</value></data>
-  <data name="Sections" xml:space="preserve"><value>Sections</value></data>
-  <data name="NoSections" xml:space="preserve"><value>No sections</value></data>
-  <data name="Back" xml:space="preserve"><value>Back</value></data>
-  <data name="ContextLabel" xml:space="preserve"><value>Context:</value></data>
-  <data name="RequestStatus" xml:space="preserve"><value>Request</value></data>
-  <data name="ReadyStatus" xml:space="preserve"><value>Ready</value></data>
-  <data name="RequestDescription" xml:space="preserve"><value>Summarize the active session and use any pinned context.</value></data>
-  <data name="ResponseDescription" xml:space="preserve"><value>Pinned context blocks will be included in the assistant context window without creating turns.</value></data>
-  <data name="OpenSidebar" xml:space="preserve"><value>Open sidebar</value></data>
-  <data name="EmptySessionTitle" xml:space="preserve"><value>Select a session</value></data>
-  <data name="EmptySessionDescription" xml:space="preserve"><value>SessionContent stays idle until a session tab is active.</value></data>
-  <data name="CommandPlaceholder" xml:space="preserve"><value>Ask about the active session...</value></data>
-  <data name="CommandSubmitTitle" xml:space="preserve"><value>Send</value></data>
-  <data name="AgentAsk" xml:space="preserve"><value>Ask</value></data>
-  <data name="AgentPlan" xml:space="preserve"><value>Plan</value></data>
-  <data name="AgentEdit" xml:space="preserve"><value>Edit</value></data>
-  <data name="AgentRun" xml:space="preserve"><value>Run</value></data>
+  <data name="AllSessions" xml:space="preserve"><value>Alla sessioner</value></data>
+  <data name="Context" xml:space="preserve"><value>Kontext</value></data>
+  <data name="Sessions" xml:space="preserve"><value>Sessioner</value></data>
+  <data name="NoSessionsYet" xml:space="preserve"><value>Inga sessioner ännu</value></data>
+  <data name="PageLabel" xml:space="preserve"><value>Sida</value></data>
+  <data name="RowsLabel" xml:space="preserve"><value>Rader</value></data>
+  <data name="Sections" xml:space="preserve"><value>Sektioner</value></data>
+  <data name="NoSections" xml:space="preserve"><value>Inga sektioner</value></data>
+  <data name="Back" xml:space="preserve"><value>Tillbaka</value></data>
+  <data name="ContextLabel" xml:space="preserve"><value>Kontext:</value></data>
+  <data name="RequestStatus" xml:space="preserve"><value>Begäran</value></data>
+  <data name="ReadyStatus" xml:space="preserve"><value>Redo</value></data>
+  <data name="RequestDescription" xml:space="preserve"><value>Sammanfatta den aktiva sessionen och använd eventuella fästa kontexter.</value></data>
+  <data name="ResponseDescription" xml:space="preserve"><value>Fästa kontextblock kommer att inkluderas i assistentens kontextfönster utan att skapa omgångar.</value></data>
+  <data name="OpenSidebar" xml:space="preserve"><value>Öppna sidofält</value></data>
+  <data name="EmptySessionTitle" xml:space="preserve"><value>Välj en session</value></data>
+  <data name="EmptySessionDescription" xml:space="preserve"><value>Sessionsinnehåll förblir inaktivt tills en session-flik är aktiv.</value></data>
+  <data name="CommandPlaceholder" xml:space="preserve"><value>Fråga om den aktiva sessionen...</value></data>
+  <data name="CommandSubmitTitle" xml:space="preserve"><value>Skicka</value></data>
+  <data name="AgentAsk" xml:space="preserve"><value>Fråga</value></data>
+  <data name="AgentPlan" xml:space="preserve"><value>Planera</value></data>
+  <data name="AgentEdit" xml:space="preserve"><value>Redigera</value></data>
+  <data name="AgentRun" xml:space="preserve"><value>Kör</value></data>
 </root>
