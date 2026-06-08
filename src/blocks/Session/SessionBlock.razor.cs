@@ -117,7 +117,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     private SessionNodeInput? CurrentSessionNode => SessionState.GetCurrentSessionNode(Sessions);
 
-    private SessionUiState ViewState => SessionState.GetViewState(Sessions);
+    private SessionUiState ViewState => SessionState.GetViewState(DisplaySessions);
 
     private SessionNodeInput? CurrentCommandContextNode => ViewState.ContextProjection?.Node ?? CurrentSessionNode;
 
