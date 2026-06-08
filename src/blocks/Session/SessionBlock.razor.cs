@@ -60,19 +60,14 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     protected override void OnParametersSet()
     {
+        EnsureStateServiceSubscription();
+
         if (!string.IsNullOrWhiteSpace(Language))
         {
             var culture = new CultureInfo(Language);
             CultureInfo.CurrentCulture = culture;
             CultureInfo.CurrentUICulture = culture;
         }
-    }
-
-    private string L(string key) => _localizer?[key] ?? key;
-
-    protected override void OnParametersSet()
-    {
-        EnsureStateServiceSubscription();
 
         if (!HasSidebar)
         {
@@ -80,6 +75,8 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
             _hydratedSidebarPersistKey = null;
         }
     }
+
+    private string L(string key) => _localizer?[key] ?? key;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
