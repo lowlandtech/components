@@ -212,12 +212,12 @@ public class SC01_SessionBlocks : ViewScenario
         selected.Node.Id.ShouldBe("support");
     }
 
-    [Fact(DisplayName = "UAC06b: SessionContent reserves a stable scrollbar gutter without duplicate padding")]
+    [Fact(DisplayName = "UAC06b: SessionContent omits right padding beside the stable scrollbar gutter")]
     [Trait(Spec.UAC, "06b")]
-    [Given("SessionContent has an open session and its parent shell already provides content spacing")]
+    [Given("SessionContent has an open session with ten-pixel content spacing")]
     [When("the scrollable session content body is rendered")]
-    [Then("the body reserves only the stable scrollbar gutter and adds no padding")]
-    public void UAC06b_SessionContentUsesOnlyStableScrollbarGutter()
+    [Then("top, bottom, and left retain ten pixels while right is zero because the stable gutter provides that spacing")]
+    public void UAC06b_SessionContentOmitsRightPaddingBesideStableGutter()
     {
         var cut = Ctx.Render<SessionContent>(p => p
             .Add(x => x.OpenNodes, [OrdersNode])
@@ -225,7 +225,7 @@ public class SC01_SessionBlocks : ViewScenario
 
         var style = cut.Find("[data-slot='session-content-body']").GetAttribute("style");
 
-        style.ShouldBe("scrollbar-gutter: stable;");
+        style.ShouldBe("padding:10px 0 10px 10px; scrollbar-gutter: stable;");
     }
 
     [Fact(DisplayName = "UAC07: SessionCommandBar replaces send icon with loader while busy")]
