@@ -1235,6 +1235,31 @@ public class SC01_SessionBlocks : ViewScenario
         standalone.Find("[data-slot='session-content-body']").ShouldNotBeNull();
     }
 
+    [Fact(DisplayName = "UAC30i: Session list footer keeps page and row labels aligned to opposite edges")]
+    [Trait(Spec.UAC, "30i")]
+    [Given("a standalone SessionBlock showing the session list footer")]
+    [When("the footer summary is rendered across the full sidebar width")]
+    [Then("the page label aligns to the start and the rows label aligns to the end")]
+    public void UAC30i_SessionListFooterAlignsLabelsToOppositeEdges()
+    {
+        var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
+
+        var footerSummary = standalone.Find("[data-slot='session-app-sidebar-footer-summary']");
+        footerSummary.ClassList.ShouldContain("grid");
+        footerSummary.ClassList.ShouldContain("w-full");
+        footerSummary.ClassList.ShouldContain("grid-cols-2");
+
+        var footerPage = standalone.Find("[data-slot='session-app-sidebar-footer-page']");
+        footerPage.TextContent.Trim().ShouldBe("Page 1 / 1");
+        footerPage.ClassList.ShouldContain("w-full");
+        footerPage.ClassList.ShouldContain("text-left");
+
+        var footerRows = standalone.Find("[data-slot='session-app-sidebar-footer-rows']");
+        footerRows.TextContent.Trim().ShouldBe("Rows 10");
+        footerRows.ClassList.ShouldContain("w-full");
+        footerRows.ClassList.ShouldContain("text-right");
+    }
+
     [Fact(DisplayName = "UAC30b: SessionBlock standalone sidebars keep full panel stretch classes")]
     [Trait(Spec.UAC, "30b")]
     public void UAC30b_SessionBlockStandaloneSidebarsKeepStretchClasses()

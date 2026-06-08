@@ -108,9 +108,12 @@
                                     </SidebarGroup>
                                 </SidebarContent>
                                 <SidebarFooter>
-                                    <div class="sidebar-menu-text flex h-7 items-center justify-between px-2 text-xs text-muted-foreground">
-                                        <span>Page 1 / 1</span>
-                                        <span>Rows 10</span>
+                                    <div data-slot="session-app-sidebar-footer-summary"
+                                         class="sidebar-menu-text grid h-7 w-full grid-cols-2 items-center px-2 text-xs text-muted-foreground">
+                                        <span data-slot="session-app-sidebar-footer-page"
+                                              class="w-full text-left">Page 1 / 1</span>
+                                        <span data-slot="session-app-sidebar-footer-rows"
+                                              class="w-full text-right">Rows 10</span>
                                     </div>
                                 </SidebarFooter>
                             }
