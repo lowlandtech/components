@@ -68,4 +68,6 @@
   <data name="PinContext" xml:space="preserve"><value>Context vastzetten</value></data>
   <data name="AgentCreate" xml:space="preserve"><value>Aanmaken</value></data>
   <data name="NewSession" xml:space="preserve"><value>Nieuwe sessie</value></data>
+  <data name="EmptyFeedTitle" xml:space="preserve"><value>No messages yet</value></data>
+  <data name="EmptyFeedDescription" xml:space="preserve"><value>Type your first message below to begin.</value></data>
 </root>
