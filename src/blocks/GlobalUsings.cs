@@ -13,3 +13,4 @@ global using System.Text.RegularExpressions;
 global using LowlandTech.Components;
 global using LowlandTech.Components.Blocks;
 global using LowlandTech.Core;
+global using Markdig;

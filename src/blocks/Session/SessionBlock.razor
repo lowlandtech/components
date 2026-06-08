@@ -196,10 +196,9 @@
                                                data-slot="session-turn-prompt">
                                                 @maximizedCommand.Input
                                             </p>
-                                            <p data-slot="session-turn-response-text"
-                                               data-streaming="@maximizedCommand.IsStreaming.ToString().ToLowerInvariant()">
-                                                @CreateResponseDescription(maximizedCommand)
-                                            </p>
+                                            <SessionMarkdown data-slot="session-turn-response-text"
+                                                             data-streaming="@maximizedCommand.IsStreaming.ToString().ToLowerInvariant()"
+                                                             Value="@CreateResponseDescription(maximizedCommand)" />
                                         </div>
                                     </SessionCard>
                                 </div>
@@ -249,10 +248,9 @@
                                                            data-slot="session-turn-prompt">
                                                             @item.Command!.Input
                                                         </p>
-                                                        <p data-slot="session-turn-response-text"
-                                                           data-streaming="@item.Command.IsStreaming.ToString().ToLowerInvariant()">
-                                                            @CreateResponseDescription(item.Command)
-                                                        </p>
+                                                        <SessionMarkdown data-slot="session-turn-response-text"
+                                                                         data-streaming="@item.Command.IsStreaming.ToString().ToLowerInvariant()"
+                                                                         Value="@CreateResponseDescription(item.Command)" />
                                                     </div>
                                                 </SessionCard>
                                             </div>
@@ -316,10 +314,9 @@
                                            data-slot="session-turn-prompt">
                                             @pageOverlayCommand.Input
                                         </p>
-                                        <p data-slot="session-turn-response-text"
-                                           data-streaming="@pageOverlayCommand.IsStreaming.ToString().ToLowerInvariant()">
-                                            @CreateResponseDescription(pageOverlayCommand)
-                                        </p>
+                                        <SessionMarkdown data-slot="session-turn-response-text"
+                                                         data-streaming="@pageOverlayCommand.IsStreaming.ToString().ToLowerInvariant()"
+                                                         Value="@CreateResponseDescription(pageOverlayCommand)" />
                                     </div>
                                 </SessionCard>
                             </div>
@@ -476,10 +473,9 @@
                                            data-slot="session-turn-prompt">
                                             @maximizedCommand.Input
                                         </p>
-                                        <p data-slot="session-turn-response-text"
-                                           data-streaming="@maximizedCommand.IsStreaming.ToString().ToLowerInvariant()">
-                                            @CreateResponseDescription(maximizedCommand)
-                                        </p>
+                                        <SessionMarkdown data-slot="session-turn-response-text"
+                                                         data-streaming="@maximizedCommand.IsStreaming.ToString().ToLowerInvariant()"
+                                                         Value="@CreateResponseDescription(maximizedCommand)" />
                                     </div>
                                 </SessionCard>
                             </div>
@@ -529,10 +525,9 @@
                                                        data-slot="session-turn-prompt">
                                                         @item.Command!.Input
                                                     </p>
-                                                    <p data-slot="session-turn-response-text"
-                                                       data-streaming="@item.Command.IsStreaming.ToString().ToLowerInvariant()">
-                                                        @CreateResponseDescription(item.Command)
-                                                    </p>
+                                                    <SessionMarkdown data-slot="session-turn-response-text"
+                                                                     data-streaming="@item.Command.IsStreaming.ToString().ToLowerInvariant()"
+                                                                     Value="@CreateResponseDescription(item.Command)" />
                                                 </div>
                                             </SessionCard>
                                         </div>
@@ -595,10 +590,9 @@
                                        data-slot="session-turn-prompt">
                                         @pageOverlayCommand.Input
                                     </p>
-                                    <p data-slot="session-turn-response-text"
-                                       data-streaming="@pageOverlayCommand.IsStreaming.ToString().ToLowerInvariant()">
-                                        @CreateResponseDescription(pageOverlayCommand)
-                                    </p>
+                                    <SessionMarkdown data-slot="session-turn-response-text"
+                                                     data-streaming="@pageOverlayCommand.IsStreaming.ToString().ToLowerInvariant()"
+                                                     Value="@CreateResponseDescription(pageOverlayCommand)" />
                                 </div>
                             </SessionCard>
                         </div>
@@ -678,10 +672,9 @@
                    data-slot="session-turn-prompt">
                     @appOverlayCommand.Input
                 </p>
-                <p data-slot="session-turn-response-text"
-                   data-streaming="@appOverlayCommand.IsStreaming.ToString().ToLowerInvariant()">
-                    @CreateResponseDescription(appOverlayCommand)
-                </p>
+                <SessionMarkdown data-slot="session-turn-response-text"
+                                 data-streaming="@appOverlayCommand.IsStreaming.ToString().ToLowerInvariant()"
+                                 Value="@CreateResponseDescription(appOverlayCommand)" />
             </div>
         </SessionCard>
     }
