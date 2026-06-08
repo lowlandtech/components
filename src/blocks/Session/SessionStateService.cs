@@ -375,7 +375,10 @@ public sealed class SessionStateService
             return new SessionFeedItemDescriptor(key, SessionFeedItemKind.Block, sequence, Block: block);
         });
 
-        return [.. responses.Concat(blocks).OrderBy(item => item.Sequence).ThenBy(item => item.Key, StringComparer.Ordinal)];
+        return [.. responses.Concat(blocks)
+            .OrderBy(item => item.Kind == SessionFeedItemKind.Response ? 1 : 0)
+            .ThenBy(item => item.Sequence)
+            .ThenBy(item => item.Key, StringComparer.Ordinal)];
     }
 
     public int GetSessionSectionCount(string sessionId) => GetSessionTurnSectionCount(sessionId) + GetSessionBlockSectionCount(sessionId);
@@ -536,7 +539,7 @@ public sealed class SessionStateService
 
     public static string GetCommandTurnId(SessionCommandSubmitted command) => $"session-turn-response:{command.Id}";
 
-    public static string GetFeedItemKey(string sessionId, string itemKind, string itemId) =>
+    internal static string GetFeedItemKey(string sessionId, string itemKind, string itemId) =>
         $"{sessionId}:{itemKind}:{itemId}";
 
     public static string GetBlockModeKey(string sessionId, SessionContextBlockModel block) =>

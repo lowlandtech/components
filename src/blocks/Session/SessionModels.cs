@@ -445,7 +445,7 @@ public static class SessionAppReducer
     {
         var next = action switch
         {
-            RestoreSessionUiState restore => state with { Ui = restore.State },
+            RestoreSessionUiState restore => RestoreUiState(state, restore),
             SessionUiAction uiAction => state with { Ui = SessionUiReducer.Reduce(state.Ui, uiAction) },
             ShowSessionFeedPage => state with { ActivePage = SessionAppPage.Feed },
             ShowSessionEventLogPage => state with { ActivePage = SessionAppPage.EventLog },
@@ -478,14 +478,8 @@ public static class SessionAppReducer
                     ? RemoveDictionaryEntry(state.BlockModesByKey, a.Key)
                     : SetDictionaryEntry(state.BlockModesByKey, a.Key, a.Mode),
             },
-            SetSessionCommandHistory a => state with
-            {
-                SessionCommandsBySessionId = SetDictionaryEntry(state.SessionCommandsBySessionId, a.SessionId, a.Commands),
-            },
-            RestoreSessionCommandHistory a => state with
-            {
-                SessionCommandsBySessionId = SetDictionaryEntry(state.SessionCommandsBySessionId, a.SessionId, a.Commands),
-            },
+            SetSessionCommandHistory a => SetCommandHistory(state, a.SessionId, a.Commands),
+            RestoreSessionCommandHistory a => SetCommandHistory(state, a.SessionId, a.Commands),
             PersistSessionCommands => state,
             SetStoredSessionState a => state with
             {
@@ -512,6 +506,54 @@ public static class SessionAppReducer
 
     public static string SerializeEventLogState(SessionAppState state) =>
         JsonSerializer.Serialize(CreateSnapshot(state), EventLogJsonOptions);
+
+    private static SessionAppState RestoreUiState(SessionAppState state, RestoreSessionUiState restore)
+    {
+        var nextSequence = state.NextFeedSequence;
+        var sequences = state.FeedSequenceByItemKey;
+
+        if (!string.IsNullOrWhiteSpace(state.ActiveSessionId) && restore.State.ContextBlocks?.Count > 0)
+        {
+            var sessionId = state.ActiveSessionId;
+            foreach (var block in restore.State.ContextBlocks)
+            {
+                var key = SessionStateService.GetFeedItemKey(sessionId, "block", block.Id);
+                if (!sequences.ContainsKey(key))
+                {
+                    sequences = SetDictionaryEntry(sequences, key, ++nextSequence);
+                }
+            }
+        }
+
+        return state with
+        {
+            Ui = restore.State,
+            FeedSequenceByItemKey = sequences,
+            NextFeedSequence = nextSequence,
+        };
+    }
+
+    private static SessionAppState SetCommandHistory(SessionAppState state, string sessionId, IReadOnlyList<SessionCommandSubmitted> commands)
+    {
+        var nextSequence = state.NextFeedSequence;
+        var sequences = state.FeedSequenceByItemKey;
+
+        foreach (var command in commands)
+        {
+            var key = SessionStateService.GetFeedItemKey(sessionId, "command", command.Id);
+            if (!sequences.ContainsKey(key))
+            {
+                sequences = SetDictionaryEntry(sequences, key, ++nextSequence);
+            }
+        }
+
+        return state with
+        {
+            SessionCommandsBySessionId = SetDictionaryEntry(state.SessionCommandsBySessionId, sessionId, commands),
+            FeedSequenceByItemKey = sequences,
+            NextFeedSequence = nextSequence,
+        };
+    }
 
     private static IReadOnlyList<SessionStateDeltaItem> BuildStateDelta(SessionAppState before, SessionAppState after)
     {
