@@ -40,7 +40,7 @@ public partial class SessionContent : TinyComponentBase
 
     private string GetClass()
     {
-        var baseClass = "flex w-full flex-col overflow-hidden rounded-lg border border-border bg-background";
+        var baseClass = "flex min-h-0 w-full flex-col overflow-hidden rounded-lg border border-border bg-background";
         return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
     }
 

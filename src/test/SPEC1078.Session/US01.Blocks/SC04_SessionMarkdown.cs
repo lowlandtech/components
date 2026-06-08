@@ -38,9 +38,9 @@ public sealed class SC04_SessionMarkdown : ViewScenario
         cut.FindAll("ul li").Select(item => item.TextContent).ShouldBe(["Ollama", "Kimi"]);
         cut.Find("a").GetAttribute("href").ShouldBe("https://example.test/providers");
         cut.Find("pre code.language-csharp").TextContent.ShouldContain("var provider");
-        cut.Find("[data-slot='session-turn-response-text']")
-            .GetAttribute("data-streaming")
-            .ShouldBe("false");
+        var root = cut.Find("[data-slot='session-turn-response-text']");
+        root.GetAttribute("data-streaming").ShouldBe("false");
+        root.ClassList.ShouldContain("markdown-content");
     }
 
     [Fact(DisplayName = "UAC02: Session response Markdown does not execute model-supplied HTML")]
@@ -60,5 +60,26 @@ public sealed class SC04_SessionMarkdown : ViewScenario
         var root = cut.Find(".session-markdown");
         root.TextContent.ShouldContain("<script>alert('no')</script>");
         root.TextContent.ShouldContain("<strong>model html</strong>");
+    }
+
+    [Fact(DisplayName = "UAC03: Session response code highlighting runs initially and after streamed updates")]
+    [Trait(Spec.UAC, "03")]
+    [Given("a session response whose fenced code can change while the model is streaming")]
+    [When("SessionMarkdown first renders and then receives updated Markdown")]
+    [Then("the shared Highlight.js hook runs for both versions of the response")]
+    public void UAC03_HighlightsInitialAndStreamedMarkdown()
+    {
+        var cut = Ctx.Render<SessionMarkdown>(parameters => parameters
+            .Add(component => component.Value, "```csharp\nvar first = true;\n```"));
+
+        Ctx.JSInterop.Invocations.Count(invocation => invocation.Identifier == "highlightCode")
+            .ShouldBe(1);
+
+        cut.Instance.Value = "```csharp\nvar second = true;\n```";
+        cut.Render();
+
+        Ctx.JSInterop.Invocations.Count(invocation => invocation.Identifier == "highlightCode")
+            .ShouldBe(2);
+        cut.Find("pre code.language-csharp").TextContent.ShouldContain("second");
     }
 }
