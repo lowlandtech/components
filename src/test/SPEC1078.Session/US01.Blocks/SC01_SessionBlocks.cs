@@ -1275,27 +1275,46 @@ public class SC01_SessionBlocks : ViewScenario
         standalone.Find("[data-panel='session-app-sections-panel']").ClassList.ShouldContain("self-stretch");
     }
 
-    [Fact(DisplayName = "UAC30d: Main panel subtracts the splitter width from its right padding")]
+    [Fact(DisplayName = "UAC30d: Main panel subtracts adjacent splitter widths from its horizontal padding")]
     [Trait(Spec.UAC, "30d")]
-    [Given("the main content panel sits left of a four-pixel resizable splitter and the target visual spacing is ten pixels")]
-    [When("embedded and standalone SessionBlock layouts render their main content")]
-    [Then("the main content uses six pixels of right padding so padding plus splitter width remains ten pixels")]
+    [Given("the main content panel sits between four-pixel resizable splitters and the target visual spacing is ten pixels")]
+    [When("embedded and standalone SessionBlock layouts render with their left panels visible")]
+    [Then("the main content uses six pixels of horizontal padding so each padding plus splitter width remains ten pixels")]
     public void UAC30d_MainPanelCompensatesForResizableSplitterWidth()
     {
         var embedded = Ctx.Render<SessionBlock>();
         var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
-        const string compensatedPadding = "padding:10px 6px 10px 10px;";
+        const string compensatedPadding = "padding:10px 6px 10px 6px;";
         embedded.Find("[data-slot='session-app-main-content']").GetAttribute("style").ShouldBe(compensatedPadding);
         standalone.Find("[data-slot='session-app-main-content']").GetAttribute("style").ShouldBe(compensatedPadding);
 
-        var sectionsSplitter = standalone.FindAll("[data-slot='resizable-handle']").Last();
+        var splitters = standalone.FindAll("[data-slot='resizable-handle']");
+        splitters.First().ClassList.ShouldContain("w-[4px]");
+        var sectionsSplitter = splitters.Last();
         sectionsSplitter.ClassList.ShouldContain("w-[4px]");
 
         const int targetSpacing = 10;
         const int splitterWidth = 4;
-        const int compensatedRightPadding = 6;
-        (compensatedRightPadding + splitterWidth).ShouldBe(targetSpacing);
+        const int compensatedHorizontalPadding = 6;
+        (compensatedHorizontalPadding + splitterWidth).ShouldBe(targetSpacing);
+    }
+
+    [Fact(DisplayName = "UAC30e: Main panel restores full left padding when the left splitter is removed")]
+    [Trait(Spec.UAC, "30e")]
+    [Given("a standalone SessionBlock whose open sidebar contributes a four-pixel splitter")]
+    [When("the sidebar closes and removes the left splitter")]
+    [Then("the main content restores ten-pixel left padding while retaining six-pixel right padding for the Sections splitter")]
+    public void UAC30e_MainPanelRestoresLeftPaddingWithoutLeftSplitter()
+    {
+        var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
+
+        standalone.Find("[data-testid='session-app-sidebar-close']").Click();
+
+        standalone.FindAll("[data-slot='resizable-handle']").Count.ShouldBe(1);
+        standalone.Find("[data-slot='session-app-main-content']")
+            .GetAttribute("style")
+            .ShouldBe("padding:10px 6px 10px 10px;");
     }
 
     [Fact(DisplayName = "UAC30c: Closing the standalone sidebar removes the left panel and keeps a two-panel resizable layout")]

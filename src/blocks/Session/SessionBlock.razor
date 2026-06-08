@@ -123,7 +123,7 @@
             <ResizablePanel DefaultSize="100" MinSize="35" Id="session-app-main-panel" class="h-full">
                 <SidebarInset class="h-full min-h-0 overflow-hidden bg-background">
                     <main class="relative flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden"
-                          style="padding:10px 6px 10px 10px;"
+                          style="padding:10px 6px 10px @(IsStandaloneSidebarOpen ? "6px" : "10px");"
                           data-slot="session-app-main-content">
                         @if (IsSettingsPage)
                         {
@@ -423,7 +423,7 @@
             }
             <ResizablePanel DefaultSize="@(HasActiveSession ? 84 : 60)" MinSize="35" Id="session-app-main-panel" class="h-full">
                 <main class="relative flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden"
-                      style="padding:10px 6px 10px 10px;"
+                      style="padding:10px 6px 10px @(!HasActiveSession ? "6px" : "10px");"
                       data-slot="session-app-main-content">
                     <SessionContent State="ViewState"
                                     OpenNodes="ViewState.OpenNodes"
