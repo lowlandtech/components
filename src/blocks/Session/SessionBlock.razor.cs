@@ -92,9 +92,19 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
             await ScrollSectionIntoViewAsync(sectionId);
             SessionState.Dispatch(new SetPendingScrollSection(null));
         }
+        else if (HasStreamingCommand)
+        {
+            await ScrollStreamingResponseIntoViewAsync();
+        }
     }
 
     private bool HasActiveSession => !string.IsNullOrWhiteSpace(AppState.ActiveSessionId);
+
+    private bool HasStreamingCommand =>
+        MaximizedCommand?.IsStreaming == true
+        || PageOverlayCommand?.IsStreaming == true
+        || AppOverlayCommand?.IsStreaming == true
+        || FeedItems.Any(item => item.Kind == SessionFeedItemKind.Response && item.Command?.IsStreaming == true);
 
     private bool IsEventLogPage => HasActiveSession && AppState.ActivePage == SessionAppPage.EventLog;
 
@@ -441,6 +451,34 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
                         scroller.scrollTo({ top: Math.max(0, targetTop - inset), behavior: 'smooth' });
                     } else if (targetBottom > visibleBottom) {
                         scroller.scrollTo({ top: targetBottom - scroller.clientHeight + inset, behavior: 'smooth' });
+                    }
+                })();
+                """);
+        }
+        catch
+        {
+        }
+    }
+
+    private async Task ScrollStreamingResponseIntoViewAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("eval", """
+                (() => {
+                    const scroller = document.querySelector('[data-slot="session-content-body"]');
+                    if (!scroller) return;
+
+                    const streaming = scroller.querySelector('[data-slot="session-turn-response-text"][data-streaming="true"]');
+                    if (!streaming) return;
+
+                    const streamingRect = streaming.getBoundingClientRect();
+                    const scrollerRect = scroller.getBoundingClientRect();
+                    const targetBottom = streamingRect.bottom - scrollerRect.top + scroller.scrollTop;
+                    const visibleBottom = scroller.scrollTop + scroller.clientHeight - 4;
+
+                    if (targetBottom > visibleBottom) {
+                        scroller.scrollTo({ top: targetBottom - scroller.clientHeight + 4, behavior: 'instant' });
                     }
                 })();
                 """);
