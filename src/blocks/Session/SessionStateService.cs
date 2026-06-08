@@ -539,7 +539,7 @@ public sealed class SessionStateService
 
     public static string GetCommandTurnId(SessionCommandSubmitted command) => $"session-turn-response:{command.Id}";
 
-    internal static string GetFeedItemKey(string sessionId, string itemKind, string itemId) =>
+    public static string GetFeedItemKey(string sessionId, string itemKind, string itemId) =>
         $"{sessionId}:{itemKind}:{itemId}";
 
     public static string GetBlockModeKey(string sessionId, SessionContextBlockModel block) =>
