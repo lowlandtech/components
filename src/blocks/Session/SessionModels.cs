@@ -309,6 +309,10 @@ public sealed record SetSessionCommandHistory(string SessionId, IReadOnlyList<Se
 
 public sealed record SetStoredSessionState(string SessionId, SessionUiState State) : SessionAppAction;
 
+public sealed record PersistSessionCommands(string SessionId) : SessionAppAction;
+
+public sealed record RestoreSessionCommandHistory(string SessionId, IReadOnlyList<SessionCommandSubmitted> Commands) : SessionAppAction;
+
 public static class SessionUiReducer
 {
     private const string SessionPinNodeType = "session.pin";
@@ -478,6 +482,11 @@ public static class SessionAppReducer
             {
                 SessionCommandsBySessionId = SetDictionaryEntry(state.SessionCommandsBySessionId, a.SessionId, a.Commands),
             },
+            RestoreSessionCommandHistory a => state with
+            {
+                SessionCommandsBySessionId = SetDictionaryEntry(state.SessionCommandsBySessionId, a.SessionId, a.Commands),
+            },
+            PersistSessionCommands => state,
             SetStoredSessionState a => state with
             {
                 SessionStatesBySessionId = SetDictionaryEntry(state.SessionStatesBySessionId, a.SessionId, a.State),
@@ -627,13 +636,14 @@ public static class SessionAppReducer
                 block.IncludeInContextWindow,
                 block.Data?.ToString()))]);
 
-    private static SessionCommandSnapshot CreateCommandSnapshot(SessionCommandSubmitted command)
+    public static SessionCommandSnapshot CreateCommandSnapshot(SessionCommandSubmitted command)
         => new(command.Id, command.AgentTypeKey, command.Input, command.IsStreaming, command.Response);
 
     private static bool ShouldAppendEventLog(object action) => action switch
     {
         RestoreSessionUiState => false,
         ClearSessionEventLog => false,
+        RestoreSessionCommandHistory => false,
         _ => true
     };
 

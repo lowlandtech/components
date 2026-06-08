@@ -7,6 +7,7 @@ public sealed class SessionStateService
     private static readonly ISessionSurfaceDiscovery DefaultSurfaceDiscovery = new SessionSurfaceDiscovery([]);
 
     private readonly ISessionSurfaceDiscovery _surfaceDiscovery;
+    private readonly List<Func<SessionAppState, object, CancellationToken, Task>> _effects = [];
 
     public SessionStateService()
         : this(SessionAppDefaults.Empty, null)
@@ -43,6 +44,26 @@ public sealed class SessionStateService
         StateChanged?.Invoke(_state);
         return _state;
     }
+
+    public async Task<SessionAppState> DispatchAsync(object action, CancellationToken ct = default)
+    {
+        var state = Dispatch(action);
+        foreach (var effect in _effects)
+        {
+            try
+            {
+                await effect(state, action, ct);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError($"SessionStateService effect for action '{action.GetType().Name}' failed: {ex}");
+            }
+        }
+        return state;
+    }
+
+    public void RegisterEffect(Func<SessionAppState, object, CancellationToken, Task> effect)
+        => _effects.Add(effect);
 
     public void Reset(SessionAppState? state = null)
     {
@@ -161,6 +182,7 @@ public sealed class SessionStateService
             MoveProjectedBlockToEnd(sessionId);
             Dispatch(new SetPendingScrollSection(GetCommandTurnId(testCommand)));
             await StreamTestResponseAsync(sessionId, testCommand, testStreamDelayMilliseconds);
+            await DispatchAsync(new PersistSessionCommands(sessionId), CancellationToken.None);
             return;
         }
 
@@ -171,6 +193,7 @@ public sealed class SessionStateService
             SetCommandHistory(sessionId, GetSessionCommands(sessionId).Append(command).ToList());
             MoveProjectedBlockToEnd(sessionId);
             Dispatch(new SetPendingScrollSection(GetCommandTurnId(command)));
+            await DispatchAsync(new PersistSessionCommands(sessionId), CancellationToken.None);
             return;
         }
 
@@ -203,6 +226,7 @@ public sealed class SessionStateService
             SetCommandHistory(sessionId, GetSessionCommands(sessionId).Append(command).ToList());
             MoveProjectedBlockToEnd(sessionId);
             Dispatch(new SetPendingScrollSection(GetCommandTurnId(command)));
+            await DispatchAsync(new PersistSessionCommands(sessionId), CancellationToken.None);
             return;
         }
 
@@ -220,6 +244,7 @@ public sealed class SessionStateService
         }
 
         UpdateCommand(sessionId, streamingCommand.Id, existing => existing with { Response = response, IsStreaming = false });
+        await DispatchAsync(new PersistSessionCommands(sessionId), CancellationToken.None);
     }
 
     public void UnpinBlock(SessionContextBlockModel block)
