@@ -12,6 +12,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     private bool _isHydratingStandaloneSidebar;
     private int _standaloneSidebarChangeVersion;
     private string? _hydratedSidebarPersistKey;
+    private readonly List<SessionListEntry> _createdSessions = [];
 
     [Parameter] public IReadOnlyList<SessionListEntry> Sessions { get; set; } =
     [
@@ -126,7 +127,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     private IReadOnlyList<SessionCommandSubmitted> CurrentSubmittedCommands => SessionState.GetSessionCommands(CurrentSessionId);
 
-    private IReadOnlyList<SessionListEntry> DisplaySessions => SessionState.GetDisplaySessions(Sessions);
+    private IReadOnlyList<SessionListEntry> DisplaySessions => SessionState.GetDisplaySessions([.. Sessions, .. _createdSessions]);
 
     private IReadOnlyList<SessionSectionItem> VisibleSections => SessionState.GetVisibleSections(Sessions);
 
@@ -149,6 +150,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         new("ask", L("AgentAsk")),
         new("plan", L("AgentPlan")),
         new("edit", L("AgentEdit")),
+        new("create", L("AgentCreate")),
         new("run", L("AgentRun"), Disabled: true)
     ];
 
@@ -300,7 +302,18 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     private Task SelectSessionAsync(SessionNodeInput node)
     {
-        SessionState.SelectSession(node, Sessions);
+        SessionState.SelectSession(node, DisplaySessions);
+        return Task.CompletedTask;
+    }
+
+    private Task CreateSessionAsync()
+    {
+        var id = Guid.NewGuid().ToString("n");
+        var entry = new SessionListEntry(id, L("NewSession"), 0, "session");
+        _createdSessions.Add(entry);
+        var node = new SessionNodeInput(id, "session", entry.Label);
+        SessionState.SelectSession(node, DisplaySessions);
+        SessionState.SetAgentType("create");
         return Task.CompletedTask;
     }
 

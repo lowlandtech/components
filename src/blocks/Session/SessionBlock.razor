@@ -74,7 +74,7 @@
                                 </SidebarHeader>
                                 <SidebarContent class="min-h-0 w-full flex-1">
                                     <SidebarGroup class="min-h-0 w-full flex-1">
-                                        <SidebarGroupLabel>@L("Sessions")</SidebarGroupLabel>
+                                        <SidebarGroupLabel Class="justify-between"><span>@L("Sessions")</span><button type="button" data-slot="session-list-create" data-testid="session-list-create" class="inline-flex h-6 w-6 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground" title="@L("NewSession")" @onclick="CreateSessionAsync"><Icon Name="plus" Size="12" /></button></SidebarGroupLabel>
                                         <SidebarGroupContent class="min-h-0 w-full flex-1 overflow-hidden">
                                             @if (DisplaySessions.Count == 0)
                                             {
@@ -421,6 +421,7 @@
                                          State="ViewState"
                                          SelectedNode="CurrentSessionNode"
                                          OnSelected="e => SelectSessionAsync(e.Node)"
+                                         OnCreateRequested="_ => CreateSessionAsync()"
                                          class="min-h-0 flex-1" />
                         }
                         </div>

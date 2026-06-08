@@ -66,4 +66,6 @@
   <data name="InitialState" xml:space="preserve"><value>InitialState</value></data>
   <data name="Projection" xml:space="preserve"><value>Projection</value></data>
   <data name="PinContext" xml:space="preserve"><value>PinContext</value></data>
+  <data name="AgentCreate" xml:space="preserve"><value>Create</value></data>
+  <data name="NewSession" xml:space="preserve"><value>New Session</value></data>
 </root>
