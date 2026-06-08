@@ -527,10 +527,10 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
                     const streamingRect = streaming.getBoundingClientRect();
                     const scrollerRect = scroller.getBoundingClientRect();
                     const targetBottom = streamingRect.bottom - scrollerRect.top + scroller.scrollTop;
-                    const visibleBottom = scroller.scrollTop + scroller.clientHeight - 4;
+                    const visibleBottom = scroller.scrollTop + scroller.clientHeight - 20;
 
                     if (targetBottom > visibleBottom) {
-                        scroller.scrollTo({ top: targetBottom - scroller.clientHeight + 4, behavior: 'instant' });
+                        scroller.scrollTo({ top: targetBottom - scroller.clientHeight + 20, behavior: 'instant' });
                     }
                 })();
                 """);
