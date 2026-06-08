@@ -1662,12 +1662,14 @@ public class SC01_SessionBlocks : ViewScenario
 
     [Fact(DisplayName = "UAC31: SessionBlock renders localized strings in English by default")]
     [Trait(Spec.UAC, "31")]
-    [Given("a SessionBlock with default language settings")]
+    [Given("an empty SessionBlock with default language settings")]
     [When("the component renders")]
     [Then("user-facing strings appear in English")]
     public void UAC31_SessionBlockRendersEnglishByDefault()
     {
-        var cut = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
+        var cut = Ctx.Render<SessionBlock>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.Sessions, Array.Empty<SessionListEntry>()));
 
         cut.Find("[data-slot='session-list-empty']").TextContent.Trim().ShouldBe("No sessions yet");
         cut.Find("[data-slot='session-app-right-sidebar']").TextContent.ShouldContain("Sections");
@@ -1675,7 +1677,7 @@ public class SC01_SessionBlocks : ViewScenario
 
     [Fact(DisplayName = "UAC32: SessionBlock renders localized strings in Dutch when Language is set to nl")]
     [Trait(Spec.UAC, "32")]
-    [Given("a SessionBlock with Language parameter set to nl")]
+    [Given("an empty SessionBlock with Language parameter set to nl")]
     [When("the component renders")]
     [Then("user-facing strings appear in Dutch")]
     public void UAC32_SessionBlockRendersDutchWhenLanguageIsNl()
@@ -1690,6 +1692,7 @@ public class SC01_SessionBlocks : ViewScenario
 
             var cut = Ctx.Render<SessionBlock>(p => p
                 .Add(x => x.HasSidebar, true)
+                .Add(x => x.Sessions, Array.Empty<SessionListEntry>())
                 .Add(x => x.Language, "nl"));
 
             cut.Find("[data-slot='session-list-empty']").TextContent.Trim().ShouldBe("Nog geen sessies");
