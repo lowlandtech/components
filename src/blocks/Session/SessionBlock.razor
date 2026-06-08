@@ -51,16 +51,13 @@
                                         </SidebarGroupContent>
                                     </SidebarGroup>
                                 </SidebarContent>
-                                <SidebarFooter>
-                                    <div data-slot="session-app-sidebar-settings-footer"
-                                         class="flex w-full items-center justify-end">
-                                        <button type="button"
-                                                data-testid="session-app-settings-button"
-                                                class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                                                @onclick="ShowSettingsPageAsync">
-                                            <Icon Name="settings" Size="14" />
-                                        </button>
-                                    </div>
+                                <SidebarFooter class="w-full items-end">
+                                    <button type="button"
+                                            data-testid="session-app-settings-button"
+                                            class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                            @onclick="ShowSettingsPageAsync">
+                                        <Icon Name="settings" Size="14" />
+                                    </button>
                                 </SidebarFooter>
                             }
                             else

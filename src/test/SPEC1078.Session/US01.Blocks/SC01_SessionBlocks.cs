@@ -1465,11 +1465,11 @@ public class SC01_SessionBlocks : ViewScenario
         populatedButton.ClassList.ShouldContain("w-10");
     }
 
-    [Fact(DisplayName = "UAC30k: Settings footer aligns its button to the end without duplicate padding")]
+    [Fact(DisplayName = "UAC30k: Settings footer itself aligns its direct button to the end")]
     [Trait(Spec.UAC, "30k")]
     [Given("a standalone SessionBlock with an active session and the sidebar footer's built-in padding")]
     [When("the settings button footer is rendered")]
-    [Then("its full-width wrapper aligns the button to the end without adding horizontal or vertical padding")]
+    [Then("the full-width footer owns end alignment and contains the settings button directly without a padded wrapper")]
     public void UAC30k_SettingsFooterAlignsButtonWithoutDuplicatePadding()
     {
         var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
@@ -1478,15 +1478,11 @@ public class SC01_SessionBlocks : ViewScenario
 
         var footer = standalone.Find("[data-slot='sidebar-footer']");
         footer.ClassList.ShouldContain("sidebar-footer");
-
-        var settingsFooter = standalone.Find("[data-slot='session-app-sidebar-settings-footer']");
-        settingsFooter.ClassList.ShouldContain("flex");
-        settingsFooter.ClassList.ShouldContain("w-full");
-        settingsFooter.ClassList.ShouldContain("items-center");
-        settingsFooter.ClassList.ShouldContain("justify-end");
-        settingsFooter.ClassList.ShouldNotContain("px-2");
-        settingsFooter.ClassList.ShouldNotContain("py-2");
-        settingsFooter.QuerySelector("[data-testid='session-app-settings-button']").ShouldNotBeNull();
+        footer.ClassList.ShouldContain("w-full");
+        footer.ClassList.ShouldContain("items-end");
+        footer.Children.Length.ShouldBe(1);
+        footer.Children[0].GetAttribute("data-testid").ShouldBe("session-app-settings-button");
+        standalone.FindAll("[data-slot='session-app-sidebar-settings-footer']").ShouldBeEmpty();
     }
 
     [Fact(DisplayName = "UAC30c: Closing the standalone sidebar removes the left panel and keeps a two-panel resizable layout")]
