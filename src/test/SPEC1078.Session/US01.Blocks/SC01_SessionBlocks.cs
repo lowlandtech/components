@@ -1485,6 +1485,53 @@ public class SC01_SessionBlocks : ViewScenario
         standalone.FindAll("[data-slot='session-app-sidebar-settings-footer']").ShouldBeEmpty();
     }
 
+    [Fact(DisplayName = "UAC30l: Collapsed app-shell CSS cannot center an embedded SessionBlock footer")]
+    [Trait(Spec.UAC, "30l")]
+    [Given("a SessionBlock sidebar footer embedded while the outer application sidebar is collapsed")]
+    [When("the shell's collapsed-sidebar stylesheet contract is inspected")]
+    [Then("footer centering is scoped to the direct app-sidebar footer and cannot match the embedded SessionBlock footer")]
+    public void UAC30l_CollapsedShellFooterRulesDoNotReachEmbeddedSessionBlock()
+    {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory is not null &&
+               !File.Exists(Path.Combine(directory.FullName, "foundry.slnx")))
+        {
+            directory = directory.Parent;
+        }
+
+        directory.ShouldNotBeNull(
+            "The repository root is required to verify the shell stylesheet drift contract.");
+
+        var cssPath = Path.Combine(
+            directory!.FullName,
+            "src",
+            "shell",
+            "wwwroot",
+            "css",
+            "input.css");
+        var css = File.ReadAllText(cssPath);
+        const string scopedFooter =
+            "html.sidebar-collapsed .app-shell .app-sidebar > .sidebar-footer";
+
+        css.ShouldContain(
+            $"{scopedFooter} {{",
+            customMessage:
+                "Collapsed footer alignment must target only the outer app sidebar's direct footer.");
+        css.ShouldContain(
+            $"{scopedFooter} > div",
+            customMessage:
+                "Collapsed child alignment must remain owned by the outer app sidebar footer.");
+        css.ShouldNotContain(
+            "html.sidebar-collapsed .sidebar-footer {",
+            customMessage:
+                "A broad collapsed .sidebar-footer selector also matches SessionBlock's nested footer " +
+                "and centers its settings button.");
+        css.ShouldNotContain(
+            "html.sidebar-collapsed .sidebar-footer > div",
+            customMessage:
+                "A broad child selector leaks shell layout behavior into embedded component footers.");
+    }
+
     [Fact(DisplayName = "UAC30c: Closing the standalone sidebar removes the left panel and keeps a two-panel resizable layout")]
     [Trait(Spec.UAC, "30c")]
     public void UAC30c_ClosingStandaloneSidebarRemovesLeftPanel()
