@@ -2,6 +2,11 @@ namespace LowlandTech.Components;
 
 public partial class SessionContextTreeNodeMenu : TinyComponentBase
 {
+    [Inject] private IStringLocalizer<SessionBlockStrings>? Localizer { get; set; }
+
+    private string L(string key) => Localizer?[key] ?? key;
+
+
     [Parameter, EditorRequired] public SessionNodeInput Node { get; set; } = new("context", "context", "Context");
     [Parameter] public bool CanMoveUp { get; set; }
     [Parameter] public bool CanMoveDown { get; set; }

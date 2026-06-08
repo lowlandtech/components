@@ -28,4 +28,42 @@
   <data name="AgentPlan" xml:space="preserve"><value>Zaplanuj</value></data>
   <data name="AgentEdit" xml:space="preserve"><value>Edytuj</value></data>
   <data name="AgentRun" xml:space="preserve"><value>Uruchom</value></data>
+  <data name="ViewOptions" xml:space="preserve"><value>View options</value></data>
+  <data name="View" xml:space="preserve"><value>View</value></data>
+  <data name="Normal" xml:space="preserve"><value>Normal</value></data>
+  <data name="Minimized" xml:space="preserve"><value>Minimized</value></data>
+  <data name="Maximized" xml:space="preserve"><value>Maximized</value></data>
+  <data name="PageOverlay" xml:space="preserve"><value>Page Overlay</value></data>
+  <data name="AppOverlay" xml:space="preserve"><value>App Overlay</value></data>
+  <data name="MenuNew" xml:space="preserve"><value>New</value></data>
+  <data name="MenuRename" xml:space="preserve"><value>Rename</value></data>
+  <data name="MenuPin" xml:space="preserve"><value>Pin</value></data>
+  <data name="MenuUnpin" xml:space="preserve"><value>Unpin</value></data>
+  <data name="Pinned" xml:space="preserve"><value>Pinned</value></data>
+  <data name="MenuMoveUp" xml:space="preserve"><value>Move up</value></data>
+  <data name="MenuMoveDown" xml:space="preserve"><value>Move down</value></data>
+  <data name="MenuDelete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Options" xml:space="preserve"><value>Options</value></data>
+  <data name="Restore" xml:space="preserve"><value>Restore</value></data>
+  <data name="ApiKeys" xml:space="preserve"><value>ApiKeys</value></data>
+  <data name="Activity" xml:space="preserve"><value>Activity</value></data>
+  <data name="ApiKeysTitle" xml:space="preserve"><value>ApiKeysTitle</value></data>
+  <data name="ApiKeysDescription" xml:space="preserve"><value>ApiKeysDescription</value></data>
+  <data name="CreateApiKey" xml:space="preserve"><value>CreateApiKey</value></data>
+  <data name="CopyKeyNow" xml:space="preserve"><value>CopyKeyNow</value></data>
+  <data name="KeyNotShownAgain" xml:space="preserve"><value>KeyNotShownAgain</value></data>
+  <data name="Dismiss" xml:space="preserve"><value>Dismiss</value></data>
+  <data name="Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Key" xml:space="preserve"><value>Key</value></data>
+  <data name="CreatedBy" xml:space="preserve"><value>CreatedBy</value></data>
+  <data name="Action" xml:space="preserve"><value>Action</value></data>
+  <data name="LoadingKeys" xml:space="preserve"><value>LoadingKeys</value></data>
+  <data name="NoApiKeysYet" xml:space="preserve"><value>NoApiKeysYet</value></data>
+  <data name="Remove" xml:space="preserve"><value>Remove</value></data>
+  <data name="Revoked" xml:space="preserve"><value>Revoked</value></data>
+  <data name="NoActionsDispatched" xml:space="preserve"><value>NoActionsDispatched</value></data>
+  <data name="CurrentState" xml:space="preserve"><value>CurrentState</value></data>
+  <data name="InitialState" xml:space="preserve"><value>InitialState</value></data>
+  <data name="Projection" xml:space="preserve"><value>Projection</value></data>
+  <data name="PinContext" xml:space="preserve"><value>PinContext</value></data>
 </root>

@@ -2,6 +2,10 @@ namespace LowlandTech.Components;
 
 public partial class SessionEventLog : TinyComponentBase
 {
+    [Inject] private IStringLocalizer<SessionBlockStrings>? Localizer { get; set; }
+
+    private string L(string key) => Localizer?[key] ?? key;
+
     [Parameter] public IReadOnlyList<SessionEventLogItem> Entries { get; set; } = [];
     [Parameter] public string? InitialStateJson { get; set; }
     [Parameter] public string? CurrentStateJson { get; set; }

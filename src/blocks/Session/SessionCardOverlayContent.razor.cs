@@ -2,6 +2,9 @@ namespace LowlandTech.Components;
 
 public partial class SessionCardOverlayContent : TinyComponentBase
 {
+    [Inject] private IStringLocalizer<SessionBlockStrings>? Localizer { get; set; }
+
+    private string L(string key) => Localizer?[key] ?? key;
     [Parameter, EditorRequired] public SessionNodeInput Node { get; set; } = new("session-card", "session-card", "Session card");
     [Parameter] public string Initials { get; set; } = "AI";
     [Parameter] public string? Description { get; set; }

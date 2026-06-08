@@ -2,8 +2,20 @@ namespace LowlandTech.Components;
 
 public partial class SessionContextProjection : TinyComponentBase
 {
+    [Inject] private IStringLocalizer<SessionBlockStrings>? Localizer { get; set; }
+
+    private string L(string key) => Localizer?[key] ?? key;
+
     [Parameter] public SessionContextProjectionModel? Projection { get; set; }
     [Parameter] public string PinTitle { get; set; } = "Pin context";
+
+    protected override void OnParametersSet()
+    {
+        if (string.IsNullOrEmpty(PinTitle))
+        {
+            PinTitle = L("PinContext");
+        }
+    }
     [Parameter] public EventCallback<SessionContextProjectionModel> OnPin { get; set; }
 
     private string GetClass()

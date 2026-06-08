@@ -11,7 +11,7 @@
             data-slot="card-mode-menu-trigger"
             data-testid="card-mode-menu-trigger"
             class="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
-            title="View options"
+            title="@TitleTooltip"
             @onclick="ToggleMenuAsync">
         <Icon Paths="@Icons.EllipsisVertical" Size="12" />
     </button>
@@ -23,6 +23,13 @@
 
     [Parameter] public string Mode { get; set; } = Card.ModeNormal;
     [Parameter] public EventCallback<string> ModeChanged { get; set; }
+    [Parameter] public string TitleTooltip { get; set; } = "View options";
+    [Parameter] public string ViewLabel { get; set; } = "View";
+    [Parameter] public string NormalLabel { get; set; } = "Normal";
+    [Parameter] public string MinimizedLabel { get; set; } = "Minimized";
+    [Parameter] public string MaximizedLabel { get; set; } = "Maximized";
+    [Parameter] public string PageOverlayLabel { get; set; } = "Page Overlay";
+    [Parameter] public string AppOverlayLabel { get; set; } = "App Overlay";
 
     private string NormalizedMode => Mode?.ToLowerInvariant() switch
     {
@@ -73,7 +80,7 @@
     {
         <div class="node-menu-backdrop" @onclick="CloseMenu" @onclick:stopPropagation></div>
         <div class="node-menu relative z-10" @onclick:stopPropagation>
-            <div class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">View</div>
+            <div class="px-2 py-1.5 text-xs font-semibold text-muted-foreground">@ViewLabel</div>
             <div class="my-1 h-px bg-border"></div>
             <button class="node-menu-item @(NormalizedMode == Card.ModeNormal ? "bg-muted" : "")"
                     @onclick="() => SelectModeAsync(Card.ModeNormal)">
@@ -83,7 +90,7 @@
                         <span>●</span>
                     }
                 </span>
-                Normal
+                @NormalLabel
             </button>
             <button class="node-menu-item @(NormalizedMode == Card.ModeMinimized ? "bg-muted" : "")"
                     @onclick="() => SelectModeAsync(Card.ModeMinimized)">
@@ -93,7 +100,7 @@
                         <span>●</span>
                     }
                 </span>
-                Minimized
+                @MinimizedLabel
             </button>
             <button class="node-menu-item @(NormalizedMode == Card.ModeMaximized ? "bg-muted" : "")"
                     @onclick="() => SelectModeAsync(Card.ModeMaximized)">
@@ -103,7 +110,7 @@
                         <span>●</span>
                     }
                 </span>
-                Maximized
+                @MaximizedLabel
             </button>
             <button class="node-menu-item @(NormalizedMode == Card.ModeOverlayPage ? "bg-muted" : "")"
                     @onclick="() => SelectModeAsync(Card.ModeOverlayPage)">
@@ -113,7 +120,7 @@
                         <span>●</span>
                     }
                 </span>
-                Page Overlay
+                @PageOverlayLabel
             </button>
             <button class="node-menu-item @(NormalizedMode == Card.ModeOverlayApp ? "bg-muted" : "")"
                     @onclick="() => SelectModeAsync(Card.ModeOverlayApp)">
@@ -123,7 +130,7 @@
                         <span>●</span>
                     }
                 </span>
-                App Overlay
+                @AppOverlayLabel
             </button>
         </div>
     };

@@ -3,6 +3,9 @@ namespace LowlandTech.Components;
 public partial class SessionContextBlockOverlayContent : TinyComponentBase
 {
     [Inject] private ISessionBlockDiscovery BlockDiscovery { get; set; } = default!;
+    [Inject] private IStringLocalizer<SessionBlockStrings>? Localizer { get; set; }
+
+    private string L(string key) => Localizer?[key] ?? key;
 
     [Parameter, EditorRequired] public SessionContextBlockModel Block { get; set; } =
         new("context-block", new("context", "context", "Context"));

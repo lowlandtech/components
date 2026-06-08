@@ -2,6 +2,10 @@ namespace LowlandTech.Components;
 
 public partial class SessionSettings : TinyComponentBase
 {
+    [Inject] private IStringLocalizer<SessionBlockStrings>? Localizer { get; set; }
+
+    private string L(string key) => Localizer?[key] ?? key;
+
     private enum SettingsSection
     {
         ApiKeys,

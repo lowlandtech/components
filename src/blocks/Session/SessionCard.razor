@@ -18,7 +18,15 @@
             {
                 <Badge Variant="@StatusVariant">@Status</Badge>
             }
-            <CardModeMenu Mode="@EffectiveMode" ModeChanged="OnModeChangedAsync" />
+            <CardModeMenu Mode="@EffectiveMode"
+                         ModeChanged="OnModeChangedAsync"
+                         TitleTooltip="@L("ViewOptions")"
+                         ViewLabel="@L("View")"
+                         NormalLabel="@L("Normal")"
+                         MinimizedLabel="@L("Minimized")"
+                         MaximizedLabel="@L("Maximized")"
+                         PageOverlayLabel="@L("PageOverlay")"
+                         AppOverlayLabel="@L("AppOverlay")" />
         </CardAction>
     </CardHeader>
 

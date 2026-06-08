@@ -10,9 +10,11 @@
             {
             <ResizablePanel DefaultSize="@(HasActiveSession ? 16 : 24)" MinSize="16" MaxSize="38" Id="session-app-sidebar-panel" class="h-full">
                 <SidebarProvider Open="@_isStandaloneSidebarOpen" OpenChanged="HandleStandaloneSidebarOpenChanged" Width="100%" class="h-full min-h-0">
-                    <Sidebar Collapsible="offcanvas" class="h-full min-h-0 border-r-0 bg-sidebar/40">
+                    <Sidebar Collapsible="offcanvas" class="@GetLeftSidebarClass()">
                             <div class="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden"
+                             style="@(IsNoneVariant ? "padding:10px 4px 10px 10px;" : "padding:10px;")"
                              data-slot="session-app-left-sidebar">
+                            <section class="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background">
                             @if (HasActiveSession)
                             {
                                 <SidebarHeader>
@@ -115,14 +117,15 @@
                                     </div>
                                 </SidebarFooter>
                             }
+                            </section>
                         </div>
                     </Sidebar>
                 </SidebarProvider>
             </ResizablePanel>
-            <ResizableHandle WithHandle="true" RevealOnHover="true" class="relative z-20" />
+            <ResizableHandle WithHandle="true" RevealOnHover="true" Color="primary" class="relative z-20" />
             }
             <ResizablePanel DefaultSize="100" MinSize="35" Id="session-app-main-panel" class="h-full">
-                <SidebarInset class="h-full min-h-0 overflow-hidden bg-background">
+                <SidebarInset class="@GetSidebarInsetClass()">
                     <main class="relative flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden"
                           style="@GetMainContentStyle(IsStandaloneSidebarOpen)"
                           data-slot="session-app-main-content">
@@ -324,9 +327,9 @@
                     </main>
                 </SidebarInset>
             </ResizablePanel>
-            <ResizableHandle WithHandle="true" RevealOnHover="true" class="relative z-20" />
+            <ResizableHandle WithHandle="true" RevealOnHover="true" Color="primary" class="relative z-20" />
             <ResizablePanel DefaultSize="16" MinSize="12" MaxSize="100" Id="session-app-sections-panel" class="h-full">
-                <aside class="flex h-full min-h-0 min-w-0 w-full flex-col overflow-hidden border-l border-border bg-sidebar/40"
+                <aside class="@GetRightSidebarClass()"
                       data-slot="session-app-right-sidebar"
                       data-testid="session-app-right-sidebar">
                      <div data-slot="session-app-right-sidebar-body"
@@ -374,11 +377,11 @@
     {
         <Resizable>
             <ResizablePanel DefaultSize="24" MinSize="16" MaxSize="38" Id="session-app-left-panel" class="h-full">
-                   <aside class="flex h-full min-h-0 w-full flex-col overflow-hidden border-r border-border bg-sidebar/40"
+                   <aside class="@GetLeftPanelClass()"
                        data-slot="session-app-left-sidebar">
                     <div class="flex h-full min-h-0 w-full flex-1 flex-col"
                         data-slot="session-app-left-sidebar-body"
-                        style="padding:10px;">
+                        style="@(IsNoneVariant ? "padding:10px 4px 10px 10px;" : "padding:10px;")">
                         <div class="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden"
                             data-slot="session-app-left-sidebar">
                         @if (HasActiveSession)
@@ -422,7 +425,7 @@
             </ResizablePanel>
             @if (!HasActiveSession)
             {
-                <ResizableHandle WithHandle="true" RevealOnHover="true" class="relative z-20" />
+                <ResizableHandle WithHandle="true" RevealOnHover="true" Color="primary" class="relative z-20" />
             }
             <ResizablePanel DefaultSize="@(HasActiveSession ? 84 : 60)" MinSize="35" Id="session-app-main-panel" class="h-full">
                 <main class="relative flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden"
@@ -599,7 +602,7 @@
                     }
                 </main>
             </ResizablePanel>
-            <ResizableHandle WithHandle="true" RevealOnHover="true" class="z-10" />
+            <ResizableHandle WithHandle="true" RevealOnHover="true" Color="primary" class="z-10" />
             <ResizablePanel DefaultSize="16" MinSize="12" MaxSize="100" Id="session-app-sections-panel" class="h-full">
                 <aside class="@GetRightSidebarClass()"
                       data-slot="session-app-right-sidebar"
@@ -609,7 +612,7 @@
                          style="@GetRightSidebarBodyStyle()">
                         <section class="flex min-h-0 min-w-0 w-full flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background">
                         <header class="flex h-10 shrink-0 items-center gap-2 border-b border-border px-3">
-                            <span class="text-xs font-semibold">Sections</span>
+                            <span class="text-xs font-semibold">@L("Sections")</span>
                             <span class="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground"
                                   data-testid="session-app-sections-count">
                                 @VisibleSections.Count

@@ -3,6 +3,9 @@ namespace LowlandTech.Components;
 public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
 {
     [Inject] private IPopoverService PopoverService { get; set; } = default!;
+    [Inject] private IStringLocalizer<SessionBlockStrings>? Localizer { get; set; }
+
+    private string L(string key) => Localizer?[key] ?? key;
 
     [Parameter, EditorRequired] public SessionContextNode Item { get; set; } = new(new("context", "context", "Context"));
     [Parameter] public int Depth { get; set; }

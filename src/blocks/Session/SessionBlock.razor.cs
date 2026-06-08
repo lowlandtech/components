@@ -147,26 +147,39 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         var frameClass = IsNoneVariant
             ? string.Empty
             : "rounded-lg border border-border";
-        var baseClass = $"relative min-h-0 w-full overflow-hidden bg-background {frameClass}".Trim();
+        var bgClass = IsNoneVariant ? "bg-sidebar" : "bg-background";
+        var baseClass = $"relative min-h-0 w-full overflow-hidden {bgClass} {frameClass}".Trim();
         return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
     }
 
     private bool IsNoneVariant => string.Equals(Variant, "none", StringComparison.OrdinalIgnoreCase);
 
+    private string GetLeftSidebarClass() => IsNoneVariant
+        ? "h-full min-h-0 border-r-0"
+        : "h-full min-h-0 border-r-0";
+
+    private string GetLeftPanelClass() => IsNoneVariant
+        ? "flex h-full min-h-0 w-full flex-col overflow-hidden bg-sidebar"
+        : "flex h-full min-h-0 w-full flex-col overflow-hidden border-r border-border bg-sidebar/40";
+
     private string GetRightSidebarClass() => IsNoneVariant
-        ? "flex h-full min-h-0 min-w-0 w-full flex-col overflow-hidden bg-background"
+        ? "flex h-full min-h-0 min-w-0 w-full flex-col overflow-hidden bg-sidebar"
         : "flex h-full min-h-0 min-w-0 w-full flex-col overflow-hidden border-l border-border bg-sidebar/40";
 
     private string GetRightSidebarBodyStyle() => IsNoneVariant
-        ? "padding:10px 10px 10px 5px;"
+        ? "padding:10px 10px 10px 4px;"
         : "padding:10px;";
 
     private string GetMainContentStyle(bool isLeftOpen)
     {
-        var left = isLeftOpen ? "6px" : "10px";
-        var right = IsNoneVariant ? "3px" : "6px";
+        var left = isLeftOpen ? (IsNoneVariant ? "4px" : "6px") : "10px";
+        var right = IsNoneVariant ? "4px" : "6px";
         return $"padding:10px {right} 10px {left};";
     }
+
+    private string GetSidebarInsetClass() => IsNoneVariant
+        ? "h-full min-h-0 overflow-hidden bg-sidebar"
+        : "h-full min-h-0 overflow-hidden bg-background";
 
     private static string GetStyle() => "width:100%; height:100%; min-height:0;";
 

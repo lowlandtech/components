@@ -24,7 +24,7 @@
             @if (WithHandle)
             {
                 <div class="@GetHandleClass()">
-                    <svg width="4" height="16" viewBox="0 0 4 16" fill="currentColor" class="text-muted-foreground">
+                    <svg width="4" height="16" viewBox="0 0 4 16" fill="currentColor" class="@(Color == "primary" ? "text-primary" : "text-muted-foreground")">
                         <circle cx="2" cy="2" r="1.5" />
                         <circle cx="2" cy="8" r="1.5" />
                         <circle cx="2" cy="14" r="1.5" />
@@ -48,6 +48,7 @@
     [Parameter] public int HandleIndex { get; set; } = -1;
     [Parameter] public ResizablePanel? BeforePanel { get; set; }
     [Parameter] public ResizablePanel? AfterPanel { get; set; }
+    [Parameter] public string Color { get; set; } = "muted";
 
     private ElementReference _element;
     private IJSObjectReference? _jsModule;

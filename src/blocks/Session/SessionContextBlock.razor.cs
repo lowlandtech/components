@@ -4,6 +4,7 @@ public partial class SessionContextBlock : TinyComponentBase
 {
     [Inject] private IPageOverlayService PageOverlay { get; set; } = default!;
     [Inject] private ISessionBlockDiscovery BlockDiscovery { get; set; } = default!;
+    [Inject] private IStringLocalizer<SessionBlockStrings>? Localizer { get; set; }
 
     public const string ModeMinimized = "minimized";
     public const string ModeNormal = "normal";
@@ -22,6 +23,8 @@ public partial class SessionContextBlock : TinyComponentBase
     [Parameter] public string? PageOverlayContainerClass { get; set; }
     [Parameter] public string? AppOverlayContainerClass { get; set; }
     [Parameter] public bool HostHandlesPageOverlay { get; set; }
+
+    private string L(string key) => Localizer?[key] ?? key;
 
     private string NormalizedMode => Mode?.ToLowerInvariant() switch
     {
