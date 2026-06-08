@@ -28,23 +28,23 @@
   <data name="AgentPlan" xml:space="preserve"><value>Pianifica</value></data>
   <data name="AgentEdit" xml:space="preserve"><value>Modifica</value></data>
   <data name="AgentRun" xml:space="preserve"><value>Esegui</value></data>
-  <data name="ViewOptions" xml:space="preserve"><value>View options</value></data>
-  <data name="View" xml:space="preserve"><value>View</value></data>
-  <data name="Normal" xml:space="preserve"><value>Normal</value></data>
-  <data name="Minimized" xml:space="preserve"><value>Minimized</value></data>
-  <data name="Maximized" xml:space="preserve"><value>Maximized</value></data>
-  <data name="PageOverlay" xml:space="preserve"><value>Page Overlay</value></data>
-  <data name="AppOverlay" xml:space="preserve"><value>App Overlay</value></data>
-  <data name="MenuNew" xml:space="preserve"><value>New</value></data>
-  <data name="MenuRename" xml:space="preserve"><value>Rename</value></data>
-  <data name="MenuPin" xml:space="preserve"><value>Pin</value></data>
-  <data name="MenuUnpin" xml:space="preserve"><value>Unpin</value></data>
-  <data name="Pinned" xml:space="preserve"><value>Pinned</value></data>
-  <data name="MenuMoveUp" xml:space="preserve"><value>Move up</value></data>
-  <data name="MenuMoveDown" xml:space="preserve"><value>Move down</value></data>
-  <data name="MenuDelete" xml:space="preserve"><value>Delete</value></data>
-  <data name="Options" xml:space="preserve"><value>Options</value></data>
-  <data name="Restore" xml:space="preserve"><value>Restore</value></data>
+  <data name="ViewOptions" xml:space="preserve"><value>Opzioni visualizzazione</value></data>
+  <data name="View" xml:space="preserve"><value>Visualizzazione</value></data>
+  <data name="Normal" xml:space="preserve"><value>Normale</value></data>
+  <data name="Minimized" xml:space="preserve"><value>Minimizzato</value></data>
+  <data name="Maximized" xml:space="preserve"><value>Massimizzato</value></data>
+  <data name="PageOverlay" xml:space="preserve"><value>Sovrapposizione pagina</value></data>
+  <data name="AppOverlay" xml:space="preserve"><value>Sovrapposizione app</value></data>
+  <data name="MenuNew" xml:space="preserve"><value>Nuovo</value></data>
+  <data name="MenuRename" xml:space="preserve"><value>Rinomina</value></data>
+  <data name="MenuPin" xml:space="preserve"><value>Fissa</value></data>
+  <data name="MenuUnpin" xml:space="preserve"><value>Sblocca</value></data>
+  <data name="Pinned" xml:space="preserve"><value>Fissato</value></data>
+  <data name="MenuMoveUp" xml:space="preserve"><value>Sposta su</value></data>
+  <data name="MenuMoveDown" xml:space="preserve"><value>Sposta giù</value></data>
+  <data name="MenuDelete" xml:space="preserve"><value>Elimina</value></data>
+  <data name="Options" xml:space="preserve"><value>Opzioni</value></data>
+  <data name="Restore" xml:space="preserve"><value>Ripristina</value></data>
   <data name="ApiKeys" xml:space="preserve"><value>ApiKeys</value></data>
   <data name="Activity" xml:space="preserve"><value>Activity</value></data>
   <data name="ApiKeysTitle" xml:space="preserve"><value>ApiKeysTitle</value></data>
