@@ -59,6 +59,9 @@
 		<EmbeddedResource Include="..\..\shell\Features\Shell\App.razor">
 			<LogicalName>shell.App.razor</LogicalName>
 		</EmbeddedResource>
+		<EmbeddedResource Include="..\..\shell\wwwroot\css\input.css">
+			<LogicalName>shell.input.css</LogicalName>
+		</EmbeddedResource>
 		<EmbeddedResource Include="..\..\app\Components\App.razor">
 			<LogicalName>app.App.razor</LogicalName>
 		</EmbeddedResource>

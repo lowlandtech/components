@@ -1492,24 +1492,13 @@ public class SC01_SessionBlocks : ViewScenario
     [Then("footer centering is scoped to the direct app-sidebar footer and cannot match the embedded SessionBlock footer")]
     public void UAC30l_CollapsedShellFooterRulesDoNotReachEmbeddedSessionBlock()
     {
-        var directory = new DirectoryInfo(AppContext.BaseDirectory);
-        while (directory is not null &&
-               !File.Exists(Path.Combine(directory.FullName, "foundry.slnx")))
-        {
-            directory = directory.Parent;
-        }
-
-        directory.ShouldNotBeNull(
-            "The repository root is required to verify the shell stylesheet drift contract.");
-
-        var cssPath = Path.Combine(
-            directory!.FullName,
-            "src",
-            "shell",
-            "wwwroot",
-            "css",
-            "input.css");
-        var css = File.ReadAllText(cssPath);
+        var assembly = typeof(SC01_SessionBlocks).Assembly;
+        using var stream = assembly.GetManifestResourceStream("shell.input.css");
+        stream.ShouldNotBeNull(
+            "The shell stylesheet must be embedded in the test assembly so the drift contract " +
+            "survives NCrunch shadow-copy and other isolated test runners.");
+        using var reader = new StreamReader(stream!);
+        var css = reader.ReadToEnd();
         const string scopedFooter =
             "html.sidebar-collapsed .app-shell .app-sidebar > .sidebar-footer";
 
