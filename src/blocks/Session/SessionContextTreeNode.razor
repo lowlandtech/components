@@ -32,15 +32,29 @@
             <span class="min-w-0 flex-1 truncate">@Item.Node.Label</span>
             <span class="shrink-0 text-[10px] text-muted-foreground">@Item.Node.NodeTypeKey</span>
         </button>
-        <span id="popover-anchor-@PopoverId" class="inline-flex">
-            <button type="button"
-                    class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm text-muted-foreground"
-                    data-testid="session-context-node-menu-trigger"
-                    data-node-id="@Item.Node.Id"
-                    title="@L("Options")"
-                    @onclick="ToggleMenuAsync">
-                <Icon Paths="@Icons.EllipsisVertical" Size="12" />
-            </button>
+        <span class="inline-flex items-center gap-0.5">
+            @if (IsHeader)
+            {
+                <button type="button"
+                        class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                        data-slot="session-context-node-create"
+                        data-node-id="@Item.Node.Id"
+                        title="@L("MenuNew")"
+                        @onclick="HandleCreateAsync"
+                        @onclick:stopPropagation>
+                    <Icon Paths="@Icons.Plus" Size="12" />
+                </button>
+            }
+            <span id="popover-anchor-@PopoverId" class="inline-flex">
+                <button type="button"
+                        class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm text-muted-foreground"
+                        data-testid="session-context-node-menu-trigger"
+                        data-node-id="@Item.Node.Id"
+                        title="@L("Options")"
+                        @onclick="ToggleMenuAsync">
+                    <Icon Paths="@Icons.EllipsisVertical" Size="12" />
+                </button>
+            </span>
         </span>
     </div>
     @if (_isExpanded)

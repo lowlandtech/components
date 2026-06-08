@@ -48,6 +48,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     [Parameter] public string? Language { get; set; }
     [Parameter] public string LogoSrc { get; set; } = "_content/LowlandTech.Components/img/session-app-logo.svg";
     [Parameter] public string? Title { get; set; }
+    [Parameter] public EventCallback<SessionHeaderCreateRequest> OnHeaderCreateRequested { get; set; }
 
     private IStringLocalizer<SessionBlockStrings>? _localizer;
 
@@ -355,6 +356,19 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         return Task.CompletedTask;
     }
 
+    private Task HandleNodeNewAsync(SessionNodeInput node)
+    {
+        if (!IsHeaderNode(node)) return Task.CompletedTask;
+
+        SessionState.ProjectContext(node);
+        SessionState.SetAgentType("create");
+        return Task.CompletedTask;
+    }
+
+    private static bool IsHeaderNode(SessionNodeInput node) =>
+        node.NodeTypeKey.EndsWith(".header", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(node.NodeTypeKey, "header", StringComparison.OrdinalIgnoreCase);
+
     private Task HandleTabPinnedChangedAsync(TabsItem item)
     {
         SessionState.SetTabPinned(item.Value, item.Pinned);
@@ -385,6 +399,28 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
             SessionState.SetAgentType("ask");
 
             await SessionState.DispatchAsync(new PersistSessionCommands(command.Node.Id), CancellationToken.None);
+
+            try
+            {
+                await JS.InvokeVoidAsync("eval", """
+                    (() => {
+                        const input = document.querySelector('[data-slot="session-command-input"]');
+                        if (input) { input.value = ''; input.focus(); }
+                    })();
+                    """);
+            }
+            catch { }
+
+            return;
+        }
+
+        // Header-node create: delegate to the host page so it can materialise the child in the graph.
+        if (string.Equals(command.AgentTypeKey, "create", StringComparison.OrdinalIgnoreCase)
+            && IsHeaderNode(command.Node))
+        {
+            await OnHeaderCreateRequested.InvokeAsync(new SessionHeaderCreateRequest(
+                command.Node.Id, command.Node.NodeTypeKey, command.Input));
+            SessionState.SetAgentType("ask");
 
             try
             {

@@ -28,6 +28,8 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
     private bool _isExpanded = true;
 
     private bool HasChildren => VisibleChildren.Count > 0;
+    private bool IsHeader => Item.Node.NodeTypeKey.EndsWith(".header", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(Item.Node.NodeTypeKey, "header", StringComparison.OrdinalIgnoreCase);
     private string PopoverId => _popoverId.ToString();
     private string NodeIcon => Icons.GetByName(Item.Node.NodeTypeKey) ?? string.Empty;
     private IReadOnlyList<SessionContextNode> VisibleChildren =>
@@ -50,6 +52,12 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
     private Task ProjectAsync() => OnProject.InvokeAsync(Item.Node);
 
     private Task PinAsync() => OnPin.InvokeAsync(Item.Node);
+
+    private async Task HandleCreateAsync()
+    {
+        await OnProject.InvokeAsync(Item.Node);
+        await OnNodeNew.InvokeAsync(Item.Node);
+    }
 
     private void ToggleMenuAsync()
     {
