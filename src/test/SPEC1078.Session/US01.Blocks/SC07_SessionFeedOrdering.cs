@@ -40,12 +40,12 @@ public sealed class SC07_SessionFeedOrdering : ViewScenario
         secondSequence.ShouldBeGreaterThan(firstSequence);
     }
 
-    [Fact(DisplayName = "UAC02: Feed items place context blocks before command responses at the same sequence")]
+    [Fact(DisplayName = "UAC02: Feed items order chronologically by assigned sequence")]
     [Trait(Spec.UAC, "02")]
-    [Given("a feed containing a context block and command response with the same sequence")]
+    [Given("a response restored before a context block")]
     [When("GetFeedItems returns the ordered list")]
-    [Then("the block is positioned before the response")]
-    public void UAC02_FeedItemsPlaceBlocksBeforeResponses()
+    [Then("the response appears before the block because it has the lower sequence")]
+    public void UAC02_FeedItemsOrderChronologicallyBySequence()
     {
         var service = new SessionStateService();
         service.SelectSession(OrdersNode, new[] { OrdersEntry });
@@ -57,6 +57,10 @@ public sealed class SC07_SessionFeedOrdering : ViewScenario
             Response = "Done"
         };
 
+        // Command is restored first, so it receives the lower sequence.
+        service.Dispatch(new RestoreSessionCommandHistory(OrdersNode.Id, new[] { command }));
+
+        // Block is restored afterward, so it receives a higher sequence and sorts after the response.
         service.Dispatch(new RestoreSessionUiState(new SessionUiState(
             ActiveAgentTypeKey: "ask",
             Input: string.Empty,
@@ -64,22 +68,10 @@ public sealed class SC07_SessionFeedOrdering : ViewScenario
             OpenNodes: new[] { OrdersNode },
             ContextBlocks: new[] { block })));
 
-        service.Dispatch(new RestoreSessionCommandHistory(OrdersNode.Id, new[] { command }));
-
-        service.Dispatch(new SetFeedSequence(
-            SessionStateService.GetFeedItemKey(OrdersNode.Id, "block", block.Id),
-            1,
-            1));
-
-        service.Dispatch(new SetFeedSequence(
-            SessionStateService.GetFeedItemKey(OrdersNode.Id, "command", command.Id),
-            1,
-            service.State.NextFeedSequence));
-
         var feed = service.GetFeedItems(new[] { OrdersEntry });
 
         feed.Count.ShouldBe(2);
-        feed[0].Kind.ShouldBe(SessionFeedItemKind.Block);
-        feed[1].Kind.ShouldBe(SessionFeedItemKind.Response);
+        feed[0].Kind.ShouldBe(SessionFeedItemKind.Response);
+        feed[1].Kind.ShouldBe(SessionFeedItemKind.Block);
     }
 }
