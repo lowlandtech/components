@@ -96,4 +96,42 @@ public sealed class SC08_SessionCreate : ViewScenario
         created.ShouldNotBeNull();
         created.NodeTypeKey.ShouldBe("session");
     }
+
+    [Fact(DisplayName = "UAC06: Submitting in create mode with a session node uses input as the session title")]
+    [Trait(Spec.UAC, "06")]
+    [Given("an embedded SessionBlock in create mode with a new session")]
+    [When("the user types a title and submits")]
+    [Then("the session is renamed, agent type resets to ask, and no command is added")]
+    public void UAC06_CreateModeSubmitRenamesSession()
+    {
+        var stateService = new SessionStateService();
+        var cut = Ctx.Render<SessionBlock>(p => p
+            .Add(x => x.StateService, stateService));
+
+        // Create a new session
+        cut.Find("[data-testid='session-list-create']").Click();
+
+        // Verify we're in create mode
+        stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("create");
+        var sessionId = stateService.State.ActiveSessionId;
+        sessionId.ShouldNotBeNull();
+
+        // Type the session title and submit
+        cut.Find("[data-testid='session-command-input']").Input("My New Session");
+        cut.Find("[data-testid='session-command-submit']").Click();
+
+        // Agent type should reset to "ask"
+        stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("ask");
+
+        // The session node label should be updated
+        stateService.State.Ui.SelectedNode?.Label.ShouldBe("My New Session");
+
+        // No command should have been added to history
+        var commands = stateService.GetSessionCommands(sessionId!);
+        commands.Count.ShouldBe(0);
+
+        // The session should appear in the sidebar with the new title
+        cut.Find("[data-slot='session-app-sidebar-back']").Click();
+        cut.Markup.ShouldContain("My New Session");
+    }
 }

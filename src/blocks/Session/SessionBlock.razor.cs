@@ -373,6 +373,37 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     private async Task HandleSubmitAsync(SessionCommandSubmitted command)
     {
+        // When in "create" mode with a session node, the input is the session title, not a command.
+        if (string.Equals(command.AgentTypeKey, "create", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(command.Node.NodeTypeKey, "session", StringComparison.OrdinalIgnoreCase))
+        {
+            var updatedNode = command.Node with { Label = command.Input };
+
+            var index = _createdSessions.FindIndex(s => s.Id == command.Node.Id);
+            if (index >= 0)
+            {
+                _createdSessions[index] = _createdSessions[index] with { Label = command.Input };
+            }
+
+            SessionState.SelectSession(updatedNode, DisplaySessions);
+            SessionState.SetAgentType("ask");
+
+            await SessionState.DispatchAsync(new PersistSessionCommands(command.Node.Id), CancellationToken.None);
+
+            try
+            {
+                await JS.InvokeVoidAsync("eval", """
+                    (() => {
+                        const input = document.querySelector('[data-slot="session-command-input"]');
+                        if (input) { input.value = ''; input.focus(); }
+                    })();
+                    """);
+            }
+            catch { }
+
+            return;
+        }
+
         await SessionState.SubmitAsync(command, IsTest, TestStreamDelayMilliseconds, Discovery);
 
         try
