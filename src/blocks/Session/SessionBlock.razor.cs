@@ -304,7 +304,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     private async Task CreateSessionAsync()
     {
-        var id = Guid.NewGuid().ToString("n");
+        var id = Guid.NewGuid().ToString();
         var entry = new SessionListEntry(id, L("NewSession"), 0, "session");
         _createdSessions.Add(entry);
         var node = new SessionNodeInput(id, "session", entry.Label);
