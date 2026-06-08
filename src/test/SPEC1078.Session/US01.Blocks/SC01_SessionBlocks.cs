@@ -1417,6 +1417,54 @@ public class SC01_SessionBlocks : ViewScenario
             .ShouldBe("padding:10px 6px 10px 10px;");
     }
 
+    [Fact(DisplayName = "UAC30j: Empty tabs header preserves the populated header geometry and sidebar button")]
+    [Trait(Spec.UAC, "30j")]
+    [Given("a standalone SessionBlock whose sidebar is closed before any session tab is open")]
+    [When("the empty tabs header and a populated tabs header render the sidebar-open control")]
+    [Then("both use a forty-pixel non-shrinking leading slot and the button remains square")]
+    public void UAC30j_EmptyTabsHeaderPreservesSidebarButtonGeometry()
+    {
+        var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
+
+        standalone.Find("[data-testid='session-app-sidebar-close']").Click();
+
+        var emptyHeader = standalone.Find("[data-slot='session-content-empty-header']");
+        emptyHeader.ClassList.ShouldContain("h-10");
+        emptyHeader.ClassList.ShouldContain("min-w-0");
+        emptyHeader.ClassList.ShouldContain("shrink-0");
+        emptyHeader.ClassList.ShouldNotContain("px-1");
+        emptyHeader.ClassList.ShouldNotContain("py-1");
+
+        var emptyLeading = emptyHeader.QuerySelector("[data-slot='tabs-header-leading']");
+        emptyLeading.ShouldNotBeNull();
+        emptyLeading.ClassList.ShouldContain("shrink-0");
+
+        var emptyButton = emptyHeader.QuerySelector("[data-testid='session-app-sidebar-open']");
+        emptyButton.ShouldNotBeNull();
+        emptyButton.ClassList.ShouldContain("h-10");
+        emptyButton.ClassList.ShouldContain("w-10");
+
+        var emptyBorder = emptyHeader.QuerySelector("[data-slot='session-content-empty-tabs-border']");
+        emptyBorder.ShouldNotBeNull();
+        emptyBorder.ClassList.ShouldContain("h-10");
+        emptyBorder.ClassList.ShouldContain("flex-1");
+        emptyBorder.ClassList.ShouldContain("border-b");
+
+        emptyButton.Click();
+        standalone.Find("[data-node-id='orders-session']").Click();
+        standalone.Find("[data-testid='session-app-sidebar-close']").Click();
+
+        var populatedHeader = standalone.Find("[data-slot='tabs-header']");
+        var populatedLeading = populatedHeader.QuerySelector("[data-slot='tabs-header-leading']");
+        populatedLeading.ShouldNotBeNull();
+        populatedLeading.ClassList.ShouldContain("shrink-0");
+
+        var populatedButton = populatedHeader.QuerySelector("[data-testid='session-app-sidebar-open']");
+        populatedButton.ShouldNotBeNull();
+        populatedButton.ClassList.ShouldContain("h-10");
+        populatedButton.ClassList.ShouldContain("w-10");
+    }
+
     [Fact(DisplayName = "UAC30c: Closing the standalone sidebar removes the left panel and keeps a two-panel resizable layout")]
     [Trait(Spec.UAC, "30c")]
     public void UAC30c_ClosingStandaloneSidebarRemovesLeftPanel()
