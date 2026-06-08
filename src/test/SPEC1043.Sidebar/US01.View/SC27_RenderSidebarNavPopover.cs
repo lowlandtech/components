@@ -290,4 +290,39 @@ public class SC27_RenderSidebarNavPopover : ViewScenario
         fragmentCut.Find(".lt-sidebar-nav-popover-kicker")
             .TextContent.Trim().ShouldBe("Dashboard");
     }
+
+    [Fact(DisplayName = "UAC12: NavigateToLabel is configurable and rendered in the footer")]
+    [Trait(Spec.UAC, "12")]
+    [Then("the footer shows the custom NavigateToLabel and the default is 'Navigate to'")]
+    public void UAC12_NavigateToLabel()
+    {
+        var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
+        var cut = Ctx.Render(builder =>
+        {
+            builder.OpenComponent<PopoverProvider>(0);
+            builder.CloseComponent();
+            builder.OpenComponent<SidebarNavPopover>(1);
+            builder.AddAttribute(2, nameof(SidebarNavPopover.Route), "admin/dashboard");
+            builder.AddAttribute(3, nameof(SidebarNavPopover.Label), "Dashboard");
+            builder.AddAttribute(4, nameof(SidebarNavPopover.NavigateToLabel), "Navigeer naar");
+            builder.AddAttribute(5, nameof(SidebarNavPopover.OpenDelayMs), 0);
+            builder.AddAttribute(6, nameof(SidebarNavPopover.ChildContent),
+                (RenderFragment)(b => b.AddContent(0, "Inner")));
+            builder.CloseComponent();
+        });
+
+        var anchor = cut.Find("[data-slot='sidebar-nav-popover']");
+        anchor.MouseEnter();
+
+        var popover = popoverService.ActivePopovers.Single();
+        var fragmentCut = Ctx.Render(builder =>
+        {
+            builder.OpenElement(0, "div");
+            builder.AddContent(1, popover.State.Fragment);
+            builder.CloseElement();
+        });
+
+        var footerLabel = fragmentCut.Find(".lt-sidebar-nav-popover-footer-label");
+        footerLabel.TextContent.Trim().ShouldBe("Navigeer naar");
+    }
 }

@@ -23,6 +23,7 @@
     [Parameter] public string? IconName { get; set; }
     [Parameter] public string? IconPaths { get; set; }
     [Parameter] public string Kicker { get; set; } = "Page";
+    [Parameter] public string NavigateToLabel { get; set; } = "Navigate to";
     [Parameter] public int OpenDelayMs { get; set; } = 80;
     [Parameter] public int CloseDelayMs { get; set; } = 150;
 
@@ -185,7 +186,7 @@
             </button>
             <div class="lt-sidebar-nav-popover-divider" role="presentation"></div>
             <div class="lt-sidebar-nav-popover-footer">
-                <span class="lt-sidebar-nav-popover-footer-label">Navigate to</span>
+                <span class="lt-sidebar-nav-popover-footer-label">@NavigateToLabel</span>
                 <code class="lt-sidebar-nav-popover-route" data-slot="sidebar-nav-popover-route">@Route</code>
             </div>
         </div>
