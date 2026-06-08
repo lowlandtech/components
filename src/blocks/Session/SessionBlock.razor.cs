@@ -45,6 +45,8 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     [Parameter] public string? AppOverlayContainerClass { get; set; }
     [Parameter] public SessionStateService? StateService { get; set; }
     [Parameter] public string? Language { get; set; }
+    [Parameter] public string LogoSrc { get; set; } = "_content/LowlandTech.Components/img/session-app-logo.svg";
+    [Parameter] public string? Title { get; set; }
 
     private IStringLocalizer<SessionBlockStrings>? _localizer;
 
@@ -77,6 +79,8 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     }
 
     private string L(string key) => _localizer?[key] ?? key;
+
+    private string EffectiveTitle => Title ?? L("Title");
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
