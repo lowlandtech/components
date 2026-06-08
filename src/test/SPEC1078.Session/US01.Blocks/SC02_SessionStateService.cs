@@ -43,13 +43,11 @@ public class SC02_SessionStateService : ViewScenario
         var visibleSections = service.GetVisibleSections(sessions);
         var feedItems = service.GetFeedItems(sessions);
 
-        displaySessions.Single(item => item.Id == "orders-session").Count.ShouldBe(4);
-        displaySessions.Single(item => item.Id == "support-session").Count.ShouldBe(2);
+        displaySessions.Single(item => item.Id == "orders-session").Count.ShouldBe(2);
+        displaySessions.Single(item => item.Id == "support-session").Count.ShouldBe(0);
 
         visibleSections.Select(section => section.Id).ShouldBe(
         [
-            "session-turn-request",
-            "session-turn-response",
             "context-block:invoice-approval",
             SessionStateService.GetCommandTurnId(service.GetSessionCommands("orders-session").Single())
         ]);

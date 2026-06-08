@@ -439,20 +439,6 @@ public class SC01_SessionBlocks : ViewScenario
         cut.FindAll("[data-testid='session-settings-api-key-row']").Count.ShouldBe(initialRows);
     }
 
-    [Fact(DisplayName = "UAC35: SessionBlock resolves request and response cards through DRD discovery")]
-    [Trait(Spec.UAC, "35")]
-    public void UAC35_SessionBlockResolvesRequestAndResponseCardsThroughDrdDiscovery()
-    {
-        Ctx.Services.AddSingleton<ISessionSurfaceRegistry, PluginSessionSurfaceRegistry>();
-
-        var cut = Ctx.Render<SessionBlock>();
-
-        cut.Find("[data-node-id='orders-session']").Click();
-
-        cut.Markup.ShouldContain("Plugin order intake");
-        cut.Markup.ShouldContain("Plugin order output");
-    }
-
     [Fact(DisplayName = "UAC13: SessionContextBlock renders the configured DynamicComponent")]
     [Trait(Spec.UAC, "13")]
     public void UAC13_ContextBlockRendersDynamicComponent()
@@ -593,11 +579,10 @@ public class SC01_SessionBlocks : ViewScenario
         var markup = cut.Markup;
         var hasDummyReply = DummyAskAgentGraphService.TestReplies.Any(reply => markup.Contains(reply));
         hasDummyReply.ShouldBeTrue("Expected one of the dummy test replies to be rendered.");
-        cut.Find("#session-turn-response").TextContent.ShouldContain("Pinned context blocks will be included in the assistant context window without creating turns.");
         cut.Find("[data-slot='session-turn-prompt']").TextContent.ShouldContain("Hello test");
         cut.Find("[data-slot='session-turn-response-text']").GetAttribute("data-streaming").ShouldBe("false");
         cut.Find("[data-slot='session-command-input']").GetAttribute("value").ShouldBe("");
-        cut.FindAll("[data-slot='session-app-turn-section']").Count.ShouldBe(3);
+        cut.FindAll("[data-slot='session-app-turn-section']").Count.ShouldBe(1);
     }
 
     [Fact(DisplayName = "UAC16c: SessionBlock accumulates multiple submitted commands")]
@@ -622,7 +607,7 @@ public class SC01_SessionBlocks : ViewScenario
         markup.ShouldContain("Second question");
         markup.ShouldContain("Third question");
 
-        cut.FindAll("[data-slot='session-app-turn-section']").Count.ShouldBe(5); // request + default response + 3 agent responses
+        cut.FindAll("[data-slot='session-app-turn-section']").Count.ShouldBe(3); // 3 agent responses
     }
 
     [Fact(DisplayName = "UAC16d: SessionBlock interleaves blocks and commands chronologically")]
@@ -740,18 +725,17 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-testid='session-command-submit']").Click();
 
         var turns = cut.FindAll("[data-slot='session-app-turn-section']");
-        turns.Count.ShouldBe(5);
+        turns.Count.ShouldBe(3);
         cut.FindAll("[data-slot='session-turn-prompt']").Count.ShouldBe(3);
         cut.FindAll("[data-slot='session-turn-response-text']").Count.ShouldBe(3);
 
         var responseIds = turns
-            .Skip(2)
             .Select(turn => turn.Id)
             .ToList();
 
         responseIds.Count.ShouldBe(3);
         responseIds.Distinct(StringComparer.Ordinal).Count().ShouldBe(3);
-        cut.FindAll("[data-testid='session-app-section-link']").Count.ShouldBe(5);
+        cut.FindAll("[data-testid='session-app-section-link']").Count.ShouldBe(3);
     }
 
     [Fact(DisplayName = "UAC17: SessionBlock projects one transient feed block and replaces it on context selection change")]
@@ -839,7 +823,6 @@ public class SC01_SessionBlocks : ViewScenario
 
         var feed = cut.Find("[data-slot='session-app-feed']");
         feed.ShouldNotBeNull();
-        feed.QuerySelectorAll("[data-slot='session-app-turn-section']").Count.ShouldBeGreaterThan(0);
         feed.QuerySelectorAll("[data-slot='session-context-block']").Count.ShouldBeGreaterThan(0);
     }
 
@@ -963,18 +946,15 @@ public class SC01_SessionBlocks : ViewScenario
         var panel = sidebar.QuerySelector("section.rounded-lg.border.border-border.bg-background");
         panel.ShouldNotBeNull();
         panel!.ClassList.ShouldContain("w-full");
-        cut.Find("[data-testid='session-app-sections-count']").TextContent.Trim().ShouldBe("2");
-        cut.FindAll("[data-testid='session-app-section-link']").Count.ShouldBe(2);
-        cut.Find("[data-section-id='session-turn-request']").TextContent.ShouldContain("Release draft");
-        cut.Find("[data-section-id='session-turn-response']").TextContent.ShouldContain("Release context");
+        cut.Find("[data-testid='session-app-sections-count']").TextContent.Trim().ShouldBe("0");
+        cut.FindAll("[data-testid='session-app-section-link']").ShouldBeEmpty();
 
         cut.Find("[data-node-id='invoice-approval']").Click();
 
         cut.FindAll("[data-testid='session-app-right-sidebar'] [data-testid='session-app-sections-tab-turns']").ShouldBeEmpty();
         cut.FindAll("[data-testid='session-app-right-sidebar'] [data-testid='session-app-sections-tab-blocks']").ShouldBeEmpty();
-        cut.Find("[data-testid='session-app-sections-count']").TextContent.Trim().ShouldBe("3");
-        cut.FindAll("[data-testid='session-app-section-link']").Count.ShouldBe(3);
-        cut.Find("[data-section-id='session-turn-request']").TextContent.ShouldContain("Release draft");
+        cut.Find("[data-testid='session-app-sections-count']").TextContent.Trim().ShouldBe("1");
+        cut.FindAll("[data-testid='session-app-section-link']").Count.ShouldBe(1);
         cut.Find("[data-section-id='projected-context-block']").TextContent.ShouldContain("Invoice approval");
 
         cut.Find("[data-section-id='projected-context-block']").Click();
@@ -1000,10 +980,8 @@ public class SC01_SessionBlocks : ViewScenario
 
         cut.Find("[data-node-id='orders-session']").Click();
 
-        cut.Find("[data-testid='session-app-sections-count']").TextContent.Trim().ShouldBe("2");
-        cut.FindAll("[data-testid='session-app-section-link']").Count.ShouldBe(2);
-        cut.Find("[data-section-id='session-turn-request']").ShouldNotBeNull();
-        cut.Find("[data-section-id='session-turn-response']").ShouldNotBeNull();
+        cut.Find("[data-testid='session-app-sections-count']").TextContent.Trim().ShouldBe("0");
+        cut.FindAll("[data-testid='session-app-section-link']").ShouldBeEmpty();
     }
 
     [Fact(DisplayName = "UAC26: SessionBlock session row counts match each session's child sections")]
@@ -1012,20 +990,20 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var cut = Ctx.Render<SessionBlock>();
 
-        FindSessionCount(cut, "orders-session").ShouldBe("2");
-        FindSessionCount(cut, "support-session").ShouldBe("2");
-        FindSessionCount(cut, "release-session").ShouldBe("2");
+        FindSessionCount(cut, "orders-session").ShouldBe("0");
+        FindSessionCount(cut, "support-session").ShouldBe("0");
+        FindSessionCount(cut, "release-session").ShouldBe("0");
 
         cut.Find("[data-node-id='orders-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
 
-        cut.Find("[data-testid='session-app-sections-count']").TextContent.Trim().ShouldBe("3");
+        cut.Find("[data-testid='session-app-sections-count']").TextContent.Trim().ShouldBe("1");
 
         cut.Find("[data-slot='session-app-sidebar-back']").Click();
 
-        FindSessionCount(cut, "orders-session").ShouldBe("3");
-        FindSessionCount(cut, "support-session").ShouldBe("2");
-        FindSessionCount(cut, "release-session").ShouldBe("2");
+        FindSessionCount(cut, "orders-session").ShouldBe("1");
+        FindSessionCount(cut, "support-session").ShouldBe("0");
+        FindSessionCount(cut, "release-session").ShouldBe("0");
     }
 
     [Fact(DisplayName = "UAC27: SessionBlock composes left, content, and sections as resizable panels")]

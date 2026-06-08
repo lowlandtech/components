@@ -334,12 +334,7 @@ public sealed class SessionStateService
         if (string.IsNullOrWhiteSpace(_state.ActiveSessionId))
             return [];
 
-        var sessionId = CurrentSessionId;
-        var sections = new List<SessionSectionItem>
-        {
-            new("session-turn-request", GetRequestNode(sessionId).Label, "turn"),
-            new("session-turn-response", GetResponseNode(sessionId).Label, "turn")
-        };
+        var sections = new List<SessionSectionItem>();
 
         foreach (var item in GetFeedItems(sessions))
         {
@@ -380,7 +375,7 @@ public sealed class SessionStateService
 
     public int GetSessionSectionCount(string sessionId) => GetSessionTurnSectionCount(sessionId) + GetSessionBlockSectionCount(sessionId);
 
-    public int GetSessionTurnSectionCount(string sessionId) => GetSessionCommands(sessionId).Count + 2;
+    public int GetSessionTurnSectionCount(string sessionId) => GetSessionCommands(sessionId).Count;
 
     public int GetSessionBlockSectionCount(string sessionId)
     {

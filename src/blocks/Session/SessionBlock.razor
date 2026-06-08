@@ -210,27 +210,6 @@
                             else
                             {
                                 <div class="space-y-3" data-slot="session-app-feed">
-                                    <div id="session-turn-request" data-slot="session-app-turn-section">
-                                        <SessionCard Node="CurrentRequestNode"
-                                                     Initials="RQ"
-                                                     Status="@L("RequestStatus")"
-                                                     StatusVariant="outline"
-                                                     PageOverlayContainerClass="@PageOverlayContainerClass"
-                                                     AppOverlayContainerClass="@EffectiveAppOverlayContainerClass"
-                                                     HostHandlesPageOverlay="true"
-                                                     Description="@L("RequestDescription")" />
-                                </div>
-
-                                <div id="session-turn-response" data-slot="session-app-turn-section">
-                                    <SessionCard Node="CurrentResponseNode"
-                                                 Initials="RS"
-                                                 Status="@L("ReadyStatus")"
-                                                     PageOverlayContainerClass="@PageOverlayContainerClass"
-                                                     AppOverlayContainerClass="@EffectiveAppOverlayContainerClass"
-                                                     HostHandlesPageOverlay="true"
-                                                     Description="@L("ResponseDescription")" />
-                                    </div>
-
                                     @foreach (var item in FeedItems)
                                     {
                                         @if (item.Kind == SessionFeedItemKind.Response)
@@ -492,27 +471,6 @@
                         else
                         {
                             <div class="space-y-3" data-slot="session-app-feed">
-                                <div id="session-turn-request" data-slot="session-app-turn-section">
-                                    <SessionCard Node="CurrentRequestNode"
-                                                 Initials="RQ"
-                                                 Status="Request"
-                                                 StatusVariant="outline"
-                                                 PageOverlayContainerClass="@PageOverlayContainerClass"
-                                                 AppOverlayContainerClass="@EffectiveAppOverlayContainerClass"
-                                                 HostHandlesPageOverlay="true"
-                                                 Description="Summarize the active session and use any pinned context." />
-                                </div>
-
-                                <div id="session-turn-response" data-slot="session-app-turn-section">
-                                    <SessionCard Node="CurrentResponseNode"
-                                                 Initials="RS"
-                                                 Status="Ready"
-                                                 PageOverlayContainerClass="@PageOverlayContainerClass"
-                                                 AppOverlayContainerClass="@EffectiveAppOverlayContainerClass"
-                                                 HostHandlesPageOverlay="true"
-                                                 Description="@L("ResponseDescription")" />
-                                </div>
-
                                 @foreach (var item in FeedItems)
                                 {
                                     @if (item.Kind == SessionFeedItemKind.Response)
