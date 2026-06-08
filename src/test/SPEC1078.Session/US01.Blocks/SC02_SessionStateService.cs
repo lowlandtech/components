@@ -171,9 +171,9 @@ public class SC02_SessionStateService : ViewScenario
             && entry.Deltas.Any(delta => delta.Kind == "page" && delta.Label == "Active page" && delta.After == "EventLog"));
     }
 
-    [Fact(DisplayName = "UAC39: SessionAppState round-trips through JSON and resumes in memory")]
+    [Fact(DisplayName = "UAC39: SessionBlockState round-trips through JSON and resumes in memory")]
     [Trait(Spec.UAC, "39")]
-    public async Task UAC39_SessionAppStateRoundTripsThroughJsonAndResumesInMemory()
+    public async Task UAC39_SessionBlockStateRoundTripsThroughJsonAndResumesInMemory()
     {
         var sessions = new[]
         {
@@ -195,13 +195,13 @@ public class SC02_SessionStateService : ViewScenario
         service.ShowEventLogPage();
 
         var json = JsonSerializer.Serialize(service.State);
-        var restoredState = JsonSerializer.Deserialize<SessionAppState>(json);
+        var restoredState = JsonSerializer.Deserialize<SessionBlockState>(json);
 
         restoredState.ShouldNotBeNull();
         var resumed = new SessionStateService(restoredState!);
 
         resumed.State.ActiveSessionId.ShouldBe("orders-session");
-        resumed.State.ActivePage.ShouldBe(SessionAppPage.EventLog);
+        resumed.State.ActivePage.ShouldBe(SessionBlockPage.EventLog);
         resumed.State.EventLogEntries.ShouldNotBeEmpty();
         resumed.GetSessionCommands("orders-session").Count.ShouldBe(1);
         resumed.GetSessionCommands("orders-session")[0].Input.ShouldBe("Summarize invoice risk");

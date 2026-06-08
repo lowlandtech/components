@@ -357,7 +357,7 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-slot='session-settings']").ShouldNotBeNull();
         cut.Find("[data-slot='session-settings-api-keys']").ShouldNotBeNull();
         cut.FindAll("[data-slot='session-app-feed']").ShouldBeEmpty();
-        stateService.State.ActivePage.ShouldBe(SessionAppPage.Settings);
+        stateService.State.ActivePage.ShouldBe(SessionBlockPage.Settings);
         stateService.State.EventLogEntries.ShouldContain(entry => entry.ActionType == nameof(SetActiveSession));
         stateService.State.EventLogEntries.ShouldContain(entry => entry.ActionType == nameof(SetSessionInput));
         stateService.State.EventLogEntries.ShouldContain(entry => entry.ActionType == nameof(SubmitSessionCommand));
@@ -405,12 +405,12 @@ public class SC01_SessionBlocks : ViewScenario
 
         cut.Find("[data-testid='session-app-settings-button']").Click();
         cut.Find("[data-slot='session-settings']").ShouldNotBeNull();
-        stateService.State.ActivePage.ShouldBe(SessionAppPage.Settings);
+        stateService.State.ActivePage.ShouldBe(SessionBlockPage.Settings);
 
         cut.Find("[data-testid='session-app-settings-button']").Click();
         cut.FindAll("[data-slot='session-settings']").ShouldBeEmpty();
         cut.Find("[data-slot='session-app-feed']").ShouldNotBeNull();
-        stateService.State.ActivePage.ShouldBe(SessionAppPage.Feed);
+        stateService.State.ActivePage.ShouldBe(SessionBlockPage.Feed);
     }
 
     [Fact(DisplayName = "UAC34c: SessionBlock settings can create and remove API keys")]
@@ -1555,7 +1555,7 @@ public class SC01_SessionBlocks : ViewScenario
 
     [Fact(DisplayName = "UAC32: SessionBlock page overlay is confined to the main page content panel")]
     [Trait(Spec.UAC, "32")]
-    public void UAC32_SessionAppPageOverlayUsesMainContentPanel()
+    public void UAC32_SessionBlockPageOverlayUsesMainContentPanel()
     {
         var pageOverlay = Ctx.Services.GetRequiredService<IPageOverlayService>();
         pageOverlay.Clear();

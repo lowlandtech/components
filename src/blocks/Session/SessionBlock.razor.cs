@@ -54,7 +54,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     private SessionStateService SessionState => StateService ?? (_ownedStateService ??= new SessionStateService(ResolveSessionSurfaceDiscovery()));
 
-    private SessionAppState AppState => SessionState.State;
+    private SessionBlockState AppState => SessionState.State;
 
     protected override void OnInitialized()
     {
@@ -108,9 +108,9 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         || AppOverlayCommand?.IsStreaming == true
         || FeedItems.Any(item => item.Kind == SessionFeedItemKind.Response && item.Command?.IsStreaming == true);
 
-    private bool IsEventLogPage => HasActiveSession && AppState.ActivePage == SessionAppPage.EventLog;
+    private bool IsEventLogPage => HasActiveSession && AppState.ActivePage == SessionBlockPage.EventLog;
 
-    private bool IsSettingsPage => HasActiveSession && AppState.ActivePage == SessionAppPage.Settings;
+    private bool IsSettingsPage => HasActiveSession && AppState.ActivePage == SessionBlockPage.Settings;
 
     private bool IsStandaloneSidebarOpen => !HasSidebar || _isStandaloneSidebarOpen;
 
@@ -594,7 +594,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         _subscribedStateService.StateChanged += OnStateChanged;
     }
 
-    private void OnStateChanged(SessionAppState _) => InvokeAsync(StateHasChanged);
+    private void OnStateChanged(SessionBlockState _) => InvokeAsync(StateHasChanged);
 
     private ISessionSurfaceDiscovery ResolveSessionSurfaceDiscovery() =>
         Services.GetService<ISessionSurfaceDiscovery>() ?? new SessionSurfaceDiscovery([]);

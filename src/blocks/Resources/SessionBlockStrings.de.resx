@@ -61,7 +61,7 @@
   <data name="NoApiKeysYet" xml:space="preserve"><value>Noch keine API-Schlüssel.</value></data>
   <data name="Remove" xml:space="preserve"><value>Entfernen</value></data>
   <data name="Revoked" xml:space="preserve"><value>Widerrufen</value></data>
-  <data name="NoActionsDispatched" xml:space="preserve"><value>Es wurden noch keine SessionApp-Aktionen ausgeführt.</value></data>
+  <data name="NoActionsDispatched" xml:space="preserve"><value>Es wurden noch keine SessionBlock-Aktionen ausgeführt.</value></data>
   <data name="CurrentState" xml:space="preserve"><value>Aktueller Zustand</value></data>
   <data name="InitialState" xml:space="preserve"><value>Anfangszustand</value></data>
   <data name="Projection" xml:space="preserve"><value>Projektion</value></data>

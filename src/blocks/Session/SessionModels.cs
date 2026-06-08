@@ -76,7 +76,7 @@ public sealed record SessionUiState(
     IReadOnlyList<SessionContextPinModel>? ContextPins = null,
     IReadOnlyList<SessionContextBlockModel>? ContextBlocks = null);
 
-public enum SessionAppPage
+public enum SessionBlockPage
 {
     Feed,
     EventLog,
@@ -181,7 +181,7 @@ public sealed record SessionCommandSnapshot(
     bool IsStreaming,
     string? Response);
 
-public sealed record SessionAppStateSnapshot(
+public sealed record SessionBlockStateSnapshot(
     SessionUiStateSnapshot Ui,
     string ActivePage,
     string? ActiveSessionId,
@@ -212,10 +212,10 @@ public interface ISessionSurfaceDiscovery
     SessionSurfaceDescriptor Find(string sessionId);
 }
 
-public sealed record SessionAppState
+public sealed record SessionBlockState
 {
     public SessionUiState Ui { get; init; } = SessionUiDefaults.Empty;
-    public SessionAppPage ActivePage { get; init; } = SessionAppPage.Feed;
+    public SessionBlockPage ActivePage { get; init; } = SessionBlockPage.Feed;
     public IReadOnlyList<SessionEventLogItem> EventLogEntries { get; init; } = [];
     public string? ActiveSessionId { get; init; }
     public string? PendingScrollSectionId { get; init; }
@@ -247,14 +247,14 @@ public static class SessionUiDefaults
     public static SessionUiState Empty { get; } = new("ask", string.Empty, null, []);
 }
 
-public static class SessionAppDefaults
+public static class SessionBlockDefaults
 {
-    public static SessionAppState Empty { get; } = new();
+    public static SessionBlockState Empty { get; } = new();
 }
 
 public abstract record SessionUiAction : ISessionAction;
 
-public abstract record SessionAppAction : ISessionAction;
+public abstract record SessionBlockAction : ISessionAction;
 
 public sealed record SelectSessionNode(SessionNodeInput Node) : SessionUiAction;
 
@@ -276,29 +276,29 @@ public sealed record AddSessionContextBlock(SessionContextBlockModel Block) : Se
 
 public sealed record RemoveSessionContextBlock(string BlockId) : SessionUiAction;
 
-public sealed record RestoreSessionUiState(SessionUiState State) : SessionAppAction;
+public sealed record RestoreSessionUiState(SessionUiState State) : SessionBlockAction;
 
-public sealed record ShowSessionFeedPage : SessionAppAction;
+public sealed record ShowSessionFeedPage : SessionBlockAction;
 
-public sealed record ShowSessionEventLogPage : SessionAppAction;
+public sealed record ShowSessionEventLogPage : SessionBlockAction;
 
-public sealed record ShowSessionSettingsPage : SessionAppAction;
+public sealed record ShowSessionSettingsPage : SessionBlockAction;
 
-public sealed record ClearSessionEventLog : SessionAppAction;
+public sealed record ClearSessionEventLog : SessionBlockAction;
 
-public sealed record SetSessionTabPinned(string NodeId, bool IsPinned) : SessionAppAction;
+public sealed record SetSessionTabPinned(string NodeId, bool IsPinned) : SessionBlockAction;
 
-public sealed record SetSessionBlockMode(string BlockId, string Mode) : SessionAppAction;
+public sealed record SetSessionBlockMode(string BlockId, string Mode) : SessionBlockAction;
 
-public sealed record SetSessionCommandMode(string CommandId, string Mode) : SessionAppAction;
+public sealed record SetSessionCommandMode(string CommandId, string Mode) : SessionBlockAction;
 
-public sealed record SetActiveSession(string? SessionId) : SessionAppAction;
+public sealed record SetActiveSession(string? SessionId) : SessionBlockAction;
 
-public sealed record SetPendingScrollSection(string? SectionId) : SessionAppAction;
+public sealed record SetPendingScrollSection(string? SectionId) : SessionBlockAction;
 
-public sealed record SetOpenSessionNodes(IReadOnlyList<SessionNodeInput> Nodes) : SessionAppAction;
+public sealed record SetOpenSessionNodes(IReadOnlyList<SessionNodeInput> Nodes) : SessionBlockAction;
 
-public sealed record SetPinnedSessionNodes(IReadOnlySet<string> NodeIds) : SessionAppAction;
+public sealed record SetPinnedSessionNodes(IReadOnlySet<string> NodeIds) : SessionBlockAction;
 
 public sealed record SetSessionPresentationState(
     string? MaximizedBlockId,
@@ -306,19 +306,19 @@ public sealed record SetSessionPresentationState(
     string? PageOverlayBlockId,
     string? PageOverlayCommandId,
     string? AppOverlayBlockId,
-    string? AppOverlayCommandId) : SessionAppAction;
+    string? AppOverlayCommandId) : SessionBlockAction;
 
-public sealed record SetFeedSequence(string Key, long Sequence, long NextFeedSequence) : SessionAppAction;
+public sealed record SetFeedSequence(string Key, long Sequence, long NextFeedSequence) : SessionBlockAction;
 
-public sealed record SetBlockModeEntry(string Key, string? Mode) : SessionAppAction;
+public sealed record SetBlockModeEntry(string Key, string? Mode) : SessionBlockAction;
 
-public sealed record SetSessionCommandHistory(string SessionId, IReadOnlyList<SessionCommandSubmitted> Commands) : SessionAppAction;
+public sealed record SetSessionCommandHistory(string SessionId, IReadOnlyList<SessionCommandSubmitted> Commands) : SessionBlockAction;
 
-public sealed record SetStoredSessionState(string SessionId, SessionUiState State) : SessionAppAction;
+public sealed record SetStoredSessionState(string SessionId, SessionUiState State) : SessionBlockAction;
 
-public sealed record PersistSessionCommands(string SessionId) : SessionAppAction;
+public sealed record PersistSessionCommands(string SessionId) : SessionBlockAction;
 
-public sealed record RestoreSessionCommandHistory(string SessionId, IReadOnlyList<SessionCommandSubmitted> Commands) : SessionAppAction;
+public sealed record RestoreSessionCommandHistory(string SessionId, IReadOnlyList<SessionCommandSubmitted> Commands) : SessionBlockAction;
 
 public static class SessionUiReducer
 {
@@ -444,19 +444,19 @@ public static class SessionUiReducer
 
 }
 
-public static class SessionAppReducer
+public static class SessionBlockReducer
 {
     private static readonly JsonSerializerOptions EventLogJsonOptions = new() { WriteIndented = true };
 
-    public static SessionAppState Reduce(SessionAppState state, object action)
+    public static SessionBlockState Reduce(SessionBlockState state, object action)
     {
         var next = action switch
         {
             RestoreSessionUiState restore => RestoreUiState(state, restore),
             SessionUiAction uiAction => state with { Ui = SessionUiReducer.Reduce(state.Ui, uiAction) },
-            ShowSessionFeedPage => state with { ActivePage = SessionAppPage.Feed },
-            ShowSessionEventLogPage => state with { ActivePage = SessionAppPage.EventLog },
-            ShowSessionSettingsPage => state with { ActivePage = SessionAppPage.Settings },
+            ShowSessionFeedPage => state with { ActivePage = SessionBlockPage.Feed },
+            ShowSessionEventLogPage => state with { ActivePage = SessionBlockPage.EventLog },
+            ShowSessionSettingsPage => state with { ActivePage = SessionBlockPage.Settings },
             ClearSessionEventLog => state with { EventLogEntries = [] },
             SetSessionTabPinned => state,
             SetSessionBlockMode => state,
@@ -511,10 +511,10 @@ public static class SessionAppReducer
             : next;
     }
 
-    public static string SerializeEventLogState(SessionAppState state) =>
+    public static string SerializeEventLogState(SessionBlockState state) =>
         JsonSerializer.Serialize(CreateSnapshot(state), EventLogJsonOptions);
 
-    private static SessionAppState RestoreUiState(SessionAppState state, RestoreSessionUiState restore)
+    private static SessionBlockState RestoreUiState(SessionBlockState state, RestoreSessionUiState restore)
     {
         var nextSequence = state.NextFeedSequence;
         var sequences = state.FeedSequenceByItemKey;
@@ -540,7 +540,7 @@ public static class SessionAppReducer
         };
     }
 
-    private static SessionAppState SetCommandHistory(SessionAppState state, string sessionId, IReadOnlyList<SessionCommandSubmitted> commands)
+    private static SessionBlockState SetCommandHistory(SessionBlockState state, string sessionId, IReadOnlyList<SessionCommandSubmitted> commands)
     {
         var nextSequence = state.NextFeedSequence;
         var sequences = state.FeedSequenceByItemKey;
@@ -562,7 +562,7 @@ public static class SessionAppReducer
         };
     }
 
-    private static IReadOnlyList<SessionStateDeltaItem> BuildStateDelta(SessionAppState before, SessionAppState after)
+    private static IReadOnlyList<SessionStateDeltaItem> BuildStateDelta(SessionBlockState before, SessionBlockState after)
     {
         var beforeNode = JsonSerializer.SerializeToNode(CreateSnapshot(before));
         var afterNode = JsonSerializer.SerializeToNode(CreateSnapshot(after));
@@ -642,7 +642,7 @@ public static class SessionAppReducer
         return Regex.Replace(segment, "([a-z])([A-Z])", "$1 $2");
     }
 
-    private static SessionAppStateSnapshot CreateSnapshot(SessionAppState state)
+    private static SessionBlockStateSnapshot CreateSnapshot(SessionBlockState state)
         => new(
             CreateUiSnapshot(state.Ui),
             state.ActivePage.ToString(),

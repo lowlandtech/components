@@ -19,14 +19,14 @@ public sealed class SC07_SessionFeedOrdering : ViewScenario
     [Then("the later command receives a higher feed sequence than the earlier one")]
     public void UAC01_RestoredCommandsReceiveFeedSequences()
     {
-        var state = SessionAppDefaults.Empty;
+        var state = SessionBlockDefaults.Empty;
         var sessionId = "orders-session";
 
         var first = new SessionCommandSubmitted(OrdersNode, "ask", "First") { Id = "cmd-a" };
         var second = new SessionCommandSubmitted(OrdersNode, "ask", "Second") { Id = "cmd-b" };
 
-        state = SessionAppReducer.Reduce(state, new SetActiveSession(sessionId));
-        state = SessionAppReducer.Reduce(state, new RestoreSessionCommandHistory(sessionId, new[] { first, second }));
+        state = SessionBlockReducer.Reduce(state, new SetActiveSession(sessionId));
+        state = SessionBlockReducer.Reduce(state, new RestoreSessionCommandHistory(sessionId, new[] { first, second }));
 
         var firstKey = SessionStateService.GetFeedItemKey(sessionId, "command", first.Id);
         var secondKey = SessionStateService.GetFeedItemKey(sessionId, "command", second.Id);

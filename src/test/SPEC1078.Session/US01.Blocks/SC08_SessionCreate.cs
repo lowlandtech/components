@@ -61,7 +61,7 @@ public sealed class SC08_SessionCreate : ViewScenario
     [Given("an embedded SessionBlock showing the session list")]
     [When("the create button is clicked and the user returns to the list")]
     [Then("the new session appears in the list")]
-    public void UAC04_CreatedSessionAppearsInSidebarList()
+    public void UAC04_CreatedSessionBlockearsInSidebarList()
     {
         var cut = Ctx.Render<SessionBlock>();
 

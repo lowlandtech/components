@@ -2,42 +2,42 @@ namespace LowlandTech.Components;
 
 public sealed class SessionStateService
 {
-    private SessionAppState _state;
+    private SessionBlockState _state;
 
     private static readonly ISessionSurfaceDiscovery DefaultSurfaceDiscovery = new SessionSurfaceDiscovery([]);
 
     private readonly ISessionSurfaceDiscovery _surfaceDiscovery;
-    private readonly List<Func<SessionAppState, object, CancellationToken, Task>> _effects = [];
+    private readonly List<Func<SessionBlockState, object, CancellationToken, Task>> _effects = [];
 
     public SessionStateService()
-        : this(SessionAppDefaults.Empty, null)
+        : this(SessionBlockDefaults.Empty, null)
     {
     }
 
-    public SessionStateService(SessionAppState initialState)
+    public SessionStateService(SessionBlockState initialState)
         : this(initialState, null)
     {
     }
 
     public SessionStateService(ISessionSurfaceDiscovery? surfaceDiscovery)
-        : this(SessionAppDefaults.Empty, surfaceDiscovery)
+        : this(SessionBlockDefaults.Empty, surfaceDiscovery)
     {
     }
 
-    public SessionStateService(SessionAppState initialState, ISessionSurfaceDiscovery? surfaceDiscovery)
+    public SessionStateService(SessionBlockState initialState, ISessionSurfaceDiscovery? surfaceDiscovery)
     {
         _state = initialState;
         _surfaceDiscovery = surfaceDiscovery ?? DefaultSurfaceDiscovery;
     }
 
-    public SessionAppState State => _state;
+    public SessionBlockState State => _state;
 
-    public event Action<SessionAppState>? StateChanged;
+    public event Action<SessionBlockState>? StateChanged;
 
-    public SessionAppState Dispatch(object action)
+    public SessionBlockState Dispatch(object action)
     {
-        var next = SessionAppReducer.Reduce(_state, action);
-        if (EqualityComparer<SessionAppState>.Default.Equals(_state, next))
+        var next = SessionBlockReducer.Reduce(_state, action);
+        if (EqualityComparer<SessionBlockState>.Default.Equals(_state, next))
             return _state;
 
         _state = next;
@@ -45,7 +45,7 @@ public sealed class SessionStateService
         return _state;
     }
 
-    public async Task<SessionAppState> DispatchAsync(object action, CancellationToken ct = default)
+    public async Task<SessionBlockState> DispatchAsync(object action, CancellationToken ct = default)
     {
         var state = Dispatch(action);
         foreach (var effect in _effects)
@@ -62,12 +62,12 @@ public sealed class SessionStateService
         return state;
     }
 
-    public void RegisterEffect(Func<SessionAppState, object, CancellationToken, Task> effect)
+    public void RegisterEffect(Func<SessionBlockState, object, CancellationToken, Task> effect)
         => _effects.Add(effect);
 
-    public void Reset(SessionAppState? state = null)
+    public void Reset(SessionBlockState? state = null)
     {
-        _state = state ?? SessionAppDefaults.Empty;
+        _state = state ?? SessionBlockDefaults.Empty;
         StateChanged?.Invoke(_state);
     }
 
@@ -336,7 +336,7 @@ public sealed class SessionStateService
 
     public void ClearEventLog() => Dispatch(new ClearSessionEventLog());
 
-    public string GetCurrentEventLogStateJson() => SessionAppReducer.SerializeEventLogState(_state);
+    public string GetCurrentEventLogStateJson() => SessionBlockReducer.SerializeEventLogState(_state);
 
     public string GetInitialEventLogStateJson() => _state.EventLogEntries.FirstOrDefault()?.BeforeStateJson ?? GetCurrentEventLogStateJson();
 
