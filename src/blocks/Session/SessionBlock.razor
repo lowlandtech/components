@@ -124,7 +124,7 @@
             <ResizablePanel DefaultSize="100" MinSize="35" Id="session-app-main-panel" class="h-full">
                 <SidebarInset class="h-full min-h-0 overflow-hidden bg-background">
                     <main class="relative flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden"
-                          style="padding:10px 6px 10px @(IsStandaloneSidebarOpen ? "6px" : "10px");"
+                          style="@GetMainContentStyle(IsStandaloneSidebarOpen)"
                           data-slot="session-app-main-content">
                         @if (IsSettingsPage)
                         {
@@ -332,12 +332,12 @@
                 <aside class="flex h-full min-h-0 min-w-0 w-full flex-col overflow-hidden border-l border-border bg-sidebar/40"
                       data-slot="session-app-right-sidebar"
                       data-testid="session-app-right-sidebar">
-                    <div data-slot="session-app-right-sidebar-body"
-                         class="flex h-full min-h-0 min-w-0 w-full flex-1 flex-col"
-                         style="padding:10px;">
-                        <section class="flex min-h-0 min-w-0 w-full flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background">
-                            <header class="flex h-10 shrink-0 items-center gap-2 border-b border-border px-3">
-                                <span class="text-xs font-semibold">@L("Sections")</span>
+                     <div data-slot="session-app-right-sidebar-body"
+                          class="flex h-full min-h-0 min-w-0 w-full flex-1 flex-col"
+                          style="@GetRightSidebarBodyStyle()">
+                         <section class="flex min-h-0 min-w-0 w-full flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background">
+                             <header class="flex h-10 shrink-0 items-center gap-2 border-b border-border px-3">
+                                 <span class="text-xs font-semibold">@L("Sections")</span>
                                 <span class="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground"
                                       data-testid="session-app-sections-count">
                                     @VisibleSections.Count
@@ -429,7 +429,7 @@
             }
             <ResizablePanel DefaultSize="@(HasActiveSession ? 84 : 60)" MinSize="35" Id="session-app-main-panel" class="h-full">
                 <main class="relative flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden"
-                      style="padding:10px 6px 10px @(!HasActiveSession ? "6px" : "10px");"
+                      style="@GetMainContentStyle(!HasActiveSession)"
                       data-slot="session-app-main-content">
                     <SessionContent State="ViewState"
                                     OpenNodes="ViewState.OpenNodes"
@@ -607,12 +607,12 @@
             </ResizablePanel>
             <ResizableHandle WithHandle="true" RevealOnHover="true" class="z-10" />
             <ResizablePanel DefaultSize="16" MinSize="12" MaxSize="100" Id="session-app-sections-panel" class="h-full">
-                <aside class="flex h-full min-h-0 min-w-0 w-full flex-col overflow-hidden border-l border-border bg-sidebar/40"
+                <aside class="@GetRightSidebarClass()"
                       data-slot="session-app-right-sidebar"
                       data-testid="session-app-right-sidebar">
                     <div data-slot="session-app-right-sidebar-body"
                          class="flex h-full min-h-0 min-w-0 w-full flex-1 flex-col"
-                         style="padding:10px;">
+                         style="@GetRightSidebarBodyStyle()">
                         <section class="flex min-h-0 min-w-0 w-full flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background">
                         <header class="flex h-10 shrink-0 items-center gap-2 border-b border-border px-3">
                             <span class="text-xs font-semibold">Sections</span>
