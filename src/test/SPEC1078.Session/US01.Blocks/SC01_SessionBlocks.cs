@@ -212,6 +212,22 @@ public class SC01_SessionBlocks : ViewScenario
         selected.Node.Id.ShouldBe("support");
     }
 
+    [Fact(DisplayName = "UAC06b: SessionContent reserves a stable scrollbar gutter without duplicate padding")]
+    [Trait(Spec.UAC, "06b")]
+    [Given("SessionContent has an open session and its parent shell already provides content spacing")]
+    [When("the scrollable session content body is rendered")]
+    [Then("the body reserves only the stable scrollbar gutter and adds no padding")]
+    public void UAC06b_SessionContentUsesOnlyStableScrollbarGutter()
+    {
+        var cut = Ctx.Render<SessionContent>(p => p
+            .Add(x => x.OpenNodes, [OrdersNode])
+            .Add(x => x.SelectedNode, OrdersNode));
+
+        var style = cut.Find("[data-slot='session-content-body']").GetAttribute("style");
+
+        style.ShouldBe("scrollbar-gutter: stable;");
+    }
+
     [Fact(DisplayName = "UAC07: SessionCommandBar replaces send icon with loader while busy")]
     [Trait(Spec.UAC, "07")]
     public void UAC07_CommandBarShowsBusyLoader()
@@ -1160,6 +1176,9 @@ public class SC01_SessionBlocks : ViewScenario
 
     [Fact(DisplayName = "UAC30: SessionBlock HasSidebar uses the Sidebar shell")]
     [Trait(Spec.UAC, "30")]
+    [Given("a standalone SessionBlock with its sidebar enabled")]
+    [When("a session is selected in the sidebar")]
+    [Then("the standalone shell uses the expected sidebar and resizable panel composition")]
     public void UAC30_SessionBlockHasSidebarUsesSidebarShell()
     {
         var embedded = Ctx.Render<SessionBlock>();
@@ -1213,9 +1232,7 @@ public class SC01_SessionBlocks : ViewScenario
         standalone.Find("[data-testid='session-app-right-sidebar']").ShouldNotBeNull();
 
         standalone.Find("[data-node-id='orders-session']").Click();
-        var sessionBodyStyle = standalone.Find("[data-slot='session-content-body']").GetAttribute("style");
-        sessionBodyStyle.ShouldNotBeNull();
-        sessionBodyStyle.ShouldContain("padding:10px");
+        standalone.Find("[data-slot='session-content-body']").ShouldNotBeNull();
     }
 
     [Fact(DisplayName = "UAC30b: SessionBlock standalone sidebars keep full panel stretch classes")]
