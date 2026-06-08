@@ -218,15 +218,20 @@ public sealed class SessionStateService
 
         if (stream is null)
         {
-            await service.ExecuteAsync(context);
-            if (!string.IsNullOrWhiteSpace(context.Response))
-                command = command with { Response = context.Response };
-
-            EnsureFeedSequence(GetFeedItemKey(sessionId, "command", command.Id));
-            SetCommandHistory(sessionId, GetSessionCommands(sessionId).Append(command).ToList());
-            MoveProjectedBlockToEnd(sessionId);
-            Dispatch(new SetPendingScrollSection(GetCommandTurnId(command)));
-            await DispatchAsync(new PersistSessionCommands(sessionId), CancellationToken.None);
+            try
+            {
+                await service.ExecuteAsync(context);
+                if (!string.IsNullOrWhiteSpace(context.Response))
+                    command = command with { Response = context.Response };
+            }
+            finally
+            {
+                EnsureFeedSequence(GetFeedItemKey(sessionId, "command", command.Id));
+                SetCommandHistory(sessionId, GetSessionCommands(sessionId).Append(command).ToList());
+                MoveProjectedBlockToEnd(sessionId);
+                Dispatch(new SetPendingScrollSection(GetCommandTurnId(command)));
+                await DispatchAsync(new PersistSessionCommands(sessionId), CancellationToken.None);
+            }
             return;
         }
 
@@ -237,14 +242,19 @@ public sealed class SessionStateService
         Dispatch(new SetPendingScrollSection(GetCommandTurnId(streamingCommand)));
 
         var response = string.Empty;
-        await foreach (var chunk in stream)
+        try
         {
-            response += chunk;
-            UpdateCommand(sessionId, streamingCommand.Id, existing => existing with { Response = response, IsStreaming = true });
+            await foreach (var chunk in stream)
+            {
+                response += chunk;
+                UpdateCommand(sessionId, streamingCommand.Id, existing => existing with { Response = response, IsStreaming = true });
+            }
         }
-
-        UpdateCommand(sessionId, streamingCommand.Id, existing => existing with { Response = response, IsStreaming = false });
-        await DispatchAsync(new PersistSessionCommands(sessionId), CancellationToken.None);
+        finally
+        {
+            UpdateCommand(sessionId, streamingCommand.Id, existing => existing with { Response = response, IsStreaming = false });
+            await DispatchAsync(new PersistSessionCommands(sessionId), CancellationToken.None);
+        }
     }
 
     public void UnpinBlock(SessionContextBlockModel block)
