@@ -1,0 +1,19 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Session
+
+<div class="min-h-80 bg-background p-6">
+    <SessionCommandBar SelectedNode="_node"
+                       Value="_value"
+                       ValueChanged="value => _value = value"
+                       CompletionSelectionChanged="selection => _selection = selection"
+                       Placeholder="Type /providers or /models..." />
+
+    <p class="mt-4 text-xs text-muted-foreground">
+        Active: @_selection.ProviderKey / @_selection.ModelKey
+    </p>
+</div>
+
+@code {
+    private readonly SessionNodeInput _node = new("orders", "session", "Orders");
+    private string _value = "/providers";
+    private SessionCompletionSelection _selection = new("ollama", "google/gemma-4-26b-a4b");
+}

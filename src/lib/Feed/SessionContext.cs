@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace LowlandTech.Components;
 
 /// <summary>
@@ -50,6 +48,8 @@ public sealed class SessionContext
     /// </summary>
     public string? Input { get; set; }
 
+    public SessionCompletionSelection? Completion { get; set; }
+
     public List<Dictionary<string, string>> ToAgentContext()
         => _entries.Values
             .Select(entry => new Dictionary<string, string>
@@ -62,3 +62,16 @@ public sealed class SessionContext
 }
 
 public sealed record SessionContextEntry(Guid BlockId, string BlockType, JsonElement Entity);
+
+public sealed record SessionProviderModelOption(string Key, string Label);
+
+public sealed record SessionProviderOption(
+    string Key,
+    string Label,
+    IReadOnlyList<SessionProviderModelOption> Models,
+    bool RequiresApiKey = false);
+
+public sealed record SessionCompletionSelection(
+    string ProviderKey,
+    string ModelKey,
+    string? ApiKey = null);

@@ -2,6 +2,77 @@
 @inherits TinyComponentBase
 
 <div data-slot="session-command-bar" class="@GetClass()" @attributes="AdditionalAttributes">
+    @if (_activeSlashCommand is not null)
+    {
+        <div class="absolute bottom-full left-0 z-50 mb-2 w-full overflow-hidden rounded-lg border border-border bg-popover text-popover-foreground shadow-lg"
+             data-slot="session-command-menu"
+             data-command="@_activeSlashCommand">
+            @if (_activeSlashCommand == ProvidersCommand)
+            {
+                <div class="border-b border-border px-3 py-2 text-xs font-medium text-muted-foreground">/providers</div>
+                <div class="max-h-64 overflow-y-auto p-1">
+                    @foreach (var provider in ProviderOptions)
+                    {
+                        <button type="button"
+                                class="@GetPickerItemClass(provider.Key == _selection.ProviderKey)"
+                                data-slot="session-provider-option"
+                                data-provider="@provider.Key"
+                                @onclick="() => SelectProviderAsync(provider)">
+                            <span>@provider.Label</span>
+                            @if (provider.Key == _selection.ProviderKey)
+                            {
+                                <span class="text-xs text-primary">Active</span>
+                            }
+                        </button>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="border-b border-border px-3 py-2">
+                    <div class="text-xs font-medium text-muted-foreground">/models</div>
+                    <div class="mt-0.5 text-xs">@ActiveProvider.Label</div>
+                </div>
+                <div class="max-h-56 overflow-y-auto p-1">
+                    @foreach (var model in ActiveProvider.Models)
+                    {
+                        <button type="button"
+                                class="@GetPickerItemClass(model.Key == _selection.ModelKey)"
+                                data-slot="session-model-option"
+                                data-model="@model.Key"
+                                @onclick="() => SelectModelAsync(model)">
+                            <span>@model.Label</span>
+                            @if (model.Key == _selection.ModelKey)
+                            {
+                                <span class="text-xs text-primary">Active</span>
+                            }
+                        </button>
+                    }
+                </div>
+                @if (ActiveProvider.RequiresApiKey)
+                {
+                    <div class="border-t border-border p-2">
+                        <label class="mb-1 block text-xs text-muted-foreground" for="session-provider-api-key">API key</label>
+                        <input id="session-provider-api-key"
+                               type="password"
+                               autocomplete="off"
+                               value="@_draftApiKey"
+                               placeholder="Paste API key"
+                               data-slot="session-provider-api-key"
+                               class="h-8 w-full rounded-md border border-input bg-background px-2 text-xs outline-none focus:ring-1 focus:ring-ring"
+                               @oninput="HandleApiKeyInput" />
+                        <button type="button"
+                                class="mt-2 h-8 w-full rounded-md bg-primary px-3 text-xs font-medium text-primary-foreground"
+                                data-slot="session-provider-api-key-save"
+                                @onclick="SaveApiKeyAsync">
+                            Save key
+                        </button>
+                    </div>
+                }
+            }
+        </div>
+    }
+
     @if (SelectedNode is not null)
     {
         <div class="session-command-bar-context flex items-center gap-1.5 px-2 pt-2 text-xs" data-testid="session-command-context">
@@ -23,7 +94,7 @@
               @onkeydown="HandleKeyDown"></textarea>
 
     <div class="flex items-center justify-between gap-2 px-2 pb-2 pt-1">
-        <div class="flex flex-wrap items-center gap-1" data-testid="session-agent-types">
+        <div class="flex min-w-0 flex-wrap items-center gap-1" data-testid="session-agent-types">
             @foreach (var agent in AgentTypes)
             {
                 var isActive = string.Equals(agent.Key, ActiveAgentTypeKey, StringComparison.OrdinalIgnoreCase);
@@ -38,6 +109,15 @@
                     @agent.Label
                 </button>
             }
+            <button type="button"
+                    class="inline-flex h-8 max-w-48 items-center gap-1 truncate rounded-md border border-border px-2 text-xs text-muted-foreground hover:bg-muted"
+                    data-slot="session-completion-selection"
+                    title="@($"{ActiveProvider.Label} / {ActiveModel.Label}")"
+                    @onclick="OpenModelsAsync">
+                <span class="truncate">@ActiveProvider.Label</span>
+                <span>/</span>
+                <span class="truncate">@ActiveModel.Label</span>
+            </button>
         </div>
 
         <button type="button"

@@ -2,6 +2,9 @@ namespace LowlandTech.Components;
 
 public partial class SessionCommandBar : TinyComponentBase
 {
+    private const string ProvidersCommand = "providers";
+    private const string ModelsCommand = "models";
+
     [Inject] private IJSRuntime JS { get; set; } = default!;
 
     [Parameter] public SessionUiState State { get; set; } = SessionUiDefaults.Empty;
@@ -18,8 +21,42 @@ public partial class SessionCommandBar : TinyComponentBase
     [Parameter] public bool IsBusy { get; set; }
     [Parameter] public EventCallback<SessionAgentTypeSelected> OnAgentTypeSelected { get; set; }
     [Parameter] public EventCallback<SessionCommandSubmitted> OnSubmit { get; set; }
+    [Parameter] public IReadOnlyList<SessionProviderOption> ProviderOptions { get; set; } = DefaultProviderOptions;
+    [Parameter] public SessionCompletionSelection? CompletionSelection { get; set; }
+    [Parameter] public EventCallback<SessionCompletionSelection> CompletionSelectionChanged { get; set; }
+    [Parameter] public string CompletionPersistKey { get; set; } = "session-command-bar:completion";
+
+    private static readonly IReadOnlyList<SessionProviderOption> DefaultProviderOptions =
+    [
+        new(
+            "kimi",
+            "Kimi",
+            [
+                new("kimi-k2.5", "Kimi K2.5"),
+                new("kimi-k2-thinking", "Kimi K2 Thinking")
+            ],
+            RequiresApiKey: true),
+        new(
+            "ollama",
+            "Ollama",
+            [
+                new("google/gemma-4-26b-a4b", "Gemma 4 26B"),
+                new("qwen3-coder", "Qwen3 Coder")
+            ])
+    ];
+
+    private SessionCompletionSelection _selection = new("ollama", "google/gemma-4-26b-a4b");
+    private string? _activeSlashCommand;
+    private string _draftApiKey = string.Empty;
+    private bool _completionHydrated;
 
     private string CurrentInput => Value is not null ? Value : State.Input;
+    private SessionProviderOption ActiveProvider =>
+        ProviderOptions.FirstOrDefault(option => option.Key == _selection.ProviderKey)
+        ?? ProviderOptions.First();
+    private SessionProviderModelOption ActiveModel =>
+        ActiveProvider.Models.FirstOrDefault(option => option.Key == _selection.ModelKey)
+        ?? ActiveProvider.Models.First();
 
     protected override void OnParametersSet()
     {
@@ -27,14 +64,21 @@ public partial class SessionCommandBar : TinyComponentBase
         Value ??= State.Input;
         if (string.IsNullOrWhiteSpace(ActiveAgentTypeKey))
             ActiveAgentTypeKey = State.ActiveAgentTypeKey;
+        if (CompletionSelection is not null && CompletionSelection != _selection)
+        {
+            _selection = NormalizeSelection(CompletionSelection);
+            _draftApiKey = _selection.ApiKey ?? string.Empty;
+        }
+        _activeSlashCommand ??= ParseSlashCommand(CurrentInput);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender)
-            return;
-
-        await InstallEnterSubmitHandlerAsync();
+        if (firstRender)
+        {
+            await InstallEnterSubmitHandlerAsync();
+            await HydrateCompletionAsync();
+        }
     }
 
     private string GetClass()
@@ -57,6 +101,7 @@ public partial class SessionCommandBar : TinyComponentBase
     private async Task HandleInput(ChangeEventArgs e)
     {
         var nextValue = e.Value?.ToString() ?? string.Empty;
+        _activeSlashCommand = ParseSlashCommand(nextValue);
         Value = nextValue;
         await ValueChanged.InvokeAsync(nextValue);
 
@@ -104,12 +149,18 @@ public partial class SessionCommandBar : TinyComponentBase
         var input = CurrentInput;
         if (Disabled || IsBusy || SelectedNode is null || string.IsNullOrWhiteSpace(input))
             return;
+        if (ParseSlashCommand(input) is not null)
+            return;
 
         var agent = AgentTypes.FirstOrDefault(candidate => string.Equals(candidate.Key, ActiveAgentTypeKey, StringComparison.OrdinalIgnoreCase));
         if (agent?.Disabled == true)
             return;
 
-        var submitted = new SessionCommandSubmitted(SelectedNode, ActiveAgentTypeKey, input);
+        var submitted = new SessionCommandSubmitted(
+            SelectedNode,
+            ActiveAgentTypeKey,
+            input,
+            Completion: _selection);
         Value = string.Empty;
 
         await ValueChanged.InvokeAsync(Value);
@@ -130,6 +181,123 @@ public partial class SessionCommandBar : TinyComponentBase
             await agent.OnSubmit.InvokeAsync(submitted);
         await OnSubmit.InvokeAsync(submitted);
     }
+
+    private Task OpenModelsAsync()
+    {
+        _activeSlashCommand = ModelsCommand;
+        return InvokeAsync(StateHasChanged);
+    }
+
+    private async Task SelectProviderAsync(SessionProviderOption provider)
+    {
+        var model = provider.Models.First();
+        _selection = new SessionCompletionSelection(
+            provider.Key,
+            model.Key,
+            provider.RequiresApiKey ? _selection.ApiKey : null);
+        _draftApiKey = _selection.ApiKey ?? string.Empty;
+        _activeSlashCommand = ModelsCommand;
+        await PublishCompletionSelectionAsync();
+    }
+
+    private async Task SelectModelAsync(SessionProviderModelOption model)
+    {
+        _selection = _selection with { ModelKey = model.Key };
+        _activeSlashCommand = null;
+        Value = string.Empty;
+        await ValueChanged.InvokeAsync(Value);
+        await PublishCompletionSelectionAsync();
+    }
+
+    private Task HandleApiKeyInput(ChangeEventArgs e)
+    {
+        _draftApiKey = e.Value?.ToString() ?? string.Empty;
+        return Task.CompletedTask;
+    }
+
+    private async Task SaveApiKeyAsync()
+    {
+        _selection = _selection with { ApiKey = _draftApiKey.Trim() };
+        _activeSlashCommand = null;
+        Value = string.Empty;
+        await ValueChanged.InvokeAsync(Value);
+        await PublishCompletionSelectionAsync();
+    }
+
+    private async Task PublishCompletionSelectionAsync()
+    {
+        await CompletionSelectionChanged.InvokeAsync(_selection);
+        try
+        {
+            await JS.InvokeVoidAsync(
+                "localStorage.setItem",
+                CompletionPersistKey,
+                JsonSerializer.Serialize(_selection));
+        }
+        catch (InvalidOperationException)
+        {
+        }
+        catch (JSException)
+        {
+        }
+    }
+
+    private async Task HydrateCompletionAsync()
+    {
+        if (_completionHydrated || CompletionSelection is not null)
+            return;
+
+        _completionHydrated = true;
+        try
+        {
+            var json = await JS.InvokeAsync<string?>("localStorage.getItem", CompletionPersistKey);
+            if (string.IsNullOrWhiteSpace(json))
+                return;
+
+            var stored = JsonSerializer.Deserialize<SessionCompletionSelection>(json);
+            if (stored is null)
+                return;
+
+            _selection = NormalizeSelection(stored);
+            _draftApiKey = _selection.ApiKey ?? string.Empty;
+            await CompletionSelectionChanged.InvokeAsync(_selection);
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (InvalidOperationException)
+        {
+        }
+        catch (JSException)
+        {
+        }
+        catch (JsonException)
+        {
+        }
+    }
+
+    private SessionCompletionSelection NormalizeSelection(SessionCompletionSelection selection)
+    {
+        var provider = ProviderOptions.FirstOrDefault(option =>
+            string.Equals(option.Key, selection.ProviderKey, StringComparison.OrdinalIgnoreCase))
+            ?? ProviderOptions.First();
+        var model = provider.Models.FirstOrDefault(option =>
+            string.Equals(option.Key, selection.ModelKey, StringComparison.OrdinalIgnoreCase))
+            ?? provider.Models.First();
+        return new SessionCompletionSelection(provider.Key, model.Key, selection.ApiKey);
+    }
+
+    private static string? ParseSlashCommand(string value)
+    {
+        var command = value.Trim().ToLowerInvariant();
+        return command switch
+        {
+            "/providers" => ProvidersCommand,
+            "/models" => ModelsCommand,
+            _ => null
+        };
+    }
+
+    private static string GetPickerItemClass(bool active) =>
+        $"flex h-9 w-full items-center justify-between rounded-md px-2 text-left text-sm hover:bg-accent {(active ? "bg-accent" : string.Empty)}";
 
     private async Task ResetInputElementAsync()
     {

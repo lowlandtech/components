@@ -663,7 +663,12 @@ public sealed record SessionNodeSelected(SessionNodeInput Node) : SessionUiEvent
 
 public sealed record SessionAgentTypeSelected(SessionNodeInput Node, string AgentTypeKey) : SessionUiEvent(Node);
 
-public sealed record SessionCommandSubmitted(SessionNodeInput Node, string AgentTypeKey, string Input, string? Response = null) : SessionUiEvent(Node)
+public sealed record SessionCommandSubmitted(
+    SessionNodeInput Node,
+    string AgentTypeKey,
+    string Input,
+    string? Response = null,
+    SessionCompletionSelection? Completion = null) : SessionUiEvent(Node)
 {
     public string Id { get; init; } = $"session-command:{Guid.NewGuid():N}";
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;

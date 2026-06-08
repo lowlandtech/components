@@ -174,7 +174,11 @@ public sealed class SessionStateService
             return;
         }
 
-        var context = new SessionContext { Input = command.Input };
+        var context = new SessionContext
+        {
+            Input = command.Input,
+            Completion = command.Completion
+        };
 
         // Prefer streaming when the agent supports it. The default interface
         // implementation throws NotSupportedException; catch it at the call site
