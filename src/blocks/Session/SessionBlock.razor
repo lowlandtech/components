@@ -17,7 +17,7 @@
                             {
                                 <SidebarHeader>
                                     <div class="flex items-center justify-between gap-2">
-                                        <SidebarBrand LogoSrc="_content/LowlandTech.Components/img/session-app-logo.svg" LogoAlt="SessionBlock" Title="SessionBlock" />
+                                        <SidebarBrand LogoSrc="_content/LowlandTech.Components/img/session-app-logo.svg" LogoAlt="@L("Title")" Title="@L("Title")" />
                                         <SidebarTrigger data-testid="session-app-sidebar-close" class="border border-border text-muted-foreground hover:bg-muted hover:text-foreground">
                                             <Icon Name="panel-left-close" Size="14" />
                                         </SidebarTrigger>
@@ -30,14 +30,14 @@
                                                 <SidebarMenuItem>
                                                     <SidebarMenuButton class="text-xs" @onclick="ShowSessionsAsync">
                                                         <Icon Name="arrow-left" Size="14" />
-                                                        <span class="sidebar-menu-text">All sessions</span>
+                                                        <span class="sidebar-menu-text">@L("AllSessions")</span>
                                                     </SidebarMenuButton>
                                                 </SidebarMenuItem>
                                             </SidebarMenu>
                                         </SidebarGroupContent>
                                     </SidebarGroup>
                                     <SidebarGroup class="min-h-0 w-full flex-1">
-                                        <SidebarGroupLabel>Context</SidebarGroupLabel>
+                                        <SidebarGroupLabel>@L("Context")</SidebarGroupLabel>
                                         <SidebarGroupContent class="min-h-0 w-full flex-1 overflow-hidden">
                                             <SessionContextExplorer RootNodes="ContextNodes"
                                                                     State="ViewState"
@@ -64,7 +64,7 @@
                             {
                                 <SidebarHeader>
                                     <div class="flex items-center justify-between gap-2">
-                                        <SidebarBrand LogoSrc="_content/LowlandTech.Components/img/session-app-logo.svg" LogoAlt="SessionBlock" Title="SessionBlock" />
+                                        <SidebarBrand LogoSrc="_content/LowlandTech.Components/img/session-app-logo.svg" LogoAlt="@L("Title")" Title="@L("Title")" />
                                         <SidebarTrigger data-testid="session-app-sidebar-close" class="border border-border text-muted-foreground hover:bg-muted hover:text-foreground">
                                             <Icon Name="panel-left-close" Size="14" />
                                         </SidebarTrigger>
@@ -72,12 +72,12 @@
                                 </SidebarHeader>
                                 <SidebarContent class="min-h-0 w-full flex-1">
                                     <SidebarGroup class="min-h-0 w-full flex-1">
-                                        <SidebarGroupLabel>Sessions</SidebarGroupLabel>
+                                        <SidebarGroupLabel>@L("Sessions")</SidebarGroupLabel>
                                         <SidebarGroupContent class="min-h-0 w-full flex-1 overflow-hidden">
                                             @if (DisplaySessions.Count == 0)
                                             {
                                                 <div class="px-2 py-3 text-xs text-muted-foreground" data-slot="session-list-empty">
-                                                    No sessions yet
+                                                    @L("NoSessionsYet")
                                                 </div>
                                             }
                                             else
@@ -108,10 +108,10 @@
                                 <SidebarFooter>
                                     <div data-slot="session-app-sidebar-footer-summary"
                                          class="sidebar-menu-text grid h-7 w-full grid-cols-2 items-center px-2 text-xs text-muted-foreground">
-                                        <span data-slot="session-app-sidebar-footer-page"
-                                              class="w-full text-left">Page 1 / 1</span>
+<span data-slot="session-app-sidebar-footer-page"
+                                              class="w-full text-left">@L("PageLabel") 1 / 1</span>
                                         <span data-slot="session-app-sidebar-footer-rows"
-                                              class="w-full text-right">Rows 10</span>
+                                              class="w-full text-right">@L("RowsLabel") 10</span>
                                     </div>
                                 </SidebarFooter>
                             }
@@ -208,18 +208,18 @@
                                     <div id="session-turn-request" data-slot="session-app-turn-section">
                                         <SessionCard Node="CurrentRequestNode"
                                                      Initials="RQ"
-                                                     Status="Request"
+                                                     Status="@L("RequestStatus")"
                                                      StatusVariant="outline"
                                                      PageOverlayContainerClass="@PageOverlayContainerClass"
                                                      AppOverlayContainerClass="@EffectiveAppOverlayContainerClass"
                                                      HostHandlesPageOverlay="true"
-                                                     Description="Summarize the active session and use any pinned context." />
-                                    </div>
+                                                     Description="@L("RequestDescription")" />
+                                </div>
 
-                                    <div id="session-turn-response" data-slot="session-app-turn-section">
-                                        <SessionCard Node="CurrentResponseNode"
-                                                     Initials="RS"
-                                                     Status="Ready"
+                                <div id="session-turn-response" data-slot="session-app-turn-section">
+                                    <SessionCard Node="CurrentResponseNode"
+                                                 Initials="RS"
+                                                 Status="@L("ReadyStatus")"
                                                      PageOverlayContainerClass="@PageOverlayContainerClass"
                                                      AppOverlayContainerClass="@EffectiveAppOverlayContainerClass"
                                                      HostHandlesPageOverlay="true"
@@ -332,7 +332,7 @@
                          style="padding:10px;">
                         <section class="flex min-h-0 min-w-0 w-full flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background">
                             <header class="flex h-10 shrink-0 items-center gap-2 border-b border-border px-3">
-                                <span class="text-xs font-semibold">Sections</span>
+                                <span class="text-xs font-semibold">@L("Sections")</span>
                                 <span class="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground"
                                       data-testid="session-app-sections-count">
                                     @VisibleSections.Count
@@ -387,10 +387,10 @@
                                             data-slot="session-app-sidebar-back"
                                             class="inline-flex h-7 items-center rounded-md border border-border pl-1 pr-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                                             @onclick="ShowSessionsAsync">
-                                        Back
+                                        @L("Back")
                                     </button>
                                     <p class="min-w-0 flex-1 truncate text-xs">
-                                        <span class="font-semibold">Context:</span>
+                                        <span class="font-semibold">@L("ContextLabel")</span>
                                         <span class="ml-1 text-muted-foreground">@CurrentSessionNode?.Label</span>
                                     </p>
                                 </header>
@@ -498,7 +498,7 @@
                                                  PageOverlayContainerClass="@PageOverlayContainerClass"
                                                  AppOverlayContainerClass="@EffectiveAppOverlayContainerClass"
                                                  HostHandlesPageOverlay="true"
-                                                 Description="Pinned context blocks will be included in the assistant context window without creating turns." />
+                                                 Description="@L("ResponseDescription")" />
                                 </div>
 
                                 @foreach (var item in FeedItems)
@@ -616,7 +616,7 @@
                             @if (VisibleSections.Count == 0)
                             {
                                 <div class="px-3 py-3 text-xs text-muted-foreground">
-                                    No sections
+                                    @L("NoSections")
                                 </div>
                             }
                             else

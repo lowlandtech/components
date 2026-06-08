@@ -1659,4 +1659,46 @@ public class SC01_SessionBlocks : ViewScenario
 
     private static string FindSessionCount(IRenderedComponent<SessionBlock> cut, string sessionId) =>
         cut.Find($"[data-testid='session-list-item-count'][data-node-id='{sessionId}']").TextContent.Trim();
+
+    [Fact(DisplayName = "UAC31: SessionBlock renders localized strings in English by default")]
+    [Trait(Spec.UAC, "31")]
+    [Given("a SessionBlock with default language settings")]
+    [When("the component renders")]
+    [Then("user-facing strings appear in English")]
+    public void UAC31_SessionBlockRendersEnglishByDefault()
+    {
+        var cut = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
+
+        cut.Find("[data-slot='session-list-empty']").TextContent.Trim().ShouldBe("No sessions yet");
+        cut.Find("[data-slot='session-app-right-sidebar']").TextContent.ShouldContain("Sections");
+    }
+
+    [Fact(DisplayName = "UAC32: SessionBlock renders localized strings in Dutch when Language is set to nl")]
+    [Trait(Spec.UAC, "32")]
+    [Given("a SessionBlock with Language parameter set to nl")]
+    [When("the component renders")]
+    [Then("user-facing strings appear in Dutch")]
+    public void UAC32_SessionBlockRendersDutchWhenLanguageIsNl()
+    {
+        var originalCulture = System.Globalization.CultureInfo.CurrentCulture;
+        var originalUiCulture = System.Globalization.CultureInfo.CurrentUICulture;
+        try
+        {
+            var dutchCulture = new System.Globalization.CultureInfo("nl");
+            System.Globalization.CultureInfo.CurrentCulture = dutchCulture;
+            System.Globalization.CultureInfo.CurrentUICulture = dutchCulture;
+
+            var cut = Ctx.Render<SessionBlock>(p => p
+                .Add(x => x.HasSidebar, true)
+                .Add(x => x.Language, "nl"));
+
+            cut.Find("[data-slot='session-list-empty']").TextContent.Trim().ShouldBe("Nog geen sessies");
+            cut.Find("[data-slot='session-app-right-sidebar']").TextContent.ShouldContain("Secties");
+        }
+        finally
+        {
+            System.Globalization.CultureInfo.CurrentCulture = originalCulture;
+            System.Globalization.CultureInfo.CurrentUICulture = originalUiCulture;
+        }
+    }
 }

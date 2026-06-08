@@ -10,6 +10,7 @@
     <Authors>LowlandTech</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>Reusable UI block library for the Foundry platform.</Description>
+    <EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +19,13 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="10.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\**\*.resx">
+      <LogicalName>$(AssemblyName).$([System.String]::Copy('%(RelativeDir)%(Filename)').Replace('\', '.').Replace('/', '.')).resources</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
