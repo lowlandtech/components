@@ -82,4 +82,27 @@ public sealed class SC04_SessionMarkdown : ViewScenario
             .ShouldBe(2);
         cut.Find("pre code.language-csharp").TextContent.ShouldContain("second");
     }
+
+    [Fact(DisplayName = "UAC04: Session response Markdown renders semantic HTML while streaming")]
+    [Trait(Spec.UAC, "04")]
+    [Given("a streaming session response containing a Markdown heading")]
+    [When("the SessionMarkdown surface renders with IsStreaming=true")]
+    [Then("the heading is rendered as semantic HTML and highlightCode is not invoked")]
+    public void UAC04_RendersSemanticMarkdownWhileStreaming()
+    {
+        var cut = Ctx.Render<SessionMarkdown>(parameters => parameters
+            .Add(component => component.Value, "## Streaming heading")
+            .Add(component => component.IsStreaming, true)
+            .AddUnmatched("data-slot", "session-turn-response-text")
+            .AddUnmatched("data-streaming", "true"));
+
+        cut.Find("h2").TextContent.ShouldBe("Streaming heading");
+        cut.FindAll("pre").ShouldBeEmpty(); // must not fall back to raw <pre>
+
+        var root = cut.Find("[data-slot='session-turn-response-text']");
+        root.GetAttribute("data-streaming").ShouldBe("true");
+
+        Ctx.JSInterop.Invocations.Any(invocation => invocation.Identifier == "highlightCode")
+            .ShouldBeFalse();
+    }
 }

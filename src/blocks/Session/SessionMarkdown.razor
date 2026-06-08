@@ -2,12 +2,5 @@
 @inherits TinyComponentBase
 
 <div class="@GetClass()" @attributes="AdditionalAttributes">
-    @if (IsStreaming)
-    {
-        <pre class="session-markdown-streaming whitespace-pre-wrap break-words font-mono text-xs text-foreground">@Value</pre>
-    }
-    else
-    {
-        @((MarkupString)RenderedHtml)
-    }
+    @((MarkupString)RenderedHtml)
 </div>
