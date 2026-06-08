@@ -115,7 +115,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     private string CurrentSessionId => SessionState.CurrentSessionId;
 
-    private SessionNodeInput? CurrentSessionNode => SessionState.GetCurrentSessionNode(Sessions);
+    private SessionNodeInput? CurrentSessionNode => SessionState.GetCurrentSessionNode(DisplaySessions);
 
     private SessionUiState ViewState => SessionState.GetViewState(DisplaySessions);
 
@@ -306,7 +306,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         return Task.CompletedTask;
     }
 
-    private Task CreateSessionAsync()
+    private async Task CreateSessionAsync()
     {
         var id = Guid.NewGuid().ToString("n");
         var entry = new SessionListEntry(id, L("NewSession"), 0, "session");
@@ -314,7 +314,19 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         var node = new SessionNodeInput(id, "session", entry.Label);
         SessionState.SelectSession(node, DisplaySessions);
         SessionState.SetAgentType("create");
-        return Task.CompletedTask;
+
+        try
+        {
+            await JS.InvokeVoidAsync("eval", """
+                (() => {
+                    const input = document.querySelector('[data-slot="session-command-input"]');
+                    if (input) { input.focus({ preventScroll: true }); }
+                })();
+                """);
+        }
+        catch
+        {
+        }
     }
 
     private Task SetInputAsync(string value)
