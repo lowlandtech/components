@@ -9,6 +9,7 @@ public partial class SessionMarkdown : TinyComponentBase
         .Build();
 
     [Parameter] public string? Value { get; set; }
+    [Parameter] public bool IsStreaming { get; set; }
 
     [Inject] private IJSRuntime JS { get; set; } = default!;
 
@@ -28,6 +29,9 @@ public partial class SessionMarkdown : TinyComponentBase
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (IsStreaming)
+            return;
+
         if (!firstRender && string.Equals(_highlightedValue, Value, StringComparison.Ordinal))
             return;
 

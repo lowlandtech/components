@@ -201,6 +201,7 @@
                                             </p>
                                             <SessionMarkdown data-slot="session-turn-response-text"
                                                              data-streaming="@maximizedCommand.IsStreaming.ToString().ToLowerInvariant()"
+                                                             IsStreaming="@maximizedCommand.IsStreaming"
                                                              Value="@CreateResponseDescription(maximizedCommand)" />
                                         </div>
                                     </SessionCard>
@@ -253,6 +254,7 @@
                                                         </p>
                                                         <SessionMarkdown data-slot="session-turn-response-text"
                                                                          data-streaming="@item.Command.IsStreaming.ToString().ToLowerInvariant()"
+                                                                         IsStreaming="@item.Command.IsStreaming"
                                                                          Value="@CreateResponseDescription(item.Command)" />
                                                     </div>
                                                 </SessionCard>
@@ -320,6 +322,7 @@
                                         </p>
                                         <SessionMarkdown data-slot="session-turn-response-text"
                                                          data-streaming="@pageOverlayCommand.IsStreaming.ToString().ToLowerInvariant()"
+                                                         IsStreaming="@pageOverlayCommand.IsStreaming"
                                                          Value="@CreateResponseDescription(pageOverlayCommand)" />
                                     </div>
                                 </SessionCard>
@@ -479,6 +482,7 @@
                                         </p>
                                         <SessionMarkdown data-slot="session-turn-response-text"
                                                          data-streaming="@maximizedCommand.IsStreaming.ToString().ToLowerInvariant()"
+                                                         IsStreaming="@maximizedCommand.IsStreaming"
                                                          Value="@CreateResponseDescription(maximizedCommand)" />
                                     </div>
                                 </SessionCard>
@@ -531,6 +535,7 @@
                                                     </p>
                                                     <SessionMarkdown data-slot="session-turn-response-text"
                                                                      data-streaming="@item.Command.IsStreaming.ToString().ToLowerInvariant()"
+                                                                     IsStreaming="@item.Command.IsStreaming"
                                                                      Value="@CreateResponseDescription(item.Command)" />
                                                 </div>
                                             </SessionCard>
@@ -597,6 +602,7 @@
                                     </p>
                                     <SessionMarkdown data-slot="session-turn-response-text"
                                                      data-streaming="@pageOverlayCommand.IsStreaming.ToString().ToLowerInvariant()"
+                                                     IsStreaming="@pageOverlayCommand.IsStreaming"
                                                      Value="@CreateResponseDescription(pageOverlayCommand)" />
                                 </div>
                             </SessionCard>
@@ -679,6 +685,7 @@
                 </p>
                 <SessionMarkdown data-slot="session-turn-response-text"
                                  data-streaming="@appOverlayCommand.IsStreaming.ToString().ToLowerInvariant()"
+                                 IsStreaming="@appOverlayCommand.IsStreaming"
                                  Value="@CreateResponseDescription(appOverlayCommand)" />
             </div>
         </SessionCard>
