@@ -20,4 +20,12 @@
   <data name="RequestDescription" xml:space="preserve"><value>Vat de actieve sessie samen en gebruik eventuele vastgezette context.</value></data>
   <data name="ResponseDescription" xml:space="preserve"><value>Vastgezette contextblokken worden opgenomen in het assistent-contextvenster zonder turns te maken.</value></data>
   <data name="OpenSidebar" xml:space="preserve"><value>Zijbalk openen</value></data>
+  <data name="EmptySessionTitle" xml:space="preserve"><value>Selecteer een sessie</value></data>
+  <data name="EmptySessionDescription" xml:space="preserve"><value>Sessie-inhoud blijft inactief totdat een sessie-tab actief is.</value></data>
+  <data name="CommandPlaceholder" xml:space="preserve"><value>Vraag iets over de actieve sessie...</value></data>
+  <data name="CommandSubmitTitle" xml:space="preserve"><value>Verstuur</value></data>
+  <data name="AgentAsk" xml:space="preserve"><value>Vraag</value></data>
+  <data name="AgentPlan" xml:space="preserve"><value>Plan</value></data>
+  <data name="AgentEdit" xml:space="preserve"><value>Bewerk</value></data>
+  <data name="AgentRun" xml:space="preserve"><value>Voer uit</value></data>
 </root>

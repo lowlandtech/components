@@ -155,6 +155,8 @@
                                             SelectedNode="CurrentSessionNode"
                                             PinnableTabs="true"
                                             PinnedTabIds="AppState.PinnedNodeIds"
+                                            EmptyTitle="@L("EmptySessionTitle")"
+                                            EmptyDescription="@L("EmptySessionDescription")"
                                             HeaderLeading="@(!IsStandaloneSidebarOpen ? SidebarOpenButton : null)"
                                             OnSelected="e => SelectSessionAsync(e.Node)"
                                             OnClosed="HandleTabClosedAsync"
@@ -275,8 +277,11 @@
                             <SessionCommandBar State="ViewState"
                                                SelectedNode="CurrentCommandContextNode"
                                                ActiveAgentTypeKey="@ViewState.ActiveAgentTypeKey"
+                                               AgentTypes="LocalizedAgentTypes"
                                                Value="@ViewState.Input"
                                                ValueChanged="SetInputAsync"
+                                               Placeholder="@L("CommandPlaceholder")"
+                                               SubmitTitle="@L("CommandSubmitTitle")"
                                                OnAgentTypeSelected="e => SetAgentTypeAsync(e.AgentTypeKey)"
                                                OnSubmit="HandleSubmitAsync" />
                         }
@@ -343,7 +348,7 @@
                                 @if (VisibleSections.Count == 0)
                                 {
                                     <div class="px-3 py-3 text-xs text-muted-foreground">
-                                        No sections
+                                        @L("NoSections")
                                     </div>
                                 }
                                 else
@@ -431,6 +436,8 @@
                                     SelectedNode="CurrentSessionNode"
                                     PinnableTabs="true"
                                     PinnedTabIds="AppState.PinnedNodeIds"
+                                    EmptyTitle="@L("EmptySessionTitle")"
+                                    EmptyDescription="@L("EmptySessionDescription")"
                                     OnSelected="e => SelectSessionAsync(e.Node)"
                                     OnClosed="HandleTabClosedAsync"
                                     OnTabPinnedChanged="HandleTabPinnedChangedAsync"
@@ -550,8 +557,11 @@
                     <SessionCommandBar State="ViewState"
                                        SelectedNode="CurrentCommandContextNode"
                                        ActiveAgentTypeKey="@ViewState.ActiveAgentTypeKey"
+                                       AgentTypes="LocalizedAgentTypes"
                                        Value="@ViewState.Input"
                                        ValueChanged="SetInputAsync"
+                                       Placeholder="@L("CommandPlaceholder")"
+                                       SubmitTitle="@L("CommandSubmitTitle")"
                                        OnAgentTypeSelected="e => SetAgentTypeAsync(e.AgentTypeKey)"
                                        OnSubmit="HandleSubmitAsync" />
 

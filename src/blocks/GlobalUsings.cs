@@ -1,3 +1,4 @@
+global using System.Globalization;
 global using Microsoft.AspNetCore.Components;
 global using Microsoft.AspNetCore.Components.Forms;
 global using Microsoft.AspNetCore.Components.Web;
@@ -10,4 +11,5 @@ global using System.Text.Json.Nodes;
 global using System.Text.Json.Serialization;
 global using System.Text.RegularExpressions;
 global using LowlandTech.Components;
+global using LowlandTech.Components.Blocks;
 global using LowlandTech.Core;

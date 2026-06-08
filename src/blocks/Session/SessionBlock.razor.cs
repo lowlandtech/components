@@ -130,6 +130,14 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     private IReadOnlyList<SessionFeedItemDescriptor> FeedItems => SessionState.GetFeedItems(Sessions);
 
+    private IReadOnlyList<SessionAgentType> LocalizedAgentTypes =>
+    [
+        new("ask", L("AgentAsk")),
+        new("plan", L("AgentPlan")),
+        new("edit", L("AgentEdit")),
+        new("run", L("AgentRun"), Disabled: true)
+    ];
+
     private string GetClass()
     {
         var frameClass = string.Equals(Variant, "none", StringComparison.OrdinalIgnoreCase)
