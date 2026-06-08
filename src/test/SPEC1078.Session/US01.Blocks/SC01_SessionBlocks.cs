@@ -1693,4 +1693,156 @@ public class SC01_SessionBlocks : ViewScenario
             System.Globalization.CultureInfo.CurrentUICulture = originalUiCulture;
         }
     }
+
+    [Fact(DisplayName = "UAC33: Variant=none uses sidebar background across the entire SessionBlock")]
+    [Trait(Spec.UAC, "33")]
+    [Given("a SessionBlock rendered with Variant=none")]
+    [When("the root container and both sidebars render")]
+    [Then("they use bg-sidebar so the entire block shares the dark sidebar color")]
+    public void UAC33_NoneVariantUsesSidebarBackgroundAcrossBlock()
+    {
+        var cut = Ctx.Render<SessionBlock>(p => p.Add(x => x.Variant, "none"));
+
+        var root = cut.Find("[data-slot='session-app']");
+        root.ClassList.ShouldContain("bg-sidebar");
+        root.ClassList.ShouldNotContain("bg-background");
+
+        var leftSidebarBody = cut.Find("[data-slot='session-app-left-sidebar-body']");
+        leftSidebarBody.ShouldNotBeNull();
+        var leftPanel = leftSidebarBody.ParentElement;
+        leftPanel.ShouldNotBeNull();
+        leftPanel.ClassList.ShouldContain("bg-sidebar");
+
+        var rightSidebar = cut.Find("[data-testid='session-app-right-sidebar']");
+        rightSidebar.ClassList.ShouldContain("bg-sidebar");
+    }
+
+    [Fact(DisplayName = "UAC34: Variant=none removes side borders and keeps card outline on inner panels")]
+    [Trait(Spec.UAC, "34")]
+    [Given("SessionBlocks rendered with outlined and none variants")]
+    [When("the inner left and right panels render")]
+    [Then("none variant panels have no side border and outlined panels keep rounded-lg border-border")]
+    public void UAC34_NoneVariantRemovesSideBordersKeepsInnerCardOutline()
+    {
+        var outlined = Ctx.Render<SessionBlock>();
+        var none = Ctx.Render<SessionBlock>(p => p.Add(x => x.Variant, "none"));
+
+        var noneLeftPanel = none.Find("[data-slot='session-app-left-sidebar-body']").ParentElement;
+        noneLeftPanel.ShouldNotBeNull();
+        noneLeftPanel.ClassList.ShouldNotContain("border-r");
+        noneLeftPanel.ClassList.ShouldNotContain("border-border");
+
+        var noneRightSidebar = none.Find("[data-testid='session-app-right-sidebar']");
+        noneRightSidebar.ClassList.ShouldNotContain("border-l");
+        noneRightSidebar.ClassList.ShouldNotContain("border-border");
+
+        var outlinedLeftPanel = outlined.Find("[data-slot='session-app-left-sidebar-body']").ParentElement;
+        outlinedLeftPanel.ShouldNotBeNull();
+        outlinedLeftPanel.ClassList.ShouldContain("border-r");
+        outlinedLeftPanel.ClassList.ShouldContain("border-border");
+
+        var outlinedRightSidebar = outlined.Find("[data-testid='session-app-right-sidebar']");
+        outlinedRightSidebar.ClassList.ShouldContain("border-l");
+        outlinedRightSidebar.ClassList.ShouldContain("border-border");
+
+        var noneRightSection = none.Find("[data-testid='session-app-right-sidebar'] section");
+        noneRightSection.ClassList.ShouldContain("rounded-lg");
+        noneRightSection.ClassList.ShouldContain("border");
+        noneRightSection.ClassList.ShouldContain("border-border");
+
+        var outlinedRightSection = outlined.Find("[data-testid='session-app-right-sidebar'] section");
+        outlinedRightSection.ClassList.ShouldContain("rounded-lg");
+        outlinedRightSection.ClassList.ShouldContain("border");
+        outlinedRightSection.ClassList.ShouldContain("border-border");
+    }
+
+    [Fact(DisplayName = "UAC35: SessionCommandBar stays fixed at the bottom and SessionContent scrolls")]
+    [Trait(Spec.UAC, "35")]
+    [Given("a SessionBlock with an active session")]
+    [When("the main content area renders")]
+    [Then("SessionContent owns the scrollable body and SessionCommandBar is a shrink-0 sibling after it")]
+    public void UAC35_CommandBarFixedAtBottomContentScrolls()
+    {
+        var cut = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
+
+        cut.Find("[data-node-id='orders-session']").Click();
+
+        var main = cut.Find("[data-slot='session-app-main-content']");
+        main.ClassList.ShouldContain("overflow-hidden");
+
+        var contentBody = cut.Find("[data-slot='session-content-body']");
+        contentBody.ClassList.ShouldContain("overflow-y-auto");
+        contentBody.ClassList.ShouldContain("flex-1");
+
+        var commandBar = cut.Find("[data-slot='session-command-bar']");
+        commandBar.ClassList.ShouldContain("shrink-0");
+
+        var mainChildren = main.Children
+            .Where(e => e.GetAttribute("data-slot") is "session-content" or "session-command-bar")
+            .Select(e => e.GetAttribute("data-slot"))
+            .ToList();
+
+        mainChildren.Count.ShouldBe(2);
+        mainChildren[0].ShouldBe("session-content");
+        mainChildren[1].ShouldBe("session-command-bar");
+    }
+
+    [Fact(DisplayName = "UAC36: Variant=none uses symmetric 4+2+4 padding around resizable rails")]
+    [Trait(Spec.UAC, "36")]
+    [Given("a standalone SessionBlock with Variant=none and the left sidebar open")]
+    [When("the main content, left sidebar body and right sidebar body render")]
+    [Then("horizontal padding is 4px on each side of the splitter rails")]
+    public void UAC36_NoneVariantUsesSymmetricPaddingAroundRails()
+    {
+        var cut = Ctx.Render<SessionBlock>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.Variant, "none"));
+
+        cut.Find("[data-slot='session-app-main-content']")
+            .GetAttribute("style")
+            .ShouldBe("padding:10px 4px 10px 4px;");
+
+        var leftSidebarBody = cut.Find("[data-slot='session-app-left-sidebar']");
+        leftSidebarBody.GetAttribute("style")
+            .ShouldBe("padding:10px 4px 10px 10px;");
+
+        cut.Find("[data-slot='session-app-right-sidebar-body']")
+            .GetAttribute("style")
+            .ShouldBe("padding:10px 10px 10px 4px;");
+    }
+
+    [Fact(DisplayName = "UAC37: ResizableHandle Color parameter controls dot icon color")]
+    [Trait(Spec.UAC, "37")]
+    [Given("ResizableHandle instances with default and primary colors")]
+    [When("the handle SVG dots render")]
+    [Then("default uses text-muted-foreground and primary uses text-primary")]
+    public void UAC37_ResizableHandleColorControlsDotColor()
+    {
+        var defaultCut = Ctx.Render<ResizableHandle>(p => p.Add(x => x.WithHandle, true));
+        var primaryCut = Ctx.Render<ResizableHandle>(p => p
+            .Add(x => x.WithHandle, true)
+            .Add(x => x.Color, "primary"));
+
+        defaultCut.Find("svg").ClassList.ShouldContain("text-muted-foreground");
+        defaultCut.Find("svg").ClassList.ShouldNotContain("text-primary");
+
+        primaryCut.Find("svg").ClassList.ShouldContain("text-primary");
+        primaryCut.Find("svg").ClassList.ShouldNotContain("text-muted-foreground");
+    }
+
+    [Fact(DisplayName = "UAC38: SessionBlock SessionCard uses localized Pinned label for pinned badge")]
+    [Trait(Spec.UAC, "38")]
+    [Given("a SessionContextBlock with IsPinned=true")]
+    [When("the pinned badge renders")]
+    [Then("the text reads Pinned from localization resources")]
+    public void UAC38_ContextBlockPinnedBadgeRendersLocalizedPinned()
+    {
+        var block = new SessionContextBlockModel("invoice-block", new("invoice", "context", "Invoice"));
+
+        var cut = Ctx.Render<SessionContextBlock>(p => p
+            .Add(x => x.Block, block)
+            .Add(x => x.IsPinned, true));
+
+        cut.Markup.ShouldContain(">Pinned<");
+    }
 }
