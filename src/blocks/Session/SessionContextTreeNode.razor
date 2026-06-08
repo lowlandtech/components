@@ -3,7 +3,7 @@
 
 <div>
     <div class="flex items-center gap-1 rounded-sm hover:bg-muted/60 data-[projected=true]:bg-primary/10"
-         style="padding-left: @(Math.Max(0, Depth) * 0.75 + 0.5)rem; padding-right: 0.5rem;"
+         style="padding-left: @(Math.Max(0, Depth) * 0.75 + 0.5)rem;"
          data-projected="@(Projection?.Node.Id == Item.Node.Id ? "true" : "false")">
         <button type="button"
                 data-slot="session-context-node"
