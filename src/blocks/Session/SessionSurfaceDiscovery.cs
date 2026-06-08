@@ -22,7 +22,7 @@ public sealed class DefaultSessionSurfaceRegistry : ISessionSurfaceRegistry
     public SessionSurfaceDescriptor? GetSurface(string sessionId)
         => Surfaces.TryGetValue(sessionId, out var descriptor)
             ? descriptor
-            : Surfaces["orders-session"];
+            : null;
 }
 
 public sealed class SessionSurfaceDiscovery(IEnumerable<ISessionSurfaceRegistry> registries) : ISessionSurfaceDiscovery
@@ -43,6 +43,9 @@ public sealed class SessionSurfaceDiscovery(IEnumerable<ISessionSurfaceRegistry>
                 return descriptor;
         }
 
-        return FallbackRegistry.GetSurface("orders-session")!;
+        return new SessionSurfaceDescriptor(
+            sessionId,
+            new SessionNodeInput($"{sessionId}-request", "session-request", "Session"),
+            new SessionNodeInput($"{sessionId}-response", "session-response", "Context"));
     }
 }

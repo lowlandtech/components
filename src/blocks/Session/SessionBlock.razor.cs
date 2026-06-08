@@ -121,7 +121,19 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     private SessionNodeInput? CurrentCommandContextNode => ViewState.ContextProjection?.Node ?? CurrentSessionNode;
 
-    private SessionNodeInput CurrentRequestNode => SessionState.GetRequestNode(CurrentSessionId);
+    private SessionNodeInput CurrentRequestNode
+    {
+        get
+        {
+            var node = SessionState.GetRequestNode(CurrentSessionId);
+            var sessionNode = CurrentSessionNode;
+            if (sessionNode is not null && string.Equals(node.Label, "Session", StringComparison.Ordinal))
+            {
+                return node with { Label = sessionNode.Label };
+            }
+            return node;
+        }
+    }
 
     private SessionNodeInput CurrentResponseNode => SessionState.GetResponseNode(CurrentSessionId);
 
