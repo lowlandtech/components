@@ -89,9 +89,9 @@ public class SC27_RenderSidebarNavPopover : ViewScenario
         popover.State.Fragment.ShouldNotBeNull();
     }
 
-    [Fact(DisplayName = "UAC06: Popover content includes the route, label, and subtitle")]
+    [Fact(DisplayName = "UAC06: Popover content includes the route, label, subtitle, kicker, and icon")]
     [Trait(Spec.UAC, "06")]
-    [Then("the popover fragment renders a button with the label, subtitle, and route")]
+    [Then("the popover fragment renders a button with the icon tile, kicker, label, subtitle, and route chip")]
     public void UAC06_PopoverContentIncludesRouteAndLabel()
     {
         var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
@@ -103,8 +103,9 @@ public class SC27_RenderSidebarNavPopover : ViewScenario
             builder.AddAttribute(2, nameof(SidebarNavPopover.Route), "admin/dashboard");
             builder.AddAttribute(3, nameof(SidebarNavPopover.Label), "Dashboard");
             builder.AddAttribute(4, nameof(SidebarNavPopover.Subtitle), "Home dashboard");
-            builder.AddAttribute(5, nameof(SidebarNavPopover.OpenDelayMs), 0);
-            builder.AddAttribute(6, nameof(SidebarNavPopover.ChildContent),
+            builder.AddAttribute(5, nameof(SidebarNavPopover.IconName), "home");
+            builder.AddAttribute(6, nameof(SidebarNavPopover.OpenDelayMs), 0);
+            builder.AddAttribute(7, nameof(SidebarNavPopover.ChildContent),
                 (RenderFragment)(b => b.AddContent(0, "Inner")));
             builder.CloseComponent();
         });
@@ -115,7 +116,6 @@ public class SC27_RenderSidebarNavPopover : ViewScenario
         var popover = popoverService.ActivePopovers.Single();
         popover.State.Fragment.ShouldNotBeNull();
 
-        // Render the fragment into a div so we can query its content
         var fragmentCut = Ctx.Render(builder =>
         {
             builder.OpenElement(0, "div");
@@ -124,15 +124,61 @@ public class SC27_RenderSidebarNavPopover : ViewScenario
         });
 
         var button = fragmentCut.Find(".lt-sidebar-nav-popover-button");
-        button.TextContent.ShouldContain("Dashboard");
-        button.TextContent.ShouldContain("Home dashboard");
-        button.TextContent.ShouldContain("admin/dashboard");
+        button.GetAttribute("data-has-icon").ShouldBe("true");
+        button.TextContent.ShouldContain("Page");      // kicker
+        button.TextContent.ShouldContain("Dashboard"); // label
+        button.TextContent.ShouldContain("Home dashboard"); // subtitle
+
+        // Icon tile rendered with the Icon component inside
+        var iconTile = button.QuerySelector(".lt-sidebar-nav-popover-icon");
+        iconTile.ShouldNotBeNull();
+        iconTile!.QuerySelector("svg").ShouldNotBeNull();
+
+        // Route is rendered as a <code> chip in the footer (outside the button)
+        var routeChip = fragmentCut.Find(".lt-sidebar-nav-popover-route");
+        routeChip.TagName.ShouldBe("CODE");
+        routeChip.TextContent.ShouldContain("admin/dashboard");
     }
 
-    [Fact(DisplayName = "UAC07: Clicking the popover button navigates to the route")]
+    [Fact(DisplayName = "UAC07: Popover hides the icon tile when no icon is provided")]
     [Trait(Spec.UAC, "07")]
+    [Then("the button's data-has-icon is 'false' and the icon tile is absent")]
+    public void UAC07_PopoverHidesIconWhenAbsent()
+    {
+        var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
+        var cut = Ctx.Render(builder =>
+        {
+            builder.OpenComponent<PopoverProvider>(0);
+            builder.CloseComponent();
+            builder.OpenComponent<SidebarNavPopover>(1);
+            builder.AddAttribute(2, nameof(SidebarNavPopover.Route), "admin/dashboard");
+            builder.AddAttribute(3, nameof(SidebarNavPopover.Label), "Dashboard");
+            builder.AddAttribute(4, nameof(SidebarNavPopover.OpenDelayMs), 0);
+            builder.AddAttribute(5, nameof(SidebarNavPopover.ChildContent),
+                (RenderFragment)(b => b.AddContent(0, "Inner")));
+            builder.CloseComponent();
+        });
+
+        var anchor = cut.Find("[data-slot='sidebar-nav-popover']");
+        anchor.MouseEnter();
+
+        var popover = popoverService.ActivePopovers.Single();
+        var fragmentCut = Ctx.Render(builder =>
+        {
+            builder.OpenElement(0, "div");
+            builder.AddContent(1, popover.State.Fragment);
+            builder.CloseElement();
+        });
+
+        var button = fragmentCut.Find(".lt-sidebar-nav-popover-button");
+        button.GetAttribute("data-has-icon").ShouldBe("false");
+        button.QuerySelector(".lt-sidebar-nav-popover-icon").ShouldBeNull();
+    }
+
+    [Fact(DisplayName = "UAC08: Clicking the popover button navigates to the route")]
+    [Trait(Spec.UAC, "08")]
     [Then("the navigation manager receives a NavigateTo call")]
-    public void UAC07_PopoverClickNavigates()
+    public void UAC08_PopoverClickNavigates()
     {
         var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
         var cut = Ctx.Render(builder =>
@@ -165,10 +211,10 @@ public class SC27_RenderSidebarNavPopover : ViewScenario
             .Uri.ShouldEndWith("admin/dashboard");
     }
 
-    [Fact(DisplayName = "UAC08: Popover closes when navigation happens")]
-    [Trait(Spec.UAC, "08")]
+    [Fact(DisplayName = "UAC09: Popover closes when navigation happens")]
+    [Trait(Spec.UAC, "09")]
     [Then("after a LocationChanged event, the popover state becomes closed")]
-    public void UAC08_ClosesOnNavigation()
+    public void UAC09_ClosesOnNavigation()
     {
         var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
         var nav = Ctx.Services.GetRequiredService<NavigationManager>();
@@ -188,10 +234,10 @@ public class SC27_RenderSidebarNavPopover : ViewScenario
         popoverService.ActivePopovers.Single().State.Open.ShouldBeFalse();
     }
 
-    [Fact(DisplayName = "UAC09: Popover closes on mouseleave (CloseDelayMs=0 closes synchronously)")]
-    [Trait(Spec.UAC, "09")]
+    [Fact(DisplayName = "UAC10: Popover closes on mouseleave (CloseDelayMs=0 closes synchronously)")]
+    [Trait(Spec.UAC, "10")]
     [Then("when CloseDelayMs is 0, the popover state becomes closed immediately on mouse leave")]
-    public void UAC09_ClosesOnMouseLeave()
+    public void UAC10_ClosesOnMouseLeave()
     {
         var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
         var cut = Ctx.Render<SidebarNavPopover>(p => p
@@ -208,5 +254,40 @@ public class SC27_RenderSidebarNavPopover : ViewScenario
         anchor.MouseLeave();
 
         popoverService.ActivePopovers.Single().State.Open.ShouldBeFalse();
+    }
+
+    [Fact(DisplayName = "UAC11: Kicker label is configurable via the Kicker parameter")]
+    [Trait(Spec.UAC, "11")]
+    [Then("the popover renders the custom kicker text instead of the default")]
+    public void UAC11_CustomKicker()
+    {
+        var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
+        var cut = Ctx.Render(builder =>
+        {
+            builder.OpenComponent<PopoverProvider>(0);
+            builder.CloseComponent();
+            builder.OpenComponent<SidebarNavPopover>(1);
+            builder.AddAttribute(2, nameof(SidebarNavPopover.Route), "admin/dashboard");
+            builder.AddAttribute(3, nameof(SidebarNavPopover.Label), "Dashboard");
+            builder.AddAttribute(4, nameof(SidebarNavPopover.Kicker), "Dashboard");
+            builder.AddAttribute(5, nameof(SidebarNavPopover.OpenDelayMs), 0);
+            builder.AddAttribute(6, nameof(SidebarNavPopover.ChildContent),
+                (RenderFragment)(b => b.AddContent(0, "Inner")));
+            builder.CloseComponent();
+        });
+
+        var anchor = cut.Find("[data-slot='sidebar-nav-popover']");
+        anchor.MouseEnter();
+
+        var popover = popoverService.ActivePopovers.Single();
+        var fragmentCut = Ctx.Render(builder =>
+        {
+            builder.OpenElement(0, "div");
+            builder.AddContent(1, popover.State.Fragment);
+            builder.CloseElement();
+        });
+
+        fragmentCut.Find(".lt-sidebar-nav-popover-kicker")
+            .TextContent.Trim().ShouldBe("Dashboard");
     }
 }

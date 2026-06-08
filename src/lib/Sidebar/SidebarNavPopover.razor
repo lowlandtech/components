@@ -20,6 +20,9 @@
     [Parameter, EditorRequired] public string Route { get; set; } = string.Empty;
     [Parameter, EditorRequired] public string Label { get; set; } = string.Empty;
     [Parameter] public string? Subtitle { get; set; }
+    [Parameter] public string? IconName { get; set; }
+    [Parameter] public string? IconPaths { get; set; }
+    [Parameter] public string Kicker { get; set; } = "Page";
     [Parameter] public int OpenDelayMs { get; set; } = 80;
     [Parameter] public int CloseDelayMs { get; set; } = 150;
 
@@ -152,6 +155,7 @@
 
     private RenderFragment BuildPopoverFragment() => __builder =>
     {
+        var hasIcon = !string.IsNullOrEmpty(IconName) || !string.IsNullOrEmpty(IconPaths);
         <div class="lt-sidebar-nav-popover-inner"
              @onmouseenter="HandlePopoverEnter"
              @onmouseleave="HandlePopoverLeave">
@@ -159,14 +163,31 @@
                     class="lt-sidebar-nav-popover-button"
                     data-slot="sidebar-nav-popover-button"
                     data-testid="sidebar-nav-popover-button"
+                    data-has-icon="@(hasIcon ? "true" : "false")"
                     @onclick="NavigateAsync">
-                <span class="lt-sidebar-nav-popover-label">@Label</span>
-                @if (!string.IsNullOrWhiteSpace(Subtitle))
+                @if (hasIcon)
                 {
-                    <span class="lt-sidebar-nav-popover-subtitle">@Subtitle</span>
+                    <span class="lt-sidebar-nav-popover-icon" data-slot="sidebar-nav-popover-icon" aria-hidden="true">
+                        <Icon Name="@IconName" Paths="@IconPaths" Size="16" />
+                    </span>
                 }
-                <span class="lt-sidebar-nav-popover-route" aria-hidden="true">@Route</span>
+                <span class="lt-sidebar-nav-popover-body">
+                    <span class="lt-sidebar-nav-popover-kicker">@Kicker</span>
+                    <span class="lt-sidebar-nav-popover-label">@Label</span>
+                    @if (!string.IsNullOrWhiteSpace(Subtitle))
+                    {
+                        <span class="lt-sidebar-nav-popover-subtitle">@Subtitle</span>
+                    }
+                </span>
+                <span class="lt-sidebar-nav-popover-enter" aria-hidden="true">
+                    <Icon Name="arrow-right" Size="14" />
+                </span>
             </button>
+            <div class="lt-sidebar-nav-popover-divider" role="presentation"></div>
+            <div class="lt-sidebar-nav-popover-footer">
+                <span class="lt-sidebar-nav-popover-footer-label">Navigate to</span>
+                <code class="lt-sidebar-nav-popover-route" data-slot="sidebar-nav-popover-route">@Route</code>
+            </div>
         </div>
     };
 
