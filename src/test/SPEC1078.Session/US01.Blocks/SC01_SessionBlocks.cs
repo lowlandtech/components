@@ -1317,6 +1317,29 @@ public class SC01_SessionBlocks : ViewScenario
             .ShouldBe("padding:10px 6px 10px 10px;");
     }
 
+    [Fact(DisplayName = "UAC30f: SessionBlock variants control the embedded outer frame")]
+    [Trait(Spec.UAC, "30f")]
+    [Given("embedded SessionBlocks using the outlined and none variants")]
+    [When("their root frame classes are rendered")]
+    [Then("outlined has a border and rounded corners while none has neither")]
+    public void UAC30f_SessionBlockVariantsControlOuterFrame()
+    {
+        var outlined = Ctx.Render<SessionBlock>();
+        var none = Ctx.Render<SessionBlock>(p => p.Add(x => x.Variant, "none"));
+
+        var outlinedRoot = outlined.Find("[data-slot='session-app']");
+        outlinedRoot.GetAttribute("data-variant").ShouldBe("outlined");
+        outlinedRoot.ClassList.ShouldContain("rounded-lg");
+        outlinedRoot.ClassList.ShouldContain("border");
+        outlinedRoot.ClassList.ShouldContain("border-border");
+
+        var noneRoot = none.Find("[data-slot='session-app']");
+        noneRoot.GetAttribute("data-variant").ShouldBe("none");
+        noneRoot.ClassList.ShouldNotContain("rounded-lg");
+        noneRoot.ClassList.ShouldNotContain("border");
+        noneRoot.ClassList.ShouldNotContain("border-border");
+    }
+
     [Fact(DisplayName = "UAC30c: Closing the standalone sidebar removes the left panel and keeps a two-panel resizable layout")]
     [Trait(Spec.UAC, "30c")]
     public void UAC30c_ClosingStandaloneSidebarRemovesLeftPanel()

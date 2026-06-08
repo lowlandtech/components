@@ -1,7 +1,7 @@
 @namespace LowlandTech.Components
 @inherits TinyComponentBase
 
-<div data-slot="session-app" class="@GetClass()" style="@GetStyle()" @attributes="AdditionalAttributes">
+<div data-slot="session-app" data-variant="@Variant" class="@GetClass()" style="@GetStyle()" @attributes="AdditionalAttributes">
     @if (HasSidebar)
     {
         <div class="relative h-full min-h-0 w-full">

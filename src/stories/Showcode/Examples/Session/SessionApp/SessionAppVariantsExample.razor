@@ -1,0 +1,23 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Session
+
+<div class="grid w-full gap-8">
+    <section class="space-y-2">
+        <div>
+            <h3 class="text-sm font-semibold">Outlined</h3>
+            <p class="text-xs text-muted-foreground">The default embedded frame includes a border and rounded corners.</p>
+        </div>
+        <div class="h-[36rem] w-full bg-muted/20 p-3">
+            <SessionBlock Variant="outlined" IsTest="true" />
+        </div>
+    </section>
+
+    <section class="space-y-2">
+        <div>
+            <h3 class="text-sm font-semibold">None</h3>
+            <p class="text-xs text-muted-foreground">The embedded surface sits flush with its host without an outer border or radius.</p>
+        </div>
+        <div class="h-[36rem] w-full bg-muted/20 p-3">
+            <SessionBlock Variant="none" IsTest="true" />
+        </div>
+    </section>
+</div>

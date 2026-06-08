@@ -36,6 +36,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     [Parameter] public bool IsTest { get; set; }
     [Parameter] public int TestStreamDelayMilliseconds { get; set; } = 35;
     [Parameter] public bool HasSidebar { get; set; }
+    [Parameter] public string Variant { get; set; } = "outlined";
     [Parameter] public string? PageOverlayContainerClass { get; set; }
     [Parameter] public string? AppOverlayContainerClass { get; set; }
     [Parameter] public SessionStateService? StateService { get; set; }
@@ -109,7 +110,10 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     private string GetClass()
     {
-        var baseClass = "relative min-h-0 w-full overflow-hidden rounded-lg border border-border bg-background";
+        var frameClass = string.Equals(Variant, "none", StringComparison.OrdinalIgnoreCase)
+            ? string.Empty
+            : "rounded-lg border border-border";
+        var baseClass = $"relative min-h-0 w-full overflow-hidden bg-background {frameClass}".Trim();
         return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
     }
 
