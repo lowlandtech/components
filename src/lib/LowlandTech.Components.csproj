@@ -37,6 +37,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\core\LowlandTech.Components.Core.csproj" />
+    <ProjectReference Include="..\..\core\LowlandTech.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
