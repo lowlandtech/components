@@ -1660,7 +1660,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.HasSidebar, true)
             .Add(x => x.Sessions, Array.Empty<SessionListEntry>()));
 
-        cut.Find("[data-slot='session-list-empty']").TextContent.Trim().ShouldBe("No sessions yet");
+        cut.Find("[data-slot='session-content-empty']").TextContent.ShouldContain("Select a session");
         cut.Find("[data-slot='session-app-right-sidebar']").TextContent.ShouldContain("Sections");
     }
 
@@ -1684,7 +1684,7 @@ public class SC01_SessionBlocks : ViewScenario
                 .Add(x => x.Sessions, Array.Empty<SessionListEntry>())
                 .Add(x => x.Language, "nl"));
 
-            cut.Find("[data-slot='session-list-empty']").TextContent.Trim().ShouldBe("Nog geen sessies");
+            cut.Find("[data-slot='session-content-empty']").TextContent.ShouldContain("Selecteer een sessie");
             cut.Find("[data-slot='session-app-right-sidebar']").TextContent.ShouldContain("Secties");
         }
         finally

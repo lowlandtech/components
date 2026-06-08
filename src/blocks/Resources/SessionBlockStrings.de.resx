@@ -20,4 +20,12 @@
   <data name="RequestDescription" xml:space="preserve"><value>Summarize the active session and use any pinned context.</value></data>
   <data name="ResponseDescription" xml:space="preserve"><value>Pinned context blocks will be included in the assistant context window without creating turns.</value></data>
   <data name="OpenSidebar" xml:space="preserve"><value>Open sidebar</value></data>
+  <data name="EmptySessionTitle" xml:space="preserve"><value>Select a session</value></data>
+  <data name="EmptySessionDescription" xml:space="preserve"><value>SessionContent stays idle until a session tab is active.</value></data>
+  <data name="CommandPlaceholder" xml:space="preserve"><value>Ask about the active session...</value></data>
+  <data name="CommandSubmitTitle" xml:space="preserve"><value>Send</value></data>
+  <data name="AgentAsk" xml:space="preserve"><value>Ask</value></data>
+  <data name="AgentPlan" xml:space="preserve"><value>Plan</value></data>
+  <data name="AgentEdit" xml:space="preserve"><value>Edit</value></data>
+  <data name="AgentRun" xml:space="preserve"><value>Run</value></data>
 </root>
