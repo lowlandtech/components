@@ -9,6 +9,9 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     private SessionStateService? _ownedStateService;
     private SessionStateService? _subscribedStateService;
     private bool _isStandaloneSidebarOpen = true;
+    private bool _isHydratingStandaloneSidebar;
+    private int _standaloneSidebarChangeVersion;
+    private string? _hydratedSidebarPersistKey;
 
     [Parameter] public IReadOnlyList<SessionListEntry> Sessions { get; set; } =
     [
@@ -36,6 +39,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     [Parameter] public bool IsTest { get; set; }
     [Parameter] public int TestStreamDelayMilliseconds { get; set; } = 35;
     [Parameter] public bool HasSidebar { get; set; }
+    [Parameter] public string SidebarPersistKey { get; set; } = "session-block:sidebar-open";
     [Parameter] public string Variant { get; set; } = "outlined";
     [Parameter] public string? PageOverlayContainerClass { get; set; }
     [Parameter] public string? AppOverlayContainerClass { get; set; }
@@ -55,17 +59,22 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         EnsureStateServiceSubscription();
 
         if (!HasSidebar)
+        {
             _isStandaloneSidebarOpen = true;
+            _hydratedSidebarPersistKey = null;
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (string.IsNullOrWhiteSpace(AppState.PendingScrollSectionId))
-            return;
+        await HydrateStandaloneSidebarAsync();
 
-        var sectionId = AppState.PendingScrollSectionId;
-        await ScrollSectionIntoViewAsync(sectionId);
-        SessionState.Dispatch(new SetPendingScrollSection(null));
+        if (!string.IsNullOrWhiteSpace(AppState.PendingScrollSectionId))
+        {
+            var sectionId = AppState.PendingScrollSectionId;
+            await ScrollSectionIntoViewAsync(sectionId);
+            SessionState.Dispatch(new SetPendingScrollSection(null));
+        }
     }
 
     private bool HasActiveSession => !string.IsNullOrWhiteSpace(AppState.ActiveSessionId);
@@ -153,16 +162,75 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         return Task.CompletedTask;
     }
 
-    private Task HandleStandaloneSidebarOpenChanged(bool isOpen)
+    private async Task HandleStandaloneSidebarOpenChanged(bool isOpen)
     {
         _isStandaloneSidebarOpen = isOpen;
-        return Task.CompletedTask;
+        _standaloneSidebarChangeVersion++;
+        await PersistStandaloneSidebarAsync();
     }
 
-    private Task OpenStandaloneSidebarAsync()
+    private async Task OpenStandaloneSidebarAsync()
     {
         _isStandaloneSidebarOpen = true;
-        return Task.CompletedTask;
+        _standaloneSidebarChangeVersion++;
+        await PersistStandaloneSidebarAsync();
+    }
+
+    private async Task HydrateStandaloneSidebarAsync()
+    {
+        if (!HasSidebar ||
+            _isHydratingStandaloneSidebar ||
+            string.Equals(_hydratedSidebarPersistKey, SidebarPersistKey, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        _isHydratingStandaloneSidebar = true;
+        var changeVersion = _standaloneSidebarChangeVersion;
+
+        try
+        {
+            var storedValue = await JS.InvokeAsync<string?>("localStorage.getItem", SidebarPersistKey);
+            if (changeVersion == _standaloneSidebarChangeVersion &&
+                bool.TryParse(storedValue, out var isOpen) &&
+                isOpen != _isStandaloneSidebarOpen)
+            {
+                _isStandaloneSidebarOpen = isOpen;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (InvalidOperationException)
+        {
+            // JavaScript interop is unavailable during static rendering.
+        }
+        catch (JSException)
+        {
+            // Persistence is best effort when browser storage is unavailable.
+        }
+        finally
+        {
+            _hydratedSidebarPersistKey = SidebarPersistKey;
+            _isHydratingStandaloneSidebar = false;
+        }
+    }
+
+    private async Task PersistStandaloneSidebarAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync(
+                "localStorage.setItem",
+                SidebarPersistKey,
+                _isStandaloneSidebarOpen.ToString().ToLowerInvariant());
+        }
+        catch (InvalidOperationException)
+        {
+            // JavaScript interop is unavailable during static rendering.
+        }
+        catch (JSException)
+        {
+            // Persistence is best effort when browser storage is unavailable.
+        }
     }
 
     private Task SelectSessionAsync(SessionNodeInput node)

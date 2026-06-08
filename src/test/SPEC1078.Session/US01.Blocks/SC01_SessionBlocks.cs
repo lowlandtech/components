@@ -1340,6 +1340,58 @@ public class SC01_SessionBlocks : ViewScenario
         noneRoot.ClassList.ShouldNotContain("border-border");
     }
 
+    [Fact(DisplayName = "UAC30g: Standalone sidebar visibility is persisted under the configured key")]
+    [Trait(Spec.UAC, "30g")]
+    [Given("a standalone SessionBlock with a stable sidebar persistence key")]
+    [When("the sidebar is closed and reopened")]
+    [Then("each visibility change is written to localStorage using that key")]
+    public void UAC30g_StandaloneSidebarVisibilityIsPersisted()
+    {
+        const string persistKey = "session-block:test:sidebar-open";
+        Ctx.JSInterop.Setup<string?>("localStorage.getItem", persistKey).SetResult(null);
+        Ctx.JSInterop.SetupVoid("localStorage.setItem", _ => true);
+
+        var standalone = Ctx.Render<SessionBlock>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.SidebarPersistKey, persistKey));
+
+        standalone.Find("[data-testid='session-app-sidebar-close']").Click();
+        standalone.Find("[data-testid='session-app-sidebar-open']").Click();
+
+        var writes = Ctx.JSInterop.Invocations
+            .Where(invocation => invocation.Identifier == "localStorage.setItem")
+            .ToList();
+
+        writes.Count.ShouldBe(2);
+        writes[0].Arguments[0].ShouldBe(persistKey);
+        writes[0].Arguments[1].ShouldBe("false");
+        writes[1].Arguments[0].ShouldBe(persistKey);
+        writes[1].Arguments[1].ShouldBe("true");
+    }
+
+    [Fact(DisplayName = "UAC30h: A fresh SessionBlock restores a hidden standalone sidebar")]
+    [Trait(Spec.UAC, "30h")]
+    [Given("localStorage records that the standalone SessionBlock sidebar is hidden")]
+    [When("a fresh SessionBlock enters the page after reload or navigation")]
+    [Then("the sidebar remains hidden and the two-panel layout is restored")]
+    public void UAC30h_FreshSessionBlockRehydratesHiddenSidebar()
+    {
+        const string persistKey = "session-block:test:sidebar-open";
+        Ctx.JSInterop.Setup<string?>("localStorage.getItem", persistKey).SetResult("false");
+
+        var standalone = Ctx.Render<SessionBlock>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.SidebarPersistKey, persistKey));
+
+        standalone.FindAll("[data-panel='session-app-sidebar-panel']").ShouldBeEmpty();
+        standalone.FindAll("[data-slot='resizable-panel']").Count.ShouldBe(2);
+        standalone.FindAll("[data-slot='resizable-handle']").Count.ShouldBe(1);
+        standalone.Find("[data-testid='session-app-sidebar-open']").ShouldNotBeNull();
+        standalone.Find("[data-slot='session-app-main-content']")
+            .GetAttribute("style")
+            .ShouldBe("padding:10px 6px 10px 10px;");
+    }
+
     [Fact(DisplayName = "UAC30c: Closing the standalone sidebar removes the left panel and keeps a two-panel resizable layout")]
     [Trait(Spec.UAC, "30c")]
     public void UAC30c_ClosingStandaloneSidebarRemovesLeftPanel()
