@@ -1,8 +1,8 @@
-namespace LowlandTech.Components.Tests.SPEC1078.SessionApp;
+namespace LowlandTech.Components.Tests.SPEC1078.SessionBlock;
 
 [Trait(Spec.SPEC, "1078")]
 [Trait(Spec.SC, "04")]
-[UserStory("03", "SessionApp runtime pipelines")]
+[UserStory("03", "SessionBlock runtime pipelines")]
 public class SC04_TeardownDisposesAllStagesOnCircuitDrop : ViewScenario
 {
     private sealed class DisposableStage(string name, List<string> log) : IPipelineStage
@@ -39,7 +39,7 @@ public class SC04_TeardownDisposesAllStagesOnCircuitDrop : ViewScenario
         registry.Register(stage2);
         Ctx.Services.AddSingleton(registry);
 
-        var cut = Ctx.Render<SessionAppSut>();
+        var cut = Ctx.Render<SessionBlockSut>();
         await cut.InvokeAsync(() => Task.CompletedTask);
 
         log.ShouldContain("execute-alpha");
@@ -65,7 +65,7 @@ public class SC04_TeardownDisposesAllStagesOnCircuitDrop : ViewScenario
         registry.Register(new DisposableStage("second", log));
         Ctx.Services.AddSingleton(registry);
 
-        var cut = Ctx.Render<SessionAppSut>();
+        var cut = Ctx.Render<SessionBlockSut>();
         await cut.InvokeAsync(() => Task.CompletedTask);
         await cut.Instance.DisposeAsync();
 
@@ -83,7 +83,7 @@ public class SC04_TeardownDisposesAllStagesOnCircuitDrop : ViewScenario
         registry.Register(new DisposableStage("solo", log));
         Ctx.Services.AddSingleton(registry);
 
-        var cut = Ctx.Render<SessionAppSut>();
+        var cut = Ctx.Render<SessionBlockSut>();
         await cut.InvokeAsync(() => Task.CompletedTask);
         await cut.Instance.DisposeAsync();
         await cut.Instance.DisposeAsync();
@@ -101,7 +101,7 @@ public class SC04_TeardownDisposesAllStagesOnCircuitDrop : ViewScenario
         registry.Register(stage);
         Ctx.Services.AddSingleton(registry);
 
-        var cut = Ctx.Render<SessionAppSut>();
+        var cut = Ctx.Render<SessionBlockSut>();
         await cut.InvokeAsync(() => Task.CompletedTask);
 
         Ctx.Dispose();

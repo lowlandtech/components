@@ -1,8 +1,8 @@
-namespace LowlandTech.Components.Tests.SPEC1078.SessionApp;
+namespace LowlandTech.Components.Tests.SPEC1078.SessionBlock;
 
 [Trait(Spec.SPEC, "1078")]
 [Trait(Spec.SC, "02")]
-[UserStory("03", "SessionApp runtime pipelines")]
+[UserStory("03", "SessionBlock runtime pipelines")]
 public class SC02_PipelineStagesExecuteInOrder : ViewScenario
 {
     private sealed class TrackingStage(string name, List<string> log) : IPipelineStage
@@ -30,7 +30,7 @@ public class SC02_PipelineStagesExecuteInOrder : ViewScenario
         registry.Register(new TrackingStage("gamma", order));
         Ctx.Services.AddSingleton(registry);
 
-        var cut = Ctx.Render<SessionAppSut>();
+        var cut = Ctx.Render<SessionBlockSut>();
         await cut.InvokeAsync(() => Task.CompletedTask);
 
         order.ShouldBe(["alpha", "beta", "gamma"]);
@@ -45,7 +45,7 @@ public class SC02_PipelineStagesExecuteInOrder : ViewScenario
         registry.Register(new TrackingStage("two", []));
         Ctx.Services.AddSingleton(registry);
 
-        var cut = Ctx.Render<SessionAppSut>();
+        var cut = Ctx.Render<SessionBlockSut>();
         await cut.InvokeAsync(() => Task.CompletedTask);
 
         cut.Instance.Context.ShouldNotBeNull();
@@ -59,7 +59,7 @@ public class SC02_PipelineStagesExecuteInOrder : ViewScenario
     {
         Ctx.Services.AddSingleton(new PipelineRegistry());
 
-        var cut = Ctx.Render<SessionAppSut>();
+        var cut = Ctx.Render<SessionBlockSut>();
         await cut.InvokeAsync(() => Task.CompletedTask);
 
         cut.Instance.PipelineComplete.ShouldBeTrue();

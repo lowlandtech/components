@@ -1,7 +1,7 @@
 namespace LowlandTech.Components;
 
 /// <summary>
-/// A single stage in a <see cref="SessionApp"/> runtime pipeline.
+/// A single stage in a <see cref="SessionBlock"/> runtime pipeline.
 /// Stages are executed sequentially during component initialization
 /// and disposed when the Blazor circuit drops.
 /// </summary>
