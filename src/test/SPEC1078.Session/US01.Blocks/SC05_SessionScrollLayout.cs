@@ -44,7 +44,7 @@ public sealed class SC05_SessionScrollLayout : ViewScenario
     {
         var cut = Ctx.Render<SessionBlock>();
 
-        var main = cut.Find("[data-slot='session-app-main-content']");
+        var main = cut.Find("[data-slot='session-block-main-content']");
         main.ClassList.ShouldContain("min-h-0");
         main.ClassList.ShouldContain("overflow-hidden");
 

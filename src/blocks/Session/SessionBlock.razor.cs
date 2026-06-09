@@ -206,7 +206,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     {
         builder.OpenElement(0, "button");
         builder.AddAttribute(1, "type", "button");
-        builder.AddAttribute(2, "data-testid", "session-app-sidebar-open");
+        builder.AddAttribute(2, "data-testid", "session-block-sidebar-open");
         builder.AddAttribute(3, "data-slot", "tabs-trigger");
         builder.AddAttribute(4, "data-state", "inactive");
         builder.AddAttribute(5, "data-orientation", "horizontal");

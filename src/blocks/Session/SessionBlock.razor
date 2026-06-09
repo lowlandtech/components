@@ -1,26 +1,26 @@
 @namespace LowlandTech.Components
 @inherits TinyComponentBase
 
-<div data-slot="session-app" data-variant="@Variant" class="@GetClass()" style="@GetStyle()" @attributes="AdditionalAttributes">
+<div data-slot="session-block" data-variant="@Variant" class="@GetClass()" style="@GetStyle()" @attributes="AdditionalAttributes">
     @if (HasSidebar)
     {
         <div class="relative h-full min-h-0 w-full">
         <Resizable @key="IsStandaloneSidebarOpen">
             @if (IsStandaloneSidebarOpen)
             {
-            <ResizablePanel DefaultSize="@(HasActiveSession ? 16 : 24)" MinSize="16" MaxSize="38" Id="session-app-sidebar-panel" class="h-full">
+            <ResizablePanel DefaultSize="@(HasActiveSession ? 16 : 24)" MinSize="16" MaxSize="38" Id="session-block-sidebar-panel" class="h-full">
                 <SidebarProvider Open="@_isStandaloneSidebarOpen" OpenChanged="HandleStandaloneSidebarOpenChanged" Width="100%" class="h-full min-h-0">
                     <Sidebar Collapsible="offcanvas" class="@GetLeftSidebarClass()">
                             <div class="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden"
                              style="@(IsNoneVariant ? "padding:10px 4px 10px 10px;" : "padding:10px;")"
-                             data-slot="session-app-left-sidebar">
+                             data-slot="session-block-left-sidebar">
                             <section class="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background">
                             @if (HasActiveSession)
                             {
                                 <SidebarHeader>
                                     <div class="flex items-center justify-between gap-2">
                                         <SidebarBrand LogoSrc="@LogoSrc" LogoAlt="@EffectiveTitle" Title="@EffectiveTitle" />
-                                        <SidebarTrigger data-testid="session-app-sidebar-close" class="border border-border text-muted-foreground hover:bg-muted hover:text-foreground">
+                                        <SidebarTrigger data-testid="session-block-sidebar-close" class="border border-border text-muted-foreground hover:bg-muted hover:text-foreground">
                                             <Icon Name="panel-left-close" Size="14" />
                                         </SidebarTrigger>
                                     </div>
@@ -56,7 +56,7 @@
                                 </SidebarContent>
                                 <SidebarFooter class="w-full items-end">
                                     <button type="button"
-                                            data-testid="session-app-settings-button"
+                                            data-testid="session-block-settings-button"
                                             class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                                             @onclick="ShowSettingsPageAsync">
                                         <Icon Name="settings" Size="14" />
@@ -68,7 +68,7 @@
                                 <SidebarHeader>
                                     <div class="flex items-center justify-between gap-2">
                                         <SidebarBrand LogoSrc="@LogoSrc" LogoAlt="@EffectiveTitle" Title="@EffectiveTitle" />
-                                        <SidebarTrigger data-testid="session-app-sidebar-close" class="border border-border text-muted-foreground hover:bg-muted hover:text-foreground">
+                                        <SidebarTrigger data-testid="session-block-sidebar-close" class="border border-border text-muted-foreground hover:bg-muted hover:text-foreground">
                                             <Icon Name="panel-left-close" Size="14" />
                                         </SidebarTrigger>
                                     </div>
@@ -109,11 +109,11 @@
                                     </SidebarGroup>
                                 </SidebarContent>
                                 <SidebarFooter>
-                                    <div data-slot="session-app-sidebar-footer-summary"
+                                    <div data-slot="session-block-sidebar-footer-summary"
                                          class="sidebar-menu-text grid h-7 w-full grid-cols-2 items-center px-2 text-xs text-muted-foreground">
-<span data-slot="session-app-sidebar-footer-page"
+<span data-slot="session-block-sidebar-footer-page"
                                               class="w-full text-left">@L("PageLabel") 1 / 1</span>
-                                        <span data-slot="session-app-sidebar-footer-rows"
+                                        <span data-slot="session-block-sidebar-footer-rows"
                                               class="w-full text-right">@L("RowsLabel") 10</span>
                                     </div>
                                 </SidebarFooter>
@@ -125,11 +125,11 @@
             </ResizablePanel>
             <ResizableHandle WithHandle="true" RevealOnHover="true" Color="primary" class="relative z-20" />
             }
-            <ResizablePanel DefaultSize="100" MinSize="35" Id="session-app-main-panel" class="h-full">
+            <ResizablePanel DefaultSize="100" MinSize="35" Id="session-block-main-panel" class="h-full">
                 <SidebarInset class="@GetSidebarInsetClass()">
                     <main class="relative flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden"
                           style="@GetMainContentStyle(IsStandaloneSidebarOpen)"
-                          data-slot="session-app-main-content">
+                          data-slot="session-block-main-content">
                         @if (IsSettingsPage)
                         {
                             <SessionSettings class="min-h-0 flex-1">
@@ -169,7 +169,7 @@
                             @if (MaximizedBlock is { } maximizedBlock)
                             {
                                 <div class="flex min-h-full"
-                                     data-slot="session-app-maximized-block"
+                                     data-slot="session-block-maximized-block"
                                      data-block-id="@maximizedBlock.Id">
                                     <SessionContextBlock Block="maximizedBlock"
                                                          Mode="@SessionContextBlock.ModeMaximized"
@@ -184,7 +184,7 @@
                             else if (MaximizedCommand is { } maximizedCommand)
                             {
                                 <div class="flex min-h-full"
-                                     data-slot="session-app-maximized-card"
+                                     data-slot="session-block-maximized-card"
                                      data-command-id="@maximizedCommand.Id">
                                     <SessionCard Node="CreateResponseNode(maximizedCommand)"
                                                  Initials="RS"
@@ -210,10 +210,10 @@
                             }
                             else
                             {
-                                <div class="space-y-3" data-slot="session-app-feed">
+                                <div class="space-y-3" data-slot="session-block-feed">
                                     @if (FeedItems.Count == 0)
                                     {
-                                        <div class="flex flex-col items-center justify-center py-24" data-slot="session-app-feed-empty">
+                                        <div class="flex flex-col items-center justify-center py-24" data-slot="session-block-feed-empty">
                                             <div class="text-center">
                                                 <Icon Paths="<path d='M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/><path d='M8 8h8M8 12h5'/>" Size="28" class="mx-auto text-muted-foreground" />
                                                 <p class="mt-3 text-sm font-medium">@L("EmptyFeedTitle")</p>
@@ -229,7 +229,7 @@
                                             {
                                                 <div @key="item.Key"
                                                      id="@GetCommandTurnId(item.Command!)"
-                                                     data-slot="session-app-turn-section">
+                                                     data-slot="session-block-turn-section">
                                                     <SessionCard Node="CreateResponseNode(item.Command!)"
                                                                  Initials="RS"
                                                                  Mode="@SessionContextBlock.ModeNormal"
@@ -285,7 +285,7 @@
 
                         @if (PageOverlayBlock is { } pageOverlayBlock)
                         {
-                            <div class="@EffectivePageOverlayContainerClass" data-slot="session-app-page-overlay">
+                            <div class="@EffectivePageOverlayContainerClass" data-slot="session-block-page-overlay">
                                 <SessionContextBlock Block="pageOverlayBlock"
                                                      Mode="@SessionContextBlock.ModeMaximized"
                                                      IsPinned="@IsBlockPinned(pageOverlayBlock)"
@@ -298,7 +298,7 @@
                         }
                         else if (PageOverlayCommand is { } pageOverlayCommand)
                         {
-                            <div class="@EffectivePageOverlayContainerClass" data-slot="session-app-page-overlay">
+                            <div class="@EffectivePageOverlayContainerClass" data-slot="session-block-page-overlay">
                                 <SessionCard Node="CreateResponseNode(pageOverlayCommand)"
                                              Initials="RS"
                                              Mode="@SessionContextBlock.ModeMaximized"
@@ -325,23 +325,23 @@
                 </SidebarInset>
             </ResizablePanel>
             <ResizableHandle WithHandle="true" RevealOnHover="true" Color="primary" class="relative z-20" />
-            <ResizablePanel DefaultSize="16" MinSize="12" MaxSize="100" Id="session-app-sections-panel" class="h-full">
+            <ResizablePanel DefaultSize="16" MinSize="12" MaxSize="100" Id="session-block-sections-panel" class="h-full">
                 <aside class="@GetRightSidebarClass()"
-                      data-slot="session-app-right-sidebar"
-                      data-testid="session-app-right-sidebar">
-                     <div data-slot="session-app-right-sidebar-body"
+                      data-slot="session-block-right-sidebar"
+                      data-testid="session-block-right-sidebar">
+                     <div data-slot="session-block-right-sidebar-body"
                           class="flex h-full min-h-0 min-w-0 w-full flex-1 flex-col"
                           style="@GetRightSidebarBodyStyle()">
                          <section class="flex min-h-0 min-w-0 w-full flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background">
                              <header class="flex h-10 shrink-0 items-center gap-2 border-b border-border px-3">
                                  <span class="text-xs font-semibold">@L("Sections")</span>
                                 <span class="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground"
-                                      data-testid="session-app-sections-count">
+                                      data-testid="session-block-sections-count">
                                     @VisibleSections.Count
                                 </span>
                             </header>
                             <div class="min-h-0 flex-1 overflow-y-auto py-1"
-                                 data-slot="session-app-section-links">
+                                 data-slot="session-block-section-links">
                                 @if (VisibleSections.Count == 0)
                                 {
                                     <div class="px-3 py-3 text-xs text-muted-foreground">
@@ -354,7 +354,7 @@
                                     {
                                         <button type="button"
                                                 class="group flex min-h-8 w-full items-center gap-2 px-3 py-1 text-left text-sm font-normal text-foreground transition-colors hover:bg-muted/60"
-                                                data-testid="session-app-section-link"
+                                                data-testid="session-block-section-link"
                                                 data-section-id="@section.Id"
                                                 @onclick="() => ScrollSectionIntoViewAsync(section.Id)">
                                             <span class="min-w-0 flex-1 truncate">@section.Label</span>
@@ -373,20 +373,20 @@
     else
     {
         <Resizable>
-            <ResizablePanel DefaultSize="24" MinSize="16" MaxSize="38" Id="session-app-left-panel" class="h-full">
+            <ResizablePanel DefaultSize="24" MinSize="16" MaxSize="38" Id="session-block-left-panel" class="h-full">
                    <aside class="@GetLeftPanelClass()"
-                       data-slot="session-app-left-sidebar">
+                       data-slot="session-block-left-sidebar">
                     <div class="flex h-full min-h-0 w-full flex-1 flex-col"
-                        data-slot="session-app-left-sidebar-body"
+                        data-slot="session-block-left-sidebar-body"
                         style="@(IsNoneVariant ? "padding:10px 4px 10px 10px;" : "padding:10px;")">
                         <div class="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden"
-                            data-slot="session-app-left-sidebar">
+                            data-slot="session-block-left-sidebar">
                         @if (HasActiveSession)
                         {
                             <section class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background">
                                 <header class="flex h-10 shrink-0 items-center gap-2 border-b border-border px-3">
                                     <button type="button"
-                                            data-slot="session-app-sidebar-back"
+                                            data-slot="session-block-sidebar-back"
                                             class="inline-flex h-7 items-center rounded-md border border-border pl-1 pr-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                                             @onclick="ShowSessionsAsync">
                                         @L("Back")
@@ -426,10 +426,10 @@
             {
                 <ResizableHandle WithHandle="true" RevealOnHover="true" Color="primary" class="relative z-20" />
             }
-            <ResizablePanel DefaultSize="@(HasActiveSession ? 84 : 60)" MinSize="35" Id="session-app-main-panel" class="h-full">
+            <ResizablePanel DefaultSize="@(HasActiveSession ? 84 : 60)" MinSize="35" Id="session-block-main-panel" class="h-full">
                 <main class="relative flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden"
                       style="@GetMainContentStyle(!HasActiveSession)"
-                      data-slot="session-app-main-content">
+                      data-slot="session-block-main-content">
                     <SessionContent State="ViewState"
                                     OpenNodes="ViewState.OpenNodes"
                                     SelectedNode="CurrentSessionNode"
@@ -444,7 +444,7 @@
                         @if (MaximizedBlock is { } maximizedBlock)
                         {
                             <div class="flex min-h-full"
-                                 data-slot="session-app-maximized-block"
+                                 data-slot="session-block-maximized-block"
                                  data-block-id="@maximizedBlock.Id">
                                 <SessionContextBlock Block="maximizedBlock"
                                                      Mode="@SessionContextBlock.ModeMaximized"
@@ -459,7 +459,7 @@
                         else if (MaximizedCommand is { } maximizedCommand)
                         {
                             <div class="flex min-h-full"
-                                 data-slot="session-app-maximized-card"
+                                 data-slot="session-block-maximized-card"
                                  data-command-id="@maximizedCommand.Id">
                                 <SessionCard Node="CreateResponseNode(maximizedCommand)"
                                              Initials="RS"
@@ -485,10 +485,10 @@
                         }
                         else
                         {
-                            <div class="space-y-3" data-slot="session-app-feed">
+                            <div class="space-y-3" data-slot="session-block-feed">
                                 @if (FeedItems.Count == 0)
                                 {
-                                    <div class="flex flex-col items-center justify-center py-24" data-slot="session-app-feed-empty">
+                                    <div class="flex flex-col items-center justify-center py-24" data-slot="session-block-feed-empty">
                                         <div class="text-center">
                                             <Icon Paths="<path d='M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/><path d='M8 8h8M8 12h5'/>" Size="28" class="mx-auto text-muted-foreground" />
                                             <p class="mt-3 text-sm font-medium">@L("EmptyFeedTitle")</p>
@@ -504,7 +504,7 @@
                                         {
                                             <div @key="item.Key"
                                                  id="@GetCommandTurnId(item.Command!)"
-                                                 data-slot="session-app-turn-section">
+                                                 data-slot="session-block-turn-section">
                                                 <SessionCard Node="CreateResponseNode(item.Command!)"
                                                              Initials="RS"
                                                              Mode="@SessionContextBlock.ModeNormal"
@@ -559,7 +559,7 @@
 
                     @if (PageOverlayBlock is { } pageOverlayBlock)
                     {
-                        <div class="@EffectivePageOverlayContainerClass" data-slot="session-app-page-overlay">
+                        <div class="@EffectivePageOverlayContainerClass" data-slot="session-block-page-overlay">
                             <SessionContextBlock Block="pageOverlayBlock"
                                                  Mode="@SessionContextBlock.ModeMaximized"
                                                  IsPinned="@IsBlockPinned(pageOverlayBlock)"
@@ -572,7 +572,7 @@
                     }
                     else if (PageOverlayCommand is { } pageOverlayCommand)
                     {
-                        <div class="@EffectivePageOverlayContainerClass" data-slot="session-app-page-overlay">
+                        <div class="@EffectivePageOverlayContainerClass" data-slot="session-block-page-overlay">
                             <SessionCard Node="CreateResponseNode(pageOverlayCommand)"
                                          Initials="RS"
                                          Mode="@SessionContextBlock.ModeMaximized"
@@ -598,23 +598,23 @@
                 </main>
             </ResizablePanel>
             <ResizableHandle WithHandle="true" RevealOnHover="true" Color="primary" class="z-10" />
-            <ResizablePanel DefaultSize="16" MinSize="12" MaxSize="100" Id="session-app-sections-panel" class="h-full">
+            <ResizablePanel DefaultSize="16" MinSize="12" MaxSize="100" Id="session-block-sections-panel" class="h-full">
                 <aside class="@GetRightSidebarClass()"
-                      data-slot="session-app-right-sidebar"
-                      data-testid="session-app-right-sidebar">
-                    <div data-slot="session-app-right-sidebar-body"
+                      data-slot="session-block-right-sidebar"
+                      data-testid="session-block-right-sidebar">
+                    <div data-slot="session-block-right-sidebar-body"
                          class="flex h-full min-h-0 min-w-0 w-full flex-1 flex-col"
                          style="@GetRightSidebarBodyStyle()">
                         <section class="flex min-h-0 min-w-0 w-full flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background">
                         <header class="flex h-10 shrink-0 items-center gap-2 border-b border-border px-3">
                             <span class="text-xs font-semibold">@L("Sections")</span>
                             <span class="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground"
-                                  data-testid="session-app-sections-count">
+                                  data-testid="session-block-sections-count">
                                 @VisibleSections.Count
                             </span>
                         </header>
                         <div class="min-h-0 flex-1 overflow-y-auto py-1"
-                             data-slot="session-app-section-links">
+                             data-slot="session-block-section-links">
                             @if (VisibleSections.Count == 0)
                             {
                                 <div class="px-3 py-3 text-xs text-muted-foreground">
@@ -627,7 +627,7 @@
                                 {
                                     <button type="button"
                                             class="group flex min-h-8 w-full items-center gap-2 px-3 py-1 text-left text-sm font-normal text-foreground transition-colors hover:bg-muted/60"
-                                            data-testid="session-app-section-link"
+                                            data-testid="session-block-section-link"
                                             data-section-id="@section.Id"
                                             @onclick="() => ScrollSectionIntoViewAsync(section.Id)">
                                         <span class="min-w-0 flex-1 truncate">@section.Label</span>

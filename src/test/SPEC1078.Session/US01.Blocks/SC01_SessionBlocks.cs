@@ -352,11 +352,11 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-node-id='orders-session']").Click();
         cut.Find("[data-testid='session-command-input']").Input("Trace all state changes");
         cut.Find("[data-testid='session-command-submit']").Click();
-        cut.Find("[data-testid='session-app-settings-button']").Click();
+        cut.Find("[data-testid='session-block-settings-button']").Click();
 
         cut.Find("[data-slot='session-settings']").ShouldNotBeNull();
         cut.Find("[data-slot='session-settings-api-keys']").ShouldNotBeNull();
-        cut.FindAll("[data-slot='session-app-feed']").ShouldBeEmpty();
+        cut.FindAll("[data-slot='session-block-feed']").ShouldBeEmpty();
         stateService.State.ActivePage.ShouldBe(SessionBlockPage.Settings);
         stateService.State.EventLogEntries.ShouldContain(entry => entry.ActionType == nameof(SetActiveSession));
         stateService.State.EventLogEntries.ShouldContain(entry => entry.ActionType == nameof(SetSessionInput));
@@ -379,7 +379,7 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-node-id='orders-session']").Click();
         cut.Find("[data-testid='session-command-input']").Input("Clear journal");
         cut.Find("[data-testid='session-command-submit']").Click();
-        cut.Find("[data-testid='session-app-settings-button']").Click();
+        cut.Find("[data-testid='session-block-settings-button']").Click();
         cut.Find("[data-testid='session-settings-activity-tab']").Click();
 
         cut.FindAll("[data-slot='session-event-log-header']").ShouldBeEmpty();
@@ -403,13 +403,13 @@ public class SC01_SessionBlocks : ViewScenario
 
         cut.Find("[data-node-id='orders-session']").Click();
 
-        cut.Find("[data-testid='session-app-settings-button']").Click();
+        cut.Find("[data-testid='session-block-settings-button']").Click();
         cut.Find("[data-slot='session-settings']").ShouldNotBeNull();
         stateService.State.ActivePage.ShouldBe(SessionBlockPage.Settings);
 
-        cut.Find("[data-testid='session-app-settings-button']").Click();
+        cut.Find("[data-testid='session-block-settings-button']").Click();
         cut.FindAll("[data-slot='session-settings']").ShouldBeEmpty();
-        cut.Find("[data-slot='session-app-feed']").ShouldNotBeNull();
+        cut.Find("[data-slot='session-block-feed']").ShouldNotBeNull();
         stateService.State.ActivePage.ShouldBe(SessionBlockPage.Feed);
     }
 
@@ -426,7 +426,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.StateService, stateService));
 
         cut.Find("[data-node-id='orders-session']").Click();
-        cut.Find("[data-testid='session-app-settings-button']").Click();
+        cut.Find("[data-testid='session-block-settings-button']").Click();
         var initialRows = cut.FindAll("[data-testid='session-settings-api-key-row']").Count;
 
         cut.Find("[data-testid='session-settings-create-api-key']").Click();
@@ -582,7 +582,7 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-slot='session-turn-prompt']").TextContent.ShouldContain("Hello test");
         cut.Find("[data-slot='session-turn-response-text']").GetAttribute("data-streaming").ShouldBe("false");
         cut.Find("[data-slot='session-command-input']").GetAttribute("value").ShouldBe("");
-        cut.FindAll("[data-slot='session-app-turn-section']").Count.ShouldBe(1);
+        cut.FindAll("[data-slot='session-block-turn-section']").Count.ShouldBe(1);
     }
 
     [Fact(DisplayName = "UAC16c: SessionBlock accumulates multiple submitted commands")]
@@ -607,7 +607,7 @@ public class SC01_SessionBlocks : ViewScenario
         markup.ShouldContain("Second question");
         markup.ShouldContain("Third question");
 
-        cut.FindAll("[data-slot='session-app-turn-section']").Count.ShouldBe(3); // 3 agent responses
+        cut.FindAll("[data-slot='session-block-turn-section']").Count.ShouldBe(3); // 3 agent responses
     }
 
     [Fact(DisplayName = "UAC16d: SessionBlock interleaves blocks and commands chronologically")]
@@ -684,7 +684,7 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-testid='session-command-input']").Input("Second test ask");
         cut.Find("[data-testid='session-command-submit']").Click();
 
-        var feed = cut.Find("[data-slot='session-app-feed']");
+        var feed = cut.Find("[data-slot='session-block-feed']");
         var feedText = feed.TextContent;
 
         var invoiceIndex = feedText.IndexOf("Invoice approval", StringComparison.Ordinal);
@@ -724,7 +724,7 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-testid='session-command-input']").Input("Same run");
         cut.Find("[data-testid='session-command-submit']").Click();
 
-        var turns = cut.FindAll("[data-slot='session-app-turn-section']");
+        var turns = cut.FindAll("[data-slot='session-block-turn-section']");
         turns.Count.ShouldBe(3);
         cut.FindAll("[data-slot='session-turn-prompt']").Count.ShouldBe(3);
         cut.FindAll("[data-slot='session-turn-response-text']").Count.ShouldBe(3);
@@ -735,7 +735,7 @@ public class SC01_SessionBlocks : ViewScenario
 
         responseIds.Count.ShouldBe(3);
         responseIds.Distinct(StringComparer.Ordinal).Count().ShouldBe(3);
-        cut.FindAll("[data-testid='session-app-section-link']").Count.ShouldBe(3);
+        cut.FindAll("[data-testid='session-block-section-link']").Count.ShouldBe(3);
     }
 
     [Fact(DisplayName = "UAC17: SessionBlock projects one transient feed block and replaces it on context selection change")]
@@ -778,7 +778,7 @@ public class SC01_SessionBlocks : ViewScenario
 
         cut.Find("[data-node-id='northwind']").Click();
 
-        var feedText = cut.Find("[data-slot='session-app-feed']").TextContent;
+        var feedText = cut.Find("[data-slot='session-block-feed']").TextContent;
         var pinnedIndex = feedText.IndexOf("Shipment delay", StringComparison.Ordinal);
         var responseIndex = feedText.IndexOf("Earlier response", StringComparison.Ordinal);
         var projectedIndex = feedText.IndexOf("Northwind Traders", StringComparison.Ordinal);
@@ -800,13 +800,13 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-node-id='invoice-approval']").Click();
         cut.Find("[data-block-id='projected-context-block']").TextContent.ShouldContain("Invoice approval");
 
-        cut.Find("[data-slot='session-app-sidebar-back']").Click();
+        cut.Find("[data-slot='session-block-sidebar-back']").Click();
         cut.Find("[data-node-id='support-session']").Click();
 
         cut.FindAll("[data-block-id='projected-context-block']").Count.ShouldBe(0);
         cut.Markup.ShouldNotContain("Invoice detail block projected into the active session feed.");
 
-        cut.Find("[data-slot='session-app-sidebar-back']").Click();
+        cut.Find("[data-slot='session-block-sidebar-back']").Click();
         cut.Find("[data-node-id='release-session']").Click();
 
         cut.Find("[data-block-id='projected-context-block']").TextContent.ShouldContain("Invoice approval");
@@ -821,7 +821,7 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-node-id='release-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
 
-        var feed = cut.Find("[data-slot='session-app-feed']");
+        var feed = cut.Find("[data-slot='session-block-feed']");
         feed.ShouldNotBeNull();
         feed.QuerySelectorAll("[data-slot='session-context-block']").Count.ShouldBeGreaterThan(0);
     }
@@ -936,25 +936,25 @@ public class SC01_SessionBlocks : ViewScenario
 
         cut.Find("[data-node-id='release-session']").Click();
 
-        var sidebar = cut.Find("[data-testid='session-app-right-sidebar']");
+        var sidebar = cut.Find("[data-testid='session-block-right-sidebar']");
         sidebar.ShouldNotBeNull();
         sidebar.ClassList.ShouldNotContain("p-3");
-        var sidebarBody = cut.Find("[data-slot='session-app-right-sidebar-body']");
+        var sidebarBody = cut.Find("[data-slot='session-block-right-sidebar-body']");
         var sidebarBodyStyle = sidebarBody.GetAttribute("style");
         sidebarBodyStyle.ShouldNotBeNull();
         sidebarBodyStyle.ShouldContain("padding:10px");
         var panel = sidebar.QuerySelector("section.rounded-lg.border.border-border.bg-background");
         panel.ShouldNotBeNull();
         panel!.ClassList.ShouldContain("w-full");
-        cut.Find("[data-testid='session-app-sections-count']").TextContent.Trim().ShouldBe("0");
-        cut.FindAll("[data-testid='session-app-section-link']").ShouldBeEmpty();
+        cut.Find("[data-testid='session-block-sections-count']").TextContent.Trim().ShouldBe("0");
+        cut.FindAll("[data-testid='session-block-section-link']").ShouldBeEmpty();
 
         cut.Find("[data-node-id='invoice-approval']").Click();
 
-        cut.FindAll("[data-testid='session-app-right-sidebar'] [data-testid='session-app-sections-tab-turns']").ShouldBeEmpty();
-        cut.FindAll("[data-testid='session-app-right-sidebar'] [data-testid='session-app-sections-tab-blocks']").ShouldBeEmpty();
-        cut.Find("[data-testid='session-app-sections-count']").TextContent.Trim().ShouldBe("1");
-        cut.FindAll("[data-testid='session-app-section-link']").Count.ShouldBe(1);
+        cut.FindAll("[data-testid='session-block-right-sidebar'] [data-testid='session-block-sections-tab-turns']").ShouldBeEmpty();
+        cut.FindAll("[data-testid='session-block-right-sidebar'] [data-testid='session-block-sections-tab-blocks']").ShouldBeEmpty();
+        cut.Find("[data-testid='session-block-sections-count']").TextContent.Trim().ShouldBe("1");
+        cut.FindAll("[data-testid='session-block-section-link']").Count.ShouldBe(1);
         cut.Find("[data-section-id='projected-context-block']").TextContent.ShouldContain("Invoice approval");
 
         cut.Find("[data-section-id='projected-context-block']").Click();
@@ -973,15 +973,15 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var cut = Ctx.Render<SessionBlock>();
 
-        var sidebar = cut.Find("[data-testid='session-app-right-sidebar']");
+        var sidebar = cut.Find("[data-testid='session-block-right-sidebar']");
         sidebar.TextContent.ShouldContain("No sections");
-        cut.Find("[data-testid='session-app-sections-count']").TextContent.Trim().ShouldBe("0");
-        cut.FindAll("[data-testid='session-app-section-link']").ShouldBeEmpty();
+        cut.Find("[data-testid='session-block-sections-count']").TextContent.Trim().ShouldBe("0");
+        cut.FindAll("[data-testid='session-block-section-link']").ShouldBeEmpty();
 
         cut.Find("[data-node-id='orders-session']").Click();
 
-        cut.Find("[data-testid='session-app-sections-count']").TextContent.Trim().ShouldBe("0");
-        cut.FindAll("[data-testid='session-app-section-link']").ShouldBeEmpty();
+        cut.Find("[data-testid='session-block-sections-count']").TextContent.Trim().ShouldBe("0");
+        cut.FindAll("[data-testid='session-block-section-link']").ShouldBeEmpty();
     }
 
     [Fact(DisplayName = "UAC26: SessionBlock session row counts match each session's child sections")]
@@ -997,9 +997,9 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-node-id='orders-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
 
-        cut.Find("[data-testid='session-app-sections-count']").TextContent.Trim().ShouldBe("1");
+        cut.Find("[data-testid='session-block-sections-count']").TextContent.Trim().ShouldBe("1");
 
-        cut.Find("[data-slot='session-app-sidebar-back']").Click();
+        cut.Find("[data-slot='session-block-sidebar-back']").Click();
 
         FindSessionCount(cut, "orders-session").ShouldBe("1");
         FindSessionCount(cut, "support-session").ShouldBe("0");
@@ -1016,11 +1016,11 @@ public class SC01_SessionBlocks : ViewScenario
         cut.FindAll("[data-slot='resizable-panel']").Count.ShouldBe(3);
         cut.FindAll("[data-slot='resizable-handle']").Count.ShouldBe(2);
 
-        cut.Find("[data-panel='session-app-left-panel']").ShouldNotBeNull();
-        cut.Find("[data-panel='session-app-main-panel']").ShouldNotBeNull();
-        cut.Find("[data-panel='session-app-sections-panel']").ShouldNotBeNull();
-        cut.Find("[data-panel='session-app-main-panel']").ClassList.ShouldContain("h-full");
-        cut.Find("[data-panel='session-app-main-panel'] > main").ClassList.ShouldContain("h-full");
+        cut.Find("[data-panel='session-block-left-panel']").ShouldNotBeNull();
+        cut.Find("[data-panel='session-block-main-panel']").ShouldNotBeNull();
+        cut.Find("[data-panel='session-block-sections-panel']").ShouldNotBeNull();
+        cut.Find("[data-panel='session-block-main-panel']").ClassList.ShouldContain("h-full");
+        cut.Find("[data-panel='session-block-main-panel'] > main").ClassList.ShouldContain("h-full");
         cut.FindAll("[data-slot='resizable-handle']")
             .ShouldAllBe(handle => handle.GetAttribute("data-reveal-on-hover") == "true");
         cut.FindAll("[data-slot='resizable-handle']")
@@ -1039,17 +1039,17 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-block-id='projected-context-block'] [data-testid='card-mode-menu-trigger']").Click();
         ClickOpenCardMode("Maximized");
 
-        var maximized = cut.Find("[data-slot='session-app-maximized-block']");
+        var maximized = cut.Find("[data-slot='session-block-maximized-block']");
         maximized.GetAttribute("data-block-id").ShouldBe("projected-context-block");
         maximized.TextContent.ShouldContain("Invoice approval");
-        cut.Find("[data-slot='session-app-maximized-block'] [data-mode='maximized']").ShouldNotBeNull();
-        cut.FindAll("[data-slot='session-app-feed']").ShouldBeEmpty();
+        cut.Find("[data-slot='session-block-maximized-block'] [data-mode='maximized']").ShouldNotBeNull();
+        cut.FindAll("[data-slot='session-block-feed']").ShouldBeEmpty();
 
-        cut.Find("[data-slot='session-app-maximized-block'] [data-testid='card-mode-menu-trigger']").Click();
+        cut.Find("[data-slot='session-block-maximized-block'] [data-testid='card-mode-menu-trigger']").Click();
         ClickOpenCardMode("Normal");
 
-        cut.FindAll("[data-slot='session-app-maximized-block']").ShouldBeEmpty();
-        cut.Find("[data-slot='session-app-feed']").ShouldNotBeNull();
+        cut.FindAll("[data-slot='session-block-maximized-block']").ShouldBeEmpty();
+        cut.Find("[data-slot='session-block-feed']").ShouldNotBeNull();
     }
 
     [Fact(DisplayName = "UAC28b: SessionBlock keeps a feed context block minimized after the mode change rerenders the host")]
@@ -1108,14 +1108,14 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-node-id='orders-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
 
-        var initialFeed = cut.Find("[data-slot='session-app-feed']").TextContent;
+        var initialFeed = cut.Find("[data-slot='session-block-feed']").TextContent;
         initialFeed.IndexOf("Invoice approval", StringComparison.Ordinal)
             .ShouldBeGreaterThan(initialFeed.IndexOf("Release context", StringComparison.Ordinal));
 
         cut.Find("[data-testid='session-command-input']").Input("Move projection after this response");
         cut.Find("[data-testid='session-command-submit']").Click();
 
-        var updatedFeed = cut.Find("[data-slot='session-app-feed']").TextContent;
+        var updatedFeed = cut.Find("[data-slot='session-block-feed']").TextContent;
         var responseIndex = updatedFeed.IndexOf("Move projection after this response", StringComparison.Ordinal);
         var projectionIndex = updatedFeed.IndexOf("Invoice approval", StringComparison.Ordinal);
 
@@ -1139,17 +1139,17 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-node-id^='response:'] [data-testid='card-mode-menu-trigger']").Click();
         ClickOpenCardMode("Maximized");
 
-        var maximized = cut.Find("[data-slot='session-app-maximized-card']");
+        var maximized = cut.Find("[data-slot='session-block-maximized-card']");
         maximized.GetAttribute("data-command-id").ShouldNotBeNullOrWhiteSpace();
         maximized.TextContent.ShouldContain("Maximize this answer");
-        cut.Find("[data-slot='session-app-maximized-card'] [data-mode='maximized']").ShouldNotBeNull();
-        cut.FindAll("[data-slot='session-app-feed']").ShouldBeEmpty();
+        cut.Find("[data-slot='session-block-maximized-card'] [data-mode='maximized']").ShouldNotBeNull();
+        cut.FindAll("[data-slot='session-block-feed']").ShouldBeEmpty();
 
-        cut.Find("[data-slot='session-app-maximized-card'] [data-testid='card-mode-menu-trigger']").Click();
+        cut.Find("[data-slot='session-block-maximized-card'] [data-testid='card-mode-menu-trigger']").Click();
         ClickOpenCardMode("Normal");
 
-        cut.FindAll("[data-slot='session-app-maximized-card']").ShouldBeEmpty();
-        cut.Find("[data-slot='session-app-feed']").ShouldNotBeNull();
+        cut.FindAll("[data-slot='session-block-maximized-card']").ShouldBeEmpty();
+        cut.Find("[data-slot='session-block-feed']").ShouldNotBeNull();
     }
 
     [Fact(DisplayName = "UAC30: SessionBlock HasSidebar uses the Sidebar shell")]
@@ -1162,7 +1162,7 @@ public class SC01_SessionBlocks : ViewScenario
         var embedded = Ctx.Render<SessionBlock>();
 
         embedded.FindAll("[data-slot='sidebar-provider']").ShouldBeEmpty();
-        embedded.Find("[data-panel='session-app-left-panel']").ShouldNotBeNull();
+        embedded.Find("[data-panel='session-block-left-panel']").ShouldNotBeNull();
         embedded.FindAll("[data-slot='resizable-panel']").Count.ShouldBe(3);
 
         var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
@@ -1170,21 +1170,21 @@ public class SC01_SessionBlocks : ViewScenario
         standalone.Find("[data-slot='sidebar-provider']").ShouldNotBeNull();
         standalone.Find("[data-slot='sidebar']").ShouldNotBeNull();
         standalone.Find("[data-slot='sidebar-inset']").ShouldNotBeNull();
-        var shellStyle = standalone.Find("[data-slot='session-app']").GetAttribute("style");
+        var shellStyle = standalone.Find("[data-slot='session-block']").GetAttribute("style");
         shellStyle.ShouldNotBeNull();
         // Standalone SessionBlock fills its container (height:100%) rather than
         // a fixed 42rem — the parent component sizes the shell.
         shellStyle.ShouldContain("height:100%");
-        standalone.FindAll("[data-panel='session-app-left-panel']").ShouldBeEmpty();
+        standalone.FindAll("[data-panel='session-block-left-panel']").ShouldBeEmpty();
         standalone.FindAll("[data-slot='resizable-panel']").Count.ShouldBe(3);
-        standalone.Find("[data-panel='session-app-sidebar-panel']").ShouldNotBeNull();
-        standalone.Find("[data-panel='session-app-main-panel']").ShouldNotBeNull();
-        standalone.Find("[data-panel='session-app-sections-panel']").ShouldNotBeNull();
-        standalone.Find("[data-panel='session-app-sidebar-panel']").ClassList.ShouldContain("h-full");
-        standalone.Find("[data-panel='session-app-sidebar-panel']").ClassList.ShouldContain("self-stretch");
-        standalone.Find("[data-panel='session-app-main-panel']").ClassList.ShouldContain("h-full");
-        standalone.Find("[data-panel='session-app-sections-panel']").ClassList.ShouldContain("h-full");
-        standalone.Find("[data-panel='session-app-sections-panel']").ClassList.ShouldContain("self-stretch");
+        standalone.Find("[data-panel='session-block-sidebar-panel']").ShouldNotBeNull();
+        standalone.Find("[data-panel='session-block-main-panel']").ShouldNotBeNull();
+        standalone.Find("[data-panel='session-block-sections-panel']").ShouldNotBeNull();
+        standalone.Find("[data-panel='session-block-sidebar-panel']").ClassList.ShouldContain("h-full");
+        standalone.Find("[data-panel='session-block-sidebar-panel']").ClassList.ShouldContain("self-stretch");
+        standalone.Find("[data-panel='session-block-main-panel']").ClassList.ShouldContain("h-full");
+        standalone.Find("[data-panel='session-block-sections-panel']").ClassList.ShouldContain("h-full");
+        standalone.Find("[data-panel='session-block-sections-panel']").ClassList.ShouldContain("self-stretch");
         standalone.Find("[data-slot='sidebar-inset'] > main").ClassList.ShouldContain("h-full");
         var standaloneMainStyle = standalone.Find("[data-slot='sidebar-inset'] > main").GetAttribute("style");
         standaloneMainStyle.ShouldNotBeNull();
@@ -1206,8 +1206,8 @@ public class SC01_SessionBlocks : ViewScenario
         standalone.FindAll("[data-slot='sidebar-menu-item']").Count.ShouldBeGreaterThanOrEqualTo(1);
         standalone.FindAll("[data-slot='session-list'] [data-testid='session-list-item']").Count.ShouldBe(3);
         standalone.FindAll("[data-slot='session-list'] [data-slot='sidebar-menu-badge']").Count.ShouldBe(3);
-        standalone.Find("[data-slot='session-app-left-sidebar']").ShouldNotBeNull();
-        standalone.Find("[data-testid='session-app-right-sidebar']").ShouldNotBeNull();
+        standalone.Find("[data-slot='session-block-left-sidebar']").ShouldNotBeNull();
+        standalone.Find("[data-testid='session-block-right-sidebar']").ShouldNotBeNull();
 
         standalone.Find("[data-node-id='orders-session']").Click();
         standalone.Find("[data-slot='session-content-body']").ShouldNotBeNull();
@@ -1222,17 +1222,17 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
-        var footerSummary = standalone.Find("[data-slot='session-app-sidebar-footer-summary']");
+        var footerSummary = standalone.Find("[data-slot='session-block-sidebar-footer-summary']");
         footerSummary.ClassList.ShouldContain("grid");
         footerSummary.ClassList.ShouldContain("w-full");
         footerSummary.ClassList.ShouldContain("grid-cols-2");
 
-        var footerPage = standalone.Find("[data-slot='session-app-sidebar-footer-page']");
+        var footerPage = standalone.Find("[data-slot='session-block-sidebar-footer-page']");
         footerPage.TextContent.Trim().ShouldBe("Page 1 / 1");
         footerPage.ClassList.ShouldContain("w-full");
         footerPage.ClassList.ShouldContain("text-left");
 
-        var footerRows = standalone.Find("[data-slot='session-app-sidebar-footer-rows']");
+        var footerRows = standalone.Find("[data-slot='session-block-sidebar-footer-rows']");
         footerRows.TextContent.Trim().ShouldBe("Rows 10");
         footerRows.ClassList.ShouldContain("w-full");
         footerRows.ClassList.ShouldContain("text-right");
@@ -1244,12 +1244,12 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
-        var leftSidebar = standalone.Find("[data-slot='session-app-left-sidebar']");
+        var leftSidebar = standalone.Find("[data-slot='session-block-left-sidebar']");
         leftSidebar.ClassList.ShouldContain("h-full");
         leftSidebar.ClassList.ShouldContain("w-full");
         leftSidebar.ClassList.ShouldContain("flex-1");
 
-        var appShellStyle = standalone.Find("[data-slot='session-app']").GetAttribute("style");
+        var appShellStyle = standalone.Find("[data-slot='session-block']").GetAttribute("style");
         appShellStyle.ShouldNotBeNull();
         // Standalone SessionBlock fills its container (height:100%) rather than
         // a fixed 42rem — the parent component sizes the shell.
@@ -1265,17 +1265,17 @@ public class SC01_SessionBlocks : ViewScenario
         sessionList.ClassList.ShouldContain("w-full");
         sessionList.ClassList.ShouldContain("flex-1");
 
-        var rightSidebar = standalone.Find("[data-testid='session-app-right-sidebar']");
+        var rightSidebar = standalone.Find("[data-testid='session-block-right-sidebar']");
         rightSidebar.ClassList.ShouldContain("h-full");
         rightSidebar.ClassList.ShouldContain("min-w-0");
         rightSidebar.ClassList.ShouldContain("w-full");
         rightSidebar.ClassList.ShouldNotContain("p-3");
-        var rightSidebarBodyStyle = standalone.Find("[data-slot='session-app-right-sidebar-body']").GetAttribute("style");
+        var rightSidebarBodyStyle = standalone.Find("[data-slot='session-block-right-sidebar-body']").GetAttribute("style");
         rightSidebarBodyStyle.ShouldNotBeNull();
         rightSidebarBodyStyle.ShouldContain("padding:10px");
 
-        standalone.Find("[data-panel='session-app-sidebar-panel']").ClassList.ShouldContain("self-stretch");
-        standalone.Find("[data-panel='session-app-sections-panel']").ClassList.ShouldContain("self-stretch");
+        standalone.Find("[data-panel='session-block-sidebar-panel']").ClassList.ShouldContain("self-stretch");
+        standalone.Find("[data-panel='session-block-sections-panel']").ClassList.ShouldContain("self-stretch");
     }
 
     [Fact(DisplayName = "UAC30d: Main panel subtracts adjacent splitter widths from its horizontal padding")]
@@ -1289,8 +1289,8 @@ public class SC01_SessionBlocks : ViewScenario
         var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
         const string compensatedPadding = "padding:10px 6px 10px 6px;";
-        embedded.Find("[data-slot='session-app-main-content']").GetAttribute("style").ShouldBe(compensatedPadding);
-        standalone.Find("[data-slot='session-app-main-content']").GetAttribute("style").ShouldBe(compensatedPadding);
+        embedded.Find("[data-slot='session-block-main-content']").GetAttribute("style").ShouldBe(compensatedPadding);
+        standalone.Find("[data-slot='session-block-main-content']").GetAttribute("style").ShouldBe(compensatedPadding);
 
         var splitters = standalone.FindAll("[data-slot='resizable-handle']");
         splitters.First().ClassList.ShouldContain("w-[4px]");
@@ -1312,10 +1312,10 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
-        standalone.Find("[data-testid='session-app-sidebar-close']").Click();
+        standalone.Find("[data-testid='session-block-sidebar-close']").Click();
 
         standalone.FindAll("[data-slot='resizable-handle']").Count.ShouldBe(1);
-        standalone.Find("[data-slot='session-app-main-content']")
+        standalone.Find("[data-slot='session-block-main-content']")
             .GetAttribute("style")
             .ShouldBe("padding:10px 6px 10px 10px;");
     }
@@ -1330,13 +1330,13 @@ public class SC01_SessionBlocks : ViewScenario
         var outlined = Ctx.Render<SessionBlock>();
         var none = Ctx.Render<SessionBlock>(p => p.Add(x => x.Variant, "none"));
 
-        var outlinedRoot = outlined.Find("[data-slot='session-app']");
+        var outlinedRoot = outlined.Find("[data-slot='session-block']");
         outlinedRoot.GetAttribute("data-variant").ShouldBe("outlined");
         outlinedRoot.ClassList.ShouldContain("rounded-lg");
         outlinedRoot.ClassList.ShouldContain("border");
         outlinedRoot.ClassList.ShouldContain("border-border");
 
-        var noneRoot = none.Find("[data-slot='session-app']");
+        var noneRoot = none.Find("[data-slot='session-block']");
         noneRoot.GetAttribute("data-variant").ShouldBe("none");
         noneRoot.ClassList.ShouldNotContain("rounded-lg");
         noneRoot.ClassList.ShouldNotContain("border");
@@ -1358,8 +1358,8 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.HasSidebar, true)
             .Add(x => x.SidebarPersistKey, persistKey));
 
-        standalone.Find("[data-testid='session-app-sidebar-close']").Click();
-        standalone.Find("[data-testid='session-app-sidebar-open']").Click();
+        standalone.Find("[data-testid='session-block-sidebar-close']").Click();
+        standalone.Find("[data-testid='session-block-sidebar-open']").Click();
 
         var writes = Ctx.JSInterop.Invocations
             .Where(invocation => invocation.Identifier == "localStorage.setItem")
@@ -1386,11 +1386,11 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.HasSidebar, true)
             .Add(x => x.SidebarPersistKey, persistKey));
 
-        standalone.FindAll("[data-panel='session-app-sidebar-panel']").ShouldBeEmpty();
+        standalone.FindAll("[data-panel='session-block-sidebar-panel']").ShouldBeEmpty();
         standalone.FindAll("[data-slot='resizable-panel']").Count.ShouldBe(2);
         standalone.FindAll("[data-slot='resizable-handle']").Count.ShouldBe(1);
-        standalone.Find("[data-testid='session-app-sidebar-open']").ShouldNotBeNull();
-        standalone.Find("[data-slot='session-app-main-content']")
+        standalone.Find("[data-testid='session-block-sidebar-open']").ShouldNotBeNull();
+        standalone.Find("[data-slot='session-block-main-content']")
             .GetAttribute("style")
             .ShouldBe("padding:10px 6px 10px 10px;");
     }
@@ -1404,7 +1404,7 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
-        standalone.Find("[data-testid='session-app-sidebar-close']").Click();
+        standalone.Find("[data-testid='session-block-sidebar-close']").Click();
 
         var emptyHeader = standalone.Find("[data-slot='session-content-empty-header']");
         emptyHeader.ClassList.ShouldContain("h-10");
@@ -1417,7 +1417,7 @@ public class SC01_SessionBlocks : ViewScenario
         emptyLeading.ShouldNotBeNull();
         emptyLeading.ClassList.ShouldContain("shrink-0");
 
-        var emptyButton = emptyHeader.QuerySelector("[data-testid='session-app-sidebar-open']");
+        var emptyButton = emptyHeader.QuerySelector("[data-testid='session-block-sidebar-open']");
         emptyButton.ShouldNotBeNull();
         emptyButton.ClassList.ShouldContain("h-10");
         emptyButton.ClassList.ShouldContain("w-10");
@@ -1430,14 +1430,14 @@ public class SC01_SessionBlocks : ViewScenario
 
         emptyButton.Click();
         standalone.Find("[data-node-id='orders-session']").Click();
-        standalone.Find("[data-testid='session-app-sidebar-close']").Click();
+        standalone.Find("[data-testid='session-block-sidebar-close']").Click();
 
         var populatedHeader = standalone.Find("[data-slot='tabs-header']");
         var populatedLeading = populatedHeader.QuerySelector("[data-slot='tabs-header-leading']");
         populatedLeading.ShouldNotBeNull();
         populatedLeading.ClassList.ShouldContain("shrink-0");
 
-        var populatedButton = populatedHeader.QuerySelector("[data-testid='session-app-sidebar-open']");
+        var populatedButton = populatedHeader.QuerySelector("[data-testid='session-block-sidebar-open']");
         populatedButton.ShouldNotBeNull();
         populatedButton.ClassList.ShouldContain("h-10");
         populatedButton.ClassList.ShouldContain("w-10");
@@ -1459,8 +1459,8 @@ public class SC01_SessionBlocks : ViewScenario
         footer.ClassList.ShouldContain("w-full");
         footer.ClassList.ShouldContain("items-end");
         footer.Children.Length.ShouldBe(1);
-        footer.Children[0].GetAttribute("data-testid").ShouldBe("session-app-settings-button");
-        standalone.FindAll("[data-slot='session-app-sidebar-settings-footer']").ShouldBeEmpty();
+        footer.Children[0].GetAttribute("data-testid").ShouldBe("session-block-settings-button");
+        standalone.FindAll("[data-slot='session-block-sidebar-settings-footer']").ShouldBeEmpty();
     }
 
     [Fact(DisplayName = "UAC30l: Collapsed app-shell CSS cannot center an embedded SessionBlock footer")]
@@ -1505,27 +1505,27 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
-        standalone.Find("[data-testid='session-app-sidebar-close']").Click();
+        standalone.Find("[data-testid='session-block-sidebar-close']").Click();
 
-        standalone.FindAll("[data-panel='session-app-sidebar-panel']").ShouldBeEmpty();
+        standalone.FindAll("[data-panel='session-block-sidebar-panel']").ShouldBeEmpty();
         standalone.FindAll("[data-slot='sidebar-provider']").ShouldBeEmpty();
         standalone.FindAll("[data-slot='resizable-panel']").Count.ShouldBe(2);
         standalone.FindAll("[data-slot='resizable-handle']").Count.ShouldBe(1);
-        standalone.Find("[data-panel='session-app-main-panel']").ShouldNotBeNull();
-        standalone.Find("[data-panel='session-app-sections-panel']").ShouldNotBeNull();
+        standalone.Find("[data-panel='session-block-main-panel']").ShouldNotBeNull();
+        standalone.Find("[data-panel='session-block-sections-panel']").ShouldNotBeNull();
         // Standalone main panel fills the available width (height:100% pattern
         // repeated for width); the right Sections panel keeps its 16% default.
-        standalone.Find("[data-panel='session-app-main-panel']").GetAttribute("style").ShouldContain("100%");
-        standalone.Find("[data-panel='session-app-sections-panel']").GetAttribute("style").ShouldContain("16%");
-        standalone.Find("[data-testid='session-app-sidebar-open']").ShouldNotBeNull();
-        standalone.FindAll("[data-slot='tabs-header-leading'] [data-testid='session-app-sidebar-open']").Count
+        standalone.Find("[data-panel='session-block-main-panel']").GetAttribute("style").ShouldContain("100%");
+        standalone.Find("[data-panel='session-block-sections-panel']").GetAttribute("style").ShouldContain("16%");
+        standalone.Find("[data-testid='session-block-sidebar-open']").ShouldNotBeNull();
+        standalone.FindAll("[data-slot='tabs-header-leading'] [data-testid='session-block-sidebar-open']").Count
             .ShouldBeGreaterThanOrEqualTo(0);
-        standalone.FindAll("[data-slot='session-content-empty-header'] [data-testid='session-app-sidebar-open']").Count
+        standalone.FindAll("[data-slot='session-content-empty-header'] [data-testid='session-block-sidebar-open']").Count
             .ShouldBe(1);
 
-        standalone.Find("[data-testid='session-app-sidebar-open']").Click();
+        standalone.Find("[data-testid='session-block-sidebar-open']").Click();
 
-        standalone.Find("[data-panel='session-app-sidebar-panel']").ShouldNotBeNull();
+        standalone.Find("[data-panel='session-block-sidebar-panel']").ShouldNotBeNull();
         standalone.FindAll("[data-slot='resizable-panel']").Count.ShouldBe(3);
         standalone.FindAll("[data-slot='resizable-handle']").Count.ShouldBe(2);
     }
@@ -1538,7 +1538,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.HasSidebar, true)
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0)
-            .Add(x => x.AppOverlayContainerClass, "session-app-overlay absolute inset-0 z-50 flex h-full w-full flex-col"));
+            .Add(x => x.AppOverlayContainerClass, "session-block-overlay absolute inset-0 z-50 flex h-full w-full flex-col"));
 
         cut.Find("[data-node-id='orders-session']").Click();
         cut.Find("[data-testid='session-command-input']").Input("Use the session overlay");
@@ -1548,7 +1548,7 @@ public class SC01_SessionBlocks : ViewScenario
         ClickOpenCardMode("App Overlay");
 
         var overlayCard = cut.Find("[data-node-id^='response:'][data-mode='overlay-app']");
-        overlayCard.ClassList.ShouldContain("session-app-overlay");
+        overlayCard.ClassList.ShouldContain("session-block-overlay");
         overlayCard.ClassList.ShouldContain("absolute");
         overlayCard.ClassList.ShouldNotContain("fixed");
     }
@@ -1573,8 +1573,8 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-node-id^='response:'] [data-testid='card-mode-menu-trigger']").Click();
         ClickOpenCardMode("Page Overlay");
 
-        var main = cut.Find("[data-panel='session-app-main-panel']");
-        var overlay = main.QuerySelector("[data-slot='session-app-page-overlay']");
+        var main = cut.Find("[data-panel='session-block-main-panel']");
+        var overlay = main.QuerySelector("[data-slot='session-block-page-overlay']");
 
         overlay.ShouldNotBeNull();
         overlay!.ClassList.ShouldContain("session-page-overlay");
@@ -1639,7 +1639,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.Sessions, Array.Empty<SessionListEntry>()));
 
         cut.Find("[data-slot='session-content-empty']").TextContent.ShouldContain("Select a session");
-        cut.Find("[data-slot='session-app-right-sidebar']").TextContent.ShouldContain("Sections");
+        cut.Find("[data-slot='session-block-right-sidebar']").TextContent.ShouldContain("Sections");
     }
 
     [Fact(DisplayName = "UAC32: SessionBlock renders localized strings in Dutch when Language is set to nl")]
@@ -1663,7 +1663,7 @@ public class SC01_SessionBlocks : ViewScenario
                 .Add(x => x.Language, "nl"));
 
             cut.Find("[data-slot='session-content-empty']").TextContent.ShouldContain("Selecteer een sessie");
-            cut.Find("[data-slot='session-app-right-sidebar']").TextContent.ShouldContain("Secties");
+            cut.Find("[data-slot='session-block-right-sidebar']").TextContent.ShouldContain("Secties");
         }
         finally
         {
@@ -1681,17 +1681,17 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var cut = Ctx.Render<SessionBlock>(p => p.Add(x => x.Variant, "none"));
 
-        var root = cut.Find("[data-slot='session-app']");
+        var root = cut.Find("[data-slot='session-block']");
         root.ClassList.ShouldContain("bg-sidebar");
         root.ClassList.ShouldNotContain("bg-background");
 
-        var leftSidebarBody = cut.Find("[data-slot='session-app-left-sidebar-body']");
+        var leftSidebarBody = cut.Find("[data-slot='session-block-left-sidebar-body']");
         leftSidebarBody.ShouldNotBeNull();
         var leftPanel = leftSidebarBody.ParentElement;
         leftPanel.ShouldNotBeNull();
         leftPanel.ClassList.ShouldContain("bg-sidebar");
 
-        var rightSidebar = cut.Find("[data-testid='session-app-right-sidebar']");
+        var rightSidebar = cut.Find("[data-testid='session-block-right-sidebar']");
         rightSidebar.ClassList.ShouldContain("bg-sidebar");
     }
 
@@ -1705,30 +1705,30 @@ public class SC01_SessionBlocks : ViewScenario
         var outlined = Ctx.Render<SessionBlock>();
         var none = Ctx.Render<SessionBlock>(p => p.Add(x => x.Variant, "none"));
 
-        var noneLeftPanel = none.Find("[data-slot='session-app-left-sidebar-body']").ParentElement;
+        var noneLeftPanel = none.Find("[data-slot='session-block-left-sidebar-body']").ParentElement;
         noneLeftPanel.ShouldNotBeNull();
         noneLeftPanel.ClassList.ShouldNotContain("border-r");
         noneLeftPanel.ClassList.ShouldNotContain("border-border");
 
-        var noneRightSidebar = none.Find("[data-testid='session-app-right-sidebar']");
+        var noneRightSidebar = none.Find("[data-testid='session-block-right-sidebar']");
         noneRightSidebar.ClassList.ShouldNotContain("border-l");
         noneRightSidebar.ClassList.ShouldNotContain("border-border");
 
-        var outlinedLeftPanel = outlined.Find("[data-slot='session-app-left-sidebar-body']").ParentElement;
+        var outlinedLeftPanel = outlined.Find("[data-slot='session-block-left-sidebar-body']").ParentElement;
         outlinedLeftPanel.ShouldNotBeNull();
         outlinedLeftPanel.ClassList.ShouldContain("border-r");
         outlinedLeftPanel.ClassList.ShouldContain("border-border");
 
-        var outlinedRightSidebar = outlined.Find("[data-testid='session-app-right-sidebar']");
+        var outlinedRightSidebar = outlined.Find("[data-testid='session-block-right-sidebar']");
         outlinedRightSidebar.ClassList.ShouldContain("border-l");
         outlinedRightSidebar.ClassList.ShouldContain("border-border");
 
-        var noneRightSection = none.Find("[data-testid='session-app-right-sidebar'] section");
+        var noneRightSection = none.Find("[data-testid='session-block-right-sidebar'] section");
         noneRightSection.ClassList.ShouldContain("rounded-lg");
         noneRightSection.ClassList.ShouldContain("border");
         noneRightSection.ClassList.ShouldContain("border-border");
 
-        var outlinedRightSection = outlined.Find("[data-testid='session-app-right-sidebar'] section");
+        var outlinedRightSection = outlined.Find("[data-testid='session-block-right-sidebar'] section");
         outlinedRightSection.ClassList.ShouldContain("rounded-lg");
         outlinedRightSection.ClassList.ShouldContain("border");
         outlinedRightSection.ClassList.ShouldContain("border-border");
@@ -1745,7 +1745,7 @@ public class SC01_SessionBlocks : ViewScenario
 
         cut.Find("[data-node-id='orders-session']").Click();
 
-        var main = cut.Find("[data-slot='session-app-main-content']");
+        var main = cut.Find("[data-slot='session-block-main-content']");
         main.ClassList.ShouldContain("overflow-hidden");
 
         var contentBody = cut.Find("[data-slot='session-content-body']");
@@ -1776,15 +1776,15 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.HasSidebar, true)
             .Add(x => x.Variant, "none"));
 
-        cut.Find("[data-slot='session-app-main-content']")
+        cut.Find("[data-slot='session-block-main-content']")
             .GetAttribute("style")
             .ShouldBe("padding:10px 4px 10px 4px;");
 
-        var leftSidebarBody = cut.Find("[data-slot='session-app-left-sidebar']");
+        var leftSidebarBody = cut.Find("[data-slot='session-block-left-sidebar']");
         leftSidebarBody.GetAttribute("style")
             .ShouldBe("padding:10px 4px 10px 10px;");
 
-        cut.Find("[data-slot='session-app-right-sidebar-body']")
+        cut.Find("[data-slot='session-block-right-sidebar-body']")
             .GetAttribute("style")
             .ShouldBe("padding:10px 10px 10px 4px;");
     }

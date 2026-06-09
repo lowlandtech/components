@@ -46,7 +46,7 @@ public sealed class SC08_SessionCreate : ViewScenario
         cut.Find("[data-testid='session-list-create']").Click();
 
         // Sidebar switches to active-session view (back button appears in embedded mode)
-        cut.Find("[data-slot='session-app-sidebar-back']").ShouldNotBeNull();
+        cut.Find("[data-slot='session-block-sidebar-back']").ShouldNotBeNull();
 
         // Command bar shows the create agent type as active
         var createAgent = cut.Find("[data-agent-type='create']");
@@ -68,7 +68,7 @@ public sealed class SC08_SessionCreate : ViewScenario
         var initialCount = cut.FindAll("[data-slot='session-list-item']").Count;
 
         cut.Find("[data-testid='session-list-create']").Click();
-        cut.Find("[data-slot='session-app-sidebar-back']").Click();
+        cut.Find("[data-slot='session-block-sidebar-back']").Click();
 
         var newCount = cut.FindAll("[data-slot='session-list-item']").Count;
         newCount.ShouldBe(initialCount + 1);
@@ -131,7 +131,7 @@ public sealed class SC08_SessionCreate : ViewScenario
         commands.Count.ShouldBe(0);
 
         // The session should appear in the sidebar with the new title
-        cut.Find("[data-slot='session-app-sidebar-back']").Click();
+        cut.Find("[data-slot='session-block-sidebar-back']").Click();
         cut.Markup.ShouldContain("My New Session");
     }
 }
