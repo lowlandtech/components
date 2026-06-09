@@ -13,4 +13,7 @@ global using System.Text.RegularExpressions;
 global using LowlandTech.Components;
 global using LowlandTech.Components.Blocks;
 global using LowlandTech.Core;
+global using LowlandTech.Core.Abstractions;
+global using LowlandTech.Core.Graph.Entities;
+global using Microsoft.Extensions.Logging;
 global using Markdig;

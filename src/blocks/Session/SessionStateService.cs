@@ -8,29 +8,57 @@ public sealed class SessionStateService
 
     private readonly ISessionSurfaceDiscovery _surfaceDiscovery;
     private readonly List<Func<SessionBlockState, object, CancellationToken, Task>> _effects = [];
+    private readonly IGraphService? _graphService;
+    private readonly ILogger? _logger;
 
     public SessionStateService()
-        : this(SessionBlockDefaults.Empty, null)
+        : this(SessionBlockDefaults.Empty, null, null, null)
     {
     }
 
     public SessionStateService(SessionBlockState initialState)
-        : this(initialState, null)
+        : this(initialState, null, null, null)
     {
     }
 
     public SessionStateService(ISessionSurfaceDiscovery? surfaceDiscovery)
-        : this(SessionBlockDefaults.Empty, surfaceDiscovery)
+        : this(SessionBlockDefaults.Empty, surfaceDiscovery, null, null)
+    {
+    }
+
+    public SessionStateService(ISessionSurfaceDiscovery? surfaceDiscovery, IGraphService? graphService)
+        : this(SessionBlockDefaults.Empty, surfaceDiscovery, graphService, null)
+    {
+    }
+
+    public SessionStateService(ISessionSurfaceDiscovery? surfaceDiscovery, IGraphService? graphService, ILogger? logger)
+        : this(SessionBlockDefaults.Empty, surfaceDiscovery, graphService, logger)
     {
     }
 
     public SessionStateService(SessionBlockState initialState, ISessionSurfaceDiscovery? surfaceDiscovery)
+        : this(initialState, surfaceDiscovery, null, null)
+    {
+    }
+
+    public SessionStateService(SessionBlockState initialState, ISessionSurfaceDiscovery? surfaceDiscovery, IGraphService? graphService)
+        : this(initialState, surfaceDiscovery, graphService, null)
+    {
+    }
+
+    public SessionStateService(SessionBlockState initialState, ISessionSurfaceDiscovery? surfaceDiscovery, IGraphService? graphService, ILogger? logger)
     {
         _state = initialState;
         _surfaceDiscovery = surfaceDiscovery ?? DefaultSurfaceDiscovery;
+        _graphService = graphService;
+        _logger = logger;
     }
 
     public SessionBlockState State => _state;
+
+    public IReadOnlyList<SessionListEntry> Sessions { get; private set; } = [];
+
+    public IReadOnlyList<SessionContextNode> ContextNodes { get; private set; } = [];
 
     public event Action<SessionBlockState>? StateChanged;
 
@@ -70,6 +98,411 @@ public sealed class SessionStateService
         _state = state ?? SessionBlockDefaults.Empty;
         StateChanged?.Invoke(_state);
     }
+
+    #region Graph lifecycle
+
+    public async Task InitializeAsync(string userId, string? userName, CancellationToken ct = default)
+    {
+        if (_graphService is null)
+        {
+            Sessions = [];
+            ContextNodes = [];
+            StateChanged?.Invoke(_state);
+            return;
+        }
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(userId) || !Guid.TryParse(userId, out _))
+            {
+                Sessions = [];
+                ContextNodes = [];
+                StateChanged?.Invoke(_state);
+                return;
+            }
+
+            var userContext = await _graphService.GetUserContextAsync(userId, ct);
+            if (userContext is null)
+            {
+                Sessions = [];
+                ContextNodes = [];
+                StateChanged?.Invoke(_state);
+                return;
+            }
+
+            var view = await _graphService.GetUserContextViewAsync(userContext.Id, ct);
+            Sessions = view?.Sessions
+                .Select((s, i) => new SessionListEntry(s.Id.ToString(), s.Label ?? "Session", i, "session"))
+                .ToList() ?? [];
+
+            await LoadContextNodesAsync(userContext.Id, userName, ct);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to load sessions from graph");
+            Sessions = [];
+            ContextNodes = [];
+            StateChanged?.Invoke(_state);
+        }
+    }
+
+    public async Task LoadContextNodesAsync(Guid userContextId, string? userName, CancellationToken ct = default)
+    {
+        if (_graphService is null) return;
+
+        var childrenTree = await _graphService.GetChildrenAsync(userContextId, ct: ct);
+        var edgeSortOrders = childrenTree.Edges
+            .Where(e => e.SourceNodeId == userContextId)
+            .GroupBy(e => e.TargetNodeId)
+            .ToDictionary(g => g.Key, g => g.First().SortOrder);
+
+        var headers = childrenTree.Nodes
+            .Where(n => n.Id != userContextId)
+            .OrderBy(n => edgeSortOrders.GetValueOrDefault(n.Id, 0))
+            .Select(n => new SessionContextNode(
+                new SessionNodeInput(n.Id.ToString(), n.NodeType?.Key ?? "header", n.Label ?? "Header"),
+                null,
+                false))
+            .ToList();
+
+        ContextNodes =
+        [
+            new SessionContextNode(
+                new SessionNodeInput(userContextId.ToString(), "user-context", userName ?? "My Context"),
+                headers,
+                true)
+        ];
+
+        StateChanged?.Invoke(_state);
+    }
+
+    public async Task LoadChildrenAsync(SessionNodeInput node, CancellationToken ct = default)
+    {
+        if (_graphService is null) return;
+        if (!Guid.TryParse(node.Id, out var nodeId))
+        {
+            _logger?.LogWarning("Cannot load children: node id '{NodeId}' is not a valid GUID", node.Id);
+            return;
+        }
+
+        try
+        {
+            _logger?.LogDebug("Loading children for node {NodeId}", nodeId);
+            var tree = await _graphService.GetChildrenAsync(nodeId, ct: ct);
+
+            var edgeSortOrders = tree.Edges
+                .Where(e => e.SourceNodeId == nodeId)
+                .GroupBy(e => e.TargetNodeId)
+                .ToDictionary(g => g.Key, g => g.First().SortOrder);
+
+            var children = tree.Nodes
+                .Where(n => n.Id != nodeId)
+                .OrderBy(n => edgeSortOrders.GetValueOrDefault(n.Id, 0))
+                .Select(n => new SessionContextNode(
+                    new SessionNodeInput(n.Id.ToString(), n.NodeType?.Key ?? "node", n.Label ?? "Node")))
+                .ToList();
+
+            ContextNodes = UpdateNodeChildren(ContextNodes, node.Id, children);
+            _logger?.LogDebug("Loaded {Count} children for node {NodeId}", children.Count, nodeId);
+            StateChanged?.Invoke(_state);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to load children for node {NodeId}", nodeId);
+        }
+    }
+
+    public async Task<SessionHeaderCreateResult> CreateHeaderChildAsync(SessionHeaderCreateRequest request, string userId, CancellationToken ct = default)
+    {
+        if (_graphService is null)
+            return SessionHeaderCreateResult.Failed("Graph service not available");
+
+        try
+        {
+            if (!Guid.TryParse(request.ParentNodeId, out var parentId))
+            {
+                _logger?.LogWarning("Cannot create child node: parent id '{ParentId}' is not a valid GUID", request.ParentNodeId);
+                return SessionHeaderCreateResult.Failed("Invalid parent node id");
+            }
+
+            var parentNode = await _graphService.GetNodeAsync(parentId, ct);
+            var schema = await _graphService.GetSchemaAsync(ct);
+            var edgeType = ResolveCreateEdge(schema, request.ParentNodeTypeKey, parentNode?.Label);
+            if (edgeType is null)
+            {
+                _logger?.LogWarning("Cannot create child node: no create edge found for header type '{HeaderType}' (label: '{Label}')", request.ParentNodeTypeKey, parentNode?.Label);
+                return SessionHeaderCreateResult.Failed("No create edge found");
+            }
+
+            var targetNodeType = schema.NodeTypes.FirstOrDefault(nt => nt.Id == edgeType.TargetNodeTypeId);
+            if (targetNodeType is null)
+            {
+                _logger?.LogWarning("Cannot create child node: target node type not found for edge '{EdgeKey}'", edgeType.Key);
+                return SessionHeaderCreateResult.Failed("Target node type not found");
+            }
+
+            var parentTree = await _graphService.GetChildrenAsync(parentId, ct: ct);
+            var sortOrder = parentTree.Edges
+                .Where(e => e.SourceNodeId == parentId)
+                .Select(e => e.SortOrder)
+                .DefaultIfEmpty(-1)
+                .Max() + 1;
+
+            var child = await _graphService.CreateNodeAsync(new Node
+            {
+                NodeTypeId = targetNodeType.Id,
+                Label = request.Label,
+                SortOrder = sortOrder,
+            }, ct);
+
+            await _graphService.CreateEdgeAsync(new Edge
+            {
+                EdgeTypeId = edgeType.Id,
+                SourceNodeId = parentId,
+                TargetNodeId = child.Id,
+                SortOrder = sortOrder,
+            }, ct);
+
+            _logger?.LogInformation("Created {NodeType} '{Label}' under header {HeaderId}", targetNodeType.Key, request.Label, parentId);
+
+            // Refresh the context tree so the new node appears
+            var userContext = await _graphService.GetUserContextAsync(userId, ct);
+            if (userContext is not null)
+            {
+                await LoadContextNodesAsync(userContext.Id, null, ct);
+            }
+
+            return SessionHeaderCreateResult.Succeeded(child.Id, targetNodeType.Key, request.Label);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to create child node for header {HeaderType}", request.ParentNodeTypeKey);
+            return SessionHeaderCreateResult.Failed(ex.Message);
+        }
+    }
+
+    public async Task LoadSessionCommandsAsync(string sessionId, string? sessionLabel, CancellationToken ct = default)
+    {
+        if (!Guid.TryParse(sessionId, out var nodeId))
+        {
+            _logger?.LogWarning("Cannot load session commands: session id '{SessionId}' is not a valid GUID", sessionId);
+            return;
+        }
+
+        if (_graphService is null) return;
+
+        try
+        {
+            var node = await _graphService.GetNodeAsync(nodeId, ct);
+            if (node is null)
+            {
+                _logger?.LogWarning("Cannot load session commands: node {NodeId} not found", nodeId);
+                return;
+            }
+
+            var json = node.Properties?.FirstOrDefault(p => p.Key == "sessionCommands")?.Value;
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                _logger?.LogInformation("No session commands found for {SessionId}", sessionId);
+                return;
+            }
+
+            var snapshots = JsonSerializer.Deserialize<List<SessionCommandSnapshot>>(json);
+            if (snapshots is null || snapshots.Count == 0)
+            {
+                _logger?.LogInformation("Session commands empty for {SessionId}", sessionId);
+                return;
+            }
+
+            var sessionNode = new SessionNodeInput(sessionId, "session", sessionLabel ?? "Session");
+            var commands = snapshots.Select(s => new SessionCommandSubmitted(
+                sessionNode,
+                s.AgentTypeKey,
+                s.Input,
+                s.Response)
+            {
+                Id = s.Id,
+                IsStreaming = false
+            }).ToList();
+
+            Dispatch(new RestoreSessionCommandHistory(sessionId, commands));
+            _logger?.LogInformation("Loaded {Count} commands for session {SessionId}", commands.Count, sessionId);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to load session commands for {SessionId}", sessionId);
+        }
+    }
+
+    public async Task PersistSessionCommandsAsync(
+        SessionBlockState state,
+        PersistSessionCommands persist,
+        Guid sessionNodeTypeId,
+        string? userName,
+        CancellationToken ct)
+    {
+        if (_graphService is null) return;
+        if (!Guid.TryParse(persist.SessionId, out var nodeId))
+        {
+            _logger?.LogWarning("Cannot persist session commands: session id '{SessionId}' is not a valid GUID", persist.SessionId);
+            return;
+        }
+
+        try
+        {
+            var node = await _graphService.GetNodeAsync(nodeId, ct);
+            var label = state.Ui.SelectedNode?.Label ?? "New Session";
+
+            if (node is null)
+            {
+                // Client-created session: materialize it in the graph before persisting properties.
+                var userCtx = await _graphService.GetUserContextAsync(state.ActiveSessionId ?? string.Empty, ct);
+                if (userCtx is null) return;
+
+                var view = await _graphService.GetUserContextViewAsync(userCtx.Id, ct);
+                if (view is null) return;
+
+                var newNode = new Node
+                {
+                    Id = nodeId,
+                    NodeTypeId = sessionNodeTypeId,
+                    Label = label
+                };
+                await _graphService.CreateNodeAsync(newNode, ct);
+
+                var edgeTypeId = GuidV5.Create(GuidV5.Namespace, "edgetype:activates:session");
+                await _graphService.CreateEdgeAsync(new Edge
+                {
+                    EdgeTypeId = edgeTypeId,
+                    SourceNodeId = view.Header.Id,
+                    TargetNodeId = nodeId,
+                    SortOrder = view.Sessions.Count
+                }, ct);
+            }
+            else if (!string.Equals(node.Label, label, StringComparison.Ordinal))
+            {
+                await _graphService.UpdateNodeAsync(new Node { Id = node.Id, Label = label, SortOrder = node.SortOrder }, ct);
+            }
+
+            var commands = state.SessionCommandsBySessionId.TryGetValue(persist.SessionId, out var cmds)
+                ? cmds
+                : [];
+            var snapshots = commands.Select(SessionBlockReducer.CreateCommandSnapshot).ToList();
+            var json = JsonSerializer.Serialize(snapshots);
+            await _graphService.SetPropertyAsync(nodeId, "sessionCommands", json, ct);
+            _logger?.LogInformation("Persisted {Count} commands for session {SessionId}", snapshots.Count, persist.SessionId);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to persist session commands for {SessionId}", persist.SessionId);
+        }
+    }
+
+    #endregion
+
+    #region Edge resolution
+
+    public static EdgeType? ResolveCreateEdge(GraphSchema schema, string parentNodeTypeKey, string? headerLabel = null)
+    {
+        // Specific header-to-child mappings
+        var childTypeKey = parentNodeTypeKey switch
+        {
+            "workspaces.header" => "workspace",
+            "flow.header" => "flow",
+            "package.header" => "package",
+            "step.header" => "step",
+            "workitem.header" => "workitem",
+            _ => null
+        };
+
+        if (childTypeKey is not null)
+        {
+            var edge = FindCreateEdgeByChildTypeKey(schema, childTypeKey);
+            if (edge is not null) return edge;
+        }
+
+        // For generic headers, infer child type from the header label
+        if (string.Equals(parentNodeTypeKey, "header", StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(headerLabel))
+        {
+            childTypeKey = headerLabel switch
+            {
+                "Data Tables" => "datatable",
+                "Relationships" => "relationship",
+                "Branches" => "branch",
+                "User Stories" => "userstory",
+                "Scenarios" => "scenario",
+                "Tables" => "table",
+                "Pages" => "page",
+                "Workflows" => "workflow",
+                "Steps" => "step",
+                "Flows" => "flow",
+                "Templates" => "template",
+                "Tools" => "tool",
+                "Packages" => "package",
+                "Workspaces" => "workspace",
+                "WorkItems" => "session",
+                "Settings" => "setting",
+                _ => null
+            };
+
+            if (childTypeKey is not null)
+            {
+                var edge = FindCreateEdgeByChildTypeKey(schema, childTypeKey);
+                if (edge is not null) return edge;
+            }
+        }
+
+        // Fallback: discover any outgoing create edge from this node type
+        var nodeType = schema.NodeTypes.FirstOrDefault(nt =>
+            string.Equals(nt.Key, parentNodeTypeKey, StringComparison.OrdinalIgnoreCase));
+
+        if (nodeType is null) return null;
+
+        return schema.EdgeTypes.FirstOrDefault(e =>
+            e.SourceNodeTypeId == nodeType.Id
+            && e.Properties.Any(p => string.Equals(p.Key, "verb", StringComparison.OrdinalIgnoreCase)
+                && string.Equals(p.Value, "create", StringComparison.OrdinalIgnoreCase)));
+    }
+
+    public static EdgeType? FindCreateEdgeByChildTypeKey(GraphSchema schema, string childTypeKey)
+    {
+        var childNodeType = schema.NodeTypes.FirstOrDefault(nt =>
+            string.Equals(nt.Key, childTypeKey, StringComparison.OrdinalIgnoreCase));
+
+        return schema.EdgeTypes.FirstOrDefault(e =>
+            e.Properties.Any(p => string.Equals(p.Key, "verb", StringComparison.OrdinalIgnoreCase)
+                && string.Equals(p.Value, "create", StringComparison.OrdinalIgnoreCase))
+            && (e.Key.Contains(childTypeKey, StringComparison.OrdinalIgnoreCase)
+                || (childNodeType is not null && e.TargetNodeTypeId == childNodeType.Id)));
+    }
+
+    #endregion
+
+    #region Tree manipulation
+
+    public static IReadOnlyList<SessionContextNode> UpdateNodeChildren(
+        IReadOnlyList<SessionContextNode> nodes, string targetId, IReadOnlyList<SessionContextNode> newChildren)
+    {
+        return nodes.Select(n => UpdateNodeChildren(n, targetId, newChildren)).ToList();
+    }
+
+    public static SessionContextNode UpdateNodeChildren(
+        SessionContextNode node, string targetId, IReadOnlyList<SessionContextNode> newChildren)
+    {
+        if (node.Node.Id == targetId)
+            return new SessionContextNode(node.Node, newChildren, true);
+
+        if (node.Children is null || node.Children.Count == 0)
+            return node;
+
+        return new SessionContextNode(
+            node.Node,
+            node.Children.Select(child => UpdateNodeChildren(child, targetId, newChildren)).ToList(),
+            node.IsLoaded);
+    }
+
+    #endregion
 
     public void ShowSessions()
     {
@@ -634,4 +1067,13 @@ public sealed class SessionStateService
         var entry = sessions.FirstOrDefault(candidate => string.Equals(candidate.Id, sessionId, StringComparison.Ordinal));
         return entry is null ? null : new SessionNodeInput(entry.Id, entry.NodeTypeKey, entry.Label);
     }
+}
+
+public sealed record SessionHeaderCreateResult(bool Success, Guid? NodeId, string? NodeTypeKey, string? Label, string? Error)
+{
+    public static SessionHeaderCreateResult Succeeded(Guid nodeId, string nodeTypeKey, string label)
+        => new(true, nodeId, nodeTypeKey, label, null);
+
+    public static SessionHeaderCreateResult Failed(string error)
+        => new(false, null, null, null, error);
 }
