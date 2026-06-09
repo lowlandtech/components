@@ -26,7 +26,8 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
     private bool _registered;
     private bool _menuOpen;
 
-    private bool _isExpanded = true;
+    private bool _isExpanded;
+    private string? _initializedId;
 
     private bool ShowChevron => !Item.IsLoaded || VisibleChildren.Count > 0;
     private bool IsHeader => Item.Node.NodeTypeKey.EndsWith(".header", StringComparison.OrdinalIgnoreCase)
@@ -40,6 +41,15 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
     {
         PopoverService.Register(_popoverId);
         _registered = true;
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (_initializedId != Item.Node.Id)
+        {
+            _initializedId = Item.Node.Id;
+            _isExpanded = Item.IsLoaded;
+        }
     }
 
     private bool IsPinned(string nodeId) => Pins.Any(pin => pin.Node.Id == nodeId);
