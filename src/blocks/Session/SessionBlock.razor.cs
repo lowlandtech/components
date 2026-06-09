@@ -359,13 +359,23 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         return Task.CompletedTask;
     }
 
-    private Task HandleNodeNewAsync(SessionNodeInput node)
+    private async Task HandleNodeNewAsync(SessionNodeInput node)
     {
-        if (!IsHeaderNode(node)) return Task.CompletedTask;
-
         SessionState.ProjectContext(node);
         SessionState.SetAgentType("create");
-        return Task.CompletedTask;
+
+        await Task.Yield();
+
+        try
+        {
+            await JS.InvokeVoidAsync("eval", """
+                (() => {
+                    const input = document.querySelector('[data-slot="session-command-input"]');
+                    if (input) { input.focus({ preventScroll: true }); }
+                })();
+                """);
+        }
+        catch { }
     }
 
     private static bool IsHeaderNode(SessionNodeInput node) =>
@@ -417,9 +427,8 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
             return;
         }
 
-        // Header-node create: delegate to the host page so it can materialise the child in the graph.
-        if (string.Equals(command.AgentTypeKey, "create", StringComparison.OrdinalIgnoreCase)
-            && IsHeaderNode(command.Node))
+        // Non-session node create: delegate to the host page so it can materialise the child in the graph.
+        if (string.Equals(command.AgentTypeKey, "create", StringComparison.OrdinalIgnoreCase))
         {
             await OnHeaderCreateRequested.InvokeAsync(new SessionHeaderCreateRequest(
                 command.Node.Id, command.Node.NodeTypeKey, command.Input));
