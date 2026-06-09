@@ -23,4 +23,3 @@ global using TP = LowlandTech.Components.ThemeProvider;
 global using BadgeSut = LowlandTech.Components.Badge;
 global using ButtonSut = LowlandTech.Components.Button;
 global using CardSut = LowlandTech.Components.Card;
-global using SessionAppSut = LowlandTech.Components.SessionApp;

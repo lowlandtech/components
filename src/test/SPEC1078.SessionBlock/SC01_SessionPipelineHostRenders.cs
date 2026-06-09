@@ -13,7 +13,7 @@ public class SC01_SessionPipelineHostRenders : ViewScenario
             .Add(p => p.ChildContent, builder =>
                 builder.AddMarkupContent(0, "<span data-testid='child'>Hello Session</span>")));
 
-        cut.Find("[data-testid='session-app']").ShouldNotBeNull();
+        cut.Find("[data-testid='session-pipeline-host']").ShouldNotBeNull();
         cut.Find("[data-testid='child']").TextContent.ShouldBe("Hello Session");
     }
 
@@ -23,7 +23,7 @@ public class SC01_SessionPipelineHostRenders : ViewScenario
     {
         var cut = Ctx.Render<SessionPipelineHostSut>();
 
-        cut.Find("[data-testid='session-app']").ShouldNotBeNull();
+        cut.Find("[data-testid='session-pipeline-host']").ShouldNotBeNull();
     }
 
     [Fact(DisplayName = "UAC03: SessionPipelineHost exposes PipelineComplete after init")]
