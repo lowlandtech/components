@@ -22,6 +22,7 @@ public partial class SessionContextExplorer : TinyComponentBase
     [Parameter] public EventCallback<SessionNodeInput> OnNodeMoveUp { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnNodeMoveDown { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnNodeDelete { get; set; }
+    [Parameter] public EventCallback<SessionNodeInput> OnLoadChildren { get; set; }
 
     private IReadOnlyList<SessionContextNode> VisibleRoots =>
         [.. RootNodes.Where(node => !IsPinned(node.Node.Id))];
@@ -35,7 +36,7 @@ public partial class SessionContextExplorer : TinyComponentBase
 
     private string GetClass()
     {
-        var baseClass = "w-full overflow-hidden rounded-lg border border-border bg-background";
+        var baseClass = "flex w-full flex-col overflow-hidden rounded-lg border border-border bg-background";
         return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
     }
 

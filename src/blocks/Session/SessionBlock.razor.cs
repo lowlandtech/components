@@ -49,6 +49,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     [Parameter] public string LogoSrc { get; set; } = "_content/LowlandTech.Components/img/session-block-logo.svg";
     [Parameter] public string? Title { get; set; }
     [Parameter] public EventCallback<SessionHeaderCreateRequest> OnHeaderCreateRequested { get; set; }
+    [Parameter] public EventCallback<SessionNodeInput> OnLoadChildrenRequested { get; set; }
 
     private IStringLocalizer<SessionBlockStrings>? _localizer;
 

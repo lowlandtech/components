@@ -20,6 +20,7 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
     [Parameter] public EventCallback<SessionNodeInput> OnNodeMoveUp { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnNodeMoveDown { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnNodeDelete { get; set; }
+    [Parameter] public EventCallback<SessionNodeInput> OnExpand { get; set; }
 
     private readonly Guid _popoverId = Guid.NewGuid();
     private bool _registered;
@@ -27,7 +28,7 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
 
     private bool _isExpanded = true;
 
-    private bool HasChildren => VisibleChildren.Count > 0;
+    private bool ShowChevron => !Item.IsLoaded || VisibleChildren.Count > 0;
     private bool IsHeader => Item.Node.NodeTypeKey.EndsWith(".header", StringComparison.OrdinalIgnoreCase)
         || string.Equals(Item.Node.NodeTypeKey, "header", StringComparison.OrdinalIgnoreCase);
     private string PopoverId => _popoverId.ToString();
@@ -43,7 +44,14 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
 
     private bool IsPinned(string nodeId) => Pins.Any(pin => pin.Node.Id == nodeId);
 
-    private void ToggleExpand() => _isExpanded = !_isExpanded;
+    private async Task ToggleExpand()
+    {
+        _isExpanded = !_isExpanded;
+        if (_isExpanded && !Item.IsLoaded)
+        {
+            await OnExpand.InvokeAsync(Item.Node);
+        }
+    }
 
     private string GetChevronClass() => _isExpanded
         ? "text-muted-foreground transition-transform duration-100 rotate-90"

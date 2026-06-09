@@ -9,7 +9,8 @@ public sealed record SessionNodeInput(
 
 public sealed record SessionContextNode(
     SessionNodeInput Node,
-    IReadOnlyList<SessionContextNode>? Children = null);
+    IReadOnlyList<SessionContextNode>? Children = null,
+    bool IsLoaded = false);
 
 /// <summary>
 /// Fired from <see cref="SessionBlock"/> when the user submits a create command
