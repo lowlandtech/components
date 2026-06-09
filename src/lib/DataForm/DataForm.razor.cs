@@ -18,7 +18,7 @@ public partial class DataForm : TinyComponentBase
     [Parameter] public RenderFragment<DataFormField>? LabelTemplate { get; set; }
     [Parameter] public RenderFragment<DataFormField>? ValidationTemplate { get; set; }
     [Parameter] public RenderFragment<DataForm>? ActionsTemplate { get; set; }
-    [Parameter] public Store<DataFormState>? Store { get; set; }
+    [Parameter] public LowlandTech.Components.Core.Store<DataFormState>? Store { get; set; }
     [Parameter] public IReadOnlyList<IValidatorDescription>? Validators { get; set; }
     [Parameter] public FieldEventDiscoveryService? DiscoveryService { get; set; }
     [Parameter] public bool UseStore { get; set; }

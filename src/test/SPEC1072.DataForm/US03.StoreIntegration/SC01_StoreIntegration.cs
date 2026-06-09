@@ -16,7 +16,7 @@ public class SC01_StoreIntegration : ViewScenario
     public void UAC01_StoreInitializesWithFields()
     {
         var model = new CustomerFormModel { Name = "Test" };
-        var store = new Store<DataFormState>(new DataFormState(), DataFormReducer.Reduce);
+        var store = new LowlandTech.Components.Core.Store<DataFormState>(new DataFormState(), DataFormReducer.Reduce);
 
         var cut = Ctx.Render<DataFormSut>(p => p
             .Add(x => x.Model, model)
@@ -32,7 +32,7 @@ public class SC01_StoreIntegration : ViewScenario
     public void UAC02_StoreCapturesInitialValues()
     {
         var model = new CustomerFormModel { Name = "Initial" };
-        var store = new Store<DataFormState>(new DataFormState(), DataFormReducer.Reduce);
+        var store = new LowlandTech.Components.Core.Store<DataFormState>(new DataFormState(), DataFormReducer.Reduce);
 
         var cut = Ctx.Render<DataFormSut>(p => p
             .Add(x => x.Model, model)
@@ -47,7 +47,7 @@ public class SC01_StoreIntegration : ViewScenario
     public void UAC03_InputMarksStateDirty()
     {
         var model = new CustomerFormModel();
-        var store = new Store<DataFormState>(new DataFormState(), DataFormReducer.Reduce);
+        var store = new LowlandTech.Components.Core.Store<DataFormState>(new DataFormState(), DataFormReducer.Reduce);
 
         var cut = Ctx.Render<DataFormSut>(p => p
             .Add(x => x.Model, model)
@@ -65,7 +65,7 @@ public class SC01_StoreIntegration : ViewScenario
     public void UAC04_BlurMarksFieldTouched()
     {
         var model = new CustomerFormModel();
-        var store = new Store<DataFormState>(new DataFormState(), DataFormReducer.Reduce);
+        var store = new LowlandTech.Components.Core.Store<DataFormState>(new DataFormState(), DataFormReducer.Reduce);
 
         var cut = Ctx.Render<DataFormSut>(p => p
             .Add(x => x.Model, model)
@@ -82,7 +82,7 @@ public class SC01_StoreIntegration : ViewScenario
     public void UAC05_StoreErrorsReflectInFormField()
     {
         var model = new CustomerFormModel();
-        var store = new Store<DataFormState>(new DataFormState(), DataFormReducer.Reduce);
+        var store = new LowlandTech.Components.Core.Store<DataFormState>(new DataFormState(), DataFormReducer.Reduce);
 
         var cut = Ctx.Render<DataFormSut>(p => p
             .Add(x => x.Model, model)
@@ -99,7 +99,7 @@ public class SC01_StoreIntegration : ViewScenario
     public void UAC06_SubmitDispatchesAction()
     {
         var model = new CustomerFormModel { Name = "Test" };
-        var store = new Store<DataFormState>(new DataFormState(), DataFormReducer.Reduce);
+        var store = new LowlandTech.Components.Core.Store<DataFormState>(new DataFormState(), DataFormReducer.Reduce);
 
         var cut = Ctx.Render<DataFormSut>(p => p
             .Add(x => x.Model, model)
@@ -116,7 +116,7 @@ public class SC01_StoreIntegration : ViewScenario
     public void UAC07_ResetFormClearsState()
     {
         var model = new CustomerFormModel { Name = "Test" };
-        var store = new Store<DataFormState>(new DataFormState(), DataFormReducer.Reduce);
+        var store = new LowlandTech.Components.Core.Store<DataFormState>(new DataFormState(), DataFormReducer.Reduce);
 
         var cut = Ctx.Render<DataFormSut>(p => p
             .Add(x => x.Model, model)

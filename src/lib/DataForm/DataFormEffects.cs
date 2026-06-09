@@ -12,7 +12,7 @@ public class DataFormEffects
         _discovery = discovery;
     }
 
-    public async Task HandleFieldChanging(Store<DataFormState> store, object action)
+    public async Task HandleFieldChanging(LowlandTech.Components.Core.Store<DataFormState> store, object action)
     {
         if (action is not DataFormActions.FieldChanging changing) return;
 
@@ -20,7 +20,7 @@ public class DataFormEffects
         store.Dispatch(new DataFormActions.DispatchIntent(intent));
     }
 
-    public async Task HandleFieldChanged(Store<DataFormState> store, object action)
+    public async Task HandleFieldChanged(LowlandTech.Components.Core.Store<DataFormState> store, object action)
     {
         if (action is not DataFormActions.FieldChanged changed) return;
 
@@ -28,7 +28,7 @@ public class DataFormEffects
         store.Dispatch(new DataFormActions.DispatchIntent(intent));
     }
 
-    public async Task HandleFieldBlurred(Store<DataFormState> store, object action)
+    public async Task HandleFieldBlurred(LowlandTech.Components.Core.Store<DataFormState> store, object action)
     {
         if (action is not DataFormActions.FieldBlurred blurred) return;
 
@@ -36,7 +36,7 @@ public class DataFormEffects
         store.Dispatch(new DataFormActions.DispatchIntent(intent));
     }
 
-    public async Task HandleFieldFocused(Store<DataFormState> store, object action)
+    public async Task HandleFieldFocused(LowlandTech.Components.Core.Store<DataFormState> store, object action)
     {
         if (action is not DataFormActions.FieldFocused focused) return;
 
@@ -44,7 +44,7 @@ public class DataFormEffects
         store.Dispatch(new DataFormActions.DispatchIntent(intent));
     }
 
-    public async Task HandleSubmitForm(Store<DataFormState> store, object action)
+    public async Task HandleSubmitForm(LowlandTech.Components.Core.Store<DataFormState> store, object action)
     {
         if (action is not DataFormActions.SubmitForm) return;
 
