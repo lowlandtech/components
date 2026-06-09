@@ -1,4 +1,4 @@
-namespace LowlandTech.Components.Tests.SPEC1078.SessionPipelineHost;
+namespace LowlandTech.Components.Tests.SPEC1078.Session.Pipeline;
 
 [Trait(Spec.SPEC, "1078")]
 [Trait(Spec.SC, "03")]

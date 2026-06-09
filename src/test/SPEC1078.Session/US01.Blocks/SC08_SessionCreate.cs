@@ -13,7 +13,7 @@ public sealed class SC08_SessionCreate : ViewScenario
     [Then("a create button is visible next to the Sessions label")]
     public void UAC01_StandaloneSidebarShowsCreateButton()
     {
-        var cut = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
+        var cut = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
         var createButton = cut.Find("[data-testid='session-list-create']");
         createButton.ShouldNotBeNull();
@@ -27,7 +27,7 @@ public sealed class SC08_SessionCreate : ViewScenario
     [Then("a create button is visible in the list header")]
     public void UAC02_EmbeddedSessionListShowsCreateButton()
     {
-        var cut = Ctx.Render<SessionBlock>();
+        var cut = Ctx.Render<Components.SessionBlock>();
 
         var createButton = cut.Find("[data-testid='session-list-create']");
         createButton.ShouldNotBeNull();
@@ -41,7 +41,7 @@ public sealed class SC08_SessionCreate : ViewScenario
     [Then("a new session is selected and the command bar agent type is create")]
     public void UAC03_CreateButtonSelectsNewSessionAndSetsCreateAgent()
     {
-        var cut = Ctx.Render<SessionBlock>();
+        var cut = Ctx.Render<Components.SessionBlock>();
 
         cut.Find("[data-testid='session-list-create']").Click();
 
@@ -63,7 +63,7 @@ public sealed class SC08_SessionCreate : ViewScenario
     [Then("the new session appears in the list")]
     public void UAC04_CreatedSessionBlockearsInSidebarList()
     {
-        var cut = Ctx.Render<SessionBlock>();
+        var cut = Ctx.Render<Components.SessionBlock>();
 
         var initialCount = cut.FindAll("[data-slot='session-list-item']").Count;
 
@@ -105,7 +105,7 @@ public sealed class SC08_SessionCreate : ViewScenario
     public void UAC06_CreateModeSubmitRenamesSession()
     {
         var stateService = new SessionStateService();
-        var cut = Ctx.Render<SessionBlock>(p => p
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.StateService, stateService));
 
         // Create a new session

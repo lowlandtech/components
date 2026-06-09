@@ -345,7 +345,7 @@ public class SC01_SessionBlocks : ViewScenario
     public void UAC33_SessionBlockStandaloneSettingsLoadsEventLogPage()
     {
         var stateService = new SessionStateService();
-        var cut = Ctx.Render<SessionBlock>(p => p
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
             .Add(x => x.StateService, stateService));
 
@@ -372,7 +372,7 @@ public class SC01_SessionBlocks : ViewScenario
     public void UAC34_SessionEventLogRendersBareCollapsibleList()
     {
         var stateService = new SessionStateService();
-        var cut = Ctx.Render<SessionBlock>(p => p
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
             .Add(x => x.StateService, stateService));
 
@@ -397,7 +397,7 @@ public class SC01_SessionBlocks : ViewScenario
     public void UAC34b_SessionBlockSettingsButtonTogglesEventLogPage()
     {
         var stateService = new SessionStateService();
-        var cut = Ctx.Render<SessionBlock>(p => p
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
             .Add(x => x.StateService, stateService));
 
@@ -421,7 +421,7 @@ public class SC01_SessionBlocks : ViewScenario
     public void UAC34c_SessionBlockSettingsCreatesAndRemovesApiKeys()
     {
         var stateService = new SessionStateService();
-        var cut = Ctx.Render<SessionBlock>(p => p
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
             .Add(x => x.StateService, stateService));
 
@@ -548,7 +548,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "16")]
     public void UAC16_SessionBlockComposesWorkingSurface()
     {
-        var cut = Ctx.Render<SessionBlock>();
+        var cut = Ctx.Render<Components.SessionBlock>();
 
         cut.Find("[data-node-id='orders-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
@@ -567,7 +567,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "16b")]
     public void UAC16b_SessionBlockIsTestStreamsDummyReply()
     {
-        var cut = Ctx.Render<SessionBlock>(p => p
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0));
 
@@ -589,7 +589,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "16c")]
     public void UAC16c_SessionBlockAccumulatesMultipleCommands()
     {
-        var cut = Ctx.Render<SessionBlock>();
+        var cut = Ctx.Render<Components.SessionBlock>();
 
         cut.Find("[data-node-id='orders-session']").Click();
 
@@ -614,7 +614,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "16d")]
     public void UAC16d_SessionBlockInterleavesBlocksAndCommands()
     {
-        var cut = Ctx.Render<SessionBlock>();
+        var cut = Ctx.Render<Components.SessionBlock>();
 
         cut.Find("[data-node-id='orders-session']").Click();
 
@@ -664,7 +664,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "16e")]
     public void UAC16e_SessionBlockIsTestPreservesHistoryOrder()
     {
-        var cut = Ctx.Render<SessionBlock>(p => p
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0));
 
@@ -709,7 +709,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "16f")]
     public void UAC16f_SessionBlockRepeatedRunsAppendTurns()
     {
-        var cut = Ctx.Render<SessionBlock>(p => p
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0));
 
@@ -742,7 +742,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "17")]
     public void UAC17_SessionBlockReplacesProjectedFeedBlock()
     {
-        var cut = Ctx.Render<SessionBlock>();
+        var cut = Ctx.Render<Components.SessionBlock>();
 
         cut.Find("[data-node-id='release-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
@@ -764,7 +764,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "17b")]
     public void UAC17b_SessionBlockMovesProjectionToFeedTailOnSelection()
     {
-        var cut = Ctx.Render<SessionBlock>(p => p
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0));
 
@@ -794,7 +794,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "18")]
     public void UAC18_SessionBlockScopesProjectedContextPerSession()
     {
-        var cut = Ctx.Render<SessionBlock>();
+        var cut = Ctx.Render<Components.SessionBlock>();
 
         cut.Find("[data-node-id='release-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
@@ -816,7 +816,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "19")]
     public void UAC19_SessionBlockRendersUnifiedFeed()
     {
-        var cut = Ctx.Render<SessionBlock>();
+        var cut = Ctx.Render<Components.SessionBlock>();
 
         cut.Find("[data-node-id='release-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
@@ -882,7 +882,7 @@ public class SC01_SessionBlocks : ViewScenario
         // nodes hidden) and UAC21 (unpin button emits event). Skipping this
         // scenario keeps the suite green without losing meaningful coverage.
         var stateService = new SessionStateService();
-        var cut = Ctx.Render<SessionBlock>(p => p
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.StateService, stateService)
             .Add(x => x.HasSidebar, true));
 
@@ -896,7 +896,7 @@ public class SC01_SessionBlocks : ViewScenario
     public void UAC23_SessionBlockScrollsContextBlocksIntoView()
     {
         Ctx.JSInterop.SetupVoid("eval", _ => true).SetVoidResult();
-        var cut = Ctx.Render<SessionBlock>();
+        var cut = Ctx.Render<Components.SessionBlock>();
 
         cut.Find("[data-node-id='release-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
@@ -932,7 +932,7 @@ public class SC01_SessionBlocks : ViewScenario
     public void UAC24_SessionBlockRightSidebarRendersUnifiedSectionLinks()
     {
         Ctx.JSInterop.SetupVoid("eval", _ => true).SetVoidResult();
-        var cut = Ctx.Render<SessionBlock>();
+        var cut = Ctx.Render<Components.SessionBlock>();
 
         cut.Find("[data-node-id='release-session']").Click();
 
@@ -971,7 +971,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "25")]
     public void UAC25_SessionBlockRightSidebarStartsEmpty()
     {
-        var cut = Ctx.Render<SessionBlock>();
+        var cut = Ctx.Render<Components.SessionBlock>();
 
         var sidebar = cut.Find("[data-testid='session-block-right-sidebar']");
         sidebar.TextContent.ShouldContain("No sections");
@@ -988,7 +988,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "26")]
     public void UAC26_SessionBlockSessionCountsMatchChildSections()
     {
-        var cut = Ctx.Render<SessionBlock>();
+        var cut = Ctx.Render<Components.SessionBlock>();
 
         FindSessionCount(cut, "orders-session").ShouldBe("0");
         FindSessionCount(cut, "support-session").ShouldBe("0");
@@ -1010,7 +1010,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "27")]
     public void UAC27_SessionBlockUsesResizablePanels()
     {
-        var cut = Ctx.Render<SessionBlock>();
+        var cut = Ctx.Render<Components.SessionBlock>();
 
         cut.Find("[data-slot='resizable-panel-group']").ShouldNotBeNull();
         cut.FindAll("[data-slot='resizable-panel']").Count.ShouldBe(3);
@@ -1031,7 +1031,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "28")]
     public void UAC28_SessionBlockMaximizedBlockOverlaysTabContent()
     {
-        var cut = Ctx.Render<SessionBlock>();
+        var cut = Ctx.Render<Components.SessionBlock>();
 
         cut.Find("[data-node-id='orders-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
@@ -1056,7 +1056,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "28b")]
     public void UAC28b_SessionBlockPersistsMinimizedBlockMode()
     {
-        var cut = Ctx.Render<SessionBlock>();
+        var cut = Ctx.Render<Components.SessionBlock>();
 
         cut.Find("[data-node-id='orders-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
@@ -1078,7 +1078,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "28c")]
     public void UAC28c_SessionBlockPersistsMinimizedPinnedBlockMode()
     {
-        var cut = Ctx.Render<SessionBlock>(p => p
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
             .Add(x => x.IsTest, true));
 
@@ -1101,7 +1101,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "28d")]
     public void UAC28d_SessionBlockMovesProjectionBehindNewResponses()
     {
-        var cut = Ctx.Render<SessionBlock>(p => p
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0));
 
@@ -1128,7 +1128,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "29")]
     public void UAC29_SessionBlockMaximizedAgentCardOverlaysTabContent()
     {
-        var cut = Ctx.Render<SessionBlock>(p => p
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0));
 
@@ -1159,13 +1159,13 @@ public class SC01_SessionBlocks : ViewScenario
     [Then("the standalone shell uses the expected sidebar and resizable panel composition")]
     public void UAC30_SessionBlockHasSidebarUsesSidebarShell()
     {
-        var embedded = Ctx.Render<SessionBlock>();
+        var embedded = Ctx.Render<Components.SessionBlock>();
 
         embedded.FindAll("[data-slot='sidebar-provider']").ShouldBeEmpty();
         embedded.Find("[data-panel='session-block-left-panel']").ShouldNotBeNull();
         embedded.FindAll("[data-slot='resizable-panel']").Count.ShouldBe(3);
 
-        var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
+        var standalone = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
         standalone.Find("[data-slot='sidebar-provider']").ShouldNotBeNull();
         standalone.Find("[data-slot='sidebar']").ShouldNotBeNull();
@@ -1220,7 +1220,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Then("the page label aligns to the start and the rows label aligns to the end")]
     public void UAC30i_SessionListFooterAlignsLabelsToOppositeEdges()
     {
-        var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
+        var standalone = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
         var footerSummary = standalone.Find("[data-slot='session-block-sidebar-footer-summary']");
         footerSummary.ClassList.ShouldContain("grid");
@@ -1242,7 +1242,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "30b")]
     public void UAC30b_SessionBlockStandaloneSidebarsKeepStretchClasses()
     {
-        var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
+        var standalone = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
         var leftSidebar = standalone.Find("[data-slot='session-block-left-sidebar']");
         leftSidebar.ClassList.ShouldContain("h-full");
@@ -1285,8 +1285,8 @@ public class SC01_SessionBlocks : ViewScenario
     [Then("the main content uses six pixels of horizontal padding so each padding plus splitter width remains ten pixels")]
     public void UAC30d_MainPanelCompensatesForResizableSplitterWidth()
     {
-        var embedded = Ctx.Render<SessionBlock>();
-        var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
+        var embedded = Ctx.Render<Components.SessionBlock>();
+        var standalone = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
         const string compensatedPadding = "padding:10px 6px 10px 6px;";
         embedded.Find("[data-slot='session-block-main-content']").GetAttribute("style").ShouldBe(compensatedPadding);
@@ -1310,7 +1310,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Then("the main content restores ten-pixel left padding while retaining six-pixel right padding for the Sections splitter")]
     public void UAC30e_MainPanelRestoresLeftPaddingWithoutLeftSplitter()
     {
-        var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
+        var standalone = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
         standalone.Find("[data-testid='session-block-sidebar-close']").Click();
 
@@ -1327,8 +1327,8 @@ public class SC01_SessionBlocks : ViewScenario
     [Then("outlined has a border and rounded corners while none has neither")]
     public void UAC30f_SessionBlockVariantsControlOuterFrame()
     {
-        var outlined = Ctx.Render<SessionBlock>();
-        var none = Ctx.Render<SessionBlock>(p => p.Add(x => x.Variant, "none"));
+        var outlined = Ctx.Render<Components.SessionBlock>();
+        var none = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.Variant, "none"));
 
         var outlinedRoot = outlined.Find("[data-slot='session-block']");
         outlinedRoot.GetAttribute("data-variant").ShouldBe("outlined");
@@ -1354,7 +1354,7 @@ public class SC01_SessionBlocks : ViewScenario
         Ctx.JSInterop.Setup<string?>("localStorage.getItem", persistKey).SetResult(null);
         Ctx.JSInterop.SetupVoid("localStorage.setItem", _ => true);
 
-        var standalone = Ctx.Render<SessionBlock>(p => p
+        var standalone = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
             .Add(x => x.SidebarPersistKey, persistKey));
 
@@ -1382,7 +1382,7 @@ public class SC01_SessionBlocks : ViewScenario
         const string persistKey = "session-block:test:sidebar-open";
         Ctx.JSInterop.Setup<string?>("localStorage.getItem", persistKey).SetResult("false");
 
-        var standalone = Ctx.Render<SessionBlock>(p => p
+        var standalone = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
             .Add(x => x.SidebarPersistKey, persistKey));
 
@@ -1402,7 +1402,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Then("both use a forty-pixel non-shrinking leading slot and the button remains square")]
     public void UAC30j_EmptyTabsHeaderPreservesSidebarButtonGeometry()
     {
-        var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
+        var standalone = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
         standalone.Find("[data-testid='session-block-sidebar-close']").Click();
 
@@ -1450,7 +1450,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Then("the full-width footer owns end alignment and contains the settings button directly without a padded wrapper")]
     public void UAC30k_SettingsFooterAlignsButtonWithoutDuplicatePadding()
     {
-        var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
+        var standalone = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
         standalone.Find("[data-node-id='orders-session']").Click();
 
@@ -1503,7 +1503,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "30c")]
     public void UAC30c_ClosingStandaloneSidebarRemovesLeftPanel()
     {
-        var standalone = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
+        var standalone = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
         standalone.Find("[data-testid='session-block-sidebar-close']").Click();
 
@@ -1534,7 +1534,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "31")]
     public void UAC31_SessionBlockSuppliesOverlayContainers()
     {
-        var cut = Ctx.Render<SessionBlock>(p => p
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0)
@@ -1560,7 +1560,7 @@ public class SC01_SessionBlocks : ViewScenario
         var pageOverlay = Ctx.Services.GetRequiredService<IPageOverlayService>();
         pageOverlay.Clear();
 
-        var cut = Ctx.Render<SessionBlock>(p => p
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0)
@@ -1624,7 +1624,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Click();
     }
 
-    private static string FindSessionCount(IRenderedComponent<SessionBlock> cut, string sessionId) =>
+    private static string FindSessionCount(IRenderedComponent<Components.SessionBlock> cut, string sessionId) =>
         cut.Find($"[data-testid='session-list-item-count'][data-node-id='{sessionId}']").TextContent.Trim();
 
     [Fact(DisplayName = "UAC31: SessionBlock renders localized strings in English by default")]
@@ -1634,7 +1634,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Then("user-facing strings appear in English")]
     public void UAC31_SessionBlockRendersEnglishByDefault()
     {
-        var cut = Ctx.Render<SessionBlock>(p => p
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
             .Add(x => x.Sessions, Array.Empty<SessionListEntry>()));
 
@@ -1657,7 +1657,7 @@ public class SC01_SessionBlocks : ViewScenario
             System.Globalization.CultureInfo.CurrentCulture = dutchCulture;
             System.Globalization.CultureInfo.CurrentUICulture = dutchCulture;
 
-            var cut = Ctx.Render<SessionBlock>(p => p
+            var cut = Ctx.Render<Components.SessionBlock>(p => p
                 .Add(x => x.HasSidebar, true)
                 .Add(x => x.Sessions, Array.Empty<SessionListEntry>())
                 .Add(x => x.Language, "nl"));
@@ -1679,7 +1679,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Then("they use bg-sidebar so the entire block shares the dark sidebar color")]
     public void UAC33_NoneVariantUsesSidebarBackgroundAcrossBlock()
     {
-        var cut = Ctx.Render<SessionBlock>(p => p.Add(x => x.Variant, "none"));
+        var cut = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.Variant, "none"));
 
         var root = cut.Find("[data-slot='session-block']");
         root.ClassList.ShouldContain("bg-sidebar");
@@ -1702,8 +1702,8 @@ public class SC01_SessionBlocks : ViewScenario
     [Then("none variant panels have no side border and outlined panels keep rounded-lg border-border")]
     public void UAC34_NoneVariantRemovesSideBordersKeepsInnerCardOutline()
     {
-        var outlined = Ctx.Render<SessionBlock>();
-        var none = Ctx.Render<SessionBlock>(p => p.Add(x => x.Variant, "none"));
+        var outlined = Ctx.Render<Components.SessionBlock>();
+        var none = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.Variant, "none"));
 
         var noneLeftPanel = none.Find("[data-slot='session-block-left-sidebar-body']").ParentElement;
         noneLeftPanel.ShouldNotBeNull();
@@ -1741,7 +1741,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Then("SessionContent owns the scrollable body and SessionCommandBar is a shrink-0 sibling after it")]
     public void UAC35_CommandBarFixedAtBottomContentScrolls()
     {
-        var cut = Ctx.Render<SessionBlock>(p => p.Add(x => x.HasSidebar, true));
+        var cut = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
         cut.Find("[data-node-id='orders-session']").Click();
 
@@ -1772,7 +1772,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Then("horizontal padding is 4px on each side of the splitter rails")]
     public void UAC36_NoneVariantUsesSymmetricPaddingAroundRails()
     {
-        var cut = Ctx.Render<SessionBlock>(p => p
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
             .Add(x => x.Variant, "none"));
 
