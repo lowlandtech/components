@@ -319,7 +319,7 @@ public class SC01_SessionBlocks : ViewScenario
         SessionContextProjected? projected = null;
         SessionContextPinned? pinned = null;
         var invoice = new SessionNodeInput("invoice", "invoice", "Invoice", "InvoiceBlock");
-        var nodes = new[] { new SessionContextNode(invoice) };
+        var nodes = new[] { new SessionContextNode(invoice, IsLoaded: true) };
 
         var cut = Ctx.Render<SessionContextExplorer>(p => p
             .Add(x => x.RootNodes, nodes)
@@ -836,7 +836,7 @@ public class SC01_SessionBlocks : ViewScenario
 
         var cut = Ctx.Render<SessionContextExplorer>(p => p
             .Add(x => x.State, state)
-            .Add(x => x.RootNodes, new[] { new SessionContextNode(invoice) }));
+            .Add(x => x.RootNodes, new[] { new SessionContextNode(invoice, IsLoaded: true) }));
 
         // Pinned node should not be rendered in the tree
         cut.FindAll("[data-node-id='invoice']").Count.ShouldBe(0);

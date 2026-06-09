@@ -26,15 +26,17 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         new(
             new("orders", "workitem", "Orders", "NodeBlock"),
             [
-                new(new("invoice-approval", "invoice", "Invoice approval", "NodeBlock")),
-                new(new("shipment-delay", "shipment", "Shipment delay", "NodeBlock"))
-            ]),
+                new(new("invoice-approval", "invoice", "Invoice approval", "NodeBlock"), IsLoaded: true),
+                new(new("shipment-delay", "shipment", "Shipment delay", "NodeBlock"), IsLoaded: true)
+            ],
+            true),
         new(
             new("customers", "table", "Customers", "NodeBlock"),
             [
-                new(new("northwind", "customer", "Northwind Traders", "NodeBlock")),
-                new(new("contoso", "customer", "Contoso", "NodeBlock"))
-            ])
+                new(new("northwind", "customer", "Northwind Traders", "NodeBlock"), IsLoaded: true),
+                new(new("contoso", "customer", "Contoso", "NodeBlock"), IsLoaded: true)
+            ],
+            true)
     ];
 
     [Parameter] public bool IsTest { get; set; }
