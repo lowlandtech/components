@@ -46,7 +46,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     [Parameter] public string? AppOverlayContainerClass { get; set; }
     [Parameter] public SessionStateService? StateService { get; set; }
     [Parameter] public string? Language { get; set; }
-    [Parameter] public string LogoSrc { get; set; } = "_content/LowlandTech.Components/img/session-app-logo.svg";
+    [Parameter] public string LogoSrc { get; set; } = "_content/LowlandTech.Components/img/session-block-logo.svg";
     [Parameter] public string? Title { get; set; }
     [Parameter] public EventCallback<SessionHeaderCreateRequest> OnHeaderCreateRequested { get; set; }
 

@@ -1197,7 +1197,7 @@ public class SC01_SessionBlocks : ViewScenario
             .All(handle => handle.ClassList.Contains("z-20"))
             .ShouldBeTrue();
         standalone.Find("[data-slot='sidebar-header']").ShouldNotBeNull();
-        standalone.Find("[data-slot='sidebar-brand-logo']").GetAttribute("src").ShouldBe("_content/LowlandTech.Components/img/session-app-logo.svg");
+        standalone.Find("[data-slot='sidebar-brand-logo']").GetAttribute("src").ShouldBe("_content/LowlandTech.Components/img/session-block-logo.svg");
         standalone.Find("[data-slot='sidebar-brand-title']").TextContent.Trim().ShouldBe("SessionBlock");
         standalone.Find("[data-slot='sidebar-content']").ShouldNotBeNull();
         standalone.Find("[data-slot='sidebar-footer']").TextContent.ShouldContain("Page 1 / 1");

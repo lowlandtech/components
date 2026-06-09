@@ -51,12 +51,12 @@ public class SC02_RenderSidebarHeader : ViewScenario
     public void UAC05_SidebarBrandRendersLogoAndTitle()
     {
         var cut = Ctx.Render<SidebarBrand>(p => p
-            .Add(x => x.LogoSrc, "_content/LowlandTech.Components/img/session-app-logo.svg")
+            .Add(x => x.LogoSrc, "_content/LowlandTech.Components/img/session-block-logo.svg")
             .Add(x => x.LogoAlt, "SessionBlock")
             .Add(x => x.Title, "SessionBlock"));
 
         var logo = cut.Find("[data-slot='sidebar-brand-logo']");
-        logo.GetAttribute("src").ShouldBe("_content/LowlandTech.Components/img/session-app-logo.svg");
+        logo.GetAttribute("src").ShouldBe("_content/LowlandTech.Components/img/session-block-logo.svg");
         logo.GetAttribute("alt").ShouldBe("SessionBlock");
         cut.Find("[data-slot='sidebar-brand-title']").TextContent.Trim().ShouldBe("SessionBlock");
         logo.ClassList.ShouldContain("rounded-md");
