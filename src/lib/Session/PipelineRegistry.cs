@@ -2,7 +2,7 @@ namespace LowlandTech.Components;
 
 /// <summary>
 /// Holds the ordered list of <see cref="IPipelineStage"/> instances
-/// that a <see cref="SessionBlock"/> will execute on mount.
+/// that a <see cref="SessionPipelineHost"/> will execute on mount.
 /// </summary>
 public sealed class PipelineRegistry
 {

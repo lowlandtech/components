@@ -1,8 +1,8 @@
-namespace LowlandTech.Components.Tests.SPEC1078.SessionBlock;
+namespace LowlandTech.Components.Tests.SPEC1078.SessionPipelineHost;
 
 [Trait(Spec.SPEC, "1078")]
 [Trait(Spec.SC, "03")]
-[UserStory("03", "SessionBlock runtime pipelines")]
+[UserStory("03", "SessionPipelineHost runtime pipelines")]
 public class SC03_StateHydratesFromGraphOnMount : ViewScenario
 {
     private sealed class FakeGraphSession : IGraphSession
@@ -54,7 +54,7 @@ public class SC03_StateHydratesFromGraphOnMount : ViewScenario
             => throw new NotSupportedException();
     }
 
-    [Fact(DisplayName = "UAC01: SessionBlock hydrates state from IGraphSession on mount")]
+    [Fact(DisplayName = "UAC01: SessionPipelineHost hydrates state from IGraphSession on mount")]
     [Trait(Spec.UAC, "01")]
     public async Task UAC01_StateHydratesFromGraph()
     {
@@ -71,7 +71,7 @@ public class SC03_StateHydratesFromGraphOnMount : ViewScenario
         });
         Ctx.Services.AddSingleton<IGraphSession>(graphSession);
 
-        var cut = Ctx.Render<SessionBlockSut>(parameters => parameters
+        var cut = Ctx.Render<SessionPipelineHostSut>(parameters => parameters
             .Add(p => p.SessionId, sessionId.ToString()));
         await cut.InvokeAsync(() => Task.CompletedTask);
 
@@ -88,7 +88,7 @@ public class SC03_StateHydratesFromGraphOnMount : ViewScenario
         var sessionId = Guid.NewGuid();
         Ctx.Services.AddSingleton<IGraphSession>(new FakeGraphSession());
 
-        var cut = Ctx.Render<SessionBlockSut>(parameters => parameters
+        var cut = Ctx.Render<SessionPipelineHostSut>(parameters => parameters
             .Add(p => p.SessionId, sessionId.ToString()));
         await cut.InvokeAsync(() => Task.CompletedTask);
 
@@ -104,7 +104,7 @@ public class SC03_StateHydratesFromGraphOnMount : ViewScenario
         var graphSession = new FakeGraphSession();
         Ctx.Services.AddSingleton<IGraphSession>(graphSession);
 
-        var cut = Ctx.Render<SessionBlockSut>();
+        var cut = Ctx.Render<SessionPipelineHostSut>();
         await cut.InvokeAsync(() => Task.CompletedTask);
 
         cut.Instance.IsHydrated.ShouldBeFalse();
@@ -114,7 +114,7 @@ public class SC03_StateHydratesFromGraphOnMount : ViewScenario
     [Trait(Spec.UAC, "04")]
     public async Task UAC04_NoGraphSessionSkipsHydration()
     {
-        var cut = Ctx.Render<SessionBlockSut>(parameters => parameters
+        var cut = Ctx.Render<SessionPipelineHostSut>(parameters => parameters
             .Add(p => p.SessionId, Guid.NewGuid().ToString()));
         await cut.InvokeAsync(() => Task.CompletedTask);
 

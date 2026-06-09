@@ -1,6 +1,6 @@
 namespace LowlandTech.Components;
 
-public partial class SessionBlock : IAsyncDisposable
+public partial class SessionPipelineHost : IAsyncDisposable
 {
     [Inject] private IServiceProvider Services { get; set; } = default!;
 
