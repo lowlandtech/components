@@ -30,7 +30,7 @@ public class SC02_PipelineStagesExecuteInOrder : ViewScenario
         registry.Register(new TrackingStage("gamma", order));
         Ctx.Services.AddSingleton(registry);
 
-        var cut = Ctx.Render<SessionPipelineHostSut>();
+        var cut = Ctx.Render<SessionPipelineHost>();
         await cut.InvokeAsync(() => Task.CompletedTask);
 
         order.ShouldBe(["alpha", "beta", "gamma"]);
@@ -45,7 +45,7 @@ public class SC02_PipelineStagesExecuteInOrder : ViewScenario
         registry.Register(new TrackingStage("two", []));
         Ctx.Services.AddSingleton(registry);
 
-        var cut = Ctx.Render<SessionPipelineHostSut>();
+        var cut = Ctx.Render<SessionPipelineHost>();
         await cut.InvokeAsync(() => Task.CompletedTask);
 
         cut.Instance.Context.ShouldNotBeNull();
@@ -59,7 +59,7 @@ public class SC02_PipelineStagesExecuteInOrder : ViewScenario
     {
         Ctx.Services.AddSingleton(new PipelineRegistry());
 
-        var cut = Ctx.Render<SessionPipelineHostSut>();
+        var cut = Ctx.Render<SessionPipelineHost>();
         await cut.InvokeAsync(() => Task.CompletedTask);
 
         cut.Instance.PipelineComplete.ShouldBeTrue();

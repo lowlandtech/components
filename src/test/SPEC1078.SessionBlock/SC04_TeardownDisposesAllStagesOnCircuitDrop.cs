@@ -39,7 +39,7 @@ public class SC04_TeardownDisposesAllStagesOnCircuitDrop : ViewScenario
         registry.Register(stage2);
         Ctx.Services.AddSingleton(registry);
 
-        var cut = Ctx.Render<SessionPipelineHostSut>();
+        var cut = Ctx.Render<SessionPipelineHost>();
         await cut.InvokeAsync(() => Task.CompletedTask);
 
         log.ShouldContain("execute-alpha");
@@ -65,7 +65,7 @@ public class SC04_TeardownDisposesAllStagesOnCircuitDrop : ViewScenario
         registry.Register(new DisposableStage("second", log));
         Ctx.Services.AddSingleton(registry);
 
-        var cut = Ctx.Render<SessionPipelineHostSut>();
+        var cut = Ctx.Render<SessionPipelineHost>();
         await cut.InvokeAsync(() => Task.CompletedTask);
         await cut.Instance.DisposeAsync();
 
@@ -83,7 +83,7 @@ public class SC04_TeardownDisposesAllStagesOnCircuitDrop : ViewScenario
         registry.Register(new DisposableStage("solo", log));
         Ctx.Services.AddSingleton(registry);
 
-        var cut = Ctx.Render<SessionPipelineHostSut>();
+        var cut = Ctx.Render<SessionPipelineHost>();
         await cut.InvokeAsync(() => Task.CompletedTask);
         await cut.Instance.DisposeAsync();
         await cut.Instance.DisposeAsync();
@@ -101,7 +101,7 @@ public class SC04_TeardownDisposesAllStagesOnCircuitDrop : ViewScenario
         registry.Register(stage);
         Ctx.Services.AddSingleton(registry);
 
-        var cut = Ctx.Render<SessionPipelineHostSut>();
+        var cut = Ctx.Render<SessionPipelineHost>();
         await cut.InvokeAsync(() => Task.CompletedTask);
 
         Ctx.Dispose();

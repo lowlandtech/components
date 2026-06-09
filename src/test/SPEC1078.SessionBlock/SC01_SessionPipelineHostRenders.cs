@@ -9,7 +9,7 @@ public class SC01_SessionPipelineHostRenders : ViewScenario
     [Trait(Spec.UAC, "01")]
     public void UAC01_SessionPipelineHostRendersChildContent()
     {
-        var cut = Ctx.Render<SessionPipelineHostSut>(parameters => parameters
+        var cut = Ctx.Render<SessionPipelineHost>(parameters => parameters
             .Add(p => p.ChildContent, builder =>
                 builder.AddMarkupContent(0, "<span data-testid='child'>Hello Session</span>")));
 
@@ -21,7 +21,7 @@ public class SC01_SessionPipelineHostRenders : ViewScenario
     [Trait(Spec.UAC, "02")]
     public void UAC02_SessionPipelineHostRendersWithoutChildContent()
     {
-        var cut = Ctx.Render<SessionPipelineHostSut>();
+        var cut = Ctx.Render<SessionPipelineHost>();
 
         cut.Find("[data-testid='session-pipeline-host']").ShouldNotBeNull();
     }
@@ -30,7 +30,7 @@ public class SC01_SessionPipelineHostRenders : ViewScenario
     [Trait(Spec.UAC, "03")]
     public async Task UAC03_PipelineCompleteAfterInit()
     {
-        var cut = Ctx.Render<SessionPipelineHostSut>();
+        var cut = Ctx.Render<SessionPipelineHost>();
         await cut.InvokeAsync(() => Task.CompletedTask);
 
         cut.Instance.PipelineComplete.ShouldBeTrue();
