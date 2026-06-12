@@ -57,7 +57,9 @@
                                 {
                                     <TabsContent Value="@state.Value" class="@GetTabsContentClass()">
                                         <div class="flex min-w-0 flex-1 flex-col gap-2">
-                                            <div class="flex min-w-0 gap-2">
+                                            <div data-slot="story-preview-container"
+                                                 data-expanded="@(_expandedState == state.Value ? "true" : "false")"
+                                                 class="story-card-preview-container flex min-w-0 gap-2">
                                                 <DesignSurface IsDesignMode="@_designMode"
                                                                SelectedInstanceId="@_selectedDesignInstanceId"
                                                                SelectedPersistenceKey="@_selectedDesignPersistenceKey"
@@ -68,6 +70,16 @@
                                                                Class="story-card-design-preview relative flex min-h-32 min-w-0 flex-1 items-center justify-center rounded-lg border border-border/70 bg-background p-6">
                                                     @state.Preview
                                                 </DesignSurface>
+                                                <Button Variant="outline"
+                                                        Size="icon-sm"
+                                                        class="story-card-expand-button"
+                                                        data-slot="story-preview-expand-button"
+                                                        aria-expanded="@(_expandedState == state.Value ? "true" : "false")"
+                                                        title="@GetExpandLabel(state)"
+                                                        OnClick="@(() => ToggleExpanded(state))">
+                                                    <Icon Paths="@GetExpandIconPaths(state)" Size="16" />
+                                                    <span class="sr-only">@GetExpandLabel(state)</span>
+                                                </Button>
                                             </div>
                                             @if (state.CodeTabs.Count > 0)
                                             {
@@ -172,7 +184,9 @@
                         {
                             <TabsContent Value="@state.Value" class="@GetTabsContentClass()">
                                 <div class="flex min-w-0 flex-1 flex-col gap-2">
-                                    <div class="flex min-w-0 gap-2">
+                                    <div data-slot="story-preview-container"
+                                         data-expanded="@(_expandedState == state.Value ? "true" : "false")"
+                                         class="story-card-preview-container flex min-w-0 gap-2">
                                         <DesignSurface IsDesignMode="@_designMode"
                                                        SelectedInstanceId="@_selectedDesignInstanceId"
                                                        SelectedPersistenceKey="@_selectedDesignPersistenceKey"
@@ -183,6 +197,16 @@
                                                        Class="story-card-design-preview relative flex min-h-32 min-w-0 flex-1 items-center justify-center rounded-lg border border-border/70 bg-background p-6">
                                             @state.Preview
                                         </DesignSurface>
+                                        <Button Variant="outline"
+                                                Size="icon-sm"
+                                                class="story-card-expand-button"
+                                                data-slot="story-preview-expand-button"
+                                                aria-expanded="@(_expandedState == state.Value ? "true" : "false")"
+                                                title="@GetExpandLabel(state)"
+                                                OnClick="@(() => ToggleExpanded(state))">
+                                            <Icon Paths="@GetExpandIconPaths(state)" Size="16" />
+                                            <span class="sr-only">@GetExpandLabel(state)</span>
+                                        </Button>
                                     </div>
                                     @if (state.CodeTabs.Count > 0)
                                     {
@@ -256,6 +280,7 @@
 
     private string _activeState = "";
     private bool _designMode;
+    private string? _expandedState;
     private string? _selectedDesignInstanceId;
     private string? _selectedDesignPersistenceKey;
     private Type? _selectedDesignComponentType;
@@ -326,6 +351,19 @@
 
     private string GetTabsContentClass() => "mt-0 min-w-0 flex-1 pt-4";
 
+    private string GetExpandLabel(State state) =>
+        _expandedState == state.Value ? "Restore story preview" : "Expand story preview";
+
+    private string GetExpandIconPaths(State state) =>
+        _expandedState == state.Value
+            ? "<path d=\"m8 3v5H3\"></path><path d=\"m16 3v5h5\"></path><path d=\"m8 21v-5H3\"></path><path d=\"m16 21v-5h5\"></path>"
+            : "<path d=\"M8 3H3v5\"></path><path d=\"M16 3h5v5\"></path><path d=\"M8 21H3v-5\"></path><path d=\"M16 21h5v-5\"></path>";
+
+    private void ToggleExpanded(State state)
+    {
+        _expandedState = _expandedState == state.Value ? null : state.Value;
+    }
+
     private void OnDesignModeChanged(bool value)
     {
         _designMode = value;
@@ -339,6 +377,7 @@
     private void OnActiveStateChanged(string? value)
     {
         _activeState = value ?? DefaultStateValue;
+        _expandedState = null;
         _activeCodeTab = ActiveState?.CodeTabs.FirstOrDefault()?.Value;
         ClearDesignSelection();
         PersistToQueryString();

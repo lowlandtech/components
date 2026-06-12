@@ -38,4 +38,35 @@ public sealed class SC01_StoryCardRenderingE2E(ShowcodeCollection collection) : 
         (await editor.GetAttributeAsync("data-language")).ShouldBe("razor");
         await Assertions.Expect(card.Locator(".story-card-line-number").First).ToHaveTextAsync("1");
     }
+
+    [Fact(DisplayName = "UAC07: Story preview expands to the browser viewport and restores")]
+    [Trait(Spec.UAC, "07")]
+    public async Task UAC07_StoryPreviewExpandsToViewportAndRestores()
+    {
+        await Showcode.GoToStoryAsync("SessionBlock");
+
+        var card = Showcode.Page.Locator("main [data-slot='story-card']").First;
+        var preview = card.Locator("[data-slot='story-preview-container'][data-expanded='false']").First;
+        var expandButton = preview.Locator("[data-slot='story-preview-expand-button']");
+
+        await expandButton.ClickAsync();
+
+        var expandedPreview = card.Locator("[data-slot='story-preview-container'][data-expanded='true']");
+        await Assertions.Expect(expandedPreview).ToBeVisibleAsync();
+        await Assertions.Expect(expandedPreview.Locator("[data-slot='story-preview-expand-button']"))
+            .ToHaveAttributeAsync("aria-expanded", "true");
+
+        var box = await expandedPreview.BoundingBoxAsync();
+        box.ShouldNotBeNull();
+        box.X.ShouldBe(0, 1);
+        box.Y.ShouldBe(0, 1);
+        box.Width.ShouldBe(1280, 1);
+        box.Height.ShouldBe(900, 1);
+
+        await expandedPreview.Locator("[data-slot='story-preview-expand-button']").ClickAsync();
+
+        await Assertions.Expect(preview).ToHaveAttributeAsync("data-expanded", "false");
+        await Assertions.Expect(preview.Locator("[data-slot='story-preview-expand-button']"))
+            .ToHaveAttributeAsync("aria-expanded", "false");
+    }
 }
