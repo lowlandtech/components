@@ -1636,14 +1636,15 @@ public class SC01_SessionBlocks : ViewScenario
         AssertPageOverlayHeaderMatchesSectionsHeader(cut, overlay);
     }
 
-    [Fact(DisplayName = "UAC32c: Variant=none keeps ten pixels above and below the page overlay")]
+    [Fact(DisplayName = "UAC32c: Variant=none page overlay uses the main panel spacing around resizable rails")]
     [Trait(Spec.UAC, "32c")]
-    [Given("a SessionBlock using Variant=none with a projected context block")]
+    [Given("a standalone SessionBlock using Variant=none with a projected context block")]
     [When("the context block is opened in Page Overlay mode")]
-    [Then("the page overlay preserves the ten-pixel vertical spacing of the main panel")]
-    public void UAC32c_NoneVariantPageOverlayKeepsVerticalSpacing()
+    [Then("the page overlay preserves ten-pixel vertical spacing and four pixels on both sides")]
+    public void UAC32c_NoneVariantPageOverlayUsesMainPanelSpacing()
     {
         var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.HasSidebar, true)
             .Add(x => x.Variant, "none")
             .Add(x => x.PageOverlayContainerClass, "session-page-overlay absolute inset-0 z-40 flex h-full w-full flex-col"));
 
@@ -1655,7 +1656,7 @@ public class SC01_SessionBlocks : ViewScenario
 
         cut.Find("[data-slot='session-block-page-overlay']")
             .GetAttribute("style")
-            .ShouldBe("top:10px; bottom:10px; height:auto;");
+            .ShouldBe("top:10px; right:4px; bottom:10px; left:4px; width:auto; height:auto;");
     }
 
     public sealed class TestSessionContextBlock : ComponentBase, ISessionContextBlock

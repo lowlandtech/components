@@ -287,7 +287,7 @@
                         @if (PageOverlayBlock is { } pageOverlayBlock)
                         {
                             <div class="@EffectivePageOverlayContainerClass"
-                                 style="@PageOverlayContainerStyle"
+                                 style="@GetPageOverlayContainerStyle(IsStandaloneSidebarOpen)"
                                  data-slot="session-block-page-overlay">
                                 <SessionContextBlock Block="pageOverlayBlock"
                                                      Mode="@SessionContextBlock.ModeOverlayPage"
@@ -303,7 +303,7 @@
                         else if (PageOverlayCommand is { } pageOverlayCommand)
                         {
                             <div class="@EffectivePageOverlayContainerClass"
-                                 style="@PageOverlayContainerStyle"
+                                 style="@GetPageOverlayContainerStyle(IsStandaloneSidebarOpen)"
                                  data-slot="session-block-page-overlay">
                                 <SessionCard Node="CreateResponseNode(pageOverlayCommand)"
                                              Initials="RS"
@@ -569,7 +569,7 @@
                     @if (PageOverlayBlock is { } pageOverlayBlock)
                     {
                         <div class="@EffectivePageOverlayContainerClass"
-                             style="@PageOverlayContainerStyle"
+                             style="@GetPageOverlayContainerStyle(!HasActiveSession)"
                              data-slot="session-block-page-overlay">
                             <SessionContextBlock Block="pageOverlayBlock"
                                                  Mode="@SessionContextBlock.ModeOverlayPage"
@@ -585,7 +585,7 @@
                     else if (PageOverlayCommand is { } pageOverlayCommand)
                     {
                         <div class="@EffectivePageOverlayContainerClass"
-                             style="@PageOverlayContainerStyle"
+                             style="@GetPageOverlayContainerStyle(!HasActiveSession)"
                              data-slot="session-block-page-overlay">
                             <SessionCard Node="CreateResponseNode(pageOverlayCommand)"
                                          Initials="RS"

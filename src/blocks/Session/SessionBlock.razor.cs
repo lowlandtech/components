@@ -185,9 +185,15 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     private string GetMainContentStyle(bool isLeftOpen)
     {
+        var (left, right) = GetMainContentHorizontalSpacing(isLeftOpen);
+        return $"padding:10px {right} 10px {left};";
+    }
+
+    private (string Left, string Right) GetMainContentHorizontalSpacing(bool isLeftOpen)
+    {
         var left = isLeftOpen ? (IsNoneVariant ? "4px" : "6px") : "10px";
         var right = IsNoneVariant ? "4px" : "6px";
-        return $"padding:10px {right} 10px {left};";
+        return (left, right);
     }
 
     private string GetSidebarInsetClass() => IsNoneVariant
@@ -205,9 +211,14 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     private string EffectivePageOverlayContainerClass =>
         $"{PageOverlayContainerClass ?? "absolute inset-0 z-40 flex h-full w-full flex-col bg-background"} overflow-hidden rounded-lg";
 
-    private string? PageOverlayContainerStyle => IsNoneVariant
-        ? "top:10px; bottom:10px; height:auto;"
-        : null;
+    private string? GetPageOverlayContainerStyle(bool isLeftOpen)
+    {
+        if (!IsNoneVariant)
+            return null;
+
+        var (left, right) = GetMainContentHorizontalSpacing(isLeftOpen);
+        return $"top:10px; right:{right}; bottom:10px; left:{left}; width:auto; height:auto;";
+    }
 
     private RenderFragment SidebarOpenButton => builder =>
     {
