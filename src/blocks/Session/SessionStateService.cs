@@ -556,6 +556,7 @@ public sealed class SessionStateService
     public void PinContext(SessionNodeInput node)
     {
         Dispatch(new PinSessionContext(new SessionContextProjectionModel(node)));
+        ClearPresentationIds("projected-context-block", null);
         PersistCurrentSessionState();
         var blockId = $"context-block:{node.Id}";
         EnsureFeedSequence(GetFeedItemKey(CurrentSessionId, "block", blockId));

@@ -742,7 +742,8 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "17")]
     public void UAC17_SessionBlockReplacesProjectedFeedBlock()
     {
-        var cut = Ctx.Render<Components.SessionBlock>();
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.DefaultContextCardMode, SessionContextBlock.ModeNormal));
 
         cut.Find("[data-node-id='release-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
@@ -758,6 +759,58 @@ public class SC01_SessionBlocks : ViewScenario
         projectedBlock.TextContent.ShouldContain("Shipment delay");
         projectedBlock.TextContent.ShouldContain("Node type: shipment");
         projectedBlock.TextContent.ShouldNotContain("Node type: invoice");
+    }
+
+    [Fact(DisplayName = "UAC17c: SessionBlock opens a clicked context card in Page Overlay mode by default")]
+    [Trait(Spec.UAC, "17c")]
+    [Given("an active session using the default context card mode")]
+    [When("a context node is clicked")]
+    [Then("the transient context card opens in Page Overlay mode")]
+    public void UAC17c_SessionBlockOpensClickedContextInPageOverlay()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>();
+
+        cut.Find("[data-node-id='release-session']").Click();
+        cut.Find("[data-node-id='invoice-approval']").Click();
+
+        var overlay = cut.Find("[data-slot='session-block-page-overlay']");
+        overlay.QuerySelector("[data-block-id='projected-context-block'][data-mode='overlay-page']").ShouldNotBeNull();
+        overlay.TextContent.ShouldContain("Invoice approval");
+    }
+
+    [Fact(DisplayName = "UAC17d: SessionBlock allows the default context card mode to be configured")]
+    [Trait(Spec.UAC, "17d")]
+    [Given("an active session configured to open clicked context cards in Normal mode")]
+    [When("a context node is clicked")]
+    [Then("the transient context card remains inline in the session feed")]
+    public void UAC17d_SessionBlockSupportsConfiguredContextCardMode()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.DefaultContextCardMode, SessionContextBlock.ModeNormal));
+
+        cut.Find("[data-node-id='release-session']").Click();
+        cut.Find("[data-node-id='invoice-approval']").Click();
+
+        cut.FindAll("[data-slot='session-block-page-overlay']").ShouldBeEmpty();
+        cut.Find("[data-slot='session-block-feed'] [data-block-id='projected-context-block'][data-mode='normal']")
+            .ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC17e: SessionBlock double-click pins a context card in Normal mode")]
+    [Trait(Spec.UAC, "17e")]
+    [Given("an active session whose single-click context mode is Page Overlay")]
+    [When("a context node is double-clicked")]
+    [Then("the context card is pinned inline in Normal mode and the transient overlay closes")]
+    public void UAC17e_SessionBlockDoubleClickPinsContextInNormalMode()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>();
+
+        cut.Find("[data-node-id='release-session']").Click();
+        cut.Find("[data-node-id='invoice-approval']").DoubleClick();
+
+        cut.FindAll("[data-slot='session-block-page-overlay']").ShouldBeEmpty();
+        cut.Find("[data-slot='session-block-feed'] [data-block-id='context-block:invoice-approval'][data-mode='normal']")
+            .ShouldNotBeNull();
     }
 
     [Fact(DisplayName = "UAC17b: SessionBlock moves a newly selected projection to the end of the session feed")]
@@ -1056,7 +1109,8 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "28b")]
     public void UAC28b_SessionBlockPersistsMinimizedBlockMode()
     {
-        var cut = Ctx.Render<Components.SessionBlock>();
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.DefaultContextCardMode, SessionContextBlock.ModeNormal));
 
         cut.Find("[data-node-id='orders-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
@@ -1612,8 +1666,8 @@ public class SC01_SessionBlocks : ViewScenario
 
     [Fact(DisplayName = "UAC32b: SessionBlock context page overlay retains its overlay mode")]
     [Trait(Spec.UAC, "32b")]
-    [Given("a SessionBlock with a projected context block in its feed")]
-    [When("the context block is opened in Page Overlay mode")]
+    [Given("a SessionBlock using the default context card mode")]
+    [When("a context node is clicked")]
     [Then("the projected block remains in Page Overlay mode and renders its context content")]
     public void UAC32b_SessionBlockContextPageOverlayRetainsOverlayMode()
     {
@@ -1622,9 +1676,6 @@ public class SC01_SessionBlocks : ViewScenario
 
         cut.Find("[data-node-id='orders-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
-
-        cut.Find("[data-block-id='projected-context-block'] [data-testid='card-mode-menu-trigger']").Click();
-        ClickOpenCardMode("Page Overlay");
 
         var overlay = cut.Find("[data-slot='session-block-page-overlay']");
 
@@ -1638,8 +1689,8 @@ public class SC01_SessionBlocks : ViewScenario
 
     [Fact(DisplayName = "UAC32c: Variant=none page overlay uses the main panel spacing around resizable rails")]
     [Trait(Spec.UAC, "32c")]
-    [Given("a standalone SessionBlock using Variant=none with a projected context block")]
-    [When("the context block is opened in Page Overlay mode")]
+    [Given("a standalone SessionBlock using Variant=none and the default context card mode")]
+    [When("a context node is clicked")]
     [Then("the page overlay preserves ten-pixel vertical spacing and four pixels on both sides")]
     public void UAC32c_NoneVariantPageOverlayUsesMainPanelSpacing()
     {
@@ -1650,9 +1701,6 @@ public class SC01_SessionBlocks : ViewScenario
 
         cut.Find("[data-node-id='orders-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
-
-        cut.Find("[data-block-id='projected-context-block'] [data-testid='card-mode-menu-trigger']").Click();
-        ClickOpenCardMode("Page Overlay");
 
         cut.Find("[data-slot='session-block-page-overlay']")
             .GetAttribute("style")

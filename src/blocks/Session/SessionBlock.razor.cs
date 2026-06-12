@@ -45,6 +45,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     [Parameter] public string SidebarPersistKey { get; set; } = "session-block:sidebar-open";
     [Parameter] public int? SidebarWidth { get; set; }
     [Parameter] public string Variant { get; set; } = "outlined";
+    [Parameter] public string DefaultContextCardMode { get; set; } = SessionContextBlock.ModeOverlayPage;
     [Parameter] public string? PageOverlayContainerClass { get; set; }
     [Parameter] public string? AppOverlayContainerClass { get; set; }
     [Parameter] public SessionStateService? StateService { get; set; }
@@ -359,6 +360,12 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     private Task HandleProjectedAsync(SessionContextProjected projected)
     {
         SessionState.ProjectContext(projected.Node);
+        var block = ViewState.ContextBlocks?
+            .FirstOrDefault(candidate => string.Equals(candidate.Id, "projected-context-block", StringComparison.Ordinal));
+        if (block is not null
+            && !string.Equals(DefaultContextCardMode, SessionContextBlock.ModeNormal, StringComparison.Ordinal))
+            SessionState.SetBlockMode(block, DefaultContextCardMode);
+
         return Task.CompletedTask;
     }
 
