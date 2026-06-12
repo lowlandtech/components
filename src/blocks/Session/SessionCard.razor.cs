@@ -17,6 +17,7 @@ public partial class SessionCard : TinyComponentBase
     [Parameter] public string? PageOverlayContainerClass { get; set; }
     [Parameter] public string? AppOverlayContainerClass { get; set; }
     [Parameter] public bool HostHandlesPageOverlay { get; set; }
+    [Parameter] public bool IsPageOverlayProjection { get; set; }
 
     private const string ModeNormal = "normal";
     private const string ModeMinimized = "minimized";
@@ -47,6 +48,7 @@ public partial class SessionCard : TinyComponentBase
         var baseClass = EffectiveMode switch
         {
             ModeMaximized => "flex min-h-full w-full flex-col gap-0 overflow-hidden py-0",
+            ModeOverlayPage when IsPageOverlayProjection => "flex min-h-full w-full flex-col gap-0 overflow-hidden py-0",
             ModeOverlayPage => "w-full gap-0 overflow-hidden py-0 opacity-60",
             ModeOverlayApp when !string.IsNullOrWhiteSpace(AppOverlayContainerClass) => AppOverlayContainerClass,
             _ => "w-full gap-0 overflow-hidden py-0"

@@ -30,7 +30,8 @@
         </CardAction>
     </CardHeader>
 
-    @if (EffectiveMode != Card.ModeMinimized && EffectiveMode != Card.ModeOverlayPage)
+    @if (EffectiveMode != Card.ModeMinimized &&
+         (EffectiveMode != Card.ModeOverlayPage || IsPageOverlayProjection))
     {
         <CardContent class="space-y-2 p-3 text-sm">
             @if (ChildContent is not null)

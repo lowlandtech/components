@@ -1555,6 +1555,9 @@ public class SC01_SessionBlocks : ViewScenario
 
     [Fact(DisplayName = "UAC32: SessionBlock page overlay is confined to the main page content panel")]
     [Trait(Spec.UAC, "32")]
+    [Given("a standalone SessionBlock with a submitted response")]
+    [When("the response card is opened in Page Overlay mode")]
+    [Then("the projected card remains in Page Overlay mode and renders its content inside the main panel")]
     public void UAC32_SessionBlockPageOverlayUsesMainContentPanel()
     {
         var pageOverlay = Ctx.Services.GetRequiredService<IPageOverlayService>();
@@ -1578,7 +1581,33 @@ public class SC01_SessionBlocks : ViewScenario
 
         overlay.ShouldNotBeNull();
         overlay!.ClassList.ShouldContain("session-page-overlay");
+        overlay.QuerySelector("[data-node-id^='response:'][data-mode='overlay-page']").ShouldNotBeNull();
+        overlay.QuerySelector("[data-node-id^='response:'][data-mode='maximized']").ShouldBeNull();
+        overlay.TextContent.ShouldContain("Use the page overlay");
         pageOverlay.Content.ShouldBeNull();
+    }
+
+    [Fact(DisplayName = "UAC32b: SessionBlock context page overlay retains its overlay mode")]
+    [Trait(Spec.UAC, "32b")]
+    [Given("a SessionBlock with a projected context block in its feed")]
+    [When("the context block is opened in Page Overlay mode")]
+    [Then("the projected block remains in Page Overlay mode and renders its context content")]
+    public void UAC32b_SessionBlockContextPageOverlayRetainsOverlayMode()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.PageOverlayContainerClass, "session-page-overlay absolute inset-0 z-40 flex h-full w-full flex-col"));
+
+        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='invoice-approval']").Click();
+
+        cut.Find("[data-block-id='projected-context-block'] [data-testid='card-mode-menu-trigger']").Click();
+        ClickOpenCardMode("Page Overlay");
+
+        var overlay = cut.Find("[data-slot='session-block-page-overlay']");
+
+        overlay.QuerySelector("[data-block-id='projected-context-block'][data-mode='overlay-page']").ShouldNotBeNull();
+        overlay.QuerySelector("[data-block-id='projected-context-block'][data-mode='maximized']").ShouldBeNull();
+        overlay.TextContent.ShouldContain("Invoice approval");
     }
 
     public sealed class TestSessionContextBlock : ComponentBase, ISessionContextBlock

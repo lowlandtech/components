@@ -288,11 +288,12 @@
                         {
                             <div class="@EffectivePageOverlayContainerClass" data-slot="session-block-page-overlay">
                                 <SessionContextBlock Block="pageOverlayBlock"
-                                                     Mode="@SessionContextBlock.ModeMaximized"
+                                                     Mode="@SessionContextBlock.ModeOverlayPage"
                                                      IsPinned="@IsBlockPinned(pageOverlayBlock)"
                                                      PageOverlayContainerClass="@PageOverlayContainerClass"
                                                      AppOverlayContainerClass="@EffectiveAppOverlayContainerClass"
                                                      HostHandlesPageOverlay="true"
+                                                     IsPageOverlayProjection="true"
                                                      OnUnpin="@(() => UnpinBlockAsync(pageOverlayBlock))"
                                                      ModeChanged="@(mode => HandleBlockModeChangedAsync(pageOverlayBlock, mode))" />
                             </div>
@@ -302,12 +303,13 @@
                             <div class="@EffectivePageOverlayContainerClass" data-slot="session-block-page-overlay">
                                 <SessionCard Node="CreateResponseNode(pageOverlayCommand)"
                                              Initials="RS"
-                                             Mode="@SessionContextBlock.ModeMaximized"
+                                             Mode="@SessionContextBlock.ModeOverlayPage"
                                              Status="@GetResponseStatus(pageOverlayCommand)"
                                              StatusVariant="@GetResponseStatusVariant(pageOverlayCommand)"
                                              PageOverlayContainerClass="@PageOverlayContainerClass"
                                              AppOverlayContainerClass="@EffectiveAppOverlayContainerClass"
                                              HostHandlesPageOverlay="true"
+                                             IsPageOverlayProjection="true"
                                              ModeChanged="@(mode => HandleCommandModeChangedAsync(pageOverlayCommand, mode))">
                                     <div class="space-y-2">
                                         <p class="rounded-md border border-border bg-background px-2 py-1.5 text-xs text-muted-foreground"
@@ -563,11 +565,12 @@
                     {
                         <div class="@EffectivePageOverlayContainerClass" data-slot="session-block-page-overlay">
                             <SessionContextBlock Block="pageOverlayBlock"
-                                                 Mode="@SessionContextBlock.ModeMaximized"
+                                                 Mode="@SessionContextBlock.ModeOverlayPage"
                                                  IsPinned="@IsBlockPinned(pageOverlayBlock)"
                                                  PageOverlayContainerClass="@PageOverlayContainerClass"
                                                  AppOverlayContainerClass="@EffectiveAppOverlayContainerClass"
                                                  HostHandlesPageOverlay="true"
+                                                 IsPageOverlayProjection="true"
                                                  OnUnpin="@(() => UnpinBlockAsync(pageOverlayBlock))"
                                                  ModeChanged="@(mode => HandleBlockModeChangedAsync(pageOverlayBlock, mode))" />
                         </div>
@@ -577,12 +580,13 @@
                         <div class="@EffectivePageOverlayContainerClass" data-slot="session-block-page-overlay">
                             <SessionCard Node="CreateResponseNode(pageOverlayCommand)"
                                          Initials="RS"
-                                         Mode="@SessionContextBlock.ModeMaximized"
+                                         Mode="@SessionContextBlock.ModeOverlayPage"
                                          Status="@GetResponseStatus(pageOverlayCommand)"
                                          StatusVariant="@GetResponseStatusVariant(pageOverlayCommand)"
                                          PageOverlayContainerClass="@PageOverlayContainerClass"
                                          AppOverlayContainerClass="@EffectiveAppOverlayContainerClass"
                                          HostHandlesPageOverlay="true"
+                                         IsPageOverlayProjection="true"
                                          ModeChanged="@(mode => HandleCommandModeChangedAsync(pageOverlayCommand, mode))">
                                 <div class="space-y-2">
                                     <p class="rounded-md border border-border bg-background px-2 py-1.5 text-xs text-muted-foreground"

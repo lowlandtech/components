@@ -23,6 +23,7 @@ public partial class SessionContextBlock : TinyComponentBase
     [Parameter] public string? PageOverlayContainerClass { get; set; }
     [Parameter] public string? AppOverlayContainerClass { get; set; }
     [Parameter] public bool HostHandlesPageOverlay { get; set; }
+    [Parameter] public bool IsPageOverlayProjection { get; set; }
 
     private string L(string key) => Localizer?[key] ?? key;
 
@@ -35,13 +36,16 @@ public partial class SessionContextBlock : TinyComponentBase
         _ => ModeNormal
     };
 
-    private bool ShowsContent => NormalizedMode is not ModeMinimized and not ModeOverlayPage;
+    private bool ShowsContent =>
+        NormalizedMode != ModeMinimized &&
+        (NormalizedMode != ModeOverlayPage || IsPageOverlayProjection);
 
     private string GetClass()
     {
         var baseClass = NormalizedMode switch
         {
             ModeMaximized => "flex min-h-full w-full flex-col overflow-hidden bg-background gap-0 py-0",
+            ModeOverlayPage when IsPageOverlayProjection => "flex min-h-full w-full flex-col overflow-hidden bg-background gap-0 py-0",
             ModeOverlayPage => "w-full overflow-hidden bg-background gap-0 py-0 opacity-60",
             ModeOverlayApp when !string.IsNullOrWhiteSpace(AppOverlayContainerClass) => AppOverlayContainerClass,
             ModeOverlayApp => "fixed inset-0 z-50 flex h-dvh w-dvw flex-col overflow-hidden rounded-none bg-background gap-0 py-0",
