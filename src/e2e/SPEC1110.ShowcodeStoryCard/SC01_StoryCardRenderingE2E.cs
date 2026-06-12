@@ -77,4 +77,34 @@ public sealed class SC01_StoryCardRenderingE2E(ShowcodeCollection collection) : 
         await Assertions.Expect(preview.Locator("[data-slot='story-preview-expand-button']"))
             .ToHaveAttributeAsync("aria-expanded", "false");
     }
+
+    [Fact(DisplayName = "UAC08: Selecting a session renders its context tree without an unhandled error")]
+    [Trait(Spec.UAC, "08")]
+    public async Task UAC08_SelectingSessionRendersContextTreeWithoutError()
+    {
+        var pageErrors = new List<string>();
+        Showcode.Page.PageError += (_, error) => pageErrors.Add(error);
+
+        await Showcode.GoToStoryAsync("SessionBlock");
+
+        var card = Showcode.Page.Locator("main [data-slot='story-card']").First;
+        await card.Locator("[data-slot='tabs-trigger']").Filter(new LocatorFilterOptions
+        {
+            HasText = "Standalone"
+        }).First.ClickAsync();
+
+        var ordersSession = card.Locator("[data-testid='session-list-item'][data-node-id='orders-session']");
+        await Assertions.Expect(ordersSession).ToBeVisibleAsync();
+        await ordersSession.ClickAsync();
+
+        await Assertions.Expect(
+            card.Locator("[data-slot='session-context-node'][data-node-id='orders']")
+        ).ToBeVisibleAsync();
+        await Assertions.Expect(
+            card.Locator("[role='tab'][aria-selected='true']")
+                .Filter(new LocatorFilterOptions { HasText = "Orders" })
+                .First
+        ).ToBeVisibleAsync();
+        pageErrors.ShouldBeEmpty();
+    }
 }

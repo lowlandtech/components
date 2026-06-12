@@ -9,6 +9,7 @@ builder.Services.AddScoped<IPopoverService, PopoverService>();
 builder.Services.AddScoped<IPageOverlayService, PageOverlayService>();
 builder.Services.AddScoped<ShowcodeState>();
 builder.Services.AddScoped<WorkStateService>();
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.AddDesignableComponents();
 
 // Agent graph services — DRD pattern for session agent types
