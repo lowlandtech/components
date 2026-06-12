@@ -78,7 +78,7 @@ public sealed class SC01_StoryCardRenderingE2E(ShowcodeCollection collection) : 
             .ToHaveAttributeAsync("aria-expanded", "false");
     }
 
-    [Fact(DisplayName = "UAC08: Selecting a session renders its context tree without an unhandled error")]
+    [Fact(DisplayName = "UAC08: Selecting a session and context node renders without an unhandled error")]
     [Trait(Spec.UAC, "08")]
     public async Task UAC08_SelectingSessionRendersContextTreeWithoutError()
     {
@@ -97,8 +97,12 @@ public sealed class SC01_StoryCardRenderingE2E(ShowcodeCollection collection) : 
         await Assertions.Expect(ordersSession).ToBeVisibleAsync();
         await ordersSession.ClickAsync();
 
+        var ordersContext = card.Locator("[data-slot='session-context-node'][data-node-id='orders']");
+        await Assertions.Expect(ordersContext).ToBeVisibleAsync();
+        await ordersContext.ClickAsync();
+
         await Assertions.Expect(
-            card.Locator("[data-slot='session-context-node'][data-node-id='orders']")
+            card.Locator("[data-slot='session-context-block']")
         ).ToBeVisibleAsync();
         await Assertions.Expect(
             card.Locator("[role='tab'][aria-selected='true']")
