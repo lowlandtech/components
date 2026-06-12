@@ -1213,6 +1213,25 @@ public class SC01_SessionBlocks : ViewScenario
         standalone.Find("[data-slot='session-content-body']").ShouldNotBeNull();
     }
 
+    [Fact(DisplayName = "UAC30m: SidebarWidth sets the initial width of both sidebars")]
+    [Trait(Spec.UAC, "30m")]
+    [Given("embedded and standalone SessionBlocks configured with SidebarWidth=22")]
+    [When("their resizable panels are initialized")]
+    [Then("both the left and Sections sidebars start at twenty-two percent")]
+    public void UAC30m_SidebarWidthSetsBothSidebarDefaults()
+    {
+        var embedded = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.SidebarWidth, 22));
+        var standalone = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.SidebarWidth, 22));
+
+        AssertPanelStartsAt(embedded, "session-block-left-panel", 22);
+        AssertPanelStartsAt(embedded, "session-block-sections-panel", 22);
+        AssertPanelStartsAt(standalone, "session-block-sidebar-panel", 22);
+        AssertPanelStartsAt(standalone, "session-block-sections-panel", 22);
+    }
+
     [Fact(DisplayName = "UAC30i: Session list footer keeps page and row labels aligned to opposite edges")]
     [Trait(Spec.UAC, "30i")]
     [Given("a standalone SessionBlock showing the session list footer")]
@@ -1682,6 +1701,16 @@ public class SC01_SessionBlocks : ViewScenario
         overlayHeader.ClassList.ShouldNotContain("bg-muted/30");
         overlayHeader.ClassList.ShouldNotContain("py-2");
         overlayHeader.GetAttribute("style").ShouldBe("grid-template-rows:1fr;");
+    }
+
+    private static void AssertPanelStartsAt(
+        IRenderedComponent<Components.SessionBlock> cut,
+        string panelId,
+        int width)
+    {
+        var style = cut.Find($"[data-panel='{panelId}']").GetAttribute("style");
+        style.ShouldNotBeNull();
+        style.ShouldContain($"{width}%");
     }
 
     private void ClickOpenCardMode(string label)

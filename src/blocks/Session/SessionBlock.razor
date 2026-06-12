@@ -8,7 +8,7 @@
         <Resizable @key="IsStandaloneSidebarOpen">
             @if (IsStandaloneSidebarOpen)
             {
-            <ResizablePanel DefaultSize="@(HasActiveSession ? 16 : 24)" MinSize="16" MaxSize="38" Id="session-block-sidebar-panel" class="h-full">
+            <ResizablePanel DefaultSize="@(SidebarWidth ?? (HasActiveSession ? 16 : 24))" MinSize="16" MaxSize="38" Id="session-block-sidebar-panel" class="h-full">
                 <SidebarProvider Open="@_isStandaloneSidebarOpen" OpenChanged="HandleStandaloneSidebarOpenChanged" Width="100%" class="h-full min-h-0">
                     <Sidebar Collapsible="offcanvas" class="@GetLeftSidebarClass()">
                             <div class="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden"
@@ -332,7 +332,7 @@
                 </SidebarInset>
             </ResizablePanel>
             <ResizableHandle WithHandle="true" RevealOnHover="true" Color="primary" class="relative z-20" />
-            <ResizablePanel DefaultSize="16" MinSize="12" MaxSize="100" Id="session-block-sections-panel" class="h-full">
+            <ResizablePanel DefaultSize="@(SidebarWidth ?? 16)" MinSize="12" MaxSize="100" Id="session-block-sections-panel" class="h-full">
                 <aside class="@GetRightSidebarClass()"
                       data-slot="session-block-right-sidebar"
                       data-testid="session-block-right-sidebar">
@@ -381,7 +381,7 @@
     else
     {
         <Resizable>
-            <ResizablePanel DefaultSize="24" MinSize="16" MaxSize="38" Id="session-block-left-panel" class="h-full">
+            <ResizablePanel DefaultSize="@(SidebarWidth ?? 24)" MinSize="16" MaxSize="38" Id="session-block-left-panel" class="h-full">
                    <aside class="@GetLeftPanelClass()"
                        data-slot="session-block-left-sidebar">
                     <div class="flex h-full min-h-0 w-full flex-1 flex-col"
@@ -613,7 +613,7 @@
                 </main>
             </ResizablePanel>
             <ResizableHandle WithHandle="true" RevealOnHover="true" Color="primary" class="z-10" />
-            <ResizablePanel DefaultSize="16" MinSize="12" MaxSize="100" Id="session-block-sections-panel" class="h-full">
+            <ResizablePanel DefaultSize="@(SidebarWidth ?? 16)" MinSize="12" MaxSize="100" Id="session-block-sections-panel" class="h-full">
                 <aside class="@GetRightSidebarClass()"
                       data-slot="session-block-right-sidebar"
                       data-testid="session-block-right-sidebar">

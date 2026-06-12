@@ -43,6 +43,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     [Parameter] public int TestStreamDelayMilliseconds { get; set; } = 35;
     [Parameter] public bool HasSidebar { get; set; }
     [Parameter] public string SidebarPersistKey { get; set; } = "session-block:sidebar-open";
+    [Parameter] public int? SidebarWidth { get; set; }
     [Parameter] public string Variant { get; set; } = "outlined";
     [Parameter] public string? PageOverlayContainerClass { get; set; }
     [Parameter] public string? AppOverlayContainerClass { get; set; }
