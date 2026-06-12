@@ -93,6 +93,11 @@ public sealed class SC01_StoryCardRenderingE2E(ShowcodeCollection collection) : 
             HasText = "Standalone"
         }).First.ClickAsync();
 
+        var sessionBlock = card.Locator("[data-slot='session-block'][data-variant='none']");
+        await Assertions.Expect(sessionBlock).ToBeVisibleAsync();
+        await Assertions.Expect(sessionBlock).ToHaveClassAsync(new Regex(@"\bh-full\b"));
+        await Assertions.Expect(sessionBlock).Not.ToHaveClassAsync(new Regex(@"\bborder\b"));
+
         var ordersSession = card.Locator("[data-testid='session-list-item'][data-node-id='orders-session']");
         await Assertions.Expect(ordersSession).ToBeVisibleAsync();
         await ordersSession.ClickAsync();

@@ -1,9 +1,10 @@
 global using System.Diagnostics;
 global using System.Diagnostics.CodeAnalysis;
 global using System.Net;
-global using System.Text;
 global using System.Net.Sockets;
 global using System.Runtime.CompilerServices;
+global using System.Text;
+global using System.Text.RegularExpressions;
 global using Microsoft.Playwright;
 global using Shouldly;
 global using Xunit;
