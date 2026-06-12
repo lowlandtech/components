@@ -8,7 +8,7 @@
     style="padding-block:0;"
       class="@GetClass()"
       @attributes="AdditionalAttributes">
-    <CardHeader class="border-b border-border bg-muted/30 px-3 py-2">
+    <CardHeader class="@GetHeaderClass()">
         <div class="flex items-center gap-2">
             <span class="inline-flex h-5 w-5 items-center justify-center rounded-sm bg-primary/10 text-[10px] font-semibold text-primary">@Initials</span>
             <span class="truncate text-xs font-semibold">@Node.Label</span>

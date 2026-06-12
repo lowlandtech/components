@@ -1585,6 +1585,7 @@ public class SC01_SessionBlocks : ViewScenario
         overlay.QuerySelector("[data-node-id^='response:'][data-mode='overlay-page']").ShouldNotBeNull();
         overlay.QuerySelector("[data-node-id^='response:'][data-mode='maximized']").ShouldBeNull();
         overlay.TextContent.ShouldContain("Use the page overlay");
+        AssertPageOverlayHeaderMatchesSectionsHeader(cut, overlay);
         pageOverlay.Content.ShouldBeNull();
     }
 
@@ -1609,6 +1610,7 @@ public class SC01_SessionBlocks : ViewScenario
         overlay.QuerySelector("[data-block-id='projected-context-block'][data-mode='overlay-page']").ShouldNotBeNull();
         overlay.QuerySelector("[data-block-id='projected-context-block'][data-mode='maximized']").ShouldBeNull();
         overlay.TextContent.ShouldContain("Invoice approval");
+        AssertPageOverlayHeaderMatchesSectionsHeader(cut, overlay);
     }
 
     [Fact(DisplayName = "UAC32c: Variant=none keeps ten pixels above and below the page overlay")]
@@ -1658,6 +1660,27 @@ public class SC01_SessionBlocks : ViewScenario
             builder.CloseElement();
         });
         fragmentCut.Find(".session-context-node-pin").Click();
+    }
+
+    private static void AssertPageOverlayHeaderMatchesSectionsHeader(
+        IRenderedComponent<Components.SessionBlock> cut,
+        AngleSharp.Dom.IElement overlay)
+    {
+        var sectionsHeader = cut.Find("[data-slot='session-block-sections-header']");
+        var overlayHeader = overlay.QuerySelector("[data-slot='card-header']");
+
+        overlayHeader.ShouldNotBeNull();
+
+        foreach (var className in new[] { "h-10", "shrink-0", "gap-2", "border-b", "border-border", "px-3" })
+        {
+            sectionsHeader.ClassList.ShouldContain(className);
+            overlayHeader!.ClassList.ShouldContain(className);
+        }
+
+        overlayHeader!.ClassList.ShouldContain("bg-background");
+        overlayHeader.ClassList.ShouldContain("py-0");
+        overlayHeader.ClassList.ShouldNotContain("bg-muted/30");
+        overlayHeader.ClassList.ShouldNotContain("py-2");
     }
 
     private void ClickOpenCardMode(string label)
