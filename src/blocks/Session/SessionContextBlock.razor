@@ -10,7 +10,7 @@
     style="padding-block:0;"
       class="@GetClass()"
       @attributes="AdditionalAttributes">
-    <CardHeader class="@GetHeaderClass()">
+    <CardHeader class="@GetHeaderClass()" style="@GetHeaderStyle()">
         <CardTitle class="truncate text-xs font-semibold">@Block.Context.Label</CardTitle>
         <CardAction class="row-span-1 flex items-center gap-2">
             @if (IsPinned)
