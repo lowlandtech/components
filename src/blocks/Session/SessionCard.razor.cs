@@ -44,7 +44,7 @@ public partial class SessionCard : TinyComponentBase
     private string L(string key) => Localizer?[key] ?? key;
 
     private string GetHeaderClass() => IsPageOverlayProjection
-        ? "h-10 shrink-0 gap-2 border-b border-border bg-background px-3 py-0"
+        ? "h-10 shrink-0 content-center gap-2 border-b border-border bg-background px-3 py-0"
         : "border-b border-border bg-muted/30 px-3 py-2";
 
     private string GetClass()

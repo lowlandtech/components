@@ -1678,6 +1678,7 @@ public class SC01_SessionBlocks : ViewScenario
         }
 
         overlayHeader!.ClassList.ShouldContain("bg-background");
+        overlayHeader.ClassList.ShouldContain("content-center");
         overlayHeader.ClassList.ShouldContain("py-0");
         overlayHeader.ClassList.ShouldNotContain("bg-muted/30");
         overlayHeader.ClassList.ShouldNotContain("py-2");
