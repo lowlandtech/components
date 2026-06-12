@@ -1600,6 +1600,8 @@ public class SC01_SessionBlocks : ViewScenario
 
         overlay.ShouldNotBeNull();
         overlay!.ClassList.ShouldContain("session-page-overlay");
+        overlay.ClassList.ShouldContain("rounded-lg");
+        overlay.ClassList.ShouldContain("overflow-hidden");
         overlay.GetAttribute("style").ShouldBeNull();
         overlay.QuerySelector("[data-node-id^='response:'][data-mode='overlay-page']").ShouldNotBeNull();
         overlay.QuerySelector("[data-node-id^='response:'][data-mode='maximized']").ShouldBeNull();
@@ -1626,6 +1628,8 @@ public class SC01_SessionBlocks : ViewScenario
 
         var overlay = cut.Find("[data-slot='session-block-page-overlay']");
 
+        overlay.ClassList.ShouldContain("rounded-lg");
+        overlay.ClassList.ShouldContain("overflow-hidden");
         overlay.QuerySelector("[data-block-id='projected-context-block'][data-mode='overlay-page']").ShouldNotBeNull();
         overlay.QuerySelector("[data-block-id='projected-context-block'][data-mode='maximized']").ShouldBeNull();
         overlay.TextContent.ShouldContain("Invoice approval");

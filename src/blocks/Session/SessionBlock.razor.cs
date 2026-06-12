@@ -203,8 +203,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
             : "fixed inset-0 z-50 flex h-dvh w-dvw flex-col overflow-hidden rounded-none bg-background gap-0 py-0");
 
     private string EffectivePageOverlayContainerClass =>
-        PageOverlayContainerClass ??
-        "absolute inset-0 z-40 flex h-full w-full flex-col overflow-hidden bg-background";
+        $"{PageOverlayContainerClass ?? "absolute inset-0 z-40 flex h-full w-full flex-col bg-background"} overflow-hidden rounded-lg";
 
     private string? PageOverlayContainerStyle => IsNoneVariant
         ? "top:10px; bottom:10px; height:auto;"
