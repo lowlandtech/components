@@ -205,6 +205,10 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         PageOverlayContainerClass ??
         "absolute inset-0 z-40 flex h-full w-full flex-col overflow-hidden bg-background";
 
+    private string? PageOverlayContainerStyle => IsNoneVariant
+        ? "top:10px; bottom:10px; height:auto;"
+        : null;
+
     private RenderFragment SidebarOpenButton => builder =>
     {
         builder.OpenElement(0, "button");

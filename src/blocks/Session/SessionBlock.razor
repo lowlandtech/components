@@ -286,7 +286,9 @@
 
                         @if (PageOverlayBlock is { } pageOverlayBlock)
                         {
-                            <div class="@EffectivePageOverlayContainerClass" data-slot="session-block-page-overlay">
+                            <div class="@EffectivePageOverlayContainerClass"
+                                 style="@PageOverlayContainerStyle"
+                                 data-slot="session-block-page-overlay">
                                 <SessionContextBlock Block="pageOverlayBlock"
                                                      Mode="@SessionContextBlock.ModeOverlayPage"
                                                      IsPinned="@IsBlockPinned(pageOverlayBlock)"
@@ -300,7 +302,9 @@
                         }
                         else if (PageOverlayCommand is { } pageOverlayCommand)
                         {
-                            <div class="@EffectivePageOverlayContainerClass" data-slot="session-block-page-overlay">
+                            <div class="@EffectivePageOverlayContainerClass"
+                                 style="@PageOverlayContainerStyle"
+                                 data-slot="session-block-page-overlay">
                                 <SessionCard Node="CreateResponseNode(pageOverlayCommand)"
                                              Initials="RS"
                                              Mode="@SessionContextBlock.ModeOverlayPage"
@@ -563,7 +567,9 @@
 
                     @if (PageOverlayBlock is { } pageOverlayBlock)
                     {
-                        <div class="@EffectivePageOverlayContainerClass" data-slot="session-block-page-overlay">
+                        <div class="@EffectivePageOverlayContainerClass"
+                             style="@PageOverlayContainerStyle"
+                             data-slot="session-block-page-overlay">
                             <SessionContextBlock Block="pageOverlayBlock"
                                                  Mode="@SessionContextBlock.ModeOverlayPage"
                                                  IsPinned="@IsBlockPinned(pageOverlayBlock)"
@@ -577,7 +583,9 @@
                     }
                     else if (PageOverlayCommand is { } pageOverlayCommand)
                     {
-                        <div class="@EffectivePageOverlayContainerClass" data-slot="session-block-page-overlay">
+                        <div class="@EffectivePageOverlayContainerClass"
+                             style="@PageOverlayContainerStyle"
+                             data-slot="session-block-page-overlay">
                             <SessionCard Node="CreateResponseNode(pageOverlayCommand)"
                                          Initials="RS"
                                          Mode="@SessionContextBlock.ModeOverlayPage"

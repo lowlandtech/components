@@ -1581,6 +1581,7 @@ public class SC01_SessionBlocks : ViewScenario
 
         overlay.ShouldNotBeNull();
         overlay!.ClassList.ShouldContain("session-page-overlay");
+        overlay.GetAttribute("style").ShouldBeNull();
         overlay.QuerySelector("[data-node-id^='response:'][data-mode='overlay-page']").ShouldNotBeNull();
         overlay.QuerySelector("[data-node-id^='response:'][data-mode='maximized']").ShouldBeNull();
         overlay.TextContent.ShouldContain("Use the page overlay");
@@ -1608,6 +1609,28 @@ public class SC01_SessionBlocks : ViewScenario
         overlay.QuerySelector("[data-block-id='projected-context-block'][data-mode='overlay-page']").ShouldNotBeNull();
         overlay.QuerySelector("[data-block-id='projected-context-block'][data-mode='maximized']").ShouldBeNull();
         overlay.TextContent.ShouldContain("Invoice approval");
+    }
+
+    [Fact(DisplayName = "UAC32c: Variant=none keeps ten pixels above and below the page overlay")]
+    [Trait(Spec.UAC, "32c")]
+    [Given("a SessionBlock using Variant=none with a projected context block")]
+    [When("the context block is opened in Page Overlay mode")]
+    [Then("the page overlay preserves the ten-pixel vertical spacing of the main panel")]
+    public void UAC32c_NoneVariantPageOverlayKeepsVerticalSpacing()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.Variant, "none")
+            .Add(x => x.PageOverlayContainerClass, "session-page-overlay absolute inset-0 z-40 flex h-full w-full flex-col"));
+
+        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='invoice-approval']").Click();
+
+        cut.Find("[data-block-id='projected-context-block'] [data-testid='card-mode-menu-trigger']").Click();
+        ClickOpenCardMode("Page Overlay");
+
+        cut.Find("[data-slot='session-block-page-overlay']")
+            .GetAttribute("style")
+            .ShouldBe("top:10px; bottom:10px; height:auto;");
     }
 
     public sealed class TestSessionContextBlock : ComponentBase, ISessionContextBlock
