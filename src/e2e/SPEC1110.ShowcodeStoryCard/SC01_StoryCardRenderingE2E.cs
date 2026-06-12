@@ -49,11 +49,15 @@ public sealed class SC01_StoryCardRenderingE2E(ShowcodeCollection collection) : 
         var preview = card.Locator("[data-slot='story-preview-container'][data-expanded='false']").First;
         var expandButton = preview.Locator("[data-slot='story-preview-expand-button']");
 
+        await Assertions.Expect(expandButton).ToHaveCSSAsync("opacity", "0");
+        await expandButton.HoverAsync();
+        await Assertions.Expect(expandButton).ToHaveCSSAsync("opacity", "1");
         await expandButton.ClickAsync();
 
         var expandedPreview = card.Locator("[data-slot='story-preview-container'][data-expanded='true']");
         await Assertions.Expect(expandedPreview).ToBeVisibleAsync();
-        await Assertions.Expect(expandedPreview.Locator("[data-slot='story-preview-expand-button']"))
+        var restoreButton = expandedPreview.Locator("[data-slot='story-preview-expand-button']");
+        await Assertions.Expect(restoreButton)
             .ToHaveAttributeAsync("aria-expanded", "true");
 
         var box = await expandedPreview.BoundingBoxAsync();
@@ -63,7 +67,11 @@ public sealed class SC01_StoryCardRenderingE2E(ShowcodeCollection collection) : 
         box.Width.ShouldBe(1280, 1);
         box.Height.ShouldBe(900, 1);
 
-        await expandedPreview.Locator("[data-slot='story-preview-expand-button']").ClickAsync();
+        await Showcode.Page.Mouse.MoveAsync(0, 0);
+        await Assertions.Expect(restoreButton).ToHaveCSSAsync("opacity", "0");
+        await restoreButton.HoverAsync();
+        await Assertions.Expect(restoreButton).ToHaveCSSAsync("opacity", "1");
+        await restoreButton.ClickAsync();
 
         await Assertions.Expect(preview).ToHaveAttributeAsync("data-expanded", "false");
         await Assertions.Expect(preview.Locator("[data-slot='story-preview-expand-button']"))
