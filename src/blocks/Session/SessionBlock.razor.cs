@@ -4,6 +4,8 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 {
     [Inject] private IJSRuntime JS { get; set; } = default!;
     [Inject] private IGraphDiscoveryService Discovery { get; set; } = default!;
+    [Inject] private IEdgeTypeService EdgeTypeService { get; set; } = default!;
+    [Inject] private IExecutionEngine ExecutionEngine { get; set; } = default!;
     [Inject] private IServiceProvider Services { get; set; } = default!;
 
     private SessionStateService? _ownedStateService;
@@ -818,6 +820,34 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
             _ => parentNode.NodeTypeKey
         };
 
+    private async Task<bool> TryCreateViaEdgeToolAsync(SessionCommandSubmitted command)
+    {
+        var edge = EdgeTypeService.FindCreateEdge(command.Node.NodeTypeKey);
+        if (edge is null || string.IsNullOrWhiteSpace(edge.Tool))
+            return false;
+
+        var creator = Discovery.GetAsync<IGraphToolService>(edge.Tool);
+        if (creator is null)
+            return false;
+
+        var props = new Dictionary<string, object?> { ["Title"] = command.Input };
+        var entity = await creator.ExecuteAsync(ExecutionEngine, props);
+        var label = edge.TargetDescriptor?.ExtractLabel(entity) ?? command.Input;
+
+        _localContextNodes ??= [.. ContextNodes];
+        var childNode = new SessionContextNode(
+            new SessionNodeInput(
+                Guid.NewGuid().ToString(),
+                edge.TargetNodeTypeKey,
+                label,
+                command.Node.ComponentBlock ?? "NodeBlock"),
+            null,
+            true);
+        _localContextNodes = AddChildNode(_localContextNodes, command.Node.Id, childNode).ToList();
+        SessionState.Dispatch(new ScheduleCreateEffect(edge.TargetNodeTypeKey, childNode.Node.Id, label));
+        return true;
+    }
+
     private static IReadOnlyList<SessionContextNode> AddChildNode(
         IReadOnlyList<SessionContextNode> nodes,
         string parentId,
@@ -951,32 +981,37 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
             return;
         }
 
-        // Non-session node create: delegate to the host page so it can materialise the child in the graph.
+        // Non-session node create: prefer an edge-descriptor-driven tool, then the host callback, then a local fallback.
         if (string.Equals(command.AgentTypeKey, "create", StringComparison.OrdinalIgnoreCase))
         {
-            if (OnHeaderCreateRequested.HasDelegate)
+            var createdViaTool = await TryCreateViaEdgeToolAsync(command);
+
+            if (!createdViaTool)
             {
-                await OnHeaderCreateRequested.InvokeAsync(new SessionHeaderCreateRequest(
-                    command.Node.Id, command.Node.NodeTypeKey, command.Input));
-                SessionState.Dispatch(new ScheduleCreateEffect(
-                    ResolveLocalChildNodeType(command.Node),
-                    Guid.NewGuid().ToString(),
-                    command.Input));
-            }
-            else
-            {
-                _localContextNodes ??= [.. ContextNodes];
-                var childTypeKey = ResolveLocalChildNodeType(command.Node);
-                var childNode = new SessionContextNode(
-                    new SessionNodeInput(
+                if (OnHeaderCreateRequested.HasDelegate)
+                {
+                    await OnHeaderCreateRequested.InvokeAsync(new SessionHeaderCreateRequest(
+                        command.Node.Id, command.Node.NodeTypeKey, command.Input));
+                    SessionState.Dispatch(new ScheduleCreateEffect(
+                        ResolveLocalChildNodeType(command.Node),
                         Guid.NewGuid().ToString(),
-                        childTypeKey,
-                        command.Input,
-                        command.Node.ComponentBlock ?? "NodeBlock"),
-                    null,
-                    true);
-                _localContextNodes = AddChildNode(_localContextNodes, command.Node.Id, childNode).ToList();
-                SessionState.Dispatch(new ScheduleCreateEffect(childTypeKey, childNode.Node.Id, command.Input));
+                        command.Input));
+                }
+                else
+                {
+                    _localContextNodes ??= [.. ContextNodes];
+                    var childTypeKey = ResolveLocalChildNodeType(command.Node);
+                    var childNode = new SessionContextNode(
+                        new SessionNodeInput(
+                            Guid.NewGuid().ToString(),
+                            childTypeKey,
+                            command.Input,
+                            command.Node.ComponentBlock ?? "NodeBlock"),
+                        null,
+                        true);
+                    _localContextNodes = AddChildNode(_localContextNodes, command.Node.Id, childNode).ToList();
+                    SessionState.Dispatch(new ScheduleCreateEffect(childTypeKey, childNode.Node.Id, command.Input));
+                }
             }
 
             SessionState.SetInput(string.Empty);

@@ -9,5 +9,7 @@ global using LowlandTech.Components.Stories.Pages;
 global using LowlandTech.Components.Stories.Services;
 global using LowlandTech.Components.Stories.Services.Themes;
 global using LowlandTech.Components.Stories.Showcode;
+global using LowlandTech.Core.Graph;
+global using LowlandTech.Core.Graph.EdgeTypes;
 global using Microsoft.AspNetCore.Components.Web;
 global using Microsoft.AspNetCore.Components.WebAssembly.Hosting;

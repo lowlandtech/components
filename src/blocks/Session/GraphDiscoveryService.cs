@@ -3,12 +3,25 @@ namespace LowlandTech.Components;
 /// <summary>
 /// Aggregates all <see cref="IAgentGraphRegistry"/> instances and resolves
 /// the appropriate <see cref="IAgentGraphService"/> by agent type key.
+/// Also supports generic keyed resolution of any <see cref="IKeyedGraphService"/>.
 /// </summary>
-public class GraphDiscoveryService(IEnumerable<IAgentGraphRegistry> registries) : IGraphDiscoveryService
+public class GraphDiscoveryService : IGraphDiscoveryService
 {
-    private readonly IReadOnlyList<IAgentGraphRegistry> _orderedRegistries = registries
-        .OrderByDescending(r => r.Priority)
-        .ToList();
+    private readonly IReadOnlyList<IAgentGraphRegistry> _orderedRegistries;
+    private readonly IServiceProvider _serviceProvider;
+
+    public GraphDiscoveryService(IEnumerable<IAgentGraphRegistry> registries)
+        : this(registries, new EmptyServiceProvider())
+    {
+    }
+
+    public GraphDiscoveryService(IEnumerable<IAgentGraphRegistry> registries, IServiceProvider serviceProvider)
+    {
+        _orderedRegistries = registries
+            .OrderByDescending(r => r.Priority)
+            .ToList();
+        _serviceProvider = serviceProvider;
+    }
 
     public IAgentGraphService? Get(string agentTypeKey)
     {
@@ -19,18 +32,19 @@ public class GraphDiscoveryService(IEnumerable<IAgentGraphRegistry> registries) 
         }
         return null;
     }
-}
 
-/// <summary>
-/// Default registry that collects all <see cref="IAgentGraphService"/> implementations
-/// from the DI container into a single lookup table.
-/// </summary>
-public class AgentGraphRegistry(IEnumerable<IAgentGraphService> services) : IAgentGraphRegistry
-{
-    private readonly Dictionary<string, IAgentGraphService> _services = services.ToDictionary(
-        s => s.AgentTypeKey,
-        StringComparer.OrdinalIgnoreCase);
+    public TService? GetAsync<TService>(string key) where TService : class, IKeyedGraphService
+    {
+        var services = _serviceProvider.GetServices<TService>();
+        return services.FirstOrDefault(service =>
+            string.Equals(service.Key, key, StringComparison.OrdinalIgnoreCase));
+    }
 
-    public IAgentGraphService? GetService(string agentTypeKey)
-        => _services.TryGetValue(agentTypeKey, out var service) ? service : null;
+    /// <summary>
+    /// Fallback provider used when no <see cref="IServiceProvider"/> is supplied.
+    /// </summary>
+    private sealed class EmptyServiceProvider : IServiceProvider
+    {
+        public object? GetService(Type serviceType) => null;
+    }
 }

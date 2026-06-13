@@ -13,6 +13,8 @@ global using LowlandTech.Components.Stories.Showcode.Stories.Misc;
 global using LowlandTech.Components.Tests.Infrastructure;
 global using LowlandTech.Core;
 global using LowlandTech.Core.Abstractions;
+global using LowlandTech.Core.Graph;
+global using LowlandTech.Core.Graph.EdgeTypes;
 global using LowlandTech.Core.Graph.Entities;
 global using Microsoft.AspNetCore.Components;
 global using Microsoft.AspNetCore.Components.Rendering;

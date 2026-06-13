@@ -16,6 +16,15 @@ builder.Services.AddSingleton<ISessionBlockRegistry, AssemblyScanningSessionBloc
 builder.Services.AddSingleton<ISessionBlockDiscovery, SessionBlockDiscovery>();
 builder.Services.AddDesignableComponents();
 
+// Graph descriptors + edge-type-driven creation support
+builder.Services.AddGraphDescriptors(typeof(INodeTypeDescriptor).Assembly);
+builder.Services.AddScoped<IEdgeTypeService, EdgeTypeService>();
+builder.Services.AddScoped<IExecutionEngine>(sp => new ComponentsExecutionEngine(sp.GetRequiredService<IEdgeTypeService>()) { UserId = "components-user" });
+builder.Services.AddScoped<IGraphToolService, WorkspaceCreatorTool>();
+builder.Services.AddScoped<IGraphToolService, FlowCreatorTool>();
+builder.Services.AddScoped<IGraphToolService, StepCreatorTool>();
+builder.Services.AddScoped<IGraphToolService, PackageCreatorTool>();
+
 // Agent graph services — DRD pattern for session agent types
 builder.Services.AddScoped<IAgentGraphService, AskAgentGraphService>();
 builder.Services.AddScoped<IAgentGraphService, PlanAgentGraphService>();

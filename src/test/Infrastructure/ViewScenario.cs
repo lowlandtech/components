@@ -16,6 +16,13 @@ public abstract class ViewScenario : IAsyncLifetime
         Ctx.Services.AddSingleton<IPopoverService, PopoverService>();
         Ctx.Services.AddSingleton<ISonnerService, SonnerService>();
         Ctx.Services.AddSingleton<IPageOverlayService, PageOverlayService>();
+        Ctx.Services.AddGraphDescriptors(typeof(INodeTypeDescriptor).Assembly);
+        Ctx.Services.AddSingleton<IEdgeTypeService, EdgeTypeService>();
+        Ctx.Services.AddSingleton<IExecutionEngine>(sp => new ComponentsExecutionEngine(sp.GetRequiredService<IEdgeTypeService>()) { UserId = "test-user" });
+        Ctx.Services.AddSingleton<IGraphToolService, WorkspaceCreatorTool>();
+        Ctx.Services.AddSingleton<IGraphToolService, FlowCreatorTool>();
+        Ctx.Services.AddSingleton<IGraphToolService, StepCreatorTool>();
+        Ctx.Services.AddSingleton<IGraphToolService, PackageCreatorTool>();
         Ctx.Services.AddSingleton<IAgentGraphService, AskAgentGraphService>();
         Ctx.Services.AddSingleton<IAgentGraphService, PlanAgentGraphService>();
         Ctx.Services.AddSingleton<IAgentGraphService, EditAgentGraphService>();

@@ -40,9 +40,9 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
     [Then("agent type is create and JS focuses the command input")]
     public void UAC02_SessionBlockSetsCreateAndFocusesInput()
     {
-        var sessions = new[] { new SessionListEntry("s1", "Orders", 0, "session") };
+        var sessions = new[] { new SessionListEntry("s1", "Workspaces", 0, "session") };
         var stateService = new SessionStateService();
-        stateService.SelectSession(new SessionNodeInput("s1", "session", "Orders"), sessions);
+        stateService.SelectSession(new SessionNodeInput("s1", "session", "Workspaces"), sessions);
 
         var headerNode = new SessionNodeInput("ws-header", "workspaces.header", "Workspaces");
         var contextNodes = new[]
@@ -112,9 +112,9 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
     {
         SessionHeaderCreateRequest? request = null;
         var stateService = new SessionStateService();
-        var headerNode = new SessionNodeInput("ws-header", "workspaces.header", "Workspaces");
+        var parentNode = new SessionNodeInput("ws-node", "workspace", "Workspaces", "NodeBlock");
 
-        stateService.ProjectContext(headerNode);
+        stateService.ProjectContext(parentNode);
         stateService.SetAgentType("create");
 
         var cut = Ctx.Render<Components.SessionBlock>(p => p
@@ -126,11 +126,10 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
         // Trigger submit directly via the command bar's OnSubmit parameter
         var commandBar = cut.FindComponent<SessionCommandBar>();
         commandBar.InvokeAsync(() => commandBar.Instance.OnSubmit.InvokeAsync(
-            new SessionCommandSubmitted(headerNode, "create", "My Workspace")));
+            new SessionCommandSubmitted(parentNode, "create", "My Workspace")));
 
         request.ShouldNotBeNull();
-        request.ParentNodeId.ShouldBe("ws-header");
-        request.ParentNodeTypeKey.ShouldBe("workspaces.header");
+        request.ParentNodeId.ShouldBe("ws-node");
         request.Label.ShouldBe("My Workspace");
         stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("ask");
     }

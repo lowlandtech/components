@@ -15,6 +15,8 @@ global using LowlandTech.Components.Blocks;
 global using LowlandTech.Components.Blocks.Session;
 global using LowlandTech.Core;
 global using LowlandTech.Core.Abstractions;
+global using LowlandTech.Core.Graph;
+global using LowlandTech.Core.Graph.EdgeTypes;
 global using LowlandTech.Core.Graph.Entities;
 global using Microsoft.Extensions.Logging;
 global using Markdig;
