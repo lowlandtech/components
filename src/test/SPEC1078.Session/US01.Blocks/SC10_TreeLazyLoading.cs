@@ -197,6 +197,54 @@ public sealed class SC10_TreeLazyLoading : ViewScenario
         cut.Markup.ShouldNotContain(Icons.Folder);
     }
 
+    [Fact(DisplayName = "UAC08b: NodeTypeKey ending with '.header' shows a folder icon that switches to open folder")]
+    [Trait(Spec.UAC, "08b")]
+    [Given("a SessionContextExplorer with a loaded root and a loaded '.header' node")]
+    [When("the header is expanded")]
+    [Then("the icon changes between folder and open-folder")]
+    public void UAC08b_DottedHeaderFolderIconTogglesWithExpansion()
+    {
+        var header = new SessionContextNode(
+            new SessionNodeInput("h1", "orders.header", "Orders"),
+            new[] { new SessionContextNode(new SessionNodeInput("c1", "invoice", "Invoice"), IsLoaded: false) },
+            true);
+        var root = new SessionContextNode(
+            new SessionNodeInput("user", "user-context", "User"),
+            new[] { header },
+            true);
+
+        var cut = Ctx.Render<SessionContextExplorer>(p => p
+            .Add(x => x.RootNodes, new[] { root }));
+
+        cut.Markup.ShouldContain(Icons.Folder);
+        cut.Markup.ShouldNotContain(Icons.FolderOpen);
+
+        cut.Find("[data-node-id='h1']")
+           .ParentElement?.QuerySelector("span.cursor-pointer")
+           ?.Click();
+
+        cut.Markup.ShouldContain(Icons.FolderOpen);
+        cut.Markup.ShouldNotContain(Icons.Folder);
+    }
+
+    [Fact(DisplayName = "UAC08c: Non-header nodes do not render folder icons")]
+    [Trait(Spec.UAC, "08c")]
+    [Given("a SessionContextExplorer with a loaded non-header node")]
+    [When("the tree renders")]
+    [Then("neither folder nor open-folder icons are present")]
+    public void UAC08c_NonHeaderNodeDoesNotRenderFolderIcons()
+    {
+        var node = new SessionContextNode(
+            new SessionNodeInput("n1", "invoice", "Invoice"),
+            IsLoaded: true);
+
+        var cut = Ctx.Render<SessionContextExplorer>(p => p
+            .Add(x => x.RootNodes, new[] { node }));
+
+        cut.Markup.ShouldNotContain(Icons.Folder);
+        cut.Markup.ShouldNotContain(Icons.FolderOpen);
+    }
+
     [Fact(DisplayName = "UAC09: Clicking a pinned tree node invokes OnNavigateToPin instead of OnProject")]
     [Trait(Spec.UAC, "09")]
     public void UAC09_PinnedNodeClickNavigatesToPin()
