@@ -14,6 +14,7 @@ public partial class SessionContent : TinyComponentBase
     [Parameter] public bool DraggableTabs { get; set; }
     [Parameter] public IReadOnlySet<string>? PinnedTabIds { get; set; }
     [Parameter] public RenderFragment? HeaderLeading { get; set; }
+    [Parameter] public RenderFragment? HeaderTrailing { get; set; }
     [Parameter] public bool Flush { get; set; }
     [Parameter] public EventCallback<SessionNodeSelected> OnSelected { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnClosed { get; set; }
@@ -46,8 +47,8 @@ public partial class SessionContent : TinyComponentBase
     }
 
     private string GetBodyClass() => Flush
-        ? "session-content-body min-h-0 flex-1 overflow-y-auto overflow-x-hidden"
-        : "session-content-body min-h-0 flex-1 overflow-y-auto overflow-x-hidden space-y-3";
+        ? "session-content-body flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden"
+        : "session-content-body flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden space-y-3";
 
     private string? GetBodyStyle() => Flush
         ? null

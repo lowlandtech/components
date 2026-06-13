@@ -166,6 +166,7 @@
                                             EmptyTitle="@L("EmptySessionTitle")"
                                             EmptyDescription="@L("EmptySessionDescription")"
                                             HeaderLeading="@(!IsStandaloneSidebarOpen ? SidebarOpenButton : null)"
+                                            HeaderTrailing="@(!_isRightSidebarOpen ? RightSidebarOpenButton : null)"
                                             OnSelected="e => SelectSessionAsync(e.Node)"
                                             OnClosed="HandleTabClosedAsync"
                                             OnTabPinnedChanged="HandleTabPinnedChangedAsync"
@@ -214,10 +215,10 @@
                             }
                             else
                             {
-                                <div class="space-y-3" data-slot="session-block-feed">
+                                <div class="flex h-full flex-col space-y-3" data-slot="session-block-feed">
                                     @if (FeedItems.Count == 0)
                                     {
-                                        <div class="flex flex-col items-center justify-center py-24" data-slot="session-block-feed-empty">
+                                        <div class="flex flex-1 flex-col items-center justify-center py-24" data-slot="session-block-feed-empty">
                                             <div class="text-center">
                                                 <Icon Paths="<path d='M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/><path d='M8 8h8M8 12h5'/>" Size="28" class="mx-auto text-muted-foreground" />
                                                 <p class="mt-3 text-sm font-medium">@L("EmptyFeedTitle")</p>
@@ -337,6 +338,8 @@
                     </main>
                 </SidebarInset>
             </ResizablePanel>
+            @if (_isRightSidebarOpen)
+            {
             <ResizableHandle WithHandle="true" RevealOnHover="true" Color="primary" class="relative z-20" />
             <ResizablePanel DefaultSize="@(SidebarWidth ?? 16)" MinSize="12" MaxSize="100" Id="session-block-sections-panel" class="h-full">
                 <aside class="@GetRightSidebarClass()"
@@ -353,6 +356,14 @@
                                       data-testid="session-block-sections-count">
                                     @VisibleSections.Count
                                 </span>
+                                <button type="button"
+                                        data-testid="session-block-right-sidebar-close"
+                                        class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                        title="@L("CloseSections")"
+                                        aria-label="@L("CloseSections")"
+                                        @onclick="CloseRightSidebarAsync">
+                                    <Icon Name="panel-right-close" Size="14" />
+                                </button>
                             </header>
                             <div class="min-h-0 flex-1 overflow-y-auto py-1"
                                  data-slot="session-block-section-links">
@@ -390,6 +401,7 @@
                     </div>
                 </aside>
             </ResizablePanel>
+            }
         </Resizable>
         </div>
     }
@@ -463,6 +475,7 @@
                                     PinnedTabIds="AppState.PinnedNodeIds"
                                     EmptyTitle="@L("EmptySessionTitle")"
                                     EmptyDescription="@L("EmptySessionDescription")"
+                                    HeaderTrailing="@(!_isRightSidebarOpen ? RightSidebarOpenButton : null)"
                                     OnSelected="e => SelectSessionAsync(e.Node)"
                                     OnClosed="HandleTabClosedAsync"
                                     OnTabPinnedChanged="HandleTabPinnedChangedAsync"
@@ -511,10 +524,10 @@
                         }
                         else
                         {
-                            <div class="space-y-3" data-slot="session-block-feed">
+                            <div class="flex h-full flex-col space-y-3" data-slot="session-block-feed">
                                 @if (FeedItems.Count == 0)
                                 {
-                                    <div class="flex flex-col items-center justify-center py-24" data-slot="session-block-feed-empty">
+                                    <div class="flex flex-1 flex-col items-center justify-center py-24" data-slot="session-block-feed-empty">
                                         <div class="text-center">
                                             <Icon Paths="<path d='M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/><path d='M8 8h8M8 12h5'/>" Size="28" class="mx-auto text-muted-foreground" />
                                             <p class="mt-3 text-sm font-medium">@L("EmptyFeedTitle")</p>
@@ -632,6 +645,8 @@
                     }
                 </main>
             </ResizablePanel>
+            @if (_isRightSidebarOpen)
+            {
             <ResizableHandle WithHandle="true" RevealOnHover="true" Color="primary" class="z-10" />
             <ResizablePanel DefaultSize="@(SidebarWidth ?? 16)" MinSize="12" MaxSize="100" Id="session-block-sections-panel" class="h-full">
                 <aside class="@GetRightSidebarClass()"
@@ -648,6 +663,14 @@
                                   data-testid="session-block-sections-count">
                                 @VisibleSections.Count
                             </span>
+                            <button type="button"
+                                    data-testid="session-block-right-sidebar-close"
+                                    class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                    title="@L("CloseSections")"
+                                    aria-label="@L("CloseSections")"
+                                    @onclick="CloseRightSidebarAsync">
+                                <Icon Name="panel-right-close" Size="14" />
+                            </button>
                         </header>
                         <div class="min-h-0 flex-1 overflow-y-auto py-1"
                              data-slot="session-block-section-links">
@@ -685,6 +708,7 @@
                     </div>
                 </aside>
             </ResizablePanel>
+            }
         </Resizable>
     }
 

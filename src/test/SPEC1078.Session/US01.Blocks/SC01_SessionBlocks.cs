@@ -242,6 +242,46 @@ public class SC01_SessionBlocks : ViewScenario
         body.GetAttribute("style").ShouldBeNull();
     }
 
+    [Fact(DisplayName = "UAC06d: SessionContent body renders as a flex column so children can stretch")]
+    [Trait(Spec.UAC, "06d")]
+    [Given("SessionContent has an open session")]
+    [When("the session content body renders")]
+    [Then("the body uses flex column layout")]
+    public void UAC06d_SessionContentBodyIsFlexColumn()
+    {
+        var cut = Ctx.Render<SessionContent>(p => p
+            .Add(x => x.OpenNodes, [OrdersNode])
+            .Add(x => x.SelectedNode, OrdersNode));
+
+        var body = cut.Find("[data-slot='session-content-body']");
+        body.ClassList.ShouldContain("flex");
+        body.ClassList.ShouldContain("flex-col");
+    }
+
+    [Fact(DisplayName = "UAC06e: SessionBlock empty feed stretches to fill the content body")]
+    [Trait(Spec.UAC, "06e")]
+    [Given("a SessionBlock with an active session and no feed items")]
+    [When("the empty feed renders")]
+    [Then("the feed and empty state panels fill the available height")]
+    public void UAC06e_EmptyFeedStretchesToFullHeight()
+    {
+        var stateService = new SessionStateService();
+        var sessions = new[] { new SessionListEntry("s1", "Orders", 0, "session") };
+        stateService.SelectSession(new SessionNodeInput("s1", "session", "Orders"), sessions);
+
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.StateService, stateService)
+            .Add(x => x.Sessions, sessions));
+
+        var feed = cut.Find("[data-slot='session-block-feed']");
+        feed.ClassList.ShouldContain("h-full");
+        feed.ClassList.ShouldContain("flex-col");
+
+        var empty = cut.Find("[data-slot='session-block-feed-empty']");
+        empty.ClassList.ShouldContain("flex-1");
+    }
+
     [Fact(DisplayName = "UAC07: SessionCommandBar replaces send icon with loader while busy")]
     [Trait(Spec.UAC, "07")]
     public void UAC07_CommandBarShowsBusyLoader()
@@ -2164,5 +2204,86 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-slot='session-block-page-overlay']")
             .QuerySelector("[data-block-id='projected-context-block'][data-mode='overlay-page']")
             .ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC47: Standalone SessionBlock collapses and reopens the Sections sidebar from the content header")]
+    [Trait(Spec.UAC, "47")]
+    [Given("a standalone SessionBlock with an active session and an open Sections sidebar")]
+    [When("the Sections close button is clicked")]
+    [Then("the panel and splitter are removed and a trailing content-header button reopens them")]
+    public void UAC47_StandaloneRightSidebarCollapsesAndReopensFromHeader()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.HasSidebar, true));
+
+        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-testid='session-block-right-sidebar-close']").Click();
+
+        cut.FindAll("[data-testid='session-block-right-sidebar']").ShouldBeEmpty();
+        cut.FindAll("[data-panel='session-block-sections-panel']").ShouldBeEmpty();
+        cut.FindAll("[data-slot='resizable-handle']").Count.ShouldBe(1);
+        cut.Find("[data-slot='tabs-header-trailing'] [data-testid='session-block-right-sidebar-open']")
+            .ShouldNotBeNull();
+        cut.Find("[data-slot='session-block-main-content']")
+            .GetAttribute("style")
+            .ShouldBe("padding:10px 10px 10px 6px;");
+
+        cut.Find("[data-testid='session-block-right-sidebar-open']").Click();
+
+        cut.Find("[data-testid='session-block-right-sidebar']").ShouldNotBeNull();
+        cut.Find("[data-panel='session-block-sections-panel']").ShouldNotBeNull();
+        cut.FindAll("[data-slot='resizable-handle']").Count.ShouldBe(2);
+        cut.FindAll("[data-testid='session-block-right-sidebar-open']").ShouldBeEmpty();
+    }
+
+    [Fact(DisplayName = "UAC48: Embedded SessionBlock reopens a collapsed Sections sidebar from the content header")]
+    [Trait(Spec.UAC, "48")]
+    [Given("an embedded SessionBlock with an active session")]
+    [When("the Sections sidebar is collapsed")]
+    [Then("the content header exposes a trailing reopen button")]
+    public void UAC48_EmbeddedRightSidebarReopensFromHeader()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>();
+
+        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-testid='session-block-right-sidebar-close']").Click();
+
+        cut.FindAll("[data-testid='session-block-right-sidebar']").ShouldBeEmpty();
+        cut.Find("[data-slot='tabs-header-trailing'] [data-testid='session-block-right-sidebar-open']")
+            .ShouldNotBeNull();
+
+        cut.Find("[data-testid='session-block-right-sidebar-open']").Click();
+
+        cut.Find("[data-testid='session-block-right-sidebar']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC49: SessionBlock persists and hydrates the Sections sidebar visibility")]
+    [Trait(Spec.UAC, "49")]
+    [Given("a SessionBlock with a stable Sections-sidebar persistence key")]
+    [When("the sidebar is closed and a fresh component hydrates the stored value")]
+    [Then("false is persisted and the fresh component starts with the sidebar collapsed")]
+    public void UAC49_RightSidebarVisibilityPersistsAndHydrates()
+    {
+        const string persistKey = "session-block:test:right-sidebar-open";
+        Ctx.JSInterop.Setup<string?>("localStorage.getItem", persistKey).SetResult(null);
+        Ctx.JSInterop.SetupVoid("localStorage.setItem", _ => true);
+
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.RightSidebarPersistKey, persistKey));
+
+        cut.Find("[data-testid='session-block-right-sidebar-close']").Click();
+
+        var write = Ctx.JSInterop.Invocations.Single(invocation =>
+            invocation.Identifier == "localStorage.setItem"
+            && string.Equals(invocation.Arguments[0]?.ToString(), persistKey, StringComparison.Ordinal));
+        write.Arguments[1].ShouldBe("false");
+
+        Ctx.JSInterop.Setup<string?>("localStorage.getItem", persistKey).SetResult("false");
+        var hydrated = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.RightSidebarPersistKey, persistKey));
+
+        hydrated.FindAll("[data-testid='session-block-right-sidebar']").ShouldBeEmpty();
+        hydrated.Find("[data-testid='session-block-right-sidebar-open']").ShouldNotBeNull();
     }
 }
