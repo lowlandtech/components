@@ -1,18 +1,21 @@
 @namespace LowlandTech.Components
 @inherits TinyComponentBase
 
-<div>
+<div data-slot="session-context-tree-item">
     <div data-slot="session-context-node-row"
          class="group flex items-center gap-1 rounded-sm hover:bg-muted/60 focus-within:bg-primary/5 data-[focused=true]:bg-primary/15 data-[focused=true]:ring-1 data-[focused=true]:ring-primary/30 data-[focused=true]:ring-inset data-[projected=true]:bg-primary/10"
          style="padding-left: @(Math.Max(0, Depth) * 0.75 + 0.5)rem;"
          data-projected="@(Projection?.Node.Id == Item.Node.Id ? "true" : "false")"
-         data-focused="false">
+         data-focused="@(_isFocused ? "true" : "false")">
         <button type="button"
                 data-slot="session-context-node"
                 data-node-id="@Item.Node.Id"
+                data-depth="@Depth"
                 class="flex min-h-8 flex-1 items-center justify-start gap-2 px-2 py-1 text-left text-sm font-normal focus:outline-none focus-visible:outline-none group-data-[focused=true]:ring-2 group-data-[focused=true]:ring-primary/70 group-data-[focused=true]:ring-inset"
                 @onclick="ProjectAsync"
                 @ondblclick="PinAsync"
+                @onfocus="HandleFocus"
+                @onblur="HandleBlur"
                 @onkeydown="HandleKeyDownAsync">
             @if (ShowChevron)
             {

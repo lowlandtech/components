@@ -35,36 +35,34 @@
         }
     };
 
-    function clearFocusedRows() {
-        document.querySelectorAll('[data-slot="session-context-node-row"][data-focused="true"]')
-            .forEach(row => row.setAttribute('data-focused', 'false'));
-    }
+    window.ltSessionContextTree.focusFirstChild = function () {
+        const buttons = getExplorerButtons();
+        const active = document.activeElement;
+        const index = buttons.indexOf(active);
+        if (index < 0 || index + 1 >= buttons.length) return;
 
-    function setFocusedRow(target) {
-        const node = target?.closest('[data-slot="session-context-node"]');
-        if (!node) {
-            clearFocusedRows();
-            return;
+        const depth = Number(active.dataset.depth);
+        const candidate = buttons[index + 1];
+        if (Number(candidate.dataset.depth) === depth + 1) {
+            focusButton(candidate);
         }
+    };
 
-        const row = node.closest('[data-slot="session-context-node-row"]');
-        if (!row) return;
+    window.ltSessionContextTree.focusParent = function () {
+        const buttons = getExplorerButtons();
+        const active = document.activeElement;
+        const index = buttons.indexOf(active);
+        const depth = Number(active?.dataset.depth);
+        if (index <= 0 || depth <= 0) return;
 
-        clearFocusedRows();
-        row.setAttribute('data-focused', 'true');
-    }
-
-    document.addEventListener('focusin', function (event) {
-        setFocusedRow(event.target);
-    });
-
-    document.addEventListener('focusout', function (event) {
-        const node = event.target?.closest('[data-slot="session-context-node"]');
-        if (node) {
-            const row = node.closest('[data-slot="session-context-node-row"]');
-            if (row) row.setAttribute('data-focused', 'false');
+        for (let candidateIndex = index - 1; candidateIndex >= 0; candidateIndex--) {
+            const candidate = buttons[candidateIndex];
+            if (Number(candidate.dataset.depth) === depth - 1) {
+                focusButton(candidate);
+                return;
+            }
         }
-    });
+    };
 
     // Prevent arrow keys from scrolling the page / container while the user is
     // navigating the tree. Blazor still receives the keydown event for its own

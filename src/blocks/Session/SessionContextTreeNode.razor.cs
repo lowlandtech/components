@@ -35,6 +35,7 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
     private string? _hydratedNodeId;
     private bool _showDeleteDialog;
     private bool _skipDeleteConfirmation;
+    private bool _isFocused;
 
     private bool ShowChevron => !Item.IsLoaded || VisibleChildren.Count > 0;
     private bool IsHeader => Item.Node.NodeTypeKey.EndsWith(".header", StringComparison.OrdinalIgnoreCase)
@@ -134,13 +135,35 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
                 break;
             case "ArrowRight":
                 if (!_isExpanded && ShowChevron)
+                {
                     await ToggleExpand();
+                }
+                else if (_isExpanded && VisibleChildren.Count > 0)
+                {
+                    await JS.InvokeVoidAsync("ltSessionContextTree.focusFirstChild");
+                }
                 break;
             case "ArrowLeft":
                 if (_isExpanded)
+                {
                     await ToggleExpand();
+                }
+                else if (Depth > 0)
+                {
+                    await JS.InvokeVoidAsync("ltSessionContextTree.focusParent");
+                }
                 break;
         }
+    }
+
+    private void HandleFocus(FocusEventArgs _)
+    {
+        _isFocused = true;
+    }
+
+    private void HandleBlur(FocusEventArgs _)
+    {
+        _isFocused = false;
     }
 
     private async Task PersistExpandedAsync()

@@ -152,17 +152,19 @@ public sealed class SC14_TreeKeyboardNavigation : ViewScenario
         };
     }
 
-    [Fact(DisplayName = "UAC07: keyboard JS module exports focusNext and focusPrevious")]
+    [Fact(DisplayName = "UAC07: keyboard JS module exports directional focus helpers")]
     [Trait(Spec.UAC, "07")]
     [Given("the sessionContextTree.js source")]
     [When("inspecting the module surface")]
-    [Then("it defines ltSessionContextTree.focusNext and ltSessionContextTree.focusPrevious")]
+    [Then("it defines sibling, child, and parent focus helpers")]
     public void UAC07_JsModuleExportsFocusFunctions()
     {
         var script = ReadEmbeddedResource("sessionContextTree.js");
 
         script.ShouldContain("ltSessionContextTree.focusNext");
         script.ShouldContain("ltSessionContextTree.focusPrevious");
+        script.ShouldContain("ltSessionContextTree.focusFirstChild");
+        script.ShouldContain("ltSessionContextTree.focusParent");
     }
 
     [Fact(DisplayName = "UAC08: keyboard JS module scopes navigation to the active explorer")]
@@ -267,18 +269,78 @@ public sealed class SC14_TreeKeyboardNavigation : ViewScenario
         button.ClassList.ShouldContain("group-data-[focused=true]:ring-primary/70");
     }
 
-    [Fact(DisplayName = "UAC15: keyboard JS module toggles data-focused on focusin/focusout")]
+    [Fact(DisplayName = "UAC15: node focus state controls the visible focused-row marker")]
     [Trait(Spec.UAC, "15")]
-    [Given("the sessionContextTree.js source")]
-    [When("inspecting the focus tracking logic")]
-    [Then("it sets data-focused to true on focusin and false on focusout")]
-    public void UAC15_JsModuleTracksFocusedRow()
+    [Given("a rendered context-tree node")]
+    [When("its node button receives and loses browser focus")]
+    [Then("the row's data-focused marker follows the browser focus state")]
+    public void UAC15_NodeFocusStateTracksBrowserFocus()
     {
-        var script = ReadEmbeddedResource("sessionContextTree.js");
+        var cut = Ctx.Render<SessionContextTreeNode>(p => p
+            .Add(x => x.Item, new SessionContextNode(new SessionNodeInput("n1", "workspace", "Orders"), IsLoaded: false)));
+        var button = cut.Find("[data-slot='session-context-node']");
 
-        script.ShouldContain("setAttribute('data-focused', 'true')");
-        script.ShouldContain("setAttribute('data-focused', 'false')");
-        script.ShouldContain("session-context-node-row");
+        button.Focus();
+        cut.Find("[data-slot='session-context-node-row']")
+            .GetAttribute("data-focused")
+            .ShouldBe("true");
+
+        button.Blur();
+        cut.Find("[data-slot='session-context-node-row']")
+            .GetAttribute("data-focused")
+            .ShouldBe("false");
+    }
+
+    [Fact(DisplayName = "UAC16: ArrowRight moves focus to the first child of an expanded node")]
+    [Trait(Spec.UAC, "16")]
+    [Given("an expanded context-tree node with a visible child")]
+    [When("the user presses ArrowRight")]
+    [Then("the tree asks the browser to focus the first child")]
+    public void UAC16_ArrowRightOnExpandedNodeFocusesFirstChild()
+    {
+        SetupJs(expandedNodeId: "h1");
+        var cut = RenderExplorer();
+
+        cut.Find("[data-node-id='h1']").KeyDown(new KeyboardEventArgs { Key = "ArrowRight" });
+
+        Ctx.JSInterop.Invocations
+            .Any(invocation => invocation.Identifier == "ltSessionContextTree.focusFirstChild")
+            .ShouldBeTrue();
+    }
+
+    [Fact(DisplayName = "UAC17: ArrowLeft moves focus to the parent of a collapsed child")]
+    [Trait(Spec.UAC, "17")]
+    [Given("a collapsed non-root context-tree node")]
+    [When("the user presses ArrowLeft")]
+    [Then("the tree asks the browser to focus its parent")]
+    public void UAC17_ArrowLeftOnCollapsedNodeFocusesParent()
+    {
+        SetupJs(expandedNodeId: "h1");
+        var cut = RenderExplorer();
+
+        cut.Find("[data-node-id='c1']").KeyDown(new KeyboardEventArgs { Key = "ArrowLeft" });
+
+        Ctx.JSInterop.Invocations
+            .Any(invocation => invocation.Identifier == "ltSessionContextTree.focusParent")
+            .ShouldBeTrue();
+    }
+
+    [Fact(DisplayName = "UAC18: keyboard navigation does not activate the focused node")]
+    [Trait(Spec.UAC, "18")]
+    [Given("a context tree with a projected node")]
+    [When("the user navigates from another node with ArrowDown")]
+    [Then("focus navigation runs without projecting the navigated node")]
+    public void UAC18_ArrowNavigationDoesNotProjectFocusedNode()
+    {
+        SetupJs();
+        SessionNodeInput? projected = null;
+        var cut = Ctx.Render<SessionContextExplorer>(p => p
+            .Add(x => x.RootNodes, BuildRoot())
+            .Add(x => x.OnProjected, e => { projected = e.Node; return Task.CompletedTask; }));
+
+        cut.Find("[data-node-id='h1']").KeyDown(new KeyboardEventArgs { Key = "ArrowDown" });
+
+        projected.ShouldBeNull();
     }
 
     private static string ReadEmbeddedResource(string name)
