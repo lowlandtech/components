@@ -71,7 +71,19 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     private IStringLocalizer<SessionBlockStrings>? _localizer;
 
-    private SessionStateService SessionState => StateService ?? (_ownedStateService ??= new SessionStateService(ResolveSessionSurfaceDiscovery()));
+    private SessionStateService SessionState => StateService ?? (_ownedStateService ??= CreateOwnedStateService());
+
+    private SessionStateService CreateOwnedStateService()
+    {
+        var outbox = new InMemorySessionOutbox();
+        var service = new SessionStateService(ResolveSessionSurfaceDiscovery(), outbox: outbox);
+        service.RegisterEffect((state, action, ct) =>
+        {
+            outbox.Append(new SessionOutboxEntry(action.GetType().Name, action, DateTimeOffset.UtcNow));
+            return Task.CompletedTask;
+        });
+        return service;
+    }
 
     private SessionBlockState AppState => SessionState.State;
 

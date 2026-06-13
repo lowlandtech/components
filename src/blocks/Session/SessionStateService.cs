@@ -12,49 +12,62 @@ public sealed class SessionStateService
     private readonly ILogger? _logger;
 
     public SessionStateService()
-        : this(SessionBlockDefaults.Empty, null, null, null)
+        : this(SessionBlockDefaults.Empty, null, null, null, null)
+    {
+    }
+
+    public SessionStateService(ISessionOutbox? outbox)
+        : this(SessionBlockDefaults.Empty, null, null, null, outbox)
     {
     }
 
     public SessionStateService(SessionBlockState initialState)
-        : this(initialState, null, null, null)
+        : this(initialState, null, null, null, null)
     {
     }
 
     public SessionStateService(ISessionSurfaceDiscovery? surfaceDiscovery)
-        : this(SessionBlockDefaults.Empty, surfaceDiscovery, null, null)
+        : this(SessionBlockDefaults.Empty, surfaceDiscovery, null, null, null)
+    {
+    }
+
+    public SessionStateService(ISessionSurfaceDiscovery? surfaceDiscovery, ISessionOutbox? outbox)
+        : this(SessionBlockDefaults.Empty, surfaceDiscovery, null, null, outbox)
     {
     }
 
     public SessionStateService(ISessionSurfaceDiscovery? surfaceDiscovery, IGraphService? graphService)
-        : this(SessionBlockDefaults.Empty, surfaceDiscovery, graphService, null)
+        : this(SessionBlockDefaults.Empty, surfaceDiscovery, graphService, null, null)
     {
     }
 
     public SessionStateService(ISessionSurfaceDiscovery? surfaceDiscovery, IGraphService? graphService, ILogger? logger)
-        : this(SessionBlockDefaults.Empty, surfaceDiscovery, graphService, logger)
+        : this(SessionBlockDefaults.Empty, surfaceDiscovery, graphService, logger, null)
     {
     }
 
     public SessionStateService(SessionBlockState initialState, ISessionSurfaceDiscovery? surfaceDiscovery)
-        : this(initialState, surfaceDiscovery, null, null)
+        : this(initialState, surfaceDiscovery, null, null, null)
     {
     }
 
     public SessionStateService(SessionBlockState initialState, ISessionSurfaceDiscovery? surfaceDiscovery, IGraphService? graphService)
-        : this(initialState, surfaceDiscovery, graphService, null)
+        : this(initialState, surfaceDiscovery, graphService, null, null)
     {
     }
 
-    public SessionStateService(SessionBlockState initialState, ISessionSurfaceDiscovery? surfaceDiscovery, IGraphService? graphService, ILogger? logger)
+    public SessionStateService(SessionBlockState initialState, ISessionSurfaceDiscovery? surfaceDiscovery, IGraphService? graphService, ILogger? logger, ISessionOutbox? outbox = null)
     {
         _state = initialState;
         _surfaceDiscovery = surfaceDiscovery ?? DefaultSurfaceDiscovery;
         _graphService = graphService;
         _logger = logger;
+        Outbox = outbox;
     }
 
     public SessionBlockState State => _state;
+
+    public ISessionOutbox? Outbox { get; }
 
     public IReadOnlyList<SessionListEntry> Sessions { get; private set; } = [];
 
@@ -70,24 +83,44 @@ public sealed class SessionStateService
 
         _state = next;
         StateChanged?.Invoke(_state);
+        RunEffectsAsync(action);
         return _state;
     }
 
     public async Task<SessionBlockState> DispatchAsync(object action, CancellationToken ct = default)
     {
         var state = Dispatch(action);
+        // Effects are started by Dispatch; await them so callers can observe completion.
+        await WaitForEffectsAsync(action, ct);
+        return state;
+    }
+
+    private void RunEffectsAsync(object action)
+    {
         foreach (var effect in _effects)
         {
-            try
-            {
-                await effect(state, action, ct);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Trace.TraceError($"SessionStateService effect for action '{action.GetType().Name}' failed: {ex}");
-            }
+            _ = RunEffectAsync(effect, action, CancellationToken.None);
         }
-        return state;
+    }
+
+    private async Task WaitForEffectsAsync(object action, CancellationToken ct)
+    {
+        foreach (var effect in _effects)
+        {
+            await RunEffectAsync(effect, action, ct);
+        }
+    }
+
+    private async Task RunEffectAsync(Func<SessionBlockState, object, CancellationToken, Task> effect, object action, CancellationToken ct)
+    {
+        try
+        {
+            await effect(_state, action, ct);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Trace.TraceError($"SessionStateService effect for action '{action.GetType().Name}' failed: {ex}");
+        }
     }
 
     public void RegisterEffect(Func<SessionBlockState, object, CancellationToken, Task> effect)

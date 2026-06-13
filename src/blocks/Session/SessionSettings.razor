@@ -18,6 +18,16 @@
                     @onclick="() => _section = SettingsSection.Activity">
                 @L("Activity")
             </button>
+            @if (Outbox is not null || OutboxContent is not null)
+            {
+                <button type="button"
+                        data-testid="session-settings-outbox-tab"
+                        data-active="@(_section == SettingsSection.Outbox ? "true" : "false")"
+                        class="@GetNavButtonClass(SettingsSection.Outbox)"
+                        @onclick="() => _section = SettingsSection.Outbox">
+                    @L("Outbox")
+                </button>
+            }
         </nav>
     </aside>
 
@@ -26,6 +36,19 @@
         {
             <div data-slot="session-settings-activity" class="min-h-0">
                 @ActivityContent
+            </div>
+        }
+        else if (_section == SettingsSection.Outbox)
+        {
+            <div data-slot="session-settings-outbox" class="min-h-0">
+                @if (OutboxContent is not null)
+                {
+                    @OutboxContent
+                }
+                else if (Outbox is not null)
+                {
+                    <SessionOutboxList Outbox="Outbox" class="min-h-0 flex-1" />
+                }
             </div>
         }
         else

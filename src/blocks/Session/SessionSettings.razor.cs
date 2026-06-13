@@ -10,6 +10,7 @@ public partial class SessionSettings : TinyComponentBase
     {
         ApiKeys,
         Activity,
+        Outbox,
     }
 
     private SettingsSection _section = SettingsSection.ApiKeys;
@@ -24,6 +25,10 @@ public partial class SessionSettings : TinyComponentBase
     [Parameter] public ISessionClientSettingsService? ClientSettings { get; set; }
 
     [Parameter] public RenderFragment? ActivityContent { get; set; }
+
+    [Parameter] public ISessionOutbox? Outbox { get; set; }
+
+    [Parameter] public RenderFragment? OutboxContent { get; set; }
 
     private ISessionClientSettingsService EffectiveClientSettings =>
         ClientSettings
