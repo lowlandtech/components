@@ -17,6 +17,9 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     private int _commandBarChangeVersion;
     private string? _hydratedCommandBarPersistKey;
     private readonly List<SessionListEntry> _createdSessions = [];
+    private List<SessionContextNode>? _localContextNodes;
+
+    private IReadOnlyList<SessionContextNode> DisplayContextNodes => _localContextNodes ?? ContextNodes;
 
     [Parameter] public IReadOnlyList<SessionListEntry> Sessions { get; set; } =
     [
@@ -92,6 +95,11 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     private string L(string key) => _localizer?[key] ?? key;
 
     private string EffectiveTitle => Title ?? L("Title");
+
+    private string GetCommandPlaceholder() =>
+        string.Equals(ViewState.ActiveAgentTypeKey, "create", StringComparison.OrdinalIgnoreCase)
+            ? L("CreateCommandPlaceholder")
+            : L("CommandPlaceholder");
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -532,6 +540,12 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         return Task.CompletedTask;
     }
 
+    private Task ScrollToPinnedContextAsync(SessionNodeInput node)
+    {
+        SessionState.Dispatch(new SetPendingScrollSection($"context-block:{node.Id}"));
+        return Task.CompletedTask;
+    }
+
     private Task HandlePinnedAsync(SessionContextPinned pinned)
     {
         SessionState.PinContext(pinned.Node);
@@ -593,6 +607,47 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         node.NodeTypeKey.EndsWith(".header", StringComparison.OrdinalIgnoreCase)
         || string.Equals(node.NodeTypeKey, "header", StringComparison.OrdinalIgnoreCase);
 
+    private static string ResolveLocalChildNodeType(SessionNodeInput parentNode) =>
+        parentNode.NodeTypeKey.ToLowerInvariant() switch
+        {
+            "workspaces.header" => "workspace",
+            "workitem.header" => "workitem",
+            "flow.header" => "flow",
+            "package.header" => "package",
+            "step.header" => "step",
+            "header" => "node",
+            _ => parentNode.NodeTypeKey
+        };
+
+    private static IReadOnlyList<SessionContextNode> AddChildNode(
+        IReadOnlyList<SessionContextNode> nodes,
+        string parentId,
+        SessionContextNode child)
+    {
+        return nodes.Select(n => AddChildNode(n, parentId, child)).ToList();
+    }
+
+    private static SessionContextNode AddChildNode(
+        SessionContextNode node,
+        string parentId,
+        SessionContextNode child)
+    {
+        if (string.Equals(node.Node.Id, parentId, StringComparison.Ordinal))
+        {
+            var children = node.Children?.ToList() ?? [];
+            children.Add(child);
+            return new SessionContextNode(node.Node, children, true);
+        }
+
+        if (node.Children is null || node.Children.Count == 0)
+            return node;
+
+        return new SessionContextNode(
+            node.Node,
+            node.Children.Select(c => AddChildNode(c, parentId, child)).ToList(),
+            node.IsLoaded);
+    }
+
     private Task HandleTabPinnedChangedAsync(TabsItem item)
     {
         SessionState.SetTabPinned(item.Value, item.Pinned);
@@ -641,8 +696,26 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         // Non-session node create: delegate to the host page so it can materialise the child in the graph.
         if (string.Equals(command.AgentTypeKey, "create", StringComparison.OrdinalIgnoreCase))
         {
-            await OnHeaderCreateRequested.InvokeAsync(new SessionHeaderCreateRequest(
-                command.Node.Id, command.Node.NodeTypeKey, command.Input));
+            if (OnHeaderCreateRequested.HasDelegate)
+            {
+                await OnHeaderCreateRequested.InvokeAsync(new SessionHeaderCreateRequest(
+                    command.Node.Id, command.Node.NodeTypeKey, command.Input));
+            }
+            else
+            {
+                _localContextNodes ??= [.. ContextNodes];
+                var childTypeKey = ResolveLocalChildNodeType(command.Node);
+                var childNode = new SessionContextNode(
+                    new SessionNodeInput(
+                        Guid.NewGuid().ToString(),
+                        childTypeKey,
+                        command.Input,
+                        command.Node.ComponentBlock ?? "NodeBlock"),
+                    null,
+                    true);
+                _localContextNodes = AddChildNode(_localContextNodes, command.Node.Id, childNode).ToList();
+            }
+
             SessionState.SetAgentType("ask");
 
             try
@@ -708,6 +781,8 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     }
 
     private string GetBlockMode(SessionContextBlockModel block) => SessionState.GetBlockMode(CurrentSessionId, block);
+
+    private string GetCommandMode(SessionCommandSubmitted command) => SessionState.GetCommandMode(command);
 
     private Task ShowSettingsPageAsync()
     {

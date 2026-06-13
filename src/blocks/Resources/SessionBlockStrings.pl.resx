@@ -23,6 +23,7 @@
   <data name="EmptySessionTitle" xml:space="preserve"><value>Wybierz sesję</value></data>
   <data name="EmptySessionDescription" xml:space="preserve"><value>Zawartość sesji pozostaje bezczynna, dopóki nie zostanie aktywowana karta sesji.</value></data>
   <data name="CommandPlaceholder" xml:space="preserve"><value>Zapytaj o aktywną sesję...</value></data>
+  <data name="CreateCommandPlaceholder" xml:space="preserve"><value>Wprowadź tytuł dla nowego węzła...</value></data>
   <data name="CommandSubmitTitle" xml:space="preserve"><value>Wyślij</value></data>
   <data name="AgentAsk" xml:space="preserve"><value>Zapytaj</value></data>
   <data name="AgentPlan" xml:space="preserve"><value>Zaplanuj</value></data>

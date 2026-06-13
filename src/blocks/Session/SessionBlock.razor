@@ -41,11 +41,12 @@
                                     <SidebarGroup class="min-h-0 w-full flex-1">
                                         <SidebarGroupLabel>@L("Context")</SidebarGroupLabel>
                                         <SidebarGroupContent class="min-h-0 w-full flex-1 overflow-hidden">
-                                            <SessionContextExplorer RootNodes="ContextNodes"
+                                            <SessionContextExplorer RootNodes="DisplayContextNodes"
                                                                     State="ViewState"
                                                                     Projection="ViewState.ContextProjection"
                                                                     Pins="@(ViewState.ContextPins ?? [])"
                                                                     OnProjected="HandleProjectedAsync"
+                                                                    OnNavigateToPin="ScrollToPinnedContextAsync"
                                                                     OnPinned="HandlePinnedAsync"
                                                                     OnUnpinned="HandleUnpinnedAsync"
                                                                     OnNodeNew="HandleNodeNewAsync"
@@ -235,7 +236,7 @@
                                                      data-slot="session-block-turn-section">
                                                     <SessionCard Node="CreateResponseNode(item.Command!)"
                                                                  Initials="RS"
-                                                                 Mode="@SessionContextBlock.ModeNormal"
+                                                                 Mode="@GetCommandMode(item.Command!)"
                                                                  Status="@GetResponseStatus(item.Command!)"
                                                                  StatusVariant="@GetResponseStatusVariant(item.Command!)"
                                                                  PageOverlayContainerClass="@PageOverlayContainerClass"
@@ -281,7 +282,7 @@
                                                    AgentTypes="LocalizedAgentTypes"
                                                    Value="@ViewState.Input"
                                                    ValueChanged="SetInputAsync"
-                                                   Placeholder="@L("CommandPlaceholder")"
+                                                   Placeholder="@GetCommandPlaceholder()"
                                                    SubmitTitle="@L("CommandSubmitTitle")"
                                                    OnAgentTypeSelected="e => SetAgentTypeAsync(e.AgentTypeKey)"
                                                    class="shrink-0"
@@ -419,7 +420,7 @@
                                     </p>
                                 </header>
 
-                                <SessionContextExplorer RootNodes="ContextNodes"
+                                <SessionContextExplorer RootNodes="DisplayContextNodes"
                                                         State="ViewState"
                                                         Projection="ViewState.ContextProjection"
                                                         Pins="@(ViewState.ContextPins ?? [])"
@@ -532,7 +533,7 @@
                                                  data-slot="session-block-turn-section">
                                                 <SessionCard Node="CreateResponseNode(item.Command!)"
                                                              Initials="RS"
-                                                             Mode="@SessionContextBlock.ModeNormal"
+                                                             Mode="@GetCommandMode(item.Command!)"
                                                              Status="@GetResponseStatus(item.Command!)"
                                                              StatusVariant="@GetResponseStatusVariant(item.Command!)"
                                                              PageOverlayContainerClass="@PageOverlayContainerClass"
@@ -578,7 +579,7 @@
                                            AgentTypes="LocalizedAgentTypes"
                                            Value="@ViewState.Input"
                                            ValueChanged="SetInputAsync"
-                                           Placeholder="@L("CommandPlaceholder")"
+                                           Placeholder="@GetCommandPlaceholder()"
                                            SubmitTitle="@L("CommandSubmitTitle")"
                                            OnAgentTypeSelected="e => SetAgentTypeAsync(e.AgentTypeKey)"
                                            class="shrink-0"

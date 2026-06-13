@@ -14,6 +14,7 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
     [Parameter] public SessionContextProjectionModel? Projection { get; set; }
     [Parameter] public IReadOnlyList<SessionContextPinModel> Pins { get; set; } = [];
     [Parameter] public EventCallback<SessionNodeInput> OnProject { get; set; }
+    [Parameter] public EventCallback<SessionNodeInput> OnNavigateToPin { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnPin { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnNodeNew { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnNodeRename { get; set; }
@@ -33,9 +34,12 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
     private bool IsHeader => Item.Node.NodeTypeKey.EndsWith(".header", StringComparison.OrdinalIgnoreCase)
         || string.Equals(Item.Node.NodeTypeKey, "header", StringComparison.OrdinalIgnoreCase);
     private string PopoverId => _popoverId.ToString();
-    private string NodeIcon => Icons.GetByName(Item.Node.NodeTypeKey) ?? string.Empty;
-    private IReadOnlyList<SessionContextNode> VisibleChildren =>
-        [.. (Item.Children ?? []).Where(child => !IsPinned(child.Node.Id))];
+    private string NodeIcon => IsHeader
+        ? (_isExpanded ? Icons.FolderOpen : Icons.Folder)
+        : (Icons.GetByName(Item.Node.NodeTypeKey) ?? string.Empty);
+    private IReadOnlyList<SessionContextNode> VisibleChildren => Item.Children ?? [];
+
+    private bool IsNodePinned(string nodeId) => Pins.Any(pin => pin.Node.Id == nodeId);
 
     protected override void OnInitialized()
     {
@@ -48,11 +52,9 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
         if (_initializedId != Item.Node.Id)
         {
             _initializedId = Item.Node.Id;
-            _isExpanded = Item.IsLoaded;
+            _isExpanded = Depth == 0 && Item.IsLoaded;
         }
     }
-
-    private bool IsPinned(string nodeId) => Pins.Any(pin => pin.Node.Id == nodeId);
 
     private async Task ToggleExpand()
     {
@@ -67,7 +69,16 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
         ? "text-muted-foreground transition-transform duration-100 rotate-90"
         : "text-muted-foreground transition-transform duration-100";
 
-    private Task ProjectAsync() => OnProject.InvokeAsync(Item.Node);
+    private async Task ProjectAsync()
+    {
+        if (IsNodePinned(Item.Node.Id))
+        {
+            await OnNavigateToPin.InvokeAsync(Item.Node);
+            return;
+        }
+
+        await OnProject.InvokeAsync(Item.Node);
+    }
 
     private Task PinAsync() => OnPin.InvokeAsync(Item.Node);
 

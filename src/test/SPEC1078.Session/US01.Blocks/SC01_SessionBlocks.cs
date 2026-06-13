@@ -657,19 +657,20 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='northwind']").Click();
         ClickOpenContextNodePin();
 
-        var markup = cut.Markup;
+        var feed = cut.Find("[data-slot='session-block-feed']");
+        var feedText = feed.TextContent;
 
-        // All items should be present
-        markup.ShouldContain("Invoice approval");
-        markup.ShouldContain("Northwind Traders");
-        markup.ShouldContain("First question");
-        markup.ShouldContain("Second question");
+        // All items should be present in the unified feed
+        feedText.ShouldContain("Invoice approval");
+        feedText.ShouldContain("Northwind Traders");
+        feedText.ShouldContain("First question");
+        feedText.ShouldContain("Second question");
 
         // Invoice should appear before First question in the unified feed
-        var invoiceIndex = markup.IndexOf("Invoice approval", StringComparison.Ordinal);
-        var firstQuestionIndex = markup.IndexOf("First question", StringComparison.Ordinal);
-        var secondQuestionIndex = markup.IndexOf("Second question", StringComparison.Ordinal);
-        var northwindIndex = markup.IndexOf("Northwind Traders", StringComparison.Ordinal);
+        var invoiceIndex = feedText.IndexOf("Invoice approval", StringComparison.Ordinal);
+        var firstQuestionIndex = feedText.IndexOf("First question", StringComparison.Ordinal);
+        var secondQuestionIndex = feedText.IndexOf("Second question", StringComparison.Ordinal);
+        var northwindIndex = feedText.IndexOf("Northwind Traders", StringComparison.Ordinal);
 
         invoiceIndex.ShouldBeGreaterThan(-1);
         firstQuestionIndex.ShouldBeGreaterThan(-1);
@@ -878,9 +879,9 @@ public class SC01_SessionBlocks : ViewScenario
         feed.QuerySelectorAll("[data-slot='session-context-block']").Count.ShouldBeGreaterThan(0);
     }
 
-    [Fact(DisplayName = "UAC20: SessionContextExplorer hides pinned nodes from the context tree")]
+    [Fact(DisplayName = "UAC20: SessionContextExplorer keeps pinned nodes in the context tree")]
     [Trait(Spec.UAC, "20")]
-    public void UAC20_ContextExplorerHidesPinnedNodesFromTree()
+    public void UAC20_ContextExplorerKeepsPinnedNodesInTree()
     {
         var invoice = new SessionNodeInput("invoice", "invoice", "Invoice", "InvoiceBlock");
         var state = SessionUiReducer.Reduce(SessionUiDefaults.Empty, new ProjectSessionContext(invoice));
@@ -890,8 +891,8 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.State, state)
             .Add(x => x.RootNodes, new[] { new SessionContextNode(invoice, IsLoaded: true) }));
 
-        // Pinned node should not be rendered in the tree
-        cut.FindAll("[data-node-id='invoice']").Count.ShouldBe(0);
+        // Pinned node remains in the tree so it can still be used for navigation.
+        cut.FindAll("[data-node-id='invoice']").Count.ShouldBeGreaterThan(0);
     }
 
     [Fact(DisplayName = "UAC21: SessionContextBlock header renders a closeable Pinned badge when IsPinned is true")]
@@ -925,14 +926,8 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.US, "01")]
     public void UAC22_SessionBlockBlockHeaderUnpinRestoresTreeNode()
     {
-        // UAC22 is integration-level: it exercises the SessionBlock's popover
-        // + tree + block flow in concert. The popover Fragment is rendered
-        // in a separate bUnit render scope, so the click inside it does not
-        // propagate to the main `cut`'s tree filter — and pinning via the
-        // popover therefore leaves the tree node visible in the assertion.
-        // The component-level pin/unpin flow is covered by UAC20 (pinned
-        // nodes hidden) and UAC21 (unpin button emits event). Skipping this
-        // scenario keeps the suite green without losing meaningful coverage.
+        // UAC22 verifies that pinning a context node creates a context pin
+        // and block while leaving the tree node visible for navigation.
         var stateService = new SessionStateService();
         var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.StateService, stateService)
@@ -941,6 +936,31 @@ public class SC01_SessionBlocks : ViewScenario
         stateService.ProjectContext(new SessionNodeInput("invoice-approval", "invoice", "Invoice approval", "NodeBlock"));
         stateService.PinContext(new SessionNodeInput("invoice-approval", "invoice", "Invoice approval", "NodeBlock"));
         stateService.State.Ui.ContextPins.Count.ShouldBe(1);
+    }
+
+    [Fact(DisplayName = "UAC22b: Clicking a pinned context node scrolls to its pinned card")]
+    [Trait(Spec.UAC, "22b")]
+    public void UAC22b_ClickingPinnedNodeScrollsToPinnedCard()
+    {
+        var stateService = new SessionStateService();
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.StateService, stateService)
+            .Add(x => x.HasSidebar, true));
+
+        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='invoice-approval']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
+        ClickOpenContextNodePin();
+
+        // Clicking the pinned node should navigate to the pinned card, not project again.
+        cut.Find("[data-node-id='invoice-approval']").Click();
+
+        stateService.State.Ui.ContextProjection.ShouldBeNull();
+        Ctx.JSInterop.Invocations.Any(invocation =>
+            invocation.Identifier == "eval"
+            && invocation.Arguments[0]?.ToString()?.Contains("context-block:invoice-approval", StringComparison.Ordinal) == true
+            && invocation.Arguments[0]?.ToString()?.Contains("scrollTo", StringComparison.Ordinal) == true)
+            .ShouldBeTrue();
     }
 
     [Fact(DisplayName = "UAC23: SessionBlock scrolls projected and pinned context blocks into view")]
@@ -1154,6 +1174,32 @@ public class SC01_SessionBlocks : ViewScenario
 
         cut.FindAll("[data-slot='session-block-maximized-card']").ShouldBeEmpty();
         cut.Find("[data-slot='session-block-feed']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC29b: SessionBlock minimizes a question card in the feed")]
+    [Trait(Spec.UAC, "29b")]
+    public void UAC29b_SessionBlockMinimizesQuestionCardInFeed()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.IsTest, true)
+            .Add(x => x.TestStreamDelayMilliseconds, 0));
+
+        cut.Find("[data-node-id='orders-session']").Click();
+        ClickShowCommandBar(cut);
+        cut.Find("[data-testid='session-command-input']").Input("Minimize this answer");
+        cut.Find("[data-testid='session-command-submit']").Click();
+
+        cut.Find("[data-node-id^='response:'] [data-testid='card-mode-menu-trigger']").Click();
+        ClickOpenCardMode("Minimized");
+
+        var minimized = cut.Find("[data-node-id^='response:'][data-mode='minimized']");
+        minimized.ShouldNotBeNull();
+        minimized.QuerySelectorAll("[data-slot='card-content']").Count.ShouldBe(0);
+
+        cut.Find("[data-node-id^='response:'][data-mode='minimized'] [data-testid='card-mode-menu-expand']").Click();
+
+        cut.Find("[data-node-id^='response:'][data-mode='normal']").ShouldNotBeNull();
+        cut.Find("[data-node-id^='response:'] [data-slot='card-content']").ShouldNotBeNull();
     }
 
     [Fact(DisplayName = "UAC30: SessionBlock HasSidebar uses the Sidebar shell")]

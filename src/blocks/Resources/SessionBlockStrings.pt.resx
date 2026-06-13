@@ -23,6 +23,7 @@
   <data name="EmptySessionTitle" xml:space="preserve"><value>Selecionar uma sessão</value></data>
   <data name="EmptySessionDescription" xml:space="preserve"><value>O conteúdo da sessão permanece inativo até que uma aba de sessão esteja ativa.</value></data>
   <data name="CommandPlaceholder" xml:space="preserve"><value>Pergunte sobre a sessão ativa...</value></data>
+  <data name="CreateCommandPlaceholder" xml:space="preserve"><value>Insira um título para o novo nó...</value></data>
   <data name="CommandSubmitTitle" xml:space="preserve"><value>Enviar</value></data>
   <data name="AgentAsk" xml:space="preserve"><value>Perguntar</value></data>
   <data name="AgentPlan" xml:space="preserve"><value>Planear</value></data>

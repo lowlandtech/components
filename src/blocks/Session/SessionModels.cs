@@ -197,6 +197,7 @@ public sealed record SessionBlockStateSnapshot(
     IReadOnlyList<string> PinnedNodeIds,
     IReadOnlyDictionary<string, long> FeedSequenceByItemKey,
     IReadOnlyDictionary<string, string> BlockModesByKey,
+    IReadOnlyDictionary<string, string> CommandModesByKey,
     long NextFeedSequence,
     IReadOnlyDictionary<string, IReadOnlyList<SessionCommandSnapshot>> SessionCommandsBySessionId,
     IReadOnlyDictionary<string, SessionUiStateSnapshot> SessionStatesBySessionId);
@@ -230,6 +231,7 @@ public sealed record SessionBlockState
     public HashSet<string> PinnedNodeIds { get; init; } = new(StringComparer.Ordinal);
     public IReadOnlyDictionary<string, long> FeedSequenceByItemKey { get; init; } = new Dictionary<string, long>(StringComparer.Ordinal);
     public IReadOnlyDictionary<string, string> BlockModesByKey { get; init; } = new Dictionary<string, string>(StringComparer.Ordinal);
+    public IReadOnlyDictionary<string, string> CommandModesByKey { get; init; } = new Dictionary<string, string>(StringComparer.Ordinal);
     public long NextFeedSequence { get; init; }
     public IReadOnlyDictionary<string, IReadOnlyList<SessionCommandSubmitted>> SessionCommandsBySessionId { get; init; } = new Dictionary<string, IReadOnlyList<SessionCommandSubmitted>>(StringComparer.Ordinal);
     public IReadOnlyDictionary<string, SessionUiState> SessionStatesBySessionId { get; init; } = new Dictionary<string, SessionUiState>(StringComparer.Ordinal);
@@ -291,7 +293,7 @@ public sealed record SetSessionTabPinned(string NodeId, bool IsPinned) : Session
 
 public sealed record SetSessionBlockMode(string BlockId, string Mode) : SessionBlockAction;
 
-public sealed record SetSessionCommandMode(string CommandId, string Mode) : SessionBlockAction;
+public sealed record SetSessionCommandMode(string CommandId, string? Mode) : SessionBlockAction;
 
 public sealed record SetActiveSession(string? SessionId) : SessionBlockAction;
 
@@ -461,7 +463,12 @@ public static class SessionBlockReducer
             ClearSessionEventLog => state with { EventLogEntries = [] },
             SetSessionTabPinned => state,
             SetSessionBlockMode => state,
-            SetSessionCommandMode => state,
+            SetSessionCommandMode a => state with
+            {
+                CommandModesByKey = string.IsNullOrWhiteSpace(a.Mode)
+                    ? RemoveDictionaryEntry(state.CommandModesByKey, a.CommandId)
+                    : SetDictionaryEntry(state.CommandModesByKey, a.CommandId, a.Mode),
+            },
             SetActiveSession a => state with { ActiveSessionId = a.SessionId },
             SetPendingScrollSection a => state with { PendingScrollSectionId = a.SectionId },
             SetOpenSessionNodes a => state with { OpenSessionNodes = a.Nodes.ToList() },
@@ -659,6 +666,7 @@ public static class SessionBlockReducer
             [.. state.PinnedNodeIds.OrderBy(id => id, StringComparer.Ordinal)],
             new Dictionary<string, long>(state.FeedSequenceByItemKey, StringComparer.Ordinal),
             new Dictionary<string, string>(state.BlockModesByKey, StringComparer.Ordinal),
+            new Dictionary<string, string>(state.CommandModesByKey, StringComparer.Ordinal),
             state.NextFeedSequence,
             state.SessionCommandsBySessionId.ToDictionary(
                 pair => pair.Key,

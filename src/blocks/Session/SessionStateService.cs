@@ -739,25 +739,38 @@ public sealed class SessionStateService
         ClearPresentationIds(block.Id, null);
     }
 
+    public string GetCommandMode(SessionCommandSubmitted command) =>
+        _state.CommandModesByKey.TryGetValue(command.Id, out var mode)
+            ? mode
+            : SessionContextBlock.ModeNormal;
+
     public void SetCommandMode(SessionCommandSubmitted command, string mode)
     {
         if (string.Equals(mode, SessionContextBlock.ModeMaximized, StringComparison.Ordinal))
         {
+            Dispatch(new SetSessionCommandMode(command.Id, SessionContextBlock.ModeNormal));
             Dispatch(new SetSessionPresentationState(null, command.Id, null, null, null, null));
             return;
         }
 
         if (string.Equals(mode, SessionContextBlock.ModeOverlayPage, StringComparison.Ordinal))
         {
+            Dispatch(new SetSessionCommandMode(command.Id, SessionContextBlock.ModeNormal));
             Dispatch(new SetSessionPresentationState(null, null, null, command.Id, null, null));
             return;
         }
 
         if (string.Equals(mode, SessionContextBlock.ModeOverlayApp, StringComparison.Ordinal))
         {
+            Dispatch(new SetSessionCommandMode(command.Id, SessionContextBlock.ModeNormal));
             Dispatch(new SetSessionPresentationState(null, null, null, null, null, command.Id));
             return;
         }
+
+        if (string.Equals(mode, SessionContextBlock.ModeMinimized, StringComparison.Ordinal))
+            Dispatch(new SetSessionCommandMode(command.Id, SessionContextBlock.ModeMinimized));
+        else
+            Dispatch(new SetSessionCommandMode(command.Id, null));
 
         ClearPresentationIds(null, command.Id);
     }

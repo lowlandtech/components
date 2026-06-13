@@ -15,6 +15,7 @@ public partial class SessionContextExplorer : TinyComponentBase
     [Parameter] public string EmptyDescription { get; set; } = "Context nodes appear here when application entities are available.";
     [Parameter] public bool ShowHeader { get; set; } = true;
     [Parameter] public EventCallback<SessionContextProjected> OnProjected { get; set; }
+    [Parameter] public EventCallback<SessionNodeInput> OnNavigateToPin { get; set; }
     [Parameter] public EventCallback<SessionContextPinned> OnPinned { get; set; }
     [Parameter] public EventCallback<SessionContextUnpinned> OnUnpinned { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnNodeNew { get; set; }
@@ -24,8 +25,7 @@ public partial class SessionContextExplorer : TinyComponentBase
     [Parameter] public EventCallback<SessionNodeInput> OnNodeDelete { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnLoadChildren { get; set; }
 
-    private IReadOnlyList<SessionContextNode> VisibleRoots =>
-        [.. RootNodes.Where(node => !IsPinned(node.Node.Id))];
+    private IReadOnlyList<SessionContextNode> VisibleRoots => RootNodes;
 
     protected override void OnParametersSet()
     {
@@ -40,7 +40,6 @@ public partial class SessionContextExplorer : TinyComponentBase
         return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
     }
 
-    private bool IsPinned(string nodeId) => Pins.Any(p => p.Node.Id == nodeId);
 
     private async Task ProjectAsync(SessionNodeInput node)
     {
@@ -54,6 +53,8 @@ public partial class SessionContextExplorer : TinyComponentBase
     }
 
     private Task HandleNewAsync(SessionNodeInput node) => OnNodeNew.InvokeAsync(node);
+
+    private Task HandleNavigateToPinAsync(SessionNodeInput node) => OnNavigateToPin.InvokeAsync(node);
 
     private Task HandleRenameAsync(SessionNodeInput node) => OnNodeRename.InvokeAsync(node);
 
