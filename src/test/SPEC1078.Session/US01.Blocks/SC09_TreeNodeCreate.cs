@@ -121,6 +121,8 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
             .Add(x => x.StateService, stateService)
             .Add(x => x.OnHeaderCreateRequested, r => { request = r; return Task.CompletedTask; }));
 
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+
         // Trigger submit directly via the command bar's OnSubmit parameter
         var commandBar = cut.FindComponent<SessionCommandBar>();
         commandBar.InvokeAsync(() => commandBar.Instance.OnSubmit.InvokeAsync(
@@ -152,4 +154,74 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
         fired.ShouldNotBeNull();
         fired.Id.ShouldBe("ws-1");
     }
+
+    [Fact(DisplayName = "UAC06: SessionBlock New from context menu resets Page Overlay to Normal")]
+    [Trait(Spec.UAC, "06")]
+    [Given("a SessionBlock with a context card open in Page Overlay mode")]
+    [When("the New option is chosen from the node's context menu")]
+    [Then("the projected context block returns to Normal mode")]
+    public void UAC06_SessionBlockNewResetsPageOverlay()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>();
+
+        cut.Find("[data-node-id='release-session']").Click();
+        cut.Find("[data-node-id='invoice-approval']").Click();
+
+        cut.Find("[data-slot='session-block-page-overlay']").ShouldNotBeNull();
+
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
+
+        var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
+        var popover = popoverService.ActivePopovers.Single(reference => reference.State.Open);
+        popover.State.Open.ShouldBeTrue();
+
+        var fragmentCut = Ctx.Render(builder =>
+        {
+            builder.OpenElement(0, "div");
+            builder.AddContent(1, popover.State.Fragment);
+            builder.CloseElement();
+        });
+        fragmentCut.Find(".node-menu-item").Click();
+
+        cut.FindAll("[data-slot='session-block-page-overlay']").Count.ShouldBe(0);
+        cut.Find("[data-slot='session-block-feed'] [data-block-id='projected-context-block'][data-mode='normal']")
+            .ShouldNotBeNull();
+        cut.Find("[data-slot='session-command-bar']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC07: SessionBlock Rename from context menu resets Page Overlay and reveals command bar")]
+    [Trait(Spec.UAC, "07")]
+    [Given("a SessionBlock with a context card open in Page Overlay mode")]
+    [When("the Rename option is chosen from the node's context menu")]
+    [Then("the projected context block returns to Normal mode and the command bar is visible")]
+    public void UAC07_SessionBlockRenameResetsPageOverlayAndRevealsCommandBar()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>();
+
+        cut.Find("[data-node-id='release-session']").Click();
+        cut.Find("[data-node-id='invoice-approval']").Click();
+
+        cut.Find("[data-slot='session-block-page-overlay']").ShouldNotBeNull();
+
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
+
+        var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
+        var popover = popoverService.ActivePopovers.Single(reference => reference.State.Open);
+
+        var fragmentCut = Ctx.Render(builder =>
+        {
+            builder.OpenElement(0, "div");
+            builder.AddContent(1, popover.State.Fragment);
+            builder.CloseElement();
+        });
+        fragmentCut.FindAll(".node-menu-item")
+            .Single(item => string.Equals(item.TextContent.Trim(), "Rename", StringComparison.Ordinal))
+            .Click();
+
+        cut.FindAll("[data-slot='session-block-page-overlay']").Count.ShouldBe(0);
+        cut.Find("[data-slot='session-block-feed'] [data-block-id='projected-context-block'][data-mode='normal']")
+            .ShouldNotBeNull();
+        cut.Find("[data-slot='session-command-bar']").ShouldNotBeNull();
+    }
+
 }

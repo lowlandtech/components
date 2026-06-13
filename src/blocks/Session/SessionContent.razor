@@ -39,7 +39,7 @@
               ContentClass="min-h-0 flex-1 overflow-hidden !mt-0 flex flex-col"
               data-slot="session-content-tabs">
             <ItemContent>
-                <div class="session-content-body min-h-0 flex-1 overflow-y-auto overflow-x-hidden space-y-3" style="padding:10px 0 10px 10px; scrollbar-gutter: stable;" data-slot="session-content-body">
+                <div class="@GetBodyClass()" style="@GetBodyStyle()" data-slot="session-content-body">
                     @if (ChildContent is not null)
                     {
                         @ChildContent

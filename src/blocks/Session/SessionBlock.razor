@@ -49,6 +49,7 @@
                                                                     OnPinned="HandlePinnedAsync"
                                                                     OnUnpinned="HandleUnpinnedAsync"
                                                                     OnNodeNew="HandleNodeNewAsync"
+                                                                    OnNodeRename="HandleNodeRenameAsync"
                                                                     OnLoadChildren="OnLoadChildrenRequested"
                                                                     ShowHeader="false"
                                                                     class="min-h-0 flex-1 border-0 bg-transparent" />
@@ -159,6 +160,7 @@
                                             OpenNodes="ViewState.OpenNodes"
                                             SelectedNode="CurrentSessionNode"
                                             PinnableTabs="true"
+                                            Flush="@HasMaximizedContent"
                                             PinnedTabIds="AppState.PinnedNodeIds"
                                             EmptyTitle="@L("EmptySessionTitle")"
                                             EmptyDescription="@L("EmptySessionDescription")"
@@ -271,17 +273,20 @@
                             }
                             </SessionContent>
 
-                            <SessionCommandBar State="ViewState"
-                                               SelectedNode="CurrentCommandContextNode"
-                                               ActiveAgentTypeKey="@ViewState.ActiveAgentTypeKey"
-                                               AgentTypes="LocalizedAgentTypes"
-                                               Value="@ViewState.Input"
-                                               ValueChanged="SetInputAsync"
-                                               Placeholder="@L("CommandPlaceholder")"
-                                               SubmitTitle="@L("CommandSubmitTitle")"
-                                               OnAgentTypeSelected="e => SetAgentTypeAsync(e.AgentTypeKey)"
-                                               class="shrink-0"
-                                               OnSubmit="HandleSubmitAsync" />
+                            @if (_isCommandBarVisible)
+                            {
+                                <SessionCommandBar State="ViewState"
+                                                   SelectedNode="CurrentCommandContextNode"
+                                                   ActiveAgentTypeKey="@ViewState.ActiveAgentTypeKey"
+                                                   AgentTypes="LocalizedAgentTypes"
+                                                   Value="@ViewState.Input"
+                                                   ValueChanged="SetInputAsync"
+                                                   Placeholder="@L("CommandPlaceholder")"
+                                                   SubmitTitle="@L("CommandSubmitTitle")"
+                                                   OnAgentTypeSelected="e => SetAgentTypeAsync(e.AgentTypeKey)"
+                                                   class="shrink-0"
+                                                   OnSubmit="HandleSubmitAsync" />
+                            }
                         }
 
                         @if (PageOverlayBlock is { } pageOverlayBlock)
@@ -371,6 +376,15 @@
                                     }
                                 }
                             </div>
+                            <footer class="flex shrink-0 justify-start p-2">
+                                <button type="button"
+                                        data-testid="session-block-command-bar-toggle"
+                                        class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-border bg-background text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                        title="@L("ToggleCommandBar")"
+                                        @onclick="ToggleCommandBarAsync">
+                                    <Icon Name="terminal" Size="12" />
+                                </button>
+                            </footer>
                         </section>
                     </div>
                 </aside>
@@ -413,6 +427,7 @@
                                                         OnPinned="HandlePinnedAsync"
                                                         OnUnpinned="HandleUnpinnedAsync"
                                                         OnNodeNew="HandleNodeNewAsync"
+                                                        OnNodeRename="HandleNodeRenameAsync"
                                                         OnLoadChildren="OnLoadChildrenRequested"
                                                         ShowHeader="false"
                                                         class="min-h-0 flex-1 rounded-none border-0 bg-transparent" />
@@ -443,6 +458,7 @@
                                     OpenNodes="ViewState.OpenNodes"
                                     SelectedNode="CurrentSessionNode"
                                     PinnableTabs="true"
+                                    Flush="@HasMaximizedContent"
                                     PinnedTabIds="AppState.PinnedNodeIds"
                                     EmptyTitle="@L("EmptySessionTitle")"
                                     EmptyDescription="@L("EmptySessionDescription")"
@@ -554,17 +570,20 @@
                         }
                     </SessionContent>
 
-                    <SessionCommandBar State="ViewState"
-                                       SelectedNode="CurrentCommandContextNode"
-                                       ActiveAgentTypeKey="@ViewState.ActiveAgentTypeKey"
-                                       AgentTypes="LocalizedAgentTypes"
-                                       Value="@ViewState.Input"
-                                       ValueChanged="SetInputAsync"
-                                       Placeholder="@L("CommandPlaceholder")"
-                                       SubmitTitle="@L("CommandSubmitTitle")"
-                                       OnAgentTypeSelected="e => SetAgentTypeAsync(e.AgentTypeKey)"
-                                       class="shrink-0"
-                                       OnSubmit="HandleSubmitAsync" />
+                    @if (_isCommandBarVisible)
+                    {
+                        <SessionCommandBar State="ViewState"
+                                           SelectedNode="CurrentCommandContextNode"
+                                           ActiveAgentTypeKey="@ViewState.ActiveAgentTypeKey"
+                                           AgentTypes="LocalizedAgentTypes"
+                                           Value="@ViewState.Input"
+                                           ValueChanged="SetInputAsync"
+                                           Placeholder="@L("CommandPlaceholder")"
+                                           SubmitTitle="@L("CommandSubmitTitle")"
+                                           OnAgentTypeSelected="e => SetAgentTypeAsync(e.AgentTypeKey)"
+                                           class="shrink-0"
+                                           OnSubmit="HandleSubmitAsync" />
+                    }
 
                     @if (PageOverlayBlock is { } pageOverlayBlock)
                     {
@@ -652,6 +671,15 @@
                                 }
                             }
                         </div>
+                        <footer class="flex shrink-0 justify-start p-2">
+                            <button type="button"
+                                    data-testid="session-block-command-bar-toggle"
+                                    class="inline-flex h-7 w-7 items-center justify-center rounded-md border border-border bg-background text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                    title="@L("ToggleCommandBar")"
+                                    @onclick="ToggleCommandBarAsync">
+                                <Icon Name="terminal" Size="12" />
+                            </button>
+                        </footer>
                         </section>
                     </div>
                 </aside>

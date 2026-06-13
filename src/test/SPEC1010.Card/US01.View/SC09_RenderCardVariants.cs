@@ -56,6 +56,34 @@ public class SC09_RenderCardVariants : ViewScenario
         card.ClassList.ShouldContain("flex");
         card.ClassList.ShouldContain("min-h-full");
         card.ClassList.ShouldContain("w-full");
+        card.ClassList.ShouldContain("!rounded-none");
+    }
+
+    [Fact(DisplayName = "UAC06a2: Maximized card is marked square")]
+    [Trait(Spec.UAC, "06a2")]
+    public void UAC06a2_MaximizedCardIsSquare()
+    {
+        var cut = Ctx.Render<CardSut>(p => p.Add(x => x.Mode, CardSut.ModeMaximized));
+        var card = cut.Find("[data-slot='card']");
+        card.GetAttribute("data-square").ShouldBe("true");
+    }
+
+    [Fact(DisplayName = "UAC06b: Card header keeps top rounding when card is maximized")]
+    [Trait(Spec.UAC, "06b")]
+    public void UAC06b_CardHeaderKeepsTopRoundingWhenMaximized()
+    {
+        var cut = Ctx.Render<CardSut>(p => p
+            .Add(x => x.Mode, CardSut.ModeMaximized)
+            .AddChildContent(builder =>
+            {
+                builder.OpenComponent<CardHeader>(0);
+                builder.CloseComponent();
+                builder.OpenComponent<CardContent>(1);
+                builder.CloseComponent();
+            }));
+
+        var header = cut.Find("[data-slot='card-header']");
+        header.ClassList.ShouldNotContain("group-data-[mode=maximized]/card:rounded-t-none");
     }
 
     [Fact(DisplayName = "UAC07: Card overlay-app mode applies fixed viewport class")]
@@ -162,5 +190,78 @@ public class SC09_RenderCardVariants : ViewScenario
             .Click();
 
         changedMode.ShouldBe("minimized");
+    }
+
+    [Fact(DisplayName = "UAC13: CardModeMenu renders close button when mode is overlay-page")]
+    [Trait(Spec.UAC, "13")]
+    public void UAC13_CardModeMenuRendersCloseForOverlayPage()
+    {
+        var cut = Ctx.Render<CardModeMenu>(p => p.Add(x => x.Mode, CardSut.ModeOverlayPage));
+
+        cut.Find("[data-testid='card-mode-menu-close']").ShouldNotBeNull();
+        cut.FindAll("[data-testid='card-mode-menu-trigger']").Count.ShouldBe(0);
+    }
+
+    [Fact(DisplayName = "UAC14: CardModeMenu renders close button when mode is overlay-app")]
+    [Trait(Spec.UAC, "14")]
+    public void UAC14_CardModeMenuRendersCloseForOverlayApp()
+    {
+        var cut = Ctx.Render<CardModeMenu>(p => p.Add(x => x.Mode, CardSut.ModeOverlayApp));
+
+        cut.Find("[data-testid='card-mode-menu-close']").ShouldNotBeNull();
+        cut.FindAll("[data-testid='card-mode-menu-trigger']").Count.ShouldBe(0);
+    }
+
+    [Fact(DisplayName = "UAC15: CardModeMenu close button in overlay-page emits normal mode")]
+    [Trait(Spec.UAC, "15")]
+    public void UAC15_CardModeMenuCloseFromOverlayPageEmitsNormalMode()
+    {
+        string? changedMode = null;
+        var cut = Ctx.Render<CardModeMenu>(p => p
+            .Add(x => x.Mode, CardSut.ModeOverlayPage)
+            .Add(x => x.ModeChanged, mode => changedMode = mode));
+
+        cut.Find("[data-testid='card-mode-menu-close']").Click();
+
+        changedMode.ShouldBe("normal");
+    }
+
+    [Fact(DisplayName = "UAC18: CardModeMenu close button in overlay-app emits normal mode")]
+    [Trait(Spec.UAC, "18")]
+    public void UAC18_CardModeMenuCloseFromOverlayAppEmitsNormalMode()
+    {
+        string? changedMode = null;
+        var cut = Ctx.Render<CardModeMenu>(p => p
+            .Add(x => x.Mode, CardSut.ModeOverlayApp)
+            .Add(x => x.ModeChanged, mode => changedMode = mode));
+
+        cut.Find("[data-testid='card-mode-menu-close']").Click();
+
+        changedMode.ShouldBe("normal");
+    }
+
+    [Fact(DisplayName = "UAC16: CardModeMenu renders expand caret when mode is minimized")]
+    [Trait(Spec.UAC, "16")]
+    public void UAC16_CardModeMenuRendersExpandCaretForMinimized()
+    {
+        var cut = Ctx.Render<CardModeMenu>(p => p.Add(x => x.Mode, CardSut.ModeMinimized));
+
+        cut.Find("[data-testid='card-mode-menu-expand']").ShouldNotBeNull();
+        cut.FindAll("[data-testid='card-mode-menu-trigger']").Count.ShouldBe(0);
+        cut.FindAll("[data-testid='card-mode-menu-close']").Count.ShouldBe(0);
+    }
+
+    [Fact(DisplayName = "UAC17: CardModeMenu expand caret emits normal mode")]
+    [Trait(Spec.UAC, "17")]
+    public void UAC17_CardModeMenuExpandCaretEmitsNormalMode()
+    {
+        string? changedMode = null;
+        var cut = Ctx.Render<CardModeMenu>(p => p
+            .Add(x => x.Mode, CardSut.ModeMinimized)
+            .Add(x => x.ModeChanged, mode => changedMode = mode));
+
+        cut.Find("[data-testid='card-mode-menu-expand']").Click();
+
+        changedMode.ShouldBe("normal");
     }
 }

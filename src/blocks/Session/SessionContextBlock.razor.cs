@@ -40,9 +40,16 @@ public partial class SessionContextBlock : TinyComponentBase
         NormalizedMode != ModeMinimized &&
         (NormalizedMode != ModeOverlayPage || IsPageOverlayProjection);
 
-    private string GetHeaderClass() => IsPageOverlayProjection
-        ? "h-10 shrink-0 gap-2 border-b border-border bg-background px-3 py-0"
-        : "border-b border-border bg-muted/30 px-3 py-2";
+    private bool IsSquareMode =>
+        NormalizedMode is ModeMaximized or ModeOverlayApp;
+
+    private string GetHeaderClass() => NormalizedMode switch
+    {
+        ModeMaximized or ModeOverlayApp => "border-b border-border border-x-transparent border-t-transparent bg-muted/30 px-3 py-2",
+        _ => IsPageOverlayProjection
+            ? "h-10 shrink-0 gap-2 border-b border-border bg-background px-3 py-0"
+            : "border-b border-border bg-muted/30 px-3 py-2"
+    };
 
     private string? GetHeaderStyle() => IsPageOverlayProjection
         ? "grid-template-rows:1fr;"
@@ -52,11 +59,11 @@ public partial class SessionContextBlock : TinyComponentBase
     {
         var baseClass = NormalizedMode switch
         {
-            ModeMaximized => "flex min-h-full w-full flex-col overflow-hidden bg-background gap-0 py-0",
-            ModeOverlayPage when IsPageOverlayProjection => "flex min-h-full w-full flex-col overflow-hidden bg-background gap-0 py-0",
+            ModeMaximized => "flex min-h-full w-full flex-col overflow-hidden bg-background gap-0 py-0 !rounded-none",
+            ModeOverlayPage when IsPageOverlayProjection => "flex min-h-full w-full flex-col overflow-hidden bg-background gap-0 py-0 !rounded-none",
             ModeOverlayPage => "w-full overflow-hidden bg-background gap-0 py-0 opacity-60",
-            ModeOverlayApp when !string.IsNullOrWhiteSpace(AppOverlayContainerClass) => AppOverlayContainerClass,
-            ModeOverlayApp => "fixed inset-0 z-50 flex h-dvh w-dvw flex-col overflow-hidden rounded-none bg-background gap-0 py-0",
+            ModeOverlayApp when !string.IsNullOrWhiteSpace(AppOverlayContainerClass) => $"{AppOverlayContainerClass} !rounded-none",
+            ModeOverlayApp => "fixed inset-0 z-50 flex h-dvh w-dvw flex-col overflow-hidden bg-background gap-0 py-0 !rounded-none",
             _ => "w-full overflow-hidden bg-background gap-0 py-0"
         };
 

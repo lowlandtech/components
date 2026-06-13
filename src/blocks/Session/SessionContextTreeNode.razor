@@ -2,7 +2,7 @@
 @inherits TinyComponentBase
 
 <div>
-    <div class="flex items-center gap-1 rounded-sm hover:bg-muted/60 data-[projected=true]:bg-primary/10"
+    <div class="group flex items-center gap-1 rounded-sm hover:bg-muted/60 data-[projected=true]:bg-primary/10"
          style="padding-left: @(Math.Max(0, Depth) * 0.75 + 0.5)rem;"
          data-projected="@(Projection?.Node.Id == Item.Node.Id ? "true" : "false")">
         <button type="button"
@@ -29,8 +29,7 @@
                 <Icon Paths="@NodeIcon" Size="14" class="shrink-0 text-muted-foreground" />
             }
 
-            <span class="min-w-0 flex-1 truncate">@Item.Node.Label</span>
-            <span class="shrink-0 text-[10px] text-muted-foreground">@Item.Node.NodeTypeKey</span>
+            <span class="min-w-0 flex-1 truncate" title="@Item.Node.NodeTypeKey">@Item.Node.Label</span>
         </button>
         <span class="inline-flex items-center gap-0.5">
             @if (IsHeader)
@@ -47,7 +46,7 @@
             }
             <span id="popover-anchor-@PopoverId" class="inline-flex">
                 <button type="button"
-                        class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm text-muted-foreground"
+                        class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100"
                         data-testid="session-context-node-menu-trigger"
                         data-node-id="@Item.Node.Id"
                         title="@L("Options")"

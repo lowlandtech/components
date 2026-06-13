@@ -48,6 +48,8 @@ public sealed class SC08_SessionCreate : ViewScenario
         // Sidebar switches to active-session view (back button appears in embedded mode)
         cut.Find("[data-slot='session-block-sidebar-back']").ShouldNotBeNull();
 
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+
         // Command bar shows the create agent type as active
         var createAgent = cut.Find("[data-agent-type='create']");
         createAgent.GetAttribute("data-active").ShouldBe("true");
@@ -115,6 +117,8 @@ public sealed class SC08_SessionCreate : ViewScenario
         stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("create");
         var sessionId = stateService.State.ActiveSessionId;
         sessionId.ShouldNotBeNull();
+
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
 
         // Type the session title and submit
         cut.Find("[data-testid='session-command-input']").Input("My New Session");

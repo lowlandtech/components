@@ -7,7 +7,8 @@
       data-mode="@NormalizedMode"
       Variant="outlined"
       Elevation="0"
-    style="padding-block:0;"
+      Square="@IsSquareMode"
+      style="padding-block:0;"
       class="@GetClass()"
       @attributes="AdditionalAttributes">
     <CardHeader class="@GetHeaderClass()" style="@GetHeaderStyle()">
@@ -35,6 +36,8 @@
                 Mode="@NormalizedMode"
                 ModeChanged="OnModeChangedAsync"
                 TitleTooltip="@L("ViewOptions")"
+                CloseTooltip="@L("Close")"
+                ExpandTooltip="@L("Expand")"
                 ViewLabel="@L("View")"
                 NormalLabel="@L("Normal")"
                 MinimizedLabel="@L("Minimized")"

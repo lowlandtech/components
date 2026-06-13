@@ -14,6 +14,7 @@ public partial class SessionContent : TinyComponentBase
     [Parameter] public bool DraggableTabs { get; set; }
     [Parameter] public IReadOnlySet<string>? PinnedTabIds { get; set; }
     [Parameter] public RenderFragment? HeaderLeading { get; set; }
+    [Parameter] public bool Flush { get; set; }
     [Parameter] public EventCallback<SessionNodeSelected> OnSelected { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnClosed { get; set; }
     [Parameter] public EventCallback<TabsItem> OnTabPinnedChanged { get; set; }
@@ -43,6 +44,14 @@ public partial class SessionContent : TinyComponentBase
         var baseClass = "flex min-h-0 w-full flex-col overflow-hidden rounded-lg border border-border bg-background";
         return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
     }
+
+    private string GetBodyClass() => Flush
+        ? "session-content-body min-h-0 flex-1 overflow-y-auto overflow-x-hidden"
+        : "session-content-body min-h-0 flex-1 overflow-y-auto overflow-x-hidden space-y-3";
+
+    private string? GetBodyStyle() => Flush
+        ? null
+        : "padding:10px 0 10px 10px; scrollbar-gutter: stable;";
 
     private async Task SelectAsync(SessionNodeInput node)
     {

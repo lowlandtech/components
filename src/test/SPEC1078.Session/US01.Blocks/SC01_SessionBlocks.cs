@@ -228,6 +228,20 @@ public class SC01_SessionBlocks : ViewScenario
         style.ShouldBe("padding:10px 0 10px 10px; scrollbar-gutter: stable;");
     }
 
+    [Fact(DisplayName = "UAC06c: SessionContent flush mode removes body padding and vertical spacing")]
+    [Trait(Spec.UAC, "06c")]
+    public void UAC06c_SessionContentFlushModeRemovesPaddingAndSpacing()
+    {
+        var cut = Ctx.Render<SessionContent>(p => p
+            .Add(x => x.OpenNodes, [OrdersNode])
+            .Add(x => x.SelectedNode, OrdersNode)
+            .Add(x => x.Flush, true));
+
+        var body = cut.Find("[data-slot='session-content-body']");
+        body.ClassList.ShouldNotContain("space-y-3");
+        body.GetAttribute("style").ShouldBeNull();
+    }
+
     [Fact(DisplayName = "UAC07: SessionCommandBar replaces send icon with loader while busy")]
     [Trait(Spec.UAC, "07")]
     public void UAC07_CommandBarShowsBusyLoader()
@@ -350,6 +364,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.StateService, stateService));
 
         cut.Find("[data-node-id='orders-session']").Click();
+        ClickShowCommandBar(cut);
         cut.Find("[data-testid='session-command-input']").Input("Trace all state changes");
         cut.Find("[data-testid='session-command-submit']").Click();
         cut.Find("[data-testid='session-block-settings-button']").Click();
@@ -377,6 +392,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.StateService, stateService));
 
         cut.Find("[data-node-id='orders-session']").Click();
+        ClickShowCommandBar(cut);
         cut.Find("[data-testid='session-command-input']").Input("Clear journal");
         cut.Find("[data-testid='session-command-submit']").Click();
         cut.Find("[data-testid='session-block-settings-button']").Click();
@@ -556,6 +572,7 @@ public class SC01_SessionBlocks : ViewScenario
         ClickOpenContextNodePin();
         cut.Find("[data-slot='session-context-block']").ShouldNotBeNull();
 
+        ClickShowCommandBar(cut);
         cut.Find("[data-testid='session-command-input']").Input("Summarize invoice risk");
         cut.Find("[data-testid='session-command-submit']").Click();
 
@@ -572,6 +589,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.TestStreamDelayMilliseconds, 0));
 
         cut.Find("[data-node-id='orders-session']").Click();
+        ClickShowCommandBar(cut);
 
         cut.Find("[data-testid='session-command-input']").Input("Hello test");
         cut.Find("[data-testid='session-command-submit']").Click();
@@ -592,6 +610,7 @@ public class SC01_SessionBlocks : ViewScenario
         var cut = Ctx.Render<Components.SessionBlock>();
 
         cut.Find("[data-node-id='orders-session']").Click();
+        ClickShowCommandBar(cut);
 
         cut.Find("[data-testid='session-command-input']").Input("First question");
         cut.Find("[data-testid='session-command-submit']").Click();
@@ -622,6 +641,8 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-node-id='invoice-approval']").Click();
         cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
         ClickOpenContextNodePin();
+
+        ClickShowCommandBar(cut);
 
         // Submit first command
         cut.Find("[data-testid='session-command-input']").Input("First question");
@@ -674,6 +695,8 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
         ClickOpenContextNodePin();
 
+        ClickShowCommandBar(cut);
+
         cut.Find("[data-testid='session-command-input']").Input("First test ask");
         cut.Find("[data-testid='session-command-submit']").Click();
 
@@ -714,6 +737,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.TestStreamDelayMilliseconds, 0));
 
         cut.Find("[data-node-id='orders-session']").Click();
+        ClickShowCommandBar(cut);
 
         cut.Find("[data-testid='session-command-input']").Input("Same run");
         cut.Find("[data-testid='session-command-submit']").Click();
@@ -738,27 +762,32 @@ public class SC01_SessionBlocks : ViewScenario
         cut.FindAll("[data-testid='session-block-section-link']").Count.ShouldBe(3);
     }
 
-    [Fact(DisplayName = "UAC17: SessionBlock projects one transient feed block and replaces it on context selection change")]
+    [Fact(DisplayName = "UAC17: SessionBlock projects one transient block and replaces it on context selection change")]
     [Trait(Spec.UAC, "17")]
     public void UAC17_SessionBlockReplacesProjectedFeedBlock()
     {
-        var cut = Ctx.Render<Components.SessionBlock>(p => p
-            .Add(x => x.DefaultContextCardMode, SessionContextBlock.ModeNormal));
+        var cut = Ctx.Render<Components.SessionBlock>();
 
         cut.Find("[data-node-id='release-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
 
-        var projectedBlock = cut.Find("[data-block-id='projected-context-block']");
+        var overlay = cut.Find("[data-slot='session-block-page-overlay']");
+        var projectedBlock = overlay.QuerySelector("[data-block-id='projected-context-block']");
+        projectedBlock.ShouldNotBeNull();
+        projectedBlock!.GetAttribute("data-mode").ShouldBe(SessionContextBlock.ModeOverlayPage);
         projectedBlock.TextContent.ShouldContain("Invoice approval");
-        projectedBlock.TextContent.ShouldContain("Node type: invoice");
+        projectedBlock.TextContent.ShouldContain("invoice");
 
         cut.Find("[data-node-id='shipment-delay']").Click();
 
-        cut.FindAll("[data-block-id='projected-context-block']").Count.ShouldBe(1);
-        projectedBlock = cut.Find("[data-block-id='projected-context-block']");
+        overlay = cut.Find("[data-slot='session-block-page-overlay']");
+        overlay.QuerySelectorAll("[data-block-id='projected-context-block']").Count.ShouldBe(1);
+        projectedBlock = overlay.QuerySelector("[data-block-id='projected-context-block']");
+        projectedBlock.ShouldNotBeNull();
+        projectedBlock!.GetAttribute("data-mode").ShouldBe(SessionContextBlock.ModeOverlayPage);
         projectedBlock.TextContent.ShouldContain("Shipment delay");
-        projectedBlock.TextContent.ShouldContain("Node type: shipment");
-        projectedBlock.TextContent.ShouldNotContain("Node type: invoice");
+        projectedBlock.TextContent.ShouldContain("shipment");
+        projectedBlock.TextContent.ShouldNotContain("Invoice approval");
     }
 
     [Fact(DisplayName = "UAC17c: SessionBlock opens a clicked context card in Page Overlay mode by default")]
@@ -778,22 +807,22 @@ public class SC01_SessionBlocks : ViewScenario
         overlay.TextContent.ShouldContain("Invoice approval");
     }
 
-    [Fact(DisplayName = "UAC17d: SessionBlock allows the default context card mode to be configured")]
+    [Fact(DisplayName = "UAC17d: SessionBlock opens a clicked context card in Maximized mode when the command bar is visible")]
     [Trait(Spec.UAC, "17d")]
-    [Given("an active session configured to open clicked context cards in Normal mode")]
+    [Given("an active session with the command bar visible")]
     [When("a context node is clicked")]
-    [Then("the transient context card remains inline in the session feed")]
-    public void UAC17d_SessionBlockSupportsConfiguredContextCardMode()
+    [Then("the transient context card opens in Maximized mode")]
+    public void UAC17d_SessionBlockOpensClickedContextInMaximizedWhenCommandBarVisible()
     {
-        var cut = Ctx.Render<Components.SessionBlock>(p => p
-            .Add(x => x.DefaultContextCardMode, SessionContextBlock.ModeNormal));
+        var cut = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
-        cut.Find("[data-node-id='release-session']").Click();
+        cut.Find("[data-node-id='orders-session']").Click();
+        ClickShowCommandBar(cut);
         cut.Find("[data-node-id='invoice-approval']").Click();
 
-        cut.FindAll("[data-slot='session-block-page-overlay']").ShouldBeEmpty();
-        cut.Find("[data-slot='session-block-feed'] [data-block-id='projected-context-block'][data-mode='normal']")
+        cut.Find("[data-slot='session-block-maximized-block'] [data-block-id='projected-context-block'][data-mode='maximized']")
             .ShouldNotBeNull();
+        cut.FindAll("[data-slot='session-block-page-overlay']").ShouldBeEmpty();
     }
 
     [Fact(DisplayName = "UAC17e: SessionBlock double-click pins a context card in Normal mode")]
@@ -811,36 +840,6 @@ public class SC01_SessionBlocks : ViewScenario
         cut.FindAll("[data-slot='session-block-page-overlay']").ShouldBeEmpty();
         cut.Find("[data-slot='session-block-feed'] [data-block-id='context-block:invoice-approval'][data-mode='normal']")
             .ShouldNotBeNull();
-    }
-
-    [Fact(DisplayName = "UAC17b: SessionBlock moves a newly selected projection to the end of the session feed")]
-    [Trait(Spec.UAC, "17b")]
-    public void UAC17b_SessionBlockMovesProjectionToFeedTailOnSelection()
-    {
-        var cut = Ctx.Render<Components.SessionBlock>(p => p
-            .Add(x => x.IsTest, true)
-            .Add(x => x.TestStreamDelayMilliseconds, 0));
-
-        cut.Find("[data-node-id='orders-session']").Click();
-
-        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='shipment-delay']").Click();
-        ClickOpenContextNodePin();
-
-        cut.Find("[data-testid='session-command-input']").Input("Earlier response");
-        cut.Find("[data-testid='session-command-submit']").Click();
-
-        cut.Find("[data-node-id='northwind']").Click();
-
-        var feedText = cut.Find("[data-slot='session-block-feed']").TextContent;
-        var pinnedIndex = feedText.IndexOf("Shipment delay", StringComparison.Ordinal);
-        var responseIndex = feedText.IndexOf("Earlier response", StringComparison.Ordinal);
-        var projectedIndex = feedText.IndexOf("Northwind Traders", StringComparison.Ordinal);
-
-        pinnedIndex.ShouldBeGreaterThan(-1);
-        responseIndex.ShouldBeGreaterThan(-1);
-        projectedIndex.ShouldBeGreaterThan(-1);
-        pinnedIndex.ShouldBeLessThan(responseIndex);
-        responseIndex.ShouldBeLessThan(projectedIndex);
     }
 
     [Fact(DisplayName = "UAC18: SessionBlock keeps projected context scoped to the active session")]
@@ -1089,8 +1088,8 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-node-id='orders-session']").Click();
         cut.Find("[data-node-id='invoice-approval']").Click();
 
-        cut.Find("[data-block-id='projected-context-block'] [data-testid='card-mode-menu-trigger']").Click();
-        ClickOpenCardMode("Maximized");
+        // Overlay cards now show a close button; use the command-bar toggle to promote to Maximized.
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
 
         var maximized = cut.Find("[data-slot='session-block-maximized-block']");
         maximized.GetAttribute("data-block-id").ShouldBe("projected-context-block");
@@ -1103,29 +1102,6 @@ public class SC01_SessionBlocks : ViewScenario
 
         cut.FindAll("[data-slot='session-block-maximized-block']").ShouldBeEmpty();
         cut.Find("[data-slot='session-block-feed']").ShouldNotBeNull();
-    }
-
-    [Fact(DisplayName = "UAC28b: SessionBlock keeps a feed context block minimized after the mode change rerenders the host")]
-    [Trait(Spec.UAC, "28b")]
-    public void UAC28b_SessionBlockPersistsMinimizedBlockMode()
-    {
-        var cut = Ctx.Render<Components.SessionBlock>(p => p
-            .Add(x => x.DefaultContextCardMode, SessionContextBlock.ModeNormal));
-
-        cut.Find("[data-node-id='orders-session']").Click();
-        cut.Find("[data-node-id='invoice-approval']").Click();
-
-        cut.Find("[data-block-id='projected-context-block'] [data-testid='card-mode-menu-trigger']").Click();
-        ClickOpenCardMode("Minimized");
-
-        var minimized = cut.Find("[data-block-id='projected-context-block'][data-mode='minimized']");
-        minimized.ShouldNotBeNull();
-        minimized.QuerySelectorAll("[data-slot='card-content']").Count.ShouldBe(0);
-        minimized.TextContent.ShouldContain("Invoice approval");
-
-        cut.Find("[data-node-id='shipment-delay']").Click();
-
-        cut.Find("[data-block-id='projected-context-block'][data-mode='minimized']").ShouldNotBeNull();
     }
 
     [Fact(DisplayName = "UAC28c: SessionBlock keeps a pinned context block minimized in the feed")]
@@ -1151,33 +1127,6 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-block-id='context-block:shipment-delay'][data-mode='minimized']").ShouldNotBeNull();
     }
 
-    [Fact(DisplayName = "UAC28d: SessionBlock moves the projected block behind a newly appended response")]
-    [Trait(Spec.UAC, "28d")]
-    public void UAC28d_SessionBlockMovesProjectionBehindNewResponses()
-    {
-        var cut = Ctx.Render<Components.SessionBlock>(p => p
-            .Add(x => x.IsTest, true)
-            .Add(x => x.TestStreamDelayMilliseconds, 0));
-
-        cut.Find("[data-node-id='orders-session']").Click();
-        cut.Find("[data-node-id='invoice-approval']").Click();
-
-        var initialFeed = cut.Find("[data-slot='session-block-feed']").TextContent;
-        initialFeed.IndexOf("Invoice approval", StringComparison.Ordinal)
-            .ShouldBeGreaterThan(initialFeed.IndexOf("Release context", StringComparison.Ordinal));
-
-        cut.Find("[data-testid='session-command-input']").Input("Move projection after this response");
-        cut.Find("[data-testid='session-command-submit']").Click();
-
-        var updatedFeed = cut.Find("[data-slot='session-block-feed']").TextContent;
-        var responseIndex = updatedFeed.IndexOf("Move projection after this response", StringComparison.Ordinal);
-        var projectionIndex = updatedFeed.IndexOf("Invoice approval", StringComparison.Ordinal);
-
-        responseIndex.ShouldBeGreaterThan(-1);
-        projectionIndex.ShouldBeGreaterThan(-1);
-        responseIndex.ShouldBeLessThan(projectionIndex);
-    }
-
     [Fact(DisplayName = "UAC29: SessionBlock maximized agent card replaces the tab body content")]
     [Trait(Spec.UAC, "29")]
     public void UAC29_SessionBlockMaximizedAgentCardOverlaysTabContent()
@@ -1187,6 +1136,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.TestStreamDelayMilliseconds, 0));
 
         cut.Find("[data-node-id='orders-session']").Click();
+        ClickShowCommandBar(cut);
         cut.Find("[data-testid='session-command-input']").Input("Maximize this answer");
         cut.Find("[data-testid='session-command-submit']").Click();
 
@@ -1614,6 +1564,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.AppOverlayContainerClass, "session-block-overlay absolute inset-0 z-50 flex h-full w-full flex-col"));
 
         cut.Find("[data-node-id='orders-session']").Click();
+        ClickShowCommandBar(cut);
         cut.Find("[data-testid='session-command-input']").Input("Use the session overlay");
         cut.Find("[data-testid='session-command-submit']").Click();
 
@@ -1643,6 +1594,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.PageOverlayContainerClass, "session-page-overlay absolute inset-0 z-40 flex h-full w-full flex-col"));
 
         cut.Find("[data-node-id='orders-session']").Click();
+        ClickShowCommandBar(cut);
         cut.Find("[data-testid='session-command-input']").Input("Use the page overlay");
         cut.Find("[data-testid='session-command-submit']").Click();
 
@@ -1778,8 +1730,13 @@ public class SC01_SessionBlocks : ViewScenario
         });
 
         fragmentCut.FindAll(".node-menu-item")
-            .Single(item => string.Equals(item.TextContent.Trim(), label, StringComparison.Ordinal))
+            .Single(item => item.TextContent.Trim().Contains(label, StringComparison.Ordinal))
             .Click();
+    }
+
+    private static void ClickShowCommandBar(IRenderedComponent<Components.SessionBlock> cut)
+    {
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
     }
 
     private static string FindSessionCount(IRenderedComponent<Components.SessionBlock> cut, string sessionId) =>
@@ -1902,6 +1859,7 @@ public class SC01_SessionBlocks : ViewScenario
         var cut = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
         cut.Find("[data-node-id='orders-session']").Click();
+        ClickShowCommandBar(cut);
 
         var main = cut.Find("[data-slot='session-block-main-content']");
         main.ClassList.ShouldContain("overflow-hidden");
@@ -1980,5 +1938,185 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.IsPinned, true));
 
         cut.Markup.ShouldContain(">Pinned<");
+    }
+
+    [Fact(DisplayName = "UAC39: SessionBlock command bar is hidden by default and a toggle renders in the right sidebar")]
+    [Trait(Spec.UAC, "39")]
+    [Given("a SessionBlock with an active session")]
+    [When("the component renders")]
+    [Then("the command bar is absent and the toggle button is present")]
+    public void UAC39_CommandBarHiddenByDefaultWithToggle()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.HasSidebar, true));
+
+        cut.Find("[data-testid='session-block-command-bar-toggle']").ShouldNotBeNull();
+        cut.FindAll("[data-slot='session-command-bar']").Count.ShouldBe(0);
+    }
+
+    [Fact(DisplayName = "UAC40: SessionBlock command bar toggle shows and hides the command bar")]
+    [Trait(Spec.UAC, "40")]
+    [Given("a SessionBlock with the command bar hidden")]
+    [When("the right-sidebar toggle is clicked")]
+    [Then("the command bar appears; clicking again hides it")]
+    public void UAC40_CommandBarToggleShowsAndHides()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.HasSidebar, true));
+
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+        cut.Find("[data-slot='session-command-bar']").ShouldNotBeNull();
+
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+        cut.FindAll("[data-slot='session-command-bar']").Count.ShouldBe(0);
+    }
+
+    [Fact(DisplayName = "UAC41: SessionBlock command bar toggle persists visibility to localStorage")]
+    [Trait(Spec.UAC, "41")]
+    [Given("a SessionBlock with a custom command-bar visibility persistence key")]
+    [When("the toggle is clicked")]
+    [Then("localStorage receives true; clicking again writes false")]
+    public void UAC41_CommandBarTogglePersistsVisibility()
+    {
+        const string persistKey = "session-block:test:command-bar-visible";
+        Ctx.JSInterop.Setup<string?>("localStorage.getItem", persistKey).SetResult(null);
+        Ctx.JSInterop.SetupVoid("localStorage.setItem", _ => true);
+
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.CommandBarVisiblePersistKey, persistKey));
+
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+
+        var writes = Ctx.JSInterop.Invocations
+            .Where(invocation => invocation.Identifier == "localStorage.setItem"
+                                 && string.Equals(invocation.Arguments[0]?.ToString(), persistKey, StringComparison.Ordinal))
+            .ToList();
+
+        writes.Count.ShouldBe(1);
+        writes[0].Arguments[1].ShouldBe("true");
+
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+
+        writes = Ctx.JSInterop.Invocations
+            .Where(invocation => invocation.Identifier == "localStorage.setItem"
+                                 && string.Equals(invocation.Arguments[0]?.ToString(), persistKey, StringComparison.Ordinal))
+            .ToList();
+
+        writes.Count.ShouldBe(2);
+        writes[1].Arguments[1].ShouldBe("false");
+    }
+
+    [Fact(DisplayName = "UAC42: SessionBlock command bar hydrates visibility from localStorage")]
+    [Trait(Spec.UAC, "42")]
+    [Given("localStorage contains true for the command-bar visibility key")]
+    [When("the SessionBlock hydrates after first render")]
+    [Then("the command bar is rendered without requiring a toggle click")]
+    public void UAC42_CommandBarHydratesVisibilityFromLocalStorage()
+    {
+        const string persistKey = "session-block:test:command-bar-visible";
+        Ctx.JSInterop.Setup<string?>("localStorage.getItem", persistKey).SetResult("true");
+
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.CommandBarVisiblePersistKey, persistKey));
+
+        cut.Find("[data-slot='session-command-bar']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC43: SessionBlock keeps main content padding while maximizing a card")]
+    [Trait(Spec.UAC, "43")]
+    [Given("a SessionBlock with a context card in Page Overlay mode")]
+    [When("the command bar is shown and the card is promoted to Maximized")]
+    [Then("the main content panel keeps its padding and the card is square")]
+    public void UAC43_MaximizedCardKeepsMainContentPadding()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>();
+
+        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='invoice-approval']").Click();
+
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+
+        cut.Find("[data-slot='session-block-main-content']")
+            .GetAttribute("style")
+            .ShouldBe("padding:10px 6px 10px 10px;");
+
+        var squaredCards = cut.FindAll("[data-square='true']");
+        squaredCards.Count.ShouldBe(1);
+        squaredCards[0].ClassList.ShouldContain("!rounded-none");
+    }
+
+    [Fact(DisplayName = "UAC44: Showing the command bar promotes a page-overlay card to Maximized")]
+    [Trait(Spec.UAC, "44")]
+    [Given("a SessionBlock with a context card in Page Overlay mode")]
+    [When("the command-bar toggle is clicked to show the bar")]
+    [Then("the card leaves Page Overlay and renders as Maximized")]
+    public void UAC44_ShowingCommandBarPromotesPageOverlayToMaximized()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>();
+
+        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='invoice-approval']").Click();
+
+        cut.Find("[data-slot='session-block-page-overlay']").ShouldNotBeNull();
+        cut.FindAll("[data-slot='session-block-maximized-block']").Count.ShouldBe(0);
+
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+
+        cut.FindAll("[data-slot='session-block-page-overlay']").Count.ShouldBe(0);
+        cut.Find("[data-slot='session-block-maximized-block']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC45: Showing the command bar promotes an app-overlay card to Maximized")]
+    [Trait(Spec.UAC, "45")]
+    [Given("a SessionBlock with a context card in App Overlay mode")]
+    [When("the command-bar toggle is clicked to show the bar")]
+    [Then("the card leaves App Overlay and renders as Maximized")]
+    public void UAC45_ShowingCommandBarPromotesAppOverlayToMaximized()
+    {
+        var stateService = new SessionStateService();
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.StateService, stateService)
+            .Add(x => x.AppOverlayContainerClass, "session-block-overlay absolute inset-0 z-50 flex h-full w-full flex-col"));
+
+        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='invoice-approval']").Click();
+
+        var projectedBlock = stateService.State.Ui.ContextBlocks?
+            .FirstOrDefault(b => string.Equals(b.Id, "projected-context-block", StringComparison.Ordinal));
+        projectedBlock.ShouldNotBeNull();
+        stateService.SetBlockMode(projectedBlock!, SessionContextBlock.ModeOverlayApp);
+
+        cut.Find("[data-mode='overlay-app']").ShouldNotBeNull();
+        cut.FindAll("[data-slot='session-block-maximized-block']").Count.ShouldBe(0);
+
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+
+        cut.FindAll("[data-mode='overlay-app']").Count.ShouldBe(0);
+        cut.Find("[data-slot='session-block-maximized-block']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC46: Hiding the command bar demotes a maximized card to Page Overlay")]
+    [Trait(Spec.UAC, "46")]
+    [Given("a SessionBlock with a context card in Maximized mode")]
+    [When("the command-bar toggle is clicked to hide the bar")]
+    [Then("the card leaves Maximized and renders as Page Overlay")]
+    public void UAC46_HidingCommandBarDemotesMaximizedToPageOverlay()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>();
+
+        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='invoice-approval']").Click();
+
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+
+        cut.Find("[data-slot='session-block-maximized-block']").ShouldNotBeNull();
+        cut.FindAll("[data-slot='session-block-page-overlay']").Count.ShouldBe(0);
+
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+
+        cut.FindAll("[data-slot='session-block-maximized-block']").Count.ShouldBe(0);
+        cut.Find("[data-slot='session-block-page-overlay']")
+            .QuerySelector("[data-block-id='projected-context-block'][data-mode='overlay-page']")
+            .ShouldNotBeNull();
     }
 }

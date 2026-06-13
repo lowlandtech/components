@@ -12,6 +12,10 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     private bool _isHydratingStandaloneSidebar;
     private int _standaloneSidebarChangeVersion;
     private string? _hydratedSidebarPersistKey;
+    private bool _isCommandBarVisible;
+    private bool _isHydratingCommandBar;
+    private int _commandBarChangeVersion;
+    private string? _hydratedCommandBarPersistKey;
     private readonly List<SessionListEntry> _createdSessions = [];
 
     [Parameter] public IReadOnlyList<SessionListEntry> Sessions { get; set; } =
@@ -43,9 +47,9 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     [Parameter] public int TestStreamDelayMilliseconds { get; set; } = 35;
     [Parameter] public bool HasSidebar { get; set; }
     [Parameter] public string SidebarPersistKey { get; set; } = "session-block:sidebar-open";
+    [Parameter] public string CommandBarVisiblePersistKey { get; set; } = "session-block:command-bar-visible";
     [Parameter] public int? SidebarWidth { get; set; }
     [Parameter] public string Variant { get; set; } = "outlined";
-    [Parameter] public string DefaultContextCardMode { get; set; } = SessionContextBlock.ModeOverlayPage;
     [Parameter] public string? PageOverlayContainerClass { get; set; }
     [Parameter] public string? AppOverlayContainerClass { get; set; }
     [Parameter] public SessionStateService? StateService { get; set; }
@@ -92,6 +96,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await HydrateStandaloneSidebarAsync();
+        await HydrateCommandBarAsync();
 
         if (!string.IsNullOrWhiteSpace(AppState.PendingScrollSectionId))
         {
@@ -136,6 +141,8 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     private SessionContextBlockModel? MaximizedBlock => SessionState.GetMaximizedBlock(Sessions);
 
     private SessionCommandSubmitted? MaximizedCommand => SessionState.GetMaximizedCommand();
+
+    private bool HasMaximizedContent => MaximizedBlock is not null || MaximizedCommand is not null;
 
     private SessionContextBlockModel? PageOverlayBlock => SessionState.GetPageOverlayBlock(Sessions);
 
@@ -316,6 +323,158 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         }
     }
 
+    private async Task ToggleCommandBarAsync()
+    {
+        var wasVisible = _isCommandBarVisible;
+        _isCommandBarVisible = !_isCommandBarVisible;
+        _commandBarChangeVersion++;
+        await PersistCommandBarAsync();
+
+        if (!wasVisible)
+        {
+            PromoteActiveCardToMaximized();
+        }
+        else
+        {
+            DemoteActiveCardToPageOverlay();
+        }
+    }
+
+    private async Task ShowCommandBarAsync()
+    {
+        if (_isCommandBarVisible) return;
+        _isCommandBarVisible = true;
+        _commandBarChangeVersion++;
+        await PersistCommandBarAsync();
+    }
+
+    private void PromoteActiveCardToMaximized()
+    {
+        if (PageOverlayBlock is { } pageOverlayBlock)
+        {
+            SessionState.SetBlockMode(pageOverlayBlock, SessionContextBlock.ModeMaximized);
+            return;
+        }
+
+        if (PageOverlayCommand is { } pageOverlayCommand)
+        {
+            SessionState.SetCommandMode(pageOverlayCommand, SessionContextBlock.ModeMaximized);
+            return;
+        }
+
+        if (AppOverlayBlock is { } appOverlayBlock)
+        {
+            SessionState.SetBlockMode(appOverlayBlock, SessionContextBlock.ModeMaximized);
+            return;
+        }
+
+        if (AppOverlayCommand is { } appOverlayCommand)
+        {
+            SessionState.SetCommandMode(appOverlayCommand, SessionContextBlock.ModeMaximized);
+            return;
+        }
+
+        if (GetProjectedBlock() is { } projectedBlock)
+        {
+            SessionState.SetBlockMode(projectedBlock, SessionContextBlock.ModeMaximized);
+        }
+    }
+
+    private void DemoteActiveCardToPageOverlay()
+    {
+        if (MaximizedBlock is { } maximizedBlock && IsProjectedBlock(maximizedBlock))
+        {
+            SessionState.SetBlockMode(maximizedBlock, SessionContextBlock.ModeOverlayPage);
+            return;
+        }
+
+        if (MaximizedCommand is { } maximizedCommand)
+        {
+            SessionState.SetCommandMode(maximizedCommand, SessionContextBlock.ModeOverlayPage);
+            return;
+        }
+
+        if (AppOverlayBlock is { } appOverlayBlock && IsProjectedBlock(appOverlayBlock))
+        {
+            SessionState.SetBlockMode(appOverlayBlock, SessionContextBlock.ModeOverlayPage);
+            return;
+        }
+
+        if (AppOverlayCommand is { } appOverlayCommand)
+        {
+            SessionState.SetCommandMode(appOverlayCommand, SessionContextBlock.ModeOverlayPage);
+            return;
+        }
+
+        if (GetProjectedBlock() is { } projectedBlock)
+        {
+            SessionState.SetBlockMode(projectedBlock, SessionContextBlock.ModeOverlayPage);
+        }
+    }
+
+    private SessionContextBlockModel? GetProjectedBlock() =>
+        ViewState.ContextBlocks?.FirstOrDefault(candidate =>
+            string.Equals(candidate.Id, "projected-context-block", StringComparison.Ordinal));
+
+    private static bool IsProjectedBlock(SessionContextBlockModel block) =>
+        string.Equals(block.Id, "projected-context-block", StringComparison.Ordinal);
+
+    private async Task HydrateCommandBarAsync()
+    {
+        if (_isHydratingCommandBar ||
+            string.Equals(_hydratedCommandBarPersistKey, CommandBarVisiblePersistKey, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        _isHydratingCommandBar = true;
+        var changeVersion = _commandBarChangeVersion;
+
+        try
+        {
+            var storedValue = await JS.InvokeAsync<string?>("localStorage.getItem", CommandBarVisiblePersistKey);
+            if (changeVersion == _commandBarChangeVersion &&
+                bool.TryParse(storedValue, out var isVisible) &&
+                isVisible != _isCommandBarVisible)
+            {
+                _isCommandBarVisible = isVisible;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (InvalidOperationException)
+        {
+            // JavaScript interop is unavailable during static rendering.
+        }
+        catch (JSException)
+        {
+            // Persistence is best effort when browser storage is unavailable.
+        }
+        finally
+        {
+            _hydratedCommandBarPersistKey = CommandBarVisiblePersistKey;
+            _isHydratingCommandBar = false;
+        }
+    }
+
+    private async Task PersistCommandBarAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync(
+                "localStorage.setItem",
+                CommandBarVisiblePersistKey,
+                _isCommandBarVisible.ToString().ToLowerInvariant());
+        }
+        catch (InvalidOperationException)
+        {
+            // JavaScript interop is unavailable during static rendering.
+        }
+        catch (JSException)
+        {
+            // Persistence is best effort when browser storage is unavailable.
+        }
+    }
+
     private Task SelectSessionAsync(SessionNodeInput node)
     {
         SessionState.SelectSession(node, DisplaySessions);
@@ -362,9 +521,13 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         SessionState.ProjectContext(projected.Node);
         var block = ViewState.ContextBlocks?
             .FirstOrDefault(candidate => string.Equals(candidate.Id, "projected-context-block", StringComparison.Ordinal));
-        if (block is not null
-            && !string.Equals(DefaultContextCardMode, SessionContextBlock.ModeNormal, StringComparison.Ordinal))
-            SessionState.SetBlockMode(block, DefaultContextCardMode);
+        if (block is not null)
+        {
+            var targetMode = _isCommandBarVisible
+                ? SessionContextBlock.ModeMaximized
+                : SessionContextBlock.ModeOverlayPage;
+            SessionState.SetBlockMode(block, targetMode);
+        }
 
         return Task.CompletedTask;
     }
@@ -383,7 +546,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     private async Task HandleNodeNewAsync(SessionNodeInput node)
     {
-        SessionState.ProjectContext(node);
+        await PrepareCommandBarAccessAsync(node);
         SessionState.SetAgentType("create");
 
         await Task.Yield();
@@ -398,6 +561,32 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
                 """);
         }
         catch { }
+    }
+
+    private async Task HandleNodeRenameAsync(SessionNodeInput node)
+    {
+        await PrepareCommandBarAccessAsync(node);
+        SessionState.SetAgentType("edit");
+    }
+
+    private async Task PrepareCommandBarAccessAsync(SessionNodeInput node)
+    {
+        ResetPageOverlay();
+        await ShowCommandBarAsync();
+        SessionState.ProjectContext(node);
+
+        var projectedBlock = ViewState.ContextBlocks?
+            .FirstOrDefault(candidate => string.Equals(candidate.Id, "projected-context-block", StringComparison.Ordinal));
+        if (projectedBlock is not null)
+            SessionState.SetBlockMode(projectedBlock, SessionContextBlock.ModeNormal);
+    }
+
+    private void ResetPageOverlay()
+    {
+        if (PageOverlayBlock is { } block)
+            SessionState.SetBlockMode(block, SessionContextBlock.ModeNormal);
+        else if (PageOverlayCommand is { } command)
+            SessionState.SetCommandMode(command, SessionContextBlock.ModeNormal);
     }
 
     private static bool IsHeaderNode(SessionNodeInput node) =>

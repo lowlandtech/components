@@ -7,14 +7,39 @@
 <span id="popover-anchor-@_popoverId"
       data-slot="card-mode-menu-anchor"
       class="inline-flex">
-    <button type="button"
-            data-slot="card-mode-menu-trigger"
-            data-testid="card-mode-menu-trigger"
-            class="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
-            title="@TitleTooltip"
-            @onclick="ToggleMenuAsync">
-        <Icon Paths="@Icons.EllipsisVertical" Size="12" />
-    </button>
+    @if (IsMinimizedMode)
+    {
+        <button type="button"
+                data-slot="card-mode-menu-expand"
+                data-testid="card-mode-menu-expand"
+                class="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
+                title="@ExpandTooltip"
+                @onclick="() => SelectModeAsync(Card.ModeNormal)">
+            <Icon Paths="@Icons.ChevronDown" Size="12" />
+        </button>
+    }
+    else if (IsOverlayMode)
+    {
+        <button type="button"
+                data-slot="card-mode-menu-close"
+                data-testid="card-mode-menu-close"
+                class="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
+                title="@CloseTooltip"
+                @onclick="() => SelectModeAsync(Card.ModeNormal)">
+            <Icon Name="x" Size="12" />
+        </button>
+    }
+    else
+    {
+        <button type="button"
+                data-slot="card-mode-menu-trigger"
+                data-testid="card-mode-menu-trigger"
+                class="inline-flex h-5 w-5 items-center justify-center rounded-sm text-muted-foreground hover:text-foreground"
+                title="@TitleTooltip"
+                @onclick="ToggleMenuAsync">
+            <Icon Paths="@Icons.EllipsisVertical" Size="12" />
+        </button>
+    }
 </span>
 
 @code {
@@ -30,6 +55,8 @@
     [Parameter] public string MaximizedLabel { get; set; } = "Maximized";
     [Parameter] public string PageOverlayLabel { get; set; } = "Page Overlay";
     [Parameter] public string AppOverlayLabel { get; set; } = "App Overlay";
+    [Parameter] public string CloseTooltip { get; set; } = "Close";
+    [Parameter] public string ExpandTooltip { get; set; } = "Expand";
 
     private string NormalizedMode => Mode?.ToLowerInvariant() switch
     {
@@ -39,6 +66,12 @@
         Card.ModeOverlayApp => Card.ModeOverlayApp,
         _ => Card.ModeNormal
     };
+
+    private bool IsMinimizedMode =>
+        NormalizedMode is Card.ModeMinimized;
+
+    private bool IsOverlayMode =>
+        NormalizedMode is Card.ModeOverlayPage or Card.ModeOverlayApp;
 
     protected override void OnInitialized()
     {

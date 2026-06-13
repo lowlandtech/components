@@ -44,6 +44,8 @@ public sealed class SC05_SessionScrollLayout : ViewScenario
     {
         var cut = Ctx.Render<SessionBlock>();
 
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+
         var main = cut.Find("[data-slot='session-block-main-content']");
         main.ClassList.ShouldContain("min-h-0");
         main.ClassList.ShouldContain("overflow-hidden");

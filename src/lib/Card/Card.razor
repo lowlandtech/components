@@ -5,7 +5,7 @@
      data-size="@Size"
      data-variant="@Variant"
      data-elevation="@Elevation"
-     data-square="@(Square ? "true" : null)"
+     data-square="@(IsSquare ? "true" : null)"
      data-mode="@NormalizedMode"
      data-design-mode="@DesignModeAttribute"
      data-design-selectable="@DesignSelectableAttribute"
@@ -32,6 +32,8 @@
         _ => ModeNormal
     };
 
+    private bool IsSquare => Square || NormalizedMode is ModeMaximized or ModeOverlayApp;
+
     private string GetClass()
     {
         var baseClass = "cn-card card group/card";
@@ -44,9 +46,9 @@
         baseClass += NormalizedMode switch
         {
             ModeMinimized => " overflow-hidden",
-            ModeMaximized => " flex min-h-full w-full flex-col overflow-hidden",
+            ModeMaximized => " flex min-h-full w-full flex-col overflow-hidden !rounded-none !border-transparent",
             ModeOverlayPage => " flex min-h-full w-full flex-col overflow-hidden",
-            ModeOverlayApp => " fixed inset-0 z-50 flex h-dvh w-dvw flex-col overflow-hidden rounded-none",
+            ModeOverlayApp => " fixed inset-0 z-50 flex h-dvh w-dvw flex-col overflow-hidden !rounded-none",
             _ => ""
         };
 
