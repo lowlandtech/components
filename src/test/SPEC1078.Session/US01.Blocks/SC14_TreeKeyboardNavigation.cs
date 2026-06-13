@@ -235,6 +235,52 @@ public sealed class SC14_TreeKeyboardNavigation : ViewScenario
         button.ClassList.ShouldContain("focus-visible:outline-none");
     }
 
+    [Fact(DisplayName = "UAC13: focused node row is styled distinctly from the active row")]
+    [Trait(Spec.UAC, "13")]
+    [Given("a SessionContextTreeNode renders")]
+    [When("inspecting the row markup")]
+    [Then("the row has data-focused background and ring classes")]
+    public void UAC13_FocusedRowHasVisibleStyling()
+    {
+        var cut = Ctx.Render<SessionContextTreeNode>(p => p
+            .Add(x => x.Item, new SessionContextNode(new SessionNodeInput("n1", "workspace", "Orders"), IsLoaded: false)));
+
+        var row = cut.Find("[data-slot='session-context-node-row']");
+        row.ClassList.ShouldContain("data-[focused=true]:bg-primary/15");
+        row.ClassList.ShouldContain("data-[focused=true]:ring-1");
+        row.ClassList.ShouldContain("data-[focused=true]:ring-primary/30");
+        row.GetAttribute("data-focused").ShouldBe("false");
+    }
+
+    [Fact(DisplayName = "UAC14: focused node button shows a ring when its row is focused")]
+    [Trait(Spec.UAC, "14")]
+    [Given("a SessionContextTreeNode renders")]
+    [When("inspecting the node button markup")]
+    [Then("the button uses group-data-focused to show a ring")]
+    public void UAC14_FocusedNodeButtonShowsRing()
+    {
+        var cut = Ctx.Render<SessionContextTreeNode>(p => p
+            .Add(x => x.Item, new SessionContextNode(new SessionNodeInput("n1", "workspace", "Orders"), IsLoaded: false)));
+
+        var button = cut.Find("[data-slot='session-context-node']");
+        button.ClassList.ShouldContain("group-data-[focused=true]:ring-2");
+        button.ClassList.ShouldContain("group-data-[focused=true]:ring-primary/70");
+    }
+
+    [Fact(DisplayName = "UAC15: keyboard JS module toggles data-focused on focusin/focusout")]
+    [Trait(Spec.UAC, "15")]
+    [Given("the sessionContextTree.js source")]
+    [When("inspecting the focus tracking logic")]
+    [Then("it sets data-focused to true on focusin and false on focusout")]
+    public void UAC15_JsModuleTracksFocusedRow()
+    {
+        var script = ReadEmbeddedResource("sessionContextTree.js");
+
+        script.ShouldContain("setAttribute('data-focused', 'true')");
+        script.ShouldContain("setAttribute('data-focused', 'false')");
+        script.ShouldContain("session-context-node-row");
+    }
+
     private static string ReadEmbeddedResource(string name)
     {
         var assembly = typeof(SC14_TreeKeyboardNavigation).Assembly;

@@ -2,13 +2,15 @@
 @inherits TinyComponentBase
 
 <div>
-    <div class="group flex items-center gap-1 rounded-sm hover:bg-muted/60 focus-within:bg-primary/5 data-[projected=true]:bg-primary/10"
+    <div data-slot="session-context-node-row"
+         class="group flex items-center gap-1 rounded-sm hover:bg-muted/60 focus-within:bg-primary/5 data-[focused=true]:bg-primary/15 data-[focused=true]:ring-1 data-[focused=true]:ring-primary/30 data-[focused=true]:ring-inset data-[projected=true]:bg-primary/10"
          style="padding-left: @(Math.Max(0, Depth) * 0.75 + 0.5)rem;"
-         data-projected="@(Projection?.Node.Id == Item.Node.Id ? "true" : "false")">
+         data-projected="@(Projection?.Node.Id == Item.Node.Id ? "true" : "false")"
+         data-focused="false">
         <button type="button"
                 data-slot="session-context-node"
                 data-node-id="@Item.Node.Id"
-                class="flex min-h-8 flex-1 items-center justify-start gap-2 px-2 py-1 text-left text-sm font-normal focus:outline-none focus-visible:outline-none"
+                class="flex min-h-8 flex-1 items-center justify-start gap-2 px-2 py-1 text-left text-sm font-normal focus:outline-none focus-visible:outline-none group-data-[focused=true]:ring-2 group-data-[focused=true]:ring-primary/70 group-data-[focused=true]:ring-inset"
                 @onclick="ProjectAsync"
                 @ondblclick="PinAsync"
                 @onkeydown="HandleKeyDownAsync">
