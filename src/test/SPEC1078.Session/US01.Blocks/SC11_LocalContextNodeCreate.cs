@@ -63,12 +63,12 @@ public sealed class SC11_LocalContextNodeCreate : ViewScenario
         newNode.QuerySelector("span[title='workitem']")?.TextContent.Trim().ShouldBe("New Order");
     }
 
-    [Fact(DisplayName = "UAC04: Agent type resets to ask after local create")]
+    [Fact(DisplayName = "UAC04: Agent type stays in create after local create")]
     [Trait(Spec.UAC, "04")]
     [Given("a SessionBlock in create mode")]
     [When("the user submits a title")]
-    [Then("the active agent type returns to ask")]
-    public async Task UAC04_AgentTypeResetsAfterLocalCreate()
+    [Then("the active agent type stays in create for rapid creation")]
+    public async Task UAC04_AgentTypeStaysInCreateAfterLocalCreate()
     {
         var (cut, stateService, parentNode) = RenderInCreateMode();
 
@@ -78,7 +78,7 @@ public sealed class SC11_LocalContextNodeCreate : ViewScenario
         await commandBar.InvokeAsync(() => commandBar.Instance.OnSubmit.InvokeAsync(
             new SessionCommandSubmitted(parentNode, "create", "New Order")));
 
-        stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("ask");
+        stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("create");
     }
 
     [Fact(DisplayName = "UAC05: Wired host handler takes precedence over local fallback")]
@@ -121,6 +121,34 @@ public sealed class SC11_LocalContextNodeCreate : ViewScenario
         request.ShouldNotBeNull();
         request.ParentNodeId.ShouldBe(parentNode.Id);
         request.Label.ShouldBe("New Order");
+    }
+
+    [Fact(DisplayName = "UAC06: Ctrl+Enter in create mode creates a node and stays in create")]
+    [Trait(Spec.UAC, "06")]
+    [Given("a SessionBlock in create mode")]
+    [When("the user presses Ctrl+Enter")]
+    [Then("the node is created, input is reset, focus is requested, and agent stays create")]
+    public void UAC06_CtrlEnterInCreateModeCreatesAndStays()
+    {
+        var (cut, stateService, parentNode) = RenderInCreateMode();
+
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+
+        var input = cut.Find("[data-testid='session-command-input']");
+        input.Input("New Order");
+        input.KeyDown(new KeyboardEventArgs { Key = "Enter", CtrlKey = true });
+
+        cut.FindAll("[data-slot='session-context-node']")
+            .SingleOrDefault(node => node.TextContent.Trim() == "New Order")
+            .ShouldNotBeNull();
+
+        stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("create");
+
+        Ctx.JSInterop.Invocations.Any(invocation =>
+            invocation.Identifier == "eval"
+            && invocation.Arguments[0]?.ToString()?.Contains("session-command-input", StringComparison.Ordinal) == true
+            && invocation.Arguments[0]?.ToString()?.Contains("focus", StringComparison.Ordinal) == true)
+            .ShouldBeTrue();
     }
 
     private (IRenderedComponent<Components.SessionBlock> Cut, SessionStateService StateService, SessionNodeInput ParentNode) RenderInCreateMode()

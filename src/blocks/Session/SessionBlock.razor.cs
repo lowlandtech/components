@@ -65,6 +65,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     [Parameter] public string LogoSrc { get; set; } = "_content/LowlandTech.Components/img/session-block-logo.svg";
     [Parameter] public string? Title { get; set; }
     [Parameter] public EventCallback<SessionHeaderCreateRequest> OnHeaderCreateRequested { get; set; }
+    [Parameter] public EventCallback<SessionNodeInput> OnNodeDeleteRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnLoadChildrenRequested { get; set; }
 
     private IStringLocalizer<SessionBlockStrings>? _localizer;
@@ -677,6 +678,18 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         SessionState.SetAgentType("edit");
     }
 
+    private async Task HandleNodeDeleteAsync(SessionNodeInput node)
+    {
+        if (OnNodeDeleteRequested.HasDelegate)
+        {
+            await OnNodeDeleteRequested.InvokeAsync(node);
+            return;
+        }
+
+        _localContextNodes ??= [.. ContextNodes];
+        _localContextNodes = RemoveNode(_localContextNodes, node.Id).ToList();
+    }
+
     private async Task PrepareCommandBarAccessAsync(SessionNodeInput node)
     {
         ResetPageOverlay();
@@ -739,6 +752,30 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         return new SessionContextNode(
             node.Node,
             node.Children.Select(c => AddChildNode(c, parentId, child)).ToList(),
+            node.IsLoaded);
+    }
+
+    private static IReadOnlyList<SessionContextNode> RemoveNode(
+        IReadOnlyList<SessionContextNode> nodes,
+        string nodeId)
+    {
+        return nodes
+            .Where(n => !string.Equals(n.Node.Id, nodeId, StringComparison.Ordinal))
+            .Select(n => RemoveNode(n, nodeId))
+            .ToList();
+    }
+
+    private static SessionContextNode RemoveNode(SessionContextNode node, string nodeId)
+    {
+        if (node.Children is null || node.Children.Count == 0)
+            return node;
+
+        return new SessionContextNode(
+            node.Node,
+            node.Children
+                .Where(c => !string.Equals(c.Node.Id, nodeId, StringComparison.Ordinal))
+                .Select(c => RemoveNode(c, nodeId))
+                .ToList(),
             node.IsLoaded);
     }
 
@@ -810,18 +847,8 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
                 _localContextNodes = AddChildNode(_localContextNodes, command.Node.Id, childNode).ToList();
             }
 
-            SessionState.SetAgentType("ask");
-
-            try
-            {
-                await JS.InvokeVoidAsync("eval", """
-                    (() => {
-                        const input = document.querySelector('[data-slot="session-command-input"]');
-                        if (input) { input.value = ''; input.focus(); }
-                    })();
-                    """);
-            }
-            catch { }
+            // Stay in Create mode so the user can keep creating nodes in rapid succession.
+            // The command bar already clears and refocuses the input after submit.
 
             return;
         }
