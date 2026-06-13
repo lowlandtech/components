@@ -298,6 +298,8 @@ public sealed record CloseSessionNode(string NodeId) : SessionUiAction;
 
 public sealed record ProjectSessionContext(SessionNodeInput Node) : SessionUiAction;
 
+public sealed record ClearSessionContextProjection : SessionUiAction;
+
 public sealed record PinSessionContext(SessionContextProjectionModel Projection) : SessionUiAction;
 
 public sealed record UnpinSessionContext(string PinId) : SessionUiAction;
@@ -376,6 +378,11 @@ public static class SessionUiReducer
             ContextBlocks = ReplaceProjectedBlock(
                 state.ContextBlocks ?? [],
                 CreateBlock(project.Node, ProjectedContextBlockId))
+        },
+        ClearSessionContextProjection => state with
+        {
+            ContextProjection = null,
+            ContextBlocks = RemoveProjectedBlock(state.ContextBlocks ?? [])
         },
         PinSessionContext pin => state with
         {

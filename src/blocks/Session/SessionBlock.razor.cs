@@ -719,13 +719,28 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         if (OnNodeDeleteRequested.HasDelegate)
         {
             await OnNodeDeleteRequested.InvokeAsync(node);
+            ClearActiveNodeState(node);
             return;
         }
 
         _localContextNodes ??= [.. ContextNodes];
         _localContextNodes = RemoveNode(_localContextNodes, node.Id).ToList();
 
+        ClearActiveNodeState(node);
         SessionState.Dispatch(new ScheduleDeleteEffect(node.NodeTypeKey, node.Id, node.Label));
+    }
+
+    private void ClearActiveNodeState(SessionNodeInput node)
+    {
+        if (ViewState.ContextProjection?.Node.Id == node.Id)
+        {
+            SessionState.Dispatch(new ClearSessionContextProjection());
+        }
+
+        if (ViewState.ContextPins?.Any(pin => string.Equals(pin.Node.Id, node.Id, StringComparison.Ordinal)) == true)
+        {
+            SessionState.Dispatch(new UnpinSessionContext($"pin:{node.Id}"));
+        }
     }
 
     private async Task HandleNodeRenameSubmitAsync(SessionCommandSubmitted command)

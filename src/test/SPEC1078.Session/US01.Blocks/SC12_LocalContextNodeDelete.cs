@@ -189,9 +189,9 @@ public sealed class SC12_LocalContextNodeDelete : ViewScenario
         deleteButton.ClassList.ShouldContain("btn-destructive");
     }
 
-    private void OpenDeleteDialog(IRenderedComponent<Components.SessionBlock> cut)
+    private void OpenDeleteDialog(IRenderedComponent<Components.SessionBlock> cut, string nodeId = "invoice-approval")
     {
-        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
+        cut.Find($"[data-testid='session-context-node-menu-trigger'][data-node-id='{nodeId}']").Click();
 
         var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
         var popover = popoverService.ActivePopovers.Single(reference => reference.State.Open);
