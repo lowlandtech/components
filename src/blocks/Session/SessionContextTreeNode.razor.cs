@@ -114,6 +114,35 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
         await PersistExpandedAsync();
     }
 
+    private async Task HandleKeyDownAsync(KeyboardEventArgs e)
+    {
+        switch (e.Key)
+        {
+            case "Enter":
+            case "NumpadEnter":
+                await ProjectAsync();
+                break;
+            case " ":
+            case "Spacebar":
+                await ProjectAsync();
+                break;
+            case "ArrowDown":
+                await JS.InvokeVoidAsync("ltSessionContextTree.focusNext");
+                break;
+            case "ArrowUp":
+                await JS.InvokeVoidAsync("ltSessionContextTree.focusPrevious");
+                break;
+            case "ArrowRight":
+                if (!_isExpanded && ShowChevron)
+                    await ToggleExpand();
+                break;
+            case "ArrowLeft":
+                if (_isExpanded)
+                    await ToggleExpand();
+                break;
+        }
+    }
+
     private async Task PersistExpandedAsync()
     {
         try

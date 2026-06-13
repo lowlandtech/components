@@ -10,7 +10,8 @@
                 data-node-id="@Item.Node.Id"
                 class="flex min-h-8 flex-1 items-center justify-start gap-2 px-2 py-1 text-left text-sm font-normal"
                 @onclick="ProjectAsync"
-                @ondblclick="PinAsync">
+                @ondblclick="PinAsync"
+                @onkeydown="HandleKeyDownAsync">
             @if (ShowChevron)
             {
                 <span class="inline-flex h-3 w-3 shrink-0 cursor-pointer items-center justify-center"
