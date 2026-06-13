@@ -19,6 +19,13 @@ public sealed record SessionContextNode(
 /// </summary>
 public sealed record SessionHeaderCreateRequest(string ParentNodeId, string ParentNodeTypeKey, string Label);
 
+/// <summary>
+/// Fired from <see cref="SessionBlock"/> when the user submits an edit command
+/// while a context node is selected, so the host page can persist the renamed
+/// node in the graph and refresh the context tree.
+/// </summary>
+public sealed record SessionNodeRenameRequest(string NodeId, string NodeTypeKey, string OldLabel, string NewLabel);
+
 public sealed record SessionAgentType(
     string Key,
     string Label,

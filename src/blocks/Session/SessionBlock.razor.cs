@@ -65,6 +65,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     [Parameter] public string LogoSrc { get; set; } = "_content/LowlandTech.Components/img/session-block-logo.svg";
     [Parameter] public string? Title { get; set; }
     [Parameter] public EventCallback<SessionHeaderCreateRequest> OnHeaderCreateRequested { get; set; }
+    [Parameter] public EventCallback<SessionNodeRenameRequest> OnNodeRenameRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnNodeDeleteRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnLoadChildrenRequested { get; set; }
 
@@ -105,7 +106,9 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     private string GetCommandPlaceholder() =>
         string.Equals(ViewState.ActiveAgentTypeKey, "create", StringComparison.OrdinalIgnoreCase)
             ? L("CreateCommandPlaceholder")
-            : L("CommandPlaceholder");
+            : string.Equals(ViewState.ActiveAgentTypeKey, "edit", StringComparison.OrdinalIgnoreCase)
+                ? L("EditCommandPlaceholder")
+                : L("CommandPlaceholder");
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -676,6 +679,23 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     {
         await PrepareCommandBarAccessAsync(node);
         SessionState.SetAgentType("edit");
+        SessionState.SetInput(node.Label);
+
+        await Task.Yield();
+
+        try
+        {
+            await JS.InvokeVoidAsync("eval", """
+                (() => {
+                    const input = document.querySelector('[data-slot="session-command-input"]');
+                    if (input) {
+                        input.focus({ preventScroll: true });
+                        input.setSelectionRange(0, input.value.length);
+                    }
+                })();
+                """);
+        }
+        catch { }
     }
 
     private async Task HandleNodeDeleteAsync(SessionNodeInput node)
@@ -688,6 +708,40 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
         _localContextNodes ??= [.. ContextNodes];
         _localContextNodes = RemoveNode(_localContextNodes, node.Id).ToList();
+    }
+
+    private async Task HandleNodeRenameSubmitAsync(SessionCommandSubmitted command)
+    {
+        var renamedNode = command.Node with { Label = command.Input };
+
+        if (OnNodeRenameRequested.HasDelegate)
+        {
+            await OnNodeRenameRequested.InvokeAsync(new SessionNodeRenameRequest(
+                command.Node.Id,
+                command.Node.NodeTypeKey,
+                command.Node.Label,
+                command.Input));
+        }
+        else
+        {
+            _localContextNodes ??= [.. ContextNodes];
+            _localContextNodes = RenameNode(_localContextNodes, renamedNode).ToList();
+            SessionState.ProjectContext(renamedNode);
+        }
+
+        SessionState.SetInput(string.Empty);
+        SessionState.SetAgentType("ask");
+
+        try
+        {
+            await JS.InvokeVoidAsync("eval", """
+                (() => {
+                    const input = document.querySelector('[data-slot="session-command-input"]');
+                    if (input) { input.value = ''; input.focus({ preventScroll: true }); }
+                })();
+                """);
+        }
+        catch { }
     }
 
     private async Task PrepareCommandBarAccessAsync(SessionNodeInput node)
@@ -779,6 +833,29 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
             node.IsLoaded);
     }
 
+    private static IReadOnlyList<SessionContextNode> RenameNode(
+        IReadOnlyList<SessionContextNode> nodes,
+        SessionNodeInput renamedNode)
+    {
+        return nodes.Select(n => RenameNode(n, renamedNode)).ToList();
+    }
+
+    private static SessionContextNode RenameNode(SessionContextNode node, SessionNodeInput renamedNode)
+    {
+        if (string.Equals(node.Node.Id, renamedNode.Id, StringComparison.Ordinal))
+        {
+            return new SessionContextNode(renamedNode, node.Children, node.IsLoaded);
+        }
+
+        if (node.Children is null || node.Children.Count == 0)
+            return node;
+
+        return new SessionContextNode(
+            node.Node,
+            node.Children.Select(c => RenameNode(c, renamedNode)).ToList(),
+            node.IsLoaded);
+    }
+
     private Task HandleTabPinnedChangedAsync(TabsItem item)
     {
         SessionState.SetTabPinned(item.Value, item.Pinned);
@@ -793,6 +870,13 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     private async Task HandleSubmitAsync(SessionCommandSubmitted command)
     {
+        // Rename the selected context node when in edit mode.
+        if (string.Equals(command.AgentTypeKey, "edit", StringComparison.OrdinalIgnoreCase))
+        {
+            await HandleNodeRenameSubmitAsync(command);
+            return;
+        }
+
         // When in "create" mode with a session node, the input is the session title, not a command.
         if (string.Equals(command.AgentTypeKey, "create", StringComparison.OrdinalIgnoreCase)
             && string.Equals(command.Node.NodeTypeKey, "session", StringComparison.OrdinalIgnoreCase))
