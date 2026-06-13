@@ -152,6 +152,43 @@ public sealed class SC12_LocalContextNodeDelete : ViewScenario
         persisted.ShouldBe("true");
     }
 
+    [Fact(DisplayName = "UAC07: Delete confirmation dialog structure is preserved against drift")]
+    [Trait(Spec.UAC, "07")]
+    [Given("the delete confirmation dialog is open")]
+    [When("the dialog markup is inspected")]
+    [Then("the expected title, description, checkbox, and buttons are present")]
+    public void UAC07_DeleteConfirmationDialogStructureIsPreserved()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>();
+        cut.Find("[data-node-id='release-session']").Click();
+        OpenDeleteDialog(cut);
+
+        var dialog = cut.Find("[data-slot='dialog-content']");
+        dialog.ShouldNotBeNull();
+
+        var title = dialog.QuerySelector("[data-slot='dialog-title']");
+        title.ShouldNotBeNull();
+        title.TextContent.Trim().ShouldBe("Delete node");
+
+        var description = dialog.QuerySelector("[data-slot='dialog-description']");
+        description.ShouldNotBeNull();
+        description.TextContent.ShouldContain("Are you sure you want to delete this node?");
+
+        var checkbox = dialog.QuerySelector("input[type='checkbox']");
+        checkbox.ShouldNotBeNull();
+
+        var checkboxLabel = dialog.QuerySelector("label[for='delete-node-skip-confirmation']");
+        checkboxLabel.ShouldNotBeNull();
+        checkboxLabel.TextContent.Trim().ShouldBe("Don't ask again");
+
+        var buttons = dialog.QuerySelectorAll("button");
+        buttons.Any(b => string.Equals(b.TextContent.Trim(), "Cancel", StringComparison.Ordinal)).ShouldBeTrue();
+        buttons.Any(b => string.Equals(b.TextContent.Trim(), "Delete", StringComparison.Ordinal)).ShouldBeTrue();
+
+        var deleteButton = buttons.Single(b => string.Equals(b.TextContent.Trim(), "Delete", StringComparison.Ordinal));
+        deleteButton.ClassList.ShouldContain("btn-destructive");
+    }
+
     private void OpenDeleteDialog(IRenderedComponent<Components.SessionBlock> cut)
     {
         cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
