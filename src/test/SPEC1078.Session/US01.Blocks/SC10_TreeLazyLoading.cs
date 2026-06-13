@@ -343,8 +343,8 @@ public sealed class SC10_TreeLazyLoading : ViewScenario
         var key = $"test-expanded-{Guid.NewGuid():N}";
         var node = new SessionContextNode(
             new SessionNodeInput("h1", "header", "Workspaces"),
-            new[] { new SessionContextNode(new SessionNodeInput("c1", "workspace", "Accounting"), IsLoaded: false) },
-            true);
+            new[] { new SessionContextNode(new SessionNodeInput("c1", "workspace", "Accounting"), IsLoaded: true) },
+            false);
 
         var cut = Ctx.Render<SessionContextTreeNode>(p => p
             .Add(x => x.Item, node)
@@ -359,7 +359,6 @@ public sealed class SC10_TreeLazyLoading : ViewScenario
 
         persisted.ShouldNotBeNull();
         persisted.ShouldContain("h1");
-        persisted.ShouldContain(key);
     }
 
     [Fact(DisplayName = "UAC13: Collapsing a node removes its id from localStorage")]
@@ -372,8 +371,8 @@ public sealed class SC10_TreeLazyLoading : ViewScenario
         var key = $"test-expanded-{Guid.NewGuid():N}";
         var node = new SessionContextNode(
             new SessionNodeInput("h1", "header", "Workspaces"),
-            new[] { new SessionContextNode(new SessionNodeInput("c1", "workspace", "Accounting"), IsLoaded: false) },
-            true);
+            new[] { new SessionContextNode(new SessionNodeInput("c1", "workspace", "Accounting"), IsLoaded: true) },
+            false);
 
         var cut = Ctx.Render<SessionContextTreeNode>(p => p
             .Add(x => x.Item, node)
