@@ -2374,4 +2374,23 @@ public class SC01_SessionBlocks : ViewScenario
             .GetAttribute("style")
             .ShouldBe("top:10px; right:10px; bottom:10px; left:4px; width:auto; height:auto;");
     }
+
+    [Fact(DisplayName = "UAC54: Sections reopen control sits flush against the populated tabs rail")]
+    [Trait(Spec.UAC, "54")]
+    [Given("a populated SessionBlock with the left sidebar open and Sections collapsed")]
+    [When("the Sections reopen control renders at the end of the tabs header")]
+    [Then("the tabs header does not reserve an extra gap before the control")]
+    public void UAC54_RightSidebarReopenControlHasNoTabsHeaderGap()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.HasSidebar, true));
+
+        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-testid='session-block-right-sidebar-close']").Click();
+
+        var header = cut.Find("[data-slot='tabs-header']");
+        header.ClassList.ShouldNotContain("gap-1");
+        header.QuerySelector("[data-slot='tabs-list-shell']").ShouldNotBeNull();
+        header.QuerySelector("[data-slot='tabs-header-trailing'] [data-testid='session-block-right-sidebar-open']")
+            .ShouldNotBeNull();
+    }
 }
