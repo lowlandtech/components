@@ -14,6 +14,7 @@ public partial class SessionContextExplorer : TinyComponentBase
     [Parameter] public string EmptyTitle { get; set; } = "No context nodes";
     [Parameter] public string EmptyDescription { get; set; } = "Context nodes appear here when application entities are available.";
     [Parameter] public bool ShowHeader { get; set; } = true;
+    [Parameter] public string ExpandedNodesPersistKey { get; set; } = "session-context-expanded-nodes";
     [Parameter] public EventCallback<SessionContextProjected> OnProjected { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnNavigateToPin { get; set; }
     [Parameter] public EventCallback<SessionContextPinned> OnPinned { get; set; }

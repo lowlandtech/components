@@ -4,6 +4,7 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
 {
     [Inject] private IPopoverService PopoverService { get; set; } = default!;
     [Inject] private IStringLocalizer<SessionBlockStrings>? Localizer { get; set; }
+    [Inject] private IJSRuntime JS { get; set; } = default!;
 
     private string L(string key) => Localizer?[key] ?? key;
 
@@ -22,6 +23,7 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
     [Parameter] public EventCallback<SessionNodeInput> OnNodeMoveDown { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnNodeDelete { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnExpand { get; set; }
+    [Parameter] public string ExpandedNodesPersistKey { get; set; } = "session-context-expanded-nodes";
 
     private readonly Guid _popoverId = Guid.NewGuid();
     private bool _registered;
@@ -29,6 +31,7 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
 
     private bool _isExpanded;
     private string? _initializedId;
+    private string? _hydratedNodeId;
 
     private bool ShowChevron => !Item.IsLoaded || VisibleChildren.Count > 0;
     private bool IsHeader => Item.Node.NodeTypeKey.EndsWith(".header", StringComparison.OrdinalIgnoreCase)
@@ -56,12 +59,82 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
         }
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_hydratedNodeId != Item.Node.Id)
+        {
+            _hydratedNodeId = Item.Node.Id;
+            await HydrateExpandedAsync();
+        }
+    }
+
+    private async Task HydrateExpandedAsync()
+    {
+        try
+        {
+            var json = await JS.InvokeAsync<string?>("localStorage.getItem", ExpandedNodesPersistKey);
+            if (string.IsNullOrWhiteSpace(json))
+                return;
+
+            var expanded = JsonSerializer.Deserialize<IReadOnlyList<string>>(json);
+            if (expanded?.Contains(Item.Node.Id) != true)
+                return;
+
+            if (!_isExpanded)
+            {
+                _isExpanded = true;
+                if (!Item.IsLoaded)
+                {
+                    await OnExpand.InvokeAsync(Item.Node);
+                }
+                StateHasChanged();
+            }
+        }
+        catch (InvalidOperationException)
+        {
+            // JavaScript interop is unavailable during static rendering.
+        }
+        catch (JSException)
+        {
+            // Persistence is best-effort when browser storage is unavailable.
+        }
+    }
+
     private async Task ToggleExpand()
     {
         _isExpanded = !_isExpanded;
         if (_isExpanded && !Item.IsLoaded)
         {
             await OnExpand.InvokeAsync(Item.Node);
+        }
+
+        await PersistExpandedAsync();
+    }
+
+    private async Task PersistExpandedAsync()
+    {
+        try
+        {
+            var json = await JS.InvokeAsync<string?>("localStorage.getItem", ExpandedNodesPersistKey);
+            var expanded = new HashSet<string>(JsonSerializer.Deserialize<IReadOnlyList<string>>(json ?? "[]") ?? [], StringComparer.Ordinal);
+
+            if (_isExpanded)
+                expanded.Add(Item.Node.Id);
+            else
+                expanded.Remove(Item.Node.Id);
+
+            await JS.InvokeVoidAsync(
+                "localStorage.setItem",
+                ExpandedNodesPersistKey,
+                JsonSerializer.Serialize(expanded));
+        }
+        catch (InvalidOperationException)
+        {
+            // JavaScript interop is unavailable during static rendering.
+        }
+        catch (JSException)
+        {
+            // Persistence is best-effort when browser storage is unavailable.
         }
     }
 

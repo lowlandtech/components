@@ -332,4 +332,90 @@ public sealed class SC10_TreeLazyLoading : ViewScenario
         cut.FindAll("[data-node-id='inv']").Count.ShouldBeGreaterThan(0);
         cut.Markup.ShouldContain(Icons.FolderOpen);
     }
+
+    [Fact(DisplayName = "UAC12: Expanding a node persists its id to localStorage")]
+    [Trait(Spec.UAC, "12")]
+    [Given("a SessionContextTreeNode that is collapsed")]
+    [When("the chevron is clicked to expand")]
+    [Then("localStorage receives the node id in the expanded set")]
+    public void UAC12_ExpandingNodePersistsId()
+    {
+        var key = $"test-expanded-{Guid.NewGuid():N}";
+        var node = new SessionContextNode(
+            new SessionNodeInput("h1", "header", "Workspaces"),
+            new[] { new SessionContextNode(new SessionNodeInput("c1", "workspace", "Accounting"), IsLoaded: false) },
+            true);
+
+        var cut = Ctx.Render<SessionContextTreeNode>(p => p
+            .Add(x => x.Item, node)
+            .Add(x => x.ExpandedNodesPersistKey, key));
+
+        cut.Find("span.cursor-pointer").Click();
+
+        var persisted = Ctx.JSInterop.Invocations
+            .Where(i => i.Identifier == "localStorage.setItem")
+            .Select(i => i.Arguments.ElementAtOrDefault(1)?.ToString())
+            .LastOrDefault();
+
+        persisted.ShouldNotBeNull();
+        persisted.ShouldContain("h1");
+        persisted.ShouldContain(key);
+    }
+
+    [Fact(DisplayName = "UAC13: Collapsing a node removes its id from localStorage")]
+    [Trait(Spec.UAC, "13")]
+    [Given("a SessionContextTreeNode that was expanded and persisted")]
+    [When("the chevron is clicked to collapse")]
+    [Then("the persisted set no longer contains the node id")]
+    public void UAC13_CollapsingNodeRemovesId()
+    {
+        var key = $"test-expanded-{Guid.NewGuid():N}";
+        var node = new SessionContextNode(
+            new SessionNodeInput("h1", "header", "Workspaces"),
+            new[] { new SessionContextNode(new SessionNodeInput("c1", "workspace", "Accounting"), IsLoaded: false) },
+            true);
+
+        var cut = Ctx.Render<SessionContextTreeNode>(p => p
+            .Add(x => x.Item, node)
+            .Add(x => x.ExpandedNodesPersistKey, key));
+
+        // Expand then collapse.
+        cut.Find("span.cursor-pointer").Click();
+        cut.Find("span.cursor-pointer").Click();
+
+        var persisted = Ctx.JSInterop.Invocations
+            .Where(i => i.Identifier == "localStorage.setItem")
+            .Select(i => i.Arguments.ElementAtOrDefault(1)?.ToString())
+            .LastOrDefault();
+
+        persisted.ShouldNotBeNull();
+        persisted.ShouldNotContain("h1");
+    }
+
+    [Fact(DisplayName = "UAC14: Persisted expansion is hydrated on render")]
+    [Trait(Spec.UAC, "14")]
+    [Given("localStorage contains an expanded node id")]
+    [When("the tree renders")]
+    [Then("the node is expanded and OnExpand fires for unloaded nodes")]
+    public void UAC14_PersistedExpansionIsHydratedOnRender()
+    {
+        var key = $"test-expanded-{Guid.NewGuid():N}";
+        var node = new SessionContextNode(
+            new SessionNodeInput("h1", "header", "Workspaces"),
+            new[] { new SessionContextNode(new SessionNodeInput("c1", "workspace", "Accounting"), IsLoaded: false) },
+            false);
+
+        Ctx.JSInterop.Setup<string>("localStorage.getItem", _ => true).SetResult("[\"h1\"]");
+
+        SessionNodeInput? expanded = null;
+        var cut = Ctx.Render<SessionContextTreeNode>(p => p
+            .Add(x => x.Item, node)
+            .Add(x => x.ExpandedNodesPersistKey, key)
+            .Add(x => x.OnExpand, n => { expanded = n; return Task.CompletedTask; }));
+
+        expanded.ShouldNotBeNull();
+        expanded.Id.ShouldBe("h1");
+        cut.FindAll("[data-node-id='c1']").Count.ShouldBeGreaterThan(0);
+        cut.Markup.ShouldContain(Icons.FolderOpen);
+    }
 }
