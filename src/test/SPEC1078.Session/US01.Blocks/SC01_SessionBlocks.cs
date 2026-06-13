@@ -2286,4 +2286,92 @@ public class SC01_SessionBlocks : ViewScenario
         hydrated.FindAll("[data-testid='session-block-right-sidebar']").ShouldBeEmpty();
         hydrated.Find("[data-testid='session-block-right-sidebar-open']").ShouldNotBeNull();
     }
+
+    [Fact(DisplayName = "UAC50: Sections sidebar starts open with its collapse control in the panel header")]
+    [Trait(Spec.UAC, "50")]
+    [Given("a newly rendered SessionBlock")]
+    [When("the default sidebar state is displayed")]
+    [Then("Sections is open and its accessible collapse control is in the Sections header")]
+    public void UAC50_RightSidebarDefaultsOpenWithHeaderCollapseControl()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>();
+
+        cut.Find("[data-testid='session-block-right-sidebar']").ShouldNotBeNull();
+        cut.Find("[data-panel='session-block-sections-panel']").ShouldNotBeNull();
+        cut.Find("[data-slot='session-block-sections-header'] [data-testid='session-block-right-sidebar-close']")
+            .ShouldNotBeNull();
+        cut.Find("[data-testid='session-block-right-sidebar-close']")
+            .GetAttribute("aria-label")
+            .ShouldBe("Close sections");
+        cut.FindAll("[data-testid='session-block-right-sidebar-open']").ShouldBeEmpty();
+    }
+
+    [Fact(DisplayName = "UAC51: Empty session content exposes the Sections reopen control")]
+    [Trait(Spec.UAC, "51")]
+    [Given("a SessionBlock with no active session")]
+    [When("the Sections sidebar is collapsed")]
+    [Then("the empty content header exposes the accessible trailing reopen control")]
+    public void UAC51_EmptyContentHeaderExposesRightSidebarReopenControl()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>();
+
+        cut.Find("[data-testid='session-block-right-sidebar-close']").Click();
+
+        var openButton = cut.Find(
+            "[data-slot='session-content-empty-header'] [data-slot='tabs-header-trailing'] [data-testid='session-block-right-sidebar-open']");
+        openButton.ShouldNotBeNull();
+        openButton.GetAttribute("aria-label").ShouldBe("Open sections");
+        openButton.ClassList.ShouldContain("h-10");
+        openButton.ClassList.ShouldContain("w-10");
+    }
+
+    [Fact(DisplayName = "UAC52: Reopening the Sections sidebar persists the open state")]
+    [Trait(Spec.UAC, "52")]
+    [Given("a SessionBlock with a stable Sections-sidebar persistence key")]
+    [When("the sidebar is closed and reopened")]
+    [Then("the persisted visibility transitions from false back to true")]
+    public void UAC52_ReopeningRightSidebarPersistsOpenState()
+    {
+        const string persistKey = "session-block:test:right-sidebar-reopen";
+        Ctx.JSInterop.Setup<string?>("localStorage.getItem", persistKey).SetResult(null);
+        Ctx.JSInterop.SetupVoid("localStorage.setItem", _ => true);
+
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.RightSidebarPersistKey, persistKey));
+
+        cut.Find("[data-testid='session-block-right-sidebar-close']").Click();
+        cut.Find("[data-testid='session-block-right-sidebar-open']").Click();
+
+        var writes = Ctx.JSInterop.Invocations
+            .Where(invocation =>
+                invocation.Identifier == "localStorage.setItem"
+                && string.Equals(invocation.Arguments[0]?.ToString(), persistKey, StringComparison.Ordinal))
+            .Select(invocation => invocation.Arguments[1]?.ToString())
+            .ToArray();
+
+        writes.ShouldBe(["false", "true"]);
+    }
+
+    [Fact(DisplayName = "UAC53: Collapsed Sections sidebar preserves Page Overlay gutters")]
+    [Trait(Spec.UAC, "53")]
+    [Given("a Page Overlay card in a SessionBlock with no spacing variant")]
+    [When("the Sections sidebar is collapsed")]
+    [Then("the content and overlay retain the ten-pixel right gutter")]
+    public void UAC53_CollapsedRightSidebarPreservesPageOverlayGutters()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.Variant, "none"));
+
+        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='invoice-approval']").Click();
+        cut.Find("[data-testid='session-block-right-sidebar-close']").Click();
+
+        cut.Find("[data-slot='session-block-main-content']")
+            .GetAttribute("style")
+            .ShouldBe("padding:10px 10px 10px 4px;");
+        cut.Find("[data-slot='session-block-page-overlay']")
+            .GetAttribute("style")
+            .ShouldBe("top:10px; right:10px; bottom:10px; left:4px; width:auto; height:auto;");
+    }
 }
