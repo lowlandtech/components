@@ -77,6 +77,37 @@ public sealed class SC13_LocalContextNodeRename : ViewScenario
         projectedBlock.TextContent.ShouldContain("Invoice review");
     }
 
+    [Fact(DisplayName = "UAC04: Edit mode submit does not create an agent command")]
+    [Trait(Spec.UAC, "04")]
+    [Given("a SessionBlock in edit mode for a context node")]
+    [When("the user submits the rename")]
+    [Then("no session command is recorded and the node is renamed")]
+    public void UAC04_EditModeSubmitDoesNotCreateAgentCommand()
+    {
+        var stateService = new SessionStateService();
+        var sessions = new[] { new SessionListEntry("release-session", "Release notes") };
+        stateService.SelectSession(new SessionNodeInput("release-session", "session", "Release notes"), sessions);
+
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.StateService, stateService)
+            .Add(x => x.Sessions, sessions)
+            .Add(x => x.ContextNodes, GetContextNodes()));
+
+        OpenRenameMenu(cut);
+
+        var commandBar = cut.FindComponent<SessionCommandBar>();
+        commandBar.InvokeAsync(() => commandBar.Instance.ValueChanged.InvokeAsync("Invoice review"));
+        commandBar.InvokeAsync(() => commandBar.Instance.OnSubmit.InvokeAsync(
+            new SessionCommandSubmitted(
+                new SessionNodeInput("invoice-approval", "invoice", "Invoice approval", "NodeBlock"),
+                "edit",
+                "Invoice review")));
+
+        stateService.GetSessionCommands(stateService.CurrentSessionId).Count.ShouldBe(0);
+        cut.Find("[data-node-id='invoice-approval']").TextContent.ShouldContain("Invoice review");
+    }
+
     [Fact(DisplayName = "UAC03: Wired host handler receives the rename request")]
     [Trait(Spec.UAC, "03")]
     [Given("a SessionBlock with OnNodeRenameRequested wired")]
