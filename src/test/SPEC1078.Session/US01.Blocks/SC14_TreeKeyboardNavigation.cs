@@ -205,6 +205,36 @@ public sealed class SC14_TreeKeyboardNavigation : ViewScenario
         ReadEmbeddedResource("desktop.index.html").ShouldContain("sessionContextTree.js");
     }
 
+    [Fact(DisplayName = "UAC11: focus styling covers the whole node row")]
+    [Trait(Spec.UAC, "11")]
+    [Given("a SessionContextTreeNode renders")]
+    [When("inspecting the row markup")]
+    [Then("the row has a focus-within background class like the active/projected row")]
+    public void UAC11_FocusStylingCoversWholeRow()
+    {
+        var cut = Ctx.Render<SessionContextTreeNode>(p => p
+            .Add(x => x.Item, new SessionContextNode(new SessionNodeInput("n1", "workspace", "Orders"), IsLoaded: false)));
+
+        var row = cut.Find("div[data-projected]");
+        row.ClassList.ShouldContain("focus-within:bg-primary/5");
+        row.ClassList.ShouldContain("data-[projected=true]:bg-primary/10");
+    }
+
+    [Fact(DisplayName = "UAC12: focused node button suppresses the default outline")]
+    [Trait(Spec.UAC, "12")]
+    [Given("a SessionContextTreeNode renders")]
+    [When("inspecting the node button markup")]
+    [Then("the button removes the default focus outline")]
+    public void UAC12_FocusedNodeButtonRemovesDefaultOutline()
+    {
+        var cut = Ctx.Render<SessionContextTreeNode>(p => p
+            .Add(x => x.Item, new SessionContextNode(new SessionNodeInput("n1", "workspace", "Orders"), IsLoaded: false)));
+
+        var button = cut.Find("[data-slot='session-context-node']");
+        button.ClassList.ShouldContain("focus:outline-none");
+        button.ClassList.ShouldContain("focus-visible:outline-none");
+    }
+
     private static string ReadEmbeddedResource(string name)
     {
         var assembly = typeof(SC14_TreeKeyboardNavigation).Assembly;
