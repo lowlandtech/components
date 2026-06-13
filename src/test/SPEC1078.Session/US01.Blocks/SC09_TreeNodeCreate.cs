@@ -224,4 +224,23 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
         cut.Find("[data-slot='session-command-bar']").ShouldNotBeNull();
     }
 
+    [Fact(DisplayName = "UAC08: Header create button is hidden until hover or focus")]
+    [Trait(Spec.UAC, "08")]
+    [Given("a SessionContextTreeNode for a header node")]
+    [When("the node's markup is inspected")]
+    [Then("the create button uses opacity-0 with group-hover/focus visibility")]
+    public void UAC08_HeaderCreateButtonHidesUntilHoverOrFocus()
+    {
+        var headerNode = new SessionNodeInput("ws-header", "workspaces.header", "Workspaces");
+        var cut = Ctx.Render<SessionContextTreeNode>(p => p
+            .Add(x => x.Item, new SessionContextNode(headerNode, IsLoaded: true)));
+
+        var button = cut.Find("[data-slot='session-context-node-create']");
+        var classList = button.ClassList;
+
+        classList.ShouldContain("opacity-0");
+        classList.ShouldContain("group-hover:opacity-100");
+        classList.ShouldContain("focus:opacity-100");
+    }
+
 }
