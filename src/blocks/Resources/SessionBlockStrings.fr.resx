@@ -20,6 +20,8 @@
   <data name="RequestDescription" xml:space="preserve"><value>Résumez la session active et utilisez tout contexte épinglé.</value></data>
   <data name="ResponseDescription" xml:space="preserve"><value>Les blocs de contexte épinglés seront inclus dans la fenêtre contextuelle de l'assistant sans créer de tours.</value></data>
   <data name="OpenSidebar" xml:space="preserve"><value>Ouvrir la barre latérale</value></data>
+  <data name="OpenSections" xml:space="preserve"><value>Ouvrir les sections</value></data>
+  <data name="CloseSections" xml:space="preserve"><value>Fermer les sections</value></data>
   <data name="EmptySessionTitle" xml:space="preserve"><value>Sélectionner une session</value></data>
   <data name="EmptySessionDescription" xml:space="preserve"><value>Le contenu de la session reste inactif jusqu'à ce qu'un onglet de session soit actif.</value></data>
   <data name="CommandPlaceholder" xml:space="preserve"><value>Posez une question sur la session active...</value></data>

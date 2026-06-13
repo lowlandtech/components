@@ -5,14 +5,23 @@
     @if (OpenNodes.Count == 0)
     {
         <div class="flex h-full min-h-0 flex-col overflow-hidden" data-slot="session-content-empty-shell">
-            @if (HeaderLeading is not null)
+            @if (HeaderLeading is not null || HeaderTrailing is not null)
             {
                 <div data-slot="session-content-empty-header" class="flex h-10 min-w-0 shrink-0 items-center">
-                    <div data-slot="tabs-header-leading" class="shrink-0">
-                        @HeaderLeading
-                    </div>
+                    @if (HeaderLeading is not null)
+                    {
+                        <div data-slot="tabs-header-leading" class="shrink-0">
+                            @HeaderLeading
+                        </div>
+                    }
                     <div data-slot="session-content-empty-tabs-border"
                          class="h-10 min-w-0 flex-1 border-b border-border"></div>
+                    @if (HeaderTrailing is not null)
+                    {
+                        <div data-slot="tabs-header-trailing" class="shrink-0">
+                            @HeaderTrailing
+                        </div>
+                    }
                 </div>
             }
 
@@ -33,6 +42,7 @@
               TabClosed="CloseTabAsync"
               TabPinnedChanged="OnTabPinnedChangedAsync"
               HeaderLeading="@HeaderLeading"
+              HeaderTrailing="@HeaderTrailing"
               DynamicVariant="ide"
               DynamicListAlign="left"
               class="min-h-0 w-full flex-1 !gap-0 overflow-hidden"

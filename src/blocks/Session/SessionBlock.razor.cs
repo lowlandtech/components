@@ -12,6 +12,10 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     private bool _isHydratingStandaloneSidebar;
     private int _standaloneSidebarChangeVersion;
     private string? _hydratedSidebarPersistKey;
+    private bool _isRightSidebarOpen = true;
+    private bool _isHydratingRightSidebar;
+    private int _rightSidebarChangeVersion;
+    private string? _hydratedRightSidebarPersistKey;
     private bool _isCommandBarVisible;
     private bool _isHydratingCommandBar;
     private int _commandBarChangeVersion;
@@ -50,6 +54,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     [Parameter] public int TestStreamDelayMilliseconds { get; set; } = 35;
     [Parameter] public bool HasSidebar { get; set; }
     [Parameter] public string SidebarPersistKey { get; set; } = "session-block:sidebar-open";
+    [Parameter] public string RightSidebarPersistKey { get; set; } = "session-block:right-sidebar-open";
     [Parameter] public string CommandBarVisiblePersistKey { get; set; } = "session-block:command-bar-visible";
     [Parameter] public int? SidebarWidth { get; set; }
     [Parameter] public string Variant { get; set; } = "outlined";
@@ -104,6 +109,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await HydrateStandaloneSidebarAsync();
+        await HydrateRightSidebarAsync();
         await HydrateCommandBarAsync();
 
         if (!string.IsNullOrWhiteSpace(AppState.PendingScrollSectionId))
@@ -208,7 +214,9 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     private (string Left, string Right) GetMainContentHorizontalSpacing(bool isLeftOpen)
     {
         var left = isLeftOpen ? (IsNoneVariant ? "4px" : "6px") : "10px";
-        var right = IsNoneVariant ? "4px" : "6px";
+        var right = _isRightSidebarOpen
+            ? IsNoneVariant ? "4px" : "6px"
+            : "10px";
         return (left, right);
     }
 
@@ -251,6 +259,22 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
         builder.AddMarkupContent(10, "<svg data-slot=\"icon\" xmlns=\"http://www.w3.org/2000/svg\" width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"cn-icon shrink-0\" aria-hidden=\"true\"><rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"></rect><path d=\"M9 3v18\"></path><path d=\"m13 15 3-3-3-3\"></path></svg>");
 
+        builder.CloseElement();
+    };
+
+    private RenderFragment RightSidebarOpenButton => builder =>
+    {
+        builder.OpenElement(0, "button");
+        builder.AddAttribute(1, "type", "button");
+        builder.AddAttribute(2, "data-testid", "session-block-right-sidebar-open");
+        builder.AddAttribute(3, "data-slot", "tabs-trigger");
+        builder.AddAttribute(4, "data-state", "inactive");
+        builder.AddAttribute(5, "data-orientation", "horizontal");
+        builder.AddAttribute(6, "class", "cn-tabs-trigger cn-tabs-trigger-ide inline-flex h-10 w-10 min-w-0 cursor-default items-center justify-center gap-1 whitespace-nowrap border-l border-b border-border px-0 text-sm text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring");
+        builder.AddAttribute(7, "title", L("OpenSections"));
+        builder.AddAttribute(8, "aria-label", L("OpenSections"));
+        builder.AddAttribute(9, "onclick", EventCallback.Factory.Create(this, OpenRightSidebarAsync));
+        builder.AddMarkupContent(10, "<svg data-slot=\"icon\" xmlns=\"http://www.w3.org/2000/svg\" width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"cn-icon shrink-0\" aria-hidden=\"true\"><rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"></rect><path d=\"M15 3v18\"></path><path d=\"m11 9-3 3 3 3\"></path></svg>");
         builder.CloseElement();
     };
 
@@ -320,6 +344,76 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
                 "localStorage.setItem",
                 SidebarPersistKey,
                 _isStandaloneSidebarOpen.ToString().ToLowerInvariant());
+        }
+        catch (InvalidOperationException)
+        {
+            // JavaScript interop is unavailable during static rendering.
+        }
+        catch (JSException)
+        {
+            // Persistence is best effort when browser storage is unavailable.
+        }
+    }
+
+    private async Task CloseRightSidebarAsync()
+    {
+        _isRightSidebarOpen = false;
+        _rightSidebarChangeVersion++;
+        await PersistRightSidebarAsync();
+    }
+
+    private async Task OpenRightSidebarAsync()
+    {
+        _isRightSidebarOpen = true;
+        _rightSidebarChangeVersion++;
+        await PersistRightSidebarAsync();
+    }
+
+    private async Task HydrateRightSidebarAsync()
+    {
+        if (_isHydratingRightSidebar ||
+            string.Equals(_hydratedRightSidebarPersistKey, RightSidebarPersistKey, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        _isHydratingRightSidebar = true;
+        var changeVersion = _rightSidebarChangeVersion;
+
+        try
+        {
+            var storedValue = await JS.InvokeAsync<string?>("localStorage.getItem", RightSidebarPersistKey);
+            if (changeVersion == _rightSidebarChangeVersion &&
+                bool.TryParse(storedValue, out var isOpen) &&
+                isOpen != _isRightSidebarOpen)
+            {
+                _isRightSidebarOpen = isOpen;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (InvalidOperationException)
+        {
+            // JavaScript interop is unavailable during static rendering.
+        }
+        catch (JSException)
+        {
+            // Persistence is best effort when browser storage is unavailable.
+        }
+        finally
+        {
+            _hydratedRightSidebarPersistKey = RightSidebarPersistKey;
+            _isHydratingRightSidebar = false;
+        }
+    }
+
+    private async Task PersistRightSidebarAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync(
+                "localStorage.setItem",
+                RightSidebarPersistKey,
+                _isRightSidebarOpen.ToString().ToLowerInvariant());
         }
         catch (InvalidOperationException)
         {

@@ -29,6 +29,8 @@ public partial class Tabs
 
     [Parameter] public RenderFragment? HeaderLeading { get; set; }
 
+    [Parameter] public RenderFragment? HeaderTrailing { get; set; }
+
     [Parameter] public RenderFragment<TabsItem>? ItemContent { get; set; }
 
     [Parameter, PropertyGrid(Group = "Appearance", Editor = PropertyEditor.Select,

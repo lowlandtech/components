@@ -20,6 +20,8 @@
   <data name="RequestDescription" xml:space="preserve"><value>Sammanfatta den aktiva sessionen och använd eventuella fästa kontexter.</value></data>
   <data name="ResponseDescription" xml:space="preserve"><value>Fästa kontextblock kommer att inkluderas i assistentens kontextfönster utan att skapa omgångar.</value></data>
   <data name="OpenSidebar" xml:space="preserve"><value>Öppna sidofält</value></data>
+  <data name="OpenSections" xml:space="preserve"><value>Öppna sektioner</value></data>
+  <data name="CloseSections" xml:space="preserve"><value>Stäng sektioner</value></data>
   <data name="EmptySessionTitle" xml:space="preserve"><value>Välj en session</value></data>
   <data name="EmptySessionDescription" xml:space="preserve"><value>Sessionsinnehåll förblir inaktivt tills en session-flik är aktiv.</value></data>
   <data name="CommandPlaceholder" xml:space="preserve"><value>Fråga om den aktiva sessionen...</value></data>

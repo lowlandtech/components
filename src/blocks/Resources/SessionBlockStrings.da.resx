@@ -20,6 +20,8 @@
   <data name="RequestDescription" xml:space="preserve"><value>Opsummer den aktive session og brug eventuelle fastgjorte kontekster.</value></data>
   <data name="ResponseDescription" xml:space="preserve"><value>Fastgjorte kontekstblokke vil blive inkluderet i assistentens kontekstvindue uden at oprette ture.</value></data>
   <data name="OpenSidebar" xml:space="preserve"><value>Åbn sidebjælke</value></data>
+  <data name="OpenSections" xml:space="preserve"><value>Åbn sektioner</value></data>
+  <data name="CloseSections" xml:space="preserve"><value>Luk sektioner</value></data>
   <data name="EmptySessionTitle" xml:space="preserve"><value>Vælg en session</value></data>
   <data name="EmptySessionDescription" xml:space="preserve"><value>Sessionindhold forbliver inaktivt, indtil en sessionfane er aktiv.</value></data>
   <data name="CommandPlaceholder" xml:space="preserve"><value>Spørg om den aktive session...</value></data>

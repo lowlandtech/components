@@ -20,6 +20,8 @@
   <data name="RequestDescription" xml:space="preserve"><value>Resuma a sessão ativa e use qualquer contexto fixado.</value></data>
   <data name="ResponseDescription" xml:space="preserve"><value>Os blocos de contexto fixados serão incluídos na janela de contexto do assistente sem criar turnos.</value></data>
   <data name="OpenSidebar" xml:space="preserve"><value>Abrir barra lateral</value></data>
+  <data name="OpenSections" xml:space="preserve"><value>Abrir secções</value></data>
+  <data name="CloseSections" xml:space="preserve"><value>Fechar secções</value></data>
   <data name="EmptySessionTitle" xml:space="preserve"><value>Selecionar uma sessão</value></data>
   <data name="EmptySessionDescription" xml:space="preserve"><value>O conteúdo da sessão permanece inativo até que uma aba de sessão esteja ativa.</value></data>
   <data name="CommandPlaceholder" xml:space="preserve"><value>Pergunte sobre a sessão ativa...</value></data>

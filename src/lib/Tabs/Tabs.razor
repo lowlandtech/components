@@ -54,6 +54,13 @@
                         <Icon Paths="@CollapseButtonIcon" Size="14" />
                     </button>
                 }
+
+                @if (HeaderTrailing is not null)
+                {
+                    <div data-slot="tabs-header-trailing" class="ml-auto shrink-0">
+                        @HeaderTrailing
+                    </div>
+                }
             </div>
 
             @foreach (var item in OrderedItems)
