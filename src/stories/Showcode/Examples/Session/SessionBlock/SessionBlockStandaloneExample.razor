@@ -1,8 +1,29 @@
 @namespace LowlandTech.Components.Stories.Showcode.Examples.Session
 
 <SessionBlock Variant="none"
-            HasSidebar="true"
-            IsTest="true"
-            Class="h-full w-full"
-            PageOverlayContainerClass="page-overlay-container absolute inset-0 z-40 flex h-full w-full flex-col bg-background"
-            AppOverlayContainerClass="session-block-overlay absolute inset-0 z-50 flex h-full w-full flex-col overflow-hidden rounded-none bg-background gap-0 py-0" />
+                HasSidebar="true"
+                IsTest="true"
+                ContextNodes="_contextNodes"
+                Class="h-full w-full"
+                PageOverlayContainerClass="page-overlay-container absolute inset-0 z-40 flex h-full w-full flex-col bg-background"
+                AppOverlayContainerClass="session-block-overlay absolute inset-0 z-50 flex h-full w-full flex-col overflow-hidden rounded-none bg-background gap-0 py-0" />
+
+@code {
+    private readonly IReadOnlyList<SessionContextNode> _contextNodes =
+    [
+        new(
+            new SessionNodeInput("orders", "orders.header", "Orders", "NodeBlock"),
+            [
+                new SessionContextNode(new SessionNodeInput("invoice-approval", "invoice", "Invoice approval", "NodeBlock"), IsLoaded: true),
+                new SessionContextNode(new SessionNodeInput("shipment-delay", "shipment", "Shipment delay", "NodeBlock"), IsLoaded: true)
+            ],
+            IsLoaded: false),
+        new(
+            new SessionNodeInput("customers", "customers.header", "Customers", "NodeBlock"),
+            [
+                new SessionContextNode(new SessionNodeInput("northwind", "customer", "Northwind Traders", "NodeBlock"), IsLoaded: true),
+                new SessionContextNode(new SessionNodeInput("contoso", "customer", "Contoso", "NodeBlock"), IsLoaded: true)
+            ],
+            IsLoaded: false)
+    ];
+}
