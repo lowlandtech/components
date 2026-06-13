@@ -287,4 +287,49 @@ public sealed class SC10_TreeLazyLoading : ViewScenario
         navigated.ShouldNotBeNull();
         navigated.Id.ShouldBe("n1");
     }
+
+    [Fact(DisplayName = "UAC11: Header children under a loaded user root start collapsed")]
+    [Trait(Spec.UAC, "11")]
+    [Given("a loaded user root with unloaded header children")]
+    [When("the tree renders without persisted expansion")]
+    [Then("the root is expanded and the header children are collapsed")]
+    public void UAC11_HeaderChildrenUnderUserRootStartCollapsed()
+    {
+        var root = new SessionContextNode(
+            new SessionNodeInput("user", "user-context", "User"),
+            new[]
+            {
+                new SessionContextNode(
+                    new SessionNodeInput("orders", "orders.header", "Orders"),
+                    new[] { new SessionContextNode(new SessionNodeInput("inv", "invoice", "Invoice"), IsLoaded: true) },
+                    false),
+                new SessionContextNode(
+                    new SessionNodeInput("customers", "customers.header", "Customers"),
+                    new[] { new SessionContextNode(new SessionNodeInput("nw", "customer", "Northwind"), IsLoaded: true) },
+                    false)
+            },
+            true);
+
+        var cut = Ctx.Render<SessionContextExplorer>(p => p
+            .Add(x => x.RootNodes, new[] { root }));
+
+        // Root is expanded.
+        cut.Find("[data-node-id='user']").ShouldNotBeNull();
+
+        // Header children are not expanded by default.
+        cut.FindAll("[data-node-id='inv']").Count.ShouldBe(0);
+        cut.FindAll("[data-node-id='nw']").Count.ShouldBe(0);
+
+        // Collapsed folder icons are present.
+        cut.Markup.ShouldContain(Icons.Folder);
+        cut.Markup.ShouldNotContain(Icons.FolderOpen);
+
+        // Expanding a header reveals its children.
+        cut.Find("[data-node-id='orders']")
+           .ParentElement?.QuerySelector("span.cursor-pointer")
+           ?.Click();
+
+        cut.FindAll("[data-node-id='inv']").Count.ShouldBeGreaterThan(0);
+        cut.Markup.ShouldContain(Icons.FolderOpen);
+    }
 }
