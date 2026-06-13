@@ -65,6 +65,15 @@
 		<EmbeddedResource Include="..\..\app\Components\App.razor">
 			<LogicalName>app.App.razor</LogicalName>
 		</EmbeddedResource>
+		<EmbeddedResource Include="..\lib\wwwroot\js\sessionContextTree.js">
+			<LogicalName>sessionContextTree.js</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="..\app\wwwroot\index.html">
+			<LogicalName>components.app.index.html</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="..\..\desktop\wwwroot\index.html">
+			<LogicalName>desktop.index.html</LogicalName>
+		</EmbeddedResource>
 	</ItemGroup>
 
 	<!-- Exclude unfinished / broken test files from other agents -->

@@ -151,4 +151,66 @@ public sealed class SC14_TreeKeyboardNavigation : ViewScenario
                 true)
         };
     }
+
+    [Fact(DisplayName = "UAC07: keyboard JS module exports focusNext and focusPrevious")]
+    [Trait(Spec.UAC, "07")]
+    [Given("the sessionContextTree.js source")]
+    [When("inspecting the module surface")]
+    [Then("it defines ltSessionContextTree.focusNext and ltSessionContextTree.focusPrevious")]
+    public void UAC07_JsModuleExportsFocusFunctions()
+    {
+        var script = ReadEmbeddedResource("sessionContextTree.js");
+
+        script.ShouldContain("ltSessionContextTree.focusNext");
+        script.ShouldContain("ltSessionContextTree.focusPrevious");
+    }
+
+    [Fact(DisplayName = "UAC08: keyboard JS module scopes navigation to the active explorer")]
+    [Trait(Spec.UAC, "08")]
+    [Given("the sessionContextTree.js source")]
+    [When("inspecting the focus query logic")]
+    [Then("it only considers buttons inside the closest [data-slot=session-context-explorer]")]
+    public void UAC08_JsModuleScopesToActiveExplorer()
+    {
+        var script = ReadEmbeddedResource("sessionContextTree.js");
+
+        script.ShouldContain("[data-slot=\"session-context-explorer\"]");
+        script.ShouldContain("[data-slot=\"session-context-node\"]");
+    }
+
+    [Fact(DisplayName = "UAC09: keyboard JS module suppresses arrow-key default scrolling")]
+    [Trait(Spec.UAC, "09")]
+    [Given("the sessionContextTree.js source")]
+    [When("inspecting the capture listener")]
+    [Then("it calls preventDefault for Arrow keys on session-context-node buttons")]
+    public void UAC09_JsModulePreventsDefaultArrowScrolling()
+    {
+        var script = ReadEmbeddedResource("sessionContextTree.js");
+
+        script.ShouldContain("preventDefault");
+        script.ShouldContain("event.key.startsWith('Arrow')");
+    }
+
+    [Fact(DisplayName = "UAC10: all app hosts include the sessionContextTree.js script")]
+    [Trait(Spec.UAC, "10")]
+    [Given("the host page sources")]
+    [When("inspecting script tags")]
+    [Then("each host references _content/LowlandTech.Components/js/sessionContextTree.js")]
+    public void UAC10_HostPagesReferenceKeyboardScript()
+    {
+        ReadEmbeddedResource("web.App.razor").ShouldContain("sessionContextTree.js");
+        ReadEmbeddedResource("shell.App.razor").ShouldContain("sessionContextTree.js");
+        ReadEmbeddedResource("app.App.razor").ShouldContain("sessionContextTree.js");
+        ReadEmbeddedResource("components.app.index.html").ShouldContain("sessionContextTree.js");
+        ReadEmbeddedResource("desktop.index.html").ShouldContain("sessionContextTree.js");
+    }
+
+    private static string ReadEmbeddedResource(string name)
+    {
+        var assembly = typeof(SC14_TreeKeyboardNavigation).Assembly;
+        using var stream = assembly.GetManifestResourceStream(name);
+        stream.ShouldNotBeNull($"Embedded resource '{name}' must exist.");
+        using var reader = new StreamReader(stream!);
+        return reader.ReadToEnd();
+    }
 }
