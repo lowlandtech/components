@@ -21,17 +21,21 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
         cut.FindAll("[data-testid='session-settings-outbox-tab']").Count.ShouldBe(1);
     }
 
-    [Fact(DisplayName = "UAC02: SessionOutboxList renders entries from the supplied outbox")]
+    [Fact(DisplayName = "UAC02: SessionOutboxList renders side-effect entries with type and payload")]
     [Trait(Spec.UAC, "02")]
-    [Given("a SessionSettings outbox tab with one entry")]
+    [Given("a SessionSettings outbox tab with side-effect entries")]
     [When("the user selects the Outbox tab")]
-    [Then("the entry type and payload are displayed")]
-    public void UAC02_OutboxEntriesRendered()
+    [Then("each side-effect type and payload are displayed")]
+    public void UAC02_SideEffectEntriesRendered()
     {
         var outbox = new InMemorySessionOutbox();
         outbox.Append(new SessionOutboxEntry(
-            "TestEffect",
-            new { Message = "hello" },
+            typeof(ScheduleCreateEffect).Name,
+            new ScheduleCreateEffect("workspace", "ws-1", "Billing"),
+            DateTimeOffset.UtcNow));
+        outbox.Append(new SessionOutboxEntry(
+            typeof(ScheduleUpdateEffect).Name,
+            new ScheduleUpdateEffect("invoice", "inv-1", "Label", "Approved"),
             DateTimeOffset.UtcNow));
 
         var cut = Ctx.Render<SessionSettings>(p => p
@@ -39,32 +43,37 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
 
         cut.Find("[data-testid='session-settings-outbox-tab']").Click();
 
-        cut.FindAll("[data-slot='session-outbox-entry']").Count.ShouldBe(1);
-        var entry = cut.Find("[data-outbox-type='TestEffect']");
-        entry.TextContent.ShouldContain("TestEffect");
-        entry.TextContent.ShouldContain("hello");
+        cut.FindAll("[data-slot='session-outbox-entry']").Count.ShouldBe(2);
+        cut.Find("[data-outbox-type='ScheduleCreateEffect']").TextContent.ShouldContain("Billing");
+        cut.Find("[data-outbox-type='ScheduleUpdateEffect']").TextContent.ShouldContain("Approved");
     }
 
     [Fact(DisplayName = "UAC03: SessionBlock passes its state-service outbox into SessionSettings")]
     [Trait(Spec.UAC, "03")]
-    [Given("a SessionBlock that owns a SessionStateService with an outbox")]
-    [When("the user opens Session Settings")]
-    [Then("the Outbox tab lists the effects captured by the state service")]
+    [Given("a SessionBlock with a state service that has an outbox")]
+    [When("the settings page is shown")]
+    [Then("the Outbox tab lists the side-effects from the state service")]
     public async Task UAC03_SessionBlockSurfacesOutboxInSettings()
     {
         var outbox = new InMemorySessionOutbox();
         var stateService = new SessionStateService(outbox);
         stateService.RegisterEffect((state, action, ct) =>
         {
-            outbox.Append(new SessionOutboxEntry(action.GetType().Name, action, DateTimeOffset.UtcNow));
+            if (action is ISessionSideEffect sideEffect)
+            {
+                outbox.Append(new SessionOutboxEntry(sideEffect.GetType().Name, sideEffect, DateTimeOffset.UtcNow));
+            }
             return Task.CompletedTask;
         });
 
         var sessions = new[] { new SessionListEntry("release-session", "Release notes") };
         stateService.SelectSession(new SessionNodeInput("release-session", "session", "Release notes"), sessions);
         await stateService.DispatchAsync(new ShowSessionSettingsPage(), CancellationToken.None);
+        await stateService.DispatchAsync(
+            new ScheduleCreateEffect("workspace", "ws-1", "Billing"),
+            CancellationToken.None);
 
-        outbox.Entries.Count.ShouldBeGreaterThan(0);
+        outbox.Entries.Count.ShouldBe(1);
 
         var cut = Ctx.Render<SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
@@ -72,18 +81,17 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
             .Add(x => x.Sessions, sessions)
             .Add(x => x.ContextNodes, GetContextNodes()));
 
-        cut.Find("[data-testid='session-settings-api-keys-tab']").ShouldNotBeNull();
         cut.Find("[data-testid='session-settings-outbox-tab']").Click();
 
-        cut.FindAll("[data-slot='session-outbox-entry']").Count.ShouldBe(outbox.Entries.Count);
+        cut.FindAll("[data-slot='session-outbox-entry']").Count.ShouldBe(1);
     }
 
-    [Fact(DisplayName = "UAC04: SessionBlock's owned state service automatically records actions in the outbox")]
+    [Fact(DisplayName = "UAC04: Plain UI actions do not appear in the owned outbox")]
     [Trait(Spec.UAC, "04")]
     [Given("a SessionBlock using its own SessionStateService")]
     [When("the user selects a session and opens Settings")]
-    [Then("the Outbox tab contains effects captured from dispatched actions")]
-    public void UAC04_SessionBlockOwnedOutboxCapturesActions()
+    [Then("the Outbox tab contains no entries because no side-effects were scheduled")]
+    public void UAC04_PlainUiActionsDoNotPopulateOutbox()
     {
         var sessions = new[] { new SessionListEntry("release-session", "Release notes") };
 
@@ -96,26 +104,40 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
         cut.Find("[data-testid='session-block-settings-button']").Click();
         cut.Find("[data-testid='session-settings-outbox-tab']").Click();
 
-        cut.FindAll("[data-slot='session-outbox-entry']").Count.ShouldBeGreaterThan(0);
+        cut.FindAll("[data-slot='session-outbox-entry']").Count.ShouldBe(0);
     }
 
-    [Fact(DisplayName = "UAC05: SessionOutboxList updates live when entries are appended after render")]
+    [Fact(DisplayName = "UAC05: Scheduling side-effects appends entries to the owned outbox")]
     [Trait(Spec.UAC, "05")]
-    [Given("a SessionSettings Outbox tab already rendered")]
-    [When("a new entry is appended to the outbox")]
-    [Then("the list re-renders to show the new entry")]
-    public void UAC05_SessionOutboxListUpdatesLive()
+    [Given("a SessionBlock using its own SessionStateService")]
+    [When("the user renames a context node")]
+    [Then("a ScheduleUpdateEffect appears in the Outbox tab")]
+    public void UAC05_SideEffectActionsPopulateOwnedOutbox()
     {
-        var outbox = new InMemorySessionOutbox();
-        var cut = Ctx.Render<SessionSettings>(p => p.Add(x => x.Outbox, outbox));
+        var sessions = new[] { new SessionListEntry("release-session", "Release notes") };
+
+        var cut = Ctx.Render<SessionBlock>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.Sessions, sessions)
+            .Add(x => x.ContextNodes, GetContextNodes()));
+
+        cut.Find("[data-testid='session-list-item'][data-node-id='release-session']").Click();
+        OpenRenameMenu(cut);
+
+        var commandBar = cut.FindComponent<SessionCommandBar>();
+        commandBar.InvokeAsync(() => commandBar.Instance.ValueChanged.InvokeAsync("Invoice review"));
+        commandBar.InvokeAsync(() => commandBar.Instance.OnSubmit.InvokeAsync(
+            new SessionCommandSubmitted(
+                new SessionNodeInput("invoice-approval", "invoice", "Invoice approval", "NodeBlock"),
+                "edit",
+                "Invoice review")));
+
+        cut.Find("[data-testid='session-block-settings-button']").Click();
         cut.Find("[data-testid='session-settings-outbox-tab']").Click();
 
-        cut.FindAll("[data-slot='session-outbox-entry']").Count.ShouldBe(0);
-
-        outbox.Append(new SessionOutboxEntry("LiveEffect", new { Value = 42 }, DateTimeOffset.UtcNow));
-
-        cut.FindAll("[data-slot='session-outbox-entry']").Count.ShouldBe(1);
-        cut.Find("[data-outbox-type='LiveEffect']").TextContent.ShouldContain("42");
+        var entries = cut.FindAll("[data-slot='session-outbox-entry']");
+        entries.Count.ShouldBe(1);
+        cut.Find("[data-outbox-type='ScheduleUpdateEffect']").TextContent.ShouldContain("Invoice review");
     }
 
     [Fact(DisplayName = "UAC06: Outbox entries are rendered newest-first")]
@@ -126,16 +148,41 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
     public void UAC06_OutboxEntriesAreNewestFirst()
     {
         var outbox = new InMemorySessionOutbox();
-        outbox.Append(new SessionOutboxEntry("First", new { }, DateTimeOffset.UtcNow.AddMinutes(-1)));
-        outbox.Append(new SessionOutboxEntry("Second", new { }, DateTimeOffset.UtcNow));
+        outbox.Append(new SessionOutboxEntry(
+            typeof(ScheduleCreateEffect).Name,
+            new ScheduleCreateEffect("workspace", "ws-1", "First"),
+            DateTimeOffset.UtcNow.AddMinutes(-1)));
+        outbox.Append(new SessionOutboxEntry(
+            typeof(ScheduleUpdateEffect).Name,
+            new ScheduleUpdateEffect("workspace", "ws-1", "Label", "Second"),
+            DateTimeOffset.UtcNow));
 
         var cut = Ctx.Render<SessionSettings>(p => p.Add(x => x.Outbox, outbox));
         cut.Find("[data-testid='session-settings-outbox-tab']").Click();
 
         var entries = cut.FindAll("[data-outbox-type]");
         entries.Count.ShouldBe(2);
-        entries[0].GetAttribute("data-outbox-type").ShouldBe("Second");
-        entries[1].GetAttribute("data-outbox-type").ShouldBe("First");
+        entries[0].GetAttribute("data-outbox-type").ShouldBe(typeof(ScheduleUpdateEffect).Name);
+        entries[1].GetAttribute("data-outbox-type").ShouldBe(typeof(ScheduleCreateEffect).Name);
+    }
+
+    private void OpenRenameMenu(IRenderedComponent<SessionBlock> cut)
+    {
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
+
+        var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
+        var popover = popoverService.ActivePopovers.Single(reference => reference.State.Open);
+
+        var fragmentCut = Ctx.Render(builder =>
+        {
+            builder.OpenElement(0, "div");
+            builder.AddContent(1, popover.State.Fragment);
+            builder.CloseElement();
+        });
+
+        fragmentCut.FindAll(".node-menu-item")
+            .Single(item => string.Equals(item.TextContent.Trim(), "Rename", StringComparison.Ordinal))
+            .Click();
     }
 
     private static IReadOnlyList<SessionContextNode> GetContextNodes() =>

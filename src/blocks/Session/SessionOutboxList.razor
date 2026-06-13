@@ -21,7 +21,7 @@
                 <div class="grid grid-cols-[minmax(6rem,1fr)_minmax(6rem,1fr)_6rem] items-start gap-2 px-2 py-2 text-xs"
                      data-slot="session-outbox-entry"
                      data-outbox-type="@entry.Type">
-                    <span class="truncate font-medium text-foreground">@entry.Type</span>
+                    <span class="truncate font-medium text-foreground">@GetDisplayType(entry.Type)</span>
                     <pre class="overflow-auto text-[10px] text-muted-foreground">@SerializePayload(entry.Payload)</pre>
                     <span class="text-right text-[10px] text-muted-foreground">@entry.CreatedAt.ToString("HH:mm:ss.fff")</span>
                 </div>

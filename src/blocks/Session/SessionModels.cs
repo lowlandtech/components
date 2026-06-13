@@ -26,6 +26,26 @@ public sealed record SessionHeaderCreateRequest(string ParentNodeId, string Pare
 /// </summary>
 public sealed record SessionNodeRenameRequest(string NodeId, string NodeTypeKey, string OldLabel, string NewLabel);
 
+/// <summary>
+/// Marker interface for actions that represent a system side-effect
+/// (create, update, delete, send mail, etc.) to be surfaced in the outbox.
+/// </summary>
+public interface ISessionSideEffect
+{
+}
+
+/// <summary>Side-effect: schedule creation of an entity.</summary>
+public sealed record ScheduleCreateEffect(string EntityType, string EntityId, string Label) : ISessionSideEffect;
+
+/// <summary>Side-effect: schedule an update to an entity property.</summary>
+public sealed record ScheduleUpdateEffect(string EntityType, string EntityId, string PropertyName, string NewValue) : ISessionSideEffect;
+
+/// <summary>Side-effect: schedule deletion of an entity.</summary>
+public sealed record ScheduleDeleteEffect(string EntityType, string EntityId, string Label) : ISessionSideEffect;
+
+/// <summary>Side-effect: send an email.</summary>
+public sealed record SendMailEffect(string To, string Subject, string Body) : ISessionSideEffect;
+
 public sealed record SessionAgentType(
     string Key,
     string Label,

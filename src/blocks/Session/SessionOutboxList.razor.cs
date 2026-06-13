@@ -37,6 +37,15 @@ public partial class SessionOutboxList : TinyComponentBase, IDisposable
         }
     }
 
+    private static string GetDisplayType(string type) => type switch
+    {
+        "ScheduleCreateEffect" => "Create",
+        "ScheduleUpdateEffect" => "Update",
+        "ScheduleDeleteEffect" => "Delete",
+        "SendMailEffect" => "SendMail",
+        _ => type
+    };
+
     public void Dispose()
     {
         Outbox.Changed -= OnOutboxChanged;

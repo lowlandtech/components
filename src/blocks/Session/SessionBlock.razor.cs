@@ -79,7 +79,10 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         var service = new SessionStateService(ResolveSessionSurfaceDiscovery(), outbox: outbox);
         service.RegisterEffect((state, action, ct) =>
         {
-            outbox.Append(new SessionOutboxEntry(action.GetType().Name, action, DateTimeOffset.UtcNow));
+            if (action is ISessionSideEffect sideEffect)
+            {
+                outbox.Append(new SessionOutboxEntry(sideEffect.GetType().Name, sideEffect, DateTimeOffset.UtcNow));
+            }
             return Task.CompletedTask;
         });
         return service;
@@ -607,6 +610,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         var node = new SessionNodeInput(id, "session", entry.Label);
         SessionState.SelectSession(node, DisplaySessions);
         SessionState.SetAgentType("create");
+        SessionState.Dispatch(new ScheduleCreateEffect("session", id, entry.Label));
 
         try
         {
@@ -720,6 +724,8 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
         _localContextNodes ??= [.. ContextNodes];
         _localContextNodes = RemoveNode(_localContextNodes, node.Id).ToList();
+
+        SessionState.Dispatch(new ScheduleDeleteEffect(node.NodeTypeKey, node.Id, node.Label));
     }
 
     private async Task HandleNodeRenameSubmitAsync(SessionCommandSubmitted command)
@@ -743,6 +749,11 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
         SessionState.SetInput(string.Empty);
         SessionState.SetAgentType("ask");
+        SessionState.Dispatch(new ScheduleUpdateEffect(
+            command.Node.NodeTypeKey,
+            command.Node.Id,
+            "Label",
+            command.Input));
 
         try
         {
@@ -903,6 +914,11 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
             SessionState.SelectSession(updatedNode, DisplaySessions);
             SessionState.SetAgentType("ask");
+            SessionState.Dispatch(new ScheduleUpdateEffect(
+                updatedNode.NodeTypeKey,
+                updatedNode.Id,
+                "Label",
+                updatedNode.Label));
 
             await SessionState.DispatchAsync(new PersistSessionCommands(command.Node.Id), CancellationToken.None);
 
@@ -927,6 +943,10 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
             {
                 await OnHeaderCreateRequested.InvokeAsync(new SessionHeaderCreateRequest(
                     command.Node.Id, command.Node.NodeTypeKey, command.Input));
+                SessionState.Dispatch(new ScheduleCreateEffect(
+                    ResolveLocalChildNodeType(command.Node),
+                    Guid.NewGuid().ToString(),
+                    command.Input));
             }
             else
             {
@@ -941,6 +961,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
                     null,
                     true);
                 _localContextNodes = AddChildNode(_localContextNodes, command.Node.Id, childNode).ToList();
+                SessionState.Dispatch(new ScheduleCreateEffect(childTypeKey, childNode.Node.Id, command.Input));
             }
 
             // Stay in Create mode so the user can keep creating nodes in rapid succession.

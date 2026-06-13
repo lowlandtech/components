@@ -77,22 +77,29 @@ public sealed class SessionStateService
 
     public SessionBlockState Dispatch(object action)
     {
-        var next = SessionBlockReducer.Reduce(_state, action);
-        if (EqualityComparer<SessionBlockState>.Default.Equals(_state, next))
+        if (!ApplyReducer(action))
             return _state;
 
-        _state = next;
-        StateChanged?.Invoke(_state);
         RunEffectsAsync(action);
         return _state;
     }
 
     public async Task<SessionBlockState> DispatchAsync(object action, CancellationToken ct = default)
     {
-        var state = Dispatch(action);
-        // Effects are started by Dispatch; await them so callers can observe completion.
+        ApplyReducer(action);
         await WaitForEffectsAsync(action, ct);
-        return state;
+        return _state;
+    }
+
+    private bool ApplyReducer(object action)
+    {
+        var next = SessionBlockReducer.Reduce(_state, action);
+        if (EqualityComparer<SessionBlockState>.Default.Equals(_state, next))
+            return false;
+
+        _state = next;
+        StateChanged?.Invoke(_state);
+        return true;
     }
 
     private void RunEffectsAsync(object action)
