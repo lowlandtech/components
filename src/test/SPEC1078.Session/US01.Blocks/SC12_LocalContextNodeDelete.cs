@@ -102,7 +102,7 @@ public sealed class SC12_LocalContextNodeDelete : ViewScenario
     [Then("the node is removed without showing the dialog")]
     public void UAC05_SkipPreferenceDeletesImmediately()
     {
-        Ctx.JSInterop.Setup<string>("localStorage.getItem", "session-context-delete-skip-confirmation").SetResult("true");
+        Ctx.JSInterop.Setup<string?>("localStorage.getItem", "session-context-delete-skip-confirmation").SetResult("true");
 
         var cut = Ctx.Render<Components.SessionBlock>();
 
