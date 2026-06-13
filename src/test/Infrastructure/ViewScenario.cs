@@ -28,6 +28,7 @@ public abstract class ViewScenario : IAsyncLifetime
         Ctx.Services.AddSingleton<ISessionBlockRegistry, DefaultSessionBlockRegistry>();
         Ctx.Services.AddSingleton<ISessionBlockRegistry, AssemblyScanningSessionBlockRegistry>();
         Ctx.Services.AddSingleton<ISessionBlockDiscovery, SessionBlockDiscovery>();
+        Ctx.Services.AddSingleton<IAgentSelectionService, AgentSelectionService>();
         Ctx.Services.AddLocalization(options => options.ResourcesPath = "Resources");
         return ValueTask.CompletedTask;
     }

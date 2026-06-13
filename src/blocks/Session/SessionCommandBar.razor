@@ -11,15 +11,15 @@
             {
                 <div class="border-b border-border px-3 py-2 text-xs font-medium text-muted-foreground">/providers</div>
                 <div class="max-h-64 overflow-y-auto p-1">
-                    @foreach (var provider in ProviderOptions)
+                    @foreach (var provider in AgentSelection.Providers)
                     {
                         <button type="button"
-                                class="@GetPickerItemClass(provider.Key == _selection.ProviderKey)"
+                                class="@GetPickerItemClass(provider.Key == AgentSelection.CurrentSelection.ProviderKey)"
                                 data-slot="session-provider-option"
                                 data-provider="@provider.Key"
                                 @onclick="() => SelectProviderAsync(provider)">
                             <span>@provider.Label</span>
-                            @if (provider.Key == _selection.ProviderKey)
+                            @if (provider.Key == AgentSelection.CurrentSelection.ProviderKey)
                             {
                                 <span class="text-xs text-primary">Active</span>
                             }
@@ -37,12 +37,12 @@
                     @foreach (var model in ActiveProvider.Models)
                     {
                         <button type="button"
-                                class="@GetPickerItemClass(model.Key == _selection.ModelKey)"
+                                class="@GetPickerItemClass(model.Key == AgentSelection.CurrentSelection.ModelKey)"
                                 data-slot="session-model-option"
                                 data-model="@model.Key"
                                 @onclick="() => SelectModelAsync(model)">
                             <span>@model.Label</span>
-                            @if (model.Key == _selection.ModelKey)
+                            @if (model.Key == AgentSelection.CurrentSelection.ModelKey)
                             {
                                 <span class="text-xs text-primary">Active</span>
                             }
@@ -109,15 +109,26 @@
                     @agent.Label
                 </button>
             }
-            <button type="button"
-                    class="inline-flex h-8 max-w-48 items-center gap-1 truncate rounded-md border border-border px-2 text-xs text-muted-foreground hover:bg-muted"
-                    data-slot="session-completion-selection"
-                    title="@($"{ActiveProvider.Label} / {ActiveModel.Label}")"
-                    @onclick="OpenModelsAsync">
-                <span class="truncate">@ActiveProvider.Label</span>
-                <span>/</span>
-                <span class="truncate">@ActiveModel.Label</span>
-            </button>
+            <Select Value="@_selectionValue"
+                    ValueChanged="HandleSelectionChangeAsync"
+                    class="max-w-48"
+                    data-slot="session-completion-selection">
+                <SelectTrigger class="h-8 max-w-48 gap-1 rounded-md border border-border px-2 text-xs text-muted-foreground hover:bg-muted">
+                    <SelectValue Placeholder="Model" />
+                </SelectTrigger>
+                <SelectContent>
+                    @foreach (var provider in AgentSelection.Providers)
+                    {
+                        <SelectGroup>
+                            <SelectLabel>@provider.Label</SelectLabel>
+                            @foreach (var model in provider.Models)
+                            {
+                                <SelectItem Value="@($"{provider.Key}{ValueSeparator}{model.Key}")">@model.Label</SelectItem>
+                            }
+                        </SelectGroup>
+                    }
+                </SelectContent>
+            </Select>
         </div>
 
         <button type="button"

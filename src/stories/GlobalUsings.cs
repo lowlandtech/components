@@ -1,6 +1,7 @@
 // Global using directives
 
 global using LowlandTech.Components;
+global using LowlandTech.Components.Blocks.Session;
 global using LowlandTech.Components.Stories;
 global using LowlandTech.Components.Stories.Services;
 global using LowlandTech.Components.Stories.Services.Themes;

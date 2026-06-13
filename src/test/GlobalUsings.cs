@@ -6,6 +6,7 @@ global using System.Text.Json;
 global using System.Threading.Tasks;
 global using Bunit;
 global using LowlandTech.Components;
+global using LowlandTech.Components.Blocks.Session;
 global using LowlandTech.Components.Stories.Services.Themes;
 global using LowlandTech.Components.Stories.Showcode;
 global using LowlandTech.Components.Stories.Showcode.Stories.Misc;

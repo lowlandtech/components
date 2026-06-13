@@ -8,6 +8,8 @@ public sealed class SC03_SessionCommandProviders : ViewScenario
 {
     private static readonly SessionNodeInput OrdersNode = new("orders", "session", "Orders");
 
+    private IAgentSelectionService AgentSelection => Ctx.Services.GetRequiredService<IAgentSelectionService>();
+
     [Fact(DisplayName = "UAC01: /providers opens the provider picker without submitting a prompt")]
     [Trait(Spec.UAC, "01")]
     [Given("an active SessionCommandBar with no completion menu open")]
@@ -93,6 +95,69 @@ public sealed class SC03_SessionCommandProviders : ViewScenario
         });
     }
 
+    [Fact(DisplayName = "UAC05: model selection uses the Select component")]
+    [Trait(Spec.UAC, "05")]
+    [Given("a rendered SessionCommandBar")]
+    [When("inspecting the completion selection element")]
+    [Then("it is rendered as a Select with the expected trigger and value slots")]
+    public void UAC05_SelectionIsSelectComponent()
+    {
+        var cut = RenderCommandBar();
+
+        var selection = cut.Find("[data-slot='session-completion-selection']");
+        selection.GetAttribute("data-slot").ShouldContain("session-completion-selection");
+        cut.Find("[data-slot='session-completion-selection'] [data-slot='select-trigger']").ShouldNotBeNull();
+        cut.Find("[data-slot='session-completion-selection'] [data-slot='select-value']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC06: selecting a model from the dropdown updates the current selection")]
+    [Trait(Spec.UAC, "06")]
+    [Given("the model dropdown is open")]
+    [When("the user clicks a model item")]
+    [Then("the service selection changes to that provider and model and persists")]
+    public void UAC06_DropdownSelectionUpdatesService()
+    {
+        var cut = RenderCommandBarWithPopover();
+
+        cut.Find("[data-slot='session-completion-selection'] [data-slot='select-trigger']").Click();
+
+        cut.WaitForAssertion(() =>
+        {
+            cut.Markup.ShouldContain("data-slot=\"select-content\"");
+        });
+
+        cut.Find("[data-slot='select-content'] [data-value='kimi::kimi-k2-thinking']").Click();
+
+        AgentSelection.CurrentSelection.ProviderKey.ShouldBe("kimi");
+        AgentSelection.CurrentSelection.ModelKey.ShouldBe("kimi-k2-thinking");
+        Ctx.JSInterop.Invocations
+            .Where(invocation => invocation.Identifier == "localStorage.setItem")
+            .Select(invocation => invocation.Arguments[1]?.ToString())
+            .Any(json => json?.Contains("\"ModelKey\":\"kimi-k2-thinking\"", StringComparison.Ordinal) == true)
+            .ShouldBeTrue();
+    }
+
+    [Fact(DisplayName = "UAC07: switching providers preserves the API key when the new provider requires one")]
+    [Trait(Spec.UAC, "07")]
+    [Given("Kimi is selected with an API key")]
+    [When("the user switches to another Kimi model")]
+    [Then("the API key is retained on the current selection")]
+    public void UAC07_ApiKeyPreservedWithinProvider()
+    {
+        var cut = RenderCommandBar();
+        cut.Find("[data-slot='session-command-input']").Input("/providers");
+        cut.Find("[data-provider='kimi']").Click();
+        cut.Find("[data-slot='session-provider-api-key']").Input("sk-retained");
+        cut.Find("[data-slot='session-provider-api-key-save']").Click();
+
+        cut.Find("[data-slot='session-command-input']").Input("/models");
+        cut.Find("[data-model='kimi-k2-thinking']").Click();
+
+        AgentSelection.CurrentSelection.ProviderKey.ShouldBe("kimi");
+        AgentSelection.CurrentSelection.ModelKey.ShouldBe("kimi-k2-thinking");
+        AgentSelection.CurrentSelection.ApiKey.ShouldBe("sk-retained");
+    }
+
     private IRenderedComponent<SessionCommandBar> RenderCommandBar(
         Action<SessionCommandSubmitted>? submittedCallback = null,
         bool setupStorage = true)
@@ -115,5 +180,36 @@ public sealed class SC03_SessionCommandProviders : ViewScenario
             if (submittedCallback is not null)
                 parameters.Add(component => component.OnSubmit, submittedCallback);
         });
+    }
+
+    private IRenderedComponent<CommandBarPopoverWrapper> RenderCommandBarWithPopover()
+    {
+        Ctx.JSInterop.Setup<string?>(
+                "localStorage.getItem",
+                "session-command-bar:completion")
+            .SetResult(null);
+        Ctx.JSInterop.SetupVoid("localStorage.setItem", _ => true);
+
+        return Ctx.Render<CommandBarPopoverWrapper>(parameters =>
+        {
+            parameters.Add(wrapper => wrapper.SelectedNode, OrdersNode);
+            parameters.Add(wrapper => wrapper.Value, string.Empty);
+        });
+    }
+
+    private sealed class CommandBarPopoverWrapper : ComponentBase
+    {
+        [Parameter] public SessionNodeInput SelectedNode { get; set; } = default!;
+        [Parameter] public string Value { get; set; } = string.Empty;
+
+        protected override void BuildRenderTree(RenderTreeBuilder builder)
+        {
+            builder.OpenComponent<PopoverProvider>(0);
+            builder.CloseComponent();
+            builder.OpenComponent<SessionCommandBar>(1);
+            builder.AddAttribute(2, nameof(SessionCommandBar.SelectedNode), SelectedNode);
+            builder.AddAttribute(3, nameof(SessionCommandBar.Value), Value);
+            builder.CloseComponent();
+        }
     }
 }

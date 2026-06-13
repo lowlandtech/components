@@ -1,11 +1,13 @@
 namespace LowlandTech.Components;
 
-public partial class SessionCommandBar : TinyComponentBase
+public partial class SessionCommandBar : TinyComponentBase, IDisposable
 {
     private const string ProvidersCommand = "providers";
     private const string ModelsCommand = "models";
+    private const string ValueSeparator = "::";
 
     [Inject] private IJSRuntime JS { get; set; } = default!;
+    [Inject] private IAgentSelectionService AgentSelection { get; set; } = default!;
 
     [Parameter] public SessionUiState State { get; set; } = SessionUiDefaults.Empty;
     [Parameter] public EventCallback<SessionUiState> StateChanged { get; set; }
@@ -21,42 +23,28 @@ public partial class SessionCommandBar : TinyComponentBase
     [Parameter] public bool IsBusy { get; set; }
     [Parameter] public EventCallback<SessionAgentTypeSelected> OnAgentTypeSelected { get; set; }
     [Parameter] public EventCallback<SessionCommandSubmitted> OnSubmit { get; set; }
-    [Parameter] public IReadOnlyList<SessionProviderOption> ProviderOptions { get; set; } = DefaultProviderOptions;
-    [Parameter] public SessionCompletionSelection? CompletionSelection { get; set; }
-    [Parameter] public EventCallback<SessionCompletionSelection> CompletionSelectionChanged { get; set; }
     [Parameter] public string CompletionPersistKey { get; set; } = "session-command-bar:completion";
 
-    private static readonly IReadOnlyList<SessionProviderOption> DefaultProviderOptions =
-    [
-        new(
-            "kimi",
-            "Kimi",
-            [
-                new("kimi-k2.5", "Kimi K2.5"),
-                new("kimi-k2-thinking", "Kimi K2 Thinking")
-            ],
-            RequiresApiKey: true),
-        new(
-            "ollama",
-            "Ollama",
-            [
-                new("google/gemma-4-26b-a4b", "Gemma 4 26B"),
-                new("qwen3-coder", "Qwen3 Coder")
-            ])
-    ];
-
-    private SessionCompletionSelection _selection = new("ollama", "google/gemma-4-26b-a4b");
     private string? _activeSlashCommand;
     private string _draftApiKey = string.Empty;
-    private bool _completionHydrated;
+    private string _selectionValue = string.Empty;
+    private bool _subscribed;
 
     private string CurrentInput => Value is not null ? Value : State.Input;
     private SessionProviderOption ActiveProvider =>
-        ProviderOptions.FirstOrDefault(option => option.Key == _selection.ProviderKey)
-        ?? ProviderOptions.First();
+        AgentSelection.Providers.FirstOrDefault(option =>
+            string.Equals(option.Key, AgentSelection.CurrentSelection.ProviderKey, StringComparison.OrdinalIgnoreCase))
+        ?? AgentSelection.Providers.First();
     private SessionProviderModelOption ActiveModel =>
-        ActiveProvider.Models.FirstOrDefault(option => option.Key == _selection.ModelKey)
+        ActiveProvider.Models.FirstOrDefault(option =>
+            string.Equals(option.Key, AgentSelection.CurrentSelection.ModelKey, StringComparison.OrdinalIgnoreCase))
         ?? ActiveProvider.Models.First();
+
+    protected override void OnInitialized()
+    {
+        Subscribe();
+        base.OnInitialized();
+    }
 
     protected override void OnParametersSet()
     {
@@ -64,12 +52,8 @@ public partial class SessionCommandBar : TinyComponentBase
         Value ??= State.Input;
         if (string.IsNullOrWhiteSpace(ActiveAgentTypeKey))
             ActiveAgentTypeKey = State.ActiveAgentTypeKey;
-        if (CompletionSelection is not null && CompletionSelection != _selection)
-        {
-            _selection = NormalizeSelection(CompletionSelection);
-            _draftApiKey = _selection.ApiKey ?? string.Empty;
-        }
         _activeSlashCommand ??= ParseSlashCommand(CurrentInput);
+        UpdateLocalSelection(AgentSelection.CurrentSelection);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -77,8 +61,35 @@ public partial class SessionCommandBar : TinyComponentBase
         if (firstRender)
         {
             await InstallEnterSubmitHandlerAsync();
-            await HydrateCompletionAsync();
+            await AgentSelection.HydrateAsync(CompletionPersistKey);
         }
+    }
+
+    private void Subscribe()
+    {
+        if (_subscribed)
+            return;
+
+        AgentSelection.SelectionChanged += OnSelectionChanged;
+        _subscribed = true;
+    }
+
+    private void OnSelectionChanged(SessionCompletionSelection selection)
+    {
+        UpdateLocalSelection(selection);
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void UpdateLocalSelection(SessionCompletionSelection selection)
+    {
+        _selectionValue = GetCompositeKey(selection);
+        _draftApiKey = selection.ApiKey ?? string.Empty;
+    }
+
+    public void Dispose()
+    {
+        if (_subscribed)
+            AgentSelection.SelectionChanged -= OnSelectionChanged;
     }
 
     private string GetClass()
@@ -152,7 +163,8 @@ public partial class SessionCommandBar : TinyComponentBase
         if (ParseSlashCommand(input) is not null)
             return;
 
-        var agent = AgentTypes.FirstOrDefault(candidate => string.Equals(candidate.Key, ActiveAgentTypeKey, StringComparison.OrdinalIgnoreCase));
+        var agent = AgentTypes.FirstOrDefault(candidate =>
+            string.Equals(candidate.Key, ActiveAgentTypeKey, StringComparison.OrdinalIgnoreCase));
         if (agent?.Disabled == true)
             return;
 
@@ -160,7 +172,7 @@ public partial class SessionCommandBar : TinyComponentBase
             SelectedNode,
             ActiveAgentTypeKey,
             input,
-            Completion: _selection);
+            Completion: AgentSelection.CurrentSelection);
         Value = string.Empty;
 
         await ValueChanged.InvokeAsync(Value);
@@ -190,23 +202,16 @@ public partial class SessionCommandBar : TinyComponentBase
 
     private async Task SelectProviderAsync(SessionProviderOption provider)
     {
-        var model = provider.Models.First();
-        _selection = new SessionCompletionSelection(
-            provider.Key,
-            model.Key,
-            provider.RequiresApiKey ? _selection.ApiKey : null);
-        _draftApiKey = _selection.ApiKey ?? string.Empty;
         _activeSlashCommand = ModelsCommand;
-        await PublishCompletionSelectionAsync();
+        await AgentSelection.SelectProviderAsync(provider.Key);
     }
 
     private async Task SelectModelAsync(SessionProviderModelOption model)
     {
-        _selection = _selection with { ModelKey = model.Key };
         _activeSlashCommand = null;
         Value = string.Empty;
         await ValueChanged.InvokeAsync(Value);
-        await PublishCompletionSelectionAsync();
+        await AgentSelection.SelectModelAsync(ActiveProvider.Key, model.Key);
     }
 
     private Task HandleApiKeyInput(ChangeEventArgs e)
@@ -217,72 +222,29 @@ public partial class SessionCommandBar : TinyComponentBase
 
     private async Task SaveApiKeyAsync()
     {
-        _selection = _selection with { ApiKey = _draftApiKey.Trim() };
         _activeSlashCommand = null;
         Value = string.Empty;
         await ValueChanged.InvokeAsync(Value);
-        await PublishCompletionSelectionAsync();
+        await AgentSelection.SetApiKeyAsync(_draftApiKey.Trim());
     }
 
-    private async Task PublishCompletionSelectionAsync()
+    private async Task HandleSelectionChangeAsync(string? value)
     {
-        await CompletionSelectionChanged.InvokeAsync(_selection);
-        try
-        {
-            await JS.InvokeVoidAsync(
-                "localStorage.setItem",
-                CompletionPersistKey,
-                JsonSerializer.Serialize(_selection));
-        }
-        catch (InvalidOperationException)
-        {
-        }
-        catch (JSException)
-        {
-        }
-    }
-
-    private async Task HydrateCompletionAsync()
-    {
-        if (_completionHydrated || CompletionSelection is not null)
+        if (string.IsNullOrWhiteSpace(value))
             return;
 
-        _completionHydrated = true;
-        try
-        {
-            var json = await JS.InvokeAsync<string?>("localStorage.getItem", CompletionPersistKey);
-            if (string.IsNullOrWhiteSpace(json))
-                return;
-
-            var stored = JsonSerializer.Deserialize<SessionCompletionSelection>(json);
-            if (stored is null)
-                return;
-
-            _selection = NormalizeSelection(stored);
-            _draftApiKey = _selection.ApiKey ?? string.Empty;
-            await CompletionSelectionChanged.InvokeAsync(_selection);
-            await InvokeAsync(StateHasChanged);
-        }
-        catch (InvalidOperationException)
-        {
-        }
-        catch (JSException)
-        {
-        }
-        catch (JsonException)
-        {
-        }
+        var (providerKey, modelKey) = ParseCompositeKey(value);
+        await AgentSelection.SelectModelAsync(providerKey, modelKey);
+        _selectionValue = value;
     }
 
-    private SessionCompletionSelection NormalizeSelection(SessionCompletionSelection selection)
+    private static string GetCompositeKey(SessionCompletionSelection selection)
+        => $"{selection.ProviderKey}{ValueSeparator}{selection.ModelKey}";
+
+    private static (string ProviderKey, string ModelKey) ParseCompositeKey(string value)
     {
-        var provider = ProviderOptions.FirstOrDefault(option =>
-            string.Equals(option.Key, selection.ProviderKey, StringComparison.OrdinalIgnoreCase))
-            ?? ProviderOptions.First();
-        var model = provider.Models.FirstOrDefault(option =>
-            string.Equals(option.Key, selection.ModelKey, StringComparison.OrdinalIgnoreCase))
-            ?? provider.Models.First();
-        return new SessionCompletionSelection(provider.Key, model.Key, selection.ApiKey);
+        var parts = value.Split(ValueSeparator, 2);
+        return (parts[0], parts.Length > 1 ? parts[1] : string.Empty);
     }
 
     private static string? ParseSlashCommand(string value)

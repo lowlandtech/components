@@ -25,6 +25,7 @@ builder.Services.AddScoped<IAgentGraphService, CreateAgentGraphService>();
 builder.Services.AddScoped<IAgentGraphService, ExecuteAgentGraphService>();
 builder.Services.AddScoped<IAgentGraphRegistry, AgentGraphRegistry>();
 builder.Services.AddScoped<IGraphDiscoveryService, GraphDiscoveryService>();
+builder.Services.AddScoped<IAgentSelectionService, AgentSelectionService>();
 
 // Scoped theming system — themes are stateless token bags (singleton), service holds per-session state (scoped)
 builder.Services.AddSingleton<IComponentTheme, LightComponentTheme>();
