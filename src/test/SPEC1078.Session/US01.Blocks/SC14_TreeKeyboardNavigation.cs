@@ -237,36 +237,30 @@ public sealed class SC14_TreeKeyboardNavigation : ViewScenario
         button.ClassList.ShouldContain("focus-visible:outline-none");
     }
 
-    [Fact(DisplayName = "UAC13: focused node row is styled distinctly from the active row")]
+    [Fact(DisplayName = "UAC13: focused node row has a semantic visual style")]
     [Trait(Spec.UAC, "13")]
     [Given("a SessionContextTreeNode renders")]
     [When("inspecting the row markup")]
-    [Then("the row has data-focused background and ring classes")]
+    [Then("the component stylesheet gives data-focused rows a visible background and ring")]
     public void UAC13_FocusedRowHasVisibleStyling()
     {
-        var cut = Ctx.Render<SessionContextTreeNode>(p => p
-            .Add(x => x.Item, new SessionContextNode(new SessionNodeInput("n1", "workspace", "Orders"), IsLoaded: false)));
+        var stylesheet = ReadEmbeddedResource("components.input.css");
 
-        var row = cut.Find("[data-slot='session-context-node-row']");
-        row.ClassList.ShouldContain("data-[focused=true]:bg-primary/15");
-        row.ClassList.ShouldContain("data-[focused=true]:ring-1");
-        row.ClassList.ShouldContain("data-[focused=true]:ring-primary/30");
-        row.GetAttribute("data-focused").ShouldBe("false");
+        stylesheet.ShouldContain("[data-slot=\"session-context-node-row\"][data-focused=\"true\"]");
+        stylesheet.ShouldContain("@apply bg-primary/15 ring-2 ring-inset ring-primary/70");
     }
 
-    [Fact(DisplayName = "UAC14: focused node button shows a ring when its row is focused")]
+    [Fact(DisplayName = "UAC14: component CSS scans the blocks project")]
     [Trait(Spec.UAC, "14")]
-    [Given("a SessionContextTreeNode renders")]
-    [When("inspecting the node button markup")]
-    [Then("the button uses group-data-focused to show a ring")]
-    public void UAC14_FocusedNodeButtonShowsRing()
+    [Given("SessionContextTreeNode is implemented in the blocks project")]
+    [When("inspecting the component Tailwind source configuration")]
+    [Then("the blocks Razor and CSharp sources are included")]
+    public void UAC14_ComponentCssScansBlocksProject()
     {
-        var cut = Ctx.Render<SessionContextTreeNode>(p => p
-            .Add(x => x.Item, new SessionContextNode(new SessionNodeInput("n1", "workspace", "Orders"), IsLoaded: false)));
+        var stylesheet = ReadEmbeddedResource("components.input.css");
 
-        var button = cut.Find("[data-slot='session-context-node']");
-        button.ClassList.ShouldContain("group-data-[focused=true]:ring-2");
-        button.ClassList.ShouldContain("group-data-[focused=true]:ring-primary/70");
+        stylesheet.ShouldContain("@source \"../../../blocks/**/*.razor\"");
+        stylesheet.ShouldContain("@source \"../../../blocks/**/*.cs\"");
     }
 
     [Fact(DisplayName = "UAC15: node focus state controls the visible focused-row marker")]
@@ -341,6 +335,19 @@ public sealed class SC14_TreeKeyboardNavigation : ViewScenario
         cut.Find("[data-node-id='h1']").KeyDown(new KeyboardEventArgs { Key = "ArrowDown" });
 
         projected.ShouldBeNull();
+    }
+
+    [Fact(DisplayName = "UAC19: generated component CSS contains focused-row styling")]
+    [Trait(Spec.UAC, "19")]
+    [Given("the generated components stylesheet")]
+    [When("inspecting its context-tree rules")]
+    [Then("the focused-row selector and ring declaration are present")]
+    public void UAC19_GeneratedCssContainsFocusedRowStyle()
+    {
+        var stylesheet = ReadEmbeddedResource("components.css");
+
+        stylesheet.ShouldContain("[data-slot=session-context-node-row][data-focused=true]");
+        stylesheet.ShouldContain("--tw-ring-shadow:var(--tw-ring-inset,)");
     }
 
     private static string ReadEmbeddedResource(string name)

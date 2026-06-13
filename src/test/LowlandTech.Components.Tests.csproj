@@ -68,6 +68,12 @@
 		<EmbeddedResource Include="..\lib\wwwroot\js\sessionContextTree.js">
 			<LogicalName>sessionContextTree.js</LogicalName>
 		</EmbeddedResource>
+		<EmbeddedResource Include="..\lib\wwwroot\css\input.css">
+			<LogicalName>components.input.css</LogicalName>
+		</EmbeddedResource>
+		<EmbeddedResource Include="..\lib\wwwroot\css\components.css">
+			<LogicalName>components.css</LogicalName>
+		</EmbeddedResource>
 		<EmbeddedResource Include="..\app\wwwroot\index.html">
 			<LogicalName>components.app.index.html</LogicalName>
 		</EmbeddedResource>

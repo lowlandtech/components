@@ -979,8 +979,25 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
                 SessionState.Dispatch(new ScheduleCreateEffect(childTypeKey, childNode.Node.Id, command.Input));
             }
 
-            // Stay in Create mode so the user can keep creating nodes in rapid succession.
-            // The command bar already clears and refocuses the input after submit.
+            SessionState.SetInput(string.Empty);
+
+            if (command.IsControlEnter)
+            {
+                try
+                {
+                    await JS.InvokeVoidAsync("eval", """
+                        (() => {
+                            const input = document.querySelector('[data-slot="session-command-input"]');
+                            if (input) { input.value = ''; input.focus({ preventScroll: true }); }
+                        })();
+                        """);
+                }
+                catch { }
+            }
+            else
+            {
+                SessionState.SetAgentType("ask");
+            }
 
             return;
         }

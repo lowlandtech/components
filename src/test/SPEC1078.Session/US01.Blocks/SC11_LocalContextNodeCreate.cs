@@ -63,12 +63,12 @@ public sealed class SC11_LocalContextNodeCreate : ViewScenario
         newNode.QuerySelector("span[title='workitem']")?.TextContent.Trim().ShouldBe("New Order");
     }
 
-    [Fact(DisplayName = "UAC04: Agent type stays in create after local create")]
+    [Fact(DisplayName = "UAC04: Normal submit in create mode resets agent type to ask")]
     [Trait(Spec.UAC, "04")]
     [Given("a SessionBlock in create mode")]
     [When("the user submits a title")]
-    [Then("the active agent type stays in create for rapid creation")]
-    public async Task UAC04_AgentTypeStaysInCreateAfterLocalCreate()
+    [Then("the node is created, the input is cleared, and the agent type resets to ask")]
+    public async Task UAC04_NormalSubmitResetsAgentTypeToAsk()
     {
         var (cut, stateService, parentNode) = RenderInCreateMode();
 
@@ -78,7 +78,12 @@ public sealed class SC11_LocalContextNodeCreate : ViewScenario
         await commandBar.InvokeAsync(() => commandBar.Instance.OnSubmit.InvokeAsync(
             new SessionCommandSubmitted(parentNode, "create", "New Order")));
 
-        stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("create");
+        cut.FindAll("[data-slot='session-context-node']")
+            .SingleOrDefault(node => node.TextContent.Trim() == "New Order")
+            .ShouldNotBeNull();
+
+        stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("ask");
+        stateService.State.Ui.Input.ShouldBeEmpty();
     }
 
     [Fact(DisplayName = "UAC05: Wired host handler takes precedence over local fallback")]
@@ -143,12 +148,36 @@ public sealed class SC11_LocalContextNodeCreate : ViewScenario
             .ShouldNotBeNull();
 
         stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("create");
+        stateService.State.Ui.Input.ShouldBeEmpty();
 
         Ctx.JSInterop.Invocations.Any(invocation =>
             invocation.Identifier == "eval"
             && invocation.Arguments[0]?.ToString()?.Contains("session-command-input", StringComparison.Ordinal) == true
             && invocation.Arguments[0]?.ToString()?.Contains("focus", StringComparison.Ordinal) == true)
             .ShouldBeTrue();
+    }
+
+    [Fact(DisplayName = "UAC07: Clicking send in create mode resets agent type to ask")]
+    [Trait(Spec.UAC, "07")]
+    [Given("a SessionBlock in create mode")]
+    [When("the user clicks the send button")]
+    [Then("the node is created and the agent type resets to ask")]
+    public void UAC07_ClickSendInCreateModeResetsToAsk()
+    {
+        var (cut, stateService, parentNode) = RenderInCreateMode();
+
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+
+        var input = cut.Find("[data-testid='session-command-input']");
+        input.Input("New Order");
+        cut.Find("[data-testid='session-command-submit']").Click();
+
+        cut.FindAll("[data-slot='session-context-node']")
+            .SingleOrDefault(node => node.TextContent.Trim() == "New Order")
+            .ShouldNotBeNull();
+
+        stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("ask");
+        stateService.State.Ui.Input.ShouldBeEmpty();
     }
 
     private (IRenderedComponent<Components.SessionBlock> Cut, SessionStateService StateService, SessionNodeInput ParentNode) RenderInCreateMode()

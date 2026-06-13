@@ -107,7 +107,7 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
     [Trait(Spec.UAC, "04")]
     [Given("a SessionBlock receives a submit for a non-session node in create mode")]
     [When("HandleSubmitAsync runs")]
-    [Then("OnHeaderCreateRequested is invoked and agent type stays in create")]
+    [Then("OnHeaderCreateRequested is invoked and agent type resets to ask")]
     public void UAC04_SessionBlockDelegatesNonSessionCreate()
     {
         SessionHeaderCreateRequest? request = null;
@@ -132,7 +132,7 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
         request.ParentNodeId.ShouldBe("ws-header");
         request.ParentNodeTypeKey.ShouldBe("workspaces.header");
         request.Label.ShouldBe("My Workspace");
-        stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("create");
+        stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("ask");
     }
 
     [Fact(DisplayName = "UAC05: SessionContextTreeNodeMenu New button fires NewRequested")]

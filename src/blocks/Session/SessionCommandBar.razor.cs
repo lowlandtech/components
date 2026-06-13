@@ -131,8 +131,16 @@ public partial class SessionCommandBar : TinyComponentBase, IDisposable
 
     private async Task HandleKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter" && !e.ShiftKey)
-            await SubmitAsync();
+        if (e.Key != "Enter" || e.ShiftKey)
+            return;
+
+        if (e.CtrlKey || e.MetaKey)
+        {
+            await SubmitAsync(isControlEnter: true);
+            return;
+        }
+
+        await SubmitAsync();
     }
 
     private async Task SelectAgentAsync(SessionAgentType agent)
@@ -155,7 +163,7 @@ public partial class SessionCommandBar : TinyComponentBase, IDisposable
         }
     }
 
-    private async Task SubmitAsync()
+    private async Task SubmitAsync(bool isControlEnter = false)
     {
         var input = CurrentInput;
         if (Disabled || IsBusy || SelectedNode is null || string.IsNullOrWhiteSpace(input))
@@ -172,7 +180,8 @@ public partial class SessionCommandBar : TinyComponentBase, IDisposable
             SelectedNode,
             ActiveAgentTypeKey,
             input,
-            Completion: AgentSelection.CurrentSelection);
+            Completion: AgentSelection.CurrentSelection,
+            IsControlEnter: isControlEnter);
         Value = string.Empty;
 
         await ValueChanged.InvokeAsync(Value);
@@ -293,7 +302,7 @@ public partial class SessionCommandBar : TinyComponentBase, IDisposable
                         input.dataset.enterSubmitBound = 'true';
 
                         input.addEventListener('keydown', (event) => {
-                            if (event.key !== 'Enter' || event.shiftKey || event.isComposing) return;
+                            if (event.key !== 'Enter' || event.shiftKey || event.isComposing || event.ctrlKey || event.metaKey) return;
 
                             event.preventDefault();
                             event.stopPropagation();

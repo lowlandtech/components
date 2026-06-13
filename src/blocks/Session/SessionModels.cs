@@ -770,7 +770,8 @@ public sealed record SessionCommandSubmitted(
     string AgentTypeKey,
     string Input,
     string? Response = null,
-    SessionCompletionSelection? Completion = null) : SessionUiEvent(Node)
+    SessionCompletionSelection? Completion = null,
+    bool IsControlEnter = false) : SessionUiEvent(Node)
 {
     public string Id { get; init; } = $"session-command:{Guid.NewGuid():N}";
     public DateTimeOffset CreatedAt { get; init; } = DateTimeOffset.UtcNow;

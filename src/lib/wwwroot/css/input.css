@@ -6,6 +6,8 @@
 
 @source "../../**/*.razor";
 @source "../../**/*.cs";
+@source "../../../blocks/**/*.razor";
+@source "../../../blocks/**/*.cs";
 
 @layer base {
   * {
@@ -33,6 +35,11 @@
 .theme-icon-sun { display: none; }
 .dark .theme-icon-sun { display: inline-flex; }
 .dark .theme-icon-moon { display: none; }
+
+/* Context-tree focus is intentionally distinct from the projected node. */
+[data-slot="session-context-node-row"][data-focused="true"] {
+  @apply bg-primary/15 ring-2 ring-inset ring-primary/70;
+}
 
 /* Blazor infrastructure styles */
 #blazor-error-ui {
