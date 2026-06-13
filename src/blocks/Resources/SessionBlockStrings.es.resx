@@ -76,4 +76,4 @@
   <data name="Close" xml:space="preserve"><value>Cerrar</value></data>
   <data name="Expand" xml:space="preserve"><value>Expandir</value></data>
   <data name="ToggleCommandBar" xml:space="preserve"><value>Toggle command bar</value></data>
-</root>
+<data name="DeleteNodeTitle" xml:space="preserve"><value>Eliminar nodo</value></data><data name="DeleteNodeDescription" xml:space="preserve"><value>¿Está seguro de que desea eliminar este nodo? Esta acción no se puede deshacer.</value></data><data name="DeleteNodeDontAskAgain" xml:space="preserve"><value>No volver a preguntar</value></data><data name="DeleteNodeCancel" xml:space="preserve"><value>Cancel</value></data><data name="DeleteNodeConfirm" xml:space="preserve"><value>Delete</value></data></root>

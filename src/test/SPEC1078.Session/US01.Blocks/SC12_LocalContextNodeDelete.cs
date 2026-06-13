@@ -6,17 +6,15 @@ namespace LowlandTech.Components.Tests.SPEC1078.Session.US01.Blocks;
 [UserStory("01", "Local context node deletion from context menu")]
 public sealed class SC12_LocalContextNodeDelete : ViewScenario
 {
-    [Fact(DisplayName = "UAC01: Delete from context menu removes the node from the explorer")]
+    [Fact(DisplayName = "UAC01: Delete from context menu opens the confirmation dialog")]
     [Trait(Spec.UAC, "01")]
     [Given("a SessionBlock with context nodes")]
     [When("the user opens the context menu and chooses Delete")]
-    [Then("the node is removed from the context explorer")]
-    public void UAC01_DeleteFromContextMenuRemovesNode()
+    [Then("the delete confirmation dialog is shown")]
+    public void UAC01_DeleteFromContextMenuOpensConfirmationDialog()
     {
         var cut = Ctx.Render<Components.SessionBlock>();
-
         cut.Find("[data-node-id='release-session']").Click();
-        cut.Find("[data-node-id='invoice-approval']").ShouldNotBeNull();
 
         cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
 
@@ -32,21 +30,83 @@ public sealed class SC12_LocalContextNodeDelete : ViewScenario
 
         fragmentCut.Find(".node-menu-item.text-destructive").Click();
 
+        cut.Find("[data-slot='dialog-content']").ShouldNotBeNull();
+        cut.Find("[data-slot='dialog-content']").TextContent.ShouldContain("Delete node");
+    }
+
+    [Fact(DisplayName = "UAC02: Confirming the dialog removes the node")]
+    [Trait(Spec.UAC, "02")]
+    [Given("the delete confirmation dialog is open")]
+    [When("the user clicks Delete")]
+    [Then("the node is removed from the context explorer")]
+    public void UAC02_ConfirmingDialogRemovesNode()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>();
+        cut.Find("[data-node-id='release-session']").Click();
+        OpenDeleteDialog(cut);
+
+        cut.Find("[data-slot='dialog-content']")
+            .QuerySelectorAll("button")
+            .Single(b => string.Equals(b.TextContent.Trim(), "Delete", StringComparison.Ordinal))
+            .Click();
+
         cut.FindAll("[data-node-id='invoice-approval']").Count.ShouldBe(0);
     }
 
-    [Fact(DisplayName = "UAC02: Wired host handler takes precedence over local delete fallback")]
-    [Trait(Spec.UAC, "02")]
+    [Fact(DisplayName = "UAC03: Cancelling the dialog keeps the node")]
+    [Trait(Spec.UAC, "03")]
+    [Given("the delete confirmation dialog is open")]
+    [When("the user clicks Cancel")]
+    [Then("the node remains in the context explorer")]
+    public void UAC03_CancellingDialogKeepsNode()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>();
+        cut.Find("[data-node-id='release-session']").Click();
+        OpenDeleteDialog(cut);
+
+        cut.Find("[data-slot='dialog-content']")
+            .QuerySelectorAll("button")
+            .Single(b => string.Equals(b.TextContent.Trim(), "Cancel", StringComparison.Ordinal))
+            .Click();
+
+        cut.FindAll("[data-node-id='invoice-approval']").Count.ShouldBeGreaterThan(0);
+    }
+
+    [Fact(DisplayName = "UAC04: Wired host handler receives the node when dialog is confirmed")]
+    [Trait(Spec.UAC, "04")]
     [Given("a SessionBlock with OnNodeDeleteRequested wired")]
-    [When("the user chooses Delete from the context menu")]
-    [Then("the host callback is invoked and the node is not removed locally")]
-    public void UAC02_HostHandlerTakesPrecedence()
+    [When("the user confirms the delete dialog")]
+    [Then("the host callback is invoked with the node")]
+    public void UAC04_HostHandlerReceivesNodeOnConfirm()
     {
         SessionNodeInput? deleted = null;
         var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.OnNodeDeleteRequested, node => { deleted = node; return Task.CompletedTask; }));
 
         cut.Find("[data-node-id='release-session']").Click();
+        OpenDeleteDialog(cut);
+
+        cut.Find("[data-slot='dialog-content']")
+            .QuerySelectorAll("button")
+            .Single(b => string.Equals(b.TextContent.Trim(), "Delete", StringComparison.Ordinal))
+            .Click();
+
+        deleted.ShouldNotBeNull();
+        deleted.Id.ShouldBe("invoice-approval");
+    }
+
+    [Fact(DisplayName = "UAC05: Skip preference deletes immediately without showing the dialog")]
+    [Trait(Spec.UAC, "05")]
+    [Given("the user has opted out of delete confirmations")]
+    [When("the user chooses Delete from the context menu")]
+    [Then("the node is removed without showing the dialog")]
+    public void UAC05_SkipPreferenceDeletesImmediately()
+    {
+        Ctx.JSInterop.Setup<string>("localStorage.getItem", "session-context-delete-skip-confirmation").SetResult("true");
+
+        var cut = Ctx.Render<Components.SessionBlock>();
+
+        cut.Find("[data-node-id='release-session']").Click();
         cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
 
         var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
@@ -61,9 +121,51 @@ public sealed class SC12_LocalContextNodeDelete : ViewScenario
 
         fragmentCut.Find(".node-menu-item.text-destructive").Click();
 
-        deleted.ShouldNotBeNull();
-        deleted.Id.ShouldBe("invoice-approval");
-        cut.FindAll("[data-node-id='invoice-approval']").Count.ShouldBeGreaterThan(0);
+        cut.FindAll("[data-slot='dialog-content']").Count.ShouldBe(0);
+        cut.FindAll("[data-node-id='invoice-approval']").Count.ShouldBe(0);
     }
 
+    [Fact(DisplayName = "UAC06: Checking 'Don't ask again' persists the skip preference")]
+    [Trait(Spec.UAC, "06")]
+    [Given("the delete confirmation dialog is open")]
+    [When("the user checks 'Don't ask again' and confirms")]
+    [Then("the skip preference is persisted to localStorage")]
+    public void UAC06_DontAskAgainPersistsSkipPreference()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>();
+        cut.Find("[data-node-id='release-session']").Click();
+        OpenDeleteDialog(cut);
+
+        var dialog = cut.Find("[data-slot='dialog-content']");
+        dialog.QuerySelector("input[type='checkbox']")?.Change(true);
+
+        dialog.QuerySelectorAll("button")
+            .Single(b => string.Equals(b.TextContent.Trim(), "Delete", StringComparison.Ordinal))
+            .Click();
+
+        var persisted = Ctx.JSInterop.Invocations
+            .Where(i => i.Identifier == "localStorage.setItem")
+            .Select(i => i.Arguments.ElementAtOrDefault(1)?.ToString())
+            .LastOrDefault();
+
+        persisted.ShouldNotBeNull();
+        persisted.ShouldBe("true");
+    }
+
+    private void OpenDeleteDialog(IRenderedComponent<Components.SessionBlock> cut)
+    {
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
+
+        var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
+        var popover = popoverService.ActivePopovers.Single(reference => reference.State.Open);
+
+        var fragmentCut = Ctx.Render(builder =>
+        {
+            builder.OpenElement(0, "div");
+            builder.AddContent(1, popover.State.Fragment);
+            builder.CloseElement();
+        });
+
+        fragmentCut.Find(".node-menu-item.text-destructive").Click();
+    }
 }

@@ -76,4 +76,4 @@
   <data name="Close" xml:space="preserve"><value>Sluiten</value></data>
   <data name="Expand" xml:space="preserve"><value>Uitvouwen</value></data>
   <data name="ToggleCommandBar" xml:space="preserve"><value>Toggle command bar</value></data>
-</root>
+<data name="DeleteNodeTitle" xml:space="preserve"><value>Node verwijderen</value></data><data name="DeleteNodeDescription" xml:space="preserve"><value>Weet u zeker dat u deze node wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.</value></data><data name="DeleteNodeDontAskAgain" xml:space="preserve"><value>Niet opnieuw vragen</value></data><data name="DeleteNodeCancel" xml:space="preserve"><value>Cancel</value></data><data name="DeleteNodeConfirm" xml:space="preserve"><value>Delete</value></data></root>

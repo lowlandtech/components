@@ -24,6 +24,7 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
     [Parameter] public EventCallback<SessionNodeInput> OnNodeDelete { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnExpand { get; set; }
     [Parameter] public string ExpandedNodesPersistKey { get; set; } = "session-context-expanded-nodes";
+    [Parameter] public string DeleteNodeSkipConfirmationKey { get; set; } = "session-context-delete-skip-confirmation";
 
     private readonly Guid _popoverId = Guid.NewGuid();
     private bool _registered;
@@ -32,6 +33,8 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
     private bool _isExpanded;
     private string? _initializedId;
     private string? _hydratedNodeId;
+    private bool _showDeleteDialog;
+    private bool _skipDeleteConfirmation;
 
     private bool ShowChevron => !Item.IsLoaded || VisibleChildren.Count > 0;
     private bool IsHeader => Item.Node.NodeTypeKey.EndsWith(".header", StringComparison.OrdinalIgnoreCase)
@@ -161,6 +164,67 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
         await OnNodeNew.InvokeAsync(Item.Node);
     }
 
+    private async Task HandleDeleteRequestedAsync(SessionNodeInput node)
+    {
+        if (await IsSkipDeleteConfirmationAsync())
+        {
+            await OnNodeDelete.InvokeAsync(node);
+            return;
+        }
+
+        _skipDeleteConfirmation = false;
+        _showDeleteDialog = true;
+    }
+
+    private async Task ConfirmDeleteAsync(SessionNodeInput node)
+    {
+        if (_skipDeleteConfirmation)
+        {
+            await PersistSkipDeleteConfirmationAsync(true);
+        }
+
+        await OnNodeDelete.InvokeAsync(node);
+    }
+
+    private Task CancelDeleteAsync()
+    {
+        _showDeleteDialog = false;
+        return Task.CompletedTask;
+    }
+
+    private async Task<bool> IsSkipDeleteConfirmationAsync()
+    {
+        try
+        {
+            var value = await JS.InvokeAsync<string?>("localStorage.getItem", DeleteNodeSkipConfirmationKey);
+            return bool.TryParse(value, out var skip) && skip;
+        }
+        catch (InvalidOperationException)
+        {
+            return false;
+        }
+        catch (JSException)
+        {
+            return false;
+        }
+    }
+
+    private async Task PersistSkipDeleteConfirmationAsync(bool skip)
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("localStorage.setItem", DeleteNodeSkipConfirmationKey, skip.ToString().ToLowerInvariant());
+        }
+        catch (InvalidOperationException)
+        {
+            // JavaScript interop is unavailable during static rendering.
+        }
+        catch (JSException)
+        {
+            // Persistence is best-effort when browser storage is unavailable.
+        }
+    }
+
     private void ToggleMenuAsync()
     {
         _menuOpen = !_menuOpen;
@@ -191,7 +255,7 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
         builder.AddAttribute(7, nameof(SessionContextTreeNodeMenu.PinRequested), OnPin);
         builder.AddAttribute(8, nameof(SessionContextTreeNodeMenu.MoveUpRequested), OnNodeMoveUp);
         builder.AddAttribute(9, nameof(SessionContextTreeNodeMenu.MoveDownRequested), OnNodeMoveDown);
-        builder.AddAttribute(10, nameof(SessionContextTreeNodeMenu.DeleteRequested), OnNodeDelete);
+        builder.AddAttribute(10, nameof(SessionContextTreeNodeMenu.DeleteRequested), EventCallback.Factory.Create<SessionNodeInput>(this, HandleDeleteRequestedAsync));
         builder.CloseComponent();
     };
 

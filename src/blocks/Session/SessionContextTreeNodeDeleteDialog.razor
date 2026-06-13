@@ -1,0 +1,26 @@
+@namespace LowlandTech.Components
+@inherits TinyComponentBase
+
+<Dialog @bind-IsOpen="IsOpen">
+    <DialogContent>
+        <DialogHeader>
+            <DialogTitle>@L("DeleteNodeTitle")</DialogTitle>
+            <DialogDescription>@L("DeleteNodeDescription")</DialogDescription>
+        </DialogHeader>
+
+        <div class="flex items-center gap-2 py-2">
+            <input type="checkbox"
+                   id="delete-node-skip-confirmation"
+                   class="h-4 w-4 rounded border-border text-primary"
+                   @bind="_skipConfirmation" />
+            <label for="delete-node-skip-confirmation" class="text-sm text-muted-foreground">
+                @L("DeleteNodeDontAskAgain")
+            </label>
+        </div>
+
+        <DialogFooter>
+            <Button Variant="ghost" @onclick="CancelAsync">@L("DeleteNodeCancel")</Button>
+            <Button Variant="destructive" @onclick="ConfirmAsync">@L("DeleteNodeConfirm")</Button>
+        </DialogFooter>
+    </DialogContent>
+</Dialog>

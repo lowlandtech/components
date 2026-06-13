@@ -77,4 +77,10 @@
                                     OnExpand="OnExpand" />
         }
     }
+
+    <SessionContextTreeNodeDeleteDialog @bind-IsOpen="_showDeleteDialog"
+                                        Node="Item.Node"
+                                        @bind-SkipConfirmation="_skipDeleteConfirmation"
+                                        OnConfirm="ConfirmDeleteAsync"
+                                        OnCancel="CancelDeleteAsync" />
 </div>
