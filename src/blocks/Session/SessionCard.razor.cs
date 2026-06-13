@@ -55,7 +55,7 @@ public partial class SessionCard : TinyComponentBase
     {
         var baseClass = EffectiveMode switch
         {
-            ModeMaximized => "flex min-h-full w-full flex-col gap-0 overflow-hidden py-0",
+            ModeMaximized => "cn-card-maximized flex min-h-full w-full flex-col gap-0 overflow-hidden py-0",
             ModeOverlayPage when IsPageOverlayProjection => "flex min-h-full w-full flex-col gap-0 overflow-hidden py-0",
             ModeOverlayPage => "w-full gap-0 overflow-hidden py-0 opacity-60",
             ModeOverlayApp when !string.IsNullOrWhiteSpace(AppOverlayContainerClass) => AppOverlayContainerClass,

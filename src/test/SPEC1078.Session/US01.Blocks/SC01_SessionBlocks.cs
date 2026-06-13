@@ -2393,4 +2393,37 @@ public class SC01_SessionBlocks : ViewScenario
         header.QuerySelector("[data-slot='tabs-header-trailing'] [data-testid='session-block-right-sidebar-open']")
             .ShouldNotBeNull();
     }
+
+    [Fact(DisplayName = "UAC55: Maximized cards do not add a second exterior outline")]
+    [Trait(Spec.UAC, "55")]
+    [Given("a SessionBlock containing a context card or agent card")]
+    [When("each card is rendered in Maximized mode")]
+    [Then("the maximized card removes its own border and leaves the session surface as the outline owner")]
+    public void UAC55_MaximizedCardsDoNotAddExteriorBorder()
+    {
+        var contextCut = Ctx.Render<Components.SessionBlock>();
+
+        contextCut.Find("[data-node-id='orders-session']").Click();
+        contextCut.Find("[data-node-id='invoice-approval']").Click();
+        contextCut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+
+        var contextCard = contextCut.Find(
+            "[data-slot='session-block-maximized-block'] [data-slot='session-context-block'][data-mode='maximized']");
+        contextCard.ClassList.ShouldContain("cn-card-maximized");
+
+        var agentCut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.IsTest, true)
+            .Add(x => x.TestStreamDelayMilliseconds, 0));
+
+        agentCut.Find("[data-node-id='orders-session']").Click();
+        ClickShowCommandBar(agentCut);
+        agentCut.Find("[data-testid='session-command-input']").Input("Check maximized outline");
+        agentCut.Find("[data-testid='session-command-submit']").Click();
+        agentCut.Find("[data-node-id^='response:'] [data-testid='card-mode-menu-trigger']").Click();
+        ClickOpenCardMode("Maximized");
+
+        var agentCard = agentCut.Find(
+            "[data-slot='session-block-maximized-card'] [data-slot='session-card'][data-mode='maximized']");
+        agentCard.ClassList.ShouldContain("cn-card-maximized");
+    }
 }

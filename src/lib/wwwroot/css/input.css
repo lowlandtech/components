@@ -861,6 +861,10 @@
     @apply border border-border bg-background;
   }
 
+  .cn-card-maximized {
+    @apply border-0;
+  }
+
   .cn-card-header {
     @apply gap-1.5 px-6;
   }

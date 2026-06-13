@@ -46,7 +46,7 @@
         baseClass += NormalizedMode switch
         {
             ModeMinimized => " overflow-hidden",
-            ModeMaximized => " flex min-h-full w-full flex-col overflow-hidden !rounded-none !border-transparent",
+            ModeMaximized => " cn-card-maximized flex min-h-full w-full flex-col overflow-hidden !rounded-none",
             ModeOverlayPage => " flex min-h-full w-full flex-col overflow-hidden",
             ModeOverlayApp => " fixed inset-0 z-50 flex h-dvh w-dvw flex-col overflow-hidden !rounded-none",
             _ => ""
