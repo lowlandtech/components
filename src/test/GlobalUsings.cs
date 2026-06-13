@@ -3,6 +3,7 @@
 global using System.ComponentModel;
 global using System.Reflection;
 global using System.Text.Json;
+global using System.Threading.Tasks;
 global using Bunit;
 global using LowlandTech.Components;
 global using LowlandTech.Components.Stories.Services.Themes;
