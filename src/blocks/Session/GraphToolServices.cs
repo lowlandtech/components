@@ -4,6 +4,7 @@ public sealed record FakeWorkspace(Guid Id, string Name);
 public sealed record FakeFlow(Guid Id, string Name);
 public sealed record FakeStep(Guid Id, string Name);
 public sealed record FakePackage(Guid Id, string Name);
+public sealed record FakeWorkitem(Guid Id, string Name);
 
 /// <summary>
 /// Components-environment creator for <c>workspaces.header</c> → <c>workspace</c>.
@@ -80,5 +81,131 @@ public sealed class PackageCreatorTool : IGraphToolService
     {
         var name = properties.TryGetValue("Title", out var value) ? value?.ToString() : null;
         return Task.FromResult<object>(new FakePackage(Guid.NewGuid(), name ?? "New Package"));
+    }
+}
+
+/// <summary>
+/// Components-environment creator for <c>workitems.header</c> → <c>workitem</c>.
+/// </summary>
+public sealed class WorkitemCreatorTool : IGraphToolService
+{
+    public string ToolKey => "WorkitemCreator";
+
+    public Task<object> ExecuteAsync(
+        IExecutionEngine engine,
+        IDictionary<string, object?> properties,
+        CancellationToken cancellationToken = default)
+    {
+        var name = properties.TryGetValue("Title", out var value) ? value?.ToString() : null;
+        return Task.FromResult<object>(new FakeWorkitem(Guid.NewGuid(), name ?? "New Workitem"));
+    }
+}
+
+public sealed record FakeUserStory(Guid Id, string Name);
+public sealed record FakeScenario(Guid Id, string Name);
+public sealed record FakeScenarioStep(Guid Id, string Name);
+public sealed record FakeAction(Guid Id, string Name);
+public sealed record FakeHandler(Guid Id, string Name);
+public sealed record FakeEvent(Guid Id, string Name);
+
+/// <summary>
+/// Components-environment creator for <c>use-case</c> → <c>user-story</c>.
+/// </summary>
+public sealed class UserStoryCreatorTool : IGraphToolService
+{
+    public string ToolKey => "UserStoryCreator";
+
+    public Task<object> ExecuteAsync(
+        IExecutionEngine engine,
+        IDictionary<string, object?> properties,
+        CancellationToken cancellationToken = default)
+    {
+        var name = properties.TryGetValue("Title", out var value) ? value?.ToString() : null;
+        return Task.FromResult<object>(new FakeUserStory(Guid.NewGuid(), name ?? "New User Story"));
+    }
+}
+
+/// <summary>
+/// Components-environment creator for <c>user-story</c> → <c>scenario</c>.
+/// </summary>
+public sealed class ScenarioCreatorTool : IGraphToolService
+{
+    public string ToolKey => "ScenarioCreator";
+
+    public Task<object> ExecuteAsync(
+        IExecutionEngine engine,
+        IDictionary<string, object?> properties,
+        CancellationToken cancellationToken = default)
+    {
+        var name = properties.TryGetValue("Title", out var value) ? value?.ToString() : null;
+        return Task.FromResult<object>(new FakeScenario(Guid.NewGuid(), name ?? "New Scenario"));
+    }
+}
+
+/// <summary>
+/// Components-environment creator for <c>scenario</c> → <c>scenario-step</c>.
+/// </summary>
+public sealed class ScenarioStepCreatorTool : IGraphToolService
+{
+    public string ToolKey => "ScenarioStepCreator";
+
+    public Task<object> ExecuteAsync(
+        IExecutionEngine engine,
+        IDictionary<string, object?> properties,
+        CancellationToken cancellationToken = default)
+    {
+        var name = properties.TryGetValue("Title", out var value) ? value?.ToString() : null;
+        return Task.FromResult<object>(new FakeScenarioStep(Guid.NewGuid(), name ?? "New Scenario Step"));
+    }
+}
+
+/// <summary>
+/// Components-environment creator for <c>scenario-step</c> → <c>action</c>.
+/// </summary>
+public sealed class ActionCreatorTool : IGraphToolService
+{
+    public string ToolKey => "ActionCreator";
+
+    public Task<object> ExecuteAsync(
+        IExecutionEngine engine,
+        IDictionary<string, object?> properties,
+        CancellationToken cancellationToken = default)
+    {
+        var name = properties.TryGetValue("Title", out var value) ? value?.ToString() : null;
+        return Task.FromResult<object>(new FakeAction(Guid.NewGuid(), name ?? "New Action"));
+    }
+}
+
+/// <summary>
+/// Components-environment creator for <c>scenario-step</c> → <c>handler</c>.
+/// </summary>
+public sealed class HandlerCreatorTool : IGraphToolService
+{
+    public string ToolKey => "HandlerCreator";
+
+    public Task<object> ExecuteAsync(
+        IExecutionEngine engine,
+        IDictionary<string, object?> properties,
+        CancellationToken cancellationToken = default)
+    {
+        var name = properties.TryGetValue("Title", out var value) ? value?.ToString() : null;
+        return Task.FromResult<object>(new FakeHandler(Guid.NewGuid(), name ?? "New Handler"));
+    }
+}
+
+/// <summary>
+/// Components-environment creator for <c>scenario-step</c> → <c>event</c>.
+/// </summary>
+public sealed class EventCreatorTool : IGraphToolService
+{
+    public string ToolKey => "EventCreator";
+
+    public Task<object> ExecuteAsync(
+        IExecutionEngine engine,
+        IDictionary<string, object?> properties,
+        CancellationToken cancellationToken = default)
+    {
+        var name = properties.TryGetValue("Title", out var value) ? value?.ToString() : null;
+        return Task.FromResult<object>(new FakeEvent(Guid.NewGuid(), name ?? "New Event"));
     }
 }

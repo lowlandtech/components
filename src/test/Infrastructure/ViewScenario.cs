@@ -23,6 +23,13 @@ public abstract class ViewScenario : IAsyncLifetime
         Ctx.Services.AddSingleton<IGraphToolService, FlowCreatorTool>();
         Ctx.Services.AddSingleton<IGraphToolService, StepCreatorTool>();
         Ctx.Services.AddSingleton<IGraphToolService, PackageCreatorTool>();
+        Ctx.Services.AddSingleton<IGraphToolService, WorkitemCreatorTool>();
+        Ctx.Services.AddSingleton<IGraphToolService, UserStoryCreatorTool>();
+        Ctx.Services.AddSingleton<IGraphToolService, ScenarioCreatorTool>();
+        Ctx.Services.AddSingleton<IGraphToolService, ScenarioStepCreatorTool>();
+        Ctx.Services.AddSingleton<IGraphToolService, ActionCreatorTool>();
+        Ctx.Services.AddSingleton<IGraphToolService, HandlerCreatorTool>();
+        Ctx.Services.AddSingleton<IGraphToolService, EventCreatorTool>();
         Ctx.Services.AddSingleton<IAgentGraphService, AskAgentGraphService>();
         Ctx.Services.AddSingleton<IAgentGraphService, PlanAgentGraphService>();
         Ctx.Services.AddSingleton<IAgentGraphService, EditAgentGraphService>();

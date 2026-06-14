@@ -820,6 +820,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         {
             "workspaces.header" => "workspace",
             "workitem.header" => "workitem",
+            "workitems.header" => "workitem",
             "flow.header" => "flow",
             "package.header" => "package",
             "step.header" => "step",
@@ -839,7 +840,8 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
         var props = new Dictionary<string, object?> { ["Title"] = command.Input };
         var entity = await creator.ExecuteAsync(ExecutionEngine, props);
-        var label = edge.TargetDescriptor?.ExtractLabel(entity) ?? command.Input;
+        var extracted = edge.TargetDescriptor?.ExtractLabel(entity);
+        var label = string.IsNullOrWhiteSpace(extracted) ? command.Input : extracted;
 
         _localContextNodes ??= [.. ContextNodes];
         var childNode = new SessionContextNode(

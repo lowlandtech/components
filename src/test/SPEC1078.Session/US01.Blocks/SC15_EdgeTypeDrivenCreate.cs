@@ -73,6 +73,124 @@ public sealed class SC15_EdgeTypeDrivenCreate : ViewScenario
         stateService.State.Ui.Input.ShouldBeEmpty();
     }
 
+    [Fact(DisplayName = "UAC04: Submitting create on a workitems header resolves the WorkitemCreator tool")]
+    [Trait(Spec.UAC, "04")]
+    [Given("a SessionBlock with a workitems.header node selected in create mode")]
+    [When("the user submits a title")]
+    [Then("WorkitemCreatorTool.ExecuteAsync is invoked and a workitem child is added")]
+    public async Task UAC04_CreateOnWorkitemsHeaderInvokesWorkitemCreator()
+    {
+        var stateService = new SessionStateService();
+        var sessions = new[] { new SessionListEntry("s1", "Workitems", 0, "session") };
+        stateService.SelectSession(new SessionNodeInput("s1", "session", "Workitems"), sessions);
+
+        var parentNode = new SessionNodeInput("wi-header", "workitems.header", "Workitems");
+        var contextNodes = new[] { new SessionContextNode(parentNode, IsLoaded: true) };
+
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.StateService, stateService)
+            .Add(x => x.Sessions, sessions)
+            .Add(x => x.ContextNodes, contextNodes));
+
+        stateService.ProjectContext(parentNode);
+        stateService.SetAgentType("create");
+
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+
+        var commandBar = cut.FindComponent<SessionCommandBar>();
+        await commandBar.InvokeAsync(() => commandBar.Instance.OnSubmit.InvokeAsync(
+            new SessionCommandSubmitted(parentNode, "create", "Write tests")));
+
+        cut.Markup.ShouldContain("title=\"workitem\"");
+        cut.Markup.ShouldContain(">Write tests</span>");
+        stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("ask");
+    }
+
+    [Fact(DisplayName = "UAC05: Submitting create on a use-case node resolves the UserStoryCreator tool")]
+    [Trait(Spec.UAC, "05")]
+    [Given("a SessionBlock with a use-case node selected in create mode")]
+    [When("the user submits a title")]
+    [Then("UserStoryCreatorTool.ExecuteAsync is invoked and a user-story child is added")]
+    public async Task UAC05_CreateOnUseCaseNodeInvokesUserStoryCreator()
+    {
+        var (cut, stateService, parentNode) = RenderNodeInCreateMode("use-case", "Use Cases");
+
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+
+        var commandBar = cut.FindComponent<SessionCommandBar>();
+        await commandBar.InvokeAsync(() => commandBar.Instance.OnSubmit.InvokeAsync(
+            new SessionCommandSubmitted(parentNode, "create", "As a user I can sign in")));
+
+        cut.Markup.ShouldContain("title=\"user-story\"");
+        cut.Markup.ShouldContain(">As a user I can sign in</span>");
+        stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("ask");
+    }
+
+    [Fact(DisplayName = "UAC06: Submitting create on a user-story node resolves the ScenarioCreator tool")]
+    [Trait(Spec.UAC, "06")]
+    [Given("a SessionBlock with a user-story node selected in create mode")]
+    [When("the user submits a title")]
+    [Then("ScenarioCreatorTool.ExecuteAsync is invoked and a scenario child is added")]
+    public async Task UAC06_CreateOnUserStoryNodeInvokesScenarioCreator()
+    {
+        var (cut, stateService, parentNode) = RenderNodeInCreateMode("user-story", "User Stories");
+
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+
+        var commandBar = cut.FindComponent<SessionCommandBar>();
+        await commandBar.InvokeAsync(() => commandBar.Instance.OnSubmit.InvokeAsync(
+            new SessionCommandSubmitted(parentNode, "create", "Happy path sign-in")));
+
+        cut.Markup.ShouldContain("title=\"scenario\"");
+        cut.Markup.ShouldContain(">Happy path sign-in</span>");
+        stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("ask");
+    }
+
+    [Fact(DisplayName = "UAC07: Submitting create on a scenario node resolves the ScenarioStepCreator tool")]
+    [Trait(Spec.UAC, "07")]
+    [Given("a SessionBlock with a scenario node selected in create mode")]
+    [When("the user submits a title")]
+    [Then("ScenarioStepCreatorTool.ExecuteAsync is invoked and a scenario-step child is added")]
+    public async Task UAC07_CreateOnScenarioNodeInvokesScenarioStepCreator()
+    {
+        var (cut, stateService, parentNode) = RenderNodeInCreateMode("scenario", "Scenarios");
+
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+
+        var commandBar = cut.FindComponent<SessionCommandBar>();
+        await commandBar.InvokeAsync(() => commandBar.Instance.OnSubmit.InvokeAsync(
+            new SessionCommandSubmitted(parentNode, "create", "Enter credentials")));
+
+        cut.Markup.ShouldContain("title=\"scenario-step\"");
+        cut.Markup.ShouldContain(">Enter credentials</span>");
+        stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("ask");
+    }
+
+    private (IRenderedComponent<Components.SessionBlock> Cut, SessionStateService StateService, SessionNodeInput ParentNode) RenderNodeInCreateMode(string nodeTypeKey, string sessionLabel)
+    {
+        var stateService = new SessionStateService();
+        var sessions = new[] { new SessionListEntry("s1", sessionLabel, 0, "session") };
+        stateService.SelectSession(new SessionNodeInput("s1", "session", sessionLabel), sessions);
+
+        var parentNode = new SessionNodeInput($"{nodeTypeKey}-node", nodeTypeKey, sessionLabel);
+        var contextNodes = new[]
+        {
+            new SessionContextNode(parentNode, IsLoaded: true)
+        };
+
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.StateService, stateService)
+            .Add(x => x.Sessions, sessions)
+            .Add(x => x.ContextNodes, contextNodes));
+
+        stateService.ProjectContext(parentNode);
+        stateService.SetAgentType("create");
+
+        return (cut, stateService, parentNode);
+    }
+
     private (IRenderedComponent<Components.SessionBlock> Cut, SessionStateService StateService, SessionNodeInput ParentNode) RenderWorkspacesHeaderInCreateMode()
     {
         var stateService = new SessionStateService();

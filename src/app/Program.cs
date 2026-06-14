@@ -24,6 +24,13 @@ builder.Services.AddScoped<IGraphToolService, WorkspaceCreatorTool>();
 builder.Services.AddScoped<IGraphToolService, FlowCreatorTool>();
 builder.Services.AddScoped<IGraphToolService, StepCreatorTool>();
 builder.Services.AddScoped<IGraphToolService, PackageCreatorTool>();
+builder.Services.AddScoped<IGraphToolService, WorkitemCreatorTool>();
+builder.Services.AddScoped<IGraphToolService, UserStoryCreatorTool>();
+builder.Services.AddScoped<IGraphToolService, ScenarioCreatorTool>();
+builder.Services.AddScoped<IGraphToolService, ScenarioStepCreatorTool>();
+builder.Services.AddScoped<IGraphToolService, ActionCreatorTool>();
+builder.Services.AddScoped<IGraphToolService, HandlerCreatorTool>();
+builder.Services.AddScoped<IGraphToolService, EventCreatorTool>();
 
 // Agent graph services — DRD pattern for session agent types
 builder.Services.AddScoped<IAgentGraphService, AskAgentGraphService>();
