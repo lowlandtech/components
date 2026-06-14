@@ -94,10 +94,10 @@ public sealed class SC11_LocalContextNodeCreate : ViewScenario
     public async Task UAC05_HostHandlerTakesPrecedence()
     {
         var stateService = new SessionStateService();
-        var sessions = new[] { new SessionListEntry("s1", "Orders", 0, "session") };
-        stateService.SelectSession(new SessionNodeInput("s1", "session", "Orders"), sessions);
+        var sessions = new[] { new SessionListEntry("s1", "Workspaces", 0, "session") };
+        stateService.SelectSession(new SessionNodeInput("s1", "session", "Workspaces"), sessions);
 
-        var parentNode = new SessionNodeInput("orders", "workitem", "Orders", "NodeBlock");
+        var parentNode = new SessionNodeInput("workspaces", "workitem", "Workspaces", "NodeBlock");
         var contextNodes = new[]
         {
             new SessionContextNode(
@@ -183,10 +183,10 @@ public sealed class SC11_LocalContextNodeCreate : ViewScenario
     private (IRenderedComponent<Components.SessionBlock> Cut, SessionStateService StateService, SessionNodeInput ParentNode) RenderInCreateMode()
     {
         var stateService = new SessionStateService();
-        var sessions = new[] { new SessionListEntry("s1", "Orders", 0, "session") };
-        stateService.SelectSession(new SessionNodeInput("s1", "session", "Orders"), sessions);
+        var sessions = new[] { new SessionListEntry("s1", "Workspaces", 0, "session") };
+        stateService.SelectSession(new SessionNodeInput("s1", "session", "Workspaces"), sessions);
 
-        var parentNode = new SessionNodeInput("orders", "workitem", "Orders", "NodeBlock");
+        var parentNode = new SessionNodeInput("workspaces", "workitem", "Workspaces", "NodeBlock");
         var contextNodes = new[]
         {
             new SessionContextNode(

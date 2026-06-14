@@ -76,8 +76,8 @@ public sealed class SC15_EdgeTypeDrivenCreate : ViewScenario
     private (IRenderedComponent<Components.SessionBlock> Cut, SessionStateService StateService, SessionNodeInput ParentNode) RenderWorkspacesHeaderInCreateMode()
     {
         var stateService = new SessionStateService();
-        var sessions = new[] { new SessionListEntry("s1", "Orders", 0, "session") };
-        stateService.SelectSession(new SessionNodeInput("s1", "session", "Orders"), sessions);
+        var sessions = new[] { new SessionListEntry("s1", "Workspaces", 0, "session") };
+        stateService.SelectSession(new SessionNodeInput("s1", "session", "Workspaces"), sessions);
 
         var parentNode = new SessionNodeInput("ws-header", "workspaces.header", "Workspaces");
         var contextNodes = new[]

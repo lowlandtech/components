@@ -5,18 +5,18 @@ public sealed class DefaultSessionSurfaceRegistry : ISessionSurfaceRegistry
     private static readonly IReadOnlyDictionary<string, SessionSurfaceDescriptor> Surfaces =
         new Dictionary<string, SessionSurfaceDescriptor>(StringComparer.Ordinal)
         {
-            ["orders-session"] = new(
-                "orders-session",
-                new SessionNodeInput("request-orders", "session-request", "Order summary"),
-                new SessionNodeInput("response-orders", "session-response", "Orders context")),
-            ["support-session"] = new(
-                "support-session",
-                new SessionNodeInput("request-support", "session-request", "Support ticket summary"),
-                new SessionNodeInput("response-support", "session-response", "Support context")),
-            ["release-session"] = new(
-                "release-session",
-                new SessionNodeInput("request-release", "session-request", "Release draft"),
-                new SessionNodeInput("response-release", "session-response", "Release context"))
+            ["workspaces-session"] = new(
+                "workspaces-session",
+                new SessionNodeInput("request-workspaces", "session-request", "Workspace summary"),
+                new SessionNodeInput("response-workspaces", "session-response", "Workspace context")),
+            ["flows-session"] = new(
+                "flows-session",
+                new SessionNodeInput("request-flows", "session-request", "Flow summary"),
+                new SessionNodeInput("response-flows", "session-response", "Flows context")),
+            ["workitems-session"] = new(
+                "workitems-session",
+                new SessionNodeInput("request-workitems", "session-request", "Workitem summary"),
+                new SessionNodeInput("response-workitems", "session-response", "Workitems context"))
         };
 
     public SessionSurfaceDescriptor? GetSurface(string sessionId)

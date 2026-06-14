@@ -6,16 +6,22 @@
     private readonly IReadOnlyList<SessionContextNode> _nodes =
     [
         new(
-            new("orders", "workitem", "Orders", "OrdersBlock"),
+            new("workspaces", "workspaces.header", "Workspaces", "NodeBlock"),
             [
-                new(new("invoice-approval", "invoice", "Invoice approval", "InvoiceBlock")),
-                new(new("shipment-delay", "shipment", "Shipment delay", "ShipmentBlock"))
+                new(new("foundry", "workspace", "Foundry", "NodeBlock")),
+                new(new("acme", "workspace", "Acme", "NodeBlock"))
             ]),
         new(
-            new("customers", "table", "Customers", "DataGridBlock"),
+            new("flows", "flow.header", "Flows", "NodeBlock"),
             [
-                new(new("northwind", "customer", "Northwind Traders", "CustomerBlock")),
-                new(new("contoso", "customer", "Contoso", "CustomerBlock"))
+                new(new("onboarding", "flow", "Onboarding", "NodeBlock")),
+                new(new("approval", "flow", "Approval", "NodeBlock"))
+            ]),
+        new(
+            new("workitems", "workitems.header", "Workitems", "NodeBlock"),
+            [
+                new(new("setup-ci", "workitem", "Set up CI", "NodeBlock")),
+                new(new("write-docs", "workitem", "Write docs", "NodeBlock"))
             ])
     ];
 }

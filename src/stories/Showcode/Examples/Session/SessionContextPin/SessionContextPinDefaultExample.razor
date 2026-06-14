@@ -3,10 +3,10 @@
 <SessionContextPin Pin="_pin" />
 
 @code {
-    private static readonly SessionNodeInput _node = new("invoice-approval", "invoice", "Invoice approval", "InvoiceBlock");
+    private static readonly SessionNodeInput _node = new("setup-ci", "workitem", "Set up CI", "NodeBlock");
 
     private readonly SessionContextPinModel _pin = new(
-        "pin:invoice-approval",
+        "pin:setup-ci",
         _node,
-        new("pin:invoice-approval", "session.pin", "Invoice approval", "SessionContextPin"));
+        new("pin:setup-ci", "session.pin", "Set up CI", "SessionContextPin"));
 }

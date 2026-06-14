@@ -4,16 +4,16 @@
                         State="_state" />
 
 @code {
-    private static readonly SessionNodeInput _orders = new("orders", "workitem", "Orders", "OrdersBlock");
-    private static readonly SessionNodeInput _invoice = new("invoice-approval", "invoice", "Invoice approval", "InvoiceBlock");
+    private static readonly SessionNodeInput _workspaces = new("workspaces", "workspaces.header", "Workspaces", "NodeBlock");
+    private static readonly SessionNodeInput _setupCi = new("setup-ci", "workitem", "Set up CI", "NodeBlock");
 
     private readonly IReadOnlyList<SessionContextNode> _nodes =
     [
-        new(_orders, [new(_invoice)])
+        new(_workspaces, [new(_setupCi)])
     ];
 
     private readonly SessionUiState _state =
         SessionUiReducer.Reduce(
-            SessionUiReducer.Reduce(SessionUiDefaults.Empty, new ProjectSessionContext(_invoice)),
-            new PinSessionContext(new SessionContextProjectionModel(_invoice)));
+            SessionUiReducer.Reduce(SessionUiDefaults.Empty, new ProjectSessionContext(_setupCi)),
+            new PinSessionContext(new SessionContextProjectionModel(_setupCi)));
 }

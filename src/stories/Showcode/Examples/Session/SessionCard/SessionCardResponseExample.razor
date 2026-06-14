@@ -2,12 +2,12 @@
 
 <SessionCard Node="_node"
              Initials="RS"
-             Description="The orders session has three open follow-ups. The highest risk item is the delayed invoice approval."
+             Description="The workspaces session has open follow-ups. The highest risk item is the delayed workspace setup."
              Status="Ready"
              Actions="_actions" />
 
 @code {
-    private readonly SessionNodeInput _node = new("response-order-summary", "session-response", "Order summary response");
+    private readonly SessionNodeInput _node = new("response-workspace-summary", "session-response", "Workspace summary response");
 
     private IReadOnlyList<SessionCardAction> _actions => [
         new("draft-reply", "Draft reply"),

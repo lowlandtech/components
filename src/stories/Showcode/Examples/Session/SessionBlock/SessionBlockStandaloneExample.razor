@@ -12,17 +12,24 @@
     private readonly IReadOnlyList<SessionContextNode> _contextNodes =
     [
         new(
-            new SessionNodeInput("orders", "orders.header", "Orders", "NodeBlock"),
+            new SessionNodeInput("workspaces", "workspaces.header", "Workspaces", "NodeBlock"),
             [
-                new SessionContextNode(new SessionNodeInput("invoice-approval", "invoice", "Invoice approval", "NodeBlock"), IsLoaded: true),
-                new SessionContextNode(new SessionNodeInput("shipment-delay", "shipment", "Shipment delay", "NodeBlock"), IsLoaded: true)
+                new SessionContextNode(new SessionNodeInput("foundry", "workspace", "Foundry", "NodeBlock"), IsLoaded: true),
+                new SessionContextNode(new SessionNodeInput("acme", "workspace", "Acme", "NodeBlock"), IsLoaded: true)
             ],
             IsLoaded: false),
         new(
-            new SessionNodeInput("customers", "customers.header", "Customers", "NodeBlock"),
+            new SessionNodeInput("flows", "flow.header", "Flows", "NodeBlock"),
             [
-                new SessionContextNode(new SessionNodeInput("northwind", "customer", "Northwind Traders", "NodeBlock"), IsLoaded: true),
-                new SessionContextNode(new SessionNodeInput("contoso", "customer", "Contoso", "NodeBlock"), IsLoaded: true)
+                new SessionContextNode(new SessionNodeInput("onboarding", "flow", "Onboarding", "NodeBlock"), IsLoaded: true),
+                new SessionContextNode(new SessionNodeInput("approval", "flow", "Approval", "NodeBlock"), IsLoaded: true)
+            ],
+            IsLoaded: false),
+        new(
+            new SessionNodeInput("workitems", "workitems.header", "Workitems", "NodeBlock"),
+            [
+                new SessionContextNode(new SessionNodeInput("setup-ci", "workitem", "Set up CI", "NodeBlock"), IsLoaded: true),
+                new SessionContextNode(new SessionNodeInput("write-docs", "workitem", "Write docs", "NodeBlock"), IsLoaded: true)
             ],
             IsLoaded: false)
     ];

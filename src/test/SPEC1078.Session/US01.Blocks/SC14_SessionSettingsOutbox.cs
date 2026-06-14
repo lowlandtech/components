@@ -35,7 +35,7 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
             DateTimeOffset.UtcNow));
         outbox.Append(new SessionOutboxEntry(
             typeof(ScheduleUpdateEffect).Name,
-            new ScheduleUpdateEffect("invoice", "inv-1", "Label", "Approved"),
+            new ScheduleUpdateEffect("workitem", "inv-1", "Label", "Approved"),
             DateTimeOffset.UtcNow));
 
         var cut = Ctx.Render<SessionSettings>(p => p
@@ -66,8 +66,8 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
             return Task.CompletedTask;
         });
 
-        var sessions = new[] { new SessionListEntry("release-session", "Release notes") };
-        stateService.SelectSession(new SessionNodeInput("release-session", "session", "Release notes"), sessions);
+        var sessions = new[] { new SessionListEntry("workitems-session", "Workitems") };
+        stateService.SelectSession(new SessionNodeInput("workitems-session", "session", "Workitems"), sessions);
         await stateService.DispatchAsync(new ShowSessionSettingsPage(), CancellationToken.None);
         await stateService.DispatchAsync(
             new ScheduleCreateEffect("workspace", "ws-1", "Billing"),
@@ -93,14 +93,14 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
     [Then("the Outbox tab contains no entries because no side-effects were scheduled")]
     public void UAC04_PlainUiActionsDoNotPopulateOutbox()
     {
-        var sessions = new[] { new SessionListEntry("release-session", "Release notes") };
+        var sessions = new[] { new SessionListEntry("workitems-session", "Workitems") };
 
         var cut = Ctx.Render<SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
             .Add(x => x.Sessions, sessions)
             .Add(x => x.ContextNodes, GetContextNodes()));
 
-        cut.Find("[data-testid='session-list-item'][data-node-id='release-session']").Click();
+        cut.Find("[data-testid='session-list-item'][data-node-id='workitems-session']").Click();
         cut.Find("[data-testid='session-block-settings-button']").Click();
         cut.Find("[data-testid='session-settings-outbox-tab']").Click();
 
@@ -114,30 +114,30 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
     [Then("a ScheduleUpdateEffect appears in the Outbox tab")]
     public void UAC05_SideEffectActionsPopulateOwnedOutbox()
     {
-        var sessions = new[] { new SessionListEntry("release-session", "Release notes") };
+        var sessions = new[] { new SessionListEntry("workitems-session", "Workitems") };
 
         var cut = Ctx.Render<SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
             .Add(x => x.Sessions, sessions)
             .Add(x => x.ContextNodes, GetContextNodes()));
 
-        cut.Find("[data-testid='session-list-item'][data-node-id='release-session']").Click();
+        cut.Find("[data-testid='session-list-item'][data-node-id='workitems-session']").Click();
         OpenRenameMenu(cut);
 
         var commandBar = cut.FindComponent<SessionCommandBar>();
-        commandBar.InvokeAsync(() => commandBar.Instance.ValueChanged.InvokeAsync("Invoice review"));
+        commandBar.InvokeAsync(() => commandBar.Instance.ValueChanged.InvokeAsync("Workitem review"));
         commandBar.InvokeAsync(() => commandBar.Instance.OnSubmit.InvokeAsync(
             new SessionCommandSubmitted(
-                new SessionNodeInput("invoice-approval", "invoice", "Invoice approval", "NodeBlock"),
+                new SessionNodeInput("setup-ci", "workitem", "Set up CI", "NodeBlock"),
                 "edit",
-                "Invoice review")));
+                "Workitem review")));
 
         cut.Find("[data-testid='session-block-settings-button']").Click();
         cut.Find("[data-testid='session-settings-outbox-tab']").Click();
 
         var entries = cut.FindAll("[data-slot='session-outbox-entry']");
         entries.Count.ShouldBe(1);
-        cut.Find("[data-outbox-type='ScheduleUpdateEffect']").TextContent.ShouldContain("Invoice review");
+        cut.Find("[data-outbox-type='ScheduleUpdateEffect']").TextContent.ShouldContain("Workitem review");
     }
 
     [Fact(DisplayName = "UAC06: Outbox entries are rendered newest-first")]
@@ -168,7 +168,7 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
 
     private void OpenRenameMenu(IRenderedComponent<SessionBlock> cut)
     {
-        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='setup-ci']").Click();
 
         var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
         var popover = popoverService.ActivePopovers.Single(reference => reference.State.Open);
@@ -188,9 +188,9 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
     private static IReadOnlyList<SessionContextNode> GetContextNodes() =>
     [
         new(
-            new("orders", "workitem", "Orders", "NodeBlock"),
+            new("workspaces", "workitem", "Workspaces", "NodeBlock"),
             [
-                new(new("invoice-approval", "invoice", "Invoice approval", "NodeBlock"), IsLoaded: true)
+                new(new("setup-ci", "workitem", "Set up CI", "NodeBlock"), IsLoaded: true)
             ],
             true)
     ];

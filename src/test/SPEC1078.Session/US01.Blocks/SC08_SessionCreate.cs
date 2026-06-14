@@ -86,7 +86,7 @@ public sealed class SC08_SessionCreate : ViewScenario
         SessionNodeInput? created = null;
         var items = new[]
         {
-            new SessionListEntry("orders", "Orders", 12)
+            new SessionListEntry("workspaces", "Workspaces", 12)
         };
 
         var cut = Ctx.Render<SessionList>(p => p

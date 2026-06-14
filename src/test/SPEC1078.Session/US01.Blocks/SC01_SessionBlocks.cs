@@ -5,18 +5,18 @@ namespace LowlandTech.Components.Tests.SPEC1078.Session.US01.Blocks;
 [UserStory("01", "Session blocks expose shared state, actions, reducers, events, and node-shaped callbacks")]
 public class SC01_SessionBlocks : ViewScenario
 {
-    private static readonly SessionNodeInput OrdersNode = new("orders", "session", "Orders");
+    private static readonly SessionNodeInput WorkspacesNode = new("workspaces", "session", "Workspaces");
 
     private sealed class PluginSessionSurfaceRegistry : ISessionSurfaceRegistry
     {
         public int Priority => 100;
 
         public SessionSurfaceDescriptor? GetSurface(string sessionId)
-            => string.Equals(sessionId, "orders-session", StringComparison.Ordinal)
+            => string.Equals(sessionId, "workspaces-session", StringComparison.Ordinal)
                 ? new SessionSurfaceDescriptor(
                     sessionId,
-                    new SessionNodeInput("plugin-request-orders", "session-request", "Plugin order intake"),
-                    new SessionNodeInput("plugin-response-orders", "session-response", "Plugin order output"))
+                    new SessionNodeInput("plugin-request-workspaces", "session-request", "Plugin workspace intake"),
+                    new SessionNodeInput("plugin-response-workspaces", "session-response", "Plugin workspace output"))
                 : null;
     }
 
@@ -24,30 +24,30 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "01")]
     public void UAC01_ReducerSelectsNode()
     {
-        var state = SessionUiReducer.Reduce(SessionUiDefaults.Empty, new SelectSessionNode(OrdersNode));
+        var state = SessionUiReducer.Reduce(SessionUiDefaults.Empty, new SelectSessionNode(WorkspacesNode));
 
-        state.SelectedNode.ShouldBe(OrdersNode);
-        state.OpenNodes.ShouldContain(OrdersNode);
+        state.SelectedNode.ShouldBe(WorkspacesNode);
+        state.OpenNodes.ShouldContain(WorkspacesNode);
     }
 
     [Fact(DisplayName = "UAC18: Reducer preserves tab order when re-selecting an open node")]
     [Trait(Spec.UAC, "18")]
     public void UAC18_ReducerPreservesTabOrderOnReselect()
     {
-        var supportNode = new SessionNodeInput("support", "session", "Support triage");
-        var releaseNode = new SessionNodeInput("release", "session", "Release notes");
+        var flowsNode = new SessionNodeInput("flows", "session", "Flows");
+        var workitemsNode = new SessionNodeInput("workitems", "session", "Workitems");
         var state = SessionUiDefaults.Empty with
         {
-            OpenNodes = [OrdersNode, supportNode, releaseNode]
+            OpenNodes = [WorkspacesNode, flowsNode, workitemsNode]
         };
 
-        state = SessionUiReducer.Reduce(state, new SelectSessionNode(supportNode));
+        state = SessionUiReducer.Reduce(state, new SelectSessionNode(flowsNode));
 
-        state.SelectedNode.ShouldBe(supportNode);
+        state.SelectedNode.ShouldBe(flowsNode);
         state.OpenNodes.Count.ShouldBe(3);
-        state.OpenNodes[0].Id.ShouldBe("orders");
-        state.OpenNodes[1].Id.ShouldBe("support");
-        state.OpenNodes[2].Id.ShouldBe("release");
+        state.OpenNodes[0].Id.ShouldBe("workspaces");
+        state.OpenNodes[1].Id.ShouldBe("flows");
+        state.OpenNodes[2].Id.ShouldBe("workitems");
     }
 
     [Fact(DisplayName = "UAC02: SessionCommandBar emits node-shaped submit event and clears shared input")]
@@ -58,8 +58,8 @@ public class SC01_SessionBlocks : ViewScenario
         string? nextValue = null;
         var state = SessionUiDefaults.Empty with
         {
-            SelectedNode = OrdersNode,
-            Input = "Summarize orders",
+            SelectedNode = WorkspacesNode,
+            Input = "Summarize workspaces",
             ActiveAgentTypeKey = "ask"
         };
 
@@ -71,8 +71,8 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-testid='session-command-submit']").Click();
 
         submitted.ShouldNotBeNull();
-        submitted.Node.ShouldBe(OrdersNode);
-        submitted.Input.ShouldBe("Summarize orders");
+        submitted.Node.ShouldBe(WorkspacesNode);
+        submitted.Input.ShouldBe("Summarize workspaces");
         submitted.AgentTypeKey.ShouldBe("ask");
         nextValue.ShouldBe("");
         Ctx.JSInterop.Invocations.Any(invocation =>
@@ -92,7 +92,7 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var state = SessionUiDefaults.Empty with
         {
-            SelectedNode = OrdersNode,
+            SelectedNode = WorkspacesNode,
             Input = "stale input"
         };
 
@@ -117,15 +117,15 @@ public class SC01_SessionBlocks : ViewScenario
         };
 
         var cut = Ctx.Render<SessionCommandBar>(p => p
-            .Add(x => x.SelectedNode, OrdersNode)
+            .Add(x => x.SelectedNode, WorkspacesNode)
             .Add(x => x.AgentTypes, agents)
             .Add(x => x.OnAgentTypeSelected, e => selected = e));
 
         cut.Find("[data-agent-type='plan']").Click();
 
-        callbackNode.ShouldBe(OrdersNode);
+        callbackNode.ShouldBe(WorkspacesNode);
         selected.ShouldNotBeNull();
-        selected.Node.ShouldBe(OrdersNode);
+        selected.Node.ShouldBe(WorkspacesNode);
         selected.AgentTypeKey.ShouldBe("plan");
     }
 
@@ -136,18 +136,18 @@ public class SC01_SessionBlocks : ViewScenario
         SessionNodeSelected? selected = null;
         var items = new[]
         {
-            new SessionListEntry("orders", "Orders", 12),
-            new SessionListEntry("support", "Support triage", 7)
+            new SessionListEntry("workspaces", "Workspaces", 12),
+            new SessionListEntry("flows", "Flows", 7)
         };
 
         var cut = Ctx.Render<SessionList>(p => p
             .Add(x => x.Items, items)
             .Add(x => x.OnSelected, e => selected = e));
 
-        cut.Find("[data-node-id='support']").Click();
+        cut.Find("[data-node-id='flows']").Click();
 
         selected.ShouldNotBeNull();
-        selected.Node.Id.ShouldBe("support");
+        selected.Node.Id.ShouldBe("flows");
         selected.Node.NodeTypeKey.ShouldBe("session");
     }
 
@@ -163,15 +163,15 @@ public class SC01_SessionBlocks : ViewScenario
         };
 
         var cut = Ctx.Render<SessionCard>(p => p
-            .Add(x => x.Node, OrdersNode)
+            .Add(x => x.Node, WorkspacesNode)
             .Add(x => x.Actions, actions)
             .Add(x => x.OnActionSelected, e => selected = e));
 
         cut.Find("[data-slot='session-card-action']").Click();
 
-        configuredNode.ShouldBe(OrdersNode);
+        configuredNode.ShouldBe(WorkspacesNode);
         selected.ShouldNotBeNull();
-        selected.Node.ShouldBe(OrdersNode);
+        selected.Node.ShouldBe(WorkspacesNode);
         selected.ActionKey.ShouldBe("create-task");
     }
 
@@ -179,7 +179,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "05b")]
     public void UAC05b_SessionCardFlushesOuterCardPadding()
     {
-        var cut = Ctx.Render<SessionCard>(p => p.Add(x => x.Node, OrdersNode));
+        var cut = Ctx.Render<SessionCard>(p => p.Add(x => x.Node, WorkspacesNode));
 
         var style = cut.Find("[data-slot='session-card']").GetAttribute("style");
 
@@ -194,22 +194,22 @@ public class SC01_SessionBlocks : ViewScenario
         SessionNodeSelected? selected = null;
         var nodes = new[]
         {
-            OrdersNode,
-            new SessionNodeInput("support", "session", "Support triage")
+            WorkspacesNode,
+            new SessionNodeInput("flows", "session", "Flows")
         };
 
         var cut = Ctx.Render<SessionContent>(p => p
             .Add(x => x.OpenNodes, nodes)
-            .Add(x => x.SelectedNode, OrdersNode)
+            .Add(x => x.SelectedNode, WorkspacesNode)
             .Add(x => x.OnSelected, e => selected = e));
 
         cut.Find("[data-tabs-mode='dynamic']").ShouldNotBeNull();
         cut.Find("[data-variant='ide']").ShouldNotBeNull();
 
-        cut.Find("#tabs-trigger-support").Click();
+        cut.Find("#tabs-trigger-flows").Click();
 
         selected.ShouldNotBeNull();
-        selected.Node.Id.ShouldBe("support");
+        selected.Node.Id.ShouldBe("flows");
     }
 
     [Fact(DisplayName = "UAC06b: SessionContent omits right padding beside the stable scrollbar gutter")]
@@ -220,8 +220,8 @@ public class SC01_SessionBlocks : ViewScenario
     public void UAC06b_SessionContentOmitsRightPaddingBesideStableGutter()
     {
         var cut = Ctx.Render<SessionContent>(p => p
-            .Add(x => x.OpenNodes, [OrdersNode])
-            .Add(x => x.SelectedNode, OrdersNode));
+            .Add(x => x.OpenNodes, [WorkspacesNode])
+            .Add(x => x.SelectedNode, WorkspacesNode));
 
         var style = cut.Find("[data-slot='session-content-body']").GetAttribute("style");
 
@@ -233,8 +233,8 @@ public class SC01_SessionBlocks : ViewScenario
     public void UAC06c_SessionContentFlushModeRemovesPaddingAndSpacing()
     {
         var cut = Ctx.Render<SessionContent>(p => p
-            .Add(x => x.OpenNodes, [OrdersNode])
-            .Add(x => x.SelectedNode, OrdersNode)
+            .Add(x => x.OpenNodes, [WorkspacesNode])
+            .Add(x => x.SelectedNode, WorkspacesNode)
             .Add(x => x.Flush, true));
 
         var body = cut.Find("[data-slot='session-content-body']");
@@ -250,8 +250,8 @@ public class SC01_SessionBlocks : ViewScenario
     public void UAC06d_SessionContentBodyIsFlexColumn()
     {
         var cut = Ctx.Render<SessionContent>(p => p
-            .Add(x => x.OpenNodes, [OrdersNode])
-            .Add(x => x.SelectedNode, OrdersNode));
+            .Add(x => x.OpenNodes, [WorkspacesNode])
+            .Add(x => x.SelectedNode, WorkspacesNode));
 
         var body = cut.Find("[data-slot='session-content-body']");
         body.ClassList.ShouldContain("flex");
@@ -266,8 +266,8 @@ public class SC01_SessionBlocks : ViewScenario
     public void UAC06e_EmptyFeedStretchesToFullHeight()
     {
         var stateService = new SessionStateService();
-        var sessions = new[] { new SessionListEntry("s1", "Orders", 0, "session") };
-        stateService.SelectSession(new SessionNodeInput("s1", "session", "Orders"), sessions);
+        var sessions = new[] { new SessionListEntry("s1", "Workspaces", 0, "session") };
+        stateService.SelectSession(new SessionNodeInput("s1", "session", "Workspaces"), sessions);
 
         var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
@@ -289,8 +289,8 @@ public class SC01_SessionBlocks : ViewScenario
         SessionCommandSubmitted? submitted = null;
 
         var cut = Ctx.Render<SessionCommandBar>(p => p
-            .Add(x => x.SelectedNode, OrdersNode)
-            .Add(x => x.Value, "Summarize orders")
+            .Add(x => x.SelectedNode, WorkspacesNode)
+            .Add(x => x.Value, "Summarize workspaces")
             .Add(x => x.IsBusy, true)
             .Add(x => x.OnSubmit, e => submitted = e));
 
@@ -317,7 +317,7 @@ public class SC01_SessionBlocks : ViewScenario
         };
 
         var cut = Ctx.Render<SessionCommandBar>(p => p
-            .Add(x => x.SelectedNode, OrdersNode)
+            .Add(x => x.SelectedNode, WorkspacesNode)
             .Add(x => x.AgentTypes, agents)
             .Add(x => x.ActiveAgentTypeKey, "plan")
             .Add(x => x.Value, "Make a plan")
@@ -326,7 +326,7 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-testid='session-command-submit']").Click();
 
         configuredSubmit.ShouldNotBeNull();
-        configuredSubmit.Node.ShouldBe(OrdersNode);
+        configuredSubmit.Node.ShouldBe(WorkspacesNode);
         configuredSubmit.AgentTypeKey.ShouldBe("plan");
         configuredSubmit.Input.ShouldBe("Make a plan");
         commonSubmit.ShouldNotBeNull();
@@ -337,22 +337,22 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "09")]
     public void UAC09_ReducerProjectsContext()
     {
-        var invoice = new SessionNodeInput("invoice", "invoice", "Invoice", "InvoiceBlock");
-        var customer = new SessionNodeInput("customer", "customer", "Customer", "CustomerBlock");
+        var workitem = new SessionNodeInput("workitem", "workitem", "Workitem", "WorkitemBlock");
+        var workspace = new SessionNodeInput("workspace", "workspace", "Workspace", "WorkspaceBlock");
 
-        var state = SessionUiReducer.Reduce(SessionUiDefaults.Empty, new ProjectSessionContext(invoice));
-        state = SessionUiReducer.Reduce(state, new ProjectSessionContext(customer));
+        var state = SessionUiReducer.Reduce(SessionUiDefaults.Empty, new ProjectSessionContext(workitem));
+        state = SessionUiReducer.Reduce(state, new ProjectSessionContext(workspace));
 
         state.ContextProjection.ShouldNotBeNull();
-        state.ContextProjection.Node.ShouldBe(customer);
+        state.ContextProjection.Node.ShouldBe(workspace);
     }
 
     [Fact(DisplayName = "UAC10: Reducer pins projected context as a session.pin node and context block")]
     [Trait(Spec.UAC, "10")]
     public void UAC10_ReducerPinsProjectedContext()
     {
-        var invoice = new SessionNodeInput("invoice", "invoice", "Invoice", "InvoiceBlock");
-        var state = SessionUiReducer.Reduce(SessionUiDefaults.Empty, new ProjectSessionContext(invoice));
+        var workitem = new SessionNodeInput("workitem", "workitem", "Workitem", "WorkitemBlock");
+        var state = SessionUiReducer.Reduce(SessionUiDefaults.Empty, new ProjectSessionContext(workitem));
 
         state = SessionUiReducer.Reduce(state, new PinSessionContext(state.ContextProjection!));
 
@@ -363,7 +363,7 @@ public class SC01_SessionBlocks : ViewScenario
         state.ContextPins[0].SessionNode.ComponentBlock.ShouldBe("SessionContextPin");
         state.ContextBlocks.ShouldNotBeNull();
         state.ContextBlocks.Count.ShouldBe(1);
-        state.ContextBlocks[0].Context.ShouldBe(invoice);
+        state.ContextBlocks[0].Context.ShouldBe(workitem);
     }
 
     [Fact(DisplayName = "UAC11: SessionContextExplorer projects and pins selected context")]
@@ -372,22 +372,22 @@ public class SC01_SessionBlocks : ViewScenario
     {
         SessionContextProjected? projected = null;
         SessionContextPinned? pinned = null;
-        var invoice = new SessionNodeInput("invoice", "invoice", "Invoice", "InvoiceBlock");
-        var nodes = new[] { new SessionContextNode(invoice, IsLoaded: true) };
+        var workitem = new SessionNodeInput("workitem", "workitem", "Workitem", "WorkitemBlock");
+        var nodes = new[] { new SessionContextNode(workitem, IsLoaded: true) };
 
         var cut = Ctx.Render<SessionContextExplorer>(p => p
             .Add(x => x.RootNodes, nodes)
             .Add(x => x.OnProjected, e => projected = e)
             .Add(x => x.OnPinned, e => pinned = e));
 
-        cut.Find("[data-node-id='invoice']").Click();
-        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice']").Click();
+        cut.Find("[data-node-id='workitem']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='workitem']").Click();
         ClickOpenContextNodePin();
 
         projected.ShouldNotBeNull();
-        projected.Node.ShouldBe(invoice);
+        projected.Node.ShouldBe(workitem);
         pinned.ShouldNotBeNull();
-        pinned.Node.ShouldBe(invoice);
+        pinned.Node.ShouldBe(workitem);
         pinned.Pin.SessionNode.NodeTypeKey.ShouldBe("session.pin");
     }
 
@@ -403,7 +403,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.HasSidebar, true)
             .Add(x => x.StateService, stateService));
 
-        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
         ClickShowCommandBar(cut);
         cut.Find("[data-testid='session-command-input']").Input("Trace all state changes");
         cut.Find("[data-testid='session-command-submit']").Click();
@@ -431,7 +431,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.HasSidebar, true)
             .Add(x => x.StateService, stateService));
 
-        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
         ClickShowCommandBar(cut);
         cut.Find("[data-testid='session-command-input']").Input("Clear journal");
         cut.Find("[data-testid='session-command-submit']").Click();
@@ -457,7 +457,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.HasSidebar, true)
             .Add(x => x.StateService, stateService));
 
-        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
 
         cut.Find("[data-testid='session-block-settings-button']").Click();
         cut.Find("[data-slot='session-settings']").ShouldNotBeNull();
@@ -481,7 +481,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.HasSidebar, true)
             .Add(x => x.StateService, stateService));
 
-        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
         cut.Find("[data-testid='session-block-settings-button']").Click();
         var initialRows = cut.FindAll("[data-testid='session-settings-api-key-row']").Count;
 
@@ -500,14 +500,14 @@ public class SC01_SessionBlocks : ViewScenario
     public void UAC13_ContextBlockRendersDynamicComponent()
     {
         var block = new SessionContextBlockModel(
-            "context-block:invoice",
-            new("invoice", "invoice", "Invoice", "InvoiceBlock"),
-            "invoice-data",
+            "context-block:workitem",
+            new("workitem", "workitem", "Workitem", "WorkitemBlock"),
+            "workitem-data",
             typeof(TestSessionContextBlock));
 
         var cut = Ctx.Render<SessionContextBlock>(p => p.Add(x => x.Block, block));
 
-        cut.Markup.ShouldContain("Dynamic invoice-data");
+        cut.Markup.ShouldContain("Dynamic workitem-data");
     }
 
     [Fact(DisplayName = "UAC13b: SessionContextBlock flushes outer card block padding")]
@@ -515,9 +515,9 @@ public class SC01_SessionBlocks : ViewScenario
     public void UAC13b_ContextBlockFlushesOuterCardPadding()
     {
         var block = new SessionContextBlockModel(
-            "context-block:invoice",
-            new("invoice", "invoice", "Invoice", "InvoiceBlock"),
-            "invoice-data");
+            "context-block:workitem",
+            new("workitem", "workitem", "Workitem", "WorkitemBlock"),
+            "workitem-data");
 
         var cut = Ctx.Render<SessionContextBlock>(p => p.Add(x => x.Block, block));
 
@@ -532,9 +532,9 @@ public class SC01_SessionBlocks : ViewScenario
     public void UAC14_ContextBlockMinimizedModeHidesContent()
     {
         var block = new SessionContextBlockModel(
-            "context-block:invoice",
-            new("invoice", "invoice", "Invoice", "InvoiceBlock"),
-            "invoice-data");
+            "context-block:workitem",
+            new("workitem", "workitem", "Workitem", "WorkitemBlock"),
+            "workitem-data");
 
         var cut = Ctx.Render<SessionContextBlock>(p => p
             .Add(x => x.Block, block)
@@ -552,9 +552,9 @@ public class SC01_SessionBlocks : ViewScenario
     public void UAC15_ContextBlockExposesProjectionModes()
     {
         var block = new SessionContextBlockModel(
-            "context-block:invoice",
-            new("invoice", "invoice", "Invoice", "InvoiceBlock"),
-            "invoice-data");
+            "context-block:workitem",
+            new("workitem", "workitem", "Workitem", "WorkitemBlock"),
+            "workitem-data");
 
         var maximized = Ctx.Render<SessionContextBlock>(p => p
             .Add(x => x.Block, block)
@@ -583,9 +583,9 @@ public class SC01_SessionBlocks : ViewScenario
     public void UAC15b_SessionOverlayContainersAreConfigurable()
     {
         var block = new SessionContextBlockModel(
-            "context-block:invoice",
-            new("invoice", "invoice", "Invoice", "InvoiceBlock"),
-            "invoice-data");
+            "context-block:workitem",
+            new("workitem", "workitem", "Workitem", "WorkitemBlock"),
+            "workitem-data");
         var pageOverlay = Ctx.Services.GetRequiredService<IPageOverlayService>();
         pageOverlay.Clear();
 
@@ -606,17 +606,17 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var cut = Ctx.Render<Components.SessionBlock>();
 
-        cut.Find("[data-node-id='orders-session']").Click();
-        cut.Find("[data-node-id='invoice-approval']").Click();
-        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='setup-ci']").Click();
         ClickOpenContextNodePin();
         cut.Find("[data-slot='session-context-block']").ShouldNotBeNull();
 
         ClickShowCommandBar(cut);
-        cut.Find("[data-testid='session-command-input']").Input("Summarize invoice risk");
+        cut.Find("[data-testid='session-command-input']").Input("Summarize workitem risk");
         cut.Find("[data-testid='session-command-submit']").Click();
 
-        cut.Markup.ShouldContain("Summarize invoice risk");
+        cut.Markup.ShouldContain("Summarize workitem risk");
         cut.Markup.ShouldContain("1 context block");
     }
 
@@ -628,7 +628,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0));
 
-        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
         ClickShowCommandBar(cut);
 
         cut.Find("[data-testid='session-command-input']").Input("Hello test");
@@ -649,7 +649,7 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var cut = Ctx.Render<Components.SessionBlock>();
 
-        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
         ClickShowCommandBar(cut);
 
         cut.Find("[data-testid='session-command-input']").Input("First question");
@@ -675,11 +675,11 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var cut = Ctx.Render<Components.SessionBlock>();
 
-        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
 
-        // Pin invoice first
-        cut.Find("[data-node-id='invoice-approval']").Click();
-        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
+        // Pin workitem first
+        cut.Find("[data-node-id='setup-ci']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='setup-ci']").Click();
         ClickOpenContextNodePin();
 
         ClickShowCommandBar(cut);
@@ -693,33 +693,33 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-testid='session-command-submit']").Click();
 
         // Pin Northwind after commands
-        cut.Find("[data-node-id='northwind']").Click();
-        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='northwind']").Click();
+        cut.Find("[data-node-id='foundry']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='foundry']").Click();
         ClickOpenContextNodePin();
 
         var feed = cut.Find("[data-slot='session-block-feed']");
         var feedText = feed.TextContent;
 
         // All items should be present in the unified feed
-        feedText.ShouldContain("Invoice approval");
-        feedText.ShouldContain("Northwind Traders");
+        feedText.ShouldContain("Set up CI");
+        feedText.ShouldContain("Foundry");
         feedText.ShouldContain("First question");
         feedText.ShouldContain("Second question");
 
-        // Invoice should appear before First question in the unified feed
-        var invoiceIndex = feedText.IndexOf("Invoice approval", StringComparison.Ordinal);
+        // Workitem should appear before First question in the unified feed
+        var workitemIndex = feedText.IndexOf("Set up CI", StringComparison.Ordinal);
         var firstQuestionIndex = feedText.IndexOf("First question", StringComparison.Ordinal);
         var secondQuestionIndex = feedText.IndexOf("Second question", StringComparison.Ordinal);
-        var northwindIndex = feedText.IndexOf("Northwind Traders", StringComparison.Ordinal);
+        var foundryIndex = feedText.IndexOf("Foundry", StringComparison.Ordinal);
 
-        invoiceIndex.ShouldBeGreaterThan(-1);
+        workitemIndex.ShouldBeGreaterThan(-1);
         firstQuestionIndex.ShouldBeGreaterThan(-1);
         secondQuestionIndex.ShouldBeGreaterThan(-1);
-        northwindIndex.ShouldBeGreaterThan(-1);
+        foundryIndex.ShouldBeGreaterThan(-1);
 
-        invoiceIndex.ShouldBeLessThan(firstQuestionIndex);
+        workitemIndex.ShouldBeLessThan(firstQuestionIndex);
         firstQuestionIndex.ShouldBeLessThan(secondQuestionIndex);
-        secondQuestionIndex.ShouldBeLessThan(northwindIndex);
+        secondQuestionIndex.ShouldBeLessThan(foundryIndex);
     }
 
     [Fact(DisplayName = "UAC16e: SessionBlock IsTest mode preserves session history order across turns and blocks")]
@@ -730,10 +730,10 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0));
 
-        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
 
-        cut.Find("[data-node-id='invoice-approval']").Click();
-        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='setup-ci']").Click();
         ClickOpenContextNodePin();
 
         ClickShowCommandBar(cut);
@@ -741,8 +741,8 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-testid='session-command-input']").Input("First test ask");
         cut.Find("[data-testid='session-command-submit']").Click();
 
-        cut.Find("[data-node-id='northwind']").Click();
-        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='northwind']").Click();
+        cut.Find("[data-node-id='foundry']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='foundry']").Click();
         ClickOpenContextNodePin();
 
         cut.Find("[data-testid='session-command-input']").Input("Second test ask");
@@ -751,19 +751,19 @@ public class SC01_SessionBlocks : ViewScenario
         var feed = cut.Find("[data-slot='session-block-feed']");
         var feedText = feed.TextContent;
 
-        var invoiceIndex = feedText.IndexOf("Invoice approval", StringComparison.Ordinal);
+        var workitemIndex = feedText.IndexOf("Set up CI", StringComparison.Ordinal);
         var firstAskIndex = feedText.IndexOf("First test ask", StringComparison.Ordinal);
-        var northwindIndex = feedText.IndexOf("Northwind Traders", StringComparison.Ordinal);
+        var foundryIndex = feedText.IndexOf("Foundry", StringComparison.Ordinal);
         var secondAskIndex = feedText.IndexOf("Second test ask", StringComparison.Ordinal);
 
-        invoiceIndex.ShouldBeGreaterThan(-1);
+        workitemIndex.ShouldBeGreaterThan(-1);
         firstAskIndex.ShouldBeGreaterThan(-1);
-        northwindIndex.ShouldBeGreaterThan(-1);
+        foundryIndex.ShouldBeGreaterThan(-1);
         secondAskIndex.ShouldBeGreaterThan(-1);
 
-        invoiceIndex.ShouldBeLessThan(firstAskIndex);
-        firstAskIndex.ShouldBeLessThan(northwindIndex);
-        northwindIndex.ShouldBeLessThan(secondAskIndex);
+        workitemIndex.ShouldBeLessThan(firstAskIndex);
+        firstAskIndex.ShouldBeLessThan(foundryIndex);
+        foundryIndex.ShouldBeLessThan(secondAskIndex);
         cut.FindAll("[data-slot='session-turn-prompt']").Count.ShouldBe(2);
         cut.FindAll("[data-slot='session-turn-response-text']")
             .ShouldAllBe(response => response.GetAttribute("data-streaming") == "false");
@@ -777,7 +777,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0));
 
-        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
         ClickShowCommandBar(cut);
 
         cut.Find("[data-testid='session-command-input']").Input("Same run");
@@ -809,26 +809,26 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var cut = Ctx.Render<Components.SessionBlock>();
 
-        cut.Find("[data-node-id='release-session']").Click();
-        cut.Find("[data-node-id='invoice-approval']").Click();
+        cut.Find("[data-node-id='workitems-session']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
 
         var overlay = cut.Find("[data-slot='session-block-page-overlay']");
         var projectedBlock = overlay.QuerySelector("[data-block-id='projected-context-block']");
         projectedBlock.ShouldNotBeNull();
         projectedBlock!.GetAttribute("data-mode").ShouldBe(SessionContextBlock.ModeOverlayPage);
-        projectedBlock.TextContent.ShouldContain("Invoice approval");
-        projectedBlock.TextContent.ShouldContain("invoice");
+        projectedBlock.TextContent.ShouldContain("Set up CI");
+        projectedBlock.TextContent.ShouldContain("workitem");
 
-        cut.Find("[data-node-id='shipment-delay']").Click();
+        cut.Find("[data-node-id='write-docs']").Click();
 
         overlay = cut.Find("[data-slot='session-block-page-overlay']");
         overlay.QuerySelectorAll("[data-block-id='projected-context-block']").Count.ShouldBe(1);
         projectedBlock = overlay.QuerySelector("[data-block-id='projected-context-block']");
         projectedBlock.ShouldNotBeNull();
         projectedBlock!.GetAttribute("data-mode").ShouldBe(SessionContextBlock.ModeOverlayPage);
-        projectedBlock.TextContent.ShouldContain("Shipment delay");
-        projectedBlock.TextContent.ShouldContain("shipment");
-        projectedBlock.TextContent.ShouldNotContain("Invoice approval");
+        projectedBlock.TextContent.ShouldContain("Write docs");
+        projectedBlock.TextContent.ShouldContain("workitem");
+        projectedBlock.TextContent.ShouldNotContain("Set up CI");
     }
 
     [Fact(DisplayName = "UAC17c: SessionBlock opens a clicked context card in Page Overlay mode by default")]
@@ -840,12 +840,12 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var cut = Ctx.Render<Components.SessionBlock>();
 
-        cut.Find("[data-node-id='release-session']").Click();
-        cut.Find("[data-node-id='invoice-approval']").Click();
+        cut.Find("[data-node-id='workitems-session']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
 
         var overlay = cut.Find("[data-slot='session-block-page-overlay']");
         overlay.QuerySelector("[data-block-id='projected-context-block'][data-mode='overlay-page']").ShouldNotBeNull();
-        overlay.TextContent.ShouldContain("Invoice approval");
+        overlay.TextContent.ShouldContain("Set up CI");
     }
 
     [Fact(DisplayName = "UAC17d: SessionBlock opens a clicked context card in Maximized mode when the command bar is visible")]
@@ -857,9 +857,9 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var cut = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
-        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
         ClickShowCommandBar(cut);
-        cut.Find("[data-node-id='invoice-approval']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
 
         cut.Find("[data-slot='session-block-maximized-block'] [data-block-id='projected-context-block'][data-mode='maximized']")
             .ShouldNotBeNull();
@@ -875,11 +875,11 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var cut = Ctx.Render<Components.SessionBlock>();
 
-        cut.Find("[data-node-id='release-session']").Click();
-        cut.Find("[data-node-id='invoice-approval']").DoubleClick();
+        cut.Find("[data-node-id='workitems-session']").Click();
+        cut.Find("[data-node-id='setup-ci']").DoubleClick();
 
         cut.FindAll("[data-slot='session-block-page-overlay']").ShouldBeEmpty();
-        cut.Find("[data-slot='session-block-feed'] [data-block-id='context-block:invoice-approval'][data-mode='normal']")
+        cut.Find("[data-slot='session-block-feed'] [data-block-id='context-block:setup-ci'][data-mode='normal']")
             .ShouldNotBeNull();
     }
 
@@ -889,20 +889,20 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var cut = Ctx.Render<Components.SessionBlock>();
 
-        cut.Find("[data-node-id='release-session']").Click();
-        cut.Find("[data-node-id='invoice-approval']").Click();
-        cut.Find("[data-block-id='projected-context-block']").TextContent.ShouldContain("Invoice approval");
+        cut.Find("[data-node-id='workitems-session']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
+        cut.Find("[data-block-id='projected-context-block']").TextContent.ShouldContain("Set up CI");
 
         cut.Find("[data-slot='session-block-sidebar-back']").Click();
-        cut.Find("[data-node-id='support-session']").Click();
+        cut.Find("[data-node-id='flows-session']").Click();
 
         cut.FindAll("[data-block-id='projected-context-block']").Count.ShouldBe(0);
-        cut.Markup.ShouldNotContain("Invoice detail block projected into the active session feed.");
+        cut.Markup.ShouldNotContain("Workitem detail block projected into the active session feed.");
 
         cut.Find("[data-slot='session-block-sidebar-back']").Click();
-        cut.Find("[data-node-id='release-session']").Click();
+        cut.Find("[data-node-id='workitems-session']").Click();
 
-        cut.Find("[data-block-id='projected-context-block']").TextContent.ShouldContain("Invoice approval");
+        cut.Find("[data-block-id='projected-context-block']").TextContent.ShouldContain("Set up CI");
     }
 
     [Fact(DisplayName = "UAC19: SessionBlock interleaves turns and blocks in a unified feed")]
@@ -911,8 +911,8 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var cut = Ctx.Render<Components.SessionBlock>();
 
-        cut.Find("[data-node-id='release-session']").Click();
-        cut.Find("[data-node-id='invoice-approval']").Click();
+        cut.Find("[data-node-id='workitems-session']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
 
         var feed = cut.Find("[data-slot='session-block-feed']");
         feed.ShouldNotBeNull();
@@ -923,16 +923,16 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "20")]
     public void UAC20_ContextExplorerKeepsPinnedNodesInTree()
     {
-        var invoice = new SessionNodeInput("invoice", "invoice", "Invoice", "InvoiceBlock");
-        var state = SessionUiReducer.Reduce(SessionUiDefaults.Empty, new ProjectSessionContext(invoice));
+        var workitem = new SessionNodeInput("workitem", "workitem", "Workitem", "WorkitemBlock");
+        var state = SessionUiReducer.Reduce(SessionUiDefaults.Empty, new ProjectSessionContext(workitem));
         state = SessionUiReducer.Reduce(state, new PinSessionContext(state.ContextProjection!));
 
         var cut = Ctx.Render<SessionContextExplorer>(p => p
             .Add(x => x.State, state)
-            .Add(x => x.RootNodes, new[] { new SessionContextNode(invoice, IsLoaded: true) }));
+            .Add(x => x.RootNodes, new[] { new SessionContextNode(workitem, IsLoaded: true) }));
 
         // Pinned node remains in the tree so it can still be used for navigation.
-        cut.FindAll("[data-node-id='invoice']").Count.ShouldBeGreaterThan(0);
+        cut.FindAll("[data-node-id='workitem']").Count.ShouldBeGreaterThan(0);
     }
 
     [Fact(DisplayName = "UAC21: SessionContextBlock header renders a closeable Pinned badge when IsPinned is true")]
@@ -941,9 +941,9 @@ public class SC01_SessionBlocks : ViewScenario
     {
         SessionNodeInput? unpinnedContext = null;
         var block = new SessionContextBlockModel(
-            "context-block:invoice",
-            new("invoice", "invoice", "Invoice", "InvoiceBlock"),
-            "invoice-data");
+            "context-block:workitem",
+            new("workitem", "workitem", "Workitem", "WorkitemBlock"),
+            "workitem-data");
 
         var cut = Ctx.Render<SessionContextBlock>(p => p
             .Add(x => x.Block, block)
@@ -956,7 +956,7 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-testid='session-context-block-unpin']").Click();
 
         unpinnedContext.ShouldNotBeNull();
-        unpinnedContext.Id.ShouldBe("invoice");
+        unpinnedContext.Id.ShouldBe("workitem");
     }
 
     [Fact(DisplayName = "UAC22: SessionBlock context block header unpin removes the block and restores the tree node")]
@@ -973,8 +973,8 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.StateService, stateService)
             .Add(x => x.HasSidebar, true));
 
-        stateService.ProjectContext(new SessionNodeInput("invoice-approval", "invoice", "Invoice approval", "NodeBlock"));
-        stateService.PinContext(new SessionNodeInput("invoice-approval", "invoice", "Invoice approval", "NodeBlock"));
+        stateService.ProjectContext(new SessionNodeInput("setup-ci", "workitem", "Set up CI", "NodeBlock"));
+        stateService.PinContext(new SessionNodeInput("setup-ci", "workitem", "Set up CI", "NodeBlock"));
         stateService.State.Ui.ContextPins.Count.ShouldBe(1);
     }
 
@@ -987,18 +987,18 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.StateService, stateService)
             .Add(x => x.HasSidebar, true));
 
-        cut.Find("[data-node-id='orders-session']").Click();
-        cut.Find("[data-node-id='invoice-approval']").Click();
-        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='setup-ci']").Click();
         ClickOpenContextNodePin();
 
         // Clicking the pinned node should navigate to the pinned card, not project again.
-        cut.Find("[data-node-id='invoice-approval']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
 
         stateService.State.Ui.ContextProjection.ShouldBeNull();
         Ctx.JSInterop.Invocations.Any(invocation =>
             invocation.Identifier == "eval"
-            && invocation.Arguments[0]?.ToString()?.Contains("context-block:invoice-approval", StringComparison.Ordinal) == true
+            && invocation.Arguments[0]?.ToString()?.Contains("context-block:setup-ci", StringComparison.Ordinal) == true
             && invocation.Arguments[0]?.ToString()?.Contains("scrollTo", StringComparison.Ordinal) == true)
             .ShouldBeTrue();
     }
@@ -1010,8 +1010,8 @@ public class SC01_SessionBlocks : ViewScenario
         Ctx.JSInterop.SetupVoid("eval", _ => true).SetVoidResult();
         var cut = Ctx.Render<Components.SessionBlock>();
 
-        cut.Find("[data-node-id='release-session']").Click();
-        cut.Find("[data-node-id='invoice-approval']").Click();
+        cut.Find("[data-node-id='workitems-session']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
 
         cut.WaitForAssertion(() =>
         {
@@ -1024,15 +1024,15 @@ public class SC01_SessionBlocks : ViewScenario
                 .ShouldBeTrue();
         });
 
-        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='setup-ci']").Click();
         ClickOpenContextNodePin();
 
         cut.WaitForAssertion(() =>
         {
-            cut.Find("[id='context-block:invoice-approval']").ShouldNotBeNull();
+            cut.Find("[id='context-block:setup-ci']").ShouldNotBeNull();
             Ctx.JSInterop.Invocations.Any(invocation =>
                 invocation.Identifier == "eval"
-                && invocation.Arguments[0]?.ToString()?.Contains("context-block:invoice-approval", StringComparison.Ordinal) == true
+                && invocation.Arguments[0]?.ToString()?.Contains("context-block:setup-ci", StringComparison.Ordinal) == true
                 && invocation.Arguments[0]?.ToString()?.Contains("scrollTo", StringComparison.Ordinal) == true
                 && invocation.Arguments[0]?.ToString()?.Contains("inset = 10", StringComparison.Ordinal) == true)
                 .ShouldBeTrue();
@@ -1046,7 +1046,7 @@ public class SC01_SessionBlocks : ViewScenario
         Ctx.JSInterop.SetupVoid("eval", _ => true).SetVoidResult();
         var cut = Ctx.Render<Components.SessionBlock>();
 
-        cut.Find("[data-node-id='release-session']").Click();
+        cut.Find("[data-node-id='workitems-session']").Click();
 
         var sidebar = cut.Find("[data-testid='session-block-right-sidebar']");
         sidebar.ShouldNotBeNull();
@@ -1061,13 +1061,13 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-testid='session-block-sections-count']").TextContent.Trim().ShouldBe("0");
         cut.FindAll("[data-testid='session-block-section-link']").ShouldBeEmpty();
 
-        cut.Find("[data-node-id='invoice-approval']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
 
         cut.FindAll("[data-testid='session-block-right-sidebar'] [data-testid='session-block-sections-tab-turns']").ShouldBeEmpty();
         cut.FindAll("[data-testid='session-block-right-sidebar'] [data-testid='session-block-sections-tab-blocks']").ShouldBeEmpty();
         cut.Find("[data-testid='session-block-sections-count']").TextContent.Trim().ShouldBe("1");
         cut.FindAll("[data-testid='session-block-section-link']").Count.ShouldBe(1);
-        cut.Find("[data-section-id='projected-context-block']").TextContent.ShouldContain("Invoice approval");
+        cut.Find("[data-section-id='projected-context-block']").TextContent.ShouldContain("Set up CI");
 
         cut.Find("[data-section-id='projected-context-block']").Click();
 
@@ -1090,7 +1090,7 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Find("[data-testid='session-block-sections-count']").TextContent.Trim().ShouldBe("0");
         cut.FindAll("[data-testid='session-block-section-link']").ShouldBeEmpty();
 
-        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
 
         cut.Find("[data-testid='session-block-sections-count']").TextContent.Trim().ShouldBe("0");
         cut.FindAll("[data-testid='session-block-section-link']").ShouldBeEmpty();
@@ -1102,20 +1102,20 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var cut = Ctx.Render<Components.SessionBlock>();
 
-        FindSessionCount(cut, "orders-session").ShouldBe("0");
-        FindSessionCount(cut, "support-session").ShouldBe("0");
-        FindSessionCount(cut, "release-session").ShouldBe("0");
+        FindSessionCount(cut, "workspaces-session").ShouldBe("0");
+        FindSessionCount(cut, "flows-session").ShouldBe("0");
+        FindSessionCount(cut, "workitems-session").ShouldBe("0");
 
-        cut.Find("[data-node-id='orders-session']").Click();
-        cut.Find("[data-node-id='invoice-approval']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
 
         cut.Find("[data-testid='session-block-sections-count']").TextContent.Trim().ShouldBe("1");
 
         cut.Find("[data-slot='session-block-sidebar-back']").Click();
 
-        FindSessionCount(cut, "orders-session").ShouldBe("1");
-        FindSessionCount(cut, "support-session").ShouldBe("0");
-        FindSessionCount(cut, "release-session").ShouldBe("0");
+        FindSessionCount(cut, "workspaces-session").ShouldBe("1");
+        FindSessionCount(cut, "flows-session").ShouldBe("0");
+        FindSessionCount(cut, "workitems-session").ShouldBe("0");
     }
 
     [Fact(DisplayName = "UAC27: SessionBlock composes left, content, and sections as resizable panels")]
@@ -1145,15 +1145,15 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var cut = Ctx.Render<Components.SessionBlock>();
 
-        cut.Find("[data-node-id='orders-session']").Click();
-        cut.Find("[data-node-id='invoice-approval']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
 
         // Overlay cards now show a close button; use the command-bar toggle to promote to Maximized.
         cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
 
         var maximized = cut.Find("[data-slot='session-block-maximized-block']");
         maximized.GetAttribute("data-block-id").ShouldBe("projected-context-block");
-        maximized.TextContent.ShouldContain("Invoice approval");
+        maximized.TextContent.ShouldContain("Set up CI");
         cut.Find("[data-slot='session-block-maximized-block'] [data-mode='maximized']").ShouldNotBeNull();
         cut.FindAll("[data-slot='session-block-feed']").ShouldBeEmpty();
 
@@ -1172,19 +1172,19 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.HasSidebar, true)
             .Add(x => x.IsTest, true));
 
-        cut.Find("[data-node-id='orders-session']").Click();
-        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='shipment-delay']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='write-docs']").Click();
         ClickOpenContextNodePin();
 
-        cut.Find("[data-block-id='context-block:shipment-delay'] [data-testid='card-mode-menu-trigger']").Click();
+        cut.Find("[data-block-id='context-block:write-docs'] [data-testid='card-mode-menu-trigger']").Click();
         ClickOpenCardMode("Minimized");
 
-        var minimized = cut.Find("[data-block-id='context-block:shipment-delay'][data-mode='minimized']");
+        var minimized = cut.Find("[data-block-id='context-block:write-docs'][data-mode='minimized']");
         minimized.QuerySelectorAll("[data-slot='card-content']").Count.ShouldBe(0);
 
-        cut.Find("[data-node-id='northwind']").Click();
+        cut.Find("[data-node-id='foundry']").Click();
 
-        cut.Find("[data-block-id='context-block:shipment-delay'][data-mode='minimized']").ShouldNotBeNull();
+        cut.Find("[data-block-id='context-block:write-docs'][data-mode='minimized']").ShouldNotBeNull();
     }
 
     [Fact(DisplayName = "UAC29: SessionBlock maximized agent card replaces the tab body content")]
@@ -1195,7 +1195,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0));
 
-        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
         ClickShowCommandBar(cut);
         cut.Find("[data-testid='session-command-input']").Input("Maximize this answer");
         cut.Find("[data-testid='session-command-submit']").Click();
@@ -1224,7 +1224,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0));
 
-        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
         ClickShowCommandBar(cut);
         cut.Find("[data-testid='session-command-input']").Input("Minimize this answer");
         cut.Find("[data-testid='session-command-submit']").Click();
@@ -1299,7 +1299,7 @@ public class SC01_SessionBlocks : ViewScenario
         standalone.Find("[data-slot='session-block-left-sidebar']").ShouldNotBeNull();
         standalone.Find("[data-testid='session-block-right-sidebar']").ShouldNotBeNull();
 
-        standalone.Find("[data-node-id='orders-session']").Click();
+        standalone.Find("[data-node-id='workspaces-session']").Click();
         standalone.Find("[data-slot='session-content-body']").ShouldNotBeNull();
     }
 
@@ -1538,7 +1538,7 @@ public class SC01_SessionBlocks : ViewScenario
         emptyBorder.ClassList.ShouldContain("border-b");
 
         emptyButton.Click();
-        standalone.Find("[data-node-id='orders-session']").Click();
+        standalone.Find("[data-node-id='workspaces-session']").Click();
         standalone.Find("[data-testid='session-block-sidebar-close']").Click();
 
         var populatedHeader = standalone.Find("[data-slot='tabs-header']");
@@ -1561,7 +1561,7 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var standalone = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
-        standalone.Find("[data-node-id='orders-session']").Click();
+        standalone.Find("[data-node-id='workspaces-session']").Click();
 
         var footer = standalone.Find("[data-slot='sidebar-footer']");
         footer.ClassList.ShouldContain("sidebar-footer");
@@ -1649,7 +1649,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.TestStreamDelayMilliseconds, 0)
             .Add(x => x.AppOverlayContainerClass, "session-block-overlay absolute inset-0 z-50 flex h-full w-full flex-col"));
 
-        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
         ClickShowCommandBar(cut);
         cut.Find("[data-testid='session-command-input']").Input("Use the session overlay");
         cut.Find("[data-testid='session-command-submit']").Click();
@@ -1679,7 +1679,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.TestStreamDelayMilliseconds, 0)
             .Add(x => x.PageOverlayContainerClass, "session-page-overlay absolute inset-0 z-40 flex h-full w-full flex-col"));
 
-        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
         ClickShowCommandBar(cut);
         cut.Find("[data-testid='session-command-input']").Input("Use the page overlay");
         cut.Find("[data-testid='session-command-submit']").Click();
@@ -1712,8 +1712,8 @@ public class SC01_SessionBlocks : ViewScenario
         var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.PageOverlayContainerClass, "session-page-overlay absolute inset-0 z-40 flex h-full w-full flex-col"));
 
-        cut.Find("[data-node-id='orders-session']").Click();
-        cut.Find("[data-node-id='invoice-approval']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
 
         var overlay = cut.Find("[data-slot='session-block-page-overlay']");
 
@@ -1721,7 +1721,7 @@ public class SC01_SessionBlocks : ViewScenario
         overlay.ClassList.ShouldContain("overflow-hidden");
         overlay.QuerySelector("[data-block-id='projected-context-block'][data-mode='overlay-page']").ShouldNotBeNull();
         overlay.QuerySelector("[data-block-id='projected-context-block'][data-mode='maximized']").ShouldBeNull();
-        overlay.TextContent.ShouldContain("Invoice approval");
+        overlay.TextContent.ShouldContain("Set up CI");
         AssertPageOverlayHeaderMatchesSectionsHeader(cut, overlay);
     }
 
@@ -1737,8 +1737,8 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.Variant, "none")
             .Add(x => x.PageOverlayContainerClass, "session-page-overlay absolute inset-0 z-40 flex h-full w-full flex-col"));
 
-        cut.Find("[data-node-id='orders-session']").Click();
-        cut.Find("[data-node-id='invoice-approval']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
 
         cut.Find("[data-slot='session-block-page-overlay']")
             .GetAttribute("style")
@@ -1896,12 +1896,12 @@ public class SC01_SessionBlocks : ViewScenario
         rightSidebar.ClassList.ShouldContain("bg-sidebar");
     }
 
-    [Fact(DisplayName = "UAC34: Variant=none removes side borders and keeps card outline on inner panels")]
+    [Fact(DisplayName = "UAC34: Variant=none removes side bworkspaces and keeps card outline on inner panels")]
     [Trait(Spec.UAC, "34")]
     [Given("SessionBlocks rendered with outlined and none variants")]
     [When("the inner left and right panels render")]
     [Then("none variant panels have no side border and outlined panels keep rounded-lg border-border")]
-    public void UAC34_NoneVariantRemovesSideBordersKeepsInnerCardOutline()
+    public void UAC34_NoneVariantRemovesSideBworkspacesKeepsInnerCardOutline()
     {
         var outlined = Ctx.Render<Components.SessionBlock>();
         var none = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.Variant, "none"));
@@ -1944,7 +1944,7 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var cut = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
-        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
         ClickShowCommandBar(cut);
 
         var main = cut.Find("[data-slot='session-block-main-content']");
@@ -2017,7 +2017,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Then("the text reads Pinned from localization resources")]
     public void UAC38_ContextBlockPinnedBadgeRendersLocalizedPinned()
     {
-        var block = new SessionContextBlockModel("invoice-block", new("invoice", "context", "Invoice"));
+        var block = new SessionContextBlockModel("workitem-block", new("workitem", "context", "Workitem"));
 
         var cut = Ctx.Render<SessionContextBlock>(p => p
             .Add(x => x.Block, block)
@@ -2117,8 +2117,8 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var cut = Ctx.Render<Components.SessionBlock>();
 
-        cut.Find("[data-node-id='orders-session']").Click();
-        cut.Find("[data-node-id='invoice-approval']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
 
         cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
 
@@ -2140,8 +2140,8 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var cut = Ctx.Render<Components.SessionBlock>();
 
-        cut.Find("[data-node-id='orders-session']").Click();
-        cut.Find("[data-node-id='invoice-approval']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
 
         cut.Find("[data-slot='session-block-page-overlay']").ShouldNotBeNull();
         cut.FindAll("[data-slot='session-block-maximized-block']").Count.ShouldBe(0);
@@ -2164,8 +2164,8 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.StateService, stateService)
             .Add(x => x.AppOverlayContainerClass, "session-block-overlay absolute inset-0 z-50 flex h-full w-full flex-col"));
 
-        cut.Find("[data-node-id='orders-session']").Click();
-        cut.Find("[data-node-id='invoice-approval']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
 
         var projectedBlock = stateService.State.Ui.ContextBlocks?
             .FirstOrDefault(b => string.Equals(b.Id, "projected-context-block", StringComparison.Ordinal));
@@ -2190,8 +2190,8 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var cut = Ctx.Render<Components.SessionBlock>();
 
-        cut.Find("[data-node-id='orders-session']").Click();
-        cut.Find("[data-node-id='invoice-approval']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
 
         cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
 
@@ -2215,7 +2215,7 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var cut = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
-        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
         cut.Find("[data-testid='session-block-right-sidebar-close']").Click();
 
         cut.FindAll("[data-testid='session-block-right-sidebar']").ShouldBeEmpty();
@@ -2244,7 +2244,7 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var cut = Ctx.Render<Components.SessionBlock>();
 
-        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
         cut.Find("[data-testid='session-block-right-sidebar-close']").Click();
 
         cut.FindAll("[data-testid='session-block-right-sidebar']").ShouldBeEmpty();
@@ -2363,8 +2363,8 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.HasSidebar, true)
             .Add(x => x.Variant, "none"));
 
-        cut.Find("[data-node-id='orders-session']").Click();
-        cut.Find("[data-node-id='invoice-approval']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
         cut.Find("[data-testid='session-block-right-sidebar-close']").Click();
 
         cut.Find("[data-slot='session-block-main-content']")
@@ -2384,7 +2384,7 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var cut = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.HasSidebar, true));
 
-        cut.Find("[data-node-id='orders-session']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
         cut.Find("[data-testid='session-block-right-sidebar-close']").Click();
 
         var header = cut.Find("[data-slot='tabs-header']");
@@ -2403,8 +2403,8 @@ public class SC01_SessionBlocks : ViewScenario
     {
         var contextCut = Ctx.Render<Components.SessionBlock>();
 
-        contextCut.Find("[data-node-id='orders-session']").Click();
-        contextCut.Find("[data-node-id='invoice-approval']").Click();
+        contextCut.Find("[data-node-id='workspaces-session']").Click();
+        contextCut.Find("[data-node-id='setup-ci']").Click();
         contextCut.Find("[data-testid='session-block-command-bar-toggle']").Click();
 
         var contextCard = contextCut.Find(
@@ -2415,7 +2415,7 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.IsTest, true)
             .Add(x => x.TestStreamDelayMilliseconds, 0));
 
-        agentCut.Find("[data-node-id='orders-session']").Click();
+        agentCut.Find("[data-node-id='workspaces-session']").Click();
         ClickShowCommandBar(agentCut);
         agentCut.Find("[data-testid='session-command-input']").Input("Check maximized outline");
         agentCut.Find("[data-testid='session-command-submit']").Click();

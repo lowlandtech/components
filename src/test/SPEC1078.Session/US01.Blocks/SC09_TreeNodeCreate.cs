@@ -163,12 +163,12 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
     {
         var cut = Ctx.Render<Components.SessionBlock>();
 
-        cut.Find("[data-node-id='release-session']").Click();
-        cut.Find("[data-node-id='invoice-approval']").Click();
+        cut.Find("[data-node-id='workitems-session']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
 
         cut.Find("[data-slot='session-block-page-overlay']").ShouldNotBeNull();
 
-        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='setup-ci']").Click();
 
         var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
         var popover = popoverService.ActivePopovers.Single(reference => reference.State.Open);
@@ -197,12 +197,12 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
     {
         var cut = Ctx.Render<Components.SessionBlock>();
 
-        cut.Find("[data-node-id='release-session']").Click();
-        cut.Find("[data-node-id='invoice-approval']").Click();
+        cut.Find("[data-node-id='workitems-session']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
 
         cut.Find("[data-slot='session-block-page-overlay']").ShouldNotBeNull();
 
-        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='setup-ci']").Click();
 
         var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
         var popover = popoverService.ActivePopovers.Single(reference => reference.State.Open);

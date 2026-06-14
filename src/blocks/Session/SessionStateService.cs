@@ -978,7 +978,7 @@ public sealed class SessionStateService
     public SessionNodeInput? GetCurrentSessionNode(IReadOnlyList<SessionListEntry> sessions) =>
         _state.ActiveSessionId is null ? null : FindSessionNode(_state.ActiveSessionId, sessions);
 
-    public string CurrentSessionId => _state.ActiveSessionId ?? "orders-session";
+    public string CurrentSessionId => _state.ActiveSessionId ?? "workspaces-session";
 
     public IReadOnlyList<SessionCommandSubmitted> GetSessionCommands(string sessionId)
     {

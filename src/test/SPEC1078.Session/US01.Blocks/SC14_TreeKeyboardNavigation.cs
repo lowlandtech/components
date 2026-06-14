@@ -3,7 +3,7 @@ namespace LowlandTech.Components.Tests.SPEC1078.Session.US01.Blocks;
 [Trait(Spec.SPEC, "1078")]
 [Trait(Spec.US, "01")]
 [Trait(Spec.SC, "14")]
-[UserStory("01", "Context tree supports keyboard navigation")]
+[UserStory("01", "Context tree flowss keyboard navigation")]
 public sealed class SC14_TreeKeyboardNavigation : ViewScenario
 {
     [Fact(DisplayName = "UAC01: ArrowDown invokes the JS focusNext navigator")]
@@ -215,7 +215,7 @@ public sealed class SC14_TreeKeyboardNavigation : ViewScenario
     public void UAC11_FocusStylingCoversWholeRow()
     {
         var cut = Ctx.Render<SessionContextTreeNode>(p => p
-            .Add(x => x.Item, new SessionContextNode(new SessionNodeInput("n1", "workspace", "Orders"), IsLoaded: false)));
+            .Add(x => x.Item, new SessionContextNode(new SessionNodeInput("n1", "workspace", "Workspaces"), IsLoaded: false)));
 
         var row = cut.Find("div[data-projected]");
         row.ClassList.ShouldContain("focus-within:bg-primary/5");
@@ -230,7 +230,7 @@ public sealed class SC14_TreeKeyboardNavigation : ViewScenario
     public void UAC12_FocusedNodeButtonRemovesDefaultOutline()
     {
         var cut = Ctx.Render<SessionContextTreeNode>(p => p
-            .Add(x => x.Item, new SessionContextNode(new SessionNodeInput("n1", "workspace", "Orders"), IsLoaded: false)));
+            .Add(x => x.Item, new SessionContextNode(new SessionNodeInput("n1", "workspace", "Workspaces"), IsLoaded: false)));
 
         var button = cut.Find("[data-slot='session-context-node']");
         button.ClassList.ShouldContain("focus:outline-none");
@@ -271,7 +271,7 @@ public sealed class SC14_TreeKeyboardNavigation : ViewScenario
     public void UAC15_NodeFocusStateTracksBrowserFocus()
     {
         var cut = Ctx.Render<SessionContextTreeNode>(p => p
-            .Add(x => x.Item, new SessionContextNode(new SessionNodeInput("n1", "workspace", "Orders"), IsLoaded: false)));
+            .Add(x => x.Item, new SessionContextNode(new SessionNodeInput("n1", "workspace", "Workspaces"), IsLoaded: false)));
         var button = cut.Find("[data-slot='session-context-node']");
 
         button.Focus();

@@ -10,11 +10,11 @@ public class SC02_SessionStateService : ViewScenario
         public int Priority => 100;
 
         public SessionSurfaceDescriptor? GetSurface(string sessionId)
-            => string.Equals(sessionId, "orders-session", StringComparison.Ordinal)
+            => string.Equals(sessionId, "workspaces-session", StringComparison.Ordinal)
                 ? new SessionSurfaceDescriptor(
                     sessionId,
-                    new SessionNodeInput("plugin-request-orders", "session-request", "Plugin order intake"),
-                    new SessionNodeInput("plugin-response-orders", "session-response", "Plugin order output"))
+                    new SessionNodeInput("plugin-request-workspaces", "session-request", "Plugin workspace intake"),
+                    new SessionNodeInput("plugin-response-workspaces", "session-response", "Plugin workspace output"))
                 : null;
     }
 
@@ -24,17 +24,17 @@ public class SC02_SessionStateService : ViewScenario
     {
         var sessions = new[]
         {
-            new SessionListEntry("orders-session", "Orders"),
-            new SessionListEntry("support-session", "Support triage")
+            new SessionListEntry("workspaces-session", "Workspaces"),
+            new SessionListEntry("flows-session", "Flows")
         };
-        var sessionNode = new SessionNodeInput("orders-session", "session", "Orders");
-        var invoiceNode = new SessionNodeInput("invoice-approval", "invoice", "Invoice approval", "InvoiceBlock");
+        var sessionNode = new SessionNodeInput("workspaces-session", "session", "Workspaces");
+        var workitemNode = new SessionNodeInput("setup-ci", "workitem", "Set up CI", "WorkitemBlock");
         var service = new SessionStateService();
 
         service.SelectSession(sessionNode, sessions);
-        service.PinContext(invoiceNode);
+        service.PinContext(workitemNode);
         await service.SubmitAsync(
-            new SessionCommandSubmitted(sessionNode, "ask", "Summarize invoice risk"),
+            new SessionCommandSubmitted(sessionNode, "ask", "Summarize workitem risk"),
             false,
             0,
             Ctx.Services.GetRequiredService<IGraphDiscoveryService>());
@@ -43,18 +43,18 @@ public class SC02_SessionStateService : ViewScenario
         var visibleSections = service.GetVisibleSections(sessions);
         var feedItems = service.GetFeedItems(sessions);
 
-        displaySessions.Single(item => item.Id == "orders-session").Count.ShouldBe(2);
-        displaySessions.Single(item => item.Id == "support-session").Count.ShouldBe(0);
+        displaySessions.Single(item => item.Id == "workspaces-session").Count.ShouldBe(2);
+        displaySessions.Single(item => item.Id == "flows-session").Count.ShouldBe(0);
 
         visibleSections.Select(section => section.Id).ShouldBe(
         [
-            "context-block:invoice-approval",
-            SessionStateService.GetCommandTurnId(service.GetSessionCommands("orders-session").Single())
+            "context-block:setup-ci",
+            SessionStateService.GetCommandTurnId(service.GetSessionCommands("workspaces-session").Single())
         ]);
 
         feedItems.Select(item => item.Kind).ShouldBe([SessionFeedItemKind.Block, SessionFeedItemKind.Response]);
-        feedItems[0].Block?.Context.ShouldBe(invoiceNode);
-        feedItems[1].Command?.Input.ShouldBe("Summarize invoice risk");
+        feedItems[0].Block?.Context.ShouldBe(workitemNode);
+        feedItems[1].Command?.Input.ShouldBe("Summarize workitem risk");
     }
 
     [Fact(DisplayName = "UAC36: SessionStateService resolves presentation targets in memory")]
@@ -63,22 +63,22 @@ public class SC02_SessionStateService : ViewScenario
     {
         SessionListEntry[] sessions =
         [
-            new SessionListEntry("orders-session", "Orders")
+            new SessionListEntry("workspaces-session", "Workspaces")
         ];
-        var sessionNode = new SessionNodeInput("orders-session", "session", "Orders");
-        var invoiceNode = new SessionNodeInput("invoice-approval", "invoice", "Invoice approval", "InvoiceBlock");
+        var sessionNode = new SessionNodeInput("workspaces-session", "session", "Workspaces");
+        var workitemNode = new SessionNodeInput("setup-ci", "workitem", "Set up CI", "WorkitemBlock");
         var service = new SessionStateService();
 
         service.SelectSession(sessionNode, sessions);
-        service.PinContext(invoiceNode);
+        service.PinContext(workitemNode);
         await service.SubmitAsync(
-            new SessionCommandSubmitted(sessionNode, "ask", "Summarize invoice risk"),
+            new SessionCommandSubmitted(sessionNode, "ask", "Summarize workitem risk"),
             false,
             0,
             Ctx.Services.GetRequiredService<IGraphDiscoveryService>());
 
         var block = service.GetViewState(sessions).ContextBlocks!.Single();
-        var command = service.GetSessionCommands("orders-session").Single();
+        var command = service.GetSessionCommands("workspaces-session").Single();
 
         service.SetBlockMode(block, SessionContextBlock.ModeMaximized);
         service.GetMaximizedBlock(sessions)?.Id.ShouldBe(block.Id);
@@ -97,26 +97,26 @@ public class SC02_SessionStateService : ViewScenario
     {
         SessionListEntry[] sessions =
         [
-            new SessionListEntry("orders-session", "Orders")
+            new SessionListEntry("workspaces-session", "Workspaces")
         ];
-        var sessionNode = new SessionNodeInput("orders-session", "session", "Orders");
-        var invoiceNode = new SessionNodeInput("invoice-approval", "invoice", "Invoice approval", "InvoiceBlock");
+        var sessionNode = new SessionNodeInput("workspaces-session", "session", "Workspaces");
+        var workitemNode = new SessionNodeInput("setup-ci", "workitem", "Set up CI", "WorkitemBlock");
         var service = new SessionStateService();
 
         service.SelectSession(sessionNode, sessions);
-        service.PinContext(invoiceNode);
+        service.PinContext(workitemNode);
         await service.SubmitAsync(
-            new SessionCommandSubmitted(sessionNode, "ask", "Summarize invoice risk"),
+            new SessionCommandSubmitted(sessionNode, "ask", "Summarize workitem risk"),
             false,
             0,
             Ctx.Services.GetRequiredService<IGraphDiscoveryService>());
 
-        var command = service.GetSessionCommands("orders-session").Single();
+        var command = service.GetSessionCommands("workspaces-session").Single();
         var projection = service.GetResponseProjection(command);
 
         projection.Status.ShouldBe("ask");
         projection.StatusVariant.ShouldBe("outline");
-        projection.Description.ShouldContain("Summarize invoice risk");
+        projection.Description.ShouldContain("Summarize workitem risk");
         projection.Description.ShouldContain("1 context block");
     }
 
@@ -127,10 +127,10 @@ public class SC02_SessionStateService : ViewScenario
         var discovery = new SessionSurfaceDiscovery([new PluginSessionSurfaceRegistry()]);
         var service = new SessionStateService(discovery);
 
-        service.GetRequestNode("orders-session").Label.ShouldBe("Plugin order intake");
-        service.GetResponseNode("orders-session").Label.ShouldBe("Plugin order output");
-        service.GetRequestNode("support-session").Label.ShouldBe("Support ticket summary");
-        service.GetResponseNode("support-session").Label.ShouldBe("Support context");
+        service.GetRequestNode("workspaces-session").Label.ShouldBe("Plugin workspace intake");
+        service.GetResponseNode("workspaces-session").Label.ShouldBe("Plugin workspace output");
+        service.GetRequestNode("flows-session").Label.ShouldBe("Flow summary");
+        service.GetResponseNode("flows-session").Label.ShouldBe("Flows context");
     }
 
     [Fact(DisplayName = "UAC38b: Session event log captures before and after state plus deltas")]
@@ -159,12 +159,12 @@ public class SC02_SessionStateService : ViewScenario
     {
         var service = new SessionStateService();
 
-        service.SelectSession(new SessionNodeInput("orders-session", "session", "Orders"), [new SessionListEntry("orders-session", "Orders")]);
+        service.SelectSession(new SessionNodeInput("workspaces-session", "session", "Workspaces"), [new SessionListEntry("workspaces-session", "Workspaces")]);
         service.ShowEventLogPage();
 
         service.State.EventLogEntries.ShouldContain(entry =>
             entry.ActionType == nameof(SetActiveSession)
-            && entry.Deltas.Any(delta => delta.Kind == "session" && delta.Label == "Active session" && delta.After == "orders-session"));
+            && entry.Deltas.Any(delta => delta.Kind == "session" && delta.Label == "Active session" && delta.After == "workspaces-session"));
 
         service.State.EventLogEntries.ShouldContain(entry =>
             entry.ActionType == nameof(ShowSessionEventLogPage)
@@ -177,17 +177,17 @@ public class SC02_SessionStateService : ViewScenario
     {
         var sessions = new[]
         {
-            new SessionListEntry("orders-session", "Orders"),
-            new SessionListEntry("support-session", "Support triage")
+            new SessionListEntry("workspaces-session", "Workspaces"),
+            new SessionListEntry("flows-session", "Flows")
         };
-        var sessionNode = new SessionNodeInput("orders-session", "session", "Orders");
-        var invoiceNode = new SessionNodeInput("invoice-approval", "invoice", "Invoice approval", "InvoiceBlock");
+        var sessionNode = new SessionNodeInput("workspaces-session", "session", "Workspaces");
+        var workitemNode = new SessionNodeInput("setup-ci", "workitem", "Set up CI", "WorkitemBlock");
         var service = new SessionStateService();
 
         service.SelectSession(sessionNode, sessions);
-        service.PinContext(invoiceNode);
+        service.PinContext(workitemNode);
         await service.SubmitAsync(
-            new SessionCommandSubmitted(sessionNode, "ask", "Summarize invoice risk"),
+            new SessionCommandSubmitted(sessionNode, "ask", "Summarize workitem risk"),
             false,
             0,
             Ctx.Services.GetRequiredService<IGraphDiscoveryService>());
@@ -200,11 +200,11 @@ public class SC02_SessionStateService : ViewScenario
         restoredState.ShouldNotBeNull();
         var resumed = new SessionStateService(restoredState!);
 
-        resumed.State.ActiveSessionId.ShouldBe("orders-session");
+        resumed.State.ActiveSessionId.ShouldBe("workspaces-session");
         resumed.State.ActivePage.ShouldBe(SessionBlockPage.EventLog);
         resumed.State.EventLogEntries.ShouldNotBeEmpty();
-        resumed.GetSessionCommands("orders-session").Count.ShouldBe(1);
-        resumed.GetSessionCommands("orders-session")[0].Input.ShouldBe("Summarize invoice risk");
+        resumed.GetSessionCommands("workspaces-session").Count.ShouldBe(1);
+        resumed.GetSessionCommands("workspaces-session")[0].Input.ShouldBe("Summarize workitem risk");
         resumed.GetViewState(sessions).ContextBlocks.ShouldNotBeNull();
         resumed.GetViewState(sessions).ContextBlocks!.Count.ShouldBe(1);
         resumed.GetViewState(sessions).Input.ShouldBe("Persist me");

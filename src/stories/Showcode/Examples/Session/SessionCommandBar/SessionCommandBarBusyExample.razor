@@ -8,7 +8,7 @@
                    IsBusy="true" />
 
 @code {
-    private readonly SessionNodeInput _node = new("orders", "session", "Orders");
+    private readonly SessionNodeInput _node = new("workspaces", "session", "Workspaces");
 
     private IReadOnlyList<SessionAgentType> _agentTypes => [
         new("ask", "Ask"),

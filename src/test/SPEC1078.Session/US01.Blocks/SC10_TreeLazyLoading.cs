@@ -3,7 +3,7 @@ namespace LowlandTech.Components.Tests.SPEC1078.Session.US01.Blocks;
 [Trait(Spec.SPEC, "1078")]
 [Trait(Spec.US, "01")]
 [Trait(Spec.SC, "10")]
-[UserStory("01", "Context tree supports lazy loading of child nodes")]
+[UserStory("01", "Context tree flowss lazy loading of child nodes")]
 public sealed class SC10_TreeLazyLoading : ViewScenario
 {
     [Fact(DisplayName = "UAC01: Loaded root node renders its children")]
@@ -205,8 +205,8 @@ public sealed class SC10_TreeLazyLoading : ViewScenario
     public void UAC08b_DottedHeaderFolderIconTogglesWithExpansion()
     {
         var header = new SessionContextNode(
-            new SessionNodeInput("h1", "orders.header", "Orders"),
-            new[] { new SessionContextNode(new SessionNodeInput("c1", "invoice", "Invoice"), IsLoaded: false) },
+            new SessionNodeInput("h1", "workspaces.header", "Workspaces"),
+            new[] { new SessionContextNode(new SessionNodeInput("c1", "workitem", "Workitem"), IsLoaded: false) },
             true);
         var root = new SessionContextNode(
             new SessionNodeInput("user", "user-context", "User"),
@@ -235,7 +235,7 @@ public sealed class SC10_TreeLazyLoading : ViewScenario
     public void UAC08c_NonHeaderNodeDoesNotRenderFolderIcons()
     {
         var node = new SessionContextNode(
-            new SessionNodeInput("n1", "invoice", "Invoice"),
+            new SessionNodeInput("n1", "workitem", "Workitem"),
             IsLoaded: true);
 
         var cut = Ctx.Render<SessionContextExplorer>(p => p
@@ -249,8 +249,8 @@ public sealed class SC10_TreeLazyLoading : ViewScenario
     [Trait(Spec.UAC, "09")]
     public void UAC09_PinnedNodeClickNavigatesToPin()
     {
-        var node = new SessionContextNode(new SessionNodeInput("n1", "invoice", "Invoice"), IsLoaded: true);
-        var pin = new SessionContextPinModel("pin:n1", node.Node, new SessionNodeInput("pin:n1", "session.pin", "Invoice"));
+        var node = new SessionContextNode(new SessionNodeInput("n1", "workitem", "Workitem"), IsLoaded: true);
+        var pin = new SessionContextPinModel("pin:n1", node.Node, new SessionNodeInput("pin:n1", "session.pin", "Workitem"));
 
         SessionNodeInput? projected = null;
         SessionNodeInput? navigated = null;
@@ -272,8 +272,8 @@ public sealed class SC10_TreeLazyLoading : ViewScenario
     [Trait(Spec.UAC, "10")]
     public void UAC10_ExplorerForwardsPinnedNodeClick()
     {
-        var node = new SessionContextNode(new SessionNodeInput("n1", "invoice", "Invoice"), IsLoaded: true);
-        var pin = new SessionContextPinModel("pin:n1", node.Node, new SessionNodeInput("pin:n1", "session.pin", "Invoice"));
+        var node = new SessionContextNode(new SessionNodeInput("n1", "workitem", "Workitem"), IsLoaded: true);
+        var pin = new SessionContextPinModel("pin:n1", node.Node, new SessionNodeInput("pin:n1", "session.pin", "Workitem"));
 
         SessionNodeInput? navigated = null;
 
@@ -300,12 +300,12 @@ public sealed class SC10_TreeLazyLoading : ViewScenario
             new[]
             {
                 new SessionContextNode(
-                    new SessionNodeInput("orders", "orders.header", "Orders"),
-                    new[] { new SessionContextNode(new SessionNodeInput("inv", "invoice", "Invoice"), IsLoaded: true) },
+                    new SessionNodeInput("workspaces", "workspaces.header", "Workspaces"),
+                    new[] { new SessionContextNode(new SessionNodeInput("inv", "workitem", "Workitem"), IsLoaded: true) },
                     false),
                 new SessionContextNode(
-                    new SessionNodeInput("customers", "customers.header", "Customers"),
-                    new[] { new SessionContextNode(new SessionNodeInput("nw", "customer", "Northwind"), IsLoaded: true) },
+                    new SessionNodeInput("workitems", "workitems.header", "Workspaces"),
+                    new[] { new SessionContextNode(new SessionNodeInput("nw", "workspace", "Northwind"), IsLoaded: true) },
                     false)
             },
             true);
@@ -325,7 +325,7 @@ public sealed class SC10_TreeLazyLoading : ViewScenario
         cut.Markup.ShouldNotContain(Icons.FolderOpen);
 
         // Expanding a header reveals its children.
-        cut.Find("[data-node-id='orders']")
+        cut.Find("[data-node-id='workspaces']")
            .ParentElement?.QuerySelector("span.cursor-pointer")
            ?.Click();
 

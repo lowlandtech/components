@@ -14,9 +14,9 @@ public sealed class SC12_LocalContextNodeDelete : ViewScenario
     public void UAC01_DeleteFromContextMenuOpensConfirmationDialog()
     {
         var cut = Ctx.Render<Components.SessionBlock>();
-        cut.Find("[data-node-id='release-session']").Click();
+        cut.Find("[data-node-id='workitems-session']").Click();
 
-        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='setup-ci']").Click();
 
         var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
         var popover = popoverService.ActivePopovers.Single(reference => reference.State.Open);
@@ -42,7 +42,7 @@ public sealed class SC12_LocalContextNodeDelete : ViewScenario
     public void UAC02_ConfirmingDialogRemovesNode()
     {
         var cut = Ctx.Render<Components.SessionBlock>();
-        cut.Find("[data-node-id='release-session']").Click();
+        cut.Find("[data-node-id='workitems-session']").Click();
         OpenDeleteDialog(cut);
 
         cut.Find("[data-slot='dialog-content']")
@@ -50,7 +50,7 @@ public sealed class SC12_LocalContextNodeDelete : ViewScenario
             .Single(b => string.Equals(b.TextContent.Trim(), "Delete", StringComparison.Ordinal))
             .Click();
 
-        cut.FindAll("[data-node-id='invoice-approval']").Count.ShouldBe(0);
+        cut.FindAll("[data-node-id='setup-ci']").Count.ShouldBe(0);
     }
 
     [Fact(DisplayName = "UAC03: Cancelling the dialog keeps the node")]
@@ -61,7 +61,7 @@ public sealed class SC12_LocalContextNodeDelete : ViewScenario
     public void UAC03_CancellingDialogKeepsNode()
     {
         var cut = Ctx.Render<Components.SessionBlock>();
-        cut.Find("[data-node-id='release-session']").Click();
+        cut.Find("[data-node-id='workitems-session']").Click();
         OpenDeleteDialog(cut);
 
         cut.Find("[data-slot='dialog-content']")
@@ -69,7 +69,7 @@ public sealed class SC12_LocalContextNodeDelete : ViewScenario
             .Single(b => string.Equals(b.TextContent.Trim(), "Cancel", StringComparison.Ordinal))
             .Click();
 
-        cut.FindAll("[data-node-id='invoice-approval']").Count.ShouldBeGreaterThan(0);
+        cut.FindAll("[data-node-id='setup-ci']").Count.ShouldBeGreaterThan(0);
     }
 
     [Fact(DisplayName = "UAC04: Wired host handler receives the node when dialog is confirmed")]
@@ -83,7 +83,7 @@ public sealed class SC12_LocalContextNodeDelete : ViewScenario
         var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.OnNodeDeleteRequested, node => { deleted = node; return Task.CompletedTask; }));
 
-        cut.Find("[data-node-id='release-session']").Click();
+        cut.Find("[data-node-id='workitems-session']").Click();
         OpenDeleteDialog(cut);
 
         cut.Find("[data-slot='dialog-content']")
@@ -92,7 +92,7 @@ public sealed class SC12_LocalContextNodeDelete : ViewScenario
             .Click();
 
         deleted.ShouldNotBeNull();
-        deleted.Id.ShouldBe("invoice-approval");
+        deleted.Id.ShouldBe("setup-ci");
     }
 
     [Fact(DisplayName = "UAC05: Skip preference deletes immediately without showing the dialog")]
@@ -106,8 +106,8 @@ public sealed class SC12_LocalContextNodeDelete : ViewScenario
 
         var cut = Ctx.Render<Components.SessionBlock>();
 
-        cut.Find("[data-node-id='release-session']").Click();
-        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
+        cut.Find("[data-node-id='workitems-session']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='setup-ci']").Click();
 
         var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
         var popover = popoverService.ActivePopovers.Single(reference => reference.State.Open);
@@ -122,7 +122,7 @@ public sealed class SC12_LocalContextNodeDelete : ViewScenario
         fragmentCut.Find(".node-menu-item.text-destructive").Click();
 
         cut.FindAll("[data-slot='dialog-content']").Count.ShouldBe(0);
-        cut.FindAll("[data-node-id='invoice-approval']").Count.ShouldBe(0);
+        cut.FindAll("[data-node-id='setup-ci']").Count.ShouldBe(0);
     }
 
     [Fact(DisplayName = "UAC06: Checking 'Don't ask again' persists the skip preference")]
@@ -133,7 +133,7 @@ public sealed class SC12_LocalContextNodeDelete : ViewScenario
     public void UAC06_DontAskAgainPersistsSkipPreference()
     {
         var cut = Ctx.Render<Components.SessionBlock>();
-        cut.Find("[data-node-id='release-session']").Click();
+        cut.Find("[data-node-id='workitems-session']").Click();
         OpenDeleteDialog(cut);
 
         var dialog = cut.Find("[data-slot='dialog-content']");
@@ -160,7 +160,7 @@ public sealed class SC12_LocalContextNodeDelete : ViewScenario
     public void UAC07_DeleteConfirmationDialogStructureIsPreserved()
     {
         var cut = Ctx.Render<Components.SessionBlock>();
-        cut.Find("[data-node-id='release-session']").Click();
+        cut.Find("[data-node-id='workitems-session']").Click();
         OpenDeleteDialog(cut);
 
         var dialog = cut.Find("[data-slot='dialog-content']");
@@ -189,7 +189,7 @@ public sealed class SC12_LocalContextNodeDelete : ViewScenario
         deleteButton.ClassList.ShouldContain("btn-destructive");
     }
 
-    private void OpenDeleteDialog(IRenderedComponent<Components.SessionBlock> cut, string nodeId = "invoice-approval")
+    private void OpenDeleteDialog(IRenderedComponent<Components.SessionBlock> cut, string nodeId = "setup-ci")
     {
         cut.Find($"[data-testid='session-context-node-menu-trigger'][data-node-id='{nodeId}']").Click();
 

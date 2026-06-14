@@ -29,25 +29,32 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     [Parameter] public IReadOnlyList<SessionListEntry> Sessions { get; set; } =
     [
-        new("orders-session", "Orders"),
-        new("support-session", "Support triage"),
-        new("release-session", "Release notes")
+        new("workspaces-session", "Workspaces"),
+        new("flows-session", "Flows"),
+        new("workitems-session", "Workitems")
     ];
 
     [Parameter] public IReadOnlyList<SessionContextNode> ContextNodes { get; set; } =
     [
         new(
-            new("orders", "workitem", "Orders", "NodeBlock"),
+            new("workspaces", "workspaces.header", "Workspaces", "NodeBlock"),
             [
-                new(new("invoice-approval", "invoice", "Invoice approval", "NodeBlock"), IsLoaded: true),
-                new(new("shipment-delay", "shipment", "Shipment delay", "NodeBlock"), IsLoaded: true)
+                new(new("foundry", "workspace", "Foundry", "NodeBlock"), IsLoaded: true),
+                new(new("acme", "workspace", "Acme", "NodeBlock"), IsLoaded: true)
             ],
             true),
         new(
-            new("customers", "table", "Customers", "NodeBlock"),
+            new("flows", "flow.header", "Flows", "NodeBlock"),
             [
-                new(new("northwind", "customer", "Northwind Traders", "NodeBlock"), IsLoaded: true),
-                new(new("contoso", "customer", "Contoso", "NodeBlock"), IsLoaded: true)
+                new(new("onboarding", "flow", "Onboarding", "NodeBlock"), IsLoaded: true),
+                new(new("approval", "flow", "Approval", "NodeBlock"), IsLoaded: true)
+            ],
+            true),
+        new(
+            new("workitems", "workitems.header", "Workitems", "NodeBlock"),
+            [
+                new(new("setup-ci", "workitem", "Set up CI", "NodeBlock"), IsLoaded: true),
+                new(new("write-docs", "workitem", "Write docs", "NodeBlock"), IsLoaded: true)
             ],
             true)
     ];

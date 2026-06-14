@@ -7,7 +7,7 @@ namespace LowlandTech.Components.Tests.SPEC1078.Session.US01.Blocks;
 public sealed class SC05_SessionScrollLayout : ViewScenario
 {
     private static readonly SessionNodeInput SessionNode =
-        new("orders-session", "session", "Orders");
+        new("workspaces-session", "session", "Workspaces");
 
     [Fact(DisplayName = "UAC01: Session content body owns vertical scrolling")]
     [Trait(Spec.UAC, "01")]

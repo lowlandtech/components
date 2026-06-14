@@ -6,11 +6,11 @@ namespace LowlandTech.Components.Tests.SPEC1078.Session.US01.Blocks;
 [UserStory("01", "Session feed keeps streaming responses in view")]
 public sealed class SC06_SessionStreamingScroll : ViewScenario
 {
-    private static readonly SessionNodeInput OrdersNode =
-        new("orders-session", "session", "Orders");
+    private static readonly SessionNodeInput WorkspacesNode =
+        new("workspaces-session", "session", "Workspaces");
 
-    private static readonly SessionListEntry OrdersEntry =
-        new("orders-session", "Orders");
+    private static readonly SessionListEntry WorkspacesEntry =
+        new("workspaces-session", "Workspaces");
 
     [Fact(DisplayName = "UAC01: SessionBlock scrolls the streaming response into view after render")]
     [Trait(Spec.UAC, "01")]
@@ -20,20 +20,20 @@ public sealed class SC06_SessionStreamingScroll : ViewScenario
     public void UAC01_StreamingResponseScrollsIntoView()
     {
         var service = new SessionStateService();
-        service.SelectSession(OrdersNode, new[] { OrdersEntry });
+        service.SelectSession(WorkspacesNode, new[] { WorkspacesEntry });
 
-        var command = new SessionCommandSubmitted(OrdersNode, "ask", "Hello")
+        var command = new SessionCommandSubmitted(WorkspacesNode, "ask", "Hello")
         {
             Id = "session-command:test-stream",
             Response = "Typing...",
             IsStreaming = true
         };
 
-        service.Dispatch(new SetSessionCommandHistory(OrdersNode.Id, new[] { command }));
+        service.Dispatch(new SetSessionCommandHistory(WorkspacesNode.Id, new[] { command }));
 
         var cut = Ctx.Render<SessionBlock>(p => p
             .Add(x => x.StateService, service)
-            .Add(x => x.Sessions, new[] { OrdersEntry }));
+            .Add(x => x.Sessions, new[] { WorkspacesEntry }));
 
         cut.WaitForAssertion(() =>
         {

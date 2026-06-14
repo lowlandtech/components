@@ -14,8 +14,8 @@ public sealed class SC13_LocalContextNodeRename : ViewScenario
     public void UAC01_RenameFromContextMenuEntersEditMode()
     {
         var stateService = new SessionStateService();
-        var sessions = new[] { new SessionListEntry("release-session", "Release notes") };
-        stateService.SelectSession(new SessionNodeInput("release-session", "session", "Release notes"), sessions);
+        var sessions = new[] { new SessionListEntry("workitems-session", "Workitems") };
+        stateService.SelectSession(new SessionNodeInput("workitems-session", "session", "Workitems"), sessions);
 
         var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
@@ -26,7 +26,7 @@ public sealed class SC13_LocalContextNodeRename : ViewScenario
         OpenRenameMenu(cut);
 
         stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("edit");
-        stateService.State.Ui.Input.ShouldBe("Invoice approval");
+        stateService.State.Ui.Input.ShouldBe("Set up CI");
 
         var selectionInvocations = Ctx.JSInterop.Invocations.Where(invocation =>
             invocation.Identifier == "eval"
@@ -47,8 +47,8 @@ public sealed class SC13_LocalContextNodeRename : ViewScenario
     public void UAC02_SubmitInEditModeRenamesNode()
     {
         var stateService = new SessionStateService();
-        var sessions = new[] { new SessionListEntry("release-session", "Release notes") };
-        stateService.SelectSession(new SessionNodeInput("release-session", "session", "Release notes"), sessions);
+        var sessions = new[] { new SessionListEntry("workitems-session", "Workitems") };
+        stateService.SelectSession(new SessionNodeInput("workitems-session", "session", "Workitems"), sessions);
 
         var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
@@ -59,22 +59,22 @@ public sealed class SC13_LocalContextNodeRename : ViewScenario
         OpenRenameMenu(cut);
 
         var commandBar = cut.FindComponent<SessionCommandBar>();
-        commandBar.InvokeAsync(() => commandBar.Instance.ValueChanged.InvokeAsync("Invoice review"));
+        commandBar.InvokeAsync(() => commandBar.Instance.ValueChanged.InvokeAsync("Workitem review"));
         commandBar.InvokeAsync(() => commandBar.Instance.OnSubmit.InvokeAsync(
             new SessionCommandSubmitted(
-                new SessionNodeInput("invoice-approval", "invoice", "Invoice approval", "NodeBlock"),
+                new SessionNodeInput("setup-ci", "workitem", "Set up CI", "NodeBlock"),
                 "edit",
-                "Invoice review")));
+                "Workitem review")));
 
         stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("ask");
         stateService.State.Ui.Input.ShouldBeEmpty();
 
-        cut.FindAll("[data-node-id='invoice-approval']").Count.ShouldBeGreaterThan(0);
-        cut.Find("[data-node-id='invoice-approval']").TextContent.ShouldContain("Invoice review");
+        cut.FindAll("[data-node-id='setup-ci']").Count.ShouldBeGreaterThan(0);
+        cut.Find("[data-node-id='setup-ci']").TextContent.ShouldContain("Workitem review");
 
         var projectedBlock = cut.Find("[data-block-id='projected-context-block']");
         projectedBlock.ShouldNotBeNull();
-        projectedBlock.TextContent.ShouldContain("Invoice review");
+        projectedBlock.TextContent.ShouldContain("Workitem review");
     }
 
     [Fact(DisplayName = "UAC04: Edit mode submit does not create an agent command")]
@@ -85,8 +85,8 @@ public sealed class SC13_LocalContextNodeRename : ViewScenario
     public void UAC04_EditModeSubmitDoesNotCreateAgentCommand()
     {
         var stateService = new SessionStateService();
-        var sessions = new[] { new SessionListEntry("release-session", "Release notes") };
-        stateService.SelectSession(new SessionNodeInput("release-session", "session", "Release notes"), sessions);
+        var sessions = new[] { new SessionListEntry("workitems-session", "Workitems") };
+        stateService.SelectSession(new SessionNodeInput("workitems-session", "session", "Workitems"), sessions);
 
         var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
@@ -97,15 +97,15 @@ public sealed class SC13_LocalContextNodeRename : ViewScenario
         OpenRenameMenu(cut);
 
         var commandBar = cut.FindComponent<SessionCommandBar>();
-        commandBar.InvokeAsync(() => commandBar.Instance.ValueChanged.InvokeAsync("Invoice review"));
+        commandBar.InvokeAsync(() => commandBar.Instance.ValueChanged.InvokeAsync("Workitem review"));
         commandBar.InvokeAsync(() => commandBar.Instance.OnSubmit.InvokeAsync(
             new SessionCommandSubmitted(
-                new SessionNodeInput("invoice-approval", "invoice", "Invoice approval", "NodeBlock"),
+                new SessionNodeInput("setup-ci", "workitem", "Set up CI", "NodeBlock"),
                 "edit",
-                "Invoice review")));
+                "Workitem review")));
 
         stateService.GetSessionCommands(stateService.CurrentSessionId).Count.ShouldBe(0);
-        cut.Find("[data-node-id='invoice-approval']").TextContent.ShouldContain("Invoice review");
+        cut.Find("[data-node-id='setup-ci']").TextContent.ShouldContain("Workitem review");
     }
 
     [Fact(DisplayName = "UAC03: Wired host handler receives the rename request")]
@@ -117,8 +117,8 @@ public sealed class SC13_LocalContextNodeRename : ViewScenario
     {
         SessionNodeRenameRequest? request = null;
         var stateService = new SessionStateService();
-        var sessions = new[] { new SessionListEntry("release-session", "Release notes") };
-        stateService.SelectSession(new SessionNodeInput("release-session", "session", "Release notes"), sessions);
+        var sessions = new[] { new SessionListEntry("workitems-session", "Workitems") };
+        stateService.SelectSession(new SessionNodeInput("workitems-session", "session", "Workitems"), sessions);
 
         var cut = Ctx.Render<Components.SessionBlock>(p => p
             .Add(x => x.HasSidebar, true)
@@ -132,33 +132,33 @@ public sealed class SC13_LocalContextNodeRename : ViewScenario
         var commandBar = cut.FindComponent<SessionCommandBar>();
         commandBar.InvokeAsync(() => commandBar.Instance.OnSubmit.InvokeAsync(
             new SessionCommandSubmitted(
-                new SessionNodeInput("invoice-approval", "invoice", "Invoice approval", "NodeBlock"),
+                new SessionNodeInput("setup-ci", "workitem", "Set up CI", "NodeBlock"),
                 "edit",
-                "Invoice review")));
+                "Workitem review")));
 
         request.ShouldNotBeNull();
-        request.NodeId.ShouldBe("invoice-approval");
-        request.NodeTypeKey.ShouldBe("invoice");
-        request.OldLabel.ShouldBe("Invoice approval");
-        request.NewLabel.ShouldBe("Invoice review");
+        request.NodeId.ShouldBe("setup-ci");
+        request.NodeTypeKey.ShouldBe("workitem");
+        request.OldLabel.ShouldBe("Set up CI");
+        request.NewLabel.ShouldBe("Workitem review");
 
-        cut.Find("[data-node-id='invoice-approval']").TextContent.ShouldContain("Invoice approval");
+        cut.Find("[data-node-id='setup-ci']").TextContent.ShouldContain("Set up CI");
     }
 
     private static IReadOnlyList<SessionContextNode> GetContextNodes() =>
     [
         new(
-            new SessionNodeInput("orders", "orders.header", "Orders", "NodeBlock"),
+            new SessionNodeInput("workspaces", "workspaces.header", "Workspaces", "NodeBlock"),
             [
-                new SessionContextNode(new SessionNodeInput("invoice-approval", "invoice", "Invoice approval", "NodeBlock"), IsLoaded: true),
-                new SessionContextNode(new SessionNodeInput("shipment-delay", "shipment", "Shipment delay", "NodeBlock"), IsLoaded: true)
+                new SessionContextNode(new SessionNodeInput("setup-ci", "workitem", "Set up CI", "NodeBlock"), IsLoaded: true),
+                new SessionContextNode(new SessionNodeInput("write-docs", "workitem", "Write docs", "NodeBlock"), IsLoaded: true)
             ],
             IsLoaded: true)
     ];
 
     private void OpenRenameMenu(IRenderedComponent<Components.SessionBlock> cut)
     {
-        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='invoice-approval']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='setup-ci']").Click();
 
         var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
         var popover = popoverService.ActivePopovers.Single(reference => reference.State.Open);

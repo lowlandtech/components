@@ -6,7 +6,7 @@ namespace LowlandTech.Components.Tests.SPEC1078.Session.US01.Blocks;
 [UserStory("01", "Session command bar selects and persists completion providers")]
 public sealed class SC03_SessionCommandProviders : ViewScenario
 {
-    private static readonly SessionNodeInput OrdersNode = new("orders", "session", "Orders");
+    private static readonly SessionNodeInput WorkspacesNode = new("workspaces", "session", "Workspaces");
 
     private IAgentSelectionService AgentSelection => Ctx.Services.GetRequiredService<IAgentSelectionService>();
 
@@ -174,7 +174,7 @@ public sealed class SC03_SessionCommandProviders : ViewScenario
         return Ctx.Render<SessionCommandBar>(parameters =>
         {
             parameters
-                .Add(component => component.SelectedNode, OrdersNode)
+                .Add(component => component.SelectedNode, WorkspacesNode)
                 .Add(component => component.Value, string.Empty);
 
             if (submittedCallback is not null)
@@ -192,7 +192,7 @@ public sealed class SC03_SessionCommandProviders : ViewScenario
 
         return Ctx.Render<CommandBarPopoverWrapper>(parameters =>
         {
-            parameters.Add(wrapper => wrapper.SelectedNode, OrdersNode);
+            parameters.Add(wrapper => wrapper.SelectedNode, WorkspacesNode);
             parameters.Add(wrapper => wrapper.Value, string.Empty);
         });
     }

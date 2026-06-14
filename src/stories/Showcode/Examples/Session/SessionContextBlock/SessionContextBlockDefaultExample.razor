@@ -2,14 +2,14 @@
 
 <SessionContextBlock Block="_block">
     <div class="rounded-md border border-border bg-muted/20 p-3">
-        <p class="text-sm font-medium">Invoice approval</p>
-        <p class="mt-1 text-xs text-muted-foreground">Amount: EUR 4,200 - Status: pending finance approval</p>
+        <p class="text-sm font-medium">Set up CI</p>
+        <p class="mt-1 text-xs text-muted-foreground">Task: Set up CI - Status: pending</p>
     </div>
 </SessionContextBlock>
 
 @code {
     private readonly SessionContextBlockModel _block = new(
-        "context-block:invoice-approval",
-        new("invoice-approval", "invoice", "Invoice approval", "InvoiceBlock"),
-        "Amount: EUR 4,200; Status: pending finance approval");
+        "context-block:setup-ci",
+        new("setup-ci", "workitem", "Set up CI", "NodeBlock"),
+        "Task: Set up CI; Status: pending");
 }
