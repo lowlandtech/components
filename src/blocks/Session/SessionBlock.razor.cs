@@ -205,14 +205,38 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     private IReadOnlyList<SessionFeedItemDescriptor> FeedItems => SessionState.GetFeedItems(Sessions);
 
-    private IReadOnlyList<SessionAgentType> LocalizedAgentTypes =>
-    [
-        new("ask", L("AgentAsk")),
-        new("plan", L("AgentPlan")),
-        new("edit", L("AgentEdit")),
-        new("create", L("AgentCreate")),
-        new("run", L("AgentRun"), Disabled: true)
-    ];
+    private IReadOnlyList<SessionAgentType> LocalizedAgentTypes
+    {
+        get
+        {
+            var agentTypes = new List<SessionAgentType>
+            {
+                new("ask", L("AgentAsk")),
+                new("plan", L("AgentPlan")),
+                new("edit", L("AgentEdit")),
+                new("create", L("AgentCreate")),
+                new("run", L("AgentRun"), Disabled: true)
+            };
+
+            var node = CurrentCommandContextNode;
+            if (node is null || EdgeTypeService is null)
+                return agentTypes;
+
+            foreach (var edge in EdgeTypeService.GetOutgoingEdges(node.NodeTypeKey))
+            {
+                if (!string.Equals(edge.Surface, "command-bar", StringComparison.OrdinalIgnoreCase)
+                    || string.IsNullOrWhiteSpace(edge.Intent)
+                    || agentTypes.Any(agent => string.Equals(agent.Key, edge.Intent, StringComparison.OrdinalIgnoreCase)))
+                {
+                    continue;
+                }
+
+                agentTypes.Add(new SessionAgentType(edge.Intent, edge.Label));
+            }
+
+            return agentTypes;
+        }
+    }
 
     private string GetClass()
     {
@@ -833,18 +857,27 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         if (creator is null)
             return false;
 
-        var props = new Dictionary<string, object?> { ["Title"] = command.Input };
+        var props = new Dictionary<string, object?>
+        {
+            ["Title"] = command.Input,
+            ["SourceNodeId"] = command.Node.Id,
+            ["SourceNodeTypeKey"] = command.Node.NodeTypeKey,
+            ["SourceLabel"] = command.Node.Label,
+            ["EdgeKey"] = edge.EdgeKey,
+            ["Intent"] = edge.Intent,
+        };
         var entity = await creator.ExecuteAsync(ExecutionEngine, props);
         var extracted = edge.TargetDescriptor?.ExtractLabel(entity);
         var label = string.IsNullOrWhiteSpace(extracted) ? command.Input : extracted;
+        var extractedId = edge.TargetDescriptor?.ExtractId(entity) ?? Guid.Empty;
 
         _localContextNodes ??= [.. ContextNodes];
         var childNode = new SessionContextNode(
             new SessionNodeInput(
-                Guid.NewGuid().ToString(),
+                extractedId == Guid.Empty ? Guid.NewGuid().ToString() : extractedId.ToString(),
                 edge.TargetNodeTypeKey,
                 label,
-                command.Node.ComponentBlock ?? "NodeBlock"),
+                edge.TargetDescriptor?.BlockComponent ?? "NodeBlock"),
             null,
             true);
         _localContextNodes = AddChildNode(_localContextNodes, command.Node.Id, childNode).ToList();

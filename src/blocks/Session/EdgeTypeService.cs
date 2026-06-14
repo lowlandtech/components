@@ -24,6 +24,8 @@ public interface IGraphToolService : IKeyedGraphService
 public sealed record EdgeTypeInfo(
     string EdgeKey,
     string Intent,
+    string Label,
+    string? Surface,
     string? Tool,
     string SourceNodeTypeKey,
     bool SourceIsHeader,
@@ -116,6 +118,8 @@ public sealed class EdgeTypeService : IEdgeTypeService
         return new EdgeTypeInfo(
             edge.Key,
             edge.Intent ?? string.Empty,
+            edge.DefaultProperties.TryGetValue("ui.label", out var label) ? label : edge.Label,
+            edge.DefaultProperties.TryGetValue("ui.surface", out var surface) ? surface : null,
             edge.Tool,
             sourceNodeType.Key,
             sourceNodeType.IsHeader,
