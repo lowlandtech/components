@@ -27,7 +27,7 @@ public class SC01_DataFormModelBinding : ViewScenario
         var model = new CustomerFormModel { Name = "Test" };
         var cut = Ctx.Render<DataFormSut>(p => p.Add(x => x.Model, model));
         var cascading = cut.FindComponent<CascadingValue<EditContext>>();
-        cascading.Instance.Value.Model.ShouldBe(model);
+        cascading.Instance.Value!.Model.ShouldBe(model);
     }
 
     [Fact(DisplayName = "UAC03: DataForm cascades the EditContext to child field components")]
@@ -141,7 +141,7 @@ public class SC01_DataFormModelBinding : ViewScenario
     {
         var model = new CustomerFormModel();
         var cut = Ctx.Render<DataFormSut>(p => p.Add(x => x.Model, model));
-        cut.Find("[data-field-label='Name']").TextContent.ShouldContain("Customer name");
+        cut.Find("[data-field-label='Name']").TextContent!.ShouldContain("Customer name");
     }
 
     [Fact(DisplayName = "UAC16: Email display name is applied")]
@@ -150,7 +150,7 @@ public class SC01_DataFormModelBinding : ViewScenario
     {
         var model = new CustomerFormModel();
         var cut = Ctx.Render<DataFormSut>(p => p.Add(x => x.Model, model));
-        cut.Find("[data-field-label='Email']").TextContent.ShouldContain("Email address");
+        cut.Find("[data-field-label='Email']").TextContent!.ShouldContain("Email address");
     }
 
     [Fact(DisplayName = "UAC18: includeProperties shapes generated fields")]
@@ -210,7 +210,7 @@ public class SC01_DataFormModelBinding : ViewScenario
 
         var cascadingAfter = cut.FindComponent<CascadingValue<EditContext>>().Instance.Value;
         cascadingAfter.ShouldNotBe(cascadingBefore);
-        cascadingAfter.Model.ShouldBe(model2);
+        cascadingAfter!.Model.ShouldBe(model2);
     }
 
     [Fact(DisplayName = "UAC29: read-only mode renders values without editable inputs")]
@@ -244,6 +244,6 @@ public class SC01_DataFormModelBinding : ViewScenario
             .Add(x => x.Model, model)
             .Add(x => x.ReadOnly, true));
         var cascading = cut.FindComponent<CascadingValue<EditContext>>().Instance.Value;
-        cascading.IsModified(new FieldIdentifier(model, "Name")).ShouldBeFalse();
+        cascading!.IsModified(new FieldIdentifier(model, "Name")).ShouldBeFalse();
     }
 }

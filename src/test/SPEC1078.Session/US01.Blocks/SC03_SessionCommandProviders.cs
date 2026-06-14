@@ -105,7 +105,7 @@ public sealed class SC03_SessionCommandProviders : ViewScenario
         var cut = RenderCommandBar();
 
         var selection = cut.Find("[data-slot='session-completion-selection']");
-        selection.GetAttribute("data-slot").ShouldContain("session-completion-selection");
+        selection.GetAttribute("data-slot")!.ShouldContain("session-completion-selection");
         cut.Find("[data-slot='session-completion-selection'] [data-slot='select-trigger']").ShouldNotBeNull();
         cut.Find("[data-slot='session-completion-selection'] [data-slot='select-value']").ShouldNotBeNull();
     }

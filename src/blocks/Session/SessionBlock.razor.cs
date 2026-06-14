@@ -4,9 +4,10 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 {
     [Inject] private IJSRuntime JS { get; set; } = default!;
     [Inject] private IGraphDiscoveryService Discovery { get; set; } = default!;
-    [Inject] private IEdgeTypeService EdgeTypeService { get; set; } = default!;
-    [Inject] private IExecutionEngine ExecutionEngine { get; set; } = default!;
     [Inject] private IServiceProvider Services { get; set; } = default!;
+
+    private IEdgeTypeService? EdgeTypeService => Services.GetService<IEdgeTypeService>();
+    private IExecutionEngine? ExecutionEngine => Services.GetService<IExecutionEngine>();
 
     private SessionStateService? _ownedStateService;
     private SessionStateService? _subscribedStateService;
@@ -127,12 +128,20 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     private string EffectiveTitle => Title ?? L("Title");
 
-    private string GetCommandPlaceholder() =>
-        string.Equals(ViewState.ActiveAgentTypeKey, "create", StringComparison.OrdinalIgnoreCase)
-            ? L("CreateCommandPlaceholder")
-            : string.Equals(ViewState.ActiveAgentTypeKey, "edit", StringComparison.OrdinalIgnoreCase)
-                ? L("EditCommandPlaceholder")
-                : L("CommandPlaceholder");
+    private string GetCommandPlaceholder()
+    {
+        if (string.Equals(ViewState.ActiveAgentTypeKey, "create", StringComparison.OrdinalIgnoreCase))
+            return L("CreateCommandPlaceholder");
+
+        var node = CurrentCommandContextNode;
+        if (node is not null && EdgeTypeService?.FindEdgeByAgentTypeKey(node.NodeTypeKey, ViewState.ActiveAgentTypeKey) is not null)
+            return L("CreateCommandPlaceholder");
+
+        if (string.Equals(ViewState.ActiveAgentTypeKey, "edit", StringComparison.OrdinalIgnoreCase))
+            return L("EditCommandPlaceholder");
+
+        return L("CommandPlaceholder");
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -815,23 +824,9 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         node.NodeTypeKey.EndsWith(".header", StringComparison.OrdinalIgnoreCase)
         || string.Equals(node.NodeTypeKey, "header", StringComparison.OrdinalIgnoreCase);
 
-    private static string ResolveLocalChildNodeType(SessionNodeInput parentNode) =>
-        parentNode.NodeTypeKey.ToLowerInvariant() switch
-        {
-            "workspaces.header" => "workspace",
-            "workitem.header" => "workitem",
-            "workitems.header" => "workitem",
-            "flow.header" => "flow",
-            "package.header" => "package",
-            "step.header" => "step",
-            "header" => "node",
-            _ => parentNode.NodeTypeKey
-        };
-
-    private async Task<bool> TryCreateViaEdgeToolAsync(SessionCommandSubmitted command)
+    private async Task<bool> TryCreateViaEdgeToolAsync(SessionCommandSubmitted command, EdgeTypeInfo edge)
     {
-        var edge = EdgeTypeService.FindCreateEdge(command.Node.NodeTypeKey);
-        if (edge is null || string.IsNullOrWhiteSpace(edge.Tool))
+        if (string.IsNullOrWhiteSpace(edge.Tool) || ExecutionEngine is null)
             return false;
 
         var creator = Discovery.GetAsync<IGraphToolService>(edge.Tool);
@@ -990,37 +985,59 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
             return;
         }
 
-        // Non-session node create: prefer an edge-descriptor-driven tool, then the host callback, then a local fallback.
-        if (string.Equals(command.AgentTypeKey, "create", StringComparison.OrdinalIgnoreCase))
+        // Non-session node create: resolve the target type and tool from the registered
+        // edge descriptors. The default Create agent maps to the first create edge; future
+        // dynamic intents are discovered by matching the agent key against edge intents.
+        var createEdge = EdgeTypeService?.FindEdgeByAgentTypeKey(command.Node.NodeTypeKey, command.AgentTypeKey);
+        if (string.Equals(command.AgentTypeKey, "create", StringComparison.OrdinalIgnoreCase) || createEdge is not null)
         {
-            var createdViaTool = await TryCreateViaEdgeToolAsync(command);
-
-            if (!createdViaTool)
+            if (createEdge is not null)
             {
-                if (OnHeaderCreateRequested.HasDelegate)
+                var createdViaTool = await TryCreateViaEdgeToolAsync(command, createEdge);
+                if (createdViaTool)
                 {
-                    await OnHeaderCreateRequested.InvokeAsync(new SessionHeaderCreateRequest(
-                        command.Node.Id, command.Node.NodeTypeKey, command.Input));
-                    SessionState.Dispatch(new ScheduleCreateEffect(
-                        ResolveLocalChildNodeType(command.Node),
+                    SessionState.SetInput(string.Empty);
+
+                    if (command.IsControlEnter)
+                    {
+                        try
+                        {
+                            await JS.InvokeVoidAsync("eval", """
+                                (() => {
+                                    const input = document.querySelector('[data-slot="session-command-input"]');
+                                    if (input) { input.value = ''; input.focus({ preventScroll: true }); }
+                                })();
+                                """);
+                        }
+                        catch { }
+                    }
+                    else
+                    {
+                        SessionState.SetAgentType("ask");
+                    }
+
+                    return;
+                }
+            }
+
+            if (OnHeaderCreateRequested.HasDelegate)
+            {
+                await OnHeaderCreateRequested.InvokeAsync(new SessionHeaderCreateRequest(
+                    command.Node.Id, command.Node.NodeTypeKey, command.Input));
+            }
+            else if (!IsHeaderNode(command.Node))
+            {
+                _localContextNodes ??= [.. ContextNodes];
+                var childNode = new SessionContextNode(
+                    new SessionNodeInput(
                         Guid.NewGuid().ToString(),
-                        command.Input));
-                }
-                else
-                {
-                    _localContextNodes ??= [.. ContextNodes];
-                    var childTypeKey = ResolveLocalChildNodeType(command.Node);
-                    var childNode = new SessionContextNode(
-                        new SessionNodeInput(
-                            Guid.NewGuid().ToString(),
-                            childTypeKey,
-                            command.Input,
-                            command.Node.ComponentBlock ?? "NodeBlock"),
-                        null,
-                        true);
-                    _localContextNodes = AddChildNode(_localContextNodes, command.Node.Id, childNode).ToList();
-                    SessionState.Dispatch(new ScheduleCreateEffect(childTypeKey, childNode.Node.Id, command.Input));
-                }
+                        command.Node.NodeTypeKey,
+                        command.Input,
+                        command.Node.ComponentBlock ?? "NodeBlock"),
+                    null,
+                    true);
+                _localContextNodes = AddChildNode(_localContextNodes, command.Node.Id, childNode).ToList();
+                SessionState.Dispatch(new ScheduleCreateEffect(childNode.Node.NodeTypeKey, childNode.Node.Id, command.Input));
             }
 
             SessionState.SetInput(string.Empty);

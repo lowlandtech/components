@@ -167,6 +167,22 @@ public sealed class SC15_EdgeTypeDrivenCreate : ViewScenario
         stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("ask");
     }
 
+    [Fact(DisplayName = "UAC08: Create mode command-bar context shows the edge target noun and transition key")]
+    [Trait(Spec.UAC, "08")]
+    [Given("a SessionBlock with a workspaces.header node selected in create mode")]
+    [When("the command bar context chip is inspected")]
+    [Then("it displays the target noun workspace and the computed transition key")]
+    public void UAC08_CreateModeContextShowsTargetNounAndTransitionKey()
+    {
+        var (cut, _, _) = RenderWorkspacesHeaderInCreateMode();
+
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+
+        var context = cut.Find("[data-testid='session-command-context'] span");
+        context.GetAttribute("data-node-type").ShouldBe("workspace");
+        context.GetAttribute("data-transition-key").ShouldBe("workspaces.create.workspace");
+    }
+
     private (IRenderedComponent<Components.SessionBlock> Cut, SessionStateService StateService, SessionNodeInput ParentNode) RenderNodeInCreateMode(string nodeTypeKey, string sessionLabel)
     {
         var stateService = new SessionStateService();

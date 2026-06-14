@@ -29,7 +29,7 @@ public class SC01_RenderDataGrid : ViewScenario
         cut.Markup.ShouldContain("Role");
         cut.FindAll("[data-slot='data-grid-row']").Count.ShouldBe(3);
         cut.Find(".cn-data-grid-sort-indicator").ClassList.ShouldContain("text-[10px]");
-        cut.Find(".cn-data-grid-sort-indicator").GetAttribute("style").ShouldContain("translateY(1px)");
+        cut.Find(".cn-data-grid-sort-indicator").GetAttribute("style")!.ShouldContain("translateY(1px)");
     }
 
     [Fact(DisplayName = "UAC03: DataGrid renders empty state")]

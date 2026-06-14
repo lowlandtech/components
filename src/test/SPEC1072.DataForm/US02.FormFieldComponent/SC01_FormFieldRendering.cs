@@ -79,7 +79,7 @@ public class SC01_FormFieldRendering : ViewScenario
             .Add(x => x.FieldType, FormFieldType.Guid)
             .Add(x => x.Label, "ID"));
 
-        cut.Find("[data-field-input='id']").GetAttribute("placeholder").ShouldContain("xxxx");
+        cut.Find("[data-field-input='id']").GetAttribute("placeholder")!.ShouldContain("xxxx");
     }
 
     [Fact(DisplayName = "UAC07: Json FormField renders textarea")]

@@ -75,8 +75,8 @@ public sealed class SC04_SessionMarkdown : ViewScenario
         Ctx.JSInterop.Invocations.Count(invocation => invocation.Identifier == "highlightCode")
             .ShouldBe(1);
 
-        cut.Instance.Value = "```csharp\nvar second = true;\n```";
-        cut.Render();
+        cut.Render(parameters => parameters
+            .Add(component => component.Value, "```csharp\nvar second = true;\n```"));
 
         Ctx.JSInterop.Invocations.Count(invocation => invocation.Identifier == "highlightCode")
             .ShouldBe(2);

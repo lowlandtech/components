@@ -975,7 +975,7 @@ public class SC01_SessionBlocks : ViewScenario
 
         stateService.ProjectContext(new SessionNodeInput("setup-ci", "workitem", "Set up CI", "NodeBlock"));
         stateService.PinContext(new SessionNodeInput("setup-ci", "workitem", "Set up CI", "NodeBlock"));
-        stateService.State.Ui.ContextPins.Count.ShouldBe(1);
+        stateService.State.Ui.ContextPins!.Count.ShouldBe(1);
     }
 
     [Fact(DisplayName = "UAC22b: Clicking a pinned context node scrolls to its pinned card")]
@@ -1624,8 +1624,8 @@ public class SC01_SessionBlocks : ViewScenario
         standalone.Find("[data-panel='session-block-sections-panel']").ShouldNotBeNull();
         // Standalone main panel fills the available width (height:100% pattern
         // repeated for width); the right Sections panel keeps its 16% default.
-        standalone.Find("[data-panel='session-block-main-panel']").GetAttribute("style").ShouldContain("100%");
-        standalone.Find("[data-panel='session-block-sections-panel']").GetAttribute("style").ShouldContain("16%");
+        standalone.Find("[data-panel='session-block-main-panel']").GetAttribute("style")!.ShouldContain("100%");
+        standalone.Find("[data-panel='session-block-sections-panel']").GetAttribute("style")!.ShouldContain("16%");
         standalone.Find("[data-testid='session-block-sidebar-open']").ShouldNotBeNull();
         standalone.FindAll("[data-slot='tabs-header-leading'] [data-testid='session-block-sidebar-open']").Count
             .ShouldBeGreaterThanOrEqualTo(0);

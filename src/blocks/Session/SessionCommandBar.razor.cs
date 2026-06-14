@@ -8,6 +8,9 @@ public partial class SessionCommandBar : TinyComponentBase, IDisposable
 
     [Inject] private IJSRuntime JS { get; set; } = default!;
     [Inject] private IAgentSelectionService AgentSelection { get; set; } = default!;
+    [Inject] private IServiceProvider Services { get; set; } = default!;
+
+    private IEdgeTypeService? EdgeTypeService => Services.GetService<IEdgeTypeService>();
 
     [Parameter] public SessionUiState State { get; set; } = SessionUiDefaults.Empty;
     [Parameter] public EventCallback<SessionUiState> StateChanged { get; set; }
@@ -97,6 +100,40 @@ public partial class SessionCommandBar : TinyComponentBase, IDisposable
         var baseClass = "flex w-full flex-col rounded-lg border border-primary bg-background";
         return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
     }
+
+    private string GetContextNodeTypeKey()
+    {
+        if (SelectedNode is null)
+            return string.Empty;
+
+        var edge = EdgeTypeService?.FindEdgeByAgentTypeKey(SelectedNode.NodeTypeKey, ActiveAgentTypeKey);
+        if (edge is not null && !string.IsNullOrWhiteSpace(edge.TargetNodeTypeKey))
+            return edge.TargetNodeTypeKey;
+
+        return SelectedNode.NodeTypeKey;
+    }
+
+    private string? GetTransitionKey()
+    {
+        if (SelectedNode is null)
+            return null;
+
+        var edge = EdgeTypeService?.FindEdgeByAgentTypeKey(SelectedNode.NodeTypeKey, ActiveAgentTypeKey);
+        if (edge is null)
+            return null;
+
+        var sourceNoun = GetSourceNoun(SelectedNode.NodeTypeKey);
+        var verb = string.IsNullOrWhiteSpace(edge.Intent)
+            ? ActiveAgentTypeKey.ToLowerInvariant()
+            : edge.Intent.ToLowerInvariant();
+
+        return $"{sourceNoun}.{verb}.{edge.TargetNodeTypeKey}".ToLowerInvariant();
+    }
+
+    private static string GetSourceNoun(string nodeTypeKey) =>
+        nodeTypeKey.EndsWith(".header", StringComparison.OrdinalIgnoreCase)
+            ? nodeTypeKey[..^".header".Length]
+            : nodeTypeKey;
 
     private static string GetAgentClass(SessionAgentType agent, bool isActive)
     {

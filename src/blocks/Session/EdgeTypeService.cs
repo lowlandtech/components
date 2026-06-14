@@ -47,6 +47,14 @@ public interface IEdgeTypeService
     /// Returns all outgoing edges from <paramref name="sourceNodeTypeKey"/>.
     /// </summary>
     IReadOnlyList<EdgeTypeInfo> GetOutgoingEdges(string sourceNodeTypeKey);
+
+    /// <summary>
+    /// Resolves the outgoing edge that corresponds to the supplied agent type key.
+    /// The default <c>create</c> agent maps to the first outgoing edge whose intent
+    /// is <c>create</c>; other keys can be matched by intent for dynamic command-bar
+    /// modes discovered from the graph schema.
+    /// </summary>
+    EdgeTypeInfo? FindEdgeByAgentTypeKey(string sourceNodeTypeKey, string agentTypeKey);
 }
 
 /// <summary>
@@ -70,6 +78,21 @@ public sealed class EdgeTypeService : IEdgeTypeService
     {
         return GetOutgoingEdges(sourceNodeTypeKey)
             .FirstOrDefault(edge => string.Equals(edge.Intent, "create", StringComparison.OrdinalIgnoreCase));
+    }
+
+    public EdgeTypeInfo? FindEdgeByAgentTypeKey(string sourceNodeTypeKey, string agentTypeKey)
+    {
+        if (string.IsNullOrWhiteSpace(agentTypeKey))
+            return null;
+
+        // The default Create agent is the canonical surface for any create intent.
+        if (string.Equals(agentTypeKey, "create", StringComparison.OrdinalIgnoreCase))
+            return FindCreateEdge(sourceNodeTypeKey);
+
+        return GetOutgoingEdges(sourceNodeTypeKey)
+            .FirstOrDefault(edge =>
+                !string.IsNullOrWhiteSpace(edge.Intent)
+                && string.Equals(edge.Intent, agentTypeKey, StringComparison.OrdinalIgnoreCase));
     }
 
     public IReadOnlyList<EdgeTypeInfo> GetOutgoingEdges(string sourceNodeTypeKey)

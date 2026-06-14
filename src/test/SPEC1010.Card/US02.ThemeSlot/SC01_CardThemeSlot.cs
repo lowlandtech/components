@@ -45,7 +45,7 @@ public class SC01_CardThemeSlot : JsViewScenario
     public void UAC01_NoContext_NoThemeClass()
     {
         var cut = Ctx.Render<CardSut>(p => p.AddChildContent("Body"));
-        var classes = cut.Find("[data-slot='card']").ClassName;
+        var classes = cut.Find("[data-slot='card']").ClassName!;
         classes!.Contains("theme-card-root").ShouldBeFalse();
     }
 
@@ -57,7 +57,7 @@ public class SC01_CardThemeSlot : JsViewScenario
         var cut = Ctx.Render<CardSut>(p => p
             .AddChildContent("Body")
             .AddCascadingValue(ctx));
-        var classes = cut.Find("[data-slot='card']").ClassName;
+        var classes = cut.Find("[data-slot='card']").ClassName!;
         classes.ShouldContain("theme-card-root");
     }
 
@@ -69,7 +69,7 @@ public class SC01_CardThemeSlot : JsViewScenario
         var cut = Ctx.Render<CardSut>(p => p
             .AddChildContent("Body")
             .AddCascadingValue(ctx));
-        var classes = cut.Find("[data-slot='card']").ClassName;
+        var classes = cut.Find("[data-slot='card']").ClassName!;
         // Card has a default class containing "cn-card"
         classes.ShouldContain("cn-card");
         classes.ShouldContain("theme-card-root");
@@ -84,7 +84,7 @@ public class SC01_CardThemeSlot : JsViewScenario
             .Add(c => c.Class, "layout-card")
             .AddChildContent("Body")
             .AddCascadingValue(ctx));
-        var classes = cut.Find("[data-slot='card']").ClassName;
+        var classes = cut.Find("[data-slot='card']").ClassName!;
         classes.ShouldContain("layout-card");
     }
 }

@@ -26,13 +26,13 @@ public class SC04_StableKeysPreserveSelection : ViewScenario
 
         cut.FindAll("[data-slot='data-grid-selection-input']")[1].Click();
 
-        cut.Instance.Items = new List<DataGridPerson>
-        {
-            new(1, "Cora", "Engineer"),
-            new(2, "Ada", "Engineer"),
-            new(3, "Bea", "Designer")
-        };
-        cut.Render();
+        cut.Render(parameters => parameters
+            .Add(p => p.Items, new List<DataGridPerson>
+            {
+                new(1, "Cora", "Engineer"),
+                new(2, "Ada", "Engineer"),
+                new(3, "Bea", "Designer")
+            }));
 
         var selectedRows = cut.FindAll("[data-selected='true']");
         selectedRows.Count.ShouldBe(1);
@@ -70,8 +70,7 @@ public class SC04_StableKeysPreserveSelection : ViewScenario
             new(3, "Bea", "Designer")
         };
 
-        cut.Instance.Items = newInstances;
-        cut.Render();
+        cut.Render(parameters => parameters.Add(p => p.Items, newInstances));
 
         state.SelectedItems.Count.ShouldBe(1);
         state.SelectedItems[0].Id.ShouldBe(2);

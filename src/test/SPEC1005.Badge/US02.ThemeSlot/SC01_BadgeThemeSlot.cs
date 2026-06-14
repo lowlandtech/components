@@ -49,7 +49,7 @@ public class SC01_BadgeThemeSlot : JsViewScenario
         var cut = Ctx.Render<BadgeSut>(p => p
             .Add(b => b.Variant, "default")
             .AddChildContent("New"));
-        var classes = cut.Find("[data-slot='badge']").ClassName;
+        var classes = cut.Find("[data-slot='badge']").ClassName!;
         classes.ShouldNotBeNullOrWhiteSpace();
         classes!.Contains("theme-badge").ShouldBeFalse();
     }
@@ -63,7 +63,7 @@ public class SC01_BadgeThemeSlot : JsViewScenario
             .Add(b => b.Variant, "default")
             .AddChildContent("X")
             .AddCascadingValue(ctx));
-        var classes = cut.Find("[data-slot='badge']").ClassName;
+        var classes = cut.Find("[data-slot='badge']").ClassName!;
         classes.ShouldContain("theme-badge-default");
         classes.ShouldContain("cn-badge");
     }
@@ -77,7 +77,7 @@ public class SC01_BadgeThemeSlot : JsViewScenario
             .Add(b => b.Variant, "outline")
             .AddChildContent("X")
             .AddCascadingValue(ctx));
-        var classes = cut.Find("[data-slot='badge']").ClassName;
+        var classes = cut.Find("[data-slot='badge']").ClassName!;
         classes.ShouldContain("theme-badge-outline");
         classes!.Contains("cn-badge").ShouldBeFalse();
     }
@@ -91,7 +91,7 @@ public class SC01_BadgeThemeSlot : JsViewScenario
             .Add(b => b.Variant, "secondary")
             .AddChildContent("X")
             .AddCascadingValue(ctx));
-        var classes = cut.Find("[data-slot='badge']").ClassName;
+        var classes = cut.Find("[data-slot='badge']").ClassName!;
         classes.ShouldContain("theme-badge-wildcard");
     }
 
@@ -104,7 +104,7 @@ public class SC01_BadgeThemeSlot : JsViewScenario
             .Add(b => b.Class, "layout-badge")
             .AddChildContent("X")
             .AddCascadingValue(ctx));
-        var classes = cut.Find("[data-slot='badge']").ClassName;
+        var classes = cut.Find("[data-slot='badge']").ClassName!;
         classes.ShouldContain("layout-badge");
     }
 }

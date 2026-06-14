@@ -141,7 +141,7 @@ public class SC06_FileList : Infrastructure.RepositoryScenario
         cut.Render();
 
         var row = cut.Find($"[data-slot='repository-file-list'] [data-path='{target}']");
-        row.QuerySelector("[data-testid='repo-file-select']").Click();
+        row.QuerySelector("[data-testid='repo-file-select']")!.Click();
         cut.Render();
 
         StateService.State.Ui.SelectedFilePaths.ShouldContain(target);

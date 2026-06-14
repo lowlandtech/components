@@ -52,7 +52,7 @@ public class SC01_ButtonThemeSlot : JsViewScenario
         var cut = Ctx.Render<LowlandTech.Components.Button>(p => p
             .Add(b => b.Variant, "default")
             .Add(b => b.ChildContent, (RenderFragment)(rb => rb.AddContent(0, "Click"))));
-        var classes = cut.Find("[data-slot='button']").ClassName;
+        var classes = cut.Find("[data-slot='button']").ClassName!;
         classes.ShouldNotBeNullOrWhiteSpace();
         classes.ShouldContain("btn");
     }
@@ -66,7 +66,7 @@ public class SC01_ButtonThemeSlot : JsViewScenario
             .Add(b => b.Variant, "default")
             .Add(b => b.ChildContent, (RenderFragment)(rb => rb.AddContent(0, "X")))
             .AddCascadingValue(ctx));
-        var classes = cut.Find("[data-slot='button']").ClassName;
+        var classes = cut.Find("[data-slot='button']").ClassName!;
         classes.ShouldContain("theme-default");
         classes.ShouldContain("btn");
     }
@@ -80,7 +80,7 @@ public class SC01_ButtonThemeSlot : JsViewScenario
             .Add(b => b.Variant, "outline")
             .Add(b => b.ChildContent, (RenderFragment)(rb => rb.AddContent(0, "X")))
             .AddCascadingValue(ctx));
-        var classes = cut.Find("[data-slot='button']").ClassName;
+        var classes = cut.Find("[data-slot='button']").ClassName!;
         classes.ShouldContain("theme-outline");
         // Replace mode: default "btn" class should NOT be present
         classes!.Contains("btn").ShouldBeFalse("Replace mode should drop the default class");
@@ -95,7 +95,7 @@ public class SC01_ButtonThemeSlot : JsViewScenario
             .Add(b => b.Variant, "ghost")   // no exact ghost slot — hits wildcard
             .Add(b => b.ChildContent, (RenderFragment)(rb => rb.AddContent(0, "X")))
             .AddCascadingValue(ctx));
-        var classes = cut.Find("[data-slot='button']").ClassName;
+        var classes = cut.Find("[data-slot='button']").ClassName!;
         classes.ShouldContain("theme-wildcard");
     }
 
@@ -109,7 +109,7 @@ public class SC01_ButtonThemeSlot : JsViewScenario
             .Add(b => b.Class, "my-custom")
             .Add(b => b.ChildContent, (RenderFragment)(rb => rb.AddContent(0, "X")))
             .AddCascadingValue(ctx));
-        var classes = cut.Find("[data-slot='button']").ClassName;
+        var classes = cut.Find("[data-slot='button']").ClassName!;
         classes.ShouldContain("my-custom");
     }
 }

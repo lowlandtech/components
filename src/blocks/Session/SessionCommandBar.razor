@@ -77,8 +77,9 @@
     {
         <div class="session-command-bar-context flex items-center gap-1.5 px-2 pt-2 text-xs" data-testid="session-command-context">
             <span class="inline-flex items-center gap-1 rounded bg-primary px-2 py-0.5 font-medium text-primary-foreground"
-                  data-node-type="@SelectedNode.NodeTypeKey">
-                @SelectedNode.NodeTypeKey
+                  data-node-type="@GetContextNodeTypeKey()"
+                  data-transition-key="@GetTransitionKey()">
+                @GetContextNodeTypeKey()
             </span>
         </div>
     }

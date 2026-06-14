@@ -22,6 +22,7 @@ public class SC03_DesignValueCapture
     [Trait(Spec.UAC, "21")]
     public void UAC21_ButtonCapturesAllPropertyGridValues()
     {
+#pragma warning disable BL0005 // Component parameters are intentionally initialized on a non-rendered instance for design-value capture.
         var button = new ButtonSut
         {
             Variant = LowlandTech.Components.ButtonVariant.Outline,
@@ -29,6 +30,7 @@ public class SC03_DesignValueCapture
             Disabled = true,
             Icon = nameof(Icons.Search)
         };
+#pragma warning restore BL0005
 
         var values = (IReadOnlyDictionary<string, string>)CaptureMethod.Invoke(button, null)!;
 

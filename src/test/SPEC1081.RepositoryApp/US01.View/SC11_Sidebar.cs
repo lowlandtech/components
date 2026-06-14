@@ -72,7 +72,7 @@ public class SC11_Sidebar : Infrastructure.RepositoryScenario
         cut.Render();
 
         var about = cut.Find("[data-slot='repo-sidebar-about']");
-        about.TextContent.ShouldContain(StateService.State.Current!.Description);
+        about.TextContent!.ShouldContain(StateService.State.Current!.Description!);
     }
 
     [Fact(DisplayName = "UAC05: Sidebar Topics section renders one chip per topic")]

@@ -76,7 +76,7 @@ public class SC01_PersistKey : JsViewScenario
         lastPayload.ShouldNotBeNullOrEmpty();
         // "a" should no longer be in the persisted list
         var keys = JsonSerializer.Deserialize<List<string>>(lastPayload!);
-        keys.ShouldNotContain("a");
+        keys!.ShouldNotContain("a");
     }
 
     [Fact(DisplayName = "UAC03: no localStorage calls when NoPersist is set")]
