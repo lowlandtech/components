@@ -75,6 +75,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     [Parameter] public string LogoSrc { get; set; } = "_content/LowlandTech.Components/img/session-block-logo.svg";
     [Parameter] public string? Title { get; set; }
     [Parameter] public EventCallback<SessionHeaderCreateRequest> OnHeaderCreateRequested { get; set; }
+    [Parameter] public EventCallback<SessionListCreateRequest> OnListCreateRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeRenameRequest> OnNodeRenameRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnNodeDeleteRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnLoadChildrenRequested { get; set; }
@@ -644,6 +645,39 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         return Task.CompletedTask;
     }
 
+    private async Task HandleContextCreateAsync()
+    {
+        var userContextNode = DisplayContextNodes.FirstOrDefault();
+        if (userContextNode is null)
+            return;
+
+        var listsContextNode = new SessionNodeInput(
+            $"lists-context:{userContextNode.Node.Id}",
+            "lists",
+            L("Lists"),
+            "NodeBlock",
+            new Dictionary<string, object?>
+            {
+                ["userContextId"] = userContextNode.Node.Id
+            });
+
+        await PrepareCommandBarAccessAsync(listsContextNode);
+        SessionState.SetAgentType("create");
+
+        await Task.Yield();
+
+        try
+        {
+            await JS.InvokeVoidAsync("eval", """
+                (() => {
+                    const input = document.querySelector('[data-slot="session-command-input"]');
+                    if (input) { input.focus({ preventScroll: true }); }
+                })();
+                """);
+        }
+        catch { }
+    }
+
     private async Task CreateSessionAsync()
     {
         var id = Guid.NewGuid().ToString();
@@ -740,6 +774,120 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
                 """);
         }
         catch { }
+    }
+
+    private async Task HandleListCreateSubmitAsync(SessionCommandSubmitted command)
+    {
+        var userContextId = command.Node.Properties?.GetValueOrDefault("userContextId") as string;
+
+        if (SessionState.HasGraphService)
+        {
+            var result = await SessionState.CreateListAsync(userContextId, command.Input);
+            if (result.Success)
+            {
+                await FinishListCreateSubmitAsync(command);
+            }
+            return;
+        }
+
+        if (OnListCreateRequested.HasDelegate)
+        {
+            await OnListCreateRequested.InvokeAsync(new SessionListCreateRequest(userContextId!, command.Input));
+            await FinishListCreateSubmitAsync(command);
+            return;
+        }
+
+        // Local fallback: ensure a Lists header exists under the user-context root
+        // and append the new list node under it.
+        _localContextNodes ??= [.. ContextNodes];
+        _localContextNodes = EnsureLocalListsHeader(_localContextNodes, userContextId ?? command.Node.Id).ToList();
+        var listsHeader = FindLocalListsHeader(_localContextNodes, userContextId ?? command.Node.Id);
+        if (listsHeader is not null)
+        {
+            var listNode = new SessionContextNode(
+                new SessionNodeInput(
+                    Guid.NewGuid().ToString(),
+                    "list",
+                    command.Input,
+                    "NodeBlock"),
+                null,
+                true);
+            _localContextNodes = AddChildNode(_localContextNodes, listsHeader.Node.Id, listNode).ToList();
+            SessionState.Dispatch(new ScheduleCreateEffect("list", listNode.Node.Id, command.Input));
+        }
+
+        await FinishListCreateSubmitAsync(command);
+    }
+
+    private async Task FinishListCreateSubmitAsync(SessionCommandSubmitted command)
+    {
+        SessionState.SetInput(string.Empty);
+
+        if (command.IsControlEnter)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("eval", """
+                    (() => {
+                        const input = document.querySelector('[data-slot="session-command-input"]');
+                        if (input) { input.value = ''; input.focus({ preventScroll: true }); }
+                    })();
+                    """);
+            }
+            catch { }
+        }
+        else
+        {
+            SessionState.SetAgentType("ask");
+        }
+    }
+
+    private static IReadOnlyList<SessionContextNode> EnsureLocalListsHeader(
+        IReadOnlyList<SessionContextNode> nodes, string userContextId)
+    {
+        return nodes.Select(n => EnsureLocalListsHeader(n, userContextId)).ToList();
+    }
+
+    private static SessionContextNode EnsureLocalListsHeader(SessionContextNode node, string userContextId)
+    {
+        if (!string.Equals(node.Node.Id, userContextId, StringComparison.Ordinal))
+            return node;
+
+        var children = node.Children?.ToList() ?? [];
+        if (children.Any(c => string.Equals(c.Node.NodeTypeKey, "lists", StringComparison.OrdinalIgnoreCase)))
+            return node;
+
+        var listsHeader = new SessionContextNode(
+            new SessionNodeInput(
+                Guid.NewGuid().ToString(),
+                "lists",
+                "Lists",
+                "NodeBlock"),
+            [],
+            true);
+        children.Add(listsHeader);
+        return new SessionContextNode(node.Node, children, node.IsLoaded);
+    }
+
+    private static SessionContextNode? FindLocalListsHeader(
+        IReadOnlyList<SessionContextNode> nodes, string userContextId)
+    {
+        foreach (var node in nodes)
+        {
+            if (string.Equals(node.Node.Id, userContextId, StringComparison.Ordinal))
+            {
+                return node.Children?.FirstOrDefault(c =>
+                    string.Equals(c.Node.NodeTypeKey, "lists", StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (node.Children is { Count: > 0 })
+            {
+                var found = FindLocalListsHeader(node.Children, userContextId);
+                if (found is not null) return found;
+            }
+        }
+
+        return null;
     }
 
     private async Task HandleNodeRenameAsync(SessionNodeInput node)
@@ -855,7 +1003,8 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     private static bool IsHeaderNode(SessionNodeInput node) =>
         node.NodeTypeKey.EndsWith(".header", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(node.NodeTypeKey, "header", StringComparison.OrdinalIgnoreCase);
+        || string.Equals(node.NodeTypeKey, "header", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(node.NodeTypeKey, "lists", StringComparison.OrdinalIgnoreCase);
 
     private async Task<bool> TryCreateViaEdgeToolAsync(SessionCommandSubmitted command, EdgeTypeInfo edge)
     {
@@ -1033,6 +1182,12 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         var createEdge = EdgeTypeService?.FindEdgeByAgentTypeKey(command.Node.NodeTypeKey, command.AgentTypeKey);
         if (string.Equals(command.AgentTypeKey, "create", StringComparison.OrdinalIgnoreCase) || createEdge is not null)
         {
+            if (string.Equals(command.Node.NodeTypeKey, "lists", StringComparison.OrdinalIgnoreCase))
+            {
+                await HandleListCreateSubmitAsync(command);
+                return;
+            }
+
             if (createEdge is not null)
             {
                 var createdViaTool = await TryCreateViaEdgeToolAsync(command, createEdge);

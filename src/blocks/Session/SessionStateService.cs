@@ -69,6 +69,8 @@ public sealed class SessionStateService
 
     public ISessionOutbox? Outbox { get; }
 
+    public bool HasGraphService => _graphService is not null;
+
     public IReadOnlyList<SessionListEntry> Sessions { get; private set; } = [];
 
     public IReadOnlyList<SessionContextNode> ContextNodes { get; private set; } = [];
@@ -317,6 +319,101 @@ public sealed class SessionStateService
         catch (Exception ex)
         {
             _logger?.LogError(ex, "Failed to create child node for header {HeaderType}", request.ParentNodeTypeKey);
+            return SessionHeaderCreateResult.Failed(ex.Message);
+        }
+    }
+
+    public async Task<SessionHeaderCreateResult> CreateListAsync(string? userContextNodeId, string label, CancellationToken ct = default)
+    {
+        if (_graphService is null)
+            return SessionHeaderCreateResult.Failed("Graph service not available");
+
+        if (!Guid.TryParse(userContextNodeId, out var userContextId))
+        {
+            _logger?.LogWarning("Cannot create list: user context id '{UserContextId}' is not a valid GUID", userContextNodeId);
+            return SessionHeaderCreateResult.Failed("Invalid user context node id");
+        }
+
+        try
+        {
+            var schema = await _graphService.GetSchemaAsync(ct);
+            var listsNodeType = schema.NodeTypes.FirstOrDefault(nt => string.Equals(nt.Key, "lists", StringComparison.OrdinalIgnoreCase));
+            var listNodeType = schema.NodeTypes.FirstOrDefault(nt => string.Equals(nt.Key, "list", StringComparison.OrdinalIgnoreCase));
+            var hasListsEdgeType = schema.EdgeTypes.FirstOrDefault(e => string.Equals(e.Key, "has.lists", StringComparison.OrdinalIgnoreCase));
+            var hasListEdgeType = schema.EdgeTypes.FirstOrDefault(e => string.Equals(e.Key, "has.list", StringComparison.OrdinalIgnoreCase));
+
+            if (listsNodeType is null || listNodeType is null || hasListsEdgeType is null || hasListEdgeType is null)
+            {
+                _logger?.LogWarning("Cannot create list: missing list schema types");
+                return SessionHeaderCreateResult.Failed("Missing list schema types");
+            }
+
+            var childrenTree = await _graphService.GetChildrenAsync(userContextId, ct: ct);
+
+            var listsHeader = childrenTree.Nodes
+                .Where(n => n.Id != userContextId)
+                .FirstOrDefault(n =>
+                    string.Equals(n.NodeType?.Key, "lists", StringComparison.OrdinalIgnoreCase)
+                    || childrenTree.Edges.Any(e =>
+                        e.SourceNodeId == userContextId
+                        && e.TargetNodeId == n.Id
+                        && e.EdgeTypeId == hasListsEdgeType.Id));
+
+            if (listsHeader is null)
+            {
+                var sortOrder = childrenTree.Edges
+                    .Where(e => e.SourceNodeId == userContextId)
+                    .Select(e => e.SortOrder)
+                    .DefaultIfEmpty(-1)
+                    .Max() + 1;
+
+                listsHeader = await _graphService.CreateNodeAsync(new Node
+                {
+                    NodeTypeId = listsNodeType.Id,
+                    Label = "Lists",
+                    SortOrder = sortOrder,
+                }, ct);
+
+                await _graphService.CreateEdgeAsync(new Edge
+                {
+                    EdgeTypeId = hasListsEdgeType.Id,
+                    SourceNodeId = userContextId,
+                    TargetNodeId = listsHeader.Id,
+                    SortOrder = sortOrder,
+                }, ct);
+            }
+
+            var listSortOrder = childrenTree.Edges
+                .Where(e => e.SourceNodeId == listsHeader.Id)
+                .Select(e => e.SortOrder)
+                .DefaultIfEmpty(-1)
+                .Max() + 1;
+
+            var listNode = await _graphService.CreateNodeAsync(new Node
+            {
+                NodeTypeId = listNodeType.Id,
+                Label = label,
+                SortOrder = listSortOrder,
+            }, ct);
+
+            await _graphService.CreateEdgeAsync(new Edge
+            {
+                EdgeTypeId = hasListEdgeType.Id,
+                SourceNodeId = listsHeader.Id,
+                TargetNodeId = listNode.Id,
+                SortOrder = listSortOrder,
+            }, ct);
+
+            _logger?.LogInformation("Created list '{Label}' under Lists header {ListsHeaderId} for user context {UserContextId}", label, listsHeader.Id, userContextId);
+
+            await LoadContextNodesAsync(userContextId, null, ct);
+            await LoadChildrenAsync(new SessionNodeInput(listsHeader.Id.ToString(), "lists", listsHeader.Label ?? "Lists"), ct);
+
+            return SessionHeaderCreateResult.Succeeded(listNode.Id, "list", label);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to create list '{Label}' for user context {UserContextId}", label, userContextNodeId);
             return SessionHeaderCreateResult.Failed(ex.Message);
         }
     }

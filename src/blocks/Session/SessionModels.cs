@@ -20,6 +20,13 @@ public sealed record SessionContextNode(
 public sealed record SessionHeaderCreateRequest(string ParentNodeId, string ParentNodeTypeKey, string Label);
 
 /// <summary>
+/// Fired from <see cref="SessionBlock"/> when the user submits a create command
+/// for a new list from the Context group header. The host can ensure the Lists
+/// header exists under the user-context and create the list child.
+/// </summary>
+public sealed record SessionListCreateRequest(string UserContextNodeId, string Label);
+
+/// <summary>
 /// Fired from <see cref="SessionBlock"/> when the user submits an edit command
 /// while a context node is selected, so the host page can persist the renamed
 /// node in the graph and refresh the context tree.

@@ -81,4 +81,5 @@
   <data name="DeleteNodeDontAskAgain" xml:space="preserve"><value>Don't ask again</value></data>
   <data name="DeleteNodeCancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="DeleteNodeConfirm" xml:space="preserve"><value>Delete</value></data>
-<data name="EditCommandPlaceholder" xml:space="preserve"><value>Enter a new name for the selected node...</value></data><data name="Outbox" xml:space="preserve"><value>Outbox</value></data><data name="OutboxEmpty" xml:space="preserve"><value>No outbox entries yet.</value></data><data name="OutboxType" xml:space="preserve"><value>Type</value></data><data name="OutboxPayload" xml:space="preserve"><value>Payload</value></data><data name="OutboxCreatedAt" xml:space="preserve"><value>Time</value></data></root>
+<data name="EditCommandPlaceholder" xml:space="preserve"><value>Enter a new name for the selected node...</value></data><data name="Outbox" xml:space="preserve"><value>Outbox</value></data><data name="OutboxEmpty" xml:space="preserve"><value>No outbox entries yet.</value></data><data name="OutboxType" xml:space="preserve"><value>Type</value></data><data name="OutboxPayload" xml:space="preserve"><value>Payload</value></data><data name="OutboxCreatedAt" xml:space="preserve"><value>Time</value></data><data name="NewList" xml:space="preserve"><value>New List</value></data>
+</root>

@@ -39,7 +39,7 @@
                                         </SidebarGroupContent>
                                     </SidebarGroup>
                                     <SidebarGroup class="min-h-0 w-full flex-1">
-                                        <SidebarGroupLabel>@L("Context")</SidebarGroupLabel>
+                                        <SidebarGroupLabel Class="justify-between"><span>@L("Context")</span><button type="button" data-slot="session-context-create" data-testid="session-context-create" class="inline-flex h-6 w-6 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground" title="@L("NewList")" @onclick="HandleContextCreateAsync"><Icon Name="plus" Size="12" /></button></SidebarGroupLabel>
                                         <SidebarGroupContent class="min-h-0 w-full flex-1 overflow-hidden">
                                             <SessionContextExplorer RootNodes="DisplayContextNodes"
                                                                     State="ViewState"
