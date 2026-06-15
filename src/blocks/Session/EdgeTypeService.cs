@@ -120,10 +120,68 @@ public sealed class EdgeTypeService : IEdgeTypeService
         if (sourceNodeType is null)
             return [];
 
-        return _edgeTypes
+        var explicitEdges = _edgeTypes
             .Where(edge => edge.SourceNodeTypeId == sourceNodeType.Id)
             .Select(edge => Map(edge, sourceNodeType))
             .ToList();
+
+        var explicitKeys = explicitEdges
+            .Select(e => e.EdgeKey)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var headerCreateEdges = GetNavigationHeaderCreateEdges(sourceNodeType)
+            .Where(edge => !explicitKeys.Contains(edge.EdgeKey))
+            .ToList();
+
+        return [.. explicitEdges, .. headerCreateEdges];
+    }
+
+    private IEnumerable<EdgeTypeInfo> GetNavigationHeaderCreateEdges(INodeTypeDescriptor sourceNodeType)
+    {
+        foreach (var header in sourceNodeType.NavigationHeaders ?? [])
+        {
+            var childNodeType = _nodeTypesById.Values
+                .FirstOrDefault(n => string.Equals(n.Key, header.ChildNodeTypeKey, StringComparison.OrdinalIgnoreCase));
+
+            if (childNodeType is null)
+                continue;
+
+            var edgeKey = header.HeaderToChildEdgeKey
+                ?? NavigationHeaderConventions.HeaderToChildEdgeKey(header.ChildNodeTypeKey);
+
+            yield return new EdgeTypeInfo(
+                edgeKey,
+                "create",
+                childNodeType.Label,
+                null,
+                DeriveCreatorToolKey(childNodeType.Key),
+                sourceNodeType.Key,
+                sourceNodeType.IsHeader,
+                childNodeType.Key,
+                childNodeType.EntityType,
+                childNodeType);
+        }
+    }
+
+    private static string DeriveCreatorToolKey(string nodeTypeKey)
+    {
+        if (string.IsNullOrWhiteSpace(nodeTypeKey))
+            return string.Empty;
+
+        var segments = nodeTypeKey.Split('-', StringSplitOptions.RemoveEmptyEntries);
+        if (segments.Length == 0)
+            return string.Empty;
+
+        var builder = new System.Text.StringBuilder();
+        foreach (var segment in segments)
+        {
+            builder.Append(char.ToUpperInvariant(segment[0]));
+            if (segment.Length > 1)
+                builder.Append(segment.AsSpan(1));
+        }
+
+        builder.Append("Creator");
+        return builder.ToString();
     }
 
     private EdgeTypeInfo Map(IEdgeTypeDescriptor edge, INodeTypeDescriptor sourceNodeType)

@@ -40,7 +40,8 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
 
     private bool ShowChevron => !Item.IsLoaded || VisibleChildren.Count > 0;
     private bool IsHeader => Item.Node.NodeTypeKey.EndsWith(".header", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(Item.Node.NodeTypeKey, "header", StringComparison.OrdinalIgnoreCase);
+        || string.Equals(Item.Node.NodeTypeKey, "header", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(Item.Node.NodeTypeKey, "lists", StringComparison.OrdinalIgnoreCase);
     private string PopoverId => _popoverId.ToString();
     private string NodeIcon => IsHeader
         ? (_isExpanded ? Icons.FolderOpen : Icons.Folder)
