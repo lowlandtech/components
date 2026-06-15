@@ -35,6 +35,12 @@ public partial class SessionContextTreeNodeMenu : TinyComponentBase
 
         var properties = new Dictionary<string, object?>(Node.Properties ?? new Dictionary<string, object?>());
         properties["createEdgeKey"] = edge.EdgeKey;
+        if (edge.IsNavigationHeaderChild)
+        {
+            properties["createHeaderNodeTypeKey"] = edge.HeaderNodeTypeKey ?? "header";
+            properties["createHeaderLabel"] = edge.HeaderLabel;
+        }
+
         await NewRequested.InvokeAsync(Node with { Properties = properties });
     }
 

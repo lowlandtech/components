@@ -183,6 +183,26 @@ public sealed class SC15_EdgeTypeDrivenCreate : ViewScenario
         context.GetAttribute("data-transition-key").ShouldBe("workspaces.create.workspace");
     }
 
+    [Fact(DisplayName = "UAC09: Workspace create edges expose navigation-header child metadata")]
+    [Trait(Spec.UAC, "09")]
+    [Given("the EdgeTypeService for workspace")]
+    [When("outgoing create edges are inspected")]
+    [Then("page, table, workflow, branch and feature edges carry header metadata")]
+    public void UAC09_WorkspaceCreateEdgesAreHeaderChildConvenienceEdges()
+    {
+        var edgeService = Ctx.Services.GetRequiredService<IEdgeTypeService>();
+        var edges = edgeService.GetOutgoingEdges("workspace");
+
+        var pageEdge = edges.FirstOrDefault(e =>
+            string.Equals(e.TargetNodeTypeKey, "page", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(e.Intent, "create", StringComparison.OrdinalIgnoreCase));
+
+        pageEdge.ShouldNotBeNull();
+        pageEdge!.IsNavigationHeaderChild.ShouldBeTrue();
+        pageEdge.HeaderLabel.ShouldBe("Pages");
+        pageEdge.HeaderNodeTypeKey.ShouldBe("header");
+    }
+
     private (IRenderedComponent<Components.SessionBlock> Cut, SessionStateService StateService, SessionNodeInput ParentNode) RenderNodeInCreateMode(string nodeTypeKey, string sessionLabel)
     {
         var stateService = new SessionStateService();

@@ -651,6 +651,14 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         if (userContextNode is null)
             return;
 
+        // Only treat the root as a user-context parent when it really is one.
+        // In standalone/storybook the roots are headers (workspaces, flows, ...)
+        // and Lists should be created as a root-level header instead.
+        var isUserContext = string.Equals(
+            userContextNode.Node.NodeTypeKey,
+            "user-context",
+            StringComparison.OrdinalIgnoreCase);
+
         var listsContextNode = new SessionNodeInput(
             $"lists-context:{userContextNode.Node.Id}",
             "lists",
@@ -658,7 +666,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
             "NodeBlock",
             new Dictionary<string, object?>
             {
-                ["userContextId"] = userContextNode.Node.Id
+                ["userContextId"] = isUserContext ? userContextNode.Node.Id : null
             });
 
         await PrepareCommandBarAccessAsync(listsContextNode);
@@ -750,18 +758,40 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     private async Task HandleNodeNewAsync(SessionNodeInput node)
     {
-        await PrepareCommandBarAccessAsync(node);
-
         var agentTypeKey = "create";
+        EdgeTypeInfo? edge = null;
         if (node.Properties?.TryGetValue("createEdgeKey", out var edgeKeyValue) == true
             && edgeKeyValue is string edgeKey
             && !string.IsNullOrWhiteSpace(edgeKey))
         {
             agentTypeKey = $"create:{edgeKey}";
+            edge = EdgeTypeService?.FindEdgeByAgentTypeKey(node.NodeTypeKey, agentTypeKey);
         }
+
+        // Navigation-header children (e.g. workspace -> Pages -> page) should be
+        // created under their header, not directly under the root. Project the
+        // header into the command bar so submission targets the right parent.
+        if (edge?.IsNavigationHeaderChild == true && !IsHeaderNode(node))
+        {
+            var headerNode = await EnsureNavigationHeaderAsync(node, edge);
+            if (headerNode is not null)
+            {
+                await PrepareCommandBarAccessAsync(headerNode);
+                SessionState.SetAgentType(agentTypeKey);
+                await FocusCommandInputAsync();
+                return;
+            }
+        }
+
+        await PrepareCommandBarAccessAsync(node);
 
         SessionState.SetAgentType(agentTypeKey);
 
+        await FocusCommandInputAsync();
+    }
+
+    private async Task FocusCommandInputAsync()
+    {
         await Task.Yield();
 
         try
@@ -798,14 +828,17 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         }
 
         // Local fallback: ensure a Lists header exists and append the new list
-        // node under it. When a user-context root is present the header lives
+        // node under it. When a real user-context root is present the header lives
         // under it; otherwise it is added as a new root node (standalone/storybook).
         _localContextNodes ??= [.. ContextNodes];
         var targetUserContextId = userContextId ?? command.Node.Id;
-        var hasUserContext = _localContextNodes.Any(n => string.Equals(n.Node.Id, targetUserContextId, StringComparison.Ordinal));
+        var userContextRoot = _localContextNodes.FirstOrDefault(n =>
+            string.Equals(n.Node.Id, targetUserContextId, StringComparison.Ordinal));
+        var isUserContextRoot = userContextRoot is not null &&
+            string.Equals(userContextRoot.Node.NodeTypeKey, "user-context", StringComparison.OrdinalIgnoreCase);
 
         SessionContextNode? listsHeader;
-        if (hasUserContext)
+        if (isUserContextRoot)
         {
             _localContextNodes = EnsureLocalListsHeader(_localContextNodes, targetUserContextId).ToList();
             listsHeader = FindLocalListsHeader(_localContextNodes, targetUserContextId);
@@ -918,6 +951,94 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     private static SessionContextNode? FindLocalRootListsHeader(IReadOnlyList<SessionContextNode> nodes)
     {
         return nodes.FirstOrDefault(n => string.Equals(n.Node.NodeTypeKey, "lists", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static IReadOnlyList<SessionContextNode> EnsureLocalNavigationHeader(
+        IReadOnlyList<SessionContextNode> nodes,
+        string parentId,
+        string headerNodeTypeKey,
+        string headerLabel)
+    {
+        return nodes.Select(n => EnsureLocalNavigationHeader(n, parentId, headerNodeTypeKey, headerLabel)).ToList();
+    }
+
+    private static SessionContextNode EnsureLocalNavigationHeader(
+        SessionContextNode node,
+        string parentId,
+        string headerNodeTypeKey,
+        string headerLabel)
+    {
+        if (string.Equals(node.Node.Id, parentId, StringComparison.Ordinal))
+        {
+            var children = node.Children?.ToList() ?? [];
+            if (children.Any(c =>
+                    string.Equals(c.Node.NodeTypeKey, headerNodeTypeKey, StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(c.Node.Label, headerLabel, StringComparison.Ordinal)))
+            {
+                return node;
+            }
+
+            var header = new SessionContextNode(
+                new SessionNodeInput(
+                    Guid.NewGuid().ToString(),
+                    headerNodeTypeKey,
+                    headerLabel,
+                    "NodeBlock"),
+                [],
+                true);
+            children.Add(header);
+            return new SessionContextNode(node.Node, children, node.IsLoaded);
+        }
+
+        if (node.Children is null || node.Children.Count == 0)
+            return node;
+
+        return new SessionContextNode(
+            node.Node,
+            node.Children.Select(c => EnsureLocalNavigationHeader(c, parentId, headerNodeTypeKey, headerLabel)).ToList(),
+            node.IsLoaded);
+    }
+
+    private static SessionContextNode? FindLocalNavigationHeader(
+        IReadOnlyList<SessionContextNode> nodes,
+        string parentId,
+        string headerNodeTypeKey,
+        string headerLabel)
+    {
+        foreach (var node in nodes)
+        {
+            if (string.Equals(node.Node.Id, parentId, StringComparison.Ordinal))
+            {
+                return node.Children?.FirstOrDefault(c =>
+                    string.Equals(c.Node.NodeTypeKey, headerNodeTypeKey, StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(c.Node.Label, headerLabel, StringComparison.Ordinal));
+            }
+
+            if (node.Children is { Count: > 0 })
+            {
+                var found = FindLocalNavigationHeader(node.Children, parentId, headerNodeTypeKey, headerLabel);
+                if (found is not null) return found;
+            }
+        }
+
+        return null;
+    }
+
+    private async Task<SessionNodeInput?> EnsureNavigationHeaderAsync(SessionNodeInput sourceNode, EdgeTypeInfo edge)
+    {
+        var headerNodeTypeKey = edge.HeaderNodeTypeKey ?? "header";
+        var headerLabel = edge.HeaderLabel ?? edge.TargetDescriptor?.Label ?? "Header";
+
+        if (SessionState.HasGraphService)
+        {
+            var headerNode = await SessionState.GetOrCreateNavigationHeaderAsync(sourceNode.Id, headerLabel, headerNodeTypeKey);
+            if (headerNode is not null)
+                return headerNode;
+        }
+
+        _localContextNodes = EnsureLocalNavigationHeader(DisplayContextNodes, sourceNode.Id, headerNodeTypeKey, headerLabel).ToList();
+        var header = FindLocalNavigationHeader(_localContextNodes, sourceNode.Id, headerNodeTypeKey, headerLabel);
+        return header?.Node;
     }
 
     private async Task HandleNodeRenameAsync(SessionNodeInput node)
@@ -1212,6 +1333,18 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         var createEdge = EdgeTypeService?.FindEdgeByAgentTypeKey(command.Node.NodeTypeKey, command.AgentTypeKey);
         if (string.Equals(command.AgentTypeKey, "create", StringComparison.OrdinalIgnoreCase) || createEdge is not null)
         {
+            // Convenience edges from a root to a navigation-header child (e.g. workspace -> page)
+            // must target the intermediate header, not the root itself.
+            if (createEdge?.IsNavigationHeaderChild == true && !IsHeaderNode(command.Node))
+            {
+                var headerNode = await EnsureNavigationHeaderAsync(command.Node, createEdge);
+                if (headerNode is not null)
+                {
+                    command = command with { Node = headerNode };
+                    createEdge = EdgeTypeService?.FindEdgeByAgentTypeKey(headerNode.NodeTypeKey, command.AgentTypeKey);
+                }
+            }
+
             if (string.Equals(command.Node.NodeTypeKey, "lists", StringComparison.OrdinalIgnoreCase))
             {
                 await HandleListCreateSubmitAsync(command);

@@ -31,7 +31,24 @@ public sealed record EdgeTypeInfo(
     bool SourceIsHeader,
     string TargetNodeTypeKey,
     Type? TargetType,
-    INodeTypeDescriptor? TargetDescriptor);
+    INodeTypeDescriptor? TargetDescriptor)
+{
+    /// <summary>
+    /// True when this create edge is a convenience edge from a non-header parent
+    /// to a navigation-header child. Selecting it should project the header first.
+    /// </summary>
+    public bool IsNavigationHeaderChild { get; init; }
+
+    /// <summary>
+    /// The node type key of the intermediate navigation header.
+    /// </summary>
+    public string? HeaderNodeTypeKey { get; init; }
+
+    /// <summary>
+    /// The display label of the intermediate navigation header.
+    /// </summary>
+    public string? HeaderLabel { get; init; }
+}
 
 /// <summary>
 /// Resolves outgoing create edges for a node type by inspecting the registered
@@ -138,7 +155,58 @@ public sealed class EdgeTypeService : IEdgeTypeService
 
     private IEnumerable<EdgeTypeInfo> GetNavigationHeaderCreateEdges(INodeTypeDescriptor sourceNodeType)
     {
-        foreach (var header in sourceNodeType.NavigationHeaders ?? [])
+        var genericHeaderNodeType = _nodeTypesById.Values
+            .FirstOrDefault(n => string.Equals(n.Key, "header", StringComparison.OrdinalIgnoreCase));
+
+        var sourceIsGenericHeader = genericHeaderNodeType is not null
+            && string.Equals(sourceNodeType.Key, genericHeaderNodeType.Key, StringComparison.OrdinalIgnoreCase);
+
+        // The generic header node type exposes the canonical header -> child create edges
+        // derived from every parent node type's NavigationHeaders.
+        if (sourceIsGenericHeader)
+        {
+            foreach (var parentNodeType in _nodeTypesById.Values)
+            {
+                foreach (var header in parentNodeType.NavigationHeaders ?? [])
+                {
+                    var childNodeType = _nodeTypesById.Values
+                        .FirstOrDefault(n => string.Equals(n.Key, header.ChildNodeTypeKey, StringComparison.OrdinalIgnoreCase));
+
+                    if (childNodeType is null)
+                        continue;
+
+                    var edgeKey = header.HeaderToChildEdgeKey
+                        ?? NavigationHeaderConventions.HeaderToChildEdgeKey(header.ChildNodeTypeKey);
+
+                    yield return new EdgeTypeInfo(
+                        edgeKey,
+                        "create",
+                        childNodeType.Label,
+                        null,
+                        DeriveCreatorToolKey(childNodeType.Key),
+                        sourceNodeType.Key,
+                        sourceNodeType.IsHeader,
+                        childNodeType.Key,
+                        childNodeType.EntityType,
+                        childNodeType);
+                }
+            }
+        }
+
+        // Non-header parents also get a convenience create edge that projects the
+        // navigation header first, so users can create header children from the root.
+        var headers = sourceNodeType.NavigationHeaders;
+        if (headers is null || headers.Count == 0)
+            yield break;
+
+        var sourceIsHeaderLike = sourceNodeType.IsHeader
+            || string.Equals(sourceNodeType.Key, "header", StringComparison.OrdinalIgnoreCase)
+            || sourceNodeType.Key.EndsWith(".header", StringComparison.OrdinalIgnoreCase);
+
+        if (sourceIsHeaderLike)
+            yield break;
+
+        foreach (var header in headers)
         {
             var childNodeType = _nodeTypesById.Values
                 .FirstOrDefault(n => string.Equals(n.Key, header.ChildNodeTypeKey, StringComparison.OrdinalIgnoreCase));
@@ -159,7 +227,12 @@ public sealed class EdgeTypeService : IEdgeTypeService
                 sourceNodeType.IsHeader,
                 childNodeType.Key,
                 childNodeType.EntityType,
-                childNodeType);
+                childNodeType)
+            {
+                IsNavigationHeaderChild = true,
+                HeaderNodeTypeKey = genericHeaderNodeType?.Key ?? "header",
+                HeaderLabel = header.HeaderLabel,
+            };
         }
     }
 

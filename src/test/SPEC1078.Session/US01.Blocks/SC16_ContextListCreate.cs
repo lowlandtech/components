@@ -123,7 +123,7 @@ public sealed class SC16_ContextListCreate : ViewScenario
         var nodes = cut.FindAll("[data-slot='session-context-node']");
         var listsHeader = nodes.SingleOrDefault(n => n.TextContent.Trim() == "Lists");
         listsHeader.ShouldNotBeNull();
-        listsHeader!.QuerySelector("span")?.Click();
+        listsHeader!.GetAttribute("data-depth").ShouldBe("0");
 
         nodes = cut.FindAll("[data-slot='session-context-node']");
         nodes.SingleOrDefault(n => n.TextContent.Trim() == "Standalone List").ShouldNotBeNull();

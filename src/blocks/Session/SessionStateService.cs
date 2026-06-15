@@ -418,6 +418,111 @@ public sealed class SessionStateService
         }
     }
 
+    public async Task<SessionNodeInput?> GetOrCreateNavigationHeaderAsync(
+        string parentNodeId,
+        string headerLabel,
+        string headerNodeTypeKey,
+        CancellationToken ct = default)
+    {
+        if (_graphService is null)
+            return null;
+
+        if (!Guid.TryParse(parentNodeId, out var parentId))
+        {
+            _logger?.LogWarning("Cannot ensure navigation header: parent id '{ParentId}' is not a valid GUID", parentNodeId);
+            return null;
+        }
+
+        try
+        {
+            var parentNode = await _graphService.GetNodeAsync(parentId, ct);
+            if (parentNode is null)
+            {
+                _logger?.LogWarning("Cannot ensure navigation header: parent node {ParentId} not found", parentId);
+                return null;
+            }
+
+            var parentNodeTypeKey = parentNode.NodeType?.Key;
+            if (string.IsNullOrWhiteSpace(parentNodeTypeKey))
+            {
+                _logger?.LogWarning("Cannot ensure navigation header: parent node {ParentId} has no type", parentId);
+                return null;
+            }
+
+            var schema = await _graphService.GetSchemaAsync(ct);
+            var headerNodeType = schema.NodeTypes.FirstOrDefault(nt =>
+                string.Equals(nt.Key, headerNodeTypeKey, StringComparison.OrdinalIgnoreCase));
+            if (headerNodeType is null)
+            {
+                _logger?.LogWarning("Cannot ensure navigation header: header node type '{HeaderType}' not found", headerNodeTypeKey);
+                return null;
+            }
+
+            var parentToHeaderEdgeKey = NavigationHeaderConventions.ParentToHeaderEdgeKey(parentNodeTypeKey, headerLabel);
+            var parentToHeaderEdgeType = schema.EdgeTypes.FirstOrDefault(e =>
+                string.Equals(e.Key, parentToHeaderEdgeKey, StringComparison.OrdinalIgnoreCase));
+            if (parentToHeaderEdgeType is null)
+            {
+                _logger?.LogWarning("Cannot ensure navigation header: edge type '{EdgeKey}' not found", parentToHeaderEdgeKey);
+                return null;
+            }
+
+            var childrenTree = await _graphService.GetChildrenAsync(parentId, ct: ct);
+            var header = childrenTree.Nodes
+                .Where(n => n.Id != parentId)
+                .FirstOrDefault(n =>
+                    string.Equals(n.NodeType?.Key, headerNodeTypeKey, StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(n.Label, headerLabel, StringComparison.Ordinal)
+                    && childrenTree.Edges.Any(e =>
+                        e.SourceNodeId == parentId
+                        && e.TargetNodeId == n.Id
+                        && e.EdgeTypeId == parentToHeaderEdgeType.Id));
+
+            if (header is not null)
+            {
+                return new SessionNodeInput(
+                    header.Id.ToString(),
+                    headerNodeTypeKey,
+                    header.Label ?? headerLabel,
+                    "NodeBlock");
+            }
+
+            var sortOrder = childrenTree.Edges
+                .Where(e => e.SourceNodeId == parentId)
+                .Select(e => e.SortOrder)
+                .DefaultIfEmpty(-1)
+                .Max() + 1;
+
+            var createdHeader = await _graphService.CreateNodeAsync(new Node
+            {
+                NodeTypeId = headerNodeType.Id,
+                Label = headerLabel,
+                SortOrder = sortOrder,
+            }, ct);
+
+            await _graphService.CreateEdgeAsync(new Edge
+            {
+                EdgeTypeId = parentToHeaderEdgeType.Id,
+                SourceNodeId = parentId,
+                TargetNodeId = createdHeader.Id,
+                SortOrder = sortOrder,
+            }, ct);
+
+            _logger?.LogInformation("Created navigation header '{HeaderLabel}' under {ParentNodeType} {ParentId}", headerLabel, parentNodeTypeKey, parentId);
+
+            return new SessionNodeInput(
+                createdHeader.Id.ToString(),
+                headerNodeTypeKey,
+                createdHeader.Label ?? headerLabel,
+                "NodeBlock");
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to ensure navigation header '{HeaderLabel}' under parent {ParentNodeId}", headerLabel, parentNodeId);
+            return null;
+        }
+    }
+
     public async Task LoadSessionCommandsAsync(string sessionId, string? sessionLabel, CancellationToken ct = default)
     {
         if (!Guid.TryParse(sessionId, out var nodeId))
