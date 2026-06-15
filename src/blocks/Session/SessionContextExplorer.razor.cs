@@ -24,6 +24,7 @@ public partial class SessionContextExplorer : TinyComponentBase
     [Parameter] public EventCallback<SessionNodeInput> OnNodeMoveUp { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnNodeMoveDown { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnNodeDelete { get; set; }
+    [Parameter] public EventCallback<SessionNodeInput> OnAddToList { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnLoadChildren { get; set; }
 
     private IReadOnlyList<SessionContextNode> VisibleRoots => RootNodes;
@@ -64,6 +65,8 @@ public partial class SessionContextExplorer : TinyComponentBase
     private Task HandleMoveDownAsync(SessionNodeInput node) => OnNodeMoveDown.InvokeAsync(node);
 
     private Task HandleDeleteAsync(SessionNodeInput node) => OnNodeDelete.InvokeAsync(node);
+
+    private Task HandleAddToListAsync(SessionNodeInput node) => OnAddToList.InvokeAsync(node);
 
     private Task HandlePinAsync(SessionNodeInput node) => PinAsync(new SessionContextProjectionModel(node));
 

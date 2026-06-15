@@ -10,16 +10,30 @@ public partial class SessionContextTreeNodeMenu : TinyComponentBase
     [Parameter, EditorRequired] public SessionNodeInput Node { get; set; } = new("context", "context", "Context");
     [Parameter] public bool CanMoveUp { get; set; }
     [Parameter] public bool CanMoveDown { get; set; }
+    [Parameter] public bool CanAddToList { get; set; }
     [Parameter] public IReadOnlyList<EdgeTypeInfo> CreateEdges { get; set; } = [];
     [Parameter] public EventCallback CloseRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> NewRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> RenameRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> PinRequested { get; set; }
+    [Parameter] public EventCallback<SessionNodeInput> AddToListRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> MoveUpRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> MoveDownRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> DeleteRequested { get; set; }
 
+    private bool _isNewSubmenuOpen = true;
+
     private Task CloseAsync() => CloseRequested.InvokeAsync();
+
+    private Task ToggleNewSubmenuAsync()
+    {
+        _isNewSubmenuOpen = !_isNewSubmenuOpen;
+        return Task.CompletedTask;
+    }
+
+    private string GetNewSubmenuChevronClass() => _isNewSubmenuOpen
+        ? "text-muted-foreground transition-transform duration-100 rotate-90"
+        : "text-muted-foreground transition-transform duration-100";
 
     private async Task NewAsync() => await NewAsync(null);
 
@@ -54,6 +68,12 @@ public partial class SessionContextTreeNodeMenu : TinyComponentBase
     {
         await CloseRequested.InvokeAsync();
         await PinRequested.InvokeAsync(Node);
+    }
+
+    private async Task AddToListAsync()
+    {
+        await CloseRequested.InvokeAsync();
+        await AddToListRequested.InvokeAsync(Node);
     }
 
     private async Task MoveUpAsync()

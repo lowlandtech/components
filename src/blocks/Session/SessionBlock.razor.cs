@@ -25,6 +25,10 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     private string? _hydratedCommandBarPersistKey;
     private readonly List<SessionListEntry> _createdSessions = [];
     private List<SessionContextNode>? _localContextNodes;
+    private bool _showAddToListDialog;
+    private SessionNodeInput? _addToListNode;
+    private IReadOnlyList<SessionNodeInput> _addToListCandidates = [];
+    private IReadOnlySet<string> _addToListMemberIds = new HashSet<string>();
 
     private IReadOnlyList<SessionContextNode> DisplayContextNodes => _localContextNodes ?? ContextNodes;
 
@@ -76,6 +80,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     [Parameter] public string? Title { get; set; }
     [Parameter] public EventCallback<SessionHeaderCreateRequest> OnHeaderCreateRequested { get; set; }
     [Parameter] public EventCallback<SessionListCreateRequest> OnListCreateRequested { get; set; }
+    [Parameter] public EventCallback<SessionAddToListRequest> OnAddToListRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeRenameRequest> OnNodeRenameRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnNodeDeleteRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnLoadChildrenRequested { get; set; }
@@ -1078,6 +1083,152 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
         ClearActiveNodeState(node);
         SessionState.Dispatch(new ScheduleDeleteEffect(node.NodeTypeKey, node.Id, node.Label));
+    }
+
+    private async Task HandleAddToListAsync(SessionNodeInput node)
+    {
+        _addToListNode = node;
+        _addToListCandidates = SessionState.GetAllLists().ToList();
+        _addToListMemberIds = SessionState.HasGraphService
+            ? await SessionState.GetListIdsForNodeAsync(node.Id)
+            : GetLocalListIdsForNode(node.Id);
+        _showAddToListDialog = true;
+    }
+
+    private async Task ConfirmAddToListAsync(SessionAddToListRequest request)
+    {
+        if (OnAddToListRequested.HasDelegate)
+        {
+            await OnAddToListRequested.InvokeAsync(request);
+        }
+        else if (SessionState.HasGraphService)
+        {
+            foreach (var listId in request.ListIdsToAdd)
+                await SessionState.ToggleListMembershipAsync(request.NodeId, listId, true);
+
+            foreach (var listId in request.ListIdsToRemove)
+                await SessionState.ToggleListMembershipAsync(request.NodeId, listId, false);
+        }
+        else
+        {
+            ApplyLocalListMemberships(request);
+        }
+
+        _showAddToListDialog = false;
+        _addToListNode = null;
+    }
+
+    private void CancelAddToListAsync()
+    {
+        _showAddToListDialog = false;
+        _addToListNode = null;
+    }
+
+    private IReadOnlySet<string> GetLocalListIdsForNode(string nodeId)
+    {
+        var result = new HashSet<string>(StringComparer.Ordinal);
+        CollectLocalListIds(DisplayContextNodes, nodeId, result);
+        return result;
+    }
+
+    private static void CollectLocalListIds(IReadOnlyList<SessionContextNode> nodes, string nodeId, HashSet<string> result)
+    {
+        foreach (var node in nodes)
+        {
+            if (string.Equals(node.Node.NodeTypeKey, "list", StringComparison.OrdinalIgnoreCase)
+                && node.Children?.Any(c => string.Equals(c.Node.Id, nodeId, StringComparison.Ordinal)) == true)
+            {
+                result.Add(node.Node.Id);
+            }
+
+            if (node.Children is { Count: > 0 })
+                CollectLocalListIds(node.Children, nodeId, result);
+        }
+    }
+
+    private void ApplyLocalListMemberships(SessionAddToListRequest request)
+    {
+        _localContextNodes ??= [.. ContextNodes];
+
+        foreach (var listId in request.ListIdsToAdd)
+        {
+            var listHeader = FindLocalList(_localContextNodes, listId);
+            if (listHeader is null) continue;
+
+            if (!listHeader.Children?.Any(c => string.Equals(c.Node.Id, request.NodeId, StringComparison.Ordinal)) == true)
+            {
+                var nodeToAdd = FindNodeAcrossTree(_localContextNodes, request.NodeId);
+                if (nodeToAdd is not null)
+                {
+                    _localContextNodes = AddChildNode(_localContextNodes, listId,
+                        new SessionContextNode(nodeToAdd.Node, null, true)).ToList();
+                }
+            }
+        }
+
+        foreach (var listId in request.ListIdsToRemove)
+        {
+            _localContextNodes = RemoveNodeFromParent(_localContextNodes, listId, request.NodeId).ToList();
+        }
+
+        SessionState.Dispatch(new ScheduleUpdateEffect("list", request.NodeId, "memberships", string.Join(",", request.ListIdsToAdd.Concat(request.ListIdsToRemove))));
+    }
+
+    private static SessionContextNode? FindLocalList(IReadOnlyList<SessionContextNode> nodes, string listId)
+    {
+        foreach (var node in nodes)
+        {
+            if (string.Equals(node.Node.Id, listId, StringComparison.Ordinal))
+                return node;
+
+            if (node.Children is { Count: > 0 })
+            {
+                var found = FindLocalList(node.Children, listId);
+                if (found is not null) return found;
+            }
+        }
+        return null;
+    }
+
+    private static SessionContextNode? FindNodeAcrossTree(IReadOnlyList<SessionContextNode> nodes, string nodeId)
+    {
+        foreach (var node in nodes)
+        {
+            if (string.Equals(node.Node.Id, nodeId, StringComparison.Ordinal))
+                return node;
+
+            if (node.Children is { Count: > 0 })
+            {
+                var found = FindNodeAcrossTree(node.Children, nodeId);
+                if (found is not null) return found;
+            }
+        }
+        return null;
+    }
+
+    private static IReadOnlyList<SessionContextNode> RemoveNodeFromParent(
+        IReadOnlyList<SessionContextNode> nodes, string parentId, string childId)
+    {
+        return nodes.Select(n => RemoveNodeFromParent(n, parentId, childId)).ToList();
+    }
+
+    private static SessionContextNode RemoveNodeFromParent(
+        SessionContextNode node, string parentId, string childId)
+    {
+        if (string.Equals(node.Node.Id, parentId, StringComparison.Ordinal))
+        {
+            var children = node.Children?.Where(c =>
+                !string.Equals(c.Node.Id, childId, StringComparison.Ordinal)).ToList() ?? [];
+            return new SessionContextNode(node.Node, children, node.IsLoaded);
+        }
+
+        if (node.Children is null || node.Children.Count == 0)
+            return node;
+
+        return new SessionContextNode(
+            node.Node,
+            node.Children.Select(c => RemoveNodeFromParent(c, parentId, childId)).ToList(),
+            node.IsLoaded);
     }
 
     private void ClearActiveNodeState(SessionNodeInput node)
