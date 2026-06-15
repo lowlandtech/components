@@ -103,16 +103,16 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
         submitted.Input.ShouldBe("My Workspace");
     }
 
-    [Fact(DisplayName = "UAC04: SessionBlock HandleSubmitAsync delegates non-session create to OnHeaderCreateRequested")]
+    [Fact(DisplayName = "UAC04: SessionBlock HandleSubmitAsync delegates non-session create to OnHeaderCreateRequested when no create edge exists")]
     [Trait(Spec.UAC, "04")]
-    [Given("a SessionBlock receives a submit for a non-session node in create mode")]
+    [Given("a SessionBlock receives a submit for a node with no registered create edges")]
     [When("HandleSubmitAsync runs")]
     [Then("OnHeaderCreateRequested is invoked and agent type resets to ask")]
     public void UAC04_SessionBlockDelegatesNonSessionCreate()
     {
         SessionHeaderCreateRequest? request = null;
         var stateService = new SessionStateService();
-        var parentNode = new SessionNodeInput("ws-node", "workspace", "Workspaces", "NodeBlock");
+        var parentNode = new SessionNodeInput("custom-node", "custom", "Custom", "NodeBlock");
 
         stateService.ProjectContext(parentNode);
         stateService.SetAgentType("create");
@@ -126,11 +126,11 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
         // Trigger submit directly via the command bar's OnSubmit parameter
         var commandBar = cut.FindComponent<SessionCommandBar>();
         commandBar.InvokeAsync(() => commandBar.Instance.OnSubmit.InvokeAsync(
-            new SessionCommandSubmitted(parentNode, "create", "My Workspace")));
+            new SessionCommandSubmitted(parentNode, "create", "My Custom Child")));
 
         request.ShouldNotBeNull();
-        request.ParentNodeId.ShouldBe("ws-node");
-        request.Label.ShouldBe("My Workspace");
+        request.ParentNodeId.ShouldBe("custom-node");
+        request.Label.ShouldBe("My Custom Child");
         stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("ask");
     }
 
@@ -331,6 +331,36 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
         fragmentCut.Find("[data-testid='session-context-node-new-item']").Click();
 
         stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("create:has.workspace");
+    }
+
+    [Fact(DisplayName = "UAC12: Workspace context menu shows New options for each create edge")]
+    [Trait(Spec.UAC, "12")]
+    [Given("a SessionBlock with a workspace node")]
+    [When("the workspace context menu is opened")]
+    [Then("it renders New Table, New Workflow, New Page, New Feature and New Branch")]
+    public void UAC12_WorkspaceContextMenuShowsCreateEdgeOptions()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>(p => p.Add(x => x.HasSidebar, true));
+
+        cut.Find("[data-node-id='workspaces-session']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='foundry']").Click();
+
+        var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
+        var popover = popoverService.ActivePopovers.Single(reference => reference.State.Open);
+
+        var fragmentCut = Ctx.Render(builder =>
+        {
+            builder.OpenElement(0, "div");
+            builder.AddContent(1, popover.State.Fragment);
+            builder.CloseElement();
+        });
+
+        var items = fragmentCut.FindAll("[data-testid='session-context-node-new-item']").Select(e => e.TextContent.Trim()).ToList();
+        items.ShouldContain("New Branch");
+        items.ShouldContain("New Feature");
+        items.ShouldContain("New Page");
+        items.ShouldContain("New Table");
+        items.ShouldContain("New Workflow");
     }
 
 }

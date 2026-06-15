@@ -50,6 +50,7 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
     private IReadOnlyList<EdgeTypeInfo> CreateEdges =>
         EdgeTypeService?.GetOutgoingEdges(Item.Node.NodeTypeKey)
             .Where(edge => string.Equals(edge.Intent, "create", StringComparison.OrdinalIgnoreCase))
+            .OrderBy(edge => edge.TargetDescriptor?.Label ?? edge.Label)
             .ToList() ?? [];
 
     private bool IsNodePinned(string nodeId) => Pins.Any(pin => pin.Node.Id == nodeId);

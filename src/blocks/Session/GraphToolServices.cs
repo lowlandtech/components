@@ -51,6 +51,91 @@ public sealed class FlowCreatorTool : IGraphToolService
 }
 
 /// <summary>
+/// Components-environment creator for <c>workspace</c> → <c>table</c>.
+/// </summary>
+public sealed class TableCreatorTool : IGraphToolService
+{
+    public string ToolKey => "TableCreator";
+
+    public Task<object> ExecuteAsync(
+        IExecutionEngine engine,
+        IDictionary<string, object?> properties,
+        CancellationToken cancellationToken = default)
+    {
+        var name = properties.TryGetValue("Title", out var value) ? value?.ToString() : null;
+        return Task.FromResult<object>(new FakeTable(Guid.NewGuid(), name ?? "New Table"));
+    }
+}
+
+/// <summary>
+/// Components-environment creator for <c>workspace</c> → <c>workflow</c>.
+/// </summary>
+public sealed class WorkflowCreatorTool : IGraphToolService
+{
+    public string ToolKey => "WorkflowCreator";
+
+    public Task<object> ExecuteAsync(
+        IExecutionEngine engine,
+        IDictionary<string, object?> properties,
+        CancellationToken cancellationToken = default)
+    {
+        var name = properties.TryGetValue("Title", out var value) ? value?.ToString() : null;
+        return Task.FromResult<object>(new FakeWorkflow(Guid.NewGuid(), name ?? "New Workflow"));
+    }
+}
+
+/// <summary>
+/// Components-environment creator for <c>workspace</c> → <c>page</c>.
+/// </summary>
+public sealed class PageCreatorTool : IGraphToolService
+{
+    public string ToolKey => "PageCreator";
+
+    public Task<object> ExecuteAsync(
+        IExecutionEngine engine,
+        IDictionary<string, object?> properties,
+        CancellationToken cancellationToken = default)
+    {
+        var name = properties.TryGetValue("Title", out var value) ? value?.ToString() : null;
+        return Task.FromResult<object>(new FakePage(Guid.NewGuid(), name ?? "New Page"));
+    }
+}
+
+/// <summary>
+/// Components-environment creator for <c>workspace</c> → <c>feature</c>.
+/// </summary>
+public sealed class FeatureCreatorTool : IGraphToolService
+{
+    public string ToolKey => "FeatureCreator";
+
+    public Task<object> ExecuteAsync(
+        IExecutionEngine engine,
+        IDictionary<string, object?> properties,
+        CancellationToken cancellationToken = default)
+    {
+        var name = properties.TryGetValue("Title", out var value) ? value?.ToString() : null;
+        return Task.FromResult<object>(new FakeFeature(Guid.NewGuid(), name ?? "New Feature"));
+    }
+}
+
+/// <summary>
+/// Components-environment creator for <c>workspace</c> → <c>branch</c>.
+/// </summary>
+public sealed class BranchCreatorTool : IGraphToolService
+{
+    public string ToolKey => "BranchCreator";
+
+    public Task<object> ExecuteAsync(
+        IExecutionEngine engine,
+        IDictionary<string, object?> properties,
+        CancellationToken cancellationToken = default)
+    {
+        var name = properties.TryGetValue("Title", out var value) ? value?.ToString() : null;
+        return Task.FromResult<object>(new FakeBranch(Guid.NewGuid(), name ?? "New Branch"));
+    }
+}
+
+/// <summary>
 /// Components-environment creator for <c>step.header</c> → <c>step</c>.
 /// </summary>
 public sealed class StepCreatorTool : IGraphToolService
@@ -101,6 +186,11 @@ public sealed class WorkitemCreatorTool : IGraphToolService
     }
 }
 
+public sealed record FakeTable(Guid Id, string Name);
+public sealed record FakeWorkflow(Guid Id, string Name);
+public sealed record FakePage(Guid Id, string Name);
+public sealed record FakeFeature(Guid Id, string Name);
+public sealed record FakeBranch(Guid Id, string Name);
 public sealed record FakeUserStory(Guid Id, string Name);
 public sealed record FakeScenario(Guid Id, string Name);
 public sealed record FakeScenarioStep(Guid Id, string Name);

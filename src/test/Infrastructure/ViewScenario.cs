@@ -1,7 +1,3 @@
-using Bunit;
-using LowlandTech.Components;
-using Microsoft.Extensions.DependencyInjection;
-
 namespace LowlandTech.Components.Tests.Infrastructure;
 
 public abstract class ViewScenario : IAsyncLifetime
@@ -20,6 +16,11 @@ public abstract class ViewScenario : IAsyncLifetime
         Ctx.Services.AddSingleton<IEdgeTypeService, EdgeTypeService>();
         Ctx.Services.AddSingleton<IExecutionEngine>(sp => new ComponentsExecutionEngine(sp.GetRequiredService<IEdgeTypeService>()) { UserId = "test-user" });
         Ctx.Services.AddSingleton<IGraphToolService, WorkspaceCreatorTool>();
+        Ctx.Services.AddSingleton<IGraphToolService, TableCreatorTool>();
+        Ctx.Services.AddSingleton<IGraphToolService, WorkflowCreatorTool>();
+        Ctx.Services.AddSingleton<IGraphToolService, PageCreatorTool>();
+        Ctx.Services.AddSingleton<IGraphToolService, FeatureCreatorTool>();
+        Ctx.Services.AddSingleton<IGraphToolService, BranchCreatorTool>();
         Ctx.Services.AddSingleton<IGraphToolService, FlowCreatorTool>();
         Ctx.Services.AddSingleton<IGraphToolService, StepCreatorTool>();
         Ctx.Services.AddSingleton<IGraphToolService, PackageCreatorTool>();
