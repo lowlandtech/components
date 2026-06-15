@@ -22,6 +22,12 @@ public partial class SessionSettings : TinyComponentBase
     private string? _editingEdgeTypeId;
     private NodeTypeFormModel _nodeTypeForm = NodeTypeFormModel.Empty;
     private EdgeTypeFormModel _edgeTypeForm = EdgeTypeFormModel.Empty;
+    private string _nodeTypeView = "grid";
+    private string _edgeTypeView = "grid";
+    private string? _selectedNodeTypeId;
+    private string? _selectedEdgeTypeId;
+    private string _nodeTypeFilter = string.Empty;
+    private string _edgeTypeFilter = string.Empty;
     private SessionStateService? _ownedStateService;
 
     [Inject] private IServiceProvider Services { get; set; } = default!;
@@ -48,6 +54,20 @@ public partial class SessionSettings : TinyComponentBase
     private SessionStateService EffectiveStateService => StateService ??= (_ownedStateService ??= CreateOwnedStateService());
 
     private SessionSettingsState SettingsState => EffectiveStateService.State.Settings;
+
+    private IReadOnlyList<SessionNodeTypeDefinition> FilteredNodeTypes => FilterNodeTypes(SettingsState.NodeTypes, _nodeTypeFilter);
+
+    private IReadOnlyList<SessionEdgeTypeDefinition> FilteredEdgeTypes => FilterEdgeTypes(SettingsState.EdgeTypes, _edgeTypeFilter);
+
+    private SessionNodeTypeDefinition? SelectedNodeType =>
+        SettingsState.NodeTypes.FirstOrDefault(nodeType => string.Equals(nodeType.Id, _selectedNodeTypeId, StringComparison.Ordinal));
+
+    private SessionEdgeTypeDefinition? SelectedEdgeType =>
+        SettingsState.EdgeTypes.FirstOrDefault(edgeType => string.Equals(edgeType.Id, _selectedEdgeTypeId, StringComparison.Ordinal));
+
+    private bool IsNodeTypeFormOpen => _nodeTypeView is "create" or "edit";
+
+    private bool IsEdgeTypeFormOpen => _edgeTypeView is "create" or "edit";
 
     protected override async Task OnInitializedAsync()
     {
@@ -213,7 +233,17 @@ public partial class SessionSettings : TinyComponentBase
     private void BeginCreateNodeType()
     {
         _editingNodeTypeId = null;
+        _selectedNodeTypeId = null;
+        _nodeTypeView = "create";
         _nodeTypeForm = NodeTypeFormModel.Empty with { Label = "New Node Type" };
+    }
+
+    private void SelectNodeType(SessionNodeTypeDefinition nodeType)
+    {
+        _selectedNodeTypeId = nodeType.Id;
+        _editingNodeTypeId = null;
+        _nodeTypeForm = NodeTypeFormModel.Empty;
+        _nodeTypeView = "view";
     }
 
     private void BeginEditNodeType(SessionNodeTypeDefinition nodeType)
@@ -221,7 +251,9 @@ public partial class SessionSettings : TinyComponentBase
         if (nodeType.IsStatic)
             return;
 
+        _selectedNodeTypeId = nodeType.Id;
         _editingNodeTypeId = nodeType.Id;
+        _nodeTypeView = "edit";
         _nodeTypeForm = new NodeTypeFormModel(
             nodeType.Key,
             nodeType.Label,
@@ -235,6 +267,7 @@ public partial class SessionSettings : TinyComponentBase
     {
         _editingNodeTypeId = null;
         _nodeTypeForm = NodeTypeFormModel.Empty;
+        _nodeTypeView = SelectedNodeType is null ? "grid" : "view";
     }
 
     private void SaveNodeType()
@@ -264,12 +297,17 @@ public partial class SessionSettings : TinyComponentBase
             EffectiveStateService.Dispatch(new ScheduleUpdateEffect("node-type", nodeType.Id, "Definition", nodeType.Label));
         }
 
-        CancelNodeTypeEdit();
+        _selectedNodeTypeId = nodeType.Id;
+        _editingNodeTypeId = null;
+        _nodeTypeForm = NodeTypeFormModel.Empty;
+        _nodeTypeView = "view";
     }
 
     private void BeginCreateEdgeType()
     {
         _editingEdgeTypeId = null;
+        _selectedEdgeTypeId = null;
+        _edgeTypeView = "create";
         _edgeTypeForm = EdgeTypeFormModel.Empty with
         {
             Label = "New Edge Type",
@@ -279,12 +317,22 @@ public partial class SessionSettings : TinyComponentBase
         };
     }
 
+    private void SelectEdgeType(SessionEdgeTypeDefinition edgeType)
+    {
+        _selectedEdgeTypeId = edgeType.Id;
+        _editingEdgeTypeId = null;
+        _edgeTypeForm = EdgeTypeFormModel.Empty;
+        _edgeTypeView = "view";
+    }
+
     private void BeginEditEdgeType(SessionEdgeTypeDefinition edgeType)
     {
         if (edgeType.IsStatic)
             return;
 
+        _selectedEdgeTypeId = edgeType.Id;
         _editingEdgeTypeId = edgeType.Id;
+        _edgeTypeView = "edit";
         _edgeTypeForm = new EdgeTypeFormModel(
             edgeType.Key,
             edgeType.Label,
@@ -298,6 +346,7 @@ public partial class SessionSettings : TinyComponentBase
     {
         _editingEdgeTypeId = null;
         _edgeTypeForm = EdgeTypeFormModel.Empty;
+        _edgeTypeView = SelectedEdgeType is null ? "grid" : "view";
     }
 
     private void SaveEdgeType()
@@ -327,8 +376,54 @@ public partial class SessionSettings : TinyComponentBase
             EffectiveStateService.Dispatch(new ScheduleUpdateEffect("edge-type", edgeType.Id, "Definition", edgeType.Label));
         }
 
-        CancelEdgeTypeEdit();
+        _selectedEdgeTypeId = edgeType.Id;
+        _editingEdgeTypeId = null;
+        _edgeTypeForm = EdgeTypeFormModel.Empty;
+        _edgeTypeView = "view";
     }
+
+    private Task OnNodeTypeFilterChanged(string? value)
+    {
+        _nodeTypeFilter = value ?? string.Empty;
+        return Task.CompletedTask;
+    }
+
+    private Task OnEdgeTypeFilterChanged(string? value)
+    {
+        _edgeTypeFilter = value ?? string.Empty;
+        return Task.CompletedTask;
+    }
+
+    private static IReadOnlyList<SessionNodeTypeDefinition> FilterNodeTypes(
+        IReadOnlyList<SessionNodeTypeDefinition> nodeTypes,
+        string filter)
+    {
+        if (string.IsNullOrWhiteSpace(filter))
+            return nodeTypes;
+
+        return [.. nodeTypes.Where(nodeType =>
+            Contains(nodeType.Key, filter)
+            || Contains(nodeType.Label, filter)
+            || Contains(nodeType.BlockComponent, filter))];
+    }
+
+    private static IReadOnlyList<SessionEdgeTypeDefinition> FilterEdgeTypes(
+        IReadOnlyList<SessionEdgeTypeDefinition> edgeTypes,
+        string filter)
+    {
+        if (string.IsNullOrWhiteSpace(filter))
+            return edgeTypes;
+
+        return [.. edgeTypes.Where(edgeType =>
+            Contains(edgeType.Key, filter)
+            || Contains(edgeType.Label, filter)
+            || Contains(edgeType.SourceNodeTypeKey, filter)
+            || Contains(edgeType.TargetNodeTypeKey, filter)
+            || Contains(edgeType.Intent, filter))];
+    }
+
+    private static bool Contains(string? value, string filter) =>
+        value?.Contains(filter, StringComparison.OrdinalIgnoreCase) == true;
 
     private static string NormalizeKey(string key, string label, string fallback)
     {
