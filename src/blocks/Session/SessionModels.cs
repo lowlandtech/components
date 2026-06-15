@@ -27,6 +27,17 @@ public sealed record SessionHeaderCreateRequest(string ParentNodeId, string Pare
 public sealed record SessionListCreateRequest(string UserContextNodeId, string Label);
 
 /// <summary>
+/// Fired from <see cref="SessionBlock"/> when the user opens the "Add to list"
+/// dialog for a context node. The host can persist the membership edges in the
+/// graph and refresh the context tree.
+/// </summary>
+public sealed record SessionAddToListRequest(
+    string NodeId,
+    string NodeTypeKey,
+    IReadOnlySet<string> ListIdsToAdd,
+    IReadOnlySet<string> ListIdsToRemove);
+
+/// <summary>
 /// Fired from <see cref="SessionBlock"/> when the user submits an edit command
 /// while a context node is selected, so the host page can persist the renamed
 /// node in the graph and refresh the context tree.

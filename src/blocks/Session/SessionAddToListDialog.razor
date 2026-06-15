@@ -1,0 +1,35 @@
+@namespace LowlandTech.Components
+@inherits TinyComponentBase
+
+<Dialog @bind-IsOpen="IsOpen">
+    <DialogContent>
+        <DialogHeader>
+            <DialogTitle>@L("AddToListTitle")</DialogTitle>
+            <DialogDescription>@L("AddToListDescription", Node.Label)</DialogDescription>
+        </DialogHeader>
+
+        <div class="flex max-h-72 min-h-[8rem] flex-col gap-2 overflow-y-auto py-2">
+            @if (Lists.Count == 0)
+            {
+                <p class="text-sm text-muted-foreground">@L("AddToListEmpty")</p>
+            }
+            else
+            {
+                @foreach (var candidate in Candidates)
+                {
+                    <label class="flex items-center gap-2 rounded px-2 py-1.5 hover:bg-muted/50"
+                           data-testid="add-to-list-candidate"
+                           data-list-id="@candidate.List.Id">
+                        <Checkbox @bind-Checked="candidate.IsSelected" />
+                        <span class="text-sm">@candidate.List.Label</span>
+                    </label>
+                }
+            }
+        </div>
+
+        <DialogFooter>
+            <Button Variant="ghost" @onclick="CancelAsync">@L("AddToListCancel")</Button>
+            <Button Variant="default" data-testid="add-to-list-save" @onclick="ConfirmAsync">@L("AddToListConfirm")</Button>
+        </DialogFooter>
+    </DialogContent>
+</Dialog>

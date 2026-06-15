@@ -19,6 +19,7 @@ public sealed class FakeGraphService : IGraphService
 
         SeedEdgeType("has.lists", "user-context", "lists");
         SeedEdgeType("has.list", "lists", "list");
+        SeedEdgeType("list.contains", "list", "list");
     }
 
     public Node SeedNode(Guid id, string nodeTypeKey, string label, int sortOrder = 0)
@@ -115,11 +116,30 @@ public sealed class FakeGraphService : IGraphService
         return Task.FromResult(edge);
     }
 
+    public Edge SeedEdge(string key, string edgeTypeKey, Guid sourceNodeId, Guid targetNodeId, int sortOrder = 0)
+    {
+        var edgeType = _edgeTypes[edgeTypeKey];
+        var edge = new Edge
+        {
+            Id = Guid.NewGuid(),
+            EdgeTypeId = edgeType.Id,
+            EdgeType = edgeType,
+            SourceNodeId = sourceNodeId,
+            TargetNodeId = targetNodeId,
+            SortOrder = sortOrder
+        };
+        _edges.Add(edge);
+        return edge;
+    }
+
     public Task<Edge> UpdateEdgeAsync(Edge edge, CancellationToken ct = default)
         => Task.FromResult(edge);
 
     public Task DeleteEdgeAsync(Guid edgeId, CancellationToken ct = default)
-        => Task.CompletedTask;
+    {
+        _edges.RemoveAll(e => e.Id == edgeId);
+        return Task.CompletedTask;
+    }
 
     public Task SetPropertyAsync(Guid nodeId, string key, string? value, CancellationToken ct = default)
         => Task.CompletedTask;

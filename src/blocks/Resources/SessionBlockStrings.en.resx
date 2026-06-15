@@ -82,4 +82,10 @@
   <data name="DeleteNodeCancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="DeleteNodeConfirm" xml:space="preserve"><value>Delete</value></data>
 <data name="EditCommandPlaceholder" xml:space="preserve"><value>Enter a new name for the selected node...</value></data><data name="Outbox" xml:space="preserve"><value>Outbox</value></data><data name="OutboxEmpty" xml:space="preserve"><value>No outbox entries yet.</value></data><data name="OutboxType" xml:space="preserve"><value>Type</value></data><data name="OutboxPayload" xml:space="preserve"><value>Payload</value></data><data name="OutboxCreatedAt" xml:space="preserve"><value>Time</value></data><data name="NewList" xml:space="preserve"><value>New List</value></data>
+<data name="MenuAddToList" xml:space="preserve"><value>Add to list</value></data>
+<data name="AddToListTitle" xml:space="preserve"><value>Add to list</value></data>
+<data name="AddToListDescription" xml:space="preserve"><value>Select lists for "{0}"</value></data>
+<data name="AddToListEmpty" xml:space="preserve"><value>No lists yet</value></data>
+<data name="AddToListCancel" xml:space="preserve"><value>Cancel</value></data>
+<data name="AddToListConfirm" xml:space="preserve"><value>Save</value></data>
 </root>

@@ -180,7 +180,7 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
             builder.AddContent(1, popover.State.Fragment);
             builder.CloseElement();
         });
-        fragmentCut.Find(".node-menu-item").Click();
+        fragmentCut.Find("[data-testid='session-context-node-new-item']").Click();
 
         cut.FindAll("[data-slot='session-block-page-overlay']").Count.ShouldBe(0);
         cut.Find("[data-slot='session-block-feed'] [data-block-id='projected-context-block'][data-mode='normal']")
@@ -356,11 +356,11 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
         });
 
         var items = fragmentCut.FindAll("[data-testid='session-context-node-new-item']").Select(e => e.TextContent.Trim()).ToList();
-        items.ShouldContain("New Branch");
-        items.ShouldContain("New Feature");
-        items.ShouldContain("New Page");
-        items.ShouldContain("New Table");
-        items.ShouldContain("New Workflow");
+        items.ShouldContain("Branch");
+        items.ShouldContain("Feature");
+        items.ShouldContain("Page");
+        items.ShouldContain("Table");
+        items.ShouldContain("Workflow");
     }
 
 }

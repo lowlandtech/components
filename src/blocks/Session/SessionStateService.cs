@@ -418,6 +418,119 @@ public sealed class SessionStateService
         }
     }
 
+    public IEnumerable<SessionNodeInput> GetAllLists()
+        => GetAllLists(ContextNodes);
+
+    private static IEnumerable<SessionNodeInput> GetAllLists(IReadOnlyList<SessionContextNode> nodes)
+    {
+        foreach (var node in nodes)
+        {
+            if (string.Equals(node.Node.NodeTypeKey, "list", StringComparison.OrdinalIgnoreCase))
+                yield return node.Node;
+
+            if (node.Children is { Count: > 0 })
+            {
+                foreach (var list in GetAllLists(node.Children))
+                    yield return list;
+            }
+        }
+    }
+
+    public async Task<IReadOnlySet<string>> GetListIdsForNodeAsync(string nodeId, CancellationToken ct = default)
+    {
+        var result = new HashSet<string>(StringComparer.Ordinal);
+        if (_graphService is null || !Guid.TryParse(nodeId, out var nodeIdGuid))
+            return result;
+
+        var schema = await _graphService.GetSchemaAsync(ct);
+        var edgeType = schema.EdgeTypes.FirstOrDefault(e =>
+            string.Equals(e.Key, "list.contains", StringComparison.OrdinalIgnoreCase));
+        if (edgeType is null)
+            return result;
+
+        foreach (var list in GetAllLists())
+        {
+            if (!Guid.TryParse(list.Id, out var listIdGuid))
+                continue;
+
+            var childrenTree = await _graphService.GetChildrenAsync(listIdGuid, ct: ct);
+            if (childrenTree.Edges.Any(e =>
+                e.EdgeTypeId == edgeType.Id &&
+                e.SourceNodeId == listIdGuid &&
+                e.TargetNodeId == nodeIdGuid))
+            {
+                result.Add(list.Id);
+            }
+        }
+
+        return result;
+    }
+
+    public async Task ToggleListMembershipAsync(string nodeId, string listId, bool isMember, CancellationToken ct = default)
+    {
+        if (_graphService is null)
+        {
+            _logger?.LogWarning("Cannot toggle list membership: graph service not available");
+            return;
+        }
+
+        if (!Guid.TryParse(nodeId, out var nodeIdGuid))
+        {
+            _logger?.LogWarning("Cannot toggle list membership: node id '{NodeId}' is not a valid GUID", nodeId);
+            return;
+        }
+
+        if (!Guid.TryParse(listId, out var listIdGuid))
+        {
+            _logger?.LogWarning("Cannot toggle list membership: list id '{ListId}' is not a valid GUID", listId);
+            return;
+        }
+
+        try
+        {
+            var schema = await _graphService.GetSchemaAsync(ct);
+            var edgeType = schema.EdgeTypes.FirstOrDefault(e =>
+                string.Equals(e.Key, "list.contains", StringComparison.OrdinalIgnoreCase));
+            if (edgeType is null)
+            {
+                _logger?.LogWarning("Cannot toggle list membership: edge type 'list.contains' not found");
+                return;
+            }
+
+            if (isMember)
+            {
+                await _graphService.CreateEdgeAsync(new Edge
+                {
+                    EdgeTypeId = edgeType.Id,
+                    SourceNodeId = listIdGuid,
+                    TargetNodeId = nodeIdGuid,
+                    SortOrder = 0,
+                }, ct);
+
+                _logger?.LogInformation("Added node {NodeId} to list {ListId}", nodeId, listId);
+            }
+            else
+            {
+                var childrenTree = await _graphService.GetChildrenAsync(listIdGuid, ct: ct);
+                var edge = childrenTree.Edges.FirstOrDefault(e =>
+                    e.EdgeTypeId == edgeType.Id &&
+                    e.SourceNodeId == listIdGuid &&
+                    e.TargetNodeId == nodeIdGuid);
+                if (edge is not null)
+                {
+                    await _graphService.DeleteEdgeAsync(edge.Id, ct);
+                    _logger?.LogInformation("Removed node {NodeId} from list {ListId}", nodeId, listId);
+                }
+            }
+
+            await LoadChildrenAsync(new SessionNodeInput(listId, "list", "List"), ct);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Failed to toggle list membership for node {NodeId} in list {ListId}", nodeId, listId);
+        }
+    }
+
     public async Task<SessionNodeInput?> GetOrCreateNavigationHeaderAsync(
         string parentNodeId,
         string headerLabel,

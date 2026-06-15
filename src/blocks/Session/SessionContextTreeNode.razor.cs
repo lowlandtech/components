@@ -23,6 +23,7 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
     [Parameter] public EventCallback<SessionNodeInput> OnNodeMoveUp { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnNodeMoveDown { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnNodeDelete { get; set; }
+    [Parameter] public EventCallback<SessionNodeInput> OnAddToList { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnExpand { get; set; }
     [Parameter] public string ExpandedNodesPersistKey { get; set; } = "session-context-expanded-nodes";
     [Parameter] public string DeleteNodeSkipConfirmationKey { get; set; } = "session-context-delete-skip-confirmation";
@@ -55,6 +56,10 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
             .ToList() ?? [];
 
     private bool IsNodePinned(string nodeId) => Pins.Any(pin => pin.Node.Id == nodeId);
+
+    private static bool IsListNode(SessionNodeInput node) =>
+        string.Equals(node.NodeTypeKey, "list", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(node.NodeTypeKey, "lists", StringComparison.OrdinalIgnoreCase);
 
     protected override void OnInitialized()
     {
@@ -317,6 +322,8 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
         builder.AddAttribute(8, nameof(SessionContextTreeNodeMenu.MoveUpRequested), OnNodeMoveUp);
         builder.AddAttribute(9, nameof(SessionContextTreeNodeMenu.MoveDownRequested), OnNodeMoveDown);
         builder.AddAttribute(10, nameof(SessionContextTreeNodeMenu.DeleteRequested), EventCallback.Factory.Create<SessionNodeInput>(this, HandleDeleteRequestedAsync));
+        builder.AddAttribute(11, nameof(SessionContextTreeNodeMenu.CanAddToList), !IsListNode(Item.Node));
+        builder.AddAttribute(12, nameof(SessionContextTreeNodeMenu.AddToListRequested), OnAddToList);
         builder.CloseComponent();
     };
 

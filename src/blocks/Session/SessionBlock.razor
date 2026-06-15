@@ -52,6 +52,7 @@
                                                                     OnNodeNew="HandleNodeNewAsync"
                                                                     OnNodeRename="HandleNodeRenameAsync"
                                                                     OnNodeDelete="HandleNodeDeleteAsync"
+                                                                    OnAddToList="HandleAddToListAsync"
                                                                     OnLoadChildren="OnLoadChildrenRequested"
                                                                     ShowHeader="false"
                                                                     class="min-h-0 flex-1 border-0 bg-transparent" />
@@ -443,6 +444,7 @@
                                                         OnNodeNew="HandleNodeNewAsync"
                                                         OnNodeRename="HandleNodeRenameAsync"
                                                         OnNodeDelete="HandleNodeDeleteAsync"
+                                                        OnAddToList="HandleAddToListAsync"
                                                         OnLoadChildren="OnLoadChildrenRequested"
                                                         ShowHeader="false"
                                                         class="min-h-0 flex-1 rounded-none border-0 bg-transparent" />
@@ -748,4 +750,11 @@
             </div>
         </SessionCard>
     }
+
+    <SessionAddToListDialog @bind-IsOpen="_showAddToListDialog"
+                            Node="_addToListNode ?? new SessionNodeInput(string.Empty, string.Empty, string.Empty)"
+                            Lists="_addToListCandidates"
+                            MemberListIds="_addToListMemberIds"
+                            OnConfirm="ConfirmAddToListAsync"
+                            OnCancel="CancelAddToListAsync" />
 </div>
