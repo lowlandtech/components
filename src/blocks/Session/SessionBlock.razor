@@ -136,7 +136,7 @@
                           data-slot="session-block-main-content">
                         @if (IsSettingsPage)
                         {
-                            <SessionSettings class="min-h-0 flex-1" Outbox="SessionState.Outbox">
+                            <SessionSettings class="min-h-0 flex-1" Outbox="SessionState.Outbox" StateService="SessionState">
                                 <ActivityContent>
                                     <SessionEventLog Entries="AppState.EventLogEntries"
                                                      InitialStateJson="@SessionState.GetInitialEventLogStateJson()"

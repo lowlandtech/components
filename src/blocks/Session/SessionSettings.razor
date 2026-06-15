@@ -18,6 +18,20 @@
                     @onclick="() => _section = SettingsSection.Activity">
                 @L("Activity")
             </button>
+            <button type="button"
+                    data-testid="session-settings-node-types-tab"
+                    data-active="@(_section == SettingsSection.NodeTypes ? "true" : "false")"
+                    class="@GetNavButtonClass(SettingsSection.NodeTypes)"
+                    @onclick="() => _section = SettingsSection.NodeTypes">
+                NodeTypes
+            </button>
+            <button type="button"
+                    data-testid="session-settings-edge-types-tab"
+                    data-active="@(_section == SettingsSection.EdgeTypes ? "true" : "false")"
+                    class="@GetNavButtonClass(SettingsSection.EdgeTypes)"
+                    @onclick="() => _section = SettingsSection.EdgeTypes">
+                EdgeTypes
+            </button>
             @if (Outbox is not null || OutboxContent is not null)
             {
                 <button type="button"
@@ -36,6 +50,238 @@
         {
             <div data-slot="session-settings-activity" class="min-h-0">
                 @ActivityContent
+            </div>
+        }
+        else if (_section == SettingsSection.NodeTypes)
+        {
+            <div data-slot="session-settings-node-types" class="mx-auto max-w-6xl">
+                <header class="flex flex-wrap items-start justify-between gap-4">
+                    <div class="space-y-1">
+                        <h2 class="text-sm font-semibold text-foreground">NodeTypes</h2>
+                        <p class="max-w-[68ch] text-sm text-muted-foreground">
+                            Manage dynamic node type definitions. Descriptor-loaded rows are static and shown read-only.
+                        </p>
+                    </div>
+                    <button type="button"
+                            data-testid="session-settings-create-node-type"
+                            class="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                            disabled="@SettingsState.IsBusy"
+                            @onclick="BeginCreateNodeType">
+                        Create NodeType
+                    </button>
+                </header>
+
+                @if (!string.IsNullOrWhiteSpace(_nodeTypeForm.Label) || !string.IsNullOrWhiteSpace(_editingNodeTypeId))
+                {
+                    <div data-testid="session-settings-node-type-form"
+                         class="mt-5 grid gap-3 rounded-md border border-border bg-card/40 p-4 md:grid-cols-2">
+                        <label class="space-y-1 text-xs font-medium text-muted-foreground">
+                            Key
+                            <input data-testid="session-settings-node-type-key-input"
+                                   class="h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground"
+                                   value="@_nodeTypeForm.Key"
+                                   @oninput="e => _nodeTypeForm = _nodeTypeForm with { Key = e.Value?.ToString() ?? string.Empty }" />
+                        </label>
+                        <label class="space-y-1 text-xs font-medium text-muted-foreground">
+                            Label
+                            <input data-testid="session-settings-node-type-label-input"
+                                   class="h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground"
+                                   value="@_nodeTypeForm.Label"
+                                   @oninput="e => _nodeTypeForm = _nodeTypeForm with { Label = e.Value?.ToString() ?? string.Empty }" />
+                        </label>
+                        <label class="space-y-1 text-xs font-medium text-muted-foreground">
+                            Icon
+                            <input data-testid="session-settings-node-type-icon-input"
+                                   class="h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground"
+                                   value="@_nodeTypeForm.Icon"
+                                   @oninput="e => _nodeTypeForm = _nodeTypeForm with { Icon = e.Value?.ToString() ?? string.Empty }" />
+                        </label>
+                        <label class="space-y-1 text-xs font-medium text-muted-foreground">
+                            Block
+                            <input data-testid="session-settings-node-type-block-input"
+                                   class="h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground"
+                                   value="@_nodeTypeForm.BlockComponent"
+                                   @oninput="e => _nodeTypeForm = _nodeTypeForm with { BlockComponent = e.Value?.ToString() ?? string.Empty }" />
+                        </label>
+                        <label class="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                            <input type="checkbox"
+                                   checked="@_nodeTypeForm.IsHeader"
+                                   @onchange="e => _nodeTypeForm = _nodeTypeForm with { IsHeader = e.Value is true }" />
+                            Header
+                        </label>
+                        <label class="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                            <input type="checkbox"
+                                   checked="@_nodeTypeForm.IsLeaf"
+                                   @onchange="e => _nodeTypeForm = _nodeTypeForm with { IsLeaf = e.Value is true }" />
+                            Leaf
+                        </label>
+                        <div class="flex justify-end gap-2 md:col-span-2">
+                            <button type="button"
+                                    class="rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted"
+                                    @onclick="CancelNodeTypeEdit">
+                                Cancel
+                            </button>
+                            <button type="button"
+                                    data-testid="session-settings-save-node-type"
+                                    class="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+                                    @onclick="SaveNodeType">
+                                Save NodeType
+                            </button>
+                        </div>
+                    </div>
+                }
+
+                <div class="mt-8 overflow-hidden border-t border-border">
+                    <div class="grid grid-cols-[minmax(9rem,1fr)_minmax(12rem,1.2fr)_minmax(8rem,.8fr)_7rem_6rem] border-b border-border px-4 py-2 text-xs uppercase tracking-wide text-muted-foreground">
+                        <span>Key</span>
+                        <span>Label</span>
+                        <span>Block</span>
+                        <span>Status</span>
+                        <span class="text-right">Action</span>
+                    </div>
+                    @foreach (var nodeType in SettingsState.NodeTypes)
+                    {
+                        <div data-testid="session-settings-node-type-row"
+                             data-node-type-key="@nodeType.Key"
+                             class="grid grid-cols-[minmax(9rem,1fr)_minmax(12rem,1.2fr)_minmax(8rem,.8fr)_7rem_6rem] items-center border-b border-border px-4 py-3 text-sm">
+                            <code class="truncate font-mono text-xs text-muted-foreground">@nodeType.Key</code>
+                            <span class="truncate font-semibold text-foreground">@nodeType.Label</span>
+                            <span class="truncate text-xs text-muted-foreground">@(nodeType.BlockComponent ?? "none")</span>
+                            <span>
+                                <span class="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground">
+                                    @(nodeType.IsStatic ? "Static" : "Dynamic")
+                                </span>
+                            </span>
+                            <div class="flex justify-end">
+                                <button type="button"
+                                        data-testid="session-settings-edit-node-type"
+                                        class="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+                                        disabled="@nodeType.IsStatic"
+                                        @onclick="() => BeginEditNodeType(nodeType)">
+                                    Edit
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else if (_section == SettingsSection.EdgeTypes)
+        {
+            <div data-slot="session-settings-edge-types" class="mx-auto max-w-6xl">
+                <header class="flex flex-wrap items-start justify-between gap-4">
+                    <div class="space-y-1">
+                        <h2 class="text-sm font-semibold text-foreground">EdgeTypes</h2>
+                        <p class="max-w-[68ch] text-sm text-muted-foreground">
+                            Manage dynamic edge type definitions. Descriptor-loaded rows are static and shown read-only.
+                        </p>
+                    </div>
+                    <button type="button"
+                            data-testid="session-settings-create-edge-type"
+                            class="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                            disabled="@SettingsState.IsBusy"
+                            @onclick="BeginCreateEdgeType">
+                        Create EdgeType
+                    </button>
+                </header>
+
+                @if (!string.IsNullOrWhiteSpace(_edgeTypeForm.Label) || !string.IsNullOrWhiteSpace(_editingEdgeTypeId))
+                {
+                    <div data-testid="session-settings-edge-type-form"
+                         class="mt-5 grid gap-3 rounded-md border border-border bg-card/40 p-4 md:grid-cols-2">
+                        <label class="space-y-1 text-xs font-medium text-muted-foreground">
+                            Key
+                            <input data-testid="session-settings-edge-type-key-input"
+                                   class="h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground"
+                                   value="@_edgeTypeForm.Key"
+                                   @oninput="e => _edgeTypeForm = _edgeTypeForm with { Key = e.Value?.ToString() ?? string.Empty }" />
+                        </label>
+                        <label class="space-y-1 text-xs font-medium text-muted-foreground">
+                            Label
+                            <input data-testid="session-settings-edge-type-label-input"
+                                   class="h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground"
+                                   value="@_edgeTypeForm.Label"
+                                   @oninput="e => _edgeTypeForm = _edgeTypeForm with { Label = e.Value?.ToString() ?? string.Empty }" />
+                        </label>
+                        <label class="space-y-1 text-xs font-medium text-muted-foreground">
+                            Source NodeType
+                            <input data-testid="session-settings-edge-type-source-input"
+                                   class="h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground"
+                                   value="@_edgeTypeForm.SourceNodeTypeKey"
+                                   @oninput="e => _edgeTypeForm = _edgeTypeForm with { SourceNodeTypeKey = e.Value?.ToString() ?? string.Empty }" />
+                        </label>
+                        <label class="space-y-1 text-xs font-medium text-muted-foreground">
+                            Target NodeType
+                            <input data-testid="session-settings-edge-type-target-input"
+                                   class="h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground"
+                                   value="@_edgeTypeForm.TargetNodeTypeKey"
+                                   @oninput="e => _edgeTypeForm = _edgeTypeForm with { TargetNodeTypeKey = e.Value?.ToString() ?? string.Empty }" />
+                        </label>
+                        <label class="space-y-1 text-xs font-medium text-muted-foreground">
+                            Intent
+                            <input data-testid="session-settings-edge-type-intent-input"
+                                   class="h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground"
+                                   value="@_edgeTypeForm.Intent"
+                                   @oninput="e => _edgeTypeForm = _edgeTypeForm with { Intent = e.Value?.ToString() ?? string.Empty }" />
+                        </label>
+                        <label class="space-y-1 text-xs font-medium text-muted-foreground">
+                            Tool
+                            <input data-testid="session-settings-edge-type-tool-input"
+                                   class="h-9 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground"
+                                   value="@_edgeTypeForm.Tool"
+                                   @oninput="e => _edgeTypeForm = _edgeTypeForm with { Tool = e.Value?.ToString() ?? string.Empty }" />
+                        </label>
+                        <div class="flex justify-end gap-2 md:col-span-2">
+                            <button type="button"
+                                    class="rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted"
+                                    @onclick="CancelEdgeTypeEdit">
+                                Cancel
+                            </button>
+                            <button type="button"
+                                    data-testid="session-settings-save-edge-type"
+                                    class="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+                                    @onclick="SaveEdgeType">
+                                Save EdgeType
+                            </button>
+                        </div>
+                    </div>
+                }
+
+                <div class="mt-8 overflow-hidden border-t border-border">
+                    <div class="grid grid-cols-[minmax(9rem,1fr)_minmax(8rem,.8fr)_minmax(8rem,.8fr)_minmax(8rem,.8fr)_7rem_6rem] border-b border-border px-4 py-2 text-xs uppercase tracking-wide text-muted-foreground">
+                        <span>Key</span>
+                        <span>Source</span>
+                        <span>Target</span>
+                        <span>Intent</span>
+                        <span>Status</span>
+                        <span class="text-right">Action</span>
+                    </div>
+                    @foreach (var edgeType in SettingsState.EdgeTypes)
+                    {
+                        <div data-testid="session-settings-edge-type-row"
+                             data-edge-type-key="@edgeType.Key"
+                             class="grid grid-cols-[minmax(9rem,1fr)_minmax(8rem,.8fr)_minmax(8rem,.8fr)_minmax(8rem,.8fr)_7rem_6rem] items-center border-b border-border px-4 py-3 text-sm">
+                            <code class="truncate font-mono text-xs text-muted-foreground">@edgeType.Key</code>
+                            <span class="truncate text-xs text-muted-foreground">@edgeType.SourceNodeTypeKey</span>
+                            <span class="truncate text-xs text-muted-foreground">@edgeType.TargetNodeTypeKey</span>
+                            <span class="truncate text-xs text-muted-foreground">@(edgeType.Intent ?? "none")</span>
+                            <span>
+                                <span class="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground">
+                                    @(edgeType.IsStatic ? "Static" : "Dynamic")
+                                </span>
+                            </span>
+                            <div class="flex justify-end">
+                                <button type="button"
+                                        data-testid="session-settings-edit-edge-type"
+                                        class="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+                                        disabled="@edgeType.IsStatic"
+                                        @onclick="() => BeginEditEdgeType(edgeType)">
+                                    Edit
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
             </div>
         }
         else if (_section == SettingsSection.Outbox)
@@ -64,21 +310,21 @@
                     <button type="button"
                             data-testid="session-settings-create-api-key"
                             class="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
-                            disabled="@_isBusy"
+                            disabled="@SettingsState.IsBusy"
                             @onclick="CreateKeyAsync">
                         @L("CreateApiKey")
                     </button>
                 </header>
 
-                @if (!string.IsNullOrWhiteSpace(_error))
+                @if (!string.IsNullOrWhiteSpace(SettingsState.Error))
                 {
                     <div data-testid="session-settings-api-key-error"
                          class="mt-4 rounded-md border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                        @_error
+                        @SettingsState.Error
                     </div>
                 }
 
-                @if (_issued is not null)
+                @if (SettingsState.IssuedClientKey is not null)
                 {
                     <div data-testid="session-settings-api-key-secret"
                          class="mt-4 rounded-md border border-primary/40 bg-primary/5 px-3 py-3">
@@ -95,7 +341,7 @@
                             </button>
                         </div>
                         <code class="mt-3 block break-all rounded-md border border-border bg-background px-2 py-2 font-mono text-xs text-foreground">
-                            @_issued.Secret
+                            @SettingsState.IssuedClientKey.Secret
                         </code>
                     </div>
                 }
@@ -108,13 +354,13 @@
                         <span class="text-right">@L("Action")</span>
                     </div>
 
-                    @if (_isLoading)
+                    @if (SettingsState.IsLoading)
                     {
                         <div data-testid="session-settings-api-keys-loading" class="px-4 py-6 text-sm text-muted-foreground">
                             @L("LoadingKeys")
                         </div>
                     }
-                    else if (_keys.Count == 0)
+                    else if (SettingsState.ClientKeys.Count == 0)
                     {
                         <div data-testid="session-settings-api-keys-empty" class="px-4 py-6 text-sm text-muted-foreground">
                             @L("NoApiKeysYet")
@@ -122,13 +368,23 @@
                     }
                     else
                     {
-                        @foreach (var key in _keys)
+                        @foreach (var key in SettingsState.ClientKeys)
                         {
                             <div class="grid grid-cols-[minmax(10rem,1.2fr)_minmax(10rem,1fr)_minmax(10rem,1fr)_6rem] items-center border-b border-border px-4 py-3 text-sm"
                                  data-testid="session-settings-api-key-row"
                                  data-key-id="@key.Id">
                                 <div class="min-w-0">
-                                    <p class="truncate font-semibold text-foreground">@key.Name</p>
+                                    @if (string.Equals(_editingKeyId, key.Id, StringComparison.Ordinal))
+                                    {
+                                        <input data-testid="session-settings-api-key-name-input"
+                                               class="h-8 w-full rounded-md border border-border bg-background px-2 text-sm text-foreground"
+                                               value="@_editingName"
+                                               @oninput="e => _editingName = e.Value?.ToString() ?? string.Empty" />
+                                    }
+                                    else
+                                    {
+                                        <p class="truncate font-semibold text-foreground">@key.Name</p>
+                                    }
                                     @if (key.IsRevoked)
                                     {
                                         <p class="text-xs text-muted-foreground">@L("Revoked")</p>
@@ -136,13 +392,41 @@
                                 </div>
                                 <code class="truncate font-mono text-xs text-muted-foreground">@key.KeyPreview</code>
                                 <span class="truncate text-xs text-muted-foreground">@key.CreatedBy</span>
-                                <button type="button"
-                                        data-testid="session-settings-revoke-api-key"
-                                        class="justify-self-end rounded-md border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
-                                        disabled="@(_isBusy || key.IsRevoked)"
-                                        @onclick="() => RevokeKeyAsync(key.Id)">
-                                    @L("Remove")
-                                </button>
+                                <div class="flex justify-end gap-1">
+                                    @if (string.Equals(_editingKeyId, key.Id, StringComparison.Ordinal))
+                                    {
+                                        <button type="button"
+                                                data-testid="session-settings-save-api-key"
+                                                class="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+                                                disabled="@(SettingsState.IsBusy || key.IsRevoked)"
+                                                @onclick="() => RenameKeyAsync(key)">
+                                            @L("MenuRename")
+                                        </button>
+                                        <button type="button"
+                                                data-testid="session-settings-cancel-api-key-rename"
+                                                class="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted"
+                                                @onclick="CancelRename">
+                                            @L("DeleteNodeCancel")
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button"
+                                                data-testid="session-settings-rename-api-key"
+                                                class="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+                                                disabled="@(SettingsState.IsBusy || key.IsRevoked)"
+                                                @onclick="() => BeginRename(key)">
+                                            @L("MenuRename")
+                                        </button>
+                                        <button type="button"
+                                                data-testid="session-settings-revoke-api-key"
+                                                class="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+                                                disabled="@(SettingsState.IsBusy || key.IsRevoked)"
+                                                @onclick="() => RevokeKeyAsync(key.Id)">
+                                            @L("Remove")
+                                        </button>
+                                    }
+                                </div>
                             </div>
                         }
                     }

@@ -48,6 +48,11 @@ public sealed record EdgeTypeInfo(
     /// The display label of the intermediate navigation header.
     /// </summary>
     public string? HeaderLabel { get; init; }
+
+    /// <summary>
+    /// True when the edge comes from descriptor/registry metadata rather than user-created settings.
+    /// </summary>
+    public bool IsStatic { get; init; } = true;
 }
 
 /// <summary>

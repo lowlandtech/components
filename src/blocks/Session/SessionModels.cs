@@ -42,7 +42,7 @@ public interface ISessionSideEffect
 }
 
 /// <summary>Side-effect: schedule creation of an entity.</summary>
-public sealed record ScheduleCreateEffect(string EntityType, string EntityId, string Label) : ISessionSideEffect;
+public sealed record ScheduleCreateEffect(string EntityType, string EntityId, string Label, bool IsStatic = false) : ISessionSideEffect;
 
 /// <summary>Side-effect: schedule an update to an entity property.</summary>
 public sealed record ScheduleUpdateEffect(string EntityType, string EntityId, string PropertyName, string NewValue) : ISessionSideEffect;
@@ -130,10 +130,43 @@ public sealed record SessionClientKeyIssued(
     SessionClientKeyEntry Entry,
     string Secret);
 
+public sealed record SessionNodeTypeDefinition(
+    string Id,
+    string Key,
+    string Label,
+    string? Icon,
+    string? BlockComponent,
+    bool IsHeader,
+    bool IsLeaf,
+    bool IsStatic);
+
+public sealed record SessionEdgeTypeDefinition(
+    string Id,
+    string Key,
+    string Label,
+    string SourceNodeTypeKey,
+    string TargetNodeTypeKey,
+    string? Intent,
+    string? Tool,
+    bool IsStatic);
+
+public sealed record SessionSettingsState
+{
+    public IReadOnlyList<SessionClientKeyEntry> ClientKeys { get; init; } = [];
+    public IReadOnlyList<SessionNodeTypeDefinition> NodeTypes { get; init; } = [];
+    public IReadOnlyList<SessionEdgeTypeDefinition> EdgeTypes { get; init; } = [];
+    public SessionClientKeyIssued? IssuedClientKey { get; init; }
+    public bool IsLoading { get; init; } = true;
+    public bool IsSchemaLoading { get; init; } = true;
+    public bool IsBusy { get; init; }
+    public string? Error { get; init; }
+}
+
 public interface ISessionClientSettingsService
 {
     Task<IReadOnlyList<SessionClientKeyEntry>> ListAsync(CancellationToken ct = default);
     Task<SessionClientKeyIssued> CreateAsync(string name, CancellationToken ct = default);
+    Task RenameAsync(string id, string name, CancellationToken ct = default) => Task.CompletedTask;
     Task RevokeAsync(string id, CancellationToken ct = default);
 }
 
@@ -218,6 +251,7 @@ public sealed record SessionCommandSnapshot(
 
 public sealed record SessionBlockStateSnapshot(
     SessionUiStateSnapshot Ui,
+    SessionSettingsState Settings,
     string ActivePage,
     string? ActiveSessionId,
     string? PendingScrollSectionId,
@@ -251,6 +285,7 @@ public interface ISessionSurfaceDiscovery
 public sealed record SessionBlockState
 {
     public SessionUiState Ui { get; init; } = SessionUiDefaults.Empty;
+    public SessionSettingsState Settings { get; init; } = new();
     public SessionBlockPage ActivePage { get; init; } = SessionBlockPage.Feed;
     public IReadOnlyList<SessionEventLogItem> EventLogEntries { get; init; } = [];
     public string? ActiveSessionId { get; init; }
@@ -358,6 +393,56 @@ public sealed record SetStoredSessionState(string SessionId, SessionUiState Stat
 public sealed record PersistSessionCommands(string SessionId) : SessionBlockAction;
 
 public sealed record RestoreSessionCommandHistory(string SessionId, IReadOnlyList<SessionCommandSubmitted> Commands) : SessionBlockAction;
+
+public sealed record LoadSessionGraphSchemaRequested : SessionBlockAction;
+
+public sealed record LoadSessionGraphSchemaSucceeded(
+    IReadOnlyList<SessionNodeTypeDefinition> NodeTypes,
+    IReadOnlyList<SessionEdgeTypeDefinition> EdgeTypes) : SessionBlockAction;
+
+public sealed record LoadSessionGraphSchemaFailed(string Error) : SessionBlockAction;
+
+public sealed record LoadSessionClientKeysRequested : SessionBlockAction;
+
+public sealed record LoadSessionClientKeysSucceeded(IReadOnlyList<SessionClientKeyEntry> Keys) : SessionBlockAction;
+
+public sealed record LoadSessionClientKeysFailed(string Error) : SessionBlockAction;
+
+public sealed record CreateSessionClientKeyRequested(string Name) : SessionBlockAction;
+
+public sealed record CreateSessionClientKeySucceeded(SessionClientKeyIssued Issued) : SessionBlockAction;
+
+public sealed record CreateSessionClientKeyFailed(string Error) : SessionBlockAction;
+
+public sealed record RenameSessionClientKeyRequested(string Id, string Name) : SessionBlockAction;
+
+public sealed record RenameSessionClientKeySucceeded(string Id, string Name) : SessionBlockAction;
+
+public sealed record RenameSessionClientKeyFailed(string Error) : SessionBlockAction;
+
+public sealed record RevokeSessionClientKeyRequested(string Id) : SessionBlockAction;
+
+public sealed record RevokeSessionClientKeySucceeded(string Id) : SessionBlockAction;
+
+public sealed record RevokeSessionClientKeyFailed(string Error) : SessionBlockAction;
+
+public sealed record DismissSessionClientKeySecret : SessionBlockAction;
+
+public sealed record CreateSessionNodeTypeRequested(SessionNodeTypeDefinition NodeType) : SessionBlockAction;
+
+public sealed record CreateSessionNodeTypeSucceeded(SessionNodeTypeDefinition NodeType) : SessionBlockAction;
+
+public sealed record UpdateSessionNodeTypeRequested(SessionNodeTypeDefinition NodeType) : SessionBlockAction;
+
+public sealed record UpdateSessionNodeTypeSucceeded(SessionNodeTypeDefinition NodeType) : SessionBlockAction;
+
+public sealed record CreateSessionEdgeTypeRequested(SessionEdgeTypeDefinition EdgeType) : SessionBlockAction;
+
+public sealed record CreateSessionEdgeTypeSucceeded(SessionEdgeTypeDefinition EdgeType) : SessionBlockAction;
+
+public sealed record UpdateSessionEdgeTypeRequested(SessionEdgeTypeDefinition EdgeType) : SessionBlockAction;
+
+public sealed record UpdateSessionEdgeTypeSucceeded(SessionEdgeTypeDefinition EdgeType) : SessionBlockAction;
 
 public static class SessionUiReducer
 {
@@ -541,6 +626,144 @@ public static class SessionBlockReducer
             {
                 SessionStatesBySessionId = SetDictionaryEntry(state.SessionStatesBySessionId, a.SessionId, a.State),
             },
+            LoadSessionGraphSchemaRequested => state with
+            {
+                Settings = state.Settings with { IsSchemaLoading = true, Error = null },
+            },
+            LoadSessionGraphSchemaSucceeded a => state with
+            {
+                Settings = state.Settings with
+                {
+                    NodeTypes = a.NodeTypes.ToList(),
+                    EdgeTypes = a.EdgeTypes.ToList(),
+                    IsSchemaLoading = false,
+                    Error = null,
+                },
+            },
+            LoadSessionGraphSchemaFailed a => state with
+            {
+                Settings = state.Settings with { IsSchemaLoading = false, Error = a.Error },
+            },
+            LoadSessionClientKeysRequested => state with
+            {
+                Settings = state.Settings with { IsLoading = true, Error = null },
+            },
+            LoadSessionClientKeysSucceeded a => state with
+            {
+                Settings = state.Settings with { ClientKeys = a.Keys.ToList(), IsLoading = false, Error = null },
+            },
+            LoadSessionClientKeysFailed a => state with
+            {
+                Settings = state.Settings with { ClientKeys = [], IsLoading = false, Error = a.Error },
+            },
+            CreateSessionClientKeyRequested => state with
+            {
+                Settings = state.Settings with { IsBusy = true, Error = null },
+            },
+            CreateSessionClientKeySucceeded a => state with
+            {
+                Settings = state.Settings with
+                {
+                    ClientKeys = UpsertClientKey(state.Settings.ClientKeys, a.Issued.Entry),
+                    IssuedClientKey = a.Issued,
+                    IsBusy = false,
+                    Error = null,
+                },
+            },
+            CreateSessionClientKeyFailed a => state with
+            {
+                Settings = state.Settings with { IsBusy = false, Error = a.Error },
+            },
+            RenameSessionClientKeyRequested => state with
+            {
+                Settings = state.Settings with { IsBusy = true, Error = null },
+            },
+            RenameSessionClientKeySucceeded a => state with
+            {
+                Settings = state.Settings with
+                {
+                    ClientKeys = RenameClientKey(state.Settings.ClientKeys, a.Id, a.Name),
+                    IsBusy = false,
+                    Error = null,
+                },
+            },
+            RenameSessionClientKeyFailed a => state with
+            {
+                Settings = state.Settings with { IsBusy = false, Error = a.Error },
+            },
+            RevokeSessionClientKeyRequested => state with
+            {
+                Settings = state.Settings with { IsBusy = true, Error = null },
+            },
+            RevokeSessionClientKeySucceeded a => state with
+            {
+                Settings = state.Settings with
+                {
+                    ClientKeys = state.Settings.ClientKeys.Where(key => !string.Equals(key.Id, a.Id, StringComparison.Ordinal)).ToList(),
+                    IsBusy = false,
+                    Error = null,
+                },
+            },
+            RevokeSessionClientKeyFailed a => state with
+            {
+                Settings = state.Settings with { IsBusy = false, Error = a.Error },
+            },
+            DismissSessionClientKeySecret => state with
+            {
+                Settings = state.Settings with { IssuedClientKey = null },
+            },
+            CreateSessionNodeTypeRequested => state with
+            {
+                Settings = state.Settings with { IsBusy = true, Error = null },
+            },
+            CreateSessionNodeTypeSucceeded a => state with
+            {
+                Settings = state.Settings with
+                {
+                    NodeTypes = UpsertNodeType(state.Settings.NodeTypes, a.NodeType),
+                    IsBusy = false,
+                    Error = null,
+                },
+            },
+            UpdateSessionNodeTypeRequested => state with
+            {
+                Settings = state.Settings with { IsBusy = true, Error = null },
+            },
+            UpdateSessionNodeTypeSucceeded a => state with
+            {
+                Settings = state.Settings with
+                {
+                    NodeTypes = UpsertNodeType(state.Settings.NodeTypes, a.NodeType),
+                    IsBusy = false,
+                    Error = null,
+                },
+            },
+            CreateSessionEdgeTypeRequested => state with
+            {
+                Settings = state.Settings with { IsBusy = true, Error = null },
+            },
+            CreateSessionEdgeTypeSucceeded a => state with
+            {
+                Settings = state.Settings with
+                {
+                    EdgeTypes = UpsertEdgeType(state.Settings.EdgeTypes, a.EdgeType),
+                    IsBusy = false,
+                    Error = null,
+                },
+            },
+            UpdateSessionEdgeTypeRequested => state with
+            {
+                Settings = state.Settings with { IsBusy = true, Error = null },
+            },
+            UpdateSessionEdgeTypeSucceeded a => state with
+            {
+                Settings = state.Settings with
+                {
+                    EdgeTypes = UpsertEdgeType(state.Settings.EdgeTypes, a.EdgeType),
+                    IsBusy = false,
+                    Error = null,
+                },
+            },
             _ => state
         };
 
@@ -609,6 +832,39 @@ public static class SessionBlockReducer
             FeedSequenceByItemKey = sequences,
             NextFeedSequence = nextSequence,
         };
+    }
+
+    private static IReadOnlyList<SessionClientKeyEntry> UpsertClientKey(
+        IReadOnlyList<SessionClientKeyEntry> keys,
+        SessionClientKeyEntry key)
+    {
+        var next = keys.Where(existing => !string.Equals(existing.Id, key.Id, StringComparison.Ordinal)).ToList();
+        next.Insert(0, key);
+        return next;
+    }
+
+    private static IReadOnlyList<SessionClientKeyEntry> RenameClientKey(
+        IReadOnlyList<SessionClientKeyEntry> keys,
+        string id,
+        string name) =>
+        [.. keys.Select(key => string.Equals(key.Id, id, StringComparison.Ordinal) ? key with { Name = name } : key)];
+
+    private static IReadOnlyList<SessionNodeTypeDefinition> UpsertNodeType(
+        IReadOnlyList<SessionNodeTypeDefinition> nodeTypes,
+        SessionNodeTypeDefinition nodeType)
+    {
+        var next = nodeTypes.Where(existing => !string.Equals(existing.Id, nodeType.Id, StringComparison.Ordinal)).ToList();
+        next.Add(nodeType);
+        return [.. next.OrderBy(item => item.IsStatic ? 0 : 1).ThenBy(item => item.Key, StringComparer.Ordinal)];
+    }
+
+    private static IReadOnlyList<SessionEdgeTypeDefinition> UpsertEdgeType(
+        IReadOnlyList<SessionEdgeTypeDefinition> edgeTypes,
+        SessionEdgeTypeDefinition edgeType)
+    {
+        var next = edgeTypes.Where(existing => !string.Equals(existing.Id, edgeType.Id, StringComparison.Ordinal)).ToList();
+        next.Add(edgeType);
+        return [.. next.OrderBy(item => item.IsStatic ? 0 : 1).ThenBy(item => item.Key, StringComparer.Ordinal)];
     }
 
     private static IReadOnlyList<SessionStateDeltaItem> BuildStateDelta(SessionBlockState before, SessionBlockState after)
@@ -694,6 +950,7 @@ public static class SessionBlockReducer
     private static SessionBlockStateSnapshot CreateSnapshot(SessionBlockState state)
         => new(
             CreateUiSnapshot(state.Ui),
+            state.Settings,
             state.ActivePage.ToString(),
             state.ActiveSessionId,
             state.PendingScrollSectionId,
