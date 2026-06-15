@@ -125,8 +125,115 @@ public sealed class SC16_ContextListCreate : ViewScenario
         listsHeader.ShouldNotBeNull();
         listsHeader!.GetAttribute("data-depth").ShouldBe("0");
 
-        nodes = cut.FindAll("[data-slot='session-context-node']");
+        // The standalone Lists root is expanded by default (depth 0 + loaded),
+        // so its child is already visible without toggling.
+        var treeItem = listsHeader.ParentElement?.ParentElement;
+        nodes = treeItem?.QuerySelectorAll("[data-slot='session-context-node']")
+            ?? cut.FindAll("[data-slot='session-context-node']");
         nodes.SingleOrDefault(n => n.TextContent.Trim() == "Standalone List").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC05: Context plus in app mode stores the user-context id")]
+    [Trait(Spec.UAC, "05")]
+    [Given("a SessionBlock with a user-context root")]
+    [When("the user clicks the Context plus button")]
+    [Then("the lists projection stores the user-context node id")]
+    public async Task UAC05_AppPlusButtonStoresUserContextId()
+    {
+        var (cut, stateService) = RenderWithContext();
+
+        await cut.Find("[data-testid='session-context-create']").ClickAsync(new MouseEventArgs());
+
+        cut.WaitForAssertion(() =>
+        {
+            stateService.State.Ui.ContextProjection.ShouldNotBeNull();
+            stateService.State.Ui.ContextProjection!.Node.Properties
+                ?.GetValueOrDefault("userContextId").ShouldBe("user-context");
+        });
+    }
+
+    [Fact(DisplayName = "UAC06: Context plus in standalone mode does not store a user-context id")]
+    [Trait(Spec.UAC, "06")]
+    [Given("a SessionBlock without a user-context root")]
+    [When("the user clicks the Context plus button")]
+    [Then("the lists projection has no user-context id")]
+    public async Task UAC06_StandalonePlusButtonHasNoUserContextId()
+    {
+        var (cut, stateService) = RenderStandalone();
+
+        await cut.Find("[data-testid='session-context-create']").ClickAsync(new MouseEventArgs());
+
+        cut.WaitForAssertion(() =>
+        {
+            stateService.State.Ui.ContextProjection.ShouldNotBeNull();
+            stateService.State.Ui.ContextProjection!.Node.Properties
+                ?.GetValueOrDefault("userContextId").ShouldBeNull();
+        });
+    }
+
+    [Fact(DisplayName = "UAC07: Standalone plus button creates Lists as a root end-to-end")]
+    [Trait(Spec.UAC, "07")]
+    [Given("a SessionBlock without a user-context root")]
+    [When("the user clicks the Context plus button and submits a list title")]
+    [Then("a Lists root node appears with the new list child")]
+    public async Task UAC07_StandalonePlusButtonCreatesRootEndToEnd()
+    {
+        var (cut, stateService) = RenderStandalone();
+
+        await cut.Find("[data-testid='session-context-create']").ClickAsync(new MouseEventArgs());
+
+        cut.WaitForState(() => cut.FindComponents<SessionCommandBar>().Count > 0);
+        var commandBar = cut.FindComponent<SessionCommandBar>();
+        await commandBar.InvokeAsync(() => commandBar.Instance.OnSubmit.InvokeAsync(
+            new SessionCommandSubmitted(stateService.State.Ui.ContextProjection!.Node, "create", "E2E Standalone List")));
+
+        var nodes = cut.FindAll("[data-slot='session-context-node']");
+        var listsHeader = nodes.SingleOrDefault(n => n.TextContent.Trim() == "Lists");
+        listsHeader.ShouldNotBeNull();
+        listsHeader!.GetAttribute("data-depth").ShouldBe("0");
+
+        var treeItem = listsHeader.ParentElement?.ParentElement;
+        nodes = treeItem?.QuerySelectorAll("[data-slot='session-context-node']")
+            ?? cut.FindAll("[data-slot='session-context-node']");
+        nodes.SingleOrDefault(n => n.TextContent.Trim() == "E2E Standalone List").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC08: Graph service creates the list under the user-context")]
+    [Trait(Spec.UAC, "08")]
+    [Given("a SessionBlock backed by a graph service with a user-context")]
+    [When("the user clicks the Context plus button and submits a list title")]
+    [Then("the graph contains a Lists header under the user-context and the new list under it")]
+    public async Task UAC08_GraphServiceCreatesListUnderUserContext()
+    {
+        var userContextId = Guid.NewGuid();
+        var graphService = new FakeGraphService();
+        graphService.SeedNode(userContextId, "user-context", "My Context");
+
+        var stateService = new SessionStateService(null, graphService);
+        var sessions = new[] { new SessionListEntry("s1", "Workspaces", 0, "session") };
+        stateService.SelectSession(new SessionNodeInput("s1", "session", "Workspaces"), sessions);
+        await stateService.LoadContextNodesAsync(userContextId, "My Context", Xunit.TestContext.Current.CancellationToken);
+
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.StateService, stateService)
+            .Add(x => x.Sessions, sessions)
+            .Add(x => x.ContextNodes, stateService.ContextNodes));
+
+        await cut.Find("[data-testid='session-context-create']").ClickAsync(new MouseEventArgs());
+
+        cut.WaitForState(() => cut.FindComponents<SessionCommandBar>().Count > 0);
+        var commandBar = cut.FindComponent<SessionCommandBar>();
+        await commandBar.InvokeAsync(() => commandBar.Instance.OnSubmit.InvokeAsync(
+            new SessionCommandSubmitted(stateService.State.Ui.ContextProjection!.Node, "create", "Graph List")));
+
+        var listsHeader = graphService.Nodes.FirstOrDefault(n => n.NodeType?.Key == "lists");
+        listsHeader.ShouldNotBeNull();
+        graphService.Edges.Any(e => e.SourceNodeId == userContextId && e.TargetNodeId == listsHeader!.Id).ShouldBeTrue();
+
+        var listNode = graphService.Nodes.FirstOrDefault(n => n.Label == "Graph List");
+        listNode.ShouldNotBeNull();
+        graphService.Edges.Any(e => e.SourceNodeId == listsHeader!.Id && e.TargetNodeId == listNode!.Id).ShouldBeTrue();
     }
 
     private (IRenderedComponent<Components.SessionBlock> Cut, SessionStateService StateService) RenderStandalone()
