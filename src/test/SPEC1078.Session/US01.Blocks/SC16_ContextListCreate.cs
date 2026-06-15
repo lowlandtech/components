@@ -97,6 +97,58 @@ public sealed class SC16_ContextListCreate : ViewScenario
         nodes.SingleOrDefault(n => n.TextContent.Trim() == "Second List").ShouldNotBeNull();
     }
 
+    [Fact(DisplayName = "UAC04: Standalone mode creates Lists as a root node")]
+    [Trait(Spec.UAC, "04")]
+    [Given("a SessionBlock without a user-context root")]
+    [When("the user submits a list title")]
+    [Then("a Lists root node appears with the new list child")]
+    public async Task UAC04_StandaloneModeCreatesListsRoot()
+    {
+        var (cut, stateService) = RenderStandalone();
+        var listsContext = new SessionNodeInput(
+            "lists-context:workspaces",
+            "lists",
+            "Lists",
+            "NodeBlock",
+            new Dictionary<string, object?> { ["userContextId"] = "workspaces" });
+
+        stateService.ProjectContext(listsContext);
+        stateService.SetAgentType("create");
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+
+        var commandBar = cut.FindComponent<SessionCommandBar>();
+        await commandBar.InvokeAsync(() => commandBar.Instance.OnSubmit.InvokeAsync(
+            new SessionCommandSubmitted(listsContext, "create", "Standalone List")));
+
+        var nodes = cut.FindAll("[data-slot='session-context-node']");
+        var listsHeader = nodes.SingleOrDefault(n => n.TextContent.Trim() == "Lists");
+        listsHeader.ShouldNotBeNull();
+        listsHeader!.QuerySelector("span")?.Click();
+
+        nodes = cut.FindAll("[data-slot='session-context-node']");
+        nodes.SingleOrDefault(n => n.TextContent.Trim() == "Standalone List").ShouldNotBeNull();
+    }
+
+    private (IRenderedComponent<Components.SessionBlock> Cut, SessionStateService StateService) RenderStandalone()
+    {
+        var stateService = new SessionStateService();
+        var sessions = new[] { new SessionListEntry("s1", "Workspaces", 0, "session") };
+        stateService.SelectSession(new SessionNodeInput("s1", "session", "Workspaces"), sessions);
+
+        var contextNodes = new[]
+        {
+            new SessionContextNode(new SessionNodeInput("workspaces", "workspaces.header", "Workspaces"), IsLoaded: true)
+        };
+
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.StateService, stateService)
+            .Add(x => x.Sessions, sessions)
+            .Add(x => x.ContextNodes, contextNodes));
+
+        return (cut, stateService);
+    }
+
     private (IRenderedComponent<Components.SessionBlock> Cut, SessionStateService StateService) RenderWithContext()
     {
         var stateService = new SessionStateService();

@@ -797,11 +797,36 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
             return;
         }
 
-        // Local fallback: ensure a Lists header exists under the user-context root
-        // and append the new list node under it.
+        // Local fallback: ensure a Lists header exists and append the new list
+        // node under it. When a user-context root is present the header lives
+        // under it; otherwise it is added as a new root node (standalone/storybook).
         _localContextNodes ??= [.. ContextNodes];
-        _localContextNodes = EnsureLocalListsHeader(_localContextNodes, userContextId ?? command.Node.Id).ToList();
-        var listsHeader = FindLocalListsHeader(_localContextNodes, userContextId ?? command.Node.Id);
+        var targetUserContextId = userContextId ?? command.Node.Id;
+        var hasUserContext = _localContextNodes.Any(n => string.Equals(n.Node.Id, targetUserContextId, StringComparison.Ordinal));
+
+        SessionContextNode? listsHeader;
+        if (hasUserContext)
+        {
+            _localContextNodes = EnsureLocalListsHeader(_localContextNodes, targetUserContextId).ToList();
+            listsHeader = FindLocalListsHeader(_localContextNodes, targetUserContextId);
+        }
+        else
+        {
+            listsHeader = FindLocalRootListsHeader(_localContextNodes);
+            if (listsHeader is null)
+            {
+                listsHeader = new SessionContextNode(
+                    new SessionNodeInput(
+                        Guid.NewGuid().ToString(),
+                        "lists",
+                        "Lists",
+                        "NodeBlock"),
+                    [],
+                    true);
+                _localContextNodes = [.. _localContextNodes, listsHeader];
+            }
+        }
+
         if (listsHeader is not null)
         {
             var listNode = new SessionContextNode(
@@ -888,6 +913,11 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         }
 
         return null;
+    }
+
+    private static SessionContextNode? FindLocalRootListsHeader(IReadOnlyList<SessionContextNode> nodes)
+    {
+        return nodes.FirstOrDefault(n => string.Equals(n.Node.NodeTypeKey, "lists", StringComparison.OrdinalIgnoreCase));
     }
 
     private async Task HandleNodeRenameAsync(SessionNodeInput node)
