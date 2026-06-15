@@ -10,6 +10,7 @@ public partial class SessionContextTreeNodeMenu : TinyComponentBase
     [Parameter, EditorRequired] public SessionNodeInput Node { get; set; } = new("context", "context", "Context");
     [Parameter] public bool CanMoveUp { get; set; }
     [Parameter] public bool CanMoveDown { get; set; }
+    [Parameter] public IReadOnlyList<EdgeTypeInfo> CreateEdges { get; set; } = [];
     [Parameter] public EventCallback CloseRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> NewRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> RenameRequested { get; set; }
@@ -20,10 +21,21 @@ public partial class SessionContextTreeNodeMenu : TinyComponentBase
 
     private Task CloseAsync() => CloseRequested.InvokeAsync();
 
-    private async Task NewAsync()
+    private async Task NewAsync() => await NewAsync(null);
+
+    private async Task NewAsync(EdgeTypeInfo? edge)
     {
         await CloseRequested.InvokeAsync();
-        await NewRequested.InvokeAsync(Node);
+
+        if (edge is null)
+        {
+            await NewRequested.InvokeAsync(Node);
+            return;
+        }
+
+        var properties = new Dictionary<string, object?>(Node.Properties ?? new Dictionary<string, object?>());
+        properties["createEdgeKey"] = edge.EdgeKey;
+        await NewRequested.InvokeAsync(Node with { Properties = properties });
     }
 
     private async Task RenameAsync()

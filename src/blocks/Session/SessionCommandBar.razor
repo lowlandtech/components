@@ -98,7 +98,7 @@
         <div class="flex min-w-0 flex-wrap items-center gap-1" data-testid="session-agent-types">
             @foreach (var agent in AgentTypes)
             {
-                var isActive = string.Equals(agent.Key, ActiveAgentTypeKey, StringComparison.OrdinalIgnoreCase);
+                var isActive = IsAgentActive(agent);
                 <button type="button"
                         data-slot="session-agent-type"
                         data-agent-type="@agent.Key"

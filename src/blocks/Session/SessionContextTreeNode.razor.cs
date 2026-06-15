@@ -5,6 +5,7 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
     [Inject] private IPopoverService PopoverService { get; set; } = default!;
     [Inject] private IStringLocalizer<SessionBlockStrings>? Localizer { get; set; }
     [Inject] private IJSRuntime JS { get; set; } = default!;
+    [Inject] private IServiceProvider Services { get; set; } = default!;
 
     private string L(string key) => Localizer?[key] ?? key;
 
@@ -45,6 +46,11 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
         ? (_isExpanded ? Icons.FolderOpen : Icons.Folder)
         : (Icons.GetByName(Item.Node.NodeTypeKey) ?? string.Empty);
     private IReadOnlyList<SessionContextNode> VisibleChildren => Item.Children ?? [];
+    private IEdgeTypeService? EdgeTypeService => Services.GetService<IEdgeTypeService>();
+    private IReadOnlyList<EdgeTypeInfo> CreateEdges =>
+        EdgeTypeService?.GetOutgoingEdges(Item.Node.NodeTypeKey)
+            .Where(edge => string.Equals(edge.Intent, "create", StringComparison.OrdinalIgnoreCase))
+            .ToList() ?? [];
 
     private bool IsNodePinned(string nodeId) => Pins.Any(pin => pin.Node.Id == nodeId);
 
@@ -303,6 +309,7 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
         builder.AddAttribute(3, nameof(SessionContextTreeNodeMenu.CanMoveDown), Index < SiblingCount - 1);
         builder.AddAttribute(4, nameof(SessionContextTreeNodeMenu.CloseRequested), EventCallback.Factory.Create(this, CloseMenu));
         builder.AddAttribute(5, nameof(SessionContextTreeNodeMenu.NewRequested), OnNodeNew);
+        builder.AddAttribute(10, nameof(SessionContextTreeNodeMenu.CreateEdges), CreateEdges);
         builder.AddAttribute(6, nameof(SessionContextTreeNodeMenu.RenameRequested), OnNodeRename);
         builder.AddAttribute(7, nameof(SessionContextTreeNodeMenu.PinRequested), OnPin);
         builder.AddAttribute(8, nameof(SessionContextTreeNodeMenu.MoveUpRequested), OnNodeMoveUp);

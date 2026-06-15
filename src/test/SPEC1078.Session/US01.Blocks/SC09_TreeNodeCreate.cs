@@ -242,4 +242,95 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
         classList.ShouldContain("focus:opacity-100");
     }
 
+    [Fact(DisplayName = "UAC09: Context menu renders one New option per outgoing create edge")]
+    [Trait(Spec.UAC, "09")]
+    [Given("a SessionContextTreeNodeMenu with two create edges")]
+    [When("the menu is rendered")]
+    [Then("each create edge renders a New <Target> item")]
+    public void UAC09_ContextMenuRendersNewOptionPerCreateEdge()
+    {
+        var workspaceNode = new SessionNodeInput("ws-1", "workspace", "Foundry");
+        var createEdges = new[]
+        {
+            new EdgeTypeInfo("has.table", "create", "Create Table", null, "TableCreator", "workspace", false, "table", null, null),
+            new EdgeTypeInfo("has.workflow", "create", "Create Workflow", null, "WorkflowCreator", "workspace", false, "workflow", null, null)
+        };
+
+        var cut = Ctx.Render<SessionContextTreeNodeMenu>(p => p
+            .Add(x => x.Node, workspaceNode)
+            .Add(x => x.CreateEdges, createEdges));
+
+        var items = cut.FindAll("[data-testid='session-context-node-new-item']").ToList();
+        items.Count.ShouldBe(2);
+        items[0].TextContent.Trim().ShouldContain("Table");
+        items[0].GetAttribute("data-edge-key").ShouldBe("has.table");
+        items[1].TextContent.Trim().ShouldContain("Workflow");
+        items[1].GetAttribute("data-edge-key").ShouldBe("has.workflow");
+    }
+
+    [Fact(DisplayName = "UAC10: Clicking a dynamic New option fires NewRequested with the selected edge key")]
+    [Trait(Spec.UAC, "10")]
+    [Given("a SessionContextTreeNodeMenu with a create edge")]
+    [When("the New <Target> item is clicked")]
+    [Then("NewRequested fires with the node carrying the createEdgeKey property")]
+    public void UAC10_DynamicNewFiresNewRequestedWithEdgeKey()
+    {
+        SessionNodeInput? fired = null;
+        var workspaceNode = new SessionNodeInput("ws-1", "workspace", "Foundry");
+        var createEdges = new[]
+        {
+            new EdgeTypeInfo("has.table", "create", "Create Table", null, "TableCreator", "workspace", false, "table", null, null)
+        };
+
+        var cut = Ctx.Render<SessionContextTreeNodeMenu>(p => p
+            .Add(x => x.Node, workspaceNode)
+            .Add(x => x.CreateEdges, createEdges)
+            .Add(x => x.NewRequested, node => { fired = node; return Task.CompletedTask; }));
+
+        cut.Find("[data-testid='session-context-node-new-item']").Click();
+
+        fired.ShouldNotBeNull();
+        fired.Id.ShouldBe("ws-1");
+        fired.Properties.ShouldNotBeNull();
+        fired.Properties.ShouldContainKey("createEdgeKey");
+        fired.Properties!["createEdgeKey"].ShouldBe("has.table");
+    }
+
+    [Fact(DisplayName = "UAC11: SessionBlock sets create:<edgeKey> agent type when a dynamic New option is chosen")]
+    [Trait(Spec.UAC, "11")]
+    [Given("a SessionBlock with a workspaces.header node")]
+    [When("the New Workspace context-menu item is clicked")]
+    [Then("the active agent type is create:has.workspace")]
+    public void UAC11_SessionBlockSetsCreateEdgeAgentType()
+    {
+        var stateService = new SessionStateService();
+        var sessions = new[] { new SessionListEntry("s1", "Workspaces", 0, "session") };
+        stateService.SelectSession(new SessionNodeInput("s1", "session", "Workspaces"), sessions);
+
+        var headerNode = new SessionNodeInput("ws-header", "workspaces.header", "Workspaces");
+        var contextNodes = new[] { new SessionContextNode(headerNode, IsLoaded: true) };
+
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.StateService, stateService)
+            .Add(x => x.Sessions, sessions)
+            .Add(x => x.ContextNodes, contextNodes));
+
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='ws-header']").Click();
+
+        var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
+        var popover = popoverService.ActivePopovers.Single(reference => reference.State.Open);
+
+        var fragmentCut = Ctx.Render(builder =>
+        {
+            builder.OpenElement(0, "div");
+            builder.AddContent(1, popover.State.Fragment);
+            builder.CloseElement();
+        });
+
+        fragmentCut.Find("[data-testid='session-context-node-new-item']").Click();
+
+        stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("create:has.workspace");
+    }
+
 }

@@ -717,7 +717,16 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     private async Task HandleNodeNewAsync(SessionNodeInput node)
     {
         await PrepareCommandBarAccessAsync(node);
-        SessionState.SetAgentType("create");
+
+        var agentTypeKey = "create";
+        if (node.Properties?.TryGetValue("createEdgeKey", out var edgeKeyValue) == true
+            && edgeKeyValue is string edgeKey
+            && !string.IsNullOrWhiteSpace(edgeKey))
+        {
+            agentTypeKey = $"create:{edgeKey}";
+        }
+
+        SessionState.SetAgentType(agentTypeKey);
 
         await Task.Yield();
 

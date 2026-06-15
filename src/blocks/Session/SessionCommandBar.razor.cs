@@ -135,6 +135,22 @@ public partial class SessionCommandBar : TinyComponentBase, IDisposable
             ? nodeTypeKey[..^".header".Length]
             : nodeTypeKey;
 
+    private bool IsAgentActive(SessionAgentType agent)
+    {
+        if (string.Equals(agent.Key, ActiveAgentTypeKey, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        // The static Create pill stays active when a specific create edge
+        // is selected from the context menu (e.g. "create:has.workspace").
+        if (string.Equals(agent.Key, "create", StringComparison.OrdinalIgnoreCase)
+            && ActiveAgentTypeKey.StartsWith("create:", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     private static string GetAgentClass(SessionAgentType agent, bool isActive)
     {
         var stateClass = isActive

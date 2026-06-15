@@ -87,14 +87,29 @@ public sealed class EdgeTypeService : IEdgeTypeService
         if (string.IsNullOrWhiteSpace(agentTypeKey))
             return null;
 
+        var edges = GetOutgoingEdges(sourceNodeTypeKey);
+
+        // Dynamic create options encode the selected edge as "intent:edgeKey"
+        // (e.g. "create:has.workspace") so a source with multiple create edges
+        // can create the exact target chosen from the context menu.
+        var colonIndex = agentTypeKey.IndexOf(':');
+        if (colonIndex > 0)
+        {
+            var intent = agentTypeKey[..colonIndex];
+            var edgeKey = agentTypeKey[(colonIndex + 1)..];
+            return edges.FirstOrDefault(edge =>
+                !string.IsNullOrWhiteSpace(edge.Intent)
+                && string.Equals(edge.Intent, intent, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(edge.EdgeKey, edgeKey, StringComparison.OrdinalIgnoreCase));
+        }
+
         // The default Create agent is the canonical surface for any create intent.
         if (string.Equals(agentTypeKey, "create", StringComparison.OrdinalIgnoreCase))
-            return FindCreateEdge(sourceNodeTypeKey);
+            return edges.FirstOrDefault(edge => string.Equals(edge.Intent, "create", StringComparison.OrdinalIgnoreCase));
 
-        return GetOutgoingEdges(sourceNodeTypeKey)
-            .FirstOrDefault(edge =>
-                !string.IsNullOrWhiteSpace(edge.Intent)
-                && string.Equals(edge.Intent, agentTypeKey, StringComparison.OrdinalIgnoreCase));
+        return edges.FirstOrDefault(edge =>
+            !string.IsNullOrWhiteSpace(edge.Intent)
+            && string.Equals(edge.Intent, agentTypeKey, StringComparison.OrdinalIgnoreCase));
     }
 
     public IReadOnlyList<EdgeTypeInfo> GetOutgoingEdges(string sourceNodeTypeKey)
