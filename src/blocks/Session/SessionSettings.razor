@@ -25,6 +25,25 @@
         line-height: 1.25rem;
         font-weight: 600;
     }
+
+    [data-slot="session-settings"] .session-settings-schema-grid {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 0;
+    }
+
+    [data-slot="session-settings"] .session-settings-schema-grid .cn-data-grid-table-container {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: auto;
+    }
+
+    [data-slot="session-settings"] .session-settings-schema-grid .cn-data-grid-header {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
 </style>
 
 <section data-slot="session-settings" class="@GetClass()" @attributes="AdditionalAttributes">
@@ -119,9 +138,10 @@
                                 </Button>
                             </div>
 
-                            <div class="workitems-grid-scroll min-h-0 flex-1 overflow-y-auto">
+                            <div class="workitems-grid-scroll min-h-0 flex-1 overflow-hidden">
                                 <DataGrid TItem="SessionNodeTypeDefinition"
                                           data-testid="session-settings-node-types-grid"
+                                          Class="session-settings-schema-grid"
                                           Items="FilteredNodeTypes"
                                           IsLoading="@SettingsState.IsLoading"
                                           AllowPaging="false"
@@ -341,9 +361,10 @@
                                 </Button>
                             </div>
 
-                            <div class="workitems-grid-scroll min-h-0 flex-1 overflow-y-auto">
+                            <div class="workitems-grid-scroll min-h-0 flex-1 overflow-hidden">
                                 <DataGrid TItem="SessionEdgeTypeDefinition"
                                           data-testid="session-settings-edge-types-grid"
+                                          Class="session-settings-schema-grid"
                                           Items="FilteredEdgeTypes"
                                           IsLoading="@SettingsState.IsLoading"
                                           AllowPaging="false"

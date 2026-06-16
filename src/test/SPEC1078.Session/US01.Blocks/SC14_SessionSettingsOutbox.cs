@@ -433,6 +433,34 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
             .ShouldBeTrue();
     }
 
+    [Fact(DisplayName = "UAC19: Schema grid rows scroll under sticky column headers")]
+    [Trait(Spec.UAC, "19")]
+    [Given("a SessionSettings component with schema DataGrids")]
+    [When("the NodeTypes and EdgeTypes grids are rendered")]
+    [Then("the grid body owns scrolling while column headers stay sticky")]
+    public void UAC19_SchemaGridRowsScrollUnderStickyHeaders()
+    {
+        var cut = Ctx.Render<SessionSettings>();
+
+        var styles = cut.Find("style").TextContent;
+        styles.ShouldContain(".session-settings-schema-grid .cn-data-grid-table-container");
+        styles.ShouldContain("overflow: auto");
+        styles.ShouldContain(".session-settings-schema-grid .cn-data-grid-header");
+        styles.ShouldContain("position: sticky");
+
+        cut.Find("[data-testid='session-settings-node-types-grid']")
+            .ClassList.ShouldContain("session-settings-schema-grid");
+        cut.Find("[data-testid='session-settings-node-types-list-slot'] .workitems-grid-scroll")
+            .ClassList.ShouldContain("overflow-hidden");
+
+        cut.Find("[data-testid='session-settings-edge-types-tab']").Click();
+
+        cut.Find("[data-testid='session-settings-edge-types-grid']")
+            .ClassList.ShouldContain("session-settings-schema-grid");
+        cut.Find("[data-testid='session-settings-edge-types-list-slot'] .workitems-grid-scroll")
+            .ClassList.ShouldContain("overflow-hidden");
+    }
+
     private void OpenRenameMenu(IRenderedComponent<SessionBlock> cut)
     {
         cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='setup-ci']").Click();
