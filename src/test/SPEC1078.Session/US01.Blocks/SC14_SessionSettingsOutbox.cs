@@ -504,6 +504,10 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
 
         cut.Find("[data-slot='session-settings-body']")
             .ClassList.ShouldContain("flex");
+        cut.Find("[data-slot='session-settings-body']")
+            .ClassList.ShouldContain("gap-[10px]");
+        cut.Find("[data-slot='session-settings-body']")
+            .ClassList.ShouldContain("p-[10px]");
     }
 
     private void OpenRenameMenu(IRenderedComponent<SessionBlock> cut)

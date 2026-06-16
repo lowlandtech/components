@@ -256,12 +256,19 @@ public class SC01_NarrowViewportStackingContract
         razor.ShouldContain("Action=\"close\"",
             customMessage:
                 "The visible sidebar header must use the shared close variant integrated into the title row.");
+        razor.ShouldContain("BorderSide=\"right\"",
+            customMessage:
+                "The sidebar collapse button sits at the leading edge of the title row and must divide itself from the title with a right border.");
         razor.ShouldContain("Class=\"explorer-sidebar-toggle absolute top-0 left-0 z-50\"",
             customMessage:
                 "The collapsed reveal button may position the shared component, but should not own its visual chrome.");
         razor.ShouldContain("Class=\"explorer-sidebar-collapse-btn shrink-0\"",
             customMessage:
                 "The collapse button should stay in the existing sidebar header/title row.");
+        razor.IndexOf("TestId=\"explorer-sidebar-collapse\"", StringComparison.Ordinal)
+            .ShouldBeLessThan(
+                razor.IndexOf("explorer-sidebar-header-slot", StringComparison.Ordinal),
+                "The collapse button must be rendered before the title slot, not after the NodeTypes/EdgeTypes count.");
         razor.ShouldNotContain("private const string SidebarOpenButtonClass",
             customMessage:
                 "ExplorerLayout must not re-declare the shared session header button class.");

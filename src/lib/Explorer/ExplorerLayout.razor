@@ -34,6 +34,17 @@
                  style="@(ViewMode == ExplorerViewMode.LeftOnly ? "" : $"width: var(--panel-width); max-width: calc(100% - 336px);")">
                 @* ── Header with collapse button ── *@
                 <div class="explorer-sidebar-header flex h-9 items-center border-b border-border pr-1.5">
+                    @if (ViewMode != ExplorerViewMode.LeftOnly)
+                    {
+                        <PaneToggleButton Side="left"
+                                          Action="close"
+                                          BorderSide="right"
+                                          TestId="explorer-sidebar-collapse"
+                                          Title="Collapse sidebar"
+                                          AriaLabel="Collapse sidebar"
+                                          Class="explorer-sidebar-collapse-btn shrink-0"
+                                          OnClick="ToggleCollapse" />
+                    }
                     <div class="explorer-sidebar-header-slot flex-1 min-w-0">
                         @if (ListHeader is not null)
                         {
@@ -46,17 +57,6 @@
                             </div>
                         }
                     </div>
-                    @if (ViewMode != ExplorerViewMode.LeftOnly)
-                    {
-                        <PaneToggleButton Side="left"
-                                          Action="close"
-                                          BorderSide="left"
-                                          TestId="explorer-sidebar-collapse"
-                                          Title="Collapse sidebar"
-                                          AriaLabel="Collapse sidebar"
-                                          Class="explorer-sidebar-collapse-btn shrink-0"
-                                          OnClick="ToggleCollapse" />
-                    }
                 </div>
 
                 @* ── Scrollable List ── *@
