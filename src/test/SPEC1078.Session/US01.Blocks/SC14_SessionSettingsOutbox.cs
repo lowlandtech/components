@@ -378,28 +378,30 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
             .TextContent.ShouldContain("Rows");
     }
 
-    [Fact(DisplayName = "UAC16: Closing a selected NodeType hides the detail panel")]
+    [Fact(DisplayName = "UAC16: Closing a selected NodeType removes the detail panel")]
     [Trait(Spec.UAC, "16")]
     [Given("a SessionSettings component with a selected NodeType detail panel")]
     [When("the user clicks the detail close button")]
-    [Then("the detail panel returns to its empty state")]
-    public void UAC16_CloseNodeTypePanelReturnsToEmptyState()
+    [Then("the detail panel is removed and the NodeTypes grid uses the full width")]
+    public void UAC16_CloseNodeTypePanelReturnsToFullWidthGrid()
     {
         var cut = Ctx.Render<SessionSettings>();
 
         cut.Find("[data-node-type-key='action']").Click();
         cut.Find("[data-testid='session-settings-close-node-type-panel']").Click();
 
-        cut.Find("[data-testid='session-settings-node-types-detail-slot']")
-            .TextContent.ShouldContain("Select a NodeType");
+        cut.FindAll("[data-testid='session-settings-node-types-detail-slot']").ShouldBeEmpty();
+        cut.Find("[data-page='session-node-types']")
+            .GetAttribute("data-view-mode")
+            .ShouldBe("leftonly");
     }
 
-    [Fact(DisplayName = "UAC17: Closing a selected EdgeType hides the detail panel")]
+    [Fact(DisplayName = "UAC17: Closing a selected EdgeType removes the detail panel")]
     [Trait(Spec.UAC, "17")]
     [Given("a SessionSettings component with a selected EdgeType detail panel")]
     [When("the user clicks the detail close button")]
-    [Then("the detail panel returns to its empty state")]
-    public void UAC17_CloseEdgeTypePanelReturnsToEmptyState()
+    [Then("the detail panel is removed and the EdgeTypes grid uses the full width")]
+    public void UAC17_CloseEdgeTypePanelReturnsToFullWidthGrid()
     {
         var cut = Ctx.Render<SessionSettings>();
 
@@ -407,8 +409,10 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
         cut.Find("[data-testid='session-settings-edge-type-row']").Click();
         cut.Find("[data-testid='session-settings-close-edge-type-panel']").Click();
 
-        cut.Find("[data-testid='session-settings-edge-types-detail-slot']")
-            .TextContent.ShouldContain("Select an EdgeType");
+        cut.FindAll("[data-testid='session-settings-edge-types-detail-slot']").ShouldBeEmpty();
+        cut.Find("[data-page='session-edge-types']")
+            .GetAttribute("data-view-mode")
+            .ShouldBe("leftonly");
     }
 
     [Fact(DisplayName = "UAC18: Descriptor-backed EdgeTypes are listed as static and read-only")]

@@ -69,6 +69,18 @@ public partial class SessionSettings : TinyComponentBase
 
     private bool IsEdgeTypeFormOpen => _edgeTypeView is "create" or "edit";
 
+    private bool HasNodeTypeDetailPanel => IsNodeTypeFormOpen || SelectedNodeType is not null;
+
+    private bool HasEdgeTypeDetailPanel => IsEdgeTypeFormOpen || SelectedEdgeType is not null;
+
+    private ExplorerViewMode NodeTypeExplorerViewMode => HasNodeTypeDetailPanel
+        ? ExplorerViewMode.SideBySide
+        : ExplorerViewMode.LeftOnly;
+
+    private ExplorerViewMode EdgeTypeExplorerViewMode => HasEdgeTypeDetailPanel
+        ? ExplorerViewMode.SideBySide
+        : ExplorerViewMode.LeftOnly;
+
     private string GetNodeTypePanelTitle() => _nodeTypeView switch
     {
         "create" => "Create NodeType",
