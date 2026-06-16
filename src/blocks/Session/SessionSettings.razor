@@ -70,7 +70,7 @@
                 </ListHeader>
 
                 <ListContent>
-                    <div class="workitems-list-pane" data-testid="session-settings-node-types-list-slot">
+                    <div class="workitems-list-pane flex h-full min-h-0 flex-col overflow-hidden" data-testid="session-settings-node-types-list-slot">
                         <div class="workitems-list-toolbar flex flex-wrap items-center gap-3">
                             <div class="workitems-search-wrapper min-w-[220px] flex-1">
                                 <Input Type="search"
@@ -91,7 +91,7 @@
                             </Button>
                         </div>
 
-                        <div class="workitems-grid-scroll">
+                        <div class="workitems-grid-scroll min-h-0 flex-1 overflow-y-auto">
                             <DataGrid TItem="SessionNodeTypeDefinition"
                                       data-testid="session-settings-node-types-grid"
                                       Items="FilteredNodeTypes"
@@ -277,7 +277,7 @@
                 </ListHeader>
 
                 <ListContent>
-                    <div class="workitems-list-pane" data-testid="session-settings-edge-types-list-slot">
+                    <div class="workitems-list-pane flex h-full min-h-0 flex-col overflow-hidden" data-testid="session-settings-edge-types-list-slot">
                         <div class="workitems-list-toolbar flex flex-wrap items-center gap-3">
                             <div class="workitems-search-wrapper min-w-[220px] flex-1">
                                 <Input Type="search"
@@ -298,7 +298,7 @@
                             </Button>
                         </div>
 
-                        <div class="workitems-grid-scroll">
+                        <div class="workitems-grid-scroll min-h-0 flex-1 overflow-y-auto">
                             <DataGrid TItem="SessionEdgeTypeDefinition"
                                       data-testid="session-settings-edge-types-grid"
                                       Items="FilteredEdgeTypes"
