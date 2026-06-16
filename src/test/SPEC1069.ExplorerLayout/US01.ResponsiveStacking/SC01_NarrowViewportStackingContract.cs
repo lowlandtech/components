@@ -279,4 +279,26 @@ public class SC01_NarrowViewportStackingContract
             customMessage:
                 "The reveal button should align flush with the header grid, not float inset from it.");
     }
+
+    [Fact(DisplayName = "UAC13: ExplorerLayout hydrates panel width before collapsed reveal")]
+    [Trait(Spec.UAC, "13")]
+    [Given("localStorage contains the last resized sidebar width under the splitter storage key")]
+    [When("ExplorerLayout initializes its collapsed sidebar state")]
+    [Then("the layout-level panel width is restored from the same key before the reveal button is shown")]
+    public void UAC13_ExplorerLayoutHydratesPanelWidthBeforeCollapsedReveal()
+    {
+        var razor = LoadExplorerLayoutRazor();
+
+        razor.ShouldContain("localStorage.getItem\", SplitterStorageKey",
+            customMessage:
+                "ExplorerLayout itself must hydrate `_panelWidth` from the splitter storage key. " +
+                "Relying only on PanelSplitter is too late for collapsed/reveal rendering.");
+        razor.ShouldContain("_panelWidth = Math.Clamp(width, MinWidth, MaxWidth)",
+            customMessage:
+                "The restored sidebar width must be clamped through the same min/max contract used by the splitter.");
+        razor.IndexOf("localStorage.getItem\", SplitterStorageKey", StringComparison.Ordinal)
+            .ShouldBeLessThan(
+                razor.IndexOf("localStorage.getItem('explorer-collapsed-", StringComparison.Ordinal),
+                "ExplorerLayout must restore the last expanded width before applying the collapsed state.");
+    }
 }

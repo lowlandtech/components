@@ -181,6 +181,12 @@
     {
         try
         {
+            var savedWidth = await JsRuntime.InvokeAsync<string?>("localStorage.getItem", SplitterStorageKey);
+            if (int.TryParse(savedWidth, out var width))
+            {
+                _panelWidth = Math.Clamp(width, MinWidth, MaxWidth);
+            }
+
             var isCollapsed = await JsRuntime.InvokeAsync<bool>("eval", 
                 $"localStorage.getItem('explorer-collapsed-{SplitterStorageKey}') === 'true'");
             
