@@ -260,6 +260,7 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
             .Add(x => x.Node, workspaceNode)
             .Add(x => x.CreateEdges, createEdges));
 
+        cut.Find("[data-testid='session-context-node-new-submenu']").Click();
         var items = cut.FindAll("[data-testid='session-context-node-new-item']").ToList();
         items.Count.ShouldBe(2);
         items[0].TextContent.Trim().ShouldContain("Table");
@@ -287,6 +288,7 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
             .Add(x => x.CreateEdges, createEdges)
             .Add(x => x.NewRequested, node => { fired = node; return Task.CompletedTask; }));
 
+        cut.Find("[data-testid='session-context-node-new-submenu']").Click();
         cut.Find("[data-testid='session-context-node-new-item']").Click();
 
         fired.ShouldNotBeNull();
@@ -328,6 +330,7 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
             builder.CloseElement();
         });
 
+        fragmentCut.Find("[data-testid='session-context-node-new-submenu']").Click();
         fragmentCut.Find("[data-testid='session-context-node-new-item']").Click();
 
         stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("create:has.workspace");
@@ -355,6 +358,7 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
             builder.CloseElement();
         });
 
+        fragmentCut.Find("[data-testid='session-context-node-new-submenu']").Click();
         var items = fragmentCut.FindAll("[data-testid='session-context-node-new-item']").Select(e => e.TextContent.Trim()).ToList();
         items.ShouldContain("Branch");
         items.ShouldContain("Feature");

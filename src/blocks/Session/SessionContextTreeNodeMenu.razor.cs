@@ -1,6 +1,6 @@
 namespace LowlandTech.Components;
 
-public partial class SessionContextTreeNodeMenu : TinyComponentBase
+public partial class SessionContextTreeNodeMenu : TinyComponentBase, IDisposable
 {
     [Inject] private IStringLocalizer<SessionBlockStrings>? Localizer { get; set; }
 
@@ -21,12 +21,38 @@ public partial class SessionContextTreeNodeMenu : TinyComponentBase
     [Parameter] public EventCallback<SessionNodeInput> MoveDownRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> DeleteRequested { get; set; }
 
-    private bool _isNewSubmenuOpen = true;
+    private bool _isNewSubmenuOpen;
+    private System.Threading.Timer? _closeTimer;
+
+    public void Dispose()
+    {
+        _closeTimer?.Dispose();
+        _closeTimer = null;
+    }
 
     private Task CloseAsync() => CloseRequested.InvokeAsync();
 
+    private void OpenNewSubmenu()
+    {
+        _closeTimer?.Dispose();
+        _closeTimer = null;
+        _isNewSubmenuOpen = true;
+    }
+
+    private void ScheduleCloseNewSubmenu()
+    {
+        _closeTimer?.Dispose();
+        _closeTimer = new System.Threading.Timer(_ =>
+        {
+            _isNewSubmenuOpen = false;
+            InvokeAsync(StateHasChanged);
+        }, null, 150, System.Threading.Timeout.Infinite);
+    }
+
     private Task ToggleNewSubmenuAsync()
     {
+        _closeTimer?.Dispose();
+        _closeTimer = null;
         _isNewSubmenuOpen = !_isNewSubmenuOpen;
         return Task.CompletedTask;
     }
