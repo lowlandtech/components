@@ -247,9 +247,15 @@ public class SC01_NarrowViewportStackingContract
         razor.ShouldContain("<PaneToggleButton Side=\"left\"",
             customMessage:
                 "ExplorerLayout should share the same pane toggle component as SessionContent instead of declaring a local button.");
-        razor.ShouldContain("@if (ShowLeftPane && _collapsed)",
+        razor.ShouldContain("@if (IsLeftPaneCollapsed)",
             customMessage:
-                "The show-sidebar button must only render while the left sidebar is collapsed; NodeTypes and EdgeTypes should not show it when the sidebar is open.");
+                "The show-sidebar button must only render while the side-by-side left pane is structurally collapsed; NodeTypes and EdgeTypes should not show it when the sidebar is open.");
+        razor.ShouldContain("private bool IsLeftPaneCollapsed => ViewMode == ExplorerViewMode.SideBySide && _collapsed",
+            customMessage:
+                "Collapsed state must not leak into LeftOnly or stacked modes where the left pane is still visible.");
+        razor.ShouldContain("private bool ShowLeftPane  => !IsLeftPaneCollapsed",
+            customMessage:
+                "When the reveal button is shown, the left pane itself must be absent instead of visible behind the button.");
         razor.ShouldContain("Action=\"open\"",
             customMessage:
                 "The collapsed ExplorerLayout toggle must use the shared open variant.");

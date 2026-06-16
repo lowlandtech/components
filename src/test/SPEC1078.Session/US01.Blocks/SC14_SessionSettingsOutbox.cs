@@ -561,6 +561,35 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
             .ClassList.ShouldNotContain("p-[10px]");
     }
 
+    [Fact(DisplayName = "UAC22: Schema splitters allow the list pane to resize through a useful range")]
+    [Trait(Spec.UAC, "22")]
+    [Given("the SessionSettings NodeTypes and EdgeTypes pages use side-by-side ExplorerLayout panels")]
+    [When("the settings markup is inspected")]
+    [Then("both schema pages use a smaller minimum width and a larger maximum width for the splitter")]
+    public void UAC22_SchemaSplittersUseUsefulResizeRange()
+    {
+        var cut = Ctx.Render<SessionSettings>();
+
+        var nodeTypesLayout = cut.Find("[data-page='session-node-types']");
+        nodeTypesLayout.GetAttribute("data-storage-key").ShouldBe("session-settings-node-types-panel-width");
+        nodeTypesLayout.GetAttribute("style").ShouldNotBeNull().ShouldContain("--panel-width: 760px");
+
+        var source = File.ReadAllText(Path.Combine(
+            AppContext.BaseDirectory,
+            "..",
+            "..",
+            "..",
+            "..",
+            "blocks",
+            "Session",
+            "SessionSettings.razor"));
+
+        source.ShouldContain("MinWidth=\"360\"");
+        source.ShouldContain("MaxWidth=\"1280\"");
+        source.Split("MinWidth=\"360\"").Length.ShouldBeGreaterThanOrEqualTo(3);
+        source.Split("MaxWidth=\"1280\"").Length.ShouldBeGreaterThanOrEqualTo(3);
+    }
+
     private void OpenRenameMenu(IRenderedComponent<SessionBlock> cut)
     {
         cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='setup-ci']").Click();
