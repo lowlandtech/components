@@ -52,6 +52,7 @@
   <ItemGroup>
     <None Remove="LowlandTech.Components.csproj.lscache" />
     <None Remove="LowlandTech.Components.ncrunchproject" />
+    <None Remove="LowlandTech.Components.v3.ncrunchproject" />
   </ItemGroup>
 
   <Target Name="BuildTailwindCSS" BeforeTargets="BeforeBuild" Condition="'$(SkipTailwindBuild)' != 'true'">
