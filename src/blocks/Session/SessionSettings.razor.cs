@@ -69,6 +69,20 @@ public partial class SessionSettings : TinyComponentBase
 
     private bool IsEdgeTypeFormOpen => _edgeTypeView is "create" or "edit";
 
+    private string GetNodeTypePanelTitle() => _nodeTypeView switch
+    {
+        "create" => "Create NodeType",
+        "edit" => "Edit NodeType",
+        _ => SelectedNodeType?.Label ?? "NodeType",
+    };
+
+    private string GetEdgeTypePanelTitle() => _edgeTypeView switch
+    {
+        "create" => "Create EdgeType",
+        "edit" => "Edit EdgeType",
+        _ => SelectedEdgeType?.Label ?? "EdgeType",
+    };
+
     protected override async Task OnInitializedAsync()
     {
         LoadGraphSchema();

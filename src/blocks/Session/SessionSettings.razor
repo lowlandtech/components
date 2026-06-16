@@ -54,249 +54,414 @@
         }
         else if (_section == SettingsSection.NodeTypes)
         {
-            <div data-slot="session-settings-node-types" class="workitem-block mx-auto flex max-w-5xl flex-col gap-3" data-view="@_nodeTypeView">
-                <div class="workitem-block-toolbar flex items-center justify-between gap-2">
-                    <div class="workitem-block-toolbar-inner flex flex-1 items-center gap-2">
-                        <Input Type="search"
-                               Placeholder="Search node types..."
-                               data-testid="session-settings-node-type-search"
-                               Value="@_nodeTypeFilter"
-                               ValueChanged="OnNodeTypeFilterChanged" />
+            <ExplorerLayout SplitterStorageKey="session-settings-node-types-panel-width"
+                            DefaultWidth="760"
+                            MinWidth="520"
+                            MaxWidth="960"
+                            HeightClass="h-full"
+                            data-page="session-node-types"
+                            data-state-status="@(SettingsState.IsLoading ? "loading" : "ready")"
+                            data-view="@_nodeTypeView">
+                <ListHeader>
+                    <div class="workitems-list-header flex h-9 w-full items-center justify-between px-3">
+                        <span class="workitems-list-header-title text-xs font-semibold">NodeTypes</span>
+                        <span class="workitems-list-header-count text-[10px] text-muted-foreground">@FilteredNodeTypes.Count total</span>
                     </div>
-                    <Button Variant="@ButtonVariant.Default"
-                            Size="@ButtonSize.IconSm"
-                            data-testid="session-settings-create-node-type"
-                            disabled="@SettingsState.IsBusy"
-                            OnClick="BeginCreateNodeType"
-                            title="Create NodeType"
-                            aria-label="Create NodeType">+</Button>
-                </div>
+                </ListHeader>
 
-                @if (FilteredNodeTypes.Count == 0)
-                {
-                    <div class="workitem-block-empty rounded-md border border-dashed border-border px-4 py-6 text-center text-xs text-muted-foreground">
-                        No NodeTypes match this search.
+                <ListContent>
+                    <div class="workitems-list-pane" data-testid="session-settings-node-types-list-slot">
+                        <div class="workitems-list-toolbar flex flex-wrap items-center gap-3">
+                            <div class="workitems-search-wrapper min-w-[220px] flex-1">
+                                <Input Type="search"
+                                       Placeholder="Search node types..."
+                                       data-testid="session-settings-node-type-search"
+                                       Value="@_nodeTypeFilter"
+                                       ValueChanged="OnNodeTypeFilterChanged" />
+                            </div>
+                            <Button Variant="@ButtonVariant.Default"
+                                    Size="@ButtonSize.IconSm"
+                                    class="workitem-quick-add"
+                                    data-testid="session-settings-create-node-type"
+                                    disabled="@SettingsState.IsBusy"
+                                    OnClick="BeginCreateNodeType"
+                                    title="Create NodeType"
+                                    aria-label="Create NodeType">
+                                <span aria-hidden="true">+</span>
+                            </Button>
+                        </div>
+
+                        <div class="workitems-grid-scroll">
+                            <DataGrid TItem="SessionNodeTypeDefinition"
+                                      data-testid="session-settings-node-types-grid"
+                                      Items="FilteredNodeTypes"
+                                      IsLoading="@SettingsState.IsLoading"
+                                      AllowPaging="false"
+                                      SelectionMode="DataGridSelectionMode.Single"
+                                      SelectedItem="SelectedNodeType"
+                                      ItemKey="nodeType => nodeType.Id"
+                                      SelectedItemChanged="nodeType => { if (nodeType is not null) SelectNodeType(nodeType); return Task.CompletedTask; }">
+                                <EmptyTemplate>
+                                    <span class="workitems-grid-empty-filtered">No NodeTypes match this search.</span>
+                                </EmptyTemplate>
+                                <Columns>
+                                    <DataGridColumn TItem="SessionNodeTypeDefinition" Property="Label" Title="Label" Class="workitems-title-cell">
+                                        <Template Context="nodeType">
+                                            <div data-testid="session-settings-node-type-row" data-node-type-key="@nodeType.Key" class="min-w-0">
+                                                <span class="block truncate font-medium">@nodeType.Label</span>
+                                                <code class="block truncate font-mono text-[10px] text-muted-foreground">@nodeType.Key</code>
+                                                <span class="sr-only">@(nodeType.IsStatic ? "Static" : "Dynamic")</span>
+                                                @if (nodeType.IsStatic)
+                                                {
+                                                    <button type="button"
+                                                            class="sr-only"
+                                                            data-testid="session-settings-edit-node-type"
+                                                            disabled>
+                                                        Edit
+                                                    </button>
+                                                }
+                                            </div>
+                                        </Template>
+                                    </DataGridColumn>
+                                    <DataGridColumn TItem="SessionNodeTypeDefinition" Property="BlockComponent" Title="Block">
+                                        <Template Context="nodeType">@(nodeType.BlockComponent ?? "none")</Template>
+                                    </DataGridColumn>
+                                    <DataGridColumn TItem="SessionNodeTypeDefinition" Property="Icon" Title="Icon">
+                                        <Template Context="nodeType">@(nodeType.Icon ?? "none")</Template>
+                                    </DataGridColumn>
+                                    <DataGridColumn TItem="SessionNodeTypeDefinition" Property="IsStatic" Title="Status">
+                                        <Template Context="nodeType">@(nodeType.IsStatic ? "Static" : "Dynamic")</Template>
+                                    </DataGridColumn>
+                                    <DataGridColumn TItem="SessionNodeTypeDefinition" Title="Actions" Sortable="false" Filterable="false" TextAlign="DataGridTextAlign.End" Class="workitems-actions-cell">
+                                        <Template Context="nodeType">
+                                            <div class="workitems-actions flex items-center justify-end gap-0.5">
+                                                <button type="button"
+                                                        class="workitem-action-view btn btn-ghost btn-icon-sm"
+                                                        @onclick="() => SelectNodeType(nodeType)"
+                                                        @onclick:stopPropagation="true"
+                                                        title="View">
+                                                    <Icon Name="eye" Size="16" />
+                                                </button>
+                                                <button type="button"
+                                                        class="workitem-action-edit btn btn-ghost btn-icon-sm"
+                                                        data-testid="session-settings-edit-node-type"
+                                                        disabled="@nodeType.IsStatic"
+                                                        @onclick="() => BeginEditNodeType(nodeType)"
+                                                        @onclick:stopPropagation="true"
+                                                        title="Edit">
+                                                    <Icon Name="pencil" Size="16" />
+                                                </button>
+                                            </div>
+                                        </Template>
+                                    </DataGridColumn>
+                                </Columns>
+                            </DataGrid>
+                        </div>
                     </div>
-                }
-                else
-                {
-                    <div class="workitem-block-list flex flex-col gap-1">
-                        @foreach (var nodeType in FilteredNodeTypes)
+                </ListContent>
+
+                <DetailContent>
+                    <div class="workitems-detail-pane flex h-full flex-col" data-testid="session-settings-node-types-detail-slot">
+                        @if (SelectedNodeType is null && !IsNodeTypeFormOpen)
                         {
-                            <div data-testid="session-settings-node-type-row"
-                                 data-node-type-key="@nodeType.Key"
-                                 class="workitem-block-list-item flex items-center gap-2 rounded border border-border bg-card px-2 py-1.5 text-sm hover:bg-muted/50 @(string.Equals(_selectedNodeTypeId, nodeType.Id, StringComparison.Ordinal) ? "ring-1 ring-primary" : "")">
-                                <button type="button"
-                                        class="min-w-0 flex flex-1 items-center justify-between gap-2 text-left"
-                                        @onclick="() => SelectNodeType(nodeType)">
-                                    <span class="min-w-0">
-                                        <span class="block truncate font-medium">@nodeType.Label</span>
-                                        <code class="block truncate font-mono text-[10px] text-muted-foreground">@nodeType.Key</code>
-                                    </span>
-                                    <span class="shrink-0 text-[10px] uppercase tracking-wide text-muted-foreground">
-                                        @(nodeType.IsStatic ? "Static" : "Dynamic")
-                                    </span>
+                            <div class="workitems-detail-empty flex h-full items-center justify-center text-sm text-muted-foreground">
+                                Select a NodeType to inspect its descriptor.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="workitems-detail-header flex h-9 items-center justify-between gap-4 border-b border-border px-3" data-testid="session-settings-node-type-detail-header">
+                                <div class="workitems-detail-title-wrapper min-w-0">
+                                    <h2 class="workitems-detail-title">@GetNodeTypePanelTitle()</h2>
+                                </div>
+                                <button type="button" class="btn btn-ghost btn-icon-sm" @onclick="CancelNodeTypeEdit" title="Close">
+                                    <Icon Name="x" Size="16" />
                                 </button>
-                                <Button Variant="@ButtonVariant.Outline"
-                                        Size="@ButtonSize.Sm"
-                                        data-testid="session-settings-edit-node-type"
-                                        disabled="@nodeType.IsStatic"
-                                        OnClick="() => BeginEditNodeType(nodeType)">Edit</Button>
+                            </div>
+
+                            <div class="workitems-detail-content flex-1 overflow-y-auto">
+                                @if (IsNodeTypeFormOpen)
+                                {
+                                    <div data-testid="session-settings-node-type-form" class="workitem-form-panel flex flex-col gap-4 p-4">
+                                        <div class="space-y-1">
+                                            <Label>Key</Label>
+                                            <Input Type="text" data-testid="session-settings-node-type-key-input" Value="@_nodeTypeForm.Key" ValueChanged="v => _nodeTypeForm = _nodeTypeForm with { Key = v ?? string.Empty }" />
+                                        </div>
+                                        <div class="space-y-1">
+                                            <Label>Label</Label>
+                                            <Input Type="text" data-testid="session-settings-node-type-label-input" Value="@_nodeTypeForm.Label" ValueChanged="v => _nodeTypeForm = _nodeTypeForm with { Label = v ?? string.Empty }" />
+                                        </div>
+                                        <div class="space-y-1">
+                                            <Label>Icon</Label>
+                                            <Input Type="text" data-testid="session-settings-node-type-icon-input" Value="@_nodeTypeForm.Icon" ValueChanged="v => _nodeTypeForm = _nodeTypeForm with { Icon = v ?? string.Empty }" />
+                                        </div>
+                                        <div class="space-y-1">
+                                            <Label>Block</Label>
+                                            <Input Type="text" data-testid="session-settings-node-type-block-input" Value="@_nodeTypeForm.BlockComponent" ValueChanged="v => _nodeTypeForm = _nodeTypeForm with { BlockComponent = v ?? string.Empty }" />
+                                        </div>
+                                        <label class="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                                            <input type="checkbox" checked="@_nodeTypeForm.IsHeader" @onchange="e => _nodeTypeForm = _nodeTypeForm with { IsHeader = e.Value is true }" />
+                                            Header
+                                        </label>
+                                        <label class="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                                            <input type="checkbox" checked="@_nodeTypeForm.IsLeaf" @onchange="e => _nodeTypeForm = _nodeTypeForm with { IsLeaf = e.Value is true }" />
+                                            Leaf
+                                        </label>
+                                    </div>
+                                }
+                                else if (SelectedNodeType is not null)
+                                {
+                                    var selected = SelectedNodeType!;
+                                    <div class="workitem-view-detail p-4">
+                                        <dl class="grid gap-4">
+                                            <div>
+                                                <dt class="text-sm text-muted-foreground">Label</dt>
+                                                <dd class="font-medium">@selected.Label</dd>
+                                            </div>
+                                            <div>
+                                                <dt class="text-sm text-muted-foreground">Key</dt>
+                                                <dd><code class="font-mono text-xs">@selected.Key</code></dd>
+                                            </div>
+                                            <div>
+                                                <dt class="text-sm text-muted-foreground">Block</dt>
+                                                <dd>@(selected.BlockComponent ?? "none")</dd>
+                                            </div>
+                                            <div>
+                                                <dt class="text-sm text-muted-foreground">Icon</dt>
+                                                <dd>@(selected.Icon ?? "none")</dd>
+                                            </div>
+                                            <div>
+                                                <dt class="text-sm text-muted-foreground">Status</dt>
+                                                <dd>@(selected.IsStatic ? "Static descriptor" : "Dynamic")</dd>
+                                            </div>
+                                        </dl>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="workitems-detail-footer mt-auto flex shrink-0 items-center justify-end gap-2 border-t border-border px-3 py-2 text-xs" data-testid="session-settings-node-type-detail-footer">
+                                @if (IsNodeTypeFormOpen)
+                                {
+                                    <Button Variant="@ButtonVariant.Secondary" Size="@ButtonSize.Sm" OnClick="CancelNodeTypeEdit">Cancel</Button>
+                                    <Button Variant="@ButtonVariant.Default" Size="@ButtonSize.Sm" data-testid="session-settings-save-node-type" OnClick="SaveNodeType">Save</Button>
+                                }
+                                else if (SelectedNodeType is not null)
+                                {
+                                    <Button Variant="@ButtonVariant.Default"
+                                            Size="@ButtonSize.Sm"
+                                            data-testid="session-settings-edit-selected-node-type"
+                                            disabled="@SelectedNodeType.IsStatic"
+                                            OnClick="() => BeginEditNodeType(SelectedNodeType)">Edit</Button>
+                                }
                             </div>
                         }
                     </div>
-                }
-
-                @if (SelectedNodeType is not null && !IsNodeTypeFormOpen)
-                {
-                    var selected = SelectedNodeType!;
-                    <div class="workitem-block-detail flex flex-col gap-3 rounded-md border border-border p-3">
-                        <div class="workitem-block-detail-header flex items-center justify-between gap-2">
-                            <h3 class="text-sm font-semibold">@selected.Label</h3>
-                            <span class="rounded-md border border-border px-2 py-1 text-[10px] uppercase tracking-wide text-muted-foreground">
-                                @(selected.IsStatic ? "Static" : "Dynamic")
-                            </span>
-                        </div>
-                        <div class="workitem-block-view flex flex-col gap-2 text-xs">
-                            <div class="flex justify-between gap-3"><span class="text-muted-foreground">Key</span><code class="font-mono">@selected.Key</code></div>
-                            <div class="flex justify-between gap-3"><span class="text-muted-foreground">Block</span><span>@(selected.BlockComponent ?? "none")</span></div>
-                            <div class="flex justify-between gap-3"><span class="text-muted-foreground">Icon</span><span>@(selected.Icon ?? "none")</span></div>
-                            <div class="flex justify-between gap-3"><span class="text-muted-foreground">Header</span><span>@selected.IsHeader</span></div>
-                            <div class="flex justify-between gap-3"><span class="text-muted-foreground">Leaf</span><span>@selected.IsLeaf</span></div>
-                        </div>
-                        <div class="workitem-block-view-actions flex items-center justify-end gap-2">
-                            <Button Variant="@ButtonVariant.Default"
-                                    Size="@ButtonSize.Sm"
-                                    data-testid="session-settings-edit-selected-node-type"
-                                    disabled="@selected.IsStatic"
-                                    OnClick="() => BeginEditNodeType(selected)">Edit</Button>
-                        </div>
-                    </div>
-                }
-
-                @if (IsNodeTypeFormOpen)
-                {
-                    <div data-testid="session-settings-node-type-form"
-                         class="workitem-block-detail flex flex-col gap-3 rounded-md border border-border p-3">
-                        <div class="workitem-block-detail-header flex items-center justify-between gap-2">
-                            <h3 class="text-sm font-semibold">@(_nodeTypeView == "create" ? "Create NodeType" : "Edit NodeType")</h3>
-                        </div>
-                        <div class="workitem-block-form flex flex-col gap-2 text-xs">
-                            <div class="flex flex-col gap-1">
-                                <label class="text-muted-foreground">Key</label>
-                                <Input Type="text" data-testid="session-settings-node-type-key-input" Value="@_nodeTypeForm.Key" ValueChanged="v => _nodeTypeForm = _nodeTypeForm with { Key = v ?? string.Empty }" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="text-muted-foreground">Label</label>
-                                <Input Type="text" data-testid="session-settings-node-type-label-input" Value="@_nodeTypeForm.Label" ValueChanged="v => _nodeTypeForm = _nodeTypeForm with { Label = v ?? string.Empty }" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="text-muted-foreground">Icon</label>
-                                <Input Type="text" data-testid="session-settings-node-type-icon-input" Value="@_nodeTypeForm.Icon" ValueChanged="v => _nodeTypeForm = _nodeTypeForm with { Icon = v ?? string.Empty }" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="text-muted-foreground">Block</label>
-                                <Input Type="text" data-testid="session-settings-node-type-block-input" Value="@_nodeTypeForm.BlockComponent" ValueChanged="v => _nodeTypeForm = _nodeTypeForm with { BlockComponent = v ?? string.Empty }" />
-                            </div>
-                            <label class="inline-flex items-center gap-2 text-muted-foreground">
-                                <input type="checkbox" checked="@_nodeTypeForm.IsHeader" @onchange="e => _nodeTypeForm = _nodeTypeForm with { IsHeader = e.Value is true }" />
-                                Header
-                            </label>
-                            <label class="inline-flex items-center gap-2 text-muted-foreground">
-                                <input type="checkbox" checked="@_nodeTypeForm.IsLeaf" @onchange="e => _nodeTypeForm = _nodeTypeForm with { IsLeaf = e.Value is true }" />
-                                Leaf
-                            </label>
-                        </div>
-                        <div class="workitem-block-form-actions flex items-center justify-end gap-2">
-                            <Button Variant="@ButtonVariant.Secondary" Size="@ButtonSize.Sm" OnClick="CancelNodeTypeEdit">Cancel</Button>
-                            <Button Variant="@ButtonVariant.Default" Size="@ButtonSize.Sm" data-testid="session-settings-save-node-type" OnClick="SaveNodeType">Save</Button>
-                        </div>
-                    </div>
-                }
-            </div>
+                </DetailContent>
+            </ExplorerLayout>
         }
         else if (_section == SettingsSection.EdgeTypes)
         {
-            <div data-slot="session-settings-edge-types" class="workitem-block mx-auto flex max-w-5xl flex-col gap-3" data-view="@_edgeTypeView">
-                <div class="workitem-block-toolbar flex items-center justify-between gap-2">
-                    <div class="workitem-block-toolbar-inner flex flex-1 items-center gap-2">
-                        <Input Type="search"
-                               Placeholder="Search edge types..."
-                               data-testid="session-settings-edge-type-search"
-                               Value="@_edgeTypeFilter"
-                               ValueChanged="OnEdgeTypeFilterChanged" />
+            <ExplorerLayout SplitterStorageKey="session-settings-edge-types-panel-width"
+                            DefaultWidth="760"
+                            MinWidth="520"
+                            MaxWidth="960"
+                            HeightClass="h-full"
+                            data-page="session-edge-types"
+                            data-state-status="@(SettingsState.IsLoading ? "loading" : "ready")"
+                            data-view="@_edgeTypeView">
+                <ListHeader>
+                    <div class="workitems-list-header flex h-9 w-full items-center justify-between px-3">
+                        <span class="workitems-list-header-title text-xs font-semibold">EdgeTypes</span>
+                        <span class="workitems-list-header-count text-[10px] text-muted-foreground">@FilteredEdgeTypes.Count total</span>
                     </div>
-                    <Button Variant="@ButtonVariant.Default"
-                            Size="@ButtonSize.IconSm"
-                            data-testid="session-settings-create-edge-type"
-                            disabled="@SettingsState.IsBusy"
-                            OnClick="BeginCreateEdgeType"
-                            title="Create EdgeType"
-                            aria-label="Create EdgeType">+</Button>
-                </div>
+                </ListHeader>
 
-                @if (FilteredEdgeTypes.Count == 0)
-                {
-                    <div class="workitem-block-empty rounded-md border border-dashed border-border px-4 py-6 text-center text-xs text-muted-foreground">
-                        No EdgeTypes match this search.
+                <ListContent>
+                    <div class="workitems-list-pane" data-testid="session-settings-edge-types-list-slot">
+                        <div class="workitems-list-toolbar flex flex-wrap items-center gap-3">
+                            <div class="workitems-search-wrapper min-w-[220px] flex-1">
+                                <Input Type="search"
+                                       Placeholder="Search edge types..."
+                                       data-testid="session-settings-edge-type-search"
+                                       Value="@_edgeTypeFilter"
+                                       ValueChanged="OnEdgeTypeFilterChanged" />
+                            </div>
+                            <Button Variant="@ButtonVariant.Default"
+                                    Size="@ButtonSize.IconSm"
+                                    class="workitem-quick-add"
+                                    data-testid="session-settings-create-edge-type"
+                                    disabled="@SettingsState.IsBusy"
+                                    OnClick="BeginCreateEdgeType"
+                                    title="Create EdgeType"
+                                    aria-label="Create EdgeType">
+                                <span aria-hidden="true">+</span>
+                            </Button>
+                        </div>
+
+                        <div class="workitems-grid-scroll">
+                            <DataGrid TItem="SessionEdgeTypeDefinition"
+                                      data-testid="session-settings-edge-types-grid"
+                                      Items="FilteredEdgeTypes"
+                                      IsLoading="@SettingsState.IsLoading"
+                                      AllowPaging="false"
+                                      SelectionMode="DataGridSelectionMode.Single"
+                                      SelectedItem="SelectedEdgeType"
+                                      ItemKey="edgeType => edgeType.Id"
+                                      SelectedItemChanged="edgeType => { if (edgeType is not null) SelectEdgeType(edgeType); return Task.CompletedTask; }">
+                                <EmptyTemplate>
+                                    <span class="workitems-grid-empty-filtered">No EdgeTypes match this search.</span>
+                                </EmptyTemplate>
+                                <Columns>
+                                    <DataGridColumn TItem="SessionEdgeTypeDefinition" Property="Label" Title="Label" Class="workitems-title-cell">
+                                        <Template Context="edgeType">
+                                            <div data-testid="session-settings-edge-type-row" data-edge-type-key="@edgeType.Key" class="min-w-0">
+                                                <span class="block truncate font-medium">@edgeType.Label</span>
+                                                <code class="block truncate font-mono text-[10px] text-muted-foreground">@edgeType.Key</code>
+                                            </div>
+                                        </Template>
+                                    </DataGridColumn>
+                                    <DataGridColumn TItem="SessionEdgeTypeDefinition" Property="SourceNodeTypeKey" Title="Source" />
+                                    <DataGridColumn TItem="SessionEdgeTypeDefinition" Property="TargetNodeTypeKey" Title="Target" />
+                                    <DataGridColumn TItem="SessionEdgeTypeDefinition" Property="Intent" Title="Intent">
+                                        <Template Context="edgeType">@(edgeType.Intent ?? "none")</Template>
+                                    </DataGridColumn>
+                                    <DataGridColumn TItem="SessionEdgeTypeDefinition" Property="IsStatic" Title="Status">
+                                        <Template Context="edgeType">@(edgeType.IsStatic ? "Static" : "Dynamic")</Template>
+                                    </DataGridColumn>
+                                    <DataGridColumn TItem="SessionEdgeTypeDefinition" Title="Actions" Sortable="false" Filterable="false" TextAlign="DataGridTextAlign.End" Class="workitems-actions-cell">
+                                        <Template Context="edgeType">
+                                            <div class="workitems-actions flex items-center justify-end gap-0.5">
+                                                <button type="button"
+                                                        class="workitem-action-view btn btn-ghost btn-icon-sm"
+                                                        @onclick="() => SelectEdgeType(edgeType)"
+                                                        @onclick:stopPropagation="true"
+                                                        title="View">
+                                                    <Icon Name="eye" Size="16" />
+                                                </button>
+                                                <button type="button"
+                                                        class="workitem-action-edit btn btn-ghost btn-icon-sm"
+                                                        data-testid="session-settings-edit-edge-type"
+                                                        disabled="@edgeType.IsStatic"
+                                                        @onclick="() => BeginEditEdgeType(edgeType)"
+                                                        @onclick:stopPropagation="true"
+                                                        title="Edit">
+                                                    <Icon Name="pencil" Size="16" />
+                                                </button>
+                                            </div>
+                                        </Template>
+                                    </DataGridColumn>
+                                </Columns>
+                            </DataGrid>
+                        </div>
                     </div>
-                }
-                else
-                {
-                    <div class="workitem-block-list flex flex-col gap-1">
-                        @foreach (var edgeType in FilteredEdgeTypes)
+                </ListContent>
+
+                <DetailContent>
+                    <div class="workitems-detail-pane flex h-full flex-col" data-testid="session-settings-edge-types-detail-slot">
+                        @if (SelectedEdgeType is null && !IsEdgeTypeFormOpen)
                         {
-                            <div data-testid="session-settings-edge-type-row"
-                                 data-edge-type-key="@edgeType.Key"
-                                 class="workitem-block-list-item flex items-center gap-2 rounded border border-border bg-card px-2 py-1.5 text-sm hover:bg-muted/50 @(string.Equals(_selectedEdgeTypeId, edgeType.Id, StringComparison.Ordinal) ? "ring-1 ring-primary" : "")">
-                                <button type="button"
-                                        class="min-w-0 flex flex-1 items-center justify-between gap-2 text-left"
-                                        @onclick="() => SelectEdgeType(edgeType)">
-                                    <span class="min-w-0">
-                                        <span class="block truncate font-medium">@edgeType.Label</span>
-                                        <code class="block truncate font-mono text-[10px] text-muted-foreground">@edgeType.Key</code>
-                                    </span>
-                                    <span class="shrink-0 text-[10px] uppercase tracking-wide text-muted-foreground">
-                                        @(edgeType.Intent ?? "edge")
-                                    </span>
+                            <div class="workitems-detail-empty flex h-full items-center justify-center text-sm text-muted-foreground">
+                                Select an EdgeType to inspect its descriptor.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="workitems-detail-header flex h-9 items-center justify-between gap-4 border-b border-border px-3" data-testid="session-settings-edge-type-detail-header">
+                                <div class="workitems-detail-title-wrapper min-w-0">
+                                    <h2 class="workitems-detail-title">@GetEdgeTypePanelTitle()</h2>
+                                </div>
+                                <button type="button" class="btn btn-ghost btn-icon-sm" @onclick="CancelEdgeTypeEdit" title="Close">
+                                    <Icon Name="x" Size="16" />
                                 </button>
-                                <Button Variant="@ButtonVariant.Outline"
-                                        Size="@ButtonSize.Sm"
-                                        data-testid="session-settings-edit-edge-type"
-                                        disabled="@edgeType.IsStatic"
-                                        OnClick="() => BeginEditEdgeType(edgeType)">Edit</Button>
+                            </div>
+
+                            <div class="workitems-detail-content flex-1 overflow-y-auto">
+                                @if (IsEdgeTypeFormOpen)
+                                {
+                                    <div data-testid="session-settings-edge-type-form" class="workitem-form-panel flex flex-col gap-4 p-4">
+                                        <div class="space-y-1">
+                                            <Label>Key</Label>
+                                            <Input Type="text" data-testid="session-settings-edge-type-key-input" Value="@_edgeTypeForm.Key" ValueChanged="v => _edgeTypeForm = _edgeTypeForm with { Key = v ?? string.Empty }" />
+                                        </div>
+                                        <div class="space-y-1">
+                                            <Label>Label</Label>
+                                            <Input Type="text" data-testid="session-settings-edge-type-label-input" Value="@_edgeTypeForm.Label" ValueChanged="v => _edgeTypeForm = _edgeTypeForm with { Label = v ?? string.Empty }" />
+                                        </div>
+                                        <div class="space-y-1">
+                                            <Label>Source NodeType</Label>
+                                            <Input Type="text" data-testid="session-settings-edge-type-source-input" Value="@_edgeTypeForm.SourceNodeTypeKey" ValueChanged="v => _edgeTypeForm = _edgeTypeForm with { SourceNodeTypeKey = v ?? string.Empty }" />
+                                        </div>
+                                        <div class="space-y-1">
+                                            <Label>Target NodeType</Label>
+                                            <Input Type="text" data-testid="session-settings-edge-type-target-input" Value="@_edgeTypeForm.TargetNodeTypeKey" ValueChanged="v => _edgeTypeForm = _edgeTypeForm with { TargetNodeTypeKey = v ?? string.Empty }" />
+                                        </div>
+                                        <div class="space-y-1">
+                                            <Label>Intent</Label>
+                                            <Input Type="text" data-testid="session-settings-edge-type-intent-input" Value="@_edgeTypeForm.Intent" ValueChanged="v => _edgeTypeForm = _edgeTypeForm with { Intent = v ?? string.Empty }" />
+                                        </div>
+                                        <div class="space-y-1">
+                                            <Label>Tool</Label>
+                                            <Input Type="text" data-testid="session-settings-edge-type-tool-input" Value="@_edgeTypeForm.Tool" ValueChanged="v => _edgeTypeForm = _edgeTypeForm with { Tool = v ?? string.Empty }" />
+                                        </div>
+                                    </div>
+                                }
+                                else if (SelectedEdgeType is not null)
+                                {
+                                    var selected = SelectedEdgeType!;
+                                    <div class="workitem-view-detail p-4">
+                                        <dl class="grid gap-4">
+                                            <div>
+                                                <dt class="text-sm text-muted-foreground">Label</dt>
+                                                <dd class="font-medium">@selected.Label</dd>
+                                            </div>
+                                            <div>
+                                                <dt class="text-sm text-muted-foreground">Key</dt>
+                                                <dd><code class="font-mono text-xs">@selected.Key</code></dd>
+                                            </div>
+                                            <div>
+                                                <dt class="text-sm text-muted-foreground">Source</dt>
+                                                <dd>@selected.SourceNodeTypeKey</dd>
+                                            </div>
+                                            <div>
+                                                <dt class="text-sm text-muted-foreground">Target</dt>
+                                                <dd>@selected.TargetNodeTypeKey</dd>
+                                            </div>
+                                            <div>
+                                                <dt class="text-sm text-muted-foreground">Intent</dt>
+                                                <dd>@(selected.Intent ?? "none")</dd>
+                                            </div>
+                                            <div>
+                                                <dt class="text-sm text-muted-foreground">Tool</dt>
+                                                <dd>@(selected.Tool ?? "none")</dd>
+                                            </div>
+                                            <div>
+                                                <dt class="text-sm text-muted-foreground">Status</dt>
+                                                <dd>@(selected.IsStatic ? "Static descriptor" : "Dynamic")</dd>
+                                            </div>
+                                        </dl>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="workitems-detail-footer mt-auto flex shrink-0 items-center justify-end gap-2 border-t border-border px-3 py-2 text-xs" data-testid="session-settings-edge-type-detail-footer">
+                                @if (IsEdgeTypeFormOpen)
+                                {
+                                    <Button Variant="@ButtonVariant.Secondary" Size="@ButtonSize.Sm" OnClick="CancelEdgeTypeEdit">Cancel</Button>
+                                    <Button Variant="@ButtonVariant.Default" Size="@ButtonSize.Sm" data-testid="session-settings-save-edge-type" OnClick="SaveEdgeType">Save</Button>
+                                }
+                                else if (SelectedEdgeType is not null)
+                                {
+                                    <Button Variant="@ButtonVariant.Default"
+                                            Size="@ButtonSize.Sm"
+                                            data-testid="session-settings-edit-selected-edge-type"
+                                            disabled="@SelectedEdgeType.IsStatic"
+                                            OnClick="() => BeginEditEdgeType(SelectedEdgeType)">Edit</Button>
+                                }
                             </div>
                         }
                     </div>
-                }
-
-                @if (SelectedEdgeType is not null && !IsEdgeTypeFormOpen)
-                {
-                    var selected = SelectedEdgeType!;
-                    <div class="workitem-block-detail flex flex-col gap-3 rounded-md border border-border p-3">
-                        <div class="workitem-block-detail-header flex items-center justify-between gap-2">
-                            <h3 class="text-sm font-semibold">@selected.Label</h3>
-                            <span class="rounded-md border border-border px-2 py-1 text-[10px] uppercase tracking-wide text-muted-foreground">
-                                @(selected.IsStatic ? "Static" : "Dynamic")
-                            </span>
-                        </div>
-                        <div class="workitem-block-view flex flex-col gap-2 text-xs">
-                            <div class="flex justify-between gap-3"><span class="text-muted-foreground">Key</span><code class="font-mono">@selected.Key</code></div>
-                            <div class="flex justify-between gap-3"><span class="text-muted-foreground">Source</span><span>@selected.SourceNodeTypeKey</span></div>
-                            <div class="flex justify-between gap-3"><span class="text-muted-foreground">Target</span><span>@selected.TargetNodeTypeKey</span></div>
-                            <div class="flex justify-between gap-3"><span class="text-muted-foreground">Intent</span><span>@(selected.Intent ?? "none")</span></div>
-                            <div class="flex justify-between gap-3"><span class="text-muted-foreground">Tool</span><span>@(selected.Tool ?? "none")</span></div>
-                        </div>
-                        <div class="workitem-block-view-actions flex items-center justify-end gap-2">
-                            <Button Variant="@ButtonVariant.Default"
-                                    Size="@ButtonSize.Sm"
-                                    data-testid="session-settings-edit-selected-edge-type"
-                                    disabled="@selected.IsStatic"
-                                    OnClick="() => BeginEditEdgeType(selected)">Edit</Button>
-                        </div>
-                    </div>
-                }
-
-                @if (IsEdgeTypeFormOpen)
-                {
-                    <div data-testid="session-settings-edge-type-form"
-                         class="workitem-block-detail flex flex-col gap-3 rounded-md border border-border p-3">
-                        <div class="workitem-block-detail-header flex items-center justify-between gap-2">
-                            <h3 class="text-sm font-semibold">@(_edgeTypeView == "create" ? "Create EdgeType" : "Edit EdgeType")</h3>
-                        </div>
-                        <div class="workitem-block-form flex flex-col gap-2 text-xs">
-                            <div class="flex flex-col gap-1">
-                                <label class="text-muted-foreground">Key</label>
-                                <Input Type="text" data-testid="session-settings-edge-type-key-input" Value="@_edgeTypeForm.Key" ValueChanged="v => _edgeTypeForm = _edgeTypeForm with { Key = v ?? string.Empty }" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="text-muted-foreground">Label</label>
-                                <Input Type="text" data-testid="session-settings-edge-type-label-input" Value="@_edgeTypeForm.Label" ValueChanged="v => _edgeTypeForm = _edgeTypeForm with { Label = v ?? string.Empty }" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="text-muted-foreground">Source NodeType</label>
-                                <Input Type="text" data-testid="session-settings-edge-type-source-input" Value="@_edgeTypeForm.SourceNodeTypeKey" ValueChanged="v => _edgeTypeForm = _edgeTypeForm with { SourceNodeTypeKey = v ?? string.Empty }" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="text-muted-foreground">Target NodeType</label>
-                                <Input Type="text" data-testid="session-settings-edge-type-target-input" Value="@_edgeTypeForm.TargetNodeTypeKey" ValueChanged="v => _edgeTypeForm = _edgeTypeForm with { TargetNodeTypeKey = v ?? string.Empty }" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="text-muted-foreground">Intent</label>
-                                <Input Type="text" data-testid="session-settings-edge-type-intent-input" Value="@_edgeTypeForm.Intent" ValueChanged="v => _edgeTypeForm = _edgeTypeForm with { Intent = v ?? string.Empty }" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="text-muted-foreground">Tool</label>
-                                <Input Type="text" data-testid="session-settings-edge-type-tool-input" Value="@_edgeTypeForm.Tool" ValueChanged="v => _edgeTypeForm = _edgeTypeForm with { Tool = v ?? string.Empty }" />
-                            </div>
-                        </div>
-                        <div class="workitem-block-form-actions flex items-center justify-end gap-2">
-                            <Button Variant="@ButtonVariant.Secondary" Size="@ButtonSize.Sm" OnClick="CancelEdgeTypeEdit">Cancel</Button>
-                            <Button Variant="@ButtonVariant.Default" Size="@ButtonSize.Sm" data-testid="session-settings-save-edge-type" OnClick="SaveEdgeType">Save</Button>
-                        </div>
-                    </div>
-                }
-            </div>
+                </DetailContent>
+            </ExplorerLayout>
         }
         else if (_section == SettingsSection.Outbox)
         {
