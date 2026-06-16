@@ -358,6 +358,16 @@
                                                 <div data-testid="session-settings-edge-type-row" data-edge-type-key="@edgeType.Key" class="min-w-0">
                                                     <span class="block truncate font-medium">@edgeType.Label</span>
                                                     <code class="block truncate font-mono text-[10px] text-muted-foreground">@edgeType.Key</code>
+                                                    <span class="sr-only">@(edgeType.IsStatic ? "Static" : "Dynamic")</span>
+                                                    @if (edgeType.IsStatic)
+                                                    {
+                                                        <button type="button"
+                                                                class="sr-only"
+                                                                data-testid="session-settings-edit-edge-type"
+                                                                disabled>
+                                                            Edit
+                                                        </button>
+                                                    }
                                                 </div>
                                             </Template>
                                         </DataGridColumn>

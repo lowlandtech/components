@@ -411,6 +411,24 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
             .TextContent.ShouldContain("Select an EdgeType");
     }
 
+    [Fact(DisplayName = "UAC18: Descriptor-backed EdgeTypes are listed as static and read-only")]
+    [Trait(Spec.UAC, "18")]
+    [Given("a SessionSettings component with descriptor-loaded EdgeTypes")]
+    [When("the EdgeTypes settings tab is selected")]
+    [Then("static EdgeTypes are shown and their edit actions are disabled")]
+    public void UAC18_StaticEdgeTypesAreReadOnly()
+    {
+        var cut = Ctx.Render<SessionSettings>();
+
+        cut.Find("[data-testid='session-settings-edge-types-tab']").Click();
+
+        cut.FindAll("[data-testid='session-settings-edge-type-row']").Count.ShouldBeGreaterThan(0);
+        cut.Find("[data-edge-type-key='settings.has.api-key']").TextContent.ShouldContain("Static");
+        cut.Find("[data-edge-type-key='settings.has.api-key'] [data-testid='session-settings-edit-edge-type']")
+            .HasAttribute("disabled")
+            .ShouldBeTrue();
+    }
+
     private void OpenRenameMenu(IRenderedComponent<SessionBlock> cut)
     {
         cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='setup-ci']").Click();
