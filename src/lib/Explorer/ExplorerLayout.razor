@@ -6,15 +6,14 @@
     @* ── Floating expand button (when collapsed) ── *@
     @if (ShowLeftPane && _collapsed)
     {
-        <button class="@SidebarOpenButtonClass"
-                @onclick="ToggleCollapse"
-                title="Expand sidebar">
-            <svg class="cn-icon shrink-0" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <rect width="18" height="18" x="3" y="3" rx="2" />
-                <path d="M9 3v18" />
-                <path d="m13 15 3-3-3-3" />
-            </svg>
-        </button>
+        <PaneToggleButton Side="left"
+                          Action="open"
+                          BorderSide="right"
+                          TestId="explorer-sidebar-open"
+                          Title="Expand sidebar"
+                          AriaLabel="Expand sidebar"
+                          Class="explorer-sidebar-toggle absolute top-0 left-0 z-50"
+                          OnClick="ToggleCollapse" />
     }
 
     @* ── Stacked modes: LeftOnTop renders left above right; LeftOnBottom renders right above left ── *@
@@ -49,11 +48,14 @@
                     </div>
                     @if (ViewMode != ExplorerViewMode.LeftOnly)
                     {
-                        <button class="explorer-sidebar-collapse-btn shrink-0 p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground"
-                                @onclick="ToggleCollapse"
-                                title="Collapse sidebar">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-                        </button>
+                        <PaneToggleButton Side="left"
+                                          Action="close"
+                                          BorderSide="left"
+                                          TestId="explorer-sidebar-collapse"
+                                          Title="Collapse sidebar"
+                                          AriaLabel="Collapse sidebar"
+                                          Class="explorer-sidebar-collapse-btn shrink-0"
+                                          OnClick="ToggleCollapse" />
                     }
                 </div>
 
@@ -121,9 +123,6 @@
 
     private bool ShowLeftPane  => ViewMode is ExplorerViewMode.SideBySide or ExplorerViewMode.LeftOnly or ExplorerViewMode.LeftOnTop or ExplorerViewMode.LeftOnBottom;
     private bool ShowRightPane => ViewMode is ExplorerViewMode.SideBySide or ExplorerViewMode.RightOnly or ExplorerViewMode.LeftOnTop or ExplorerViewMode.LeftOnBottom;
-
-    private const string SidebarOpenButtonClass =
-        "explorer-sidebar-toggle cn-tabs-trigger cn-tabs-trigger-ide absolute top-0 left-0 z-50 inline-flex h-10 w-10 min-w-0 cursor-default items-center justify-center gap-1 whitespace-nowrap border-r border-b border-border px-0 text-sm text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring";
 
     private string ViewModeClass => ViewMode switch
     {

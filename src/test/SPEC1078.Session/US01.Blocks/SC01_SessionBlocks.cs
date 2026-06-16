@@ -395,7 +395,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "33")]
     [Given("a standalone SessionBlock with an active session and a submitted command")]
     [When("the settings button is clicked")]
-    [Then("the app opens the settings page with NodeTypes as the default section and matching header chrome")]
+    [Then("the app opens the settings page with NodeTypes as the default section and title-integrated header chrome")]
     public void UAC33_SessionBlockStandaloneSettingsLoadsEventLogPage()
     {
         var stateService = new SessionStateService();
@@ -412,11 +412,12 @@ public class SC01_SessionBlocks : ViewScenario
 
         cut.Find("[data-slot='session-settings']").ShouldNotBeNull();
         cut.Find("[data-testid='session-settings-node-types-grid']").ShouldNotBeNull();
-        var settingsHeader = cut.Find("[data-slot='session-settings-header']");
-        settingsHeader.ClassList.ShouldContain("h-10");
-        settingsHeader.QuerySelector("[data-slot='tabs-header-leading'] [data-testid='session-block-sidebar-open']")
+        cut.FindAll("[data-slot='session-settings-header']").ShouldBeEmpty();
+
+        var nodeTypesHeader = cut.Find("[data-page='session-node-types'] .workitems-list-header");
+        nodeTypesHeader.QuerySelector("[data-slot='tabs-header-leading'] [data-testid='session-block-sidebar-open']")
             .ShouldNotBeNull();
-        var settingsSidebarButton = cut.Find("[data-slot='session-settings-header'] [data-testid='session-block-sidebar-open']");
+        var settingsSidebarButton = cut.Find("[data-page='session-node-types'] .workitems-list-header [data-testid='session-block-sidebar-open']");
         settingsSidebarButton.ClassList.ShouldContain("cn-tabs-trigger-ide");
         settingsSidebarButton.ClassList.ShouldContain("h-10");
         settingsSidebarButton.ClassList.ShouldContain("w-10");

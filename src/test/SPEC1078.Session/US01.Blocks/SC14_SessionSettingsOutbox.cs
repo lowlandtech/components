@@ -463,12 +463,12 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
             .ClassList.ShouldContain("overflow-hidden");
     }
 
-    [Fact(DisplayName = "UAC20: Settings header uses the session content sidebar button slots")]
+    [Fact(DisplayName = "UAC20: Schema headers use the session content sidebar button slots")]
     [Trait(Spec.UAC, "20")]
     [Given("a SessionSettings component with leading and trailing header fragments")]
-    [When("the settings page is rendered")]
-    [Then("the fragments are placed in the same tab header slots as SessionContent")]
-    public void UAC20_SettingsHeaderUsesSessionContentButtonSlots()
+    [When("the NodeTypes and EdgeTypes schema pages are rendered")]
+    [Then("the fragments are integrated into each schema title header instead of a separate settings header")]
+    public void UAC20_SchemaHeadersUseSessionContentButtonSlots()
     {
         var cut = Ctx.Render<SessionSettings>(parameters => parameters
             .Add(component => component.HeaderLeading, builder =>
@@ -486,13 +486,20 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
                 builder.CloseElement();
             }));
 
-        var header = cut.Find("[data-slot='session-settings-header']");
-        header.ClassList.ShouldContain("h-10");
-        header.ClassList.ShouldContain("shrink-0");
+        cut.FindAll("[data-slot='session-settings-header']").ShouldBeEmpty();
 
-        header.QuerySelector("[data-slot='tabs-header-leading'] [data-testid='settings-leading-sidebar-open']")
+        var nodeTypesHeader = cut.Find("[data-page='session-node-types'] .workitems-list-header");
+        nodeTypesHeader.QuerySelector("[data-slot='tabs-header-leading'] [data-testid='settings-leading-sidebar-open']")
             .ShouldNotBeNull();
-        header.QuerySelector("[data-slot='tabs-header-trailing'] [data-testid='settings-trailing-sidebar-open']")
+        nodeTypesHeader.QuerySelector("[data-slot='tabs-header-trailing'] [data-testid='settings-trailing-sidebar-open']")
+            .ShouldNotBeNull();
+
+        cut.Find("[data-testid='session-settings-edge-types-tab']").Click();
+
+        var edgeTypesHeader = cut.Find("[data-page='session-edge-types'] .workitems-list-header");
+        edgeTypesHeader.QuerySelector("[data-slot='tabs-header-leading'] [data-testid='settings-leading-sidebar-open']")
+            .ShouldNotBeNull();
+        edgeTypesHeader.QuerySelector("[data-slot='tabs-header-trailing'] [data-testid='settings-trailing-sidebar-open']")
             .ShouldNotBeNull();
 
         cut.Find("[data-slot='session-settings-body']")

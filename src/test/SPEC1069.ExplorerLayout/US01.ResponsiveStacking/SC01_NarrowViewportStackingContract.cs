@@ -235,33 +235,36 @@ public class SC01_NarrowViewportStackingContract
                 "The ExplorerLayout root element must use LayoutClass for the collapse CSS contract.");
     }
 
-    [Fact(DisplayName = "UAC12: collapsed sidebar toggle matches session content header chrome")]
+    [Fact(DisplayName = "UAC12: sidebar toggles use the shared pane toggle component")]
     [Trait(Spec.UAC, "12")]
-    [Given("ExplorerLayout renders the show-sidebar control when the left pane is collapsed")]
-    [When("the collapsed sidebar toggle class is declared")]
-    [Then("it uses the same IDE tab-trigger sizing and border chrome as the session content header")]
-    public void UAC12_CollapsedSidebarToggleUsesSessionHeaderChrome()
+    [Given("ExplorerLayout renders open and collapse controls for its left pane")]
+    [When("the ExplorerLayout markup is declared")]
+    [Then("both controls use the shared PaneToggleButton component instead of local button chrome")]
+    public void UAC12_SidebarTogglesUseSharedPaneToggleComponent()
     {
         var razor = LoadExplorerLayoutRazor();
 
-        razor.ShouldContain("private const string SidebarOpenButtonClass",
+        razor.ShouldContain("<PaneToggleButton Side=\"left\"",
             customMessage:
-                "The show-sidebar button class must stay centralized so NodeTypes and EdgeTypes inherit the same chrome.");
+                "ExplorerLayout should share the same pane toggle component as SessionContent instead of declaring a local button.");
         razor.ShouldContain("@if (ShowLeftPane && _collapsed)",
             customMessage:
                 "The show-sidebar button must only render while the left sidebar is collapsed; NodeTypes and EdgeTypes should not show it when the sidebar is open.");
-        razor.ShouldContain("explorer-sidebar-toggle cn-tabs-trigger cn-tabs-trigger-ide",
+        razor.ShouldContain("Action=\"open\"",
             customMessage:
-                "The collapsed ExplorerLayout toggle must use the same tab trigger classes as the session content header button.");
-        razor.ShouldContain("h-10 w-10 min-w-0",
+                "The collapsed ExplorerLayout toggle must use the shared open variant.");
+        razor.ShouldContain("Action=\"close\"",
             customMessage:
-                "The toggle must keep the 40px header-button geometry instead of the old compact 28px square.");
-        razor.ShouldContain("border-r border-b border-border",
+                "The visible sidebar header must use the shared close variant integrated into the title row.");
+        razor.ShouldContain("Class=\"explorer-sidebar-toggle absolute top-0 left-0 z-50\"",
             customMessage:
-                "The toggle should sit in the upper-left corner with the same right/bottom border treatment as the session content header.");
-        razor.ShouldContain("hover:bg-muted/40 hover:text-foreground",
+                "The collapsed reveal button may position the shared component, but should not own its visual chrome.");
+        razor.ShouldContain("Class=\"explorer-sidebar-collapse-btn shrink-0\"",
             customMessage:
-                "Hover treatment should match the session content header tab trigger.");
+                "The collapse button should stay in the existing sidebar header/title row.");
+        razor.ShouldNotContain("private const string SidebarOpenButtonClass",
+            customMessage:
+                "ExplorerLayout must not re-declare the shared session header button class.");
         razor.ShouldNotContain("h-7 w-7",
             customMessage:
                 "The old compact Explorer-only sizing should not return.");

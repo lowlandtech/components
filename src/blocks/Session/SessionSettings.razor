@@ -52,26 +52,6 @@
 </style>
 
 <section data-slot="session-settings" class="@GetClass()" @attributes="AdditionalAttributes">
-    @if (HeaderLeading is not null || HeaderTrailing is not null)
-    {
-        <div data-slot="session-settings-header" class="flex h-10 min-w-0 shrink-0 items-center">
-            @if (HeaderLeading is not null)
-            {
-                <div data-slot="tabs-header-leading" class="shrink-0">
-                    @HeaderLeading
-                </div>
-            }
-            <div data-slot="session-settings-tabs-border"
-                 class="h-10 min-w-0 flex-1 border-b border-border"></div>
-            @if (HeaderTrailing is not null)
-            {
-                <div data-slot="tabs-header-trailing" class="shrink-0">
-                    @HeaderTrailing
-                </div>
-            }
-        </div>
-    }
-
     <div data-slot="session-settings-body" class="flex min-h-0 flex-1 overflow-hidden">
         <aside class="w-44 shrink-0 border-r border-border bg-sidebar/30 px-3 py-4">
             <nav class="space-y-1" aria-label="Settings sections">
@@ -135,9 +115,25 @@
                             data-state-status="@(SettingsState.IsLoading ? "loading" : "ready")"
                             data-view="@_nodeTypeView">
                 <ListHeader>
-                    <div class="workitems-list-header flex h-9 w-full items-center justify-between px-3">
-                        <span class="workitems-list-header-title text-xs font-semibold">NodeTypes</span>
-                        <span class="workitems-list-header-count text-[10px] text-muted-foreground">@FilteredNodeTypes.Count total</span>
+                    <div class="workitems-list-header flex h-9 w-full items-center justify-between">
+                        <div class="flex h-full min-w-0 items-center">
+                            @if (HeaderLeading is not null)
+                            {
+                                <div data-slot="tabs-header-leading" class="shrink-0">
+                                    @HeaderLeading
+                                </div>
+                            }
+                            <span class="workitems-list-header-title truncate px-3 text-xs font-semibold">NodeTypes</span>
+                        </div>
+                        <div class="flex h-full shrink-0 items-center gap-3">
+                            <span class="workitems-list-header-count text-[10px] text-muted-foreground">@FilteredNodeTypes.Count total</span>
+                            @if (HeaderTrailing is not null)
+                            {
+                                <div data-slot="tabs-header-trailing" class="shrink-0">
+                                    @HeaderTrailing
+                                </div>
+                            }
+                        </div>
                     </div>
                 </ListHeader>
 
@@ -358,9 +354,25 @@
                             data-state-status="@(SettingsState.IsLoading ? "loading" : "ready")"
                             data-view="@_edgeTypeView">
                 <ListHeader>
-                    <div class="workitems-list-header flex h-9 w-full items-center justify-between px-3">
-                        <span class="workitems-list-header-title text-xs font-semibold">EdgeTypes</span>
-                        <span class="workitems-list-header-count text-[10px] text-muted-foreground">@FilteredEdgeTypes.Count total</span>
+                    <div class="workitems-list-header flex h-9 w-full items-center justify-between">
+                        <div class="flex h-full min-w-0 items-center">
+                            @if (HeaderLeading is not null)
+                            {
+                                <div data-slot="tabs-header-leading" class="shrink-0">
+                                    @HeaderLeading
+                                </div>
+                            }
+                            <span class="workitems-list-header-title truncate px-3 text-xs font-semibold">EdgeTypes</span>
+                        </div>
+                        <div class="flex h-full shrink-0 items-center gap-3">
+                            <span class="workitems-list-header-count text-[10px] text-muted-foreground">@FilteredEdgeTypes.Count total</span>
+                            @if (HeaderTrailing is not null)
+                            {
+                                <div data-slot="tabs-header-trailing" class="shrink-0">
+                                    @HeaderTrailing
+                                </div>
+                            }
+                        </div>
                     </div>
                 </ListHeader>
 

@@ -1,0 +1,42 @@
+@namespace LowlandTech.Components
+@inherits TinyComponentBase
+
+<button type="button"
+        data-slot="tabs-trigger"
+        data-state="inactive"
+        data-orientation="horizontal"
+        data-testid="@TestId"
+        class="@GetButtonClass()"
+        title="@Title"
+        aria-label="@AriaLabel"
+        @onclick="OnClick"
+        @attributes="AdditionalAttributes">
+    <Icon Name="@IconName" Size="@IconSize" />
+</button>
+
+@code {
+    [Parameter] public string Side { get; set; } = "left";
+    [Parameter] public string Action { get; set; } = "open";
+    [Parameter] public string BorderSide { get; set; } = "right";
+    [Parameter] public string? TestId { get; set; }
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public string? AriaLabel { get; set; }
+    [Parameter] public int IconSize { get; set; } = 14;
+    [Parameter] public EventCallback OnClick { get; set; }
+
+    private string IconName => (Side.ToLowerInvariant(), Action.ToLowerInvariant()) switch
+    {
+        ("right", "close") => "panel-right-close",
+        ("right", _) => "panel-right-open",
+        ("left", "close") => "panel-left-close",
+        _ => "panel-left-open",
+    };
+
+    private string GetButtonClass()
+    {
+        var borderClass = BorderSide.ToLowerInvariant() == "left" ? "border-l" : "border-r";
+        var baseClass =
+            $"cn-tabs-trigger cn-tabs-trigger-ide inline-flex h-10 w-10 min-w-0 cursor-default items-center justify-center gap-1 whitespace-nowrap {borderClass} border-b border-border px-0 text-sm text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring";
+        return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
+    }
+}
