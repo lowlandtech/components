@@ -137,7 +137,11 @@
                           data-slot="session-block-main-content">
                         @if (IsSettingsPage)
                         {
-                            <SessionSettings class="min-h-0 flex-1" Outbox="SessionState.Outbox" StateService="SessionState">
+                            <SessionSettings class="min-h-0 flex-1"
+                                             Outbox="SessionState.Outbox"
+                                             StateService="SessionState"
+                                             HeaderLeading="@(!IsStandaloneSidebarOpen ? SidebarOpenButton : null)"
+                                             HeaderTrailing="@(!_isRightSidebarOpen ? RightSidebarOpenButton : null)">
                                 <ActivityContent>
                                     <SessionEventLog Entries="AppState.EventLogEntries"
                                                      InitialStateJson="@SessionState.GetInitialEventLogStateJson()"
