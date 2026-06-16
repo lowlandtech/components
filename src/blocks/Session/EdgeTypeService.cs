@@ -88,13 +88,19 @@ public interface IEdgeTypeService
 public sealed class EdgeTypeService : IEdgeTypeService
 {
     private readonly IReadOnlyDictionary<Guid, INodeTypeDescriptor> _nodeTypesById;
+    private readonly IReadOnlyDictionary<string, INodeTypeDescriptor> _nodeTypesByKey;
     private readonly IReadOnlyList<IEdgeTypeDescriptor> _edgeTypes;
+    private readonly ConcurrentDictionary<string, IReadOnlyList<EdgeTypeInfo>> _outgoingEdgesBySource = new(StringComparer.OrdinalIgnoreCase);
 
     public EdgeTypeService(IEnumerable<INodeTypeDescriptor> nodeTypes, IEnumerable<IEdgeTypeDescriptor> edgeTypes)
     {
-        _nodeTypesById = nodeTypes
+        var nodeTypeList = nodeTypes.ToList();
+        _nodeTypesById = nodeTypeList
             .GroupBy(n => n.Id)
             .ToDictionary(g => g.Key, g => g.First());
+        _nodeTypesByKey = _nodeTypesById.Values
+            .GroupBy(n => n.Key, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
         _edgeTypes = edgeTypes.ToList();
     }
 
@@ -136,8 +142,15 @@ public sealed class EdgeTypeService : IEdgeTypeService
 
     public IReadOnlyList<EdgeTypeInfo> GetOutgoingEdges(string sourceNodeTypeKey)
     {
-        var sourceNodeType = _nodeTypesById.Values
-            .FirstOrDefault(n => string.Equals(n.Key, sourceNodeTypeKey, StringComparison.OrdinalIgnoreCase));
+        if (string.IsNullOrWhiteSpace(sourceNodeTypeKey))
+            return [];
+
+        return _outgoingEdgesBySource.GetOrAdd(sourceNodeTypeKey, BuildOutgoingEdges);
+    }
+
+    private IReadOnlyList<EdgeTypeInfo> BuildOutgoingEdges(string sourceNodeTypeKey)
+    {
+        var sourceNodeType = _nodeTypesByKey.GetValueOrDefault(sourceNodeTypeKey);
 
         if (sourceNodeType is null)
             return [];
@@ -174,8 +187,7 @@ public sealed class EdgeTypeService : IEdgeTypeService
             {
                 foreach (var header in parentNodeType.NavigationHeaders ?? [])
                 {
-                    var childNodeType = _nodeTypesById.Values
-                        .FirstOrDefault(n => string.Equals(n.Key, header.ChildNodeTypeKey, StringComparison.OrdinalIgnoreCase));
+                    var childNodeType = _nodeTypesByKey.GetValueOrDefault(header.ChildNodeTypeKey);
 
                     if (childNodeType is null)
                         continue;
@@ -213,8 +225,7 @@ public sealed class EdgeTypeService : IEdgeTypeService
 
         foreach (var header in headers)
         {
-            var childNodeType = _nodeTypesById.Values
-                .FirstOrDefault(n => string.Equals(n.Key, header.ChildNodeTypeKey, StringComparison.OrdinalIgnoreCase));
+            var childNodeType = _nodeTypesByKey.GetValueOrDefault(header.ChildNodeTypeKey);
 
             if (childNodeType is null)
                 continue;

@@ -1,3 +1,4 @@
+global using System.Collections.Concurrent;
 global using System.Globalization;
 global using Microsoft.AspNetCore.Components;
 global using Microsoft.AspNetCore.Components.Forms;

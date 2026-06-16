@@ -43,7 +43,7 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
 
         cut.Find("[data-testid='session-settings-outbox-tab']").Click();
 
-        cut.FindAll("[data-slot='session-outbox-entry']").Count.ShouldBe(2);
+        cut.WaitForAssertion(() => cut.FindAll("[data-slot='session-outbox-entry']").Count.ShouldBe(2));
         cut.Find("[data-outbox-type='ScheduleCreateEffect']").TextContent.ShouldContain("Billing");
         cut.Find("[data-outbox-type='ScheduleUpdateEffect']").TextContent.ShouldContain("Approved");
     }
@@ -83,7 +83,7 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
 
         cut.Find("[data-testid='session-settings-outbox-tab']").Click();
 
-        cut.FindAll("[data-slot='session-outbox-entry']").Count.ShouldBe(1);
+        cut.WaitForAssertion(() => cut.FindAll("[data-slot='session-outbox-entry']").Count.ShouldBe(1));
     }
 
     [Fact(DisplayName = "UAC04: Plain UI actions do not appear in the owned outbox")]
@@ -161,6 +161,8 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
         cut.Find("[data-testid='session-settings-outbox-tab']").Click();
 
         var entries = cut.FindAll("[data-outbox-type]");
+        cut.WaitForAssertion(() => cut.FindAll("[data-slot='session-outbox-entry']").Count.ShouldBe(2));
+        entries = cut.FindAll("[data-slot='session-outbox-entry']");
         entries.Count.ShouldBe(2);
         entries[0].GetAttribute("data-outbox-type").ShouldBe(typeof(ScheduleUpdateEffect).Name);
         entries[1].GetAttribute("data-outbox-type").ShouldBe(typeof(ScheduleCreateEffect).Name);
@@ -221,6 +223,7 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
             .Add(x => x.Outbox, outbox));
 
         cut.Find("[data-testid='session-settings-api-keys-tab']").Click();
+        cut.WaitForAssertion(() => cut.FindAll("[data-testid='session-settings-create-api-key']").Count.ShouldBe(1));
         cut.Find("[data-testid='session-settings-create-api-key']").Click();
 
         cut.WaitForAssertion(() =>
@@ -249,6 +252,7 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
             .Add(x => x.Outbox, outbox));
 
         cut.Find("[data-testid='session-settings-api-keys-tab']").Click();
+        cut.WaitForAssertion(() => cut.FindAll("[data-testid='session-settings-rename-api-key']").Count.ShouldBe(1));
         cut.Find("[data-testid='session-settings-rename-api-key']").Click();
         cut.Find("[data-testid='session-settings-api-key-name-input']").Input("Renamed API Key");
         cut.Find("[data-testid='session-settings-save-api-key']").Click();
@@ -293,7 +297,7 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
 
         cut.Find("[data-testid='session-settings-node-types-tab']").Click();
 
-        cut.FindAll("[data-testid='session-settings-node-type-row']").Count.ShouldBeGreaterThan(0);
+        cut.WaitForAssertion(() => cut.FindAll("[data-testid='session-settings-node-type-row']").Count.ShouldBeGreaterThan(0));
         cut.Find("[data-node-type-key='settings']").TextContent.ShouldContain("Static");
         cut.Find("[data-node-type-key='settings'] [data-testid='session-settings-edit-node-type']")
             .HasAttribute("disabled")
@@ -315,7 +319,9 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
             .Add(x => x.Outbox, outbox));
 
         cut.Find("[data-testid='session-settings-node-types-tab']").Click();
+        cut.WaitForAssertion(() => cut.FindAll("[data-testid='session-settings-create-node-type']").Count.ShouldBe(1));
         cut.Find("[data-testid='session-settings-create-node-type']").Click();
+        cut.WaitForAssertion(() => cut.FindAll("[data-testid='session-settings-node-type-label-input']").Count.ShouldBe(1));
         cut.Find("[data-testid='session-settings-node-type-label-input']").Input("Project");
         cut.Find("[data-testid='session-settings-node-type-key-input']").Input("project");
         cut.Find("[data-testid='session-settings-save-node-type']").Click();
@@ -344,7 +350,9 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
             .Add(x => x.Outbox, outbox));
 
         cut.Find("[data-testid='session-settings-edge-types-tab']").Click();
+        cut.WaitForAssertion(() => cut.FindAll("[data-testid='session-settings-create-edge-type']").Count.ShouldBe(1));
         cut.Find("[data-testid='session-settings-create-edge-type']").Click();
+        cut.WaitForAssertion(() => cut.FindAll("[data-testid='session-settings-edge-type-label-input']").Count.ShouldBe(1));
         cut.Find("[data-testid='session-settings-edge-type-label-input']").Input("Owns Project");
         cut.Find("[data-testid='session-settings-edge-type-key-input']").Input("owns.project");
         cut.Find("[data-testid='session-settings-edge-type-source-input']").Input("workspace");
@@ -374,8 +382,8 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
 
         cut.Find("[data-testid='session-settings-edge-types-tab']").Click();
 
-        cut.Find("[data-testid='session-settings-edge-types-pagination-footer']")
-            .TextContent.ShouldContain("Rows");
+        cut.WaitForAssertion(() => cut.Find("[data-testid='session-settings-edge-types-pagination-footer']")
+            .TextContent.ShouldContain("Rows"));
     }
 
     [Fact(DisplayName = "UAC16: Closing a selected NodeType removes the detail panel")]
@@ -387,6 +395,7 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
     {
         var cut = Ctx.Render<SessionSettings>();
 
+        cut.WaitForAssertion(() => cut.FindAll("[data-node-type-key='action']").Count.ShouldBe(1));
         cut.Find("[data-node-type-key='action']")
             .Closest("tr")!
             .QuerySelector("[data-testid='session-settings-view-node-type']")!
@@ -409,6 +418,7 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
         var cut = Ctx.Render<SessionSettings>();
 
         cut.Find("[data-testid='session-settings-edge-types-tab']").Click();
+        cut.WaitForAssertion(() => cut.FindAll("[data-testid='session-settings-edge-type-row']").Count.ShouldBeGreaterThan(0));
         cut.Find("[data-testid='session-settings-edge-type-row']")
             .Closest("tr")!
             .QuerySelector("[data-testid='session-settings-view-edge-type']")!
@@ -432,7 +442,7 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
 
         cut.Find("[data-testid='session-settings-edge-types-tab']").Click();
 
-        cut.FindAll("[data-testid='session-settings-edge-type-row']").Count.ShouldBeGreaterThan(0);
+        cut.WaitForAssertion(() => cut.FindAll("[data-testid='session-settings-edge-type-row']").Count.ShouldBeGreaterThan(0));
         cut.Find("[data-edge-type-key='settings.has.api-key']").TextContent.ShouldContain("Static");
         cut.Find("[data-edge-type-key='settings.has.api-key'] [data-testid='session-settings-edit-edge-type']")
             .HasAttribute("disabled")
@@ -448,6 +458,7 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
     {
         var cut = Ctx.Render<SessionSettings>();
 
+        cut.WaitForAssertion(() => cut.FindAll("[data-node-type-key='action']").Count.ShouldBe(1));
         cut.Find("[data-node-type-key='action']").Click();
         cut.FindAll("[data-testid='session-settings-node-types-detail-slot']").ShouldBeEmpty();
         cut.Find("[data-page='session-node-types']")
@@ -455,6 +466,7 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
             .ShouldBe("leftonly");
 
         cut.Find("[data-testid='session-settings-edge-types-tab']").Click();
+        cut.WaitForAssertion(() => cut.FindAll("[data-testid='session-settings-edge-type-row']").Count.ShouldBeGreaterThan(0));
         cut.Find("[data-testid='session-settings-edge-type-row']").Click();
         cut.FindAll("[data-testid='session-settings-edge-types-detail-slot']").ShouldBeEmpty();
         cut.Find("[data-page='session-edge-types']")
@@ -490,6 +502,7 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
 
         cut.Find("[data-testid='session-settings-edge-types-tab']").Click();
 
+        cut.WaitForAssertion(() => cut.FindAll("[data-testid='session-settings-edge-types-grid']").Count.ShouldBe(1));
         cut.Find("[data-testid='session-settings-edge-types-grid']")
             .ClassList.ShouldContain("session-settings-schema-grid");
         cut.Find("[data-testid='session-settings-edge-types-list-slot'] .workitems-grid-scroll")
@@ -533,6 +546,7 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
 
         cut.Find("[data-testid='session-settings-edge-types-tab']").Click();
 
+        cut.WaitForAssertion(() => cut.FindAll("[data-page='session-edge-types'] .workitems-list-header").Count.ShouldBe(1));
         var edgeTypesHeader = cut.Find("[data-page='session-edge-types'] .workitems-list-header");
         edgeTypesHeader.QuerySelector("[data-slot='tabs-header-leading'] [data-testid='settings-leading-sidebar-open']")
             .ShouldNotBeNull();

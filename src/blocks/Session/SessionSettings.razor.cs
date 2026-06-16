@@ -29,6 +29,7 @@ public partial class SessionSettings : TinyComponentBase
     private string _nodeTypeFilter = string.Empty;
     private string _edgeTypeFilter = string.Empty;
     private SessionStateService? _ownedStateService;
+    private bool _graphSchemaLoadStarted;
 
     [Inject] private IServiceProvider Services { get; set; } = default!;
 
@@ -101,8 +102,19 @@ public partial class SessionSettings : TinyComponentBase
 
     protected override async Task OnInitializedAsync()
     {
-        LoadGraphSchema();
+        EffectiveStateService.Dispatch(new LoadSessionGraphSchemaRequested());
         await LoadAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || _graphSchemaLoadStarted)
+            return;
+
+        _graphSchemaLoadStarted = true;
+        await Task.Yield();
+        LoadGraphSchema();
+        StateHasChanged();
     }
 
     private SessionStateService CreateOwnedStateService()
@@ -222,7 +234,10 @@ public partial class SessionSettings : TinyComponentBase
 
         try
         {
-            var nodeTypes = NodeTypeDescriptors
+            var nodeTypeDescriptors = NodeTypeDescriptors.ToList();
+            var edgeTypeDescriptors = EdgeTypeDescriptors.ToList();
+
+            var nodeTypes = nodeTypeDescriptors
                 .Select(d => new SessionNodeTypeDefinition(
                     d.Id.ToString("N"),
                     d.Key,
@@ -235,11 +250,11 @@ public partial class SessionSettings : TinyComponentBase
                 .OrderBy(item => item.Key, StringComparer.Ordinal)
                 .ToList();
 
-            var nodeTypesById = NodeTypeDescriptors
+            var nodeTypesById = nodeTypeDescriptors
                 .GroupBy(d => d.Id)
                 .ToDictionary(group => group.Key, group => group.First().Key);
 
-            var edgeTypes = EdgeTypeDescriptors
+            var edgeTypes = edgeTypeDescriptors
                 .Select(d => new SessionEdgeTypeDefinition(
                     d.Id.ToString("N"),
                     d.Key,
