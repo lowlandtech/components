@@ -170,7 +170,7 @@
                                           SelectionMode="DataGridSelectionMode.Single"
                                           SelectedItem="SelectedNodeType"
                                           ItemKey="nodeType => nodeType.Id"
-                                          SelectedItemChanged="nodeType => { if (nodeType is not null) SelectNodeType(nodeType); return Task.CompletedTask; }">
+                                          SelectedItemChanged="SelectNodeTypeRow">
                                     <EmptyTemplate>
                                         <span class="workitems-grid-empty-filtered">No NodeTypes match this search.</span>
                                     </EmptyTemplate>
@@ -207,6 +207,7 @@
                                                 <div class="workitems-actions flex items-center justify-end gap-0.5">
                                                     <button type="button"
                                                             class="workitem-action-view btn btn-ghost btn-icon-sm"
+                                                            data-testid="session-settings-view-node-type"
                                                             @onclick="() => SelectNodeType(nodeType)"
                                                             @onclick:stopPropagation="true"
                                                             title="View">
@@ -409,7 +410,7 @@
                                           SelectionMode="DataGridSelectionMode.Single"
                                           SelectedItem="SelectedEdgeType"
                                           ItemKey="edgeType => edgeType.Id"
-                                          SelectedItemChanged="edgeType => { if (edgeType is not null) SelectEdgeType(edgeType); return Task.CompletedTask; }">
+                                          SelectedItemChanged="SelectEdgeTypeRow">
                                     <EmptyTemplate>
                                         <span class="workitems-grid-empty-filtered">No EdgeTypes match this search.</span>
                                     </EmptyTemplate>
@@ -445,6 +446,7 @@
                                                 <div class="workitems-actions flex items-center justify-end gap-0.5">
                                                     <button type="button"
                                                             class="workitem-action-view btn btn-ghost btn-icon-sm"
+                                                            data-testid="session-settings-view-edge-type"
                                                             @onclick="() => SelectEdgeType(edgeType)"
                                                             @onclick:stopPropagation="true"
                                                             title="View">

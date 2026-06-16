@@ -73,9 +73,9 @@ public partial class SessionSettings : TinyComponentBase
 
     private bool IsEdgeTypeFormOpen => _edgeTypeView is "create" or "edit";
 
-    private bool HasNodeTypeDetailPanel => IsNodeTypeFormOpen || SelectedNodeType is not null;
+    private bool HasNodeTypeDetailPanel => IsNodeTypeFormOpen || (_nodeTypeView == "view" && SelectedNodeType is not null);
 
-    private bool HasEdgeTypeDetailPanel => IsEdgeTypeFormOpen || SelectedEdgeType is not null;
+    private bool HasEdgeTypeDetailPanel => IsEdgeTypeFormOpen || (_edgeTypeView == "view" && SelectedEdgeType is not null);
 
     private ExplorerViewMode NodeTypeExplorerViewMode => HasNodeTypeDetailPanel
         ? ExplorerViewMode.SideBySide
@@ -276,6 +276,14 @@ public partial class SessionSettings : TinyComponentBase
         _nodeTypeView = "view";
     }
 
+    private Task SelectNodeTypeRow(SessionNodeTypeDefinition? nodeType)
+    {
+        if (nodeType is not null)
+            _selectedNodeTypeId = nodeType.Id;
+
+        return Task.CompletedTask;
+    }
+
     private void BeginEditNodeType(SessionNodeTypeDefinition nodeType)
     {
         if (nodeType.IsStatic)
@@ -361,6 +369,14 @@ public partial class SessionSettings : TinyComponentBase
         _editingEdgeTypeId = null;
         _edgeTypeForm = EdgeTypeFormModel.Empty;
         _edgeTypeView = "view";
+    }
+
+    private Task SelectEdgeTypeRow(SessionEdgeTypeDefinition? edgeType)
+    {
+        if (edgeType is not null)
+            _selectedEdgeTypeId = edgeType.Id;
+
+        return Task.CompletedTask;
     }
 
     private void BeginEditEdgeType(SessionEdgeTypeDefinition edgeType)

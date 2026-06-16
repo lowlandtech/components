@@ -387,7 +387,10 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
     {
         var cut = Ctx.Render<SessionSettings>();
 
-        cut.Find("[data-node-type-key='action']").Click();
+        cut.Find("[data-node-type-key='action']")
+            .Closest("tr")!
+            .QuerySelector("[data-testid='session-settings-view-node-type']")!
+            .Click();
         cut.Find("[data-testid='session-settings-close-node-type-panel']").Click();
 
         cut.FindAll("[data-testid='session-settings-node-types-detail-slot']").ShouldBeEmpty();
@@ -406,7 +409,10 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
         var cut = Ctx.Render<SessionSettings>();
 
         cut.Find("[data-testid='session-settings-edge-types-tab']").Click();
-        cut.Find("[data-testid='session-settings-edge-type-row']").Click();
+        cut.Find("[data-testid='session-settings-edge-type-row']")
+            .Closest("tr")!
+            .QuerySelector("[data-testid='session-settings-view-edge-type']")!
+            .Click();
         cut.Find("[data-testid='session-settings-close-edge-type-panel']").Click();
 
         cut.FindAll("[data-testid='session-settings-edge-types-detail-slot']").ShouldBeEmpty();
@@ -433,12 +439,35 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
             .ShouldBeTrue();
     }
 
-    [Fact(DisplayName = "UAC19: Schema grid rows scroll under sticky column headers")]
+    [Fact(DisplayName = "UAC19: Schema row selection does not open the detail panel")]
     [Trait(Spec.UAC, "19")]
+    [Given("a SessionSettings component with NodeType and EdgeType schema rows")]
+    [When("the user clicks schema rows instead of their view action buttons")]
+    [Then("the rows can be selected while the detail panel remains closed")]
+    public void UAC19_SchemaRowSelectionDoesNotOpenDetailPanel()
+    {
+        var cut = Ctx.Render<SessionSettings>();
+
+        cut.Find("[data-node-type-key='action']").Click();
+        cut.FindAll("[data-testid='session-settings-node-types-detail-slot']").ShouldBeEmpty();
+        cut.Find("[data-page='session-node-types']")
+            .GetAttribute("data-view-mode")
+            .ShouldBe("leftonly");
+
+        cut.Find("[data-testid='session-settings-edge-types-tab']").Click();
+        cut.Find("[data-testid='session-settings-edge-type-row']").Click();
+        cut.FindAll("[data-testid='session-settings-edge-types-detail-slot']").ShouldBeEmpty();
+        cut.Find("[data-page='session-edge-types']")
+            .GetAttribute("data-view-mode")
+            .ShouldBe("leftonly");
+    }
+
+    [Fact(DisplayName = "UAC20: Schema grid rows scroll under sticky column headers")]
+    [Trait(Spec.UAC, "20")]
     [Given("a SessionSettings component with schema DataGrids")]
     [When("the NodeTypes and EdgeTypes grids are rendered")]
     [Then("the grid body owns scrolling while column headers stay sticky and opaque")]
-    public void UAC19_SchemaGridRowsScrollUnderStickyHeaders()
+    public void UAC20_SchemaGridRowsScrollUnderStickyHeaders()
     {
         var cut = Ctx.Render<SessionSettings>();
 
@@ -471,12 +500,12 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
             .ClassList.ShouldContain("p-[10px]");
     }
 
-    [Fact(DisplayName = "UAC20: Schema headers use the session content sidebar button slots")]
-    [Trait(Spec.UAC, "20")]
+    [Fact(DisplayName = "UAC21: Schema headers use the session content sidebar button slots")]
+    [Trait(Spec.UAC, "21")]
     [Given("a SessionSettings component with leading and trailing header fragments")]
     [When("the NodeTypes and EdgeTypes schema pages are rendered")]
     [Then("the fragments are integrated into each schema title header instead of a separate settings header")]
-    public void UAC20_SchemaHeadersUseSessionContentButtonSlots()
+    public void UAC21_SchemaHeadersUseSessionContentButtonSlots()
     {
         var cut = Ctx.Render<SessionSettings>(parameters => parameters
             .Add(component => component.HeaderLeading, builder =>
