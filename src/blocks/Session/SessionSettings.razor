@@ -1,6 +1,32 @@
 @namespace LowlandTech.Components
 @inherits TinyComponentBase
 
+<style>
+    [data-slot="session-settings"] [data-page="session-node-types"] .explorer-sidebar-header,
+    [data-slot="session-settings"] [data-page="session-edge-types"] .explorer-sidebar-header,
+    [data-slot="session-settings"] [data-page="session-node-types"] .workitems-detail-header,
+    [data-slot="session-settings"] [data-page="session-edge-types"] .workitems-detail-header {
+        height: 2.5rem;
+    }
+
+    [data-slot="session-settings"] [data-page="session-node-types"] .explorer-sidebar-header,
+    [data-slot="session-settings"] [data-page="session-edge-types"] .explorer-sidebar-header {
+        padding-right: 0.75rem;
+    }
+
+    [data-slot="session-settings"] [data-page="session-node-types"] .workitems-list-header,
+    [data-slot="session-settings"] [data-page="session-edge-types"] .workitems-list-header {
+        height: 2.5rem;
+    }
+
+    [data-slot="session-settings"] [data-page="session-node-types"] .workitems-detail-title,
+    [data-slot="session-settings"] [data-page="session-edge-types"] .workitems-detail-title {
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        font-weight: 600;
+    }
+</style>
+
 <section data-slot="session-settings" class="@GetClass()" @attributes="AdditionalAttributes">
     <aside class="w-44 shrink-0 border-r border-border bg-sidebar/30 px-3 py-4">
         <nav class="space-y-1" aria-label="Settings sections">
