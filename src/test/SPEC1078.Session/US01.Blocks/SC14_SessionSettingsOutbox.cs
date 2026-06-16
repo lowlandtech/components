@@ -454,6 +454,10 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
             .ClassList.ShouldContain("session-settings-schema-grid");
         cut.Find("[data-testid='session-settings-node-types-list-slot'] .workitems-grid-scroll")
             .ClassList.ShouldContain("overflow-hidden");
+        cut.Find("[data-testid='session-settings-node-types-list-slot'] .session-settings-schema-list-body")
+            .ClassList.ShouldContain("gap-[10px]");
+        cut.Find("[data-testid='session-settings-node-types-list-slot'] .session-settings-schema-list-body")
+            .ClassList.ShouldContain("p-[10px]");
 
         cut.Find("[data-testid='session-settings-edge-types-tab']").Click();
 
@@ -461,6 +465,10 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
             .ClassList.ShouldContain("session-settings-schema-grid");
         cut.Find("[data-testid='session-settings-edge-types-list-slot'] .workitems-grid-scroll")
             .ClassList.ShouldContain("overflow-hidden");
+        cut.Find("[data-testid='session-settings-edge-types-list-slot'] .session-settings-schema-list-body")
+            .ClassList.ShouldContain("gap-[10px]");
+        cut.Find("[data-testid='session-settings-edge-types-list-slot'] .session-settings-schema-list-body")
+            .ClassList.ShouldContain("p-[10px]");
     }
 
     [Fact(DisplayName = "UAC20: Schema headers use the session content sidebar button slots")]
@@ -505,9 +513,9 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
         cut.Find("[data-slot='session-settings-body']")
             .ClassList.ShouldContain("flex");
         cut.Find("[data-slot='session-settings-body']")
-            .ClassList.ShouldContain("gap-[10px]");
+            .ClassList.ShouldNotContain("gap-[10px]");
         cut.Find("[data-slot='session-settings-body']")
-            .ClassList.ShouldContain("p-[10px]");
+            .ClassList.ShouldNotContain("p-[10px]");
     }
 
     private void OpenRenameMenu(IRenderedComponent<SessionBlock> cut)
