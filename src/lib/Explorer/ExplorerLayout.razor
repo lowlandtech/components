@@ -4,7 +4,7 @@
 
 <div @ref="_containerRef" class="@LayoutClass" style="--panel-width: @(_panelWidth)px;" data-storage-key="@SplitterStorageKey" data-view-mode="@ViewMode.ToString().ToLowerInvariant()" @attributes="AdditionalAttributes">
     @* ── Floating expand button (when collapsed) ── *@
-    @if (ShowLeftPane)
+    @if (ShowLeftPane && _collapsed)
     {
         <button class="@SidebarOpenButtonClass"
                 @onclick="ToggleCollapse"

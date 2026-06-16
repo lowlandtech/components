@@ -247,6 +247,9 @@ public class SC01_NarrowViewportStackingContract
         razor.ShouldContain("private const string SidebarOpenButtonClass",
             customMessage:
                 "The show-sidebar button class must stay centralized so NodeTypes and EdgeTypes inherit the same chrome.");
+        razor.ShouldContain("@if (ShowLeftPane && _collapsed)",
+            customMessage:
+                "The show-sidebar button must only render while the left sidebar is collapsed; NodeTypes and EdgeTypes should not show it when the sidebar is open.");
         razor.ShouldContain("explorer-sidebar-toggle cn-tabs-trigger cn-tabs-trigger-ide",
             customMessage:
                 "The collapsed ExplorerLayout toggle must use the same tab trigger classes as the session content header button.");
