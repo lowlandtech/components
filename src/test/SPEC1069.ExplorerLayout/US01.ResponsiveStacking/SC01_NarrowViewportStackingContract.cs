@@ -234,4 +234,36 @@ public class SC01_NarrowViewportStackingContract
             customMessage:
                 "The ExplorerLayout root element must use LayoutClass for the collapse CSS contract.");
     }
+
+    [Fact(DisplayName = "UAC12: collapsed sidebar toggle matches session content header chrome")]
+    [Trait(Spec.UAC, "12")]
+    [Given("ExplorerLayout renders the show-sidebar control when the left pane is collapsed")]
+    [When("the collapsed sidebar toggle class is declared")]
+    [Then("it uses the same IDE tab-trigger sizing and border chrome as the session content header")]
+    public void UAC12_CollapsedSidebarToggleUsesSessionHeaderChrome()
+    {
+        var razor = LoadExplorerLayoutRazor();
+
+        razor.ShouldContain("private const string SidebarOpenButtonClass",
+            customMessage:
+                "The show-sidebar button class must stay centralized so NodeTypes and EdgeTypes inherit the same chrome.");
+        razor.ShouldContain("explorer-sidebar-toggle cn-tabs-trigger cn-tabs-trigger-ide",
+            customMessage:
+                "The collapsed ExplorerLayout toggle must use the same tab trigger classes as the session content header button.");
+        razor.ShouldContain("h-10 w-10 min-w-0",
+            customMessage:
+                "The toggle must keep the 40px header-button geometry instead of the old compact 28px square.");
+        razor.ShouldContain("border-r border-b border-border",
+            customMessage:
+                "The toggle should sit in the upper-left corner with the same right/bottom border treatment as the session content header.");
+        razor.ShouldContain("hover:bg-muted/40 hover:text-foreground",
+            customMessage:
+                "Hover treatment should match the session content header tab trigger.");
+        razor.ShouldNotContain("h-7 w-7",
+            customMessage:
+                "The old compact Explorer-only sizing should not return.");
+        razor.ShouldNotContain("top-0.5 left-0.5",
+            customMessage:
+                "The reveal button should align flush with the header grid, not float inset from it.");
+    }
 }
