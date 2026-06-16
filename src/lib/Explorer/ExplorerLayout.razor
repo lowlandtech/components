@@ -33,7 +33,7 @@
             <div class="explorer-sidebar @(ViewMode == ExplorerViewMode.LeftOnly ? "flex-1" : "shrink-0 border-r border-border") flex flex-col bg-background @(_splitter?.IsDragging == true ? "" : "transition-[width] duration-150 ease-in-out")"
                  style="@(ViewMode == ExplorerViewMode.LeftOnly ? "" : $"width: var(--panel-width); max-width: calc(100% - 336px);")">
                 @* ── Header with collapse button ── *@
-                <div class="explorer-sidebar-header flex h-9 items-center border-b border-border pr-1.5">
+                <div class="explorer-sidebar-header flex h-9 items-center border-b border-border">
                     @if (ViewMode != ExplorerViewMode.LeftOnly)
                     {
                         <PaneToggleButton Side="left"

@@ -278,6 +278,9 @@ public class SC01_NarrowViewportStackingContract
         razor.ShouldNotContain("top-0.5 left-0.5",
             customMessage:
                 "The reveal button should align flush with the header grid, not float inset from it.");
+        razor.ShouldNotContain("explorer-sidebar-header flex h-9 items-center border-b border-border pr-1.5",
+            customMessage:
+                "The Explorer header must not add asymmetric right padding; the title row should align flush with the shared pane chrome.");
     }
 
     [Fact(DisplayName = "UAC13: ExplorerLayout hydrates panel width before collapsed reveal")]
