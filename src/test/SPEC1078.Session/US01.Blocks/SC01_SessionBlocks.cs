@@ -493,6 +493,7 @@ public class SC01_SessionBlocks : ViewScenario
 
         cut.Find("[data-node-id='workspaces-session']").Click();
         cut.Find("[data-testid='session-block-settings-button']").Click();
+        cut.Find("[data-testid='session-settings-api-keys-tab']").Click();
         var initialRows = cut.FindAll("[data-testid='session-settings-api-key-row']").Count;
 
         cut.Find("[data-testid='session-settings-create-api-key']").Click();
