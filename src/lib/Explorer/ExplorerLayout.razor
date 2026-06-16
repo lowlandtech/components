@@ -2,7 +2,7 @@
 @inject IJSRuntime JsRuntime
 @inject ILogger<ExplorerLayout> Logger
 
-<div @ref="_containerRef" class="@LayoutClass" style="--panel-width: @(_panelWidth)px;" data-storage-key="@SplitterStorageKey" data-view-mode="@ViewMode.ToString().ToLowerInvariant()" @attributes="AdditionalAttributes">
+<div @ref="_containerRef" class="@LayoutClass" style="--panel-width: @(_panelWidth)px;" data-storage-key="@SplitterStorageKey" data-min-width="@MinWidth" data-max-width="@MaxWidth" data-view-mode="@ViewMode.ToString().ToLowerInvariant()" @attributes="AdditionalAttributes">
     @* ── Floating expand button (when collapsed) ── *@
     @if (IsLeftPaneCollapsed)
     {
@@ -34,7 +34,7 @@
                  style="@(ViewMode == ExplorerViewMode.LeftOnly ? "" : $"width: var(--panel-width); max-width: calc(100% - 336px);")">
                 @* ── Header with collapse button ── *@
                 <div class="explorer-sidebar-header flex h-9 items-center border-b border-border">
-                    @if (ViewMode != ExplorerViewMode.LeftOnly)
+                    @if (ShowInlineCollapseButton && ViewMode != ExplorerViewMode.LeftOnly)
                     {
                         <PaneToggleButton Side="left"
                                           Action="close"
@@ -120,6 +120,7 @@
     [Parameter] public EventCallback OnKeyboardSave { get; set; }
     [Parameter] public string? HeightClass { get; set; }
     [Parameter] public ExplorerViewMode ViewMode { get; set; } = ExplorerViewMode.SideBySide;
+    [Parameter] public bool ShowInlineCollapseButton { get; set; } = true;
 
     private bool IsLeftPaneCollapsed => ViewMode == ExplorerViewMode.SideBySide && _collapsed;
     private bool ShowLeftPane  => !IsLeftPaneCollapsed && ViewMode is ExplorerViewMode.SideBySide or ExplorerViewMode.LeftOnly or ExplorerViewMode.LeftOnTop or ExplorerViewMode.LeftOnBottom;

@@ -573,21 +573,41 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
         var nodeTypesLayout = cut.Find("[data-page='session-node-types']");
         nodeTypesLayout.GetAttribute("data-storage-key").ShouldBe("session-settings-node-types-panel-width");
         nodeTypesLayout.GetAttribute("style").ShouldNotBeNull().ShouldContain("--panel-width: 760px");
+        nodeTypesLayout.GetAttribute("data-min-width").ShouldBe("360");
+        nodeTypesLayout.GetAttribute("data-max-width").ShouldBe("1280");
 
-        var source = File.ReadAllText(Path.Combine(
-            AppContext.BaseDirectory,
-            "..",
-            "..",
-            "..",
-            "..",
-            "blocks",
-            "Session",
-            "SessionSettings.razor"));
+        cut.Find("[data-testid='session-settings-edge-types-tab']").Click();
+        cut.WaitForAssertion(() => cut.FindAll("[data-page='session-edge-types']").Count.ShouldBe(1));
 
-        source.ShouldContain("MinWidth=\"360\"");
-        source.ShouldContain("MaxWidth=\"1280\"");
-        source.Split("MinWidth=\"360\"").Length.ShouldBeGreaterThanOrEqualTo(3);
-        source.Split("MaxWidth=\"1280\"").Length.ShouldBeGreaterThanOrEqualTo(3);
+        var edgeTypesLayout = cut.Find("[data-page='session-edge-types']");
+        edgeTypesLayout.GetAttribute("data-storage-key").ShouldBe("session-settings-edge-types-panel-width");
+        edgeTypesLayout.GetAttribute("style").ShouldNotBeNull().ShouldContain("--panel-width: 760px");
+        edgeTypesLayout.GetAttribute("data-min-width").ShouldBe("360");
+        edgeTypesLayout.GetAttribute("data-max-width").ShouldBe("1280");
+    }
+
+    [Fact(DisplayName = "UAC25: Schema form view hides the inline list collapse button")]
+    [Trait(Spec.UAC, "25")]
+    [Given("a SessionSettings NodeTypes or EdgeTypes form is open beside the schema grid")]
+    [When("the schema header is rendered in side-by-side form view")]
+    [Then("the inline Explorer collapse button is not visible while the list pane is already open")]
+    public void UAC25_SchemaFormViewHidesInlineCollapseButton()
+    {
+        var cut = Ctx.Render<SessionSettings>();
+
+        cut.Find("[data-testid='session-settings-create-node-type']").Click();
+        cut.WaitForAssertion(() => cut.FindAll("[data-testid='session-settings-node-type-form']").Count.ShouldBe(1));
+        cut.Find("[data-page='session-node-types']").GetAttribute("data-view-mode").ShouldBe("sidebyside");
+        cut.Find("[data-page='session-node-types']").QuerySelector("[data-testid='explorer-sidebar-collapse']")
+            .ShouldBeNull();
+
+        cut.Find("[data-testid='session-settings-edge-types-tab']").Click();
+        cut.WaitForAssertion(() => cut.FindAll("[data-testid='session-settings-create-edge-type']").Count.ShouldBe(1));
+        cut.Find("[data-testid='session-settings-create-edge-type']").Click();
+        cut.WaitForAssertion(() => cut.FindAll("[data-testid='session-settings-edge-type-form']").Count.ShouldBe(1));
+        cut.Find("[data-page='session-edge-types']").GetAttribute("data-view-mode").ShouldBe("sidebyside");
+        cut.Find("[data-page='session-edge-types']").QuerySelector("[data-testid='explorer-sidebar-collapse']")
+            .ShouldBeNull();
     }
 
     [Fact(DisplayName = "UAC23: Enter quick-creates a NodeType when search has no matches")]
