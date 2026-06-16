@@ -146,7 +146,8 @@
                                            Placeholder="Search node types..."
                                            data-testid="session-settings-node-type-search"
                                            Value="@_nodeTypeFilter"
-                                           ValueChanged="OnNodeTypeFilterChanged" />
+                                           ValueChanged="OnNodeTypeFilterChanged"
+                                           OnKeyUp="OnNodeTypeSearchKeyUp" />
                                 </div>
                                 <Button Variant="@ButtonVariant.Default"
                                         Size="@ButtonSize.IconSm"
@@ -386,7 +387,8 @@
                                            Placeholder="Search edge types..."
                                            data-testid="session-settings-edge-type-search"
                                            Value="@_edgeTypeFilter"
-                                           ValueChanged="OnEdgeTypeFilterChanged" />
+                                           ValueChanged="OnEdgeTypeFilterChanged"
+                                           OnKeyUp="OnEdgeTypeSearchKeyUp" />
                                 </div>
                                 <Button Variant="@ButtonVariant.Default"
                                         Size="@ButtonSize.IconSm"

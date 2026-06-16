@@ -283,6 +283,37 @@ public partial class SessionSettings : TinyComponentBase
         _nodeTypeForm = NodeTypeFormModel.Empty with { Label = "New Node Type" };
     }
 
+    private void QuickCreateNodeType(string label)
+    {
+        label = label.Trim();
+        if (string.IsNullOrWhiteSpace(label))
+            return;
+
+        var key = NormalizeKey(string.Empty, label, "node-type");
+        if (SettingsState.NodeTypes.Any(nodeType => string.Equals(nodeType.Key, key, StringComparison.OrdinalIgnoreCase)))
+            return;
+
+        var nodeType = new SessionNodeTypeDefinition(
+            Guid.NewGuid().ToString("N"),
+            key,
+            label,
+            null,
+            NodeTypeFormModel.Empty.BlockComponent,
+            false,
+            false,
+            false);
+
+        EffectiveStateService.Dispatch(new CreateSessionNodeTypeRequested(nodeType));
+        EffectiveStateService.Dispatch(new CreateSessionNodeTypeSucceeded(nodeType));
+        EffectiveStateService.Dispatch(new ScheduleCreateEffect("node-type", nodeType.Id, nodeType.Label, IsStatic: false));
+
+        _nodeTypeFilter = string.Empty;
+        _selectedNodeTypeId = nodeType.Id;
+        _editingNodeTypeId = null;
+        _nodeTypeForm = NodeTypeFormModel.Empty;
+        _nodeTypeView = "view";
+    }
+
     private void SelectNodeType(SessionNodeTypeDefinition nodeType)
     {
         _selectedNodeTypeId = nodeType.Id;
@@ -378,6 +409,37 @@ public partial class SessionSettings : TinyComponentBase
         };
     }
 
+    private void QuickCreateEdgeType(string label)
+    {
+        label = label.Trim();
+        if (string.IsNullOrWhiteSpace(label))
+            return;
+
+        var key = NormalizeKey(string.Empty, label, "edge-type");
+        if (SettingsState.EdgeTypes.Any(edgeType => string.Equals(edgeType.Key, key, StringComparison.OrdinalIgnoreCase)))
+            return;
+
+        var edgeType = new SessionEdgeTypeDefinition(
+            Guid.NewGuid().ToString("N"),
+            key,
+            label,
+            SettingsState.NodeTypes.FirstOrDefault()?.Key ?? string.Empty,
+            SettingsState.NodeTypes.Skip(1).FirstOrDefault()?.Key ?? SettingsState.NodeTypes.FirstOrDefault()?.Key ?? string.Empty,
+            "create",
+            null,
+            false);
+
+        EffectiveStateService.Dispatch(new CreateSessionEdgeTypeRequested(edgeType));
+        EffectiveStateService.Dispatch(new CreateSessionEdgeTypeSucceeded(edgeType));
+        EffectiveStateService.Dispatch(new ScheduleCreateEffect("edge-type", edgeType.Id, edgeType.Label, IsStatic: false));
+
+        _edgeTypeFilter = string.Empty;
+        _selectedEdgeTypeId = edgeType.Id;
+        _editingEdgeTypeId = null;
+        _edgeTypeForm = EdgeTypeFormModel.Empty;
+        _edgeTypeView = "view";
+    }
+
     private void SelectEdgeType(SessionEdgeTypeDefinition edgeType)
     {
         _selectedEdgeTypeId = edgeType.Id;
@@ -465,9 +527,41 @@ public partial class SessionSettings : TinyComponentBase
         return Task.CompletedTask;
     }
 
+    private Task OnNodeTypeSearchKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter"
+            && !e.ShiftKey
+            && !e.CtrlKey
+            && !e.MetaKey
+            && !SettingsState.IsBusy
+            && !string.IsNullOrWhiteSpace(_nodeTypeFilter)
+            && FilteredNodeTypes.Count == 0)
+        {
+            QuickCreateNodeType(_nodeTypeFilter);
+        }
+
+        return Task.CompletedTask;
+    }
+
     private Task OnEdgeTypeFilterChanged(string? value)
     {
         _edgeTypeFilter = value ?? string.Empty;
+        return Task.CompletedTask;
+    }
+
+    private Task OnEdgeTypeSearchKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter"
+            && !e.ShiftKey
+            && !e.CtrlKey
+            && !e.MetaKey
+            && !SettingsState.IsBusy
+            && !string.IsNullOrWhiteSpace(_edgeTypeFilter)
+            && FilteredEdgeTypes.Count == 0)
+        {
+            QuickCreateEdgeType(_edgeTypeFilter);
+        }
+
         return Task.CompletedTask;
     }
 

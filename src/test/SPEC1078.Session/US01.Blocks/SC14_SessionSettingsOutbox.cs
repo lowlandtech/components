@@ -590,6 +590,72 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
         source.Split("MaxWidth=\"1280\"").Length.ShouldBeGreaterThanOrEqualTo(3);
     }
 
+    [Fact(DisplayName = "UAC23: Enter quick-creates a NodeType when search has no matches")]
+    [Trait(Spec.UAC, "23")]
+    [Given("a SessionSettings NodeTypes page filtered to a label with no matches")]
+    [When("the user presses Enter in the search input")]
+    [Then("a dynamic NodeType is created with sensible defaults and scheduled in the outbox")]
+    public void UAC23_NodeTypeSearchEnterQuickCreatesMissingType()
+    {
+        var outbox = new InMemorySessionOutbox();
+        var stateService = CreateOutboxStateService(outbox);
+
+        var cut = Ctx.Render<SessionSettings>(p => p
+            .Add(x => x.StateService, stateService)
+            .Add(x => x.Outbox, outbox));
+
+        var search = cut.Find("[data-testid='session-settings-node-type-search']");
+        search.Input("Customer");
+        cut.WaitForAssertion(() => cut.Find("[data-testid='session-settings-node-types-grid']")
+            .TextContent.ShouldContain("No NodeTypes match this search."));
+
+        search.KeyUp(new KeyboardEventArgs { Key = "Enter" });
+
+        cut.WaitForAssertion(() => cut.FindAll("[data-node-type-key='customer']").Count.ShouldBe(1));
+        cut.Find("[data-node-type-key='customer']").TextContent.ShouldContain("Customer");
+
+        outbox.Entries.Count.ShouldBe(1);
+        outbox.Entries[0].Type.ShouldBe(nameof(ScheduleCreateEffect));
+        var effect = (ScheduleCreateEffect)outbox.Entries[0].Payload;
+        effect.EntityType.ShouldBe("node-type");
+        effect.Label.ShouldBe("Customer");
+        effect.IsStatic.ShouldBeFalse();
+    }
+
+    [Fact(DisplayName = "UAC24: Enter quick-creates an EdgeType when search has no matches")]
+    [Trait(Spec.UAC, "24")]
+    [Given("a SessionSettings EdgeTypes page filtered to a label with no matches")]
+    [When("the user presses Enter in the search input")]
+    [Then("a dynamic EdgeType is created with default source, target, intent, and an outbox mutation")]
+    public void UAC24_EdgeTypeSearchEnterQuickCreatesMissingType()
+    {
+        var outbox = new InMemorySessionOutbox();
+        var stateService = CreateOutboxStateService(outbox);
+
+        var cut = Ctx.Render<SessionSettings>(p => p
+            .Add(x => x.StateService, stateService)
+            .Add(x => x.Outbox, outbox));
+
+        cut.Find("[data-testid='session-settings-edge-types-tab']").Click();
+        cut.WaitForAssertion(() => cut.FindAll("[data-testid='session-settings-edge-type-search']").Count.ShouldBe(1));
+        var search = cut.Find("[data-testid='session-settings-edge-type-search']");
+        search.Input("Owns Customer");
+        cut.WaitForAssertion(() => cut.Find("[data-testid='session-settings-edge-types-grid']")
+            .TextContent.ShouldContain("No EdgeTypes match this search."));
+
+        search.KeyUp(new KeyboardEventArgs { Key = "Enter" });
+
+        cut.WaitForAssertion(() => cut.FindAll("[data-edge-type-key='owns-customer']").Count.ShouldBe(1));
+        cut.Find("[data-edge-type-key='owns-customer']").TextContent.ShouldContain("Owns Customer");
+
+        outbox.Entries.Count.ShouldBe(1);
+        outbox.Entries[0].Type.ShouldBe(nameof(ScheduleCreateEffect));
+        var effect = (ScheduleCreateEffect)outbox.Entries[0].Payload;
+        effect.EntityType.ShouldBe("edge-type");
+        effect.Label.ShouldBe("Owns Customer");
+        effect.IsStatic.ShouldBeFalse();
+    }
+
     private void OpenRenameMenu(IRenderedComponent<SessionBlock> cut)
     {
         cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='setup-ci']").Click();
