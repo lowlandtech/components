@@ -437,7 +437,7 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
     [Trait(Spec.UAC, "19")]
     [Given("a SessionSettings component with schema DataGrids")]
     [When("the NodeTypes and EdgeTypes grids are rendered")]
-    [Then("the grid body owns scrolling while column headers stay sticky")]
+    [Then("the grid body owns scrolling while column headers stay sticky and opaque")]
     public void UAC19_SchemaGridRowsScrollUnderStickyHeaders()
     {
         var cut = Ctx.Render<SessionSettings>();
@@ -447,6 +447,8 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
         styles.ShouldContain("overflow: auto");
         styles.ShouldContain(".session-settings-schema-grid .cn-data-grid-header");
         styles.ShouldContain("position: sticky");
+        styles.ShouldContain("background: var(--background)");
+        styles.ShouldContain(".session-settings-schema-grid .cn-data-grid-head");
 
         cut.Find("[data-testid='session-settings-node-types-grid']")
             .ClassList.ShouldContain("session-settings-schema-grid");
