@@ -2,7 +2,7 @@
 @inject IJSRuntime JsRuntime
 @inject ILogger<ExplorerLayout> Logger
 
-<div @ref="_containerRef" class="explorer-layout @ViewModeClass flex @(string.IsNullOrWhiteSpace(HeightClass) ? "h-[calc(100vh-3.5rem)]" : HeightClass) overflow-hidden relative" style="--panel-width: @(_panelWidth)px;" data-storage-key="@SplitterStorageKey" data-view-mode="@ViewMode.ToString().ToLowerInvariant()" @attributes="AdditionalAttributes">
+<div @ref="_containerRef" class="@LayoutClass" style="--panel-width: @(_panelWidth)px;" data-storage-key="@SplitterStorageKey" data-view-mode="@ViewMode.ToString().ToLowerInvariant()" @attributes="AdditionalAttributes">
     @* ── Floating expand button (when collapsed) ── *@
     @if (ShowLeftPane)
     {
@@ -126,6 +126,9 @@
         _                             => string.Empty,
     };
 
+    private string LayoutClass =>
+        $"explorer-layout {ViewModeClass} {(_collapsed ? "explorer-collapsed" : string.Empty)} flex {(string.IsNullOrWhiteSpace(HeightClass) ? "h-[calc(100vh-3.5rem)]" : HeightClass)} overflow-hidden relative";
+
     private RenderFragment ListFragment => __builder =>
     {
         <div class="explorer-sidebar flex flex-col bg-background border-b border-border">
@@ -179,6 +182,7 @@
             {
                 _collapsed = isCollapsed;
                 await UpdateCollapseClassAsync();
+                StateHasChanged();
             }
         }
         catch (Exception ex)

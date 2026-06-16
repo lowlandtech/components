@@ -97,91 +97,105 @@
 
                 <ListContent>
                     <div class="workitems-list-pane flex h-full min-h-0 flex-col overflow-hidden" data-testid="session-settings-node-types-list-slot">
-                        <div class="workitems-list-toolbar flex flex-wrap items-center gap-3">
-                            <div class="workitems-search-wrapper min-w-[220px] flex-1">
-                                <Input Type="search"
-                                       Placeholder="Search node types..."
-                                       data-testid="session-settings-node-type-search"
-                                       Value="@_nodeTypeFilter"
-                                       ValueChanged="OnNodeTypeFilterChanged" />
+                        <div class="session-settings-schema-list-body flex min-h-0 flex-1 flex-col gap-[10px] p-[10px]">
+                            <div class="workitems-list-toolbar flex flex-wrap items-center gap-3">
+                                <div class="workitems-search-wrapper min-w-[220px] flex-1">
+                                    <Input Type="search"
+                                           Placeholder="Search node types..."
+                                           data-testid="session-settings-node-type-search"
+                                           Value="@_nodeTypeFilter"
+                                           ValueChanged="OnNodeTypeFilterChanged" />
+                                </div>
+                                <Button Variant="@ButtonVariant.Default"
+                                        Size="@ButtonSize.IconSm"
+                                        class="workitem-quick-add"
+                                        data-testid="session-settings-create-node-type"
+                                        disabled="@SettingsState.IsBusy"
+                                        OnClick="BeginCreateNodeType"
+                                        title="Create NodeType"
+                                        aria-label="Create NodeType">
+                                    <span aria-hidden="true">+</span>
+                                </Button>
                             </div>
-                            <Button Variant="@ButtonVariant.Default"
-                                    Size="@ButtonSize.IconSm"
-                                    class="workitem-quick-add"
-                                    data-testid="session-settings-create-node-type"
-                                    disabled="@SettingsState.IsBusy"
-                                    OnClick="BeginCreateNodeType"
-                                    title="Create NodeType"
-                                    aria-label="Create NodeType">
-                                <span aria-hidden="true">+</span>
-                            </Button>
+
+                            <div class="workitems-grid-scroll min-h-0 flex-1 overflow-y-auto">
+                                <DataGrid TItem="SessionNodeTypeDefinition"
+                                          data-testid="session-settings-node-types-grid"
+                                          Items="FilteredNodeTypes"
+                                          IsLoading="@SettingsState.IsLoading"
+                                          AllowPaging="false"
+                                          SelectionMode="DataGridSelectionMode.Single"
+                                          SelectedItem="SelectedNodeType"
+                                          ItemKey="nodeType => nodeType.Id"
+                                          SelectedItemChanged="nodeType => { if (nodeType is not null) SelectNodeType(nodeType); return Task.CompletedTask; }">
+                                    <EmptyTemplate>
+                                        <span class="workitems-grid-empty-filtered">No NodeTypes match this search.</span>
+                                    </EmptyTemplate>
+                                    <Columns>
+                                        <DataGridColumn TItem="SessionNodeTypeDefinition" Property="Label" Title="Label" Class="workitems-title-cell">
+                                            <Template Context="nodeType">
+                                                <div data-testid="session-settings-node-type-row" data-node-type-key="@nodeType.Key" class="min-w-0">
+                                                    <span class="block truncate font-medium">@nodeType.Label</span>
+                                                    <code class="block truncate font-mono text-[10px] text-muted-foreground">@nodeType.Key</code>
+                                                    <span class="sr-only">@(nodeType.IsStatic ? "Static" : "Dynamic")</span>
+                                                    @if (nodeType.IsStatic)
+                                                    {
+                                                        <button type="button"
+                                                                class="sr-only"
+                                                                data-testid="session-settings-edit-node-type"
+                                                                disabled>
+                                                            Edit
+                                                        </button>
+                                                    }
+                                                </div>
+                                            </Template>
+                                        </DataGridColumn>
+                                        <DataGridColumn TItem="SessionNodeTypeDefinition" Property="BlockComponent" Title="Block">
+                                            <Template Context="nodeType">@(nodeType.BlockComponent ?? "none")</Template>
+                                        </DataGridColumn>
+                                        <DataGridColumn TItem="SessionNodeTypeDefinition" Property="Icon" Title="Icon">
+                                            <Template Context="nodeType">@(nodeType.Icon ?? "none")</Template>
+                                        </DataGridColumn>
+                                        <DataGridColumn TItem="SessionNodeTypeDefinition" Property="IsStatic" Title="Status">
+                                            <Template Context="nodeType">@(nodeType.IsStatic ? "Static" : "Dynamic")</Template>
+                                        </DataGridColumn>
+                                        <DataGridColumn TItem="SessionNodeTypeDefinition" Title="Actions" Sortable="false" Filterable="false" TextAlign="DataGridTextAlign.End" Class="workitems-actions-cell">
+                                            <Template Context="nodeType">
+                                                <div class="workitems-actions flex items-center justify-end gap-0.5">
+                                                    <button type="button"
+                                                            class="workitem-action-view btn btn-ghost btn-icon-sm"
+                                                            @onclick="() => SelectNodeType(nodeType)"
+                                                            @onclick:stopPropagation="true"
+                                                            title="View">
+                                                        <Icon Name="eye" Size="16" />
+                                                    </button>
+                                                    <button type="button"
+                                                            class="workitem-action-edit btn btn-ghost btn-icon-sm"
+                                                            data-testid="session-settings-edit-node-type"
+                                                            disabled="@nodeType.IsStatic"
+                                                            @onclick="() => BeginEditNodeType(nodeType)"
+                                                            @onclick:stopPropagation="true"
+                                                            title="Edit">
+                                                        <Icon Name="pencil" Size="16" />
+                                                    </button>
+                                                </div>
+                                            </Template>
+                                        </DataGridColumn>
+                                    </Columns>
+                                </DataGrid>
+                            </div>
                         </div>
 
-                        <div class="workitems-grid-scroll min-h-0 flex-1 overflow-y-auto">
-                            <DataGrid TItem="SessionNodeTypeDefinition"
-                                      data-testid="session-settings-node-types-grid"
-                                      Items="FilteredNodeTypes"
-                                      IsLoading="@SettingsState.IsLoading"
-                                      AllowPaging="false"
-                                      SelectionMode="DataGridSelectionMode.Single"
-                                      SelectedItem="SelectedNodeType"
-                                      ItemKey="nodeType => nodeType.Id"
-                                      SelectedItemChanged="nodeType => { if (nodeType is not null) SelectNodeType(nodeType); return Task.CompletedTask; }">
-                                <EmptyTemplate>
-                                    <span class="workitems-grid-empty-filtered">No NodeTypes match this search.</span>
-                                </EmptyTemplate>
-                                <Columns>
-                                    <DataGridColumn TItem="SessionNodeTypeDefinition" Property="Label" Title="Label" Class="workitems-title-cell">
-                                        <Template Context="nodeType">
-                                            <div data-testid="session-settings-node-type-row" data-node-type-key="@nodeType.Key" class="min-w-0">
-                                                <span class="block truncate font-medium">@nodeType.Label</span>
-                                                <code class="block truncate font-mono text-[10px] text-muted-foreground">@nodeType.Key</code>
-                                                <span class="sr-only">@(nodeType.IsStatic ? "Static" : "Dynamic")</span>
-                                                @if (nodeType.IsStatic)
-                                                {
-                                                    <button type="button"
-                                                            class="sr-only"
-                                                            data-testid="session-settings-edit-node-type"
-                                                            disabled>
-                                                        Edit
-                                                    </button>
-                                                }
-                                            </div>
-                                        </Template>
-                                    </DataGridColumn>
-                                    <DataGridColumn TItem="SessionNodeTypeDefinition" Property="BlockComponent" Title="Block">
-                                        <Template Context="nodeType">@(nodeType.BlockComponent ?? "none")</Template>
-                                    </DataGridColumn>
-                                    <DataGridColumn TItem="SessionNodeTypeDefinition" Property="Icon" Title="Icon">
-                                        <Template Context="nodeType">@(nodeType.Icon ?? "none")</Template>
-                                    </DataGridColumn>
-                                    <DataGridColumn TItem="SessionNodeTypeDefinition" Property="IsStatic" Title="Status">
-                                        <Template Context="nodeType">@(nodeType.IsStatic ? "Static" : "Dynamic")</Template>
-                                    </DataGridColumn>
-                                    <DataGridColumn TItem="SessionNodeTypeDefinition" Title="Actions" Sortable="false" Filterable="false" TextAlign="DataGridTextAlign.End" Class="workitems-actions-cell">
-                                        <Template Context="nodeType">
-                                            <div class="workitems-actions flex items-center justify-end gap-0.5">
-                                                <button type="button"
-                                                        class="workitem-action-view btn btn-ghost btn-icon-sm"
-                                                        @onclick="() => SelectNodeType(nodeType)"
-                                                        @onclick:stopPropagation="true"
-                                                        title="View">
-                                                    <Icon Name="eye" Size="16" />
-                                                </button>
-                                                <button type="button"
-                                                        class="workitem-action-edit btn btn-ghost btn-icon-sm"
-                                                        data-testid="session-settings-edit-node-type"
-                                                        disabled="@nodeType.IsStatic"
-                                                        @onclick="() => BeginEditNodeType(nodeType)"
-                                                        @onclick:stopPropagation="true"
-                                                        title="Edit">
-                                                    <Icon Name="pencil" Size="16" />
-                                                </button>
-                                            </div>
-                                        </Template>
-                                    </DataGridColumn>
-                                </Columns>
-                            </DataGrid>
+                        <div class="workitems-pagination mt-auto flex shrink-0 items-center justify-between border-t border-border px-3 py-2 text-xs" data-testid="session-settings-node-types-pagination-footer">
+                            <label class="workitems-page-size-label flex items-center gap-1 text-muted-foreground">
+                                <span class="workitems-page-size-label-text">Rows</span>
+                                <span class="rounded-md border border-border px-2 py-1">@FilteredNodeTypes.Count</span>
+                            </label>
+                            <div class="workitems-pagination-controls flex items-center gap-2">
+                                <Button type="button" Variant="@ButtonVariant.Outline" Size="@ButtonSize.Sm" disabled="true">Prev</Button>
+                                <span class="workitems-pagination-page">1 / 1</span>
+                                <Button type="button" Variant="@ButtonVariant.Outline" Size="@ButtonSize.Sm" disabled="true">Next</Button>
+                            </div>
                         </div>
                     </div>
                 </ListContent>
@@ -200,7 +214,7 @@
                                 <div class="workitems-detail-title-wrapper min-w-0">
                                     <h2 class="workitems-detail-title">@GetNodeTypePanelTitle()</h2>
                                 </div>
-                                <button type="button" class="btn btn-ghost btn-icon-sm" @onclick="CancelNodeTypeEdit" title="Close">
+                                <button type="button" class="btn btn-ghost btn-icon-sm" data-testid="session-settings-close-node-type-panel" @onclick="CloseNodeTypePanel" title="Close">
                                     <Icon Name="x" Size="16" />
                                 </button>
                             </div>
@@ -304,80 +318,94 @@
 
                 <ListContent>
                     <div class="workitems-list-pane flex h-full min-h-0 flex-col overflow-hidden" data-testid="session-settings-edge-types-list-slot">
-                        <div class="workitems-list-toolbar flex flex-wrap items-center gap-3">
-                            <div class="workitems-search-wrapper min-w-[220px] flex-1">
-                                <Input Type="search"
-                                       Placeholder="Search edge types..."
-                                       data-testid="session-settings-edge-type-search"
-                                       Value="@_edgeTypeFilter"
-                                       ValueChanged="OnEdgeTypeFilterChanged" />
+                        <div class="session-settings-schema-list-body flex min-h-0 flex-1 flex-col gap-[10px] p-[10px]">
+                            <div class="workitems-list-toolbar flex flex-wrap items-center gap-3">
+                                <div class="workitems-search-wrapper min-w-[220px] flex-1">
+                                    <Input Type="search"
+                                           Placeholder="Search edge types..."
+                                           data-testid="session-settings-edge-type-search"
+                                           Value="@_edgeTypeFilter"
+                                           ValueChanged="OnEdgeTypeFilterChanged" />
+                                </div>
+                                <Button Variant="@ButtonVariant.Default"
+                                        Size="@ButtonSize.IconSm"
+                                        class="workitem-quick-add"
+                                        data-testid="session-settings-create-edge-type"
+                                        disabled="@SettingsState.IsBusy"
+                                        OnClick="BeginCreateEdgeType"
+                                        title="Create EdgeType"
+                                        aria-label="Create EdgeType">
+                                    <span aria-hidden="true">+</span>
+                                </Button>
                             </div>
-                            <Button Variant="@ButtonVariant.Default"
-                                    Size="@ButtonSize.IconSm"
-                                    class="workitem-quick-add"
-                                    data-testid="session-settings-create-edge-type"
-                                    disabled="@SettingsState.IsBusy"
-                                    OnClick="BeginCreateEdgeType"
-                                    title="Create EdgeType"
-                                    aria-label="Create EdgeType">
-                                <span aria-hidden="true">+</span>
-                            </Button>
+
+                            <div class="workitems-grid-scroll min-h-0 flex-1 overflow-y-auto">
+                                <DataGrid TItem="SessionEdgeTypeDefinition"
+                                          data-testid="session-settings-edge-types-grid"
+                                          Items="FilteredEdgeTypes"
+                                          IsLoading="@SettingsState.IsLoading"
+                                          AllowPaging="false"
+                                          SelectionMode="DataGridSelectionMode.Single"
+                                          SelectedItem="SelectedEdgeType"
+                                          ItemKey="edgeType => edgeType.Id"
+                                          SelectedItemChanged="edgeType => { if (edgeType is not null) SelectEdgeType(edgeType); return Task.CompletedTask; }">
+                                    <EmptyTemplate>
+                                        <span class="workitems-grid-empty-filtered">No EdgeTypes match this search.</span>
+                                    </EmptyTemplate>
+                                    <Columns>
+                                        <DataGridColumn TItem="SessionEdgeTypeDefinition" Property="Label" Title="Label" Class="workitems-title-cell">
+                                            <Template Context="edgeType">
+                                                <div data-testid="session-settings-edge-type-row" data-edge-type-key="@edgeType.Key" class="min-w-0">
+                                                    <span class="block truncate font-medium">@edgeType.Label</span>
+                                                    <code class="block truncate font-mono text-[10px] text-muted-foreground">@edgeType.Key</code>
+                                                </div>
+                                            </Template>
+                                        </DataGridColumn>
+                                        <DataGridColumn TItem="SessionEdgeTypeDefinition" Property="SourceNodeTypeKey" Title="Source" />
+                                        <DataGridColumn TItem="SessionEdgeTypeDefinition" Property="TargetNodeTypeKey" Title="Target" />
+                                        <DataGridColumn TItem="SessionEdgeTypeDefinition" Property="Intent" Title="Intent">
+                                            <Template Context="edgeType">@(edgeType.Intent ?? "none")</Template>
+                                        </DataGridColumn>
+                                        <DataGridColumn TItem="SessionEdgeTypeDefinition" Property="IsStatic" Title="Status">
+                                            <Template Context="edgeType">@(edgeType.IsStatic ? "Static" : "Dynamic")</Template>
+                                        </DataGridColumn>
+                                        <DataGridColumn TItem="SessionEdgeTypeDefinition" Title="Actions" Sortable="false" Filterable="false" TextAlign="DataGridTextAlign.End" Class="workitems-actions-cell">
+                                            <Template Context="edgeType">
+                                                <div class="workitems-actions flex items-center justify-end gap-0.5">
+                                                    <button type="button"
+                                                            class="workitem-action-view btn btn-ghost btn-icon-sm"
+                                                            @onclick="() => SelectEdgeType(edgeType)"
+                                                            @onclick:stopPropagation="true"
+                                                            title="View">
+                                                        <Icon Name="eye" Size="16" />
+                                                    </button>
+                                                    <button type="button"
+                                                            class="workitem-action-edit btn btn-ghost btn-icon-sm"
+                                                            data-testid="session-settings-edit-edge-type"
+                                                            disabled="@edgeType.IsStatic"
+                                                            @onclick="() => BeginEditEdgeType(edgeType)"
+                                                            @onclick:stopPropagation="true"
+                                                            title="Edit">
+                                                        <Icon Name="pencil" Size="16" />
+                                                    </button>
+                                                </div>
+                                            </Template>
+                                        </DataGridColumn>
+                                    </Columns>
+                                </DataGrid>
+                            </div>
                         </div>
 
-                        <div class="workitems-grid-scroll min-h-0 flex-1 overflow-y-auto">
-                            <DataGrid TItem="SessionEdgeTypeDefinition"
-                                      data-testid="session-settings-edge-types-grid"
-                                      Items="FilteredEdgeTypes"
-                                      IsLoading="@SettingsState.IsLoading"
-                                      AllowPaging="false"
-                                      SelectionMode="DataGridSelectionMode.Single"
-                                      SelectedItem="SelectedEdgeType"
-                                      ItemKey="edgeType => edgeType.Id"
-                                      SelectedItemChanged="edgeType => { if (edgeType is not null) SelectEdgeType(edgeType); return Task.CompletedTask; }">
-                                <EmptyTemplate>
-                                    <span class="workitems-grid-empty-filtered">No EdgeTypes match this search.</span>
-                                </EmptyTemplate>
-                                <Columns>
-                                    <DataGridColumn TItem="SessionEdgeTypeDefinition" Property="Label" Title="Label" Class="workitems-title-cell">
-                                        <Template Context="edgeType">
-                                            <div data-testid="session-settings-edge-type-row" data-edge-type-key="@edgeType.Key" class="min-w-0">
-                                                <span class="block truncate font-medium">@edgeType.Label</span>
-                                                <code class="block truncate font-mono text-[10px] text-muted-foreground">@edgeType.Key</code>
-                                            </div>
-                                        </Template>
-                                    </DataGridColumn>
-                                    <DataGridColumn TItem="SessionEdgeTypeDefinition" Property="SourceNodeTypeKey" Title="Source" />
-                                    <DataGridColumn TItem="SessionEdgeTypeDefinition" Property="TargetNodeTypeKey" Title="Target" />
-                                    <DataGridColumn TItem="SessionEdgeTypeDefinition" Property="Intent" Title="Intent">
-                                        <Template Context="edgeType">@(edgeType.Intent ?? "none")</Template>
-                                    </DataGridColumn>
-                                    <DataGridColumn TItem="SessionEdgeTypeDefinition" Property="IsStatic" Title="Status">
-                                        <Template Context="edgeType">@(edgeType.IsStatic ? "Static" : "Dynamic")</Template>
-                                    </DataGridColumn>
-                                    <DataGridColumn TItem="SessionEdgeTypeDefinition" Title="Actions" Sortable="false" Filterable="false" TextAlign="DataGridTextAlign.End" Class="workitems-actions-cell">
-                                        <Template Context="edgeType">
-                                            <div class="workitems-actions flex items-center justify-end gap-0.5">
-                                                <button type="button"
-                                                        class="workitem-action-view btn btn-ghost btn-icon-sm"
-                                                        @onclick="() => SelectEdgeType(edgeType)"
-                                                        @onclick:stopPropagation="true"
-                                                        title="View">
-                                                    <Icon Name="eye" Size="16" />
-                                                </button>
-                                                <button type="button"
-                                                        class="workitem-action-edit btn btn-ghost btn-icon-sm"
-                                                        data-testid="session-settings-edit-edge-type"
-                                                        disabled="@edgeType.IsStatic"
-                                                        @onclick="() => BeginEditEdgeType(edgeType)"
-                                                        @onclick:stopPropagation="true"
-                                                        title="Edit">
-                                                    <Icon Name="pencil" Size="16" />
-                                                </button>
-                                            </div>
-                                        </Template>
-                                    </DataGridColumn>
-                                </Columns>
-                            </DataGrid>
+                        <div class="workitems-pagination mt-auto flex shrink-0 items-center justify-between border-t border-border px-3 py-2 text-xs" data-testid="session-settings-edge-types-pagination-footer">
+                            <label class="workitems-page-size-label flex items-center gap-1 text-muted-foreground">
+                                <span class="workitems-page-size-label-text">Rows</span>
+                                <span class="rounded-md border border-border px-2 py-1">@FilteredEdgeTypes.Count</span>
+                            </label>
+                            <div class="workitems-pagination-controls flex items-center gap-2">
+                                <Button type="button" Variant="@ButtonVariant.Outline" Size="@ButtonSize.Sm" disabled="true">Prev</Button>
+                                <span class="workitems-pagination-page">1 / 1</span>
+                                <Button type="button" Variant="@ButtonVariant.Outline" Size="@ButtonSize.Sm" disabled="true">Next</Button>
+                            </div>
                         </div>
                     </div>
                 </ListContent>
@@ -396,7 +424,7 @@
                                 <div class="workitems-detail-title-wrapper min-w-0">
                                     <h2 class="workitems-detail-title">@GetEdgeTypePanelTitle()</h2>
                                 </div>
-                                <button type="button" class="btn btn-ghost btn-icon-sm" @onclick="CancelEdgeTypeEdit" title="Close">
+                                <button type="button" class="btn btn-ghost btn-icon-sm" data-testid="session-settings-close-edge-type-panel" @onclick="CloseEdgeTypePanel" title="Close">
                                     <Icon Name="x" Size="16" />
                                 </button>
                             </div>

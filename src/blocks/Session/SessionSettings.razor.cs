@@ -284,6 +284,14 @@ public partial class SessionSettings : TinyComponentBase
         _nodeTypeView = SelectedNodeType is null ? "grid" : "view";
     }
 
+    private void CloseNodeTypePanel()
+    {
+        _selectedNodeTypeId = null;
+        _editingNodeTypeId = null;
+        _nodeTypeForm = NodeTypeFormModel.Empty;
+        _nodeTypeView = "grid";
+    }
+
     private void SaveNodeType()
     {
         var key = NormalizeKey(_nodeTypeForm.Key, _nodeTypeForm.Label, "node-type");
@@ -361,6 +369,14 @@ public partial class SessionSettings : TinyComponentBase
         _editingEdgeTypeId = null;
         _edgeTypeForm = EdgeTypeFormModel.Empty;
         _edgeTypeView = SelectedEdgeType is null ? "grid" : "view";
+    }
+
+    private void CloseEdgeTypePanel()
+    {
+        _selectedEdgeTypeId = null;
+        _editingEdgeTypeId = null;
+        _edgeTypeForm = EdgeTypeFormModel.Empty;
+        _edgeTypeView = "grid";
     }
 
     private void SaveEdgeType()

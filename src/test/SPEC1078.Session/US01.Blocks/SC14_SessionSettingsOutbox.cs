@@ -360,6 +360,57 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
         cut.FindAll("[data-edge-type-key='owns-project']").Count.ShouldBeGreaterThan(0);
     }
 
+    [Fact(DisplayName = "UAC15: Schema grids render pagination footers")]
+    [Trait(Spec.UAC, "15")]
+    [Given("a SessionSettings component with descriptor-loaded schema rows")]
+    [When("the NodeTypes and EdgeTypes settings tabs are opened")]
+    [Then("each schema list renders a left-side pagination footer")]
+    public void UAC15_SchemaGridsRenderPaginationFooters()
+    {
+        var cut = Ctx.Render<SessionSettings>();
+
+        cut.Find("[data-testid='session-settings-node-types-pagination-footer']")
+            .TextContent.ShouldContain("Rows");
+
+        cut.Find("[data-testid='session-settings-edge-types-tab']").Click();
+
+        cut.Find("[data-testid='session-settings-edge-types-pagination-footer']")
+            .TextContent.ShouldContain("Rows");
+    }
+
+    [Fact(DisplayName = "UAC16: Closing a selected NodeType hides the detail panel")]
+    [Trait(Spec.UAC, "16")]
+    [Given("a SessionSettings component with a selected NodeType detail panel")]
+    [When("the user clicks the detail close button")]
+    [Then("the detail panel returns to its empty state")]
+    public void UAC16_CloseNodeTypePanelReturnsToEmptyState()
+    {
+        var cut = Ctx.Render<SessionSettings>();
+
+        cut.Find("[data-node-type-key='action']").Click();
+        cut.Find("[data-testid='session-settings-close-node-type-panel']").Click();
+
+        cut.Find("[data-testid='session-settings-node-types-detail-slot']")
+            .TextContent.ShouldContain("Select a NodeType");
+    }
+
+    [Fact(DisplayName = "UAC17: Closing a selected EdgeType hides the detail panel")]
+    [Trait(Spec.UAC, "17")]
+    [Given("a SessionSettings component with a selected EdgeType detail panel")]
+    [When("the user clicks the detail close button")]
+    [Then("the detail panel returns to its empty state")]
+    public void UAC17_CloseEdgeTypePanelReturnsToEmptyState()
+    {
+        var cut = Ctx.Render<SessionSettings>();
+
+        cut.Find("[data-testid='session-settings-edge-types-tab']").Click();
+        cut.Find("[data-testid='session-settings-edge-type-row']").Click();
+        cut.Find("[data-testid='session-settings-close-edge-type-panel']").Click();
+
+        cut.Find("[data-testid='session-settings-edge-types-detail-slot']")
+            .TextContent.ShouldContain("Select an EdgeType");
+    }
+
     private void OpenRenameMenu(IRenderedComponent<SessionBlock> cut)
     {
         cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='setup-ci']").Click();

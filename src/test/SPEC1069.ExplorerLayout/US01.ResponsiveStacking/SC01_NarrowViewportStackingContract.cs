@@ -214,4 +214,24 @@ public class SC01_NarrowViewportStackingContract
                 "src/app/Components/App.razor must link " +
                 "`_content/LowlandTech.Components/css/explorer-layout.css` in <head>.");
     }
+
+    [Fact(DisplayName = "UAC11: ExplorerLayout renders the collapsed class from component state")]
+    [Trait(Spec.UAC, "11")]
+    [Given("ExplorerLayout owns collapsed sidebar state")]
+    [When("the layout root class is rendered")]
+    [Then("the explorer-collapsed class is included through the Blazor class binding")]
+    public void UAC11_CollapsedClassIsRenderedFromState()
+    {
+        var razor = LoadExplorerLayoutRazor();
+
+        razor.ShouldContain("private string LayoutClass",
+            customMessage:
+                "ExplorerLayout must compute its root class from component state, not only by mutating the DOM after render.");
+        razor.ShouldContain("_collapsed ? \"explorer-collapsed\"",
+            customMessage:
+                "The collapsed state must render `explorer-collapsed` so the show-sidebar button can restore the hidden pane reliably.");
+        razor.ShouldContain("class=\"@LayoutClass\"",
+            customMessage:
+                "The ExplorerLayout root element must use LayoutClass for the collapse CSS contract.");
+    }
 }
