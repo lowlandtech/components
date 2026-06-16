@@ -8,14 +8,14 @@ public partial class SessionSettings : TinyComponentBase
 
     private enum SettingsSection
     {
-        ApiKeys,
         NodeTypes,
         EdgeTypes,
+        ApiKeys,
         Activity,
         Outbox,
     }
 
-    private SettingsSection _section = SettingsSection.ApiKeys;
+    private SettingsSection _section = SettingsSection.NodeTypes;
     private string? _editingKeyId;
     private string _editingName = string.Empty;
     private string? _editingNodeTypeId;

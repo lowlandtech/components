@@ -5,20 +5,6 @@
     <aside class="w-44 shrink-0 border-r border-border bg-sidebar/30 px-3 py-4">
         <nav class="space-y-1" aria-label="Settings sections">
             <button type="button"
-                    data-testid="session-settings-api-keys-tab"
-                    data-active="@(_section == SettingsSection.ApiKeys ? "true" : "false")"
-                    class="@GetNavButtonClass(SettingsSection.ApiKeys)"
-                    @onclick="() => _section = SettingsSection.ApiKeys">
-                @L("ApiKeys")
-            </button>
-            <button type="button"
-                    data-testid="session-settings-activity-tab"
-                    data-active="@(_section == SettingsSection.Activity ? "true" : "false")"
-                    class="@GetNavButtonClass(SettingsSection.Activity)"
-                    @onclick="() => _section = SettingsSection.Activity">
-                @L("Activity")
-            </button>
-            <button type="button"
                     data-testid="session-settings-node-types-tab"
                     data-active="@(_section == SettingsSection.NodeTypes ? "true" : "false")"
                     class="@GetNavButtonClass(SettingsSection.NodeTypes)"
@@ -31,6 +17,20 @@
                     class="@GetNavButtonClass(SettingsSection.EdgeTypes)"
                     @onclick="() => _section = SettingsSection.EdgeTypes">
                 EdgeTypes
+            </button>
+            <button type="button"
+                    data-testid="session-settings-api-keys-tab"
+                    data-active="@(_section == SettingsSection.ApiKeys ? "true" : "false")"
+                    class="@GetNavButtonClass(SettingsSection.ApiKeys)"
+                    @onclick="() => _section = SettingsSection.ApiKeys">
+                @L("ApiKeys")
+            </button>
+            <button type="button"
+                    data-testid="session-settings-activity-tab"
+                    data-active="@(_section == SettingsSection.Activity ? "true" : "false")"
+                    class="@GetNavButtonClass(SettingsSection.Activity)"
+                    @onclick="() => _section = SettingsSection.Activity">
+                @L("Activity")
             </button>
             @if (Outbox is not null || OutboxContent is not null)
             {

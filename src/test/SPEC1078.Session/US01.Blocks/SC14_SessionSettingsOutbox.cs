@@ -220,6 +220,7 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
             .Add(x => x.ClientSettings, clientSettings)
             .Add(x => x.Outbox, outbox));
 
+        cut.Find("[data-testid='session-settings-api-keys-tab']").Click();
         cut.Find("[data-testid='session-settings-create-api-key']").Click();
 
         cut.WaitForAssertion(() =>
@@ -247,6 +248,7 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
             .Add(x => x.ClientSettings, clientSettings)
             .Add(x => x.Outbox, outbox));
 
+        cut.Find("[data-testid='session-settings-api-keys-tab']").Click();
         cut.Find("[data-testid='session-settings-rename-api-key']").Click();
         cut.Find("[data-testid='session-settings-api-key-name-input']").Input("Renamed API Key");
         cut.Find("[data-testid='session-settings-save-api-key']").Click();
@@ -263,13 +265,21 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
     [Trait(Spec.UAC, "11")]
     [Given("a SessionSettings component with registered graph descriptors")]
     [When("the component is rendered")]
-    [Then("NodeTypes and EdgeTypes management tabs are visible")]
+    [Then("NodeTypes and EdgeTypes are the first two management tabs and NodeTypes is active")]
     public void UAC11_GraphManagementTabsAreVisible()
     {
         var cut = Ctx.Render<SessionSettings>();
 
         cut.FindAll("[data-testid='session-settings-node-types-tab']").Count.ShouldBe(1);
         cut.FindAll("[data-testid='session-settings-edge-types-tab']").Count.ShouldBe(1);
+        cut.Find("[data-testid='session-settings-node-types-tab']").GetAttribute("data-active").ShouldBe("true");
+
+        var tabIds = cut.Find("nav").QuerySelectorAll("button")
+            .Select(button => button.GetAttribute("data-testid"))
+            .ToArray();
+
+        tabIds[0].ShouldBe("session-settings-node-types-tab");
+        tabIds[1].ShouldBe("session-settings-edge-types-tab");
     }
 
     [Fact(DisplayName = "UAC12: Descriptor-backed NodeTypes are listed as static and read-only")]
