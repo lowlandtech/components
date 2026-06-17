@@ -341,4 +341,18 @@ public class SC02_RenderSelectSubcomponents : ViewScenario
         style.ShouldNotBeNull();
         style.ShouldContain("max-height: 10rem");
     }
+
+    [Fact(DisplayName = "UAC26: SelectTrigger renders data-popover-anchor when inside a Select")]
+    [Trait(Spec.UAC, "26")]
+    [Then("the trigger button has a data-popover-anchor attribute so the popover service can position it")]
+    public void UAC26_TriggerRendersPopoverAnchorDataAttribute()
+    {
+        var cut = Ctx.Render<SelectSut>(p =>
+        {
+            p.AddChildContent<SelectTrigger>(tp => tp.AddChildContent("Select"));
+        });
+
+        var trigger = cut.Find("[data-slot='select-trigger']");
+        trigger.GetAttribute("data-popover-anchor").ShouldNotBeNullOrWhiteSpace();
+    }
 }

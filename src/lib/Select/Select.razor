@@ -43,7 +43,7 @@
     /// </summary>
     internal string? SelectedText { get; set; }
 
-    internal string PopoverAnchorId => $"popover-anchor-{_popoverId}";
+    internal Guid PopoverId => _popoverId;
 
     protected override void OnInitialized()
     {

@@ -56,10 +56,12 @@
 
     private void OnPopoverChanged()
     {
-        InvokeAsync(async () =>
+        // Re-render immediately so the popover DOM is created/removed synchronously
+        // with the state change. JS repositioning is scheduled separately.
+        StateHasChanged();
+
+        _ = InvokeAsync(async () =>
         {
-            StateHasChanged();
-            await Task.Yield();
             if (!_jsInitialized)
             {
                 await JS.InvokeVoidAsync("ltPopover.initialize");

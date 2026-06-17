@@ -4,7 +4,7 @@ window.ltPopover = {
     },
 
     position(id, placement) {
-        const anchor = document.getElementById(`popover-anchor-${id}`);
+        const anchor = document.querySelector(`[data-popover-anchor="${id}"]`) || document.getElementById(`popover-anchor-${id}`);
         const content = document.getElementById(`popover-content-${id}`);
         if (!anchor || !content) return;
 
