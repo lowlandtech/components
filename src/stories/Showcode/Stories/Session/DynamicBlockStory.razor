@@ -1,0 +1,21 @@
+@attribute [DisplayName("Session/DynamicBlock")]
+@inherits StoryComponent
+
+<StoryCard Title="DynamicBlock"
+           Description="SessionBlock shell generated from a model descriptor, dynamic reducers, and outbox-backed field mutations."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "workspace",
+            "Workspace Model",
+            @<DynamicBlockWorkspaceExample />,
+            [
+                StorySourceRegistry.CodeTab(
+                    "workspace-razor",
+                    "DynamicBlockWorkspaceExample.razor",
+                    "Showcode/Examples/Session/DynamicBlock/DynamicBlockWorkspaceExample.razor")
+            ])
+    ];
+}

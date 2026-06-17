@@ -177,7 +177,16 @@
                                             OnClosed="HandleTabClosedAsync"
                                             OnTabPinnedChanged="HandleTabPinnedChangedAsync"
                                             class="min-h-0 flex-1">
-                            @if (MaximizedBlock is { } maximizedBlock)
+                            @if (IsContentLoading)
+                            {
+                                <div data-slot="session-content-loading"
+                                     class="flex min-h-full flex-1 items-center justify-center"
+                                     role="status"
+                                     aria-label="@L("LoadingSessionContent")">
+                                    <Spinner class="size-6" />
+                                </div>
+                            }
+                            else if (MaximizedBlock is { } maximizedBlock)
                             {
                                 <div class="flex min-h-full"
                                      data-slot="session-block-maximized-block"
@@ -488,7 +497,16 @@
                                     OnClosed="HandleTabClosedAsync"
                                     OnTabPinnedChanged="HandleTabPinnedChangedAsync"
                                     class="min-h-0 flex-1">
-                        @if (MaximizedBlock is { } maximizedBlock)
+                        @if (IsContentLoading)
+                        {
+                            <div data-slot="session-content-loading"
+                                 class="flex min-h-full flex-1 items-center justify-center"
+                                 role="status"
+                                 aria-label="@L("LoadingSessionContent")">
+                                <Spinner class="size-6" />
+                            </div>
+                        }
+                        else if (MaximizedBlock is { } maximizedBlock)
                         {
                             <div class="flex min-h-full"
                                  data-slot="session-block-maximized-block"

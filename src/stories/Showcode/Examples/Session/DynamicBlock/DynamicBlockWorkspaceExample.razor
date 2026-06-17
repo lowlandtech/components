@@ -1,0 +1,105 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Session
+
+<DynamicBlock Node="_node"
+              Discovery="_discovery"
+              Runtime="_runtime"
+              Variant="none"
+              HasSidebar="true"
+              IsTest="true"
+              Class="h-full w-full"
+              PageOverlayContainerClass="page-overlay-container absolute inset-0 z-40 flex h-full w-full flex-col bg-background"
+              AppOverlayContainerClass="session-block-overlay absolute inset-0 z-50 flex h-full w-full flex-col overflow-hidden rounded-none bg-background gap-0 py-0" />
+
+@code {
+    private readonly SessionNodeInput _node = new("foundry-usecase", "workspace", "Foundry");
+    private IDynamicBlockDiscovery _discovery = null!;
+    private IDynamicNodeRuntime _runtime = null!;
+
+    private readonly DynamicWorkspaceUseCase _model = new()
+    {
+        Id = "foundry-usecase",
+        Name = "Foundry",
+        Workspaces =
+        [
+            new("foundry", "Foundry", "foundry.dev", "Europe"),
+            new("acme", "Acme", "acme.example", "North America")
+        ],
+        Flows =
+        [
+            new("onboarding", "Onboarding", "workspace.created", true),
+            new("approval", "Approval", "workitem.submitted", false)
+        ],
+        Workitems =
+        [
+            new("setup-ci", "Set up CI", "High", "Platform team"),
+            new("write-docs", "Write docs", "Medium", "Documentation team")
+        ]
+    };
+
+    protected override void OnInitialized()
+    {
+        _discovery = new DynamicBlockDiscovery([new WorkspaceRegistry()]);
+        _runtime = new WorkspaceRuntime(_model);
+    }
+
+    private sealed class DynamicWorkspaceUseCase
+    {
+        public string Id { get; init; } = "";
+
+        public string Name { get; init; } = "";
+
+        public IReadOnlyList<Workspace> Workspaces { get; init; } = [];
+
+        public IReadOnlyList<Flow> Flows { get; init; } = [];
+
+        public IReadOnlyList<Workitem> Workitems { get; init; } = [];
+    }
+
+    private sealed record Workspace(string Id, string Name, string Slug, string Region);
+
+    private sealed record Flow(string Id, string Name, string Trigger, bool IsEnabled);
+
+    private sealed record Workitem(string Id, string Title, string Priority, string Assignee);
+
+    private sealed class WorkspaceRegistry : IDynamicBlockRegistry
+    {
+        public IReadOnlyList<IDynamicBlockDescriptor> GetDescriptors()
+        {
+            var reflected = ReflectionDynamicBlockDescriptor.Create(typeof(DynamicWorkspaceUseCase));
+            return
+            [
+                new DynamicBlockDescriptor(
+                    typeof(DynamicWorkspaceUseCase),
+                    "workspace",
+                    "Workspace",
+                    reflected.GetId,
+                    reflected.GetLabel,
+                    reflected.GetFieldValue,
+                    reflected.Fields,
+                    reflected.Collections)
+            ];
+        }
+    }
+
+    private sealed class WorkspaceRuntime(DynamicWorkspaceUseCase model) : IDynamicNodeRuntime
+    {
+        public Task<DynamicEntity?> LoadAsync(
+            SessionNodeInput node,
+            IDynamicBlockDescriptor descriptor,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult<DynamicEntity?>(new(
+                node,
+                typeof(DynamicWorkspaceUseCase),
+                model,
+                descriptor.Fields.ToDictionary(
+                    field => field.Key,
+                    field => descriptor.GetFieldValue(model, field.Key),
+                    StringComparer.Ordinal)));
+
+        public Task<DynamicEntity?> ApplyAsync(
+            DynamicMutationEffect mutation,
+            IDynamicBlockDescriptor descriptor,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult<DynamicEntity?>(null);
+    }
+}

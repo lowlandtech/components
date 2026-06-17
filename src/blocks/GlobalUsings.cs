@@ -1,5 +1,8 @@
+global using System.Collections;
 global using System.Collections.Concurrent;
 global using System.Globalization;
+global using System.Net;
+global using System.Net.Http.Json;
 global using Microsoft.AspNetCore.Components;
 global using Microsoft.AspNetCore.Components.Forms;
 global using Microsoft.AspNetCore.Components.Web;

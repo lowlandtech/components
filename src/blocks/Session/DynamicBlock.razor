@@ -1,0 +1,25 @@
+@namespace LowlandTech.Components
+@inherits TinyComponentBase
+
+<div data-slot="dynamic-block"
+     data-model-type="@(_activeDescriptor?.ModelType.Name ?? Model?.GetType().Name)"
+     data-node-type="@Node?.NodeTypeKey"
+     data-loading="@_isLoading.ToString().ToLowerInvariant()"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
+    <SessionBlock Sessions="@_sessions"
+                  ContextNodes="@_contextNodes"
+                  StateService="@_sessionState"
+                  HasSidebar="@HasSidebar"
+                  IsTest="@IsTest"
+                  Variant="@Variant"
+                  SidebarWidth="@SidebarWidth"
+                  PageOverlayContainerClass="@PageOverlayContainerClass"
+                  AppOverlayContainerClass="@AppOverlayContainerClass"
+                  OnHeaderCreateRequested="HandleHeaderCreateAsync"
+                  OnNodeRenameRequested="HandleNodeRenameAsync"
+                  OnNodeDeleteRequested="HandleNodeDeleteAsync"
+                  IsContentLoading="@_isLoading"
+                  Class="h-full w-full"
+                  Title="@Title" />
+</div>

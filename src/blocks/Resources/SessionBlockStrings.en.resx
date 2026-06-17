@@ -88,4 +88,5 @@
 <data name="AddToListEmpty" xml:space="preserve"><value>No lists yet</value></data>
 <data name="AddToListCancel" xml:space="preserve"><value>Cancel</value></data>
 <data name="AddToListConfirm" xml:space="preserve"><value>Save</value></data>
+<data name="LoadingSessionContent" xml:space="preserve"><value>Loading session content</value></data>
 </root>

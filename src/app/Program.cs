@@ -14,6 +14,11 @@ builder.Services.AddScoped<ISessionSurfaceDiscovery, SessionSurfaceDiscovery>();
 builder.Services.AddSingleton<ISessionBlockRegistry, DefaultSessionBlockRegistry>();
 builder.Services.AddSingleton<ISessionBlockRegistry, AssemblyScanningSessionBlockRegistry>();
 builder.Services.AddSingleton<ISessionBlockDiscovery, SessionBlockDiscovery>();
+builder.Services.AddSingleton<IDynamicBlockRegistry, DefaultDynamicBlockRegistry>();
+builder.Services.AddSingleton<IDynamicBlockDiscovery, DynamicBlockDiscovery>();
+builder.Services.AddSingleton<IDynamicReducerArm, DynamicInitializerReducerArm>();
+builder.Services.AddSingleton<IDynamicReducerArm, DynamicFieldReducerArm>();
+builder.Services.AddSingleton<IDynamicReducerArm, DynamicEntityMutationReducerArm>();
 builder.Services.AddDesignableComponents();
 
 // Graph descriptors + edge-type-driven creation support
