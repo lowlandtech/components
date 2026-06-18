@@ -607,7 +607,7 @@
   }
 
   .cn-data-grid-pager {
-    @apply flex shrink-0 items-center justify-between gap-3 border-t border-border px-3 py-2 text-sm text-muted-foreground;
+    @apply flex shrink-0 items-center justify-between gap-3 border-t border-border pt-2 text-sm text-muted-foreground;
   }
 
   .cn-data-grid-page-size-label {
