@@ -133,6 +133,23 @@
             DynamicMutationEffect mutation,
             IDynamicBlockDescriptor descriptor,
             CancellationToken cancellationToken = default)
-            => Task.FromResult<DynamicEntity?>(null);
+        {
+            if (mutation.Mutation != "create" || descriptor.ModelType != typeof(Workspace))
+                return Task.FromResult<DynamicEntity?>(null);
+
+            var name = Convert.ToString(mutation.Values.GetValueOrDefault("Name"), CultureInfo.InvariantCulture)
+                ?? "New Workspace";
+            var slug = ReflectionDynamicBlockDescriptor.ToNodeTypeKey(name);
+            var workspace = new Workspace($"workspace-{slug}", name, $"{slug}.example", "Unassigned");
+            var node = new SessionNodeInput(workspace.Id, descriptor.NodeTypeKey, workspace.Name, "DynamicNodeBlock");
+            return Task.FromResult<DynamicEntity?>(new(
+                node,
+                typeof(Workspace),
+                workspace,
+                descriptor.Fields.ToDictionary(
+                    field => field.Key,
+                    field => descriptor.GetFieldValue(workspace, field.Key),
+                    StringComparer.Ordinal)));
+        }
     }
 }
