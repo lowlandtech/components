@@ -2,20 +2,20 @@
 @inject ShowcodeState State
 @inject NavigationManager Nav
 
-<div class="flex h-full min-h-0 items-stretch gap-2 overflow-x-auto overflow-y-hidden px-6 pb-6 pt-8">
+<div class="flex h-full min-h-0 items-stretch gap-2.5 overflow-x-auto overflow-y-hidden p-2.5">
         @foreach (var group in _groups)
         {
             var colors = GetGroupColors(group.Name);
-            <div class="flex min-h-0 flex-col gap-1.5" style="flex: 1 0 0; min-width: 88px;">
-                <div class="@colors.Header rounded-md px-1 py-1.5 text-center">
+            <div class="flex min-h-0 flex-col gap-2.5" style="flex: 1 0 0; min-width: 88px;">
+                <div class="@colors.Header rounded-md px-2.5 py-2.5 text-center">
                     <span class="text-[10px] font-bold uppercase tracking-widest leading-none">@group.Name</span>
                 </div>
-                <div class="story-home-column-scroll min-h-0 flex-1 space-y-1.5 overflow-y-auto pr-1">
+                <div class="story-home-column-scroll min-h-0 flex-1 overflow-y-auto pr-2.5">
                     @foreach (var story in group.Stories)
                     {
                         var num = _nums[(group.Name, story.Name)];
                         <button type="button"
-                                class="@colors.Cell flex w-full cursor-pointer flex-col items-center gap-0.5 rounded-md border px-1.5 pt-1.5 pb-2 text-center transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                                class="@colors.Cell flex w-full cursor-pointer flex-col items-center gap-0.5 rounded-md border p-[5px] m-[2.5px] text-center transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                                 @onclick="() => SelectAndNavigate(story)">
                             <div class="flex items-center justify-between w-full">
                                 <span class="text-[9px] font-mono leading-none opacity-40 select-none">@num</span>

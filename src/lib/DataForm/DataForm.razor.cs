@@ -14,6 +14,7 @@ public partial class DataForm : TinyComponentBase
     [Parameter] public EventCallback<EditContext> OnValidSubmit { get; set; }
     [Parameter] public EventCallback<EditContext> OnInvalidSubmit { get; set; }
     [Parameter] public EventCallback OnModelChanged { get; set; }
+    [Parameter] public EventCallback<FormFieldChangeArgs> OnFieldValueChanged { get; set; }
     [Parameter] public RenderFragment<DataFormField>? FieldTemplate { get; set; }
     [Parameter] public RenderFragment<DataFormField>? LabelTemplate { get; set; }
     [Parameter] public RenderFragment<DataFormField>? ValidationTemplate { get; set; }
@@ -130,7 +131,7 @@ public partial class DataForm : TinyComponentBase
         }
         else
         {
-            SetValue(args.FieldName, args.NewValue);
+            await SetValueAsync(args.FieldName, args.NewValue);
         }
     }
 
@@ -245,12 +246,13 @@ public partial class DataForm : TinyComponentBase
         return $"{baseClass}{borderClass}";
     }
 
-    internal void SetValue(string propertyName, object? value)
+    internal async Task SetValueAsync(string propertyName, object? value)
     {
         try
         {
             var prop = Model.GetType().GetProperty(propertyName);
             if (prop == null || !prop.CanWrite) return;
+            var oldValue = prop.GetValue(Model);
 
             var targetType = prop.PropertyType;
             var underlying = Nullable.GetUnderlyingType(targetType) ?? targetType;
@@ -276,7 +278,15 @@ public partial class DataForm : TinyComponentBase
 
             prop.SetValue(Model, value);
             _editContext?.NotifyFieldChanged(new FieldIdentifier(Model, propertyName));
-            OnModelChanged.InvokeAsync();
+            await OnModelChanged.InvokeAsync();
+            await OnFieldValueChanged.InvokeAsync(new FormFieldChangeArgs
+            {
+                FieldName = propertyName,
+                OldValue = oldValue,
+                NewValue = value,
+                IsValid = !GetFieldMessages(propertyName).Any(),
+                Errors = GetFieldMessages(propertyName)
+            });
         }
         catch (Exception ex)
         {

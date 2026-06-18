@@ -59,7 +59,7 @@
                                    FieldType="@fieldType"
                                    Label="@field.DisplayName"
                                    Value="@fieldValue"
-                                   ValueChanged="async v => { SetValue(field.PropertyName, v); await OnFieldChanged(new FormFieldChangeArgs { FieldName = field.PropertyName, NewValue = v }); }"
+                                   ValueChanged="async v => { await SetValueAsync(field.PropertyName, v); await OnFieldChanged(new FormFieldChangeArgs { FieldName = field.PropertyName, NewValue = v }); }"
                                    Validator="@validator"
                                    Mask="@validator?.Mask"
                                    Required="@field.Required"
@@ -94,14 +94,14 @@
                                 <Checkbox id="@fieldId"
                                           data-field-input="@field.PropertyName"
                                           Checked="@(GetValue(field.PropertyName) is true)"
-                                          CheckedChanged="value => SetValue(field.PropertyName, value)"
+                                          CheckedChanged="value => SetValueAsync(field.PropertyName, value)"
                                           aria-invalid="@(hasErrors ? "true" : null)"
                                           aria-describedby="@(hasErrors ? validationId : null)" />
                                 break;
 
                             case "select" when field.PropertyType.IsEnum:
                                 <Select Value="@currentValue"
-                                        ValueChanged="@((string? v) => SetValue(field.PropertyName, ConvertEnumValue(v, field.PropertyType)))"
+                                        ValueChanged="@((string? v) => SetValueAsync(field.PropertyName, ConvertEnumValue(v, field.PropertyType)))"
                                         data-field-input="@field.PropertyName">
                                     <SelectTrigger id="@fieldId" Invalid="@hasErrors">
                                         <SelectValue Placeholder="Select..." />
@@ -123,7 +123,7 @@
                                        class="@GetInputClass(hasErrors)"
                                        aria-invalid="@(hasErrors ? "true" : null)"
                                        aria-describedby="@(hasErrors ? validationId : null)"
-                                       @oninput="e => SetValue(field.PropertyName, ConvertValue(e.Value, field.PropertyType))" />
+                                       @oninput="e => SetValueAsync(field.PropertyName, ConvertValue(e.Value, field.PropertyType))" />
                                 break;
 
                             case "date":
@@ -134,7 +134,7 @@
                                        class="@GetInputClass(hasErrors)"
                                        aria-invalid="@(hasErrors ? "true" : null)"
                                        aria-describedby="@(hasErrors ? validationId : null)"
-                                       @oninput="e => SetValue(field.PropertyName, ConvertValue(e.Value, field.PropertyType))" />
+                                       @oninput="e => SetValueAsync(field.PropertyName, ConvertValue(e.Value, field.PropertyType))" />
                                 break;
 
                             default:
@@ -145,7 +145,7 @@
                                        class="@GetInputClass(hasErrors)"
                                        aria-invalid="@(hasErrors ? "true" : null)"
                                        aria-describedby="@(hasErrors ? validationId : null)"
-                                       @oninput="e => SetValue(field.PropertyName, ConvertValue(e.Value, field.PropertyType))" />
+                                       @oninput="e => SetValueAsync(field.PropertyName, ConvertValue(e.Value, field.PropertyType))" />
                                 break;
                         }
                     }

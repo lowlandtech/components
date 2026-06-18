@@ -41,11 +41,11 @@ public sealed class SC01_DynamicBlock : ViewScenario
         cut.Find("[data-node-id='workspace-foundry']").ShouldNotBeNull();
     }
 
-    [Fact(DisplayName = "UAC03: Dynamic node projection renders an editable dynamic form")]
+    [Fact(DisplayName = "UAC03: Dynamic node projection opens the dynamic form in view mode")]
     [Trait(Spec.UAC, "03")]
     [Given("a DynamicBlock rendered from a workspace model")]
     [When("the user projects a child node")]
-    [Then("the projected context card uses DynamicNodeBlock and exposes field inputs")]
+    [Then("the projected context card delegates its fields to a read-only DataForm until Edit is chosen")]
     public void UAC03_ProjectionRendersDynamicForm()
     {
         var cut = Ctx.Render<Components.DynamicBlock>(p => p
@@ -55,7 +55,9 @@ public sealed class SC01_DynamicBlock : ViewScenario
 
         cut.Find("[data-slot='dynamic-node-block']").ShouldNotBeNull();
         cut.Find("[data-slot='dynamic-node-form']").ShouldNotBeNull();
-        cut.Find("[data-field-input='Title']").GetAttribute("value").ShouldBe("Set up CI");
+        cut.Find("[data-slot='data-form']").ShouldNotBeNull();
+        cut.Find("[data-slot='dynamic-node-block']").GetAttribute("data-form-mode").ShouldBe("view");
+        cut.Find("[data-field-readonly='Title']").TextContent.ShouldBe("Set up CI");
     }
 
     [Fact(DisplayName = "UAC04: Dynamic reducer arm schedules field mutations through the outbox")]
@@ -89,18 +91,23 @@ public sealed class SC01_DynamicBlock : ViewScenario
         effect.Values["Name"].ShouldBe("Foundry Platform");
     }
 
-    [Fact(DisplayName = "UAC05: DynamicNodeBlock edits dispatch through the DynamicBlock outbox")]
+    [Fact(DisplayName = "UAC05: DynamicNodeBlock buffers edits until Save dispatches through the outbox")]
     [Trait(Spec.UAC, "05")]
     [Given("a DynamicBlock where a projected node form is visible")]
-    [When("the Title field is changed")]
-    [Then("the DynamicBlock dispatcher records the change in dynamic state")]
+    [When("the user chooses Edit, changes Title, and explicitly chooses Save")]
+    [Then("the DynamicBlock dispatcher records one committed change in dynamic state")]
     public void UAC05_FieldInputDispatchesToDynamicBlock()
     {
         var cut = Ctx.Render<Components.DynamicBlock>(p => p
             .Add(x => x.Model, CreateModel()));
 
         cut.Find("[data-node-id='workitem-setup-ci']").Click();
+        cut.Find("button[data-action='edit']").Click();
         cut.Find("[data-field-input='Title']").Input("Set up CI pipeline");
+
+        cut.Instance.DynamicState.EntityPropertiesById["workitem-setup-ci"]["Title"].ShouldBe("Set up CI");
+
+        cut.Find("button[data-action='save']").Click();
 
         var component = cut.Instance;
         component.DynamicState.EntityPropertiesById["workitem-setup-ci"]["Title"].ShouldBe("Set up CI pipeline");
@@ -218,17 +225,171 @@ public sealed class SC01_DynamicBlock : ViewScenario
             .Add(x => x.Model, CreateModel()));
 
         cut.Find("[data-node-id='workspace-foundry']").Click();
+        cut.Find("button[data-action='edit']").Click();
         cut.Find("[data-field-input='Slug']").ShouldNotBeNull();
         cut.FindAll("[data-field-input='Priority']").Count.ShouldBe(0);
 
         cut.Find("[data-node-id='flow-onboarding']").Click();
+        cut.Find("button[data-action='edit']").Click();
         cut.Find("[data-field-input='Trigger']").ShouldNotBeNull();
         cut.FindAll("[data-field-input='Slug']").Count.ShouldBe(0);
 
         cut.Find("[data-node-id='workitem-setup-ci']").Click();
+        cut.Find("button[data-action='edit']").Click();
         cut.Find("[data-field-input='Priority']").ShouldNotBeNull();
         cut.Find("[data-field-input='Assignee']").ShouldNotBeNull();
         cut.FindAll("[data-field-input='Trigger']").Count.ShouldBe(0);
+    }
+
+    [Fact(DisplayName = "UAC11: Dynamic fields use DataForm control mapping")]
+    [Trait(Spec.UAC, "11")]
+    [Given("a Flow model with a boolean IsEnabled property")]
+    [When("the Flow is projected through DynamicNodeBlock")]
+    [Then("DataForm renders the property with the shared Checkbox control")]
+    public void UAC11_DynamicFieldsUseDataFormControls()
+    {
+        var cut = Ctx.Render<Components.DynamicBlock>(p => p
+            .Add(x => x.Model, CreateModel()));
+
+        cut.Find("[data-node-id='flow-onboarding']").Click();
+        cut.Find("button[data-action='edit']").Click();
+
+        var checkbox = cut.Find("[data-field-input='IsEnabled']");
+        checkbox.GetAttribute("data-slot").ShouldBe("checkbox");
+        checkbox.GetAttribute("role").ShouldBe("checkbox");
+    }
+
+    [Fact(DisplayName = "UAC12: Dynamic entity annotations validate through DataForm")]
+    [Trait(Spec.UAC, "12")]
+    [Given("a projected Workitem whose required Title is empty")]
+    [When("the embedded DataForm is submitted")]
+    [Then("DataForm renders the annotation validation message in the session card")]
+    public void UAC12_DynamicEntityAnnotationsValidateThroughDataForm()
+    {
+        var model = CreateModel();
+        model.Workitems =
+        [
+            new WorkitemModel("workitem-setup-ci", string.Empty, "High", "Platform team")
+        ];
+        var cut = Ctx.Render<Components.DynamicBlock>(p => p
+            .Add(x => x.Model, model));
+
+        cut.Find("[data-node-id='workitem-setup-ci']").Click();
+        cut.Find("button[data-action='edit']").Click();
+        cut.Find("[data-slot='data-form']").Submit();
+
+        cut.Find("[data-field-validation='Title']").TextContent.ShouldContain("required");
+    }
+
+    [Fact(DisplayName = "UAC13: Dynamic model presentations showcase distinct component compositions")]
+    [Trait(Spec.UAC, "13")]
+    [Given("Workspace, Flow, and Workitem descriptors with distinct presentation metadata")]
+    [When("each model is projected into the session content")]
+    [Then("Workspace uses badges, Flow uses an alert and progress, and Workitem uses an avatar, badge, and progress")]
+    public void UAC13_DynamicModelsShowcaseDistinctComponents()
+    {
+        var discovery = new DynamicBlockDiscovery([new ShowcaseDynamicBlockRegistry()]);
+        var cut = Ctx.Render<Components.DynamicBlock>(p => p
+            .Add(x => x.Model, CreateModel())
+            .Add(x => x.Discovery, discovery));
+
+        cut.Find("[data-node-id='workspace-foundry']").Click();
+        cut.Find("[data-slot='dynamic-workspace-presentation']").ShouldNotBeNull();
+        cut.FindAll("[data-slot='badge']").Count.ShouldBeGreaterThanOrEqualTo(2);
+
+        cut.Find("[data-node-id='flow-onboarding']").Click();
+        cut.Find("[data-slot='dynamic-flow-presentation']").ShouldNotBeNull();
+        cut.Find("[data-slot='alert']").ShouldNotBeNull();
+        cut.Find("[data-slot='progress']").ShouldNotBeNull();
+
+        cut.Find("[data-node-id='workitem-setup-ci']").Click();
+        cut.Find("[data-slot='dynamic-workitem-presentation']").ShouldNotBeNull();
+        cut.Find("[data-slot='avatar']").ShouldNotBeNull();
+        cut.Find("[data-slot='badge']").ShouldNotBeNull();
+        cut.Find("[data-slot='progress']").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC14: Collection headers render grid mode and row selection opens form mode")]
+    [Trait(Spec.UAC, "14")]
+    [Given("a workspace session with a Workspaces collection header and workspace children")]
+    [When("the header is projected and a workspace row is selected")]
+    [Then("the header shows a DataGrid and the selected workspace is projected in read-only form mode")]
+    public void UAC14_CollectionGridSelectsEntityForm()
+    {
+        var cut = Ctx.Render<Components.DynamicBlock>(p => p
+            .Add(x => x.Model, CreateModel()));
+
+        cut.Find("[data-node-id='workspace-root:Workspaces']").Click();
+
+        cut.Find("[data-slot='dynamic-node-block']").GetAttribute("data-view-mode").ShouldBe("grid");
+        cut.Find("[data-slot='dynamic-node-grid']").ShouldNotBeNull();
+        cut.Find("[data-slot='data-grid']").ShouldNotBeNull();
+
+        cut.FindAll("[data-slot='data-grid-row']").First().Click();
+
+        cut.Find("[data-slot='dynamic-node-block']").GetAttribute("data-view-mode").ShouldBe("form");
+        cut.Find("[data-slot='dynamic-node-block']").GetAttribute("data-form-mode").ShouldBe("view");
+        cut.Find("[data-field-readonly='Name']").TextContent.ShouldBe("Foundry");
+    }
+
+    [Fact(DisplayName = "UAC15: Collection search filters while typing and Enter quick-creates a missing entity")]
+    [Trait(Spec.UAC, "15")]
+    [Given("a projected Workspaces collection grid")]
+    [When("the user searches for a missing workspace and presses Enter")]
+    [Then("the grid filters immediately and a create mutation is appended to the outbox")]
+    public void UAC15_SearchFiltersAndEnterQuickCreates()
+    {
+        var discovery = new DynamicBlockDiscovery([new ShowcaseDynamicBlockRegistry()]);
+        var cut = Ctx.Render<Components.DynamicBlock>(p => p
+            .Add(x => x.Model, CreateModel())
+            .Add(x => x.Discovery, discovery));
+        cut.Find("[data-node-id='workspace-root:Workspaces']").Click();
+
+        var search = cut.Find("input[type='search']");
+        search.Input("Nonexistent");
+        cut.FindAll("[data-slot='data-grid-row']").Count.ShouldBe(0);
+
+        search.KeyUp(new KeyboardEventArgs { Key = "Enter" });
+
+        var effect = cut.Instance.OutboxEntries
+            .Select(entry => entry.Payload)
+            .OfType<DynamicMutationEffect>()
+            .Single();
+        effect.Mutation.ShouldBe("create");
+        effect.NodeTypeKey.ShouldBe("workspace");
+        effect.ParentEntityId.ShouldBe("workspace-root");
+        effect.Values["Name"].ShouldBe("Nonexistent");
+    }
+
+    [Fact(DisplayName = "UAC16: Collection grids preserve the shared DataGrid paging contract")]
+    [Trait(Spec.UAC, "16")]
+    [Given("a Workspaces collection containing more rows than the default page size")]
+    [When("the collection header is projected and the user advances the pager")]
+    [Then("the grid shows ten rows on the first page and the remaining rows on the second page")]
+    public void UAC16_CollectionGridSupportsPaging()
+    {
+        var model = CreateModel();
+        model.Workspaces = Enumerable.Range(1, 12)
+            .Select(index => new WorkspaceModel(
+                $"workspace-{index}",
+                $"Workspace {index}",
+                $"workspace-{index}.example",
+                "Europe"))
+            .ToList();
+        var discovery = new DynamicBlockDiscovery([new ShowcaseDynamicBlockRegistry()]);
+        var cut = Ctx.Render<Components.DynamicBlock>(p => p
+            .Add(x => x.Model, model)
+            .Add(x => x.Discovery, discovery));
+
+        cut.Find("[data-node-id='workspace-root:Workspaces']").Click();
+
+        cut.FindAll("[data-slot='data-grid-row']").Count.ShouldBe(10);
+        cut.Find("[data-slot='data-grid-pager']").ShouldNotBeNull();
+
+        cut.Find("[data-slot='data-grid-page-next']").Click();
+
+        cut.FindAll("[data-slot='data-grid-row']").Count.ShouldBe(2);
+        cut.Find("[data-slot='data-grid-page-summary']").TextContent.ShouldContain("2 of 2");
     }
 
     private static WorkspaceUseCaseModel CreateModel() => new()
@@ -269,7 +430,11 @@ public sealed class SC01_DynamicBlock : ViewScenario
 
     private sealed record FlowModel(string Id, string Name, string Trigger, bool IsEnabled);
 
-    private sealed record WorkitemModel(string Id, string Title, string Priority, string Assignee);
+    private sealed record WorkitemModel(
+        string Id,
+        [property: Required] string Title,
+        string Priority,
+        string Assignee);
 
     private sealed class WorkspaceDynamicBlockRegistry : IDynamicBlockRegistry
     {
@@ -287,6 +452,60 @@ public sealed class SC01_DynamicBlock : ViewScenario
                     reflected.GetFieldValue,
                     reflected.Fields,
                     reflected.Collections)
+            ];
+        }
+    }
+
+    private sealed class ShowcaseDynamicBlockRegistry : IDynamicBlockRegistry
+    {
+        public IReadOnlyList<IDynamicBlockDescriptor> GetDescriptors()
+        {
+            var root = ReflectionDynamicBlockDescriptor.Create(typeof(WorkspaceUseCaseModel));
+            var workspace = ReflectionDynamicBlockDescriptor.Create(typeof(WorkspaceModel));
+            var flow = ReflectionDynamicBlockDescriptor.Create(typeof(FlowModel));
+            var workitem = ReflectionDynamicBlockDescriptor.Create(typeof(WorkitemModel));
+
+            return
+            [
+                new DynamicBlockDescriptor(
+                    typeof(WorkspaceUseCaseModel),
+                    "workspace",
+                    "Workspace",
+                    root.GetId,
+                    root.GetLabel,
+                    root.GetFieldValue,
+                    root.Fields,
+                    root.Collections),
+                new DynamicBlockDescriptor(
+                    typeof(WorkspaceModel),
+                    "workspace",
+                    "Workspace",
+                    workspace.GetId,
+                    workspace.GetLabel,
+                    workspace.GetFieldValue,
+                    workspace.Fields,
+                    workspace.Collections,
+                    Presentation: "workspace"),
+                new DynamicBlockDescriptor(
+                    typeof(FlowModel),
+                    "flow",
+                    "Flow",
+                    flow.GetId,
+                    flow.GetLabel,
+                    flow.GetFieldValue,
+                    flow.Fields,
+                    flow.Collections,
+                    Presentation: "flow"),
+                new DynamicBlockDescriptor(
+                    typeof(WorkitemModel),
+                    "workitem",
+                    "Workitem",
+                    workitem.GetId,
+                    workitem.GetLabel,
+                    workitem.GetFieldValue,
+                    workitem.Fields,
+                    workitem.Collections,
+                    Presentation: "workitem")
             ];
         }
     }

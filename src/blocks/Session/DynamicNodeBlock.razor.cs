@@ -2,9 +2,20 @@ namespace LowlandTech.Components;
 
 public partial class DynamicNodeBlock : TinyComponentBase
 {
+    [Inject] private IStringLocalizer<SessionBlockStrings>? Localizer { get; set; }
+
     [Parameter] public SessionContextBlockModel? Block { get; set; }
     [Parameter] public SessionNodeInput? Context { get; set; }
     [Parameter] public object? Data { get; set; }
+
+    private object? _sourceModel;
+    private object? _draftModel;
+    private object? _savedModel;
+    private string _filterText = string.Empty;
+    private int _pageIndex;
+    private bool _isEditing;
+
+    private string L(string key) => Localizer?[key] ?? key;
 
     private IReadOnlyDictionary<string, object?> Properties =>
         Context?.Properties
@@ -20,28 +31,275 @@ public partial class DynamicNodeBlock : TinyComponentBase
                 .Select(pair => new DynamicBlockFieldDescriptor(pair.Key, ReflectionDynamicBlockDescriptor.ToNodeTypeKey(pair.Key), pair.Value?.GetType() ?? typeof(string)))
                 .ToList();
 
+    private object? Model =>
+        Properties.TryGetValue("dynamic.model", out var model) ? model : null;
+
+    private object? DisplayModel => _isEditing ? _draftModel : _savedModel ?? Model;
+
+    private string Presentation =>
+        Properties.TryGetValue("dynamic.presentation", out var presentation)
+            ? Convert.ToString(presentation, CultureInfo.InvariantCulture) ?? "form"
+            : "form";
+
+    private string ViewMode =>
+        Properties.TryGetValue("dynamic.view-mode", out var viewMode)
+            ? Convert.ToString(viewMode, CultureInfo.InvariantCulture) ?? "form"
+            : "form";
+
+    private bool IsGridView => string.Equals(ViewMode, "grid", StringComparison.OrdinalIgnoreCase);
+
+    private string FormMode => _isEditing ? "edit" : "view";
+
+    private IReadOnlyList<string> FieldKeys =>
+        Fields.Select(descriptor => descriptor.Key).ToList();
+
+    private IReadOnlyList<object> CollectionItems =>
+        Properties.TryGetValue("dynamic.collection.items", out var items) && items is IReadOnlyList<object> typedItems
+            ? typedItems
+            : [];
+
+    private IReadOnlyList<SessionNodeInput> CollectionNodes =>
+        Properties.TryGetValue("dynamic.collection.nodes", out var nodes) && nodes is IReadOnlyList<SessionNodeInput> typedNodes
+            ? typedNodes
+            : [];
+
+    private IReadOnlyList<DynamicBlockFieldDescriptor> CollectionFields =>
+        Properties.TryGetValue("dynamic.collection.fields", out var fields) && fields is IReadOnlyList<DynamicBlockFieldDescriptor> typedFields
+            ? typedFields
+            : [];
+
+    private string CollectionNodeType =>
+        Properties.TryGetValue("dynamic.collection.node-type", out var nodeType)
+            ? Convert.ToString(nodeType, CultureInfo.InvariantCulture) ?? string.Empty
+            : string.Empty;
+
+    private string? CollectionParentId =>
+        Properties.TryGetValue("dynamic.collection.parent-id", out var parentId)
+            ? Convert.ToString(parentId, CultureInfo.InvariantCulture)
+            : null;
+
+    private IReadOnlyList<object> FilteredItems =>
+        string.IsNullOrWhiteSpace(_filterText)
+            ? CollectionItems
+            : CollectionItems.Where(ItemMatchesFilter).ToList();
+
+    private int PageSize => 10;
+
+    private RenderFragment FormContent => builder =>
+    {
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "data-slot", "dynamic-node-form");
+        builder.OpenComponent<DataForm>(2);
+        builder.AddAttribute(3, nameof(DataForm.Model), DisplayModel);
+        builder.AddAttribute(4, nameof(DataForm.IncludeProperties), FieldKeys);
+        builder.AddAttribute(5, nameof(DataForm.Layout), "grid");
+        builder.AddAttribute(6, nameof(DataForm.ShowDefaultActions), false);
+        builder.AddAttribute(7, nameof(DataForm.ReadOnly), !_isEditing);
+        builder.CloseComponent();
+        builder.CloseElement();
+    };
+
+    private RenderFragment FormActions => builder =>
+    {
+        if (!_isEditing)
+        {
+            builder.OpenComponent<Button>(0);
+            builder.AddAttribute(1, nameof(Button.Size), ButtonSize.Sm);
+            builder.AddAttribute(2, nameof(Button.OnClick), EventCallback.Factory.Create<MouseEventArgs>(this, _ => BeginEdit()));
+            builder.AddAttribute(3, "data-action", "edit");
+            builder.AddContent(4, L("AgentEdit"));
+            builder.CloseComponent();
+            return;
+        }
+
+        builder.OpenComponent<Button>(4);
+        builder.AddAttribute(5, nameof(Button.Variant), ButtonVariant.Outline);
+        builder.AddAttribute(6, nameof(Button.Size), ButtonSize.Sm);
+        builder.AddAttribute(7, nameof(Button.OnClick), EventCallback.Factory.Create<MouseEventArgs>(this, _ => CancelEdit()));
+        builder.AddAttribute(8, "data-action", "cancel");
+        builder.AddContent(9, L("DeleteNodeCancel"));
+        builder.CloseComponent();
+        builder.OpenComponent<Button>(10);
+        builder.AddAttribute(11, nameof(Button.Size), ButtonSize.Sm);
+        builder.AddAttribute(12, nameof(Button.OnClick), EventCallback.Factory.Create<MouseEventArgs>(this, _ => SaveAsync()));
+        builder.AddAttribute(13, "data-action", "save");
+        builder.AddContent(14, L("AddToListConfirm"));
+        builder.CloseComponent();
+    };
+
+    private RenderFragment GridColumns => builder =>
+    {
+        var sequence = 0;
+        foreach (var columnField in CollectionFields)
+        {
+            var currentField = columnField;
+            builder.OpenComponent<DataGridColumn<object>>(sequence++);
+            builder.AddAttribute(sequence++, nameof(DataGridColumn<object>.Title), currentField.Label);
+            builder.AddAttribute(
+                sequence++,
+                nameof(DataGridColumn<object>.Template),
+                (RenderFragment<object>)(item => cellBuilder =>
+                {
+                    cellBuilder.OpenElement(0, "span");
+                    cellBuilder.AddAttribute(1, "class", currentField.Key is "Id" or "Key" ? "font-mono text-xs text-muted-foreground" : null);
+                    cellBuilder.AddContent(2, GetItemDisplayValue(item, currentField.Key));
+                    cellBuilder.CloseElement();
+                }));
+            builder.CloseComponent();
+        }
+    };
+
     private IDynamicBlockDispatcher? Dispatcher =>
         Properties.TryGetValue("dynamic.dispatcher", out var dispatcher) ? dispatcher as IDynamicBlockDispatcher : null;
 
-    private string GetValue(string fieldKey)
+    protected override void OnParametersSet()
     {
-        if (Context is not null
-            && Dispatcher?.DynamicState.EntityPropertiesById.TryGetValue(Context.Id, out var latest) == true
-            && latest.TryGetValue(fieldKey, out var latestValue))
-        {
-            return Convert.ToString(latestValue, CultureInfo.InvariantCulture) ?? string.Empty;
-        }
+        if (ReferenceEquals(_sourceModel, Model))
+            return;
 
-        return Properties.TryGetValue(fieldKey, out var value)
-            ? Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty
-            : string.Empty;
+        _sourceModel = Model;
+        _savedModel = Model;
+        _draftModel = null;
+        _isEditing = false;
     }
 
-    private Task SetFieldAsync(DynamicBlockFieldDescriptor field, object? value)
+    private bool IsFlowEnabled =>
+        DisplayModel?.GetType().GetProperty("IsEnabled")?.GetValue(DisplayModel) is true;
+
+    private string FlowStatusVariant => IsFlowEnabled ? "default" : "secondary";
+
+    private double FlowProgress => IsFlowEnabled ? 100 : 35;
+
+    private string PriorityVariant =>
+        GetDisplayValue("Priority").ToLowerInvariant() switch
+        {
+            "high" or "urgent" => "destructive",
+            "medium" => "secondary",
+            _ => "outline"
+        };
+
+    private double WorkitemProgress =>
+        GetDisplayValue("Priority").ToLowerInvariant() switch
+        {
+            "high" or "urgent" => 75,
+            "medium" => 50,
+            _ => 25
+        };
+
+    private string Initials
     {
-        if (field.IsReadOnly || Context is null || Dispatcher is null)
+        get
+        {
+            var label = Context?.Label ?? string.Empty;
+            return string.Concat(label
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .Take(2)
+                .Select(part => char.ToUpperInvariant(part[0])));
+        }
+    }
+
+    private string GetDisplayValue(string propertyName)
+    {
+        var value = DisplayModel?.GetType().GetProperty(propertyName)?.GetValue(DisplayModel);
+        return Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty;
+    }
+
+    private void BeginEdit()
+    {
+        _draftModel = CloneModel(DisplayModel);
+        _isEditing = _draftModel is not null;
+    }
+
+    private void CancelEdit()
+    {
+        _draftModel = null;
+        _isEditing = false;
+    }
+
+    private async Task SaveAsync()
+    {
+        if (Context is null || Dispatcher is null || _draftModel is null)
+            return;
+
+        var values = Fields.ToDictionary(
+            field => field.Key,
+            field => _draftModel.GetType().GetProperty(field.Key)?.GetValue(_draftModel),
+            StringComparer.Ordinal);
+        await Dispatcher.DispatchAsync(new DynamicEntityEditRequested(
+            Context.Id,
+            Context.NodeTypeKey,
+            values));
+        _savedModel = _draftModel;
+        _draftModel = null;
+        _isEditing = false;
+    }
+
+    private void HandleSearchChanged(string? value)
+    {
+        _filterText = value ?? string.Empty;
+        _pageIndex = 0;
+    }
+
+    private async Task HandleSearchKeyUp(KeyboardEventArgs args)
+    {
+        if (args.Key != "Enter"
+            || string.IsNullOrWhiteSpace(_filterText)
+            || FilteredItems.Count > 0
+            || Dispatcher is null
+            || string.IsNullOrWhiteSpace(CollectionNodeType))
+        {
+            return;
+        }
+
+        var labelField = CollectionFields.FirstOrDefault(field =>
+            field.Key is "Name" or "Label" or "Title")?.Key ?? "Name";
+        await Dispatcher.DispatchAsync(new DynamicEntityCreateRequested(
+            CollectionNodeType,
+            CollectionParentId,
+            new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                [labelField] = _filterText.Trim()
+            }));
+        _filterText = string.Empty;
+        _pageIndex = 0;
+    }
+
+    private void HandlePageChanged(int pageIndex) => _pageIndex = pageIndex;
+
+    private Task HandleGridSelectionAsync(object? item)
+    {
+        if (item is null || Dispatcher is null)
             return Task.CompletedTask;
 
-        return Dispatcher.DispatchAsync(new DynamicFieldChanged(Context.Id, Context.NodeTypeKey, field.Key, value));
+        var key = GetItemKey(item);
+        var node = CollectionNodes.FirstOrDefault(candidate =>
+            string.Equals(candidate.Id, key, StringComparison.Ordinal));
+        return node is null ? Task.CompletedTask : Dispatcher.ProjectAsync(node);
+    }
+
+    private string GetItemKey(object item)
+    {
+        var value = item.GetType().GetProperty("Id")?.GetValue(item)
+            ?? item.GetType().GetProperty("Key")?.GetValue(item);
+        return Convert.ToString(value, CultureInfo.InvariantCulture) ?? item.GetHashCode().ToString(CultureInfo.InvariantCulture);
+    }
+
+    private bool ItemMatchesFilter(object item) =>
+        CollectionFields.Any(field =>
+            GetItemDisplayValue(item, field.Key).Contains(_filterText, StringComparison.OrdinalIgnoreCase));
+
+    private static string GetItemDisplayValue(object item, string propertyName)
+    {
+        var value = item.GetType().GetProperty(propertyName)?.GetValue(item);
+        return Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty;
+    }
+
+    private static object? CloneModel(object? model)
+    {
+        if (model is null)
+            return null;
+
+        var clone = typeof(object).GetMethod("MemberwiseClone", BindingFlags.Instance | BindingFlags.NonPublic);
+        return clone?.Invoke(model, null);
     }
 }

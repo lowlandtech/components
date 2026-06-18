@@ -25,6 +25,8 @@ public interface IDynamicBlockDescriptor
 
     IReadOnlyList<DynamicBlockCollectionDescriptor> Collections { get; }
 
+    string Presentation { get; }
+
     string GetId(object model);
 
     string GetLabel(object model);
@@ -43,7 +45,8 @@ public sealed record DynamicBlockDescriptor(
     Func<object, string, object?> FieldAccessor,
     IReadOnlyList<DynamicBlockFieldDescriptor> Fields,
     IReadOnlyList<DynamicBlockCollectionDescriptor> Collections,
-    Action<object, string?>? ParentApplicator = null) : IDynamicBlockDescriptor
+    Action<object, string?>? ParentApplicator = null,
+    string Presentation = "form") : IDynamicBlockDescriptor
 {
     public string GetId(object model) => IdAccessor(model);
 
@@ -300,6 +303,8 @@ public interface IDynamicBlockDispatcher
     DynamicBlockState DynamicState { get; }
 
     Task DispatchAsync(DynamicBlockAction action);
+
+    Task ProjectAsync(SessionNodeInput node);
 }
 
 public sealed class DynamicBlockStateMachine(IEnumerable<IDynamicReducerArm> reducerArms, ISessionOutbox? outbox = null)
@@ -356,7 +361,8 @@ public static class ReflectionDynamicBlockDescriptor
             (model, fieldKey) => FindProperty(properties, fieldKey)?.GetValue(model),
             fields,
             collections,
-            (model, parentEntityId) => SetStringValue(parentProperty, model, parentEntityId));
+            (model, parentEntityId) => SetStringValue(parentProperty, model, parentEntityId),
+            "form");
     }
 
     private static DynamicBlockCollectionDescriptor CreateCollectionDescriptor(PropertyInfo property)

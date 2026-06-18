@@ -65,18 +65,51 @@
     {
         public IReadOnlyList<IDynamicBlockDescriptor> GetDescriptors()
         {
-            var reflected = ReflectionDynamicBlockDescriptor.Create(typeof(DynamicWorkspaceUseCase));
+            var root = ReflectionDynamicBlockDescriptor.Create(typeof(DynamicWorkspaceUseCase));
+            var workspace = ReflectionDynamicBlockDescriptor.Create(typeof(Workspace));
+            var flow = ReflectionDynamicBlockDescriptor.Create(typeof(Flow));
+            var workitem = ReflectionDynamicBlockDescriptor.Create(typeof(Workitem));
             return
             [
                 new DynamicBlockDescriptor(
                     typeof(DynamicWorkspaceUseCase),
                     "workspace",
                     "Workspace",
-                    reflected.GetId,
-                    reflected.GetLabel,
-                    reflected.GetFieldValue,
-                    reflected.Fields,
-                    reflected.Collections)
+                    root.GetId,
+                    root.GetLabel,
+                    root.GetFieldValue,
+                    root.Fields,
+                    root.Collections),
+                new DynamicBlockDescriptor(
+                    typeof(Workspace),
+                    "workspace",
+                    "Workspace",
+                    workspace.GetId,
+                    workspace.GetLabel,
+                    workspace.GetFieldValue,
+                    workspace.Fields,
+                    workspace.Collections,
+                    Presentation: "workspace"),
+                new DynamicBlockDescriptor(
+                    typeof(Flow),
+                    "flow",
+                    "Flow",
+                    flow.GetId,
+                    flow.GetLabel,
+                    flow.GetFieldValue,
+                    flow.Fields,
+                    flow.Collections,
+                    Presentation: "flow"),
+                new DynamicBlockDescriptor(
+                    typeof(Workitem),
+                    "workitem",
+                    "Workitem",
+                    workitem.GetId,
+                    workitem.GetLabel,
+                    workitem.GetFieldValue,
+                    workitem.Fields,
+                    workitem.Collections,
+                    Presentation: "workitem")
             ];
         }
     }

@@ -168,6 +168,13 @@ public partial class DynamicBlock : TinyComponentBase, IDynamicBlockDispatcher, 
         StateHasChanged();
     }
 
+    public Task ProjectAsync(SessionNodeInput node)
+    {
+        _sessionState?.ProjectContext(node);
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
     public Task CreateAsync(
         string nodeTypeKey,
         IReadOnlyDictionary<string, object?> values,
@@ -206,24 +213,51 @@ public partial class DynamicBlock : TinyComponentBase, IDynamicBlockDispatcher, 
             return [new SessionContextNode(CreateNode(descriptor, model), IsLoaded: true)];
 
         return descriptor.Collections
-            .Select(collection => new SessionContextNode(
-                new SessionNodeInput(
-                    $"{descriptor.GetId(model)}:{collection.Key}",
-                    collection.HeaderNodeTypeKey,
-                    collection.Label,
-                    "NodeBlock"),
-                collection.GetItems(model)
-                    .Where(item => item is not null)
-                    .Select(item => CreateChildContextNode(collection, item!))
-                    .ToList(),
-                IsLoaded: true))
+            .Select(collection => CreateCollectionContextNode(descriptor, model, collection))
             .ToList();
+    }
+
+    private SessionContextNode CreateCollectionContextNode(
+        IDynamicBlockDescriptor parentDescriptor,
+        object parent,
+        DynamicBlockCollectionDescriptor collection)
+    {
+        var items = collection.GetItems(parent)
+            .Where(item => item is not null)
+            .Cast<object>()
+            .ToList();
+        var children = items
+            .Select(item => CreateChildContextNode(collection, item))
+            .ToList();
+        var childDescriptor = items.Count > 0
+            ? ResolveDescriptor(null, items[0])
+            : ResolveDescriptor(new SessionNodeInput(string.Empty, collection.ChildNodeTypeKey, collection.Label), null);
+        var properties = new Dictionary<string, object?>(StringComparer.Ordinal)
+        {
+            ["dynamic.view-mode"] = "grid",
+            ["dynamic.collection.items"] = items,
+            ["dynamic.collection.nodes"] = children.Select(child => child.Node).ToList(),
+            ["dynamic.collection.fields"] = childDescriptor?.Fields ?? [],
+            ["dynamic.collection.node-type"] = childDescriptor?.NodeTypeKey ?? collection.ChildNodeTypeKey,
+            ["dynamic.collection.parent-id"] = parentDescriptor.GetId(parent),
+            ["dynamic.dispatcher"] = this
+        };
+
+        return new SessionContextNode(
+            new SessionNodeInput(
+                $"{parentDescriptor.GetId(parent)}:{collection.Key}",
+                collection.HeaderNodeTypeKey,
+                collection.Label,
+                "DynamicNodeBlock",
+                properties),
+            children,
+            IsLoaded: true);
     }
 
     private SessionContextNode CreateChildContextNode(DynamicBlockCollectionDescriptor collection, object item)
     {
         var descriptor = ResolveDescriptor(null, item);
-        var nodeTypeKey = CreateNodeTypeKey(item) ?? collection.ChildNodeTypeKey;
+        var nodeTypeKey = descriptor?.NodeTypeKey ?? CreateNodeTypeKey(item) ?? collection.ChildNodeTypeKey;
         var node = descriptor is null
             ? new SessionNodeInput(CreateId(item), nodeTypeKey, CreateLabel(item), "DynamicNodeBlock", CreatePropertyBag(item))
             : CreateNode(descriptor, item, nodeTypeKey);
@@ -239,6 +273,9 @@ public partial class DynamicBlock : TinyComponentBase, IDynamicBlockDispatcher, 
     {
         var properties = CreatePropertyBag(descriptor, model).ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
         properties["dynamic.fields"] = descriptor.Fields;
+        properties["dynamic.model"] = model;
+        properties["dynamic.presentation"] = descriptor.Presentation;
+        properties["dynamic.view-mode"] = "form";
         properties["dynamic.dispatcher"] = this;
 
         return new SessionNodeInput(
