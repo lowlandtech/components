@@ -53,4 +53,22 @@ public sealed class SC05_SessionScrollLayout : ViewScenario
         var commandBar = cut.Find("[data-slot='session-command-bar']");
         commandBar.ClassList.ShouldContain("shrink-0");
     }
+
+    [Fact(DisplayName = "UAC03: Session feed grows beyond the viewport without shrinking blocks")]
+    [Trait(Spec.UAC, "03")]
+    [Given("an active session whose feed contains more blocks than fit in the content viewport")]
+    [When("the session feed participates in the scrollable content body's flex layout")]
+    [Then("the feed keeps a minimum viewport height but may grow to the natural height of its blocks")]
+    public void UAC03_SessionFeedMayGrowBeyondViewport()
+    {
+        var cut = Ctx.Render<SessionBlock>();
+
+        cut.Find("[data-node-id='workitems-session']").Click();
+        cut.Find("[data-node-id='setup-ci']").Click();
+
+        var feed = cut.Find("[data-slot='session-block-feed']");
+        feed.ClassList.ShouldContain("min-h-full");
+        feed.ClassList.ShouldContain("shrink-0");
+        feed.ClassList.ShouldNotContain("h-full");
+    }
 }
