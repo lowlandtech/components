@@ -188,7 +188,7 @@
                             }
                             else if (MaximizedBlock is { } maximizedBlock)
                             {
-                                <div class="flex min-h-full"
+                                <div class="flex h-full min-h-0"
                                      data-slot="session-block-maximized-block"
                                      data-block-id="@maximizedBlock.Id">
                                     <SessionContextBlock Block="maximizedBlock"
@@ -203,7 +203,7 @@
                             }
                             else if (MaximizedCommand is { } maximizedCommand)
                             {
-                                <div class="flex min-h-full"
+                                <div class="flex h-full min-h-0"
                                      data-slot="session-block-maximized-card"
                                      data-command-id="@maximizedCommand.Id">
                                     <SessionCard Node="CreateResponseNode(maximizedCommand)"
@@ -508,7 +508,7 @@
                         }
                         else if (MaximizedBlock is { } maximizedBlock)
                         {
-                            <div class="flex min-h-full"
+                            <div class="flex h-full min-h-0"
                                  data-slot="session-block-maximized-block"
                                  data-block-id="@maximizedBlock.Id">
                                 <SessionContextBlock Block="maximizedBlock"
@@ -523,7 +523,7 @@
                         }
                         else if (MaximizedCommand is { } maximizedCommand)
                         {
-                            <div class="flex min-h-full"
+                            <div class="flex h-full min-h-0"
                                  data-slot="session-block-maximized-card"
                                  data-command-id="@maximizedCommand.Id">
                                 <SessionCard Node="CreateResponseNode(maximizedCommand)"

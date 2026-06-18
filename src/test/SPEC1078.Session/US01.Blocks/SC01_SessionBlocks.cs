@@ -1152,6 +1152,9 @@ public class SC01_SessionBlocks : ViewScenario
 
     [Fact(DisplayName = "UAC28: SessionBlock maximized context block replaces the tab body content")]
     [Trait(Spec.UAC, "28")]
+    [Given("a projected context block in an active session")]
+    [When("the block is promoted to maximized mode")]
+    [Then("the maximized host and context card fill the available tab body height")]
     public void UAC28_SessionBlockMaximizedBlockOverlaysTabContent()
     {
         var cut = Ctx.Render<Components.SessionBlock>();
@@ -1164,8 +1167,12 @@ public class SC01_SessionBlocks : ViewScenario
 
         var maximized = cut.Find("[data-slot='session-block-maximized-block']");
         maximized.GetAttribute("data-block-id").ShouldBe("projected-context-block");
+        maximized.ClassList.ShouldContain("h-full");
+        maximized.ClassList.ShouldContain("min-h-0");
         maximized.TextContent.ShouldContain("Set up CI");
-        cut.Find("[data-slot='session-block-maximized-block'] [data-mode='maximized']").ShouldNotBeNull();
+        var maximizedBlock = cut.Find("[data-slot='session-block-maximized-block'] [data-mode='maximized']");
+        maximizedBlock.ClassList.ShouldContain("h-full");
+        maximizedBlock.ClassList.ShouldContain("min-h-0");
         cut.FindAll("[data-slot='session-block-feed']").ShouldBeEmpty();
 
         cut.Find("[data-slot='session-block-maximized-block'] [data-testid='card-mode-menu-trigger']").Click();
@@ -1200,6 +1207,9 @@ public class SC01_SessionBlocks : ViewScenario
 
     [Fact(DisplayName = "UAC29: SessionBlock maximized agent card replaces the tab body content")]
     [Trait(Spec.UAC, "29")]
+    [Given("a completed agent response in an active session")]
+    [When("the response card is switched to maximized mode")]
+    [Then("the maximized host and response card fill the available tab body height")]
     public void UAC29_SessionBlockMaximizedAgentCardOverlaysTabContent()
     {
         var cut = Ctx.Render<Components.SessionBlock>(p => p
@@ -1216,8 +1226,12 @@ public class SC01_SessionBlocks : ViewScenario
 
         var maximized = cut.Find("[data-slot='session-block-maximized-card']");
         maximized.GetAttribute("data-command-id").ShouldNotBeNullOrWhiteSpace();
+        maximized.ClassList.ShouldContain("h-full");
+        maximized.ClassList.ShouldContain("min-h-0");
         maximized.TextContent.ShouldContain("Maximize this answer");
-        cut.Find("[data-slot='session-block-maximized-card'] [data-mode='maximized']").ShouldNotBeNull();
+        var maximizedCard = cut.Find("[data-slot='session-block-maximized-card'] [data-mode='maximized']");
+        maximizedCard.ClassList.ShouldContain("h-full");
+        maximizedCard.ClassList.ShouldContain("min-h-0");
         cut.FindAll("[data-slot='session-block-feed']").ShouldBeEmpty();
 
         cut.Find("[data-slot='session-block-maximized-card'] [data-testid='card-mode-menu-trigger']").Click();
