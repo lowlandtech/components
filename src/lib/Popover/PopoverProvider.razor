@@ -48,32 +48,50 @@
 
 @code {
     private bool _jsInitialized;
+    private bool _positionAfterRender;
 
     protected override void OnInitialized()
     {
         PopoverService.OnChanged += OnPopoverChanged;
+        _positionAfterRender = true;
     }
 
     private void OnPopoverChanged()
     {
-        // Re-render immediately so the popover DOM is created/removed synchronously
-        // with the state change. JS repositioning is scheduled separately.
-        StateHasChanged();
-
-        _ = InvokeAsync(async () =>
+        _ = InvokeAsync(() =>
         {
-            if (!_jsInitialized)
-            {
-                await JS.InvokeVoidAsync("ltPopover.initialize");
-                _jsInitialized = true;
-            }
-            // Reposition placement-based popovers via JS (coordinate-based are already positioned via inline styles)
-            foreach (var p in PopoverService.ActivePopovers)
-            {
-                if (p.State.Open && (!p.State.X.HasValue || !p.State.Y.HasValue))
-                    await JS.InvokeVoidAsync("ltPopover.position", p.Id.ToString(), p.State.Placement.ToString().ToLowerInvariant());
-            }
+            _positionAfterRender = true;
+            StateHasChanged();
         });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!_positionAfterRender)
+        {
+            return;
+        }
+
+        _positionAfterRender = false;
+
+        if (!_jsInitialized)
+        {
+            await JS.InvokeVoidAsync("ltPopover.initialize");
+            _jsInitialized = true;
+        }
+
+        // The provider and portal content now exist in the browser DOM, so anchor
+        // measurement cannot race the render that opened the popover.
+        foreach (var popover in PopoverService.ActivePopovers)
+        {
+            if (popover.State.Open && (!popover.State.X.HasValue || !popover.State.Y.HasValue))
+            {
+                await JS.InvokeVoidAsync(
+                    "ltPopover.position",
+                    popover.Id.ToString(),
+                    popover.State.Placement.ToString().ToLowerInvariant());
+            }
+        }
     }
 
     public void Dispose()
