@@ -52,29 +52,28 @@
         @switch (Presentation)
         {
             case "workspace":
-                <Card data-slot="dynamic-workspace-presentation" Variant="outlined" class="@($"overflow-hidden {PresentationCardClass}")">
-                    <CardHeader>
-                        <CardTitle>@Context?.Label</CardTitle>
-                        <CardDescription>
-                            <span class="flex flex-wrap gap-2">
+                <div data-slot="dynamic-workspace-presentation" class="@GetPresentationContainerClass()">
+                    <div data-slot="dynamic-node-content" class="@GetPresentationContentClass("space-y-4")">
+                        <Alert>
+                            <AlertTitle class="flex items-center justify-between gap-3">
+                                <span>@Context?.Label</span>
                                 <Badge Variant="secondary">@GetDisplayValue("Region")</Badge>
-                                <Badge Variant="outline">@GetDisplayValue("Slug")</Badge>
-                            </span>
-                        </CardDescription>
-                    </CardHeader>
-                    <Separator />
-                    <CardContent class="@GetPresentationContentClass("pt-4")">
+                            </AlertTitle>
+                            <AlertDescription class="mt-2 font-mono text-xs">
+                                @GetDisplayValue("Slug")
+                            </AlertDescription>
+                        </Alert>
                         @FormContent
-                    </CardContent>
-                    <CardFooter class="@GetPresentationFooterClass()">
+                    </div>
+                    <div data-slot="dynamic-node-actions" class="@GetPresentationFooterClass(false)">
                         @FormActions
-                    </CardFooter>
-                </Card>
+                    </div>
+                </div>
                 break;
 
             case "flow":
                 <div data-slot="dynamic-flow-presentation" class="@GetPresentationContainerClass()">
-                    <div class="@GetPresentationContentClass("space-y-4")">
+                    <div data-slot="dynamic-node-content" class="@GetPresentationContentClass("space-y-4")">
                         <Alert>
                             <AlertTitle class="flex items-center justify-between gap-3">
                                 <span>@Context?.Label</span>
@@ -94,31 +93,34 @@
                 break;
 
             case "workitem":
-                <Card data-slot="dynamic-workitem-presentation" Variant="outlined" class="@PresentationCardClass">
-                    <CardHeader class="grid-cols-[auto_1fr_auto] gap-3">
-                        <Avatar Size="sm">
-                            <AvatarFallback>@Initials</AvatarFallback>
-                        </Avatar>
-                        <div class="min-w-0">
-                            <CardTitle>@Context?.Label</CardTitle>
-                            <CardDescription>@GetDisplayValue("Assignee")</CardDescription>
-                        </div>
-                        <Badge Variant="@PriorityVariant">@GetDisplayValue("Priority")</Badge>
-                    </CardHeader>
-                    <CardContent class="@GetPresentationContentClass("space-y-4")">
+                <div data-slot="dynamic-workitem-presentation" class="@GetPresentationContainerClass()">
+                    <div data-slot="dynamic-node-content" class="@GetPresentationContentClass("space-y-4")">
+                        <Alert>
+                            <AlertTitle class="flex items-center justify-between gap-3">
+                                <span class="flex min-w-0 items-center gap-3">
+                                    <Avatar Size="sm">
+                                        <AvatarFallback>@Initials</AvatarFallback>
+                                    </Avatar>
+                                    <span class="truncate">@Context?.Label</span>
+                                </span>
+                                <Badge Variant="@PriorityVariant">@GetDisplayValue("Priority")</Badge>
+                            </AlertTitle>
+                            <AlertDescription class="mt-1">
+                                @GetDisplayValue("Assignee")
+                            </AlertDescription>
+                        </Alert>
                         <Progress Value="@WorkitemProgress" />
-                        <Separator />
                         @FormContent
-                    </CardContent>
-                    <CardFooter class="@GetPresentationFooterClass()">
+                    </div>
+                    <div data-slot="dynamic-node-actions" class="@GetPresentationFooterClass(false)">
                         @FormActions
-                    </CardFooter>
-                </Card>
+                    </div>
+                </div>
                 break;
 
             default:
                 <div data-slot="dynamic-default-presentation" class="@GetPresentationContainerClass()">
-                    <div class="@GetPresentationContentClass("space-y-4")">
+                    <div data-slot="dynamic-node-content" class="@GetPresentationContentClass("space-y-4")">
                         <div class="rounded-md border border-border bg-muted/20 p-3">
                             <p class="text-sm font-medium">@Context?.Label</p>
                             <p class="mt-1 text-xs text-muted-foreground">

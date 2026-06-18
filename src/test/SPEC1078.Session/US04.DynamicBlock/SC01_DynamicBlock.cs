@@ -288,7 +288,7 @@ public sealed class SC01_DynamicBlock : ViewScenario
     [Trait(Spec.UAC, "13")]
     [Given("Workspace, Flow, and Workitem descriptors with distinct presentation metadata")]
     [When("each model is projected into the session content")]
-    [Then("Workspace uses badges, Flow uses an alert and progress, and Workitem uses an avatar, badge, and progress")]
+    [Then("all three use one flat presentation layer while preserving their domain-specific badges, avatar, and progress")]
     public void UAC13_DynamicModelsShowcaseDistinctComponents()
     {
         var discovery = new DynamicBlockDiscovery([new ShowcaseDynamicBlockRegistry()]);
@@ -297,16 +297,24 @@ public sealed class SC01_DynamicBlock : ViewScenario
             .Add(x => x.Discovery, discovery));
 
         cut.Find("[data-node-id='workspace-foundry']").Click();
-        cut.Find("[data-slot='dynamic-workspace-presentation']").ShouldNotBeNull();
+        var workspacePresentation = cut.Find("[data-slot='dynamic-workspace-presentation']");
+        workspacePresentation.ShouldNotBeNull();
+        workspacePresentation.QuerySelector("[data-slot='card']").ShouldBeNull();
+        workspacePresentation.QuerySelector("[data-slot='alert']").ShouldNotBeNull();
         cut.FindAll("[data-slot='badge']").Count.ShouldBeGreaterThanOrEqualTo(2);
 
         cut.Find("[data-node-id='flow-onboarding']").Click();
-        cut.Find("[data-slot='dynamic-flow-presentation']").ShouldNotBeNull();
+        var flowPresentation = cut.Find("[data-slot='dynamic-flow-presentation']");
+        flowPresentation.ShouldNotBeNull();
+        flowPresentation.QuerySelector("[data-slot='card']").ShouldBeNull();
         cut.Find("[data-slot='alert']").ShouldNotBeNull();
         cut.Find("[data-slot='progress']").ShouldNotBeNull();
 
         cut.Find("[data-node-id='workitem-setup-ci']").Click();
-        cut.Find("[data-slot='dynamic-workitem-presentation']").ShouldNotBeNull();
+        var workitemPresentation = cut.Find("[data-slot='dynamic-workitem-presentation']");
+        workitemPresentation.ShouldNotBeNull();
+        workitemPresentation.QuerySelector("[data-slot='card']").ShouldBeNull();
+        workitemPresentation.QuerySelector("[data-slot='alert']").ShouldNotBeNull();
         cut.Find("[data-slot='avatar']").ShouldNotBeNull();
         cut.Find("[data-slot='badge']").ShouldNotBeNull();
         cut.Find("[data-slot='progress']").ShouldNotBeNull();
@@ -355,12 +363,12 @@ public sealed class SC01_DynamicBlock : ViewScenario
         presentation.ClassList.ShouldContain("h-full");
         presentation.ClassList.ShouldContain("min-h-0");
 
-        var content = presentation.QuerySelector("[data-slot='card-content']");
+        var content = presentation.QuerySelector("[data-slot='dynamic-node-content']");
         content.ShouldNotBeNull();
         content!.ClassList.ShouldContain("flex-1");
         content.ClassList.ShouldContain("overflow-auto");
 
-        var footer = presentation.QuerySelector("[data-slot='card-footer']");
+        var footer = presentation.QuerySelector("[data-slot='dynamic-node-actions']");
         footer.ShouldNotBeNull();
         footer!.ClassList.ShouldContain("mt-auto");
         footer.ClassList.ShouldContain("shrink-0");
