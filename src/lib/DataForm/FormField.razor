@@ -1,5 +1,6 @@
 @namespace LowlandTech.Components
 @inherits TinyComponentBase
+@inject IStringLocalizer<DataFormStrings> L
 
 <div data-slot="form-field"
      data-field-type="@FieldType"
@@ -42,7 +43,7 @@
                         ValueChanged="OnSelectChanged"
                         data-field-input="@FieldName">
                     <SelectTrigger id="@FieldId" Invalid="@HasErrors">
-                        <SelectValue Placeholder="Select..." />
+                        <SelectValue Placeholder="@L["SelectPlaceholder"]" />
                     </SelectTrigger>
                     <SelectContent>
                         @foreach (var name in Enum.GetNames(EnumType))
@@ -121,7 +122,7 @@
                        OnFocus="OnInputFocus"
                        Disabled="@Disabled"
                        Invalid="@HasErrors"
-                       Placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                       Placeholder="@L["GuidPlaceholder"]"
                        aria-describedby="@(HasErrors ? ValidationId : null)" />
                 break;
 
@@ -150,7 +151,7 @@
                        OnFocus="OnInputFocus"
                        Disabled="@Disabled"
                        Invalid="@HasErrors"
-                       Placeholder="Node reference..."
+                       Placeholder="@L["NodeRefPlaceholder"]"
                        aria-describedby="@(HasErrors ? ValidationId : null)" />
                 break;
 

@@ -1,6 +1,7 @@
 @namespace LowlandTech.Components
 @inherits TinyComponentBase
 @implements IDisposable
+@inject IStringLocalizer<DataFormStrings> L
 
 <CascadingValue Value="_editContext">
     <form data-slot="data-form"
@@ -114,8 +115,8 @@
         else if (ShowDefaultActions)
         {
             <div data-slot="data-form-actions" class="flex gap-2">
-                <Button Type="submit">Submit</Button>
-                <Button Type="button" Variant="outline" @onclick="ResetModel">Reset</Button>
+                <Button Type="submit">@L["SubmitButton"]</Button>
+                <Button Type="button" Variant="outline" @onclick="ResetModel">@L["ResetButton"]</Button>
             </div>
         }
     </form>

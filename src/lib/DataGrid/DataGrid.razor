@@ -1,6 +1,7 @@
 @namespace LowlandTech.Components
 @typeparam TItem
 @inherits TinyComponentBase
+@inject IStringLocalizer<DataGridStrings> L
 
 <div data-slot="data-grid"
      data-loading="@IsLoading.ToString().ToLowerInvariant()"
@@ -28,7 +29,7 @@
                         @if (DetailTemplate is not null)
                         {
                             <th data-slot="data-grid-header-cell" class="cn-data-grid-head cn-data-grid-expand-cell">
-                                <span class="sr-only">Expand</span>
+                                <span class="sr-only">@L["ExpandHeaderText"]</span>
                             </th>
                         }
                         @if (SelectionMode == DataGridSelectionMode.Multiple)
@@ -37,7 +38,7 @@
                                 <Checkbox data-slot="data-grid-select-all"
                                           Checked="@IsAllVisibleSelected()"
                                           CheckedChanged="ToggleSelectAll"
-                                          aria-label="Select all visible rows" />
+                                          aria-label="@L["SelectAllAriaLabel"]" />
                             </th>
                         }
                         @foreach (var column in VisibleColumns)
@@ -89,7 +90,7 @@
                                                Size="sm"
                                                Value="@GetFilterValue(column)"
                                                ValueChanged="value => UpdateFilter(column, value)"
-                                               aria-label="@($"Filter {column.HeaderText}")" />
+                                               aria-label="@string.Format(L["FilterColumnAriaLabel"], column.HeaderText)" />
                                     }
                                 </th>
                             }
@@ -123,7 +124,7 @@
                                 else
                                 {
                                     <Empty>
-                                        <EmptyTitle>@(!string.IsNullOrWhiteSpace(EmptyText) ? EmptyText : "No results found.")</EmptyTitle>
+                                        <EmptyTitle>@(!string.IsNullOrWhiteSpace(EmptyText) ? EmptyText : L["NoResultsFound"])</EmptyTitle>
                                     </Empty>
                                 }
                             </td>
@@ -161,7 +162,7 @@
                                             <Checkbox data-slot="data-grid-selection-input"
                                                       Checked="@IsSelected(item)"
                                                       CheckedChanged="async _ => await ToggleSelection(item)"
-                                                      aria-label="Select row" />
+                                                      aria-label="@L["SelectRowAriaLabel"]" />
                                         </span>
                                     </td>
                                 }
@@ -214,7 +215,7 @@
         {
             <div data-slot="data-grid-pager" class="cn-data-grid-pager">
                 <label data-slot="data-grid-page-size-label" class="cn-data-grid-page-size-label">
-                    <span>Rows</span>
+                    <span>@L["RowsPerPageLabel"]</span>
                     <span data-slot="data-grid-page-size">
                         <Select Value="@EffectivePageSize.ToString()"
                                 ValueChanged="OnPageSizeChanged">
@@ -236,17 +237,17 @@
                             Size="sm"
                             Disabled="@(PageIndex == 0)"
                             OnClick="async _ => await GoToPreviousPage()">
-                        Previous
+                        @L["PreviousPageButton"]
                     </Button>
                     <span data-slot="data-grid-page-summary" class="cn-data-grid-page-summary">
-                        Page @(PageIndex + 1) of @TotalPages
+                        @string.Format(L["PageSummaryFormat"], PageIndex + 1, TotalPages)
                     </span>
                     <Button data-slot="data-grid-page-next"
                             Variant="outline"
                             Size="sm"
                             Disabled="@(PageIndex >= TotalPages - 1)"
                             OnClick="async _ => await GoToNextPage()">
-                        Next
+                        @L["NextPageButton"]
                     </Button>
                 </div>
             </div>
