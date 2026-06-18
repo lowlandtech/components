@@ -111,13 +111,43 @@ public class SC01_DataFormLocalization : ViewScenario
     {
         var startDir = new DirectoryInfo(AppContext.BaseDirectory);
         var current = startDir;
+
         while (current is not null)
         {
-            var candidate = Path.Combine(current.FullName, "src", "components", "lib", "Resources");
-            if (File.Exists(Path.Combine(candidate, "DataGridStrings.en.resx")))
+            var rootCandidate = Path.Combine(current.FullName, "src", "components", "lib", "Resources");
+            if (Directory.Exists(rootCandidate))
             {
-                return candidate;
+                var resxFiles = Directory.GetFiles(rootCandidate, "*.resx");
+                if (resxFiles.Length > 0)
+                {
+                    return rootCandidate;
+                }
             }
+
+            var componentsDir = new DirectoryInfo(Path.Combine(current.FullName, "components"));
+            if (componentsDir.Exists)
+            {
+                var compCandidate = Path.Combine(componentsDir.FullName, "lib", "Resources");
+                if (Directory.Exists(compCandidate))
+                {
+                    var resxFiles = Directory.GetFiles(compCandidate, "*.resx");
+                    if (resxFiles.Length > 0)
+                    {
+                        return compCandidate;
+                    }
+                }
+            }
+
+            var directCandidate = Path.Combine(current.FullName, "Resources");
+            if (Directory.Exists(directCandidate))
+            {
+                var resxFiles = Directory.GetFiles(directCandidate, "*.resx");
+                if (resxFiles.Length > 0)
+                {
+                    return directCandidate;
+                }
+            }
+
             current = current.Parent;
         }
 

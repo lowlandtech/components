@@ -119,17 +119,33 @@ public class SC01_DataGridLocalization : ViewScenario
     {
         var startDir = new DirectoryInfo(AppContext.BaseDirectory);
         var current = startDir;
+        DirectoryInfo? projectRoot = null;
+
         while (current is not null)
         {
-            var candidate = Path.Combine(current.FullName, "src", "components", "lib", "Resources");
-            if (File.Exists(Path.Combine(candidate, "DataGridStrings.en.resx")))
+            if (File.Exists(Path.Combine(current.FullName, "Directory.Build.props")))
             {
-                return candidate;
+                projectRoot = current;
+                break;
             }
             current = current.Parent;
         }
 
-        throw new DirectoryNotFoundException($"Could not locate component Resources directory starting from {startDir}");
+        var root = projectRoot ?? (current != null ? current : new DirectoryInfo(Path.GetPathRoot(startDir.FullName)));
+
+        var candidate = Path.Combine(root.FullName, "src", "components", "lib", "Resources");
+        if (File.Exists(Path.Combine(candidate, "DataGridStrings.en.resx")))
+        {
+            return candidate;
+        }
+
+        var candidate2 = Path.Combine(root.FullName, "components", "src", "lib", "Resources");
+        if (File.Exists(Path.Combine(candidate2, "DataGridStrings.en.resx")))
+        {
+            return candidate2;
+        }
+
+        throw new DirectoryNotFoundException($"Could not locate component Resources directory. Checked: {candidate}, {candidate2}");
     }
 
     private static HashSet<string> LoadResxKeys(string path)
