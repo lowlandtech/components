@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ExpandHeaderText" xml:space="preserve">
+    <value>Udvid</value>
+  </data>
+  <data name="SelectAllAriaLabel" xml:space="preserve">
+    <value>Vælg alle synlige rækker</value>
+  </data>
+  <data name="FilterColumnAriaLabel" xml:space="preserve">
+    <value>Filtrér {0}</value>
+  </data>
+  <data name="NoResultsFound" xml:space="preserve">
+    <value>Ingen resultater fundet.</value>
+  </data>
+  <data name="SelectRowAriaLabel" xml:space="preserve">
+    <value>Vælg række</value>
+  </data>
+  <data name="RowsPerPageLabel" xml:space="preserve">
+    <value>Rækker</value>
+  </data>
+  <data name="PreviousPageButton" xml:space="preserve">
+    <value>Forrige</value>
+  </data>
+  <data name="PageSummaryFormat" xml:space="preserve">
+    <value>Side {0} af {1}</value>
+  </data>
+  <data name="NextPageButton" xml:space="preserve">
+    <value>Næste</value>
+  </data>
+</root>
