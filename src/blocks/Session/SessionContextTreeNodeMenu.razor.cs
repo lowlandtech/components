@@ -57,10 +57,6 @@ public partial class SessionContextTreeNodeMenu : TinyComponentBase, IDisposable
         return Task.CompletedTask;
     }
 
-    private string GetNewSubmenuChevronClass() => _isNewSubmenuOpen
-        ? "text-muted-foreground transition-transform duration-100 rotate-90"
-        : "text-muted-foreground transition-transform duration-100";
-
     private async Task NewAsync() => await NewAsync(null);
 
     private async Task NewAsync(EdgeTypeInfo? edge)

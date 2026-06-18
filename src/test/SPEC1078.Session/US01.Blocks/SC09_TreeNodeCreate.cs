@@ -269,6 +269,52 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
         items[1].GetAttribute("data-edge-key").ShouldBe("has.workflow");
     }
 
+    [Fact(DisplayName = "UAC09b: Dynamic New uses a shadcn-style flyout submenu")]
+    [Trait(Spec.UAC, "09b")]
+    [Given("a SessionContextTreeNodeMenu with outgoing create edges")]
+    [When("the New submenu is opened")]
+    [Then("the child menu is exposed as a right-side menu without turning the chevron downward")]
+    public void UAC09b_ContextMenuUsesRightSideFlyoutSubmenu()
+    {
+        var workspaceNode = new SessionNodeInput("ws-1", "workspace", "Foundry");
+        var createEdges = new[]
+        {
+            new EdgeTypeInfo("has.table", "create", "Create Table", null, "TableCreator", "workspace", false, "table", null, null)
+        };
+
+        var cut = Ctx.Render<SessionContextTreeNodeMenu>(parameters => parameters
+            .Add(component => component.Node, workspaceNode)
+            .Add(component => component.CreateEdges, createEdges));
+
+        var trigger = cut.Find("[data-testid='session-context-node-new-submenu']");
+        trigger.Click();
+
+        trigger.GetAttribute("aria-haspopup").ShouldBe("menu");
+        trigger.GetAttribute("aria-expanded").ShouldBe("true");
+        trigger.GetAttribute("data-state").ShouldBe("open");
+        trigger.QuerySelector("svg")!.ClassList.ShouldNotContain("rotate-90");
+
+        var submenu = cut.Find("[data-slot='session-context-node-submenu']");
+        submenu.GetAttribute("role").ShouldBe("menu");
+        submenu.GetAttribute("data-side").ShouldBe("right");
+        submenu.GetAttribute("data-state").ShouldBe("open");
+    }
+
+    [Fact(DisplayName = "UAC09c: Portal node menus preserve flyout overflow")]
+    [Trait(Spec.UAC, "09c")]
+    [Given("the PopoverProvider stylesheet used by explorer node menus")]
+    [When("the node-menu overflow contract is inspected")]
+    [Then("the root menu permits visible overflow while the flyout owns vertical scrolling")]
+    public void UAC09c_PopoverProviderPreservesSubmenuOverflow()
+    {
+        var cut = Ctx.Render<PopoverProvider>();
+
+        cut.Markup.ShouldContain(".node-menu {");
+        cut.Markup.ShouldContain("overflow: visible;");
+        cut.Markup.ShouldContain(".node-menu-submenu-flyout");
+        cut.Markup.ShouldContain("overflow-y: auto;");
+    }
+
     [Fact(DisplayName = "UAC10: Clicking a dynamic New option fires NewRequested with the selected edge key")]
     [Trait(Spec.UAC, "10")]
     [Given("a SessionContextTreeNodeMenu with a create edge")]
