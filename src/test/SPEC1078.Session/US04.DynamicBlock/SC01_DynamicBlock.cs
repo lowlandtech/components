@@ -312,6 +312,47 @@ public sealed class SC01_DynamicBlock : ViewScenario
         cut.Find("[data-slot='progress']").ShouldNotBeNull();
     }
 
+    [Fact(DisplayName = "UAC13b: Maximized dynamic presentations fill their context card")]
+    [Trait(Spec.UAC, "13b")]
+    [Given("a Workitem DynamicNodeBlock rendered by a maximized SessionContextBlock")]
+    [When("the session context passes its display mode into the dynamic component")]
+    [Then("the dynamic root and presentation card both fill the available height")]
+    public void UAC13b_MaximizedDynamicPresentationFillsContextCard()
+    {
+        var model = CreateModel();
+        var descriptor = new ShowcaseDynamicBlockRegistry()
+            .GetDescriptors()
+            .Single(item => item.ModelType == typeof(WorkitemModel));
+        var workitem = model.Workitems[0];
+        var node = new SessionNodeInput(
+            workitem.Id,
+            descriptor.NodeTypeKey,
+            workitem.Title,
+            "DynamicNodeBlock",
+            descriptor.Fields.ToDictionary(
+                field => field.Key,
+                field => descriptor.GetFieldValue(workitem, field.Key),
+                StringComparer.Ordinal)
+                .Append(new KeyValuePair<string, object?>("dynamic.model", workitem))
+                .Append(new KeyValuePair<string, object?>("dynamic.fields", descriptor.Fields))
+                .Append(new KeyValuePair<string, object?>("dynamic.presentation", descriptor.Presentation))
+                .ToDictionary());
+        var block = new SessionContextBlockModel(
+            $"context-block:{node.Id}",
+            node,
+            node.Properties,
+            typeof(DynamicNodeBlock));
+
+        var cut = Ctx.Render<SessionContextBlock>(parameters => parameters
+            .Add(component => component.Block, block)
+            .Add(component => component.Mode, SessionContextBlock.ModeMaximized));
+
+        var dynamicRoot = cut.Find("[data-slot='dynamic-node-block']");
+        dynamicRoot.GetAttribute("data-mode").ShouldBe(SessionContextBlock.ModeMaximized);
+        dynamicRoot.ClassList.ShouldContain("h-full");
+        cut.Find("[data-slot='dynamic-workitem-presentation']").ClassList.ShouldContain("h-full");
+    }
+
     [Fact(DisplayName = "UAC14: Collection headers render grid mode and row selection opens form mode")]
     [Trait(Spec.UAC, "14")]
     [Given("a workspace session with a Workspaces collection header and workspace children")]

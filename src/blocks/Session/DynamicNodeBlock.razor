@@ -6,7 +6,8 @@
      data-node-type="@Context?.NodeTypeKey"
      data-view-mode="@ViewMode"
      data-form-mode="@FormMode"
-     class="space-y-4">
+     data-mode="@Mode"
+     class="@RootClass">
     @if (IsGridView)
     {
         <div data-slot="dynamic-node-grid" class="space-y-3">
@@ -50,7 +51,7 @@
         @switch (Presentation)
         {
             case "workspace":
-                <Card data-slot="dynamic-workspace-presentation" Variant="outlined" class="overflow-hidden">
+                <Card data-slot="dynamic-workspace-presentation" Variant="outlined" class="@($"overflow-hidden {PresentationCardClass}")">
                     <CardHeader>
                         <CardTitle>@Context?.Label</CardTitle>
                         <CardDescription>
@@ -90,7 +91,7 @@
                 break;
 
             case "workitem":
-                <Card data-slot="dynamic-workitem-presentation" Variant="outlined">
+                <Card data-slot="dynamic-workitem-presentation" Variant="outlined" class="@PresentationCardClass">
                     <CardHeader class="grid-cols-[auto_1fr_auto] gap-3">
                         <Avatar Size="sm">
                             <AvatarFallback>@Initials</AvatarFallback>

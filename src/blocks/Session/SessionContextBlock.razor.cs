@@ -93,6 +93,8 @@ public partial class SessionContextBlock : TinyComponentBase
         parameters.TryAdd("Block", Block);
         parameters.TryAdd("Context", Block.Context);
         parameters.TryAdd("Data", Block.Data);
+        if (ResolvedComponentType?.GetProperty("Mode")?.GetCustomAttribute<ParameterAttribute>() is not null)
+            parameters.TryAdd("Mode", NormalizedMode);
         return parameters;
     }
 

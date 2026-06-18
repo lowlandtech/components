@@ -7,6 +7,7 @@ public partial class DynamicNodeBlock : TinyComponentBase
     [Parameter] public SessionContextBlockModel? Block { get; set; }
     [Parameter] public SessionNodeInput? Context { get; set; }
     [Parameter] public object? Data { get; set; }
+    [Parameter] public string Mode { get; set; } = SessionContextBlock.ModeNormal;
 
     private object? _sourceModel;
     private object? _draftModel;
@@ -52,6 +53,13 @@ public partial class DynamicNodeBlock : TinyComponentBase
     private bool IsGridView => string.Equals(ViewMode, "grid", StringComparison.OrdinalIgnoreCase);
 
     private string FormMode => _isEditing ? "edit" : "view";
+
+    private bool IsMaximized =>
+        string.Equals(Mode, SessionContextBlock.ModeMaximized, StringComparison.OrdinalIgnoreCase);
+
+    private string RootClass => IsMaximized ? "h-full space-y-4" : "space-y-4";
+
+    private string PresentationCardClass => IsMaximized ? "h-full" : string.Empty;
 
     private IReadOnlyList<string> FieldKeys =>
         Fields.Select(descriptor => descriptor.Key).ToList();
