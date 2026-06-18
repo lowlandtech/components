@@ -41,7 +41,7 @@ public partial class SessionContextBlock : TinyComponentBase
         (NormalizedMode != ModeOverlayPage || IsPageOverlayProjection);
 
     private bool IsSquareMode =>
-        NormalizedMode is ModeMaximized or ModeOverlayApp;
+        NormalizedMode is ModeOverlayApp;
 
     private string GetHeaderClass() => NormalizedMode switch
     {
@@ -59,7 +59,7 @@ public partial class SessionContextBlock : TinyComponentBase
     {
         var baseClass = NormalizedMode switch
         {
-            ModeMaximized => "cn-card-maximized flex h-full min-h-0 w-full flex-col overflow-hidden bg-background gap-0 py-0 !rounded-none",
+            ModeMaximized => "cn-card-maximized flex h-full min-h-0 w-full flex-col overflow-hidden bg-background gap-0 py-0",
             ModeOverlayPage when IsPageOverlayProjection => "flex min-h-full w-full flex-col overflow-hidden bg-background gap-0 py-0 !rounded-none",
             ModeOverlayPage => "w-full overflow-hidden bg-background gap-0 py-0 opacity-60",
             ModeOverlayApp when !string.IsNullOrWhiteSpace(AppOverlayContainerClass) => $"{AppOverlayContainerClass} !rounded-none",

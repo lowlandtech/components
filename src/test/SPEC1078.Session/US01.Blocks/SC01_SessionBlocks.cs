@@ -560,6 +560,9 @@ public class SC01_SessionBlocks : ViewScenario
 
     [Fact(DisplayName = "UAC15: SessionContextBlock exposes maximized and overlay modes for host projection")]
     [Trait(Spec.UAC, "15")]
+    [Given("a SessionContextBlock rendered in maximized, page-overlay, and app-overlay modes")]
+    [When("the projection containers are composed")]
+    [Then("maximized mode retains rounded clipped corners while app overlay remains square and viewport-bound")]
     public void UAC15_ContextBlockExposesProjectionModes()
     {
         var block = new SessionContextBlockModel(
@@ -582,9 +585,13 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.AppOverlayContainerClass, "absolute inset-0 z-50 flex h-full w-full flex-col"));
 
         maximized.Find("[data-mode='maximized']").ClassList.ShouldContain("flex");
+        maximized.Find("[data-mode='maximized']").ClassList.ShouldContain("overflow-hidden");
+        maximized.Find("[data-mode='maximized']").ClassList.ShouldNotContain("!rounded-none");
+        maximized.Find("[data-mode='maximized']").GetAttribute("data-square").ShouldBeNull();
         overlayPage.Find("[data-mode='overlay-page']").ClassList.ShouldContain("opacity-60");
         overlayApp.Find("[data-mode='overlay-app']").ClassList.ShouldContain("fixed");
         overlayApp.Find("[data-mode='overlay-app']").ClassList.ShouldContain("inset-0");
+        overlayApp.Find("[data-mode='overlay-app']").GetAttribute("data-square").ShouldBe("true");
         containedOverlayApp.Find("[data-mode='overlay-app']").ClassList.ShouldContain("absolute");
         containedOverlayApp.Find("[data-mode='overlay-app']").ClassList.ShouldNotContain("fixed");
     }
