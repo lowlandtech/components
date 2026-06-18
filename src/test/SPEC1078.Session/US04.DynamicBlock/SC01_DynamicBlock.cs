@@ -603,9 +603,9 @@ public sealed class SC01_DynamicBlock : ViewScenario
 
     [Fact(DisplayName = "UAC21: Dynamic forms expose edge-derived intent toolbars")]
     [Trait(Spec.UAC, "21")]
-    [Given("Workspace, Flow, and Workitem node types with outgoing relationship and command edges")]
+    [Given("Workspace, Flow, and Workitem node types with outgoing create and command edges")]
     [When("each node is projected into its dynamic form presentation")]
-    [Then("a toolbar below the alert shows applicable edge labels and omits form-reference edges")]
+    [Then("a toolbar below the alert shows session-launch intents and omits relationship-only edges")]
     public void UAC21_DynamicFormsRenderEdgeDerivedIntentToolbars()
     {
         Ctx.Services.AddSingleton<IEdgeTypeService>(new ToolbarEdgeTypeService());
@@ -626,7 +626,7 @@ public sealed class SC01_DynamicBlock : ViewScenario
         cut.Find("[data-node-id='workitem-setup-ci']").Click();
         var workitemToolbar = cut.Find("[data-slot='dynamic-node-intent-toolbar']");
         workitemToolbar.TextContent.ShouldContain("Start in OpenCode");
-        workitemToolbar.TextContent.ShouldContain("Labels");
+        workitemToolbar.TextContent.ShouldNotContain("Labels");
         workitemToolbar.TextContent.ShouldNotContain("Parent");
     }
 
@@ -634,7 +634,7 @@ public sealed class SC01_DynamicBlock : ViewScenario
     [Trait(Spec.UAC, "22")]
     [Given("a Workitem dynamic form with a command-bar edge whose intent is encoded in its key")]
     [When("the user selects the corresponding toolbar button")]
-    [Then("the component emits a transition intent containing the edge key and graph endpoints")]
+    [Then("SessionBlock opens its command bar in the registered intent mode and emits the selected transition")]
     public void UAC22_IntentToolbarDispatchesEncodedEdgeIntent()
     {
         Ctx.Services.AddSingleton<IEdgeTypeService>(new ToolbarEdgeTypeService());
@@ -648,13 +648,46 @@ public sealed class SC01_DynamicBlock : ViewScenario
         cut.Find("[data-node-id='workitem-setup-ci']").Click();
         cut.Find("button[data-edge-key='workitem.init.opencode.session']").Click();
 
+        var sessionBlock = cut.FindComponent<SessionBlock>();
+        cut.Find("[data-slot='session-command-bar']").ShouldNotBeNull();
+        sessionBlock.Instance.StateService!.State.Ui.ActiveAgentTypeKey
+            .ShouldBe("init.opencode:workitem.init.opencode.session");
+        sessionBlock.Instance.StateService.State.Ui.ContextProjection!.Node.Id
+            .ShouldBe("workitem-setup-ci");
+
         selectedIntent.ShouldNotBeNull();
         selectedIntent.Key.ShouldBe("init.opencode:workitem.init.opencode.session");
         selectedIntent.Class.ShouldBe(BlockIntentClass.Transition);
         selectedIntent.Payload.ShouldNotBeNull();
         selectedIntent.Payload["edgeKey"].ShouldBe("workitem.init.opencode.session");
+        selectedIntent.Payload["sourceNodeId"].ShouldBe("workitem-setup-ci");
         selectedIntent.Payload["sourceNodeTypeKey"].ShouldBe("workitem");
         selectedIntent.Payload["targetNodeTypeKey"].ShouldBe("opencode-session");
+    }
+
+    [Fact(DisplayName = "UAC23: Create intents project their source header into the command bar")]
+    [Trait(Spec.UAC, "23")]
+    [Given("a Workspace form whose Branch intent creates through a navigation header")]
+    [When("the user selects Branches from the intent toolbar while the command bar is hidden")]
+    [Then("the command bar opens in create edge mode with Branches projected beneath the Workspace")]
+    public void UAC23_CreateIntentProjectsHeaderAndOpensCommandBar()
+    {
+        Ctx.Services.AddSingleton<IEdgeTypeService>(new ToolbarEdgeTypeService());
+        var discovery = new DynamicBlockDiscovery([new ShowcaseDynamicBlockRegistry()]);
+        var cut = Ctx.Render<Components.DynamicBlock>(parameters => parameters
+            .Add(component => component.Model, CreateModel())
+            .Add(component => component.Discovery, discovery));
+
+        cut.FindAll("[data-slot='session-command-bar']").Count.ShouldBe(0);
+        cut.Find("[data-node-id='workspace-foundry']").Click();
+        cut.Find("button[data-edge-key='contains.branch']").Click();
+
+        var state = cut.FindComponent<SessionBlock>().Instance.StateService!.State.Ui;
+        cut.Find("[data-slot='session-command-bar']").ShouldNotBeNull();
+        state.ActiveAgentTypeKey.ShouldBe("create:contains.branch");
+        state.ContextProjection.ShouldNotBeNull();
+        state.ContextProjection.Node.NodeTypeKey.ShouldBe("header");
+        state.ContextProjection.Node.Label.ShouldBe("Branches");
     }
 
     private static WorkspaceUseCaseModel CreateModel() => new()
@@ -782,12 +815,12 @@ public sealed class SC01_DynamicBlock : ViewScenario
             {
                 ["workspace"] =
                 [
-                    CreateEdge("contains.branch", "Branches", "workspace", "branch"),
-                    CreateEdge("contains.table", "Tables", "workspace", "table")
+                    CreateEdge("contains.branch", "Branches", "workspace", "branch", navigationHeaderLabel: "Branches"),
+                    CreateEdge("contains.table", "Tables", "workspace", "table", navigationHeaderLabel: "Tables")
                 ],
                 ["flow"] =
                 [
-                    CreateEdge("has.step", "Steps", "flow", "step", "collection-tab")
+                    CreateEdge("has.step", "Steps", "flow", "step", navigationHeaderLabel: "Steps")
                 ],
                 ["workitem"] =
                 [
@@ -798,7 +831,7 @@ public sealed class SC01_DynamicBlock : ViewScenario
                         "opencode-session",
                         "command-bar",
                         "init.opencode"),
-                    CreateEdge("workitem.has-label.label", "Labels", "workitem", "label", "collection-tab"),
+                    CreateEdge("workitem.has-label.label", "Labels", "workitem", "label", "collection-tab", intent: ""),
                     CreateEdge("workitem.has-parent.workitem", "Parent", "workitem", "workitem", "form-reference")
                 ]
             };
@@ -820,7 +853,8 @@ public sealed class SC01_DynamicBlock : ViewScenario
             string sourceNodeTypeKey,
             string targetNodeTypeKey,
             string? surface = null,
-            string intent = "") =>
+            string intent = "create",
+            string? navigationHeaderLabel = null) =>
             new(
                 edgeKey,
                 intent,
@@ -831,7 +865,12 @@ public sealed class SC01_DynamicBlock : ViewScenario
                 false,
                 targetNodeTypeKey,
                 null,
-                null);
+                null)
+            {
+                IsNavigationHeaderChild = navigationHeaderLabel is not null,
+                HeaderNodeTypeKey = navigationHeaderLabel is null ? null : "header",
+                HeaderLabel = navigationHeaderLabel
+            };
     }
 
     private sealed class RecordingDynamicNodeRuntime(WorkspaceUseCaseModel model) : IDynamicNodeRuntime

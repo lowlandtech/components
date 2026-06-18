@@ -757,13 +757,14 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     private async Task HandleNodeNewAsync(SessionNodeInput node)
     {
-        var agentTypeKey = "create";
+        var agentTypeKey = node.Properties?.GetValueOrDefault("agentTypeKey") as string ?? "create";
         EdgeTypeInfo? edge = null;
         if (node.Properties?.TryGetValue("createEdgeKey", out var edgeKeyValue) == true
             && edgeKeyValue is string edgeKey
             && !string.IsNullOrWhiteSpace(edgeKey))
         {
-            agentTypeKey = $"create:{edgeKey}";
+            if (node.Properties?.ContainsKey("agentTypeKey") != true)
+                agentTypeKey = $"create:{edgeKey}";
             edge = EdgeTypeService?.FindEdgeByAgentTypeKey(node.NodeTypeKey, agentTypeKey);
         }
 
@@ -787,6 +788,36 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         SessionState.SetAgentType(agentTypeKey);
 
         await FocusCommandInputAsync();
+    }
+
+    private async Task HandleNodeIntentSelectedAsync(BlockIntent intent)
+    {
+        var edgeKey = intent.Payload?.GetValueOrDefault("edgeKey")?.ToString();
+        var sourceNodeId = intent.Payload?.GetValueOrDefault("sourceNodeId")?.ToString();
+        if (string.IsNullOrWhiteSpace(edgeKey) || string.IsNullOrWhiteSpace(sourceNodeId))
+        {
+            await OnNodeIntentSelected.InvokeAsync(intent);
+            return;
+        }
+
+        var sourceNode = FindNodeAcrossTree(DisplayContextNodes, sourceNodeId)?.Node
+            ?? ViewState.ContextProjection?.Node;
+        if (sourceNode is null)
+        {
+            await OnNodeIntentSelected.InvokeAsync(intent);
+            return;
+        }
+
+        var properties = new Dictionary<string, object?>(
+            sourceNode.Properties ?? new Dictionary<string, object?>(),
+            StringComparer.Ordinal)
+        {
+            ["createEdgeKey"] = edgeKey,
+            ["agentTypeKey"] = intent.Key
+        };
+
+        await HandleNodeNewAsync(sourceNode with { Properties = properties });
+        await OnNodeIntentSelected.InvokeAsync(intent);
     }
 
     private async Task FocusCommandInputAsync()

@@ -17,15 +17,15 @@ public static class DynamicNodeIntentToolbar
 {
     public static IReadOnlyList<DynamicNodeIntentAction> Create(
         IEdgeTypeService? edgeTypes,
-        string? nodeTypeKey)
+        SessionNodeInput? sourceNode)
     {
-        if (edgeTypes is null || string.IsNullOrWhiteSpace(nodeTypeKey))
+        if (edgeTypes is null || sourceNode is null || string.IsNullOrWhiteSpace(sourceNode.NodeTypeKey))
             return [];
 
-        return edgeTypes.GetOutgoingEdges(nodeTypeKey)
+        return edgeTypes.GetOutgoingEdges(sourceNode.NodeTypeKey)
             .Where(IsToolbarEdge)
-            .Select(CreateAction)
-            .GroupBy(action => action.EdgeKey, StringComparer.OrdinalIgnoreCase)
+            .Select(edge => CreateAction(edge, sourceNode))
+            .GroupBy(action => action.Intent.Payload?["targetNodeTypeKey"]?.ToString() ?? action.EdgeKey, StringComparer.OrdinalIgnoreCase)
             .Select(group => group.First())
             .OrderBy(action => GetSurfaceOrder(action.Surface))
             .ThenBy(action => action.Label, StringComparer.OrdinalIgnoreCase)
@@ -33,16 +33,20 @@ public static class DynamicNodeIntentToolbar
     }
 
     private static bool IsToolbarEdge(EdgeTypeInfo edge) =>
-        !edge.IsNavigationHeaderChild
+        !string.IsNullOrWhiteSpace(edge.Intent)
         && !string.Equals(edge.Surface, "form-reference", StringComparison.OrdinalIgnoreCase)
-        && !string.Equals(edge.Surface, "settings", StringComparison.OrdinalIgnoreCase);
+        && !string.Equals(edge.Surface, "settings", StringComparison.OrdinalIgnoreCase)
+        && (string.Equals(edge.Intent, "create", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(edge.Surface, "command-bar", StringComparison.OrdinalIgnoreCase));
 
-    private static DynamicNodeIntentAction CreateAction(EdgeTypeInfo edge)
+    private static DynamicNodeIntentAction CreateAction(EdgeTypeInfo edge, SessionNodeInput sourceNode)
     {
         var encodedIntent = GetEncodedIntent(edge);
         var payload = new Dictionary<string, object?>(StringComparer.Ordinal)
         {
             ["edgeKey"] = edge.EdgeKey,
+            ["sourceNodeId"] = sourceNode.Id,
+            ["sourceNodeLabel"] = sourceNode.Label,
             ["sourceNodeTypeKey"] = edge.SourceNodeTypeKey,
             ["targetNodeTypeKey"] = edge.TargetNodeTypeKey,
             ["surface"] = edge.Surface

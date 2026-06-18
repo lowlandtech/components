@@ -57,7 +57,7 @@ public partial class DynamicNodeBlock : TinyComponentBase
     private string FormMode => _isEditing ? "edit" : "view";
 
     private IReadOnlyList<DynamicNodeIntentAction> ToolbarActions =>
-        DynamicNodeIntentToolbar.Create(EdgeTypeService, Context?.NodeTypeKey);
+        DynamicNodeIntentToolbar.Create(EdgeTypeService, Context);
 
     private bool IsFullHeightMode =>
         Mode?.ToLowerInvariant() is
