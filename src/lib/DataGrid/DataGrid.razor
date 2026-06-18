@@ -49,16 +49,17 @@
                                 }
                                 else if (CanSort(column))
                                 {
-                                    <button type="button"
-                                            data-slot="data-grid-sort-button"
+                                    <Button data-slot="data-grid-sort-button"
                                             data-sort-direction="@GetSortDirection(column).ToString().ToLowerInvariant()"
-                                            class="cn-data-grid-sort-button"
-                                            @onclick="eventArgs => ToggleSort(column, eventArgs)">
+                                            Variant="ghost"
+                                            Size="sm"
+                                            Class="cn-data-grid-sort-button"
+                                            OnClick="eventArgs => ToggleSort(column, eventArgs)">
                                         <span>@column.HeaderText</span>
                                         <span aria-hidden="true"
                                               class="cn-data-grid-sort-indicator text-[10px]"
                                               style="transform: translateY(1px);">@GetSortIndicator(column)</span>
-                                    </button>
+                                    </Button>
                                 }
                                 else
                                 {
@@ -83,11 +84,12 @@
                                 <th data-slot="data-grid-filter-cell" class="cn-data-grid-filter-cell">
                                     @if (CanFilter(column))
                                     {
-                                        <input data-slot="data-grid-filter-input"
-                                               class="cn-data-grid-filter-input"
-                                               value="@GetFilterValue(column)"
-                                               aria-label="Filter @column.HeaderText"
-                                               @oninput="eventArgs => UpdateFilter(column, eventArgs.Value?.ToString())" />
+                                        <Input data-slot="data-grid-filter-input"
+                                               Class="cn-data-grid-filter-input"
+                                               Size="sm"
+                                               Value="@GetFilterValue(column)"
+                                               ValueChanged="value => UpdateFilter(column, value)"
+                                               aria-label="@($"Filter {column.HeaderText}")" />
                                     }
                                 </th>
                             }
@@ -105,7 +107,7 @@
                                 }
                                 else
                                 {
-                                    <span>Loading...</span>
+                                    <Spinner />
                                 }
                             </td>
                         </tr>
@@ -120,7 +122,9 @@
                                 }
                                 else
                                 {
-                                    <span>@(!string.IsNullOrWhiteSpace(EmptyText) ? EmptyText : "No results found.")</span>
+                                    <Empty>
+                                        <EmptyTitle>@(!string.IsNullOrWhiteSpace(EmptyText) ? EmptyText : "No results found.")</EmptyTitle>
+                                    </Empty>
                                 }
                             </td>
                         </tr>
@@ -138,14 +142,16 @@
                                 @if (DetailTemplate is not null)
                                 {
                                     <td data-slot="data-grid-cell" class="cn-data-grid-cell cn-data-grid-expand-cell">
-                                        <button type="button"
-                                                data-slot="data-grid-expand-button"
-                                                class="cn-data-grid-expand-button"
+                                        <span @onclick="() => {}" @onclick:stopPropagation="true">
+                                        <Button data-slot="data-grid-expand-button"
+                                                Variant="ghost"
+                                                Size="sm"
+                                                Class="cn-data-grid-expand-button"
                                                 aria-expanded="@IsDetailExpanded(item).ToString().ToLowerInvariant()"
-                                                @onclick:stopPropagation="true"
-                                                @onclick="() => ToggleDetailRow(item)">
+                                                OnClick="async _ => await ToggleDetailRow(item)">
                                             @(IsDetailExpanded(item) ? "-" : "+")
-                                        </button>
+                                        </Button>
+                                    </span>
                                     </td>
                                 }
                                 @if (SelectionMode == DataGridSelectionMode.Multiple)
@@ -209,33 +215,39 @@
             <div data-slot="data-grid-pager" class="cn-data-grid-pager">
                 <label data-slot="data-grid-page-size-label" class="cn-data-grid-page-size-label">
                     <span>Rows</span>
-                    <select data-slot="data-grid-page-size"
-                            value="@EffectivePageSize"
-                            @onchange="ChangePageSize">
-                        @foreach (var option in PageSizeOptions)
-                        {
-                            <option value="@option">@option</option>
-                        }
-                    </select>
+                    <span data-slot="data-grid-page-size">
+                        <Select Value="@EffectivePageSize.ToString()"
+                                ValueChanged="OnPageSizeChanged">
+                            <SelectTrigger Size="sm">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                @foreach (var option in PageSizeOptions)
+                                {
+                                    <SelectItem Value="@option.ToString()" Text="@option.ToString()">@option</SelectItem>
+                                }
+                            </SelectContent>
+                        </Select>
+                    </span>
                 </label>
                 <div class="cn-data-grid-pager-actions">
-                    <button type="button"
-                            data-slot="data-grid-page-previous"
-                            class="cn-data-grid-page-button"
-                            disabled="@(PageIndex == 0)"
-                            @onclick="GoToPreviousPage">
+                    <Button data-slot="data-grid-page-previous"
+                            Variant="outline"
+                            Size="sm"
+                            Disabled="@(PageIndex == 0)"
+                            OnClick="async _ => await GoToPreviousPage()">
                         Previous
-                    </button>
+                    </Button>
                     <span data-slot="data-grid-page-summary" class="cn-data-grid-page-summary">
                         Page @(PageIndex + 1) of @TotalPages
                     </span>
-                    <button type="button"
-                            data-slot="data-grid-page-next"
-                            class="cn-data-grid-page-button"
-                            disabled="@(PageIndex >= TotalPages - 1)"
-                            @onclick="GoToNextPage">
+                    <Button data-slot="data-grid-page-next"
+                            Variant="outline"
+                            Size="sm"
+                            Disabled="@(PageIndex >= TotalPages - 1)"
+                            OnClick="async _ => await GoToNextPage()">
                         Next
-                    </button>
+                    </Button>
                 </div>
             </div>
         }
@@ -672,9 +684,9 @@
         await NotifyStateChanged();
     }
 
-    private async Task ChangePageSize(ChangeEventArgs eventArgs)
+    private async Task OnPageSizeChanged(string? value)
     {
-        if (!int.TryParse(eventArgs.Value?.ToString(), out var pageSize) || pageSize <= 0)
+        if (!int.TryParse(value, out var pageSize) || pageSize <= 0)
             return;
 
         PageSize = pageSize;
