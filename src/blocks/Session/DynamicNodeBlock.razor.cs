@@ -76,7 +76,7 @@ public partial class DynamicNodeBlock : TinyComponentBase
 
     private string GetPresentationFooterClass(bool hasCompactBorder = true) =>
         IsFullHeightMode
-            ? "mt-auto flex shrink-0 justify-end gap-2 border-t border-border pt-4"
+            ? "mt-auto flex shrink-0 justify-end gap-2 border-t border-border pt-2"
             : hasCompactBorder
                 ? "flex justify-end gap-2 border-t border-border pt-4"
                 : "flex justify-end gap-2 pt-4";

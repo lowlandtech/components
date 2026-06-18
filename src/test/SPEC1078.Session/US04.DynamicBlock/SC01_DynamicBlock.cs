@@ -365,6 +365,8 @@ public sealed class SC01_DynamicBlock : ViewScenario
         footer!.ClassList.ShouldContain("mt-auto");
         footer.ClassList.ShouldContain("shrink-0");
         footer.ClassList.ShouldContain("border-t");
+        footer.ClassList.ShouldContain("pt-2");
+        footer.ClassList.ShouldNotContain("pt-4");
     }
 
     [Theory(DisplayName = "UAC13c: Dynamic presentation height follows the projection mode")]
