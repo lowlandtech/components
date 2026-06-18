@@ -17,10 +17,13 @@
                placeholder=" "
                disabled="@Disabled"
                readonly="@ReadOnly"
-               aria-invalid="@Invalid"
+               aria-invalid="@(Invalid ? "true" : null)"
                value="@Value"
             @ref="_inputRef"
                @oninput="HandleInput"
+               @onchange="HandleChange"
+               @onblur="HandleBlur"
+               @onfocus="HandleFocus"
                @onkeyup="HandleKeyUp"
                @attributes="AdditionalAttributes" />
         <label class="lt-fl-label">@Label</label>
@@ -41,10 +44,13 @@ else
            placeholder="@Placeholder"
            disabled="@Disabled"
            readonly="@ReadOnly"
-           aria-invalid="@Invalid"
+           aria-invalid="@(Invalid ? "true" : null)"
            value="@Value"
         @ref="_inputRef"
            @oninput="HandleInput"
+           @onchange="HandleChange"
+           @onblur="HandleBlur"
+           @onfocus="HandleFocus"
            @onkeyup="HandleKeyUp"
            @attributes="AdditionalAttributes" />
 }
@@ -88,5 +94,23 @@ else
     {
         Value = e.Value?.ToString();
         await ValueChanged.InvokeAsync(Value);
+    }
+
+    private async Task HandleChange(ChangeEventArgs e)
+    {
+        if (OnChange.HasDelegate)
+            await OnChange.InvokeAsync(e);
+    }
+
+    private async Task HandleBlur(FocusEventArgs e)
+    {
+        if (OnBlur.HasDelegate)
+            await OnBlur.InvokeAsync(e);
+    }
+
+    private async Task HandleFocus(FocusEventArgs e)
+    {
+        if (OnFocus.HasDelegate)
+            await OnFocus.InvokeAsync(e);
     }
 }

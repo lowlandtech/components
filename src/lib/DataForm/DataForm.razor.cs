@@ -99,6 +99,10 @@ public partial class DataForm : TinyComponentBase
         {
             Store.Dispatch(new DataFormActions.FieldChanging(args.FieldName, args.NewValue));
         }
+        else
+        {
+            await SetValueAsync(args.FieldName, args.NewValue);
+        }
     }
 
     private async Task OnFieldChanged(FormFieldChangeArgs args)

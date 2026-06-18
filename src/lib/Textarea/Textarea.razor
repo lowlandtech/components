@@ -8,8 +8,11 @@
           placeholder="@Placeholder"
           disabled="@Disabled"
           readonly="@ReadOnly"
-          aria-invalid="@Invalid"
+          aria-invalid="@(Invalid ? "true" : null)"
           @oninput="HandleInput"
+          @onchange="HandleChange"
+          @onblur="HandleBlur"
+          @onfocus="HandleFocus"
           @attributes="AdditionalAttributes">@Value</textarea>
 
 @code {
@@ -28,5 +31,23 @@
     {
         Value = e.Value?.ToString();
         await ValueChanged.InvokeAsync(Value);
+    }
+
+    private async Task HandleChange(ChangeEventArgs e)
+    {
+        if (OnChange.HasDelegate)
+            await OnChange.InvokeAsync(e);
+    }
+
+    private async Task HandleBlur(FocusEventArgs e)
+    {
+        if (OnBlur.HasDelegate)
+            await OnBlur.InvokeAsync(e);
+    }
+
+    private async Task HandleFocus(FocusEventArgs e)
+    {
+        if (OnFocus.HasDelegate)
+            await OnFocus.InvokeAsync(e);
     }
 }

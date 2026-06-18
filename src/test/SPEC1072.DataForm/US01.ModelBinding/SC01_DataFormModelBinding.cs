@@ -126,13 +126,13 @@ public class SC01_DataFormModelBinding : ViewScenario
         cut.Find("[data-field-input='Status']").GetAttribute("data-slot").ShouldBe("select");
     }
 
-    [Fact(DisplayName = "UAC13: DateTime properties render date inputs by default")]
+    [Fact(DisplayName = "UAC13: DateTime properties render datetime-local inputs by default")]
     [Trait(Spec.UAC, "13")]
-    public void UAC13_DateTimePropertyRendersDateInput()
+    public void UAC13_DateTimePropertyRendersDateTimeInput()
     {
         var model = new CustomerFormModel();
         var cut = Ctx.Render<DataFormSut>(p => p.Add(x => x.Model, model));
-        cut.Find("[data-field-input='CreatedOn']").GetAttribute("type").ShouldBe("date");
+        cut.Find("[data-field-input='CreatedOn']").GetAttribute("type").ShouldBe("datetime-local");
     }
 
     [Fact(DisplayName = "UAC15: DisplayAttribute name is used as field label")]

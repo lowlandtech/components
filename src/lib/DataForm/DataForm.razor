@@ -46,14 +46,17 @@
                     {
                         @FieldTemplate(field)
                     }
-                    else if (UseStore)
+                    else if (ReadOnly || field.ReadOnly)
+                    {
+                        <div data-field-readonly="@field.PropertyName" class="rounded-md border border-input bg-muted px-3 py-2 text-sm text-muted-foreground">
+                            @currentValue
+                        </div>
+                    }
+                    else
                     {
                         var fieldType = MapToFormFieldType(field);
                         var validator = GetValidatorForField(field.PropertyName);
-                        var fieldValue = Store?.State.Values.TryGetValue(field.PropertyName, out var v) == true ? v : GetValue(field.PropertyName);
-
-                        var storeErrors = Store?.State.Errors.TryGetValue(field.PropertyName, out var se) == true ? se : null;
-                        var hasStoreErrors = storeErrors?.Count > 0;
+                        var fieldValue = UseStore && Store?.State.Values.TryGetValue(field.PropertyName, out var v) == true ? v : GetValue(field.PropertyName);
 
                         <FormField FieldName="@field.PropertyName"
                                    FieldType="@fieldType"
@@ -70,83 +73,20 @@
                                    OnBlur="async e => { if (Store != null) Store.Dispatch(new DataFormActions.FieldBlurred(field.PropertyName)); }"
                                    OnFocus="async e => { if (Store != null) Store.Dispatch(new DataFormActions.FieldFocused(field.PropertyName)); }" />
 
-                        @if (hasStoreErrors)
+                        @if (UseStore)
                         {
-                            <div data-field-validation="@field.PropertyName" class="text-sm font-medium text-destructive" role="alert">
-                                @foreach (var error in storeErrors!)
-                                {
-                                    <div>@error</div>
-                                }
-                            </div>
-                        }
-                    }
-                    else if (ReadOnly || field.ReadOnly)
-                    {
-                        <div data-field-readonly="@field.PropertyName" class="rounded-md border border-input bg-muted px-3 py-2 text-sm text-muted-foreground">
-                            @currentValue
-                        </div>
-                    }
-                    else
-                    {
-                        @switch (field.InputKind)
-                        {
-                            case "checkbox":
-                                <Checkbox id="@fieldId"
-                                          data-field-input="@field.PropertyName"
-                                          Checked="@(GetValue(field.PropertyName) is true)"
-                                          CheckedChanged="value => SetValueAsync(field.PropertyName, value)"
-                                          aria-invalid="@(hasErrors ? "true" : null)"
-                                          aria-describedby="@(hasErrors ? validationId : null)" />
-                                break;
+                            var storeErrors = Store?.State.Errors.TryGetValue(field.PropertyName, out var se) == true ? se : null;
+                            var hasStoreErrors = storeErrors?.Count > 0;
 
-                            case "select" when field.PropertyType.IsEnum:
-                                <Select Value="@currentValue"
-                                        ValueChanged="@((string? v) => SetValueAsync(field.PropertyName, ConvertEnumValue(v, field.PropertyType)))"
-                                        data-field-input="@field.PropertyName">
-                                    <SelectTrigger id="@fieldId" Invalid="@hasErrors">
-                                        <SelectValue Placeholder="Select..." />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        @foreach (var name in Enum.GetNames(field.PropertyType))
-                                        {
-                                            <SelectItem Value="@name" Text="@name">@name</SelectItem>
-                                        }
-                                    </SelectContent>
-                                </Select>
-                                break;
-
-                            case "number":
-                                <input type="number"
-                                       id="@fieldId"
-                                       data-field-input="@field.PropertyName"
-                                       value="@currentValue"
-                                       class="@GetInputClass(hasErrors)"
-                                       aria-invalid="@(hasErrors ? "true" : null)"
-                                       aria-describedby="@(hasErrors ? validationId : null)"
-                                       @oninput="e => SetValueAsync(field.PropertyName, ConvertValue(e.Value, field.PropertyType))" />
-                                break;
-
-                            case "date":
-                                <input type="date"
-                                       id="@fieldId"
-                                       data-field-input="@field.PropertyName"
-                                       value="@currentValue"
-                                       class="@GetInputClass(hasErrors)"
-                                       aria-invalid="@(hasErrors ? "true" : null)"
-                                       aria-describedby="@(hasErrors ? validationId : null)"
-                                       @oninput="e => SetValueAsync(field.PropertyName, ConvertValue(e.Value, field.PropertyType))" />
-                                break;
-
-                            default:
-                                <input type="text"
-                                       id="@fieldId"
-                                       data-field-input="@field.PropertyName"
-                                       value="@currentValue"
-                                       class="@GetInputClass(hasErrors)"
-                                       aria-invalid="@(hasErrors ? "true" : null)"
-                                       aria-describedby="@(hasErrors ? validationId : null)"
-                                       @oninput="e => SetValueAsync(field.PropertyName, ConvertValue(e.Value, field.PropertyType))" />
-                                break;
+                            @if (hasStoreErrors)
+                            {
+                                <div data-field-validation="@field.PropertyName" class="text-sm font-medium text-destructive" role="alert">
+                                    @foreach (var error in storeErrors!)
+                                    {
+                                        <div>@error</div>
+                                    }
+                                </div>
+                            }
                         }
                     }
 

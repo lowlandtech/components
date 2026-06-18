@@ -106,4 +106,96 @@ public class SC01_FormFieldRendering : ViewScenario
 
         cut.Find("label").InnerHtml.ShouldContain("*");
     }
+
+    [Fact(DisplayName = "UAC09: Text FormField uses the LowlandTech Input component")]
+    [Trait(Spec.UAC, "09")]
+    [Given("a text FormField")]
+    [When("the field is rendered")]
+    [Then("the editor is a LowlandTech Input with data-slot and data-variant attributes")]
+    public void UAC09_TextFieldUsesInputComponent()
+    {
+        var cut = Ctx.Render<LowlandTech.Components.FormField>(p => p
+            .Add(x => x.FieldName, "textField")
+            .Add(x => x.FieldType, FormFieldType.Text));
+
+        var input = cut.Find("[data-field-input='textField']");
+        input.GetAttribute("data-slot").ShouldBe("input");
+        input.GetAttribute("data-variant").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC10: Number FormField uses the LowlandTech Input component")]
+    [Trait(Spec.UAC, "10")]
+    [Given("a number FormField")]
+    [When("the field is rendered")]
+    [Then("the editor is a LowlandTech Input")]
+    public void UAC10_NumberFieldUsesInputComponent()
+    {
+        var cut = Ctx.Render<LowlandTech.Components.FormField>(p => p
+            .Add(x => x.FieldName, "numberField")
+            .Add(x => x.FieldType, FormFieldType.Number));
+
+        cut.Find("[data-field-input='numberField']").GetAttribute("data-slot").ShouldBe("input");
+    }
+
+    [Fact(DisplayName = "UAC11: Date FormField uses the LowlandTech Input component")]
+    [Trait(Spec.UAC, "11")]
+    [Given("a date FormField")]
+    [When("the field is rendered")]
+    [Then("the editor is a LowlandTech Input with type date")]
+    public void UAC11_DateFieldUsesInputComponent()
+    {
+        var cut = Ctx.Render<LowlandTech.Components.FormField>(p => p
+            .Add(x => x.FieldName, "dateField")
+            .Add(x => x.FieldType, FormFieldType.Date));
+
+        var input = cut.Find("[data-field-input='dateField']");
+        input.GetAttribute("data-slot").ShouldBe("input");
+        input.GetAttribute("type").ShouldBe("date");
+    }
+
+    [Fact(DisplayName = "UAC12: DateTime FormField uses the LowlandTech Input component")]
+    [Trait(Spec.UAC, "12")]
+    [Given("a date-time FormField")]
+    [When("the field is rendered")]
+    [Then("the editor is a LowlandTech Input with type datetime-local")]
+    public void UAC12_DateTimeFieldUsesInputComponent()
+    {
+        var cut = Ctx.Render<LowlandTech.Components.FormField>(p => p
+            .Add(x => x.FieldName, "dateTimeField")
+            .Add(x => x.FieldType, FormFieldType.DateTime));
+
+        var input = cut.Find("[data-field-input='dateTimeField']");
+        input.GetAttribute("data-slot").ShouldBe("input");
+        input.GetAttribute("type").ShouldBe("datetime-local");
+    }
+
+    [Fact(DisplayName = "UAC13: Json FormField uses the LowlandTech Textarea component")]
+    [Trait(Spec.UAC, "13")]
+    [Given("a JSON FormField")]
+    [When("the field is rendered")]
+    [Then("the editor is a LowlandTech Textarea with data-slot attribute")]
+    public void UAC13_JsonFieldUsesTextareaComponent()
+    {
+        var cut = Ctx.Render<LowlandTech.Components.FormField>(p => p
+            .Add(x => x.FieldName, "jsonField")
+            .Add(x => x.FieldType, FormFieldType.Json));
+
+        var textarea = cut.Find("[data-field-input='jsonField']");
+        textarea.GetAttribute("data-slot").ShouldBe("textarea");
+        textarea.TagName.ShouldBe("TEXTAREA");
+    }
+
+    [Fact(DisplayName = "UAC14: NodeRef FormField uses the LowlandTech Input component")]
+    [Trait(Spec.UAC, "14")]
+    [Given("a node-reference FormField")]
+    [When("the field is rendered")]
+    [Then("the editor is a LowlandTech Input")]
+    public void UAC14_NodeRefFieldUsesInputComponent()
+    {
+        var cut = Ctx.Render<LowlandTech.Components.FormField>(p => p
+            .Add(x => x.FieldName, "nodeRefField")
+            .Add(x => x.FieldType, FormFieldType.NodeRef));
+
+        cut.Find("[data-field-input='nodeRefField']").GetAttribute("data-slot").ShouldBe("input");
+    }
 }

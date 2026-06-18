@@ -63,4 +63,19 @@ public partial class Input
     /// Callback when the value changes.
     /// </summary>
     [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+
+    /// <summary>
+    /// Callback when the input loses focus.
+    /// </summary>
+    [Parameter] public EventCallback<FocusEventArgs> OnBlur { get; set; }
+
+    /// <summary>
+    /// Callback when the input receives focus.
+    /// </summary>
+    [Parameter] public EventCallback<FocusEventArgs> OnFocus { get; set; }
+
+    /// <summary>
+    /// Callback when the change event fires.
+    /// </summary>
+    [Parameter] public EventCallback<ChangeEventArgs> OnChange { get; set; }
 }

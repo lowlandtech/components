@@ -86,9 +86,9 @@ public partial class FormField : TinyComponentBase
         await ValueChanged.InvokeAsync(Value);
     }
 
-    private async Task OnInputChanging(ChangeEventArgs e)
+    private async Task OnInputChanging(string? value)
     {
-        var rawValue = e.Value?.ToString() ?? string.Empty;
+        var rawValue = value ?? string.Empty;
         var maskedValue = FormFieldMask.Apply(rawValue, Mask);
         _valueString = maskedValue ?? rawValue;
         var oldValue = Value;
