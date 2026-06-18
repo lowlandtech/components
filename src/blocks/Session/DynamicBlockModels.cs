@@ -139,7 +139,8 @@ public sealed record DynamicFieldChanged(
 public sealed record DynamicEntityCreateRequested(
     string NodeTypeKey,
     string? ParentEntityId,
-    IReadOnlyDictionary<string, object?> Values) : DynamicBlockAction("dynamic.entity.create");
+    IReadOnlyDictionary<string, object?> Values,
+    string? ModelTypeName = null) : DynamicBlockAction("dynamic.entity.create");
 
 public sealed record DynamicEntityEditRequested(
     string EntityId,
@@ -220,7 +221,7 @@ public sealed class DynamicEntityMutationReducerArm : IDynamicReducerArm
         {
             DynamicEntityCreateRequested create => new DynamicReducerResult(
                 state,
-                [DynamicMutationEffect.Create(create.NodeTypeKey, create.ParentEntityId, create.Values)]),
+                [DynamicMutationEffect.Create(create.NodeTypeKey, create.ParentEntityId, create.Values, create.ModelTypeName)]),
             DynamicEntityEditRequested edit => ReduceEdit(state, edit),
             DynamicEntityDeleteRequested delete => ReduceDelete(state, delete),
             _ => new DynamicReducerResult(state, []),
@@ -261,13 +262,15 @@ public sealed record DynamicMutationEffect(
     string NodeTypeKey,
     string? EntityId,
     string? ParentEntityId,
-    IReadOnlyDictionary<string, object?> Values)
+    IReadOnlyDictionary<string, object?> Values,
+    string? ModelTypeName = null)
 {
     public static DynamicMutationEffect Create(
         string nodeTypeKey,
         string? parentEntityId,
-        IReadOnlyDictionary<string, object?> values)
-        => new("create", nodeTypeKey, null, parentEntityId, values);
+        IReadOnlyDictionary<string, object?> values,
+        string? modelTypeName = null)
+        => new("create", nodeTypeKey, null, parentEntityId, values, modelTypeName);
 
     public static DynamicMutationEffect Update(
         string nodeTypeKey,
@@ -305,6 +308,12 @@ public interface IDynamicBlockDispatcher
     Task DispatchAsync(DynamicBlockAction action);
 
     Task ProjectAsync(SessionNodeInput node);
+
+    Task<DynamicEntity?> CreateAsync(
+        string nodeTypeKey,
+        string? parentEntityId,
+        IReadOnlyDictionary<string, object?> values,
+        string? modelTypeName = null);
 }
 
 public sealed class DynamicBlockStateMachine(IEnumerable<IDynamicReducerArm> reducerArms, ISessionOutbox? outbox = null)

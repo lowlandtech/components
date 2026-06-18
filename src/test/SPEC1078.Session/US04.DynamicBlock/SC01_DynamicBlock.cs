@@ -58,6 +58,7 @@ public sealed class SC01_DynamicBlock : ViewScenario
         cut.Find("[data-slot='data-form']").ShouldNotBeNull();
         cut.Find("[data-slot='dynamic-node-block']").GetAttribute("data-form-mode").ShouldBe("view");
         cut.Find("[data-field-readonly='Title']").TextContent.ShouldBe("Set up CI");
+        cut.Find("button[data-action='edit']").TextContent.ShouldContain("Edit");
     }
 
     [Fact(DisplayName = "UAC04: Dynamic reducer arm schedules field mutations through the outbox")]
@@ -103,6 +104,8 @@ public sealed class SC01_DynamicBlock : ViewScenario
 
         cut.Find("[data-node-id='workitem-setup-ci']").Click();
         cut.Find("button[data-action='edit']").Click();
+        cut.Find("button[data-action='cancel']").TextContent.ShouldContain("Cancel");
+        cut.Find("button[data-action='save']").TextContent.ShouldContain("Save");
         cut.Find("[data-field-input='Title']").Input("Set up CI pipeline");
 
         cut.Instance.DynamicState.EntityPropertiesById["workitem-setup-ci"]["Title"].ShouldBe("Set up CI");
@@ -340,9 +343,11 @@ public sealed class SC01_DynamicBlock : ViewScenario
     public void UAC15_SearchFiltersAndEnterQuickCreates()
     {
         var discovery = new DynamicBlockDiscovery([new ShowcaseDynamicBlockRegistry()]);
+        var runtime = new RecordingDynamicNodeRuntime(CreateModel());
         var cut = Ctx.Render<Components.DynamicBlock>(p => p
             .Add(x => x.Model, CreateModel())
-            .Add(x => x.Discovery, discovery));
+            .Add(x => x.Discovery, discovery)
+            .Add(x => x.Runtime, runtime));
         cut.Find("[data-node-id='workspace-root:Workspaces']").Click();
 
         var search = cut.Find("input[type='search']");
@@ -359,6 +364,8 @@ public sealed class SC01_DynamicBlock : ViewScenario
         effect.NodeTypeKey.ShouldBe("workspace");
         effect.ParentEntityId.ShouldBe("workspace-root");
         effect.Values["Name"].ShouldBe("Nonexistent");
+        cut.FindAll("[data-slot='data-grid-row']").Count.ShouldBe(3);
+        cut.Markup.ShouldContain("Nonexistent");
     }
 
     [Fact(DisplayName = "UAC16: Collection grids preserve the shared DataGrid paging contract")]
@@ -390,6 +397,32 @@ public sealed class SC01_DynamicBlock : ViewScenario
 
         cut.FindAll("[data-slot='data-grid-row']").Count.ShouldBe(2);
         cut.Find("[data-slot='data-grid-page-summary']").TextContent.ShouldContain("2 of 2");
+    }
+
+    [Fact(DisplayName = "UAC17: Collection grid always shows its pagination footer and Add creates a visible row")]
+    [Trait(Spec.UAC, "17")]
+    [Given("a projected Workspaces collection with fewer rows than one page")]
+    [When("the user enters a workspace name and clicks Add")]
+    [Then("the persistent pagination footer remains visible and the created workspace appears in the grid")]
+    public void UAC17_PersistentFooterAndAddButtonCreateVisibleRow()
+    {
+        var discovery = new DynamicBlockDiscovery([new ShowcaseDynamicBlockRegistry()]);
+        var runtime = new RecordingDynamicNodeRuntime(CreateModel());
+        var cut = Ctx.Render<Components.DynamicBlock>(p => p
+            .Add(x => x.Model, CreateModel())
+            .Add(x => x.Discovery, discovery)
+            .Add(x => x.Runtime, runtime));
+        cut.Find("[data-node-id='workspace-root:Workspaces']").Click();
+
+        cut.Find("[data-slot='data-grid-pager']").ShouldNotBeNull();
+        cut.Find("[data-slot='data-grid-page-size']").ShouldNotBeNull();
+        cut.Find("[data-slot='data-grid-page-summary']").TextContent.ShouldContain("1 of 1");
+
+        cut.Find("input[type='search']").Input("Northwind");
+        cut.Find("button[data-action='add']").Click();
+
+        cut.FindAll("[data-slot='data-grid-row']").Count.ShouldBe(3);
+        cut.Markup.ShouldContain("Northwind");
     }
 
     private static WorkspaceUseCaseModel CreateModel() => new()
@@ -538,7 +571,22 @@ public sealed class SC01_DynamicBlock : ViewScenario
             CancellationToken cancellationToken = default)
         {
             AppliedMutations.Add(mutation);
-            return Task.FromResult<DynamicEntity?>(null);
+            if (mutation.Mutation != "create" || descriptor.ModelType != typeof(WorkspaceModel))
+                return Task.FromResult<DynamicEntity?>(null);
+
+            var name = Convert.ToString(mutation.Values.GetValueOrDefault("Name"), CultureInfo.InvariantCulture)
+                ?? "New Workspace";
+            var slug = ReflectionDynamicBlockDescriptor.ToNodeTypeKey(name);
+            var workspace = new WorkspaceModel($"workspace-{slug}", name, $"{slug}.example", "Unassigned");
+            var node = new SessionNodeInput(workspace.Id, descriptor.NodeTypeKey, workspace.Name, "DynamicNodeBlock");
+            return Task.FromResult<DynamicEntity?>(new(
+                node,
+                typeof(WorkspaceModel),
+                workspace,
+                descriptor.Fields.ToDictionary(
+                    field => field.Key,
+                    field => descriptor.GetFieldValue(workspace, field.Key),
+                    StringComparer.Ordinal)));
         }
     }
 

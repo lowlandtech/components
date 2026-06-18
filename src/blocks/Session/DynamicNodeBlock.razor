@@ -17,13 +17,20 @@
                        OnKeyUp="HandleSearchKeyUp"
                        Placeholder="@L("CreateCommandPlaceholder")"
                        class="min-w-0 flex-1" />
-                <Badge Variant="secondary">@FilteredItems.Count</Badge>
+                <Button data-action="add"
+                        Size="@ButtonSize.Sm"
+                        OnClick="HandleAddAsync">
+                    <Icon Name="plus" Size="14" />
+                    @L("MenuNew")
+                </Button>
             </div>
 
             <DataGrid TItem="object"
                       Items="@FilteredItems"
                       AllowPaging="true"
-                      PageSize="@PageSize"
+                      AlwaysShowPager="true"
+                      PageSize="@_pageSize"
+                      PageSizeChanged="HandlePageSizeChanged"
                       PageIndex="@_pageIndex"
                       PageIndexChanged="HandlePageChanged"
                       SelectionMode="DataGridSelectionMode.Single"
@@ -57,7 +64,7 @@
                     <CardContent class="pt-4">
                         @FormContent
                     </CardContent>
-                    <CardFooter class="justify-end gap-2 border-t border-border">
+                    <CardFooter class="justify-end gap-2 border-t border-border pt-4">
                         @FormActions
                     </CardFooter>
                 </Card>
@@ -76,7 +83,7 @@
                     </Alert>
                     <Progress Value="@FlowProgress" />
                     @FormContent
-                    <div class="flex justify-end gap-2">
+                    <div class="flex justify-end gap-2 pt-4">
                         @FormActions
                     </div>
                 </div>
@@ -99,7 +106,7 @@
                         <Separator />
                         @FormContent
                     </CardContent>
-                    <CardFooter class="justify-end gap-2 border-t border-border">
+                    <CardFooter class="justify-end gap-2 border-t border-border pt-4">
                         @FormActions
                     </CardFooter>
                 </Card>
@@ -113,7 +120,7 @@
                     </p>
                 </div>
                 @FormContent
-                <div class="flex justify-end gap-2">
+                <div class="flex justify-end gap-2 pt-4">
                     @FormActions
                 </div>
                 break;

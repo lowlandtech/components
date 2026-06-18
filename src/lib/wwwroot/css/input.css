@@ -607,7 +607,15 @@
   }
 
   .cn-data-grid-pager {
-    @apply flex items-center justify-between gap-3 text-sm text-muted-foreground;
+    @apply flex items-center justify-between gap-3 border-t border-border px-3 py-2 text-sm text-muted-foreground;
+  }
+
+  .cn-data-grid-page-size-label {
+    @apply flex items-center gap-2 whitespace-nowrap;
+  }
+
+  .cn-data-grid-page-size-label select {
+    @apply h-8 rounded-md border border-input bg-background px-2 text-sm text-foreground outline-none focus-visible:ring-1 focus-visible:ring-ring;
   }
 
   .cn-data-grid-pager-actions {

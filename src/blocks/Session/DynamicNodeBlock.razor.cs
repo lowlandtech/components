@@ -11,8 +11,11 @@ public partial class DynamicNodeBlock : TinyComponentBase
     private object? _sourceModel;
     private object? _draftModel;
     private object? _savedModel;
+    private readonly List<object> _createdItems = [];
+    private readonly List<SessionNodeInput> _createdNodes = [];
     private string _filterText = string.Empty;
     private int _pageIndex;
+    private int _pageSize = 10;
     private bool _isEditing;
 
     private string L(string key) => Localizer?[key] ?? key;
@@ -55,13 +58,13 @@ public partial class DynamicNodeBlock : TinyComponentBase
 
     private IReadOnlyList<object> CollectionItems =>
         Properties.TryGetValue("dynamic.collection.items", out var items) && items is IReadOnlyList<object> typedItems
-            ? typedItems
-            : [];
+            ? [.. typedItems, .. _createdItems]
+            : _createdItems;
 
     private IReadOnlyList<SessionNodeInput> CollectionNodes =>
         Properties.TryGetValue("dynamic.collection.nodes", out var nodes) && nodes is IReadOnlyList<SessionNodeInput> typedNodes
-            ? typedNodes
-            : [];
+            ? [.. typedNodes, .. _createdNodes]
+            : _createdNodes;
 
     private IReadOnlyList<DynamicBlockFieldDescriptor> CollectionFields =>
         Properties.TryGetValue("dynamic.collection.fields", out var fields) && fields is IReadOnlyList<DynamicBlockFieldDescriptor> typedFields
@@ -73,6 +76,11 @@ public partial class DynamicNodeBlock : TinyComponentBase
             ? Convert.ToString(nodeType, CultureInfo.InvariantCulture) ?? string.Empty
             : string.Empty;
 
+    private string? CollectionModelTypeName =>
+        Properties.TryGetValue("dynamic.collection.model-type", out var modelTypeName)
+            ? Convert.ToString(modelTypeName, CultureInfo.InvariantCulture)
+            : null;
+
     private string? CollectionParentId =>
         Properties.TryGetValue("dynamic.collection.parent-id", out var parentId)
             ? Convert.ToString(parentId, CultureInfo.InvariantCulture)
@@ -82,8 +90,6 @@ public partial class DynamicNodeBlock : TinyComponentBase
         string.IsNullOrWhiteSpace(_filterText)
             ? CollectionItems
             : CollectionItems.Where(ItemMatchesFilter).ToList();
-
-    private int PageSize => 10;
 
     private RenderFragment FormContent => builder =>
     {
@@ -105,25 +111,28 @@ public partial class DynamicNodeBlock : TinyComponentBase
         {
             builder.OpenComponent<Button>(0);
             builder.AddAttribute(1, nameof(Button.Size), ButtonSize.Sm);
-            builder.AddAttribute(2, nameof(Button.OnClick), EventCallback.Factory.Create<MouseEventArgs>(this, _ => BeginEdit()));
-            builder.AddAttribute(3, "data-action", "edit");
-            builder.AddContent(4, L("AgentEdit"));
+            builder.AddAttribute(2, nameof(Button.Icon), "pencil");
+            builder.AddAttribute(3, nameof(Button.OnClick), EventCallback.Factory.Create<MouseEventArgs>(this, _ => BeginEdit()));
+            builder.AddAttribute(4, "data-action", "edit");
+            builder.AddAttribute(5, nameof(Button.ChildContent), (RenderFragment)(childBuilder => childBuilder.AddContent(0, L("AgentEdit"))));
             builder.CloseComponent();
             return;
         }
 
-        builder.OpenComponent<Button>(4);
-        builder.AddAttribute(5, nameof(Button.Variant), ButtonVariant.Outline);
-        builder.AddAttribute(6, nameof(Button.Size), ButtonSize.Sm);
-        builder.AddAttribute(7, nameof(Button.OnClick), EventCallback.Factory.Create<MouseEventArgs>(this, _ => CancelEdit()));
-        builder.AddAttribute(8, "data-action", "cancel");
-        builder.AddContent(9, L("DeleteNodeCancel"));
+        builder.OpenComponent<Button>(6);
+        builder.AddAttribute(7, nameof(Button.Variant), ButtonVariant.Outline);
+        builder.AddAttribute(8, nameof(Button.Size), ButtonSize.Sm);
+        builder.AddAttribute(9, nameof(Button.Icon), "x");
+        builder.AddAttribute(10, nameof(Button.OnClick), EventCallback.Factory.Create<MouseEventArgs>(this, _ => CancelEdit()));
+        builder.AddAttribute(11, "data-action", "cancel");
+        builder.AddAttribute(12, nameof(Button.ChildContent), (RenderFragment)(childBuilder => childBuilder.AddContent(0, L("DeleteNodeCancel"))));
         builder.CloseComponent();
-        builder.OpenComponent<Button>(10);
-        builder.AddAttribute(11, nameof(Button.Size), ButtonSize.Sm);
-        builder.AddAttribute(12, nameof(Button.OnClick), EventCallback.Factory.Create<MouseEventArgs>(this, _ => SaveAsync()));
-        builder.AddAttribute(13, "data-action", "save");
-        builder.AddContent(14, L("AddToListConfirm"));
+        builder.OpenComponent<Button>(13);
+        builder.AddAttribute(14, nameof(Button.Size), ButtonSize.Sm);
+        builder.AddAttribute(15, nameof(Button.Icon), "save");
+        builder.AddAttribute(16, nameof(Button.OnClick), EventCallback.Factory.Create<MouseEventArgs>(this, _ => SaveAsync()));
+        builder.AddAttribute(17, "data-action", "save");
+        builder.AddAttribute(18, nameof(Button.ChildContent), (RenderFragment)(childBuilder => childBuilder.AddContent(0, L("AddToListConfirm"))));
         builder.CloseComponent();
     };
 
@@ -244,27 +253,53 @@ public partial class DynamicNodeBlock : TinyComponentBase
     {
         if (args.Key != "Enter"
             || string.IsNullOrWhiteSpace(_filterText)
-            || FilteredItems.Count > 0
-            || Dispatcher is null
-            || string.IsNullOrWhiteSpace(CollectionNodeType))
+            || FilteredItems.Count > 0)
         {
             return;
         }
 
+        await CreateAsync(_filterText.Trim());
+    }
+
+    private void HandlePageChanged(int pageIndex) => _pageIndex = pageIndex;
+
+    private void HandlePageSizeChanged(int pageSize)
+    {
+        _pageSize = pageSize;
+        _pageIndex = 0;
+    }
+
+    private Task HandleAddAsync(MouseEventArgs _)
+    {
+        var label = string.IsNullOrWhiteSpace(_filterText)
+            ? $"New {Singularize(Context?.Label ?? CollectionNodeType)}"
+            : _filterText.Trim();
+        return CreateAsync(label);
+    }
+
+    private async Task CreateAsync(string label)
+    {
+        if (Dispatcher is null || string.IsNullOrWhiteSpace(CollectionNodeType))
+            return;
+
         var labelField = CollectionFields.FirstOrDefault(field =>
             field.Key is "Name" or "Label" or "Title")?.Key ?? "Name";
-        await Dispatcher.DispatchAsync(new DynamicEntityCreateRequested(
+        var created = await Dispatcher.CreateAsync(
             CollectionNodeType,
             CollectionParentId,
             new Dictionary<string, object?>(StringComparer.Ordinal)
             {
-                [labelField] = _filterText.Trim()
-            }));
-        _filterText = string.Empty;
-        _pageIndex = 0;
-    }
+                [labelField] = label
+            },
+            CollectionModelTypeName);
+        if (created is null)
+            return;
 
-    private void HandlePageChanged(int pageIndex) => _pageIndex = pageIndex;
+        _createdItems.Add(created.Instance);
+        _createdNodes.Add(created.Node);
+        _filterText = string.Empty;
+        _pageIndex = Math.Max(0, (CollectionItems.Count - 1) / Math.Max(1, _pageSize));
+    }
 
     private Task HandleGridSelectionAsync(object? item)
     {
@@ -302,4 +337,11 @@ public partial class DynamicNodeBlock : TinyComponentBase
         var clone = typeof(object).GetMethod("MemberwiseClone", BindingFlags.Instance | BindingFlags.NonPublic);
         return clone?.Invoke(model, null);
     }
+
+    private static string Singularize(string value) =>
+        value.EndsWith("ies", StringComparison.OrdinalIgnoreCase)
+            ? $"{value[..^3]}y"
+            : value.EndsWith("s", StringComparison.OrdinalIgnoreCase) && value.Length > 1
+                ? value[..^1]
+                : value;
 }

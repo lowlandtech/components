@@ -175,11 +175,23 @@ public partial class DynamicBlock : TinyComponentBase, IDynamicBlockDispatcher, 
         return Task.CompletedTask;
     }
 
-    public Task CreateAsync(
+    public async Task<DynamicEntity?> CreateAsync(
+        string nodeTypeKey,
+        string? parentEntityId,
+        IReadOnlyDictionary<string, object?> values,
+        string? modelTypeName = null)
+    {
+        _machine?.Dispatch(new DynamicEntityCreateRequested(nodeTypeKey, parentEntityId, values, modelTypeName));
+        var results = await ProcessScheduledMutationsAsync();
+        StateHasChanged();
+        return results.LastOrDefault();
+    }
+
+    public Task<DynamicEntity?> CreateAsync(
         string nodeTypeKey,
         IReadOnlyDictionary<string, object?> values,
         string? parentEntityId = null)
-        => DispatchAsync(new DynamicEntityCreateRequested(nodeTypeKey, parentEntityId, values));
+        => CreateAsync(nodeTypeKey, parentEntityId, values);
 
     public Task EditAsync(
         SessionNodeInput node,
@@ -239,6 +251,7 @@ public partial class DynamicBlock : TinyComponentBase, IDynamicBlockDispatcher, 
             ["dynamic.collection.nodes"] = children.Select(child => child.Node).ToList(),
             ["dynamic.collection.fields"] = childDescriptor?.Fields ?? [],
             ["dynamic.collection.node-type"] = childDescriptor?.NodeTypeKey ?? collection.ChildNodeTypeKey,
+            ["dynamic.collection.model-type"] = childDescriptor?.ModelType.FullName,
             ["dynamic.collection.parent-id"] = parentDescriptor.GetId(parent),
             ["dynamic.dispatcher"] = this
         };
@@ -298,8 +311,8 @@ public partial class DynamicBlock : TinyComponentBase, IDynamicBlockDispatcher, 
         var labelField = GetLabelFieldKey(descriptor);
         await CreateAsync(
             nodeTypeKey,
-            new Dictionary<string, object?>(StringComparer.Ordinal) { [labelField] = request.Label },
-            DynamicState.RootNodeId);
+            DynamicState.RootNodeId,
+            new Dictionary<string, object?>(StringComparer.Ordinal) { [labelField] = request.Label });
     }
 
     private Task HandleNodeRenameAsync(SessionNodeRenameRequest request)
@@ -326,11 +339,12 @@ public partial class DynamicBlock : TinyComponentBase, IDynamicBlockDispatcher, 
             || string.Equals(field.Key, "Title", StringComparison.OrdinalIgnoreCase))?.Key
             ?? "Name";
 
-    private async Task ProcessScheduledMutationsAsync()
+    private async Task<IReadOnlyList<DynamicEntity>> ProcessScheduledMutationsAsync()
     {
         if (_machine is null)
-            return;
+            return [];
 
+        var results = new List<DynamicEntity>();
         var pending = _outbox.Entries
             .Skip(_processedMutationCount)
             .Select(entry => entry.Payload)
@@ -345,14 +359,36 @@ public partial class DynamicBlock : TinyComponentBase, IDynamicBlockDispatcher, 
             if (!AutoApplyMutations || ResolveRuntime() is not { } runtime)
                 continue;
 
-            var descriptor = ResolveDescriptor(
-                mutation.NodeTypeKey is { Length: > 0 }
-                    ? new SessionNodeInput(mutation.EntityId ?? string.Empty, mutation.NodeTypeKey, mutation.NodeTypeKey)
-                    : null,
-                null);
+            var descriptor = ResolveMutationDescriptor(mutation);
             if (descriptor is not null)
-                await runtime.ApplyAsync(mutation, descriptor);
+            {
+                var result = await runtime.ApplyAsync(mutation, descriptor);
+                if (result is not null)
+                    results.Add(result);
+            }
         }
+
+        return results;
+    }
+
+    private IDynamicBlockDescriptor? ResolveMutationDescriptor(DynamicMutationEffect mutation)
+    {
+        var discovery = Discovery
+            ?? InjectedDiscovery
+            ?? new DynamicBlockDiscovery([new DefaultDynamicBlockRegistry()]);
+        if (!string.IsNullOrWhiteSpace(mutation.ModelTypeName))
+        {
+            var typedDescriptor = discovery.GetDescriptors().FirstOrDefault(candidate =>
+                string.Equals(candidate.ModelType.FullName, mutation.ModelTypeName, StringComparison.Ordinal));
+            if (typedDescriptor is not null)
+                return typedDescriptor;
+        }
+
+        return ResolveDescriptor(
+            mutation.NodeTypeKey is { Length: > 0 }
+                ? new SessionNodeInput(mutation.EntityId ?? string.Empty, mutation.NodeTypeKey, mutation.NodeTypeKey)
+                : null,
+            null);
     }
 
     private static IReadOnlyDictionary<string, object?> CreatePropertyBag(IDynamicBlockDescriptor descriptor, object model)

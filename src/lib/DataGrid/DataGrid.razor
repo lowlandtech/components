@@ -204,12 +204,20 @@
             </table>
         </div>
 
-        @if (AllowPaging && TotalItems > PageSize)
+        @if (AllowPaging && (AlwaysShowPager || TotalItems > PageSize))
         {
             <div data-slot="data-grid-pager" class="cn-data-grid-pager">
-                <span data-slot="data-grid-page-summary" class="cn-data-grid-page-summary">
-                    Page @(PageIndex + 1) of @TotalPages
-                </span>
+                <label data-slot="data-grid-page-size-label" class="cn-data-grid-page-size-label">
+                    <span>Rows</span>
+                    <select data-slot="data-grid-page-size"
+                            value="@EffectivePageSize"
+                            @onchange="ChangePageSize">
+                        @foreach (var option in PageSizeOptions)
+                        {
+                            <option value="@option">@option</option>
+                        }
+                    </select>
+                </label>
                 <div class="cn-data-grid-pager-actions">
                     <button type="button"
                             data-slot="data-grid-page-previous"
@@ -218,6 +226,9 @@
                             @onclick="GoToPreviousPage">
                         Previous
                     </button>
+                    <span data-slot="data-grid-page-summary" class="cn-data-grid-page-summary">
+                        Page @(PageIndex + 1) of @TotalPages
+                    </span>
                     <button type="button"
                             data-slot="data-grid-page-next"
                             class="cn-data-grid-page-button"
@@ -254,9 +265,12 @@
     [Parameter] public bool AllowMultiSort { get; set; }
     [Parameter] public bool AllowFiltering { get; set; }
     [Parameter] public bool AllowPaging { get; set; }
+    [Parameter] public bool AlwaysShowPager { get; set; }
     [Parameter] public int PageSize { get; set; } = 10;
+    [Parameter] public IReadOnlyList<int> PageSizeOptions { get; set; } = [10, 15, 25, 50, 100];
     [Parameter] public int PageIndex { get; set; }
     [Parameter] public EventCallback<int> PageIndexChanged { get; set; }
+    [Parameter] public EventCallback<int> PageSizeChanged { get; set; }
     [Parameter] public EventCallback<IReadOnlyList<DataGridSortDescriptor>> SortChanged { get; set; }
     [Parameter] public EventCallback<IReadOnlyList<DataGridFilterDescriptor>> FilterChanged { get; set; }
     [Parameter] public EventCallback<DataGridStateRepresentation> StateChanged { get; set; }
@@ -654,6 +668,18 @@
     private async Task GoToNextPage()
     {
         PageIndex = Math.Min(TotalPages - 1, PageIndex + 1);
+        await PageIndexChanged.InvokeAsync(PageIndex);
+        await NotifyStateChanged();
+    }
+
+    private async Task ChangePageSize(ChangeEventArgs eventArgs)
+    {
+        if (!int.TryParse(eventArgs.Value?.ToString(), out var pageSize) || pageSize <= 0)
+            return;
+
+        PageSize = pageSize;
+        PageIndex = 0;
+        await PageSizeChanged.InvokeAsync(PageSize);
         await PageIndexChanged.InvokeAsync(PageIndex);
         await NotifyStateChanged();
     }
