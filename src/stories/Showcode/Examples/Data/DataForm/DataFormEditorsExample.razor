@@ -1,0 +1,52 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Data
+
+<Card class="w-full max-w-lg">
+    <CardHeader>
+        <CardTitle>All Editors</CardTitle>
+        <CardDescription>One form demonstrating every supported LowlandTech editor kind.</CardDescription>
+    </CardHeader>
+    <CardContent>
+        <DataForm Model="_model" ShowDefaultActions="false" />
+    </CardContent>
+</Card>
+
+@code {
+    private readonly AllEditorsModel _model = new()
+    {
+        Name = "Ada Lovelace",
+        Age = 42,
+        Score = 98.6m,
+        BirthDate = new DateOnly(1815, 12, 10),
+        LastLogin = new DateTime(2026, 6, 18, 9, 30, 0),
+        Status = CustomerStatus.Active,
+        IsAdmin = true,
+        Notes = "First computer programmer."
+    };
+
+    public class AllEditorsModel
+    {
+        [Display(Name = "Name", Order = 10)]
+        public string Name { get; set; } = string.Empty;
+
+        [Display(Name = "Age", Order = 20)]
+        public int Age { get; set; }
+
+        [Display(Name = "Score", Order = 30)]
+        public decimal Score { get; set; }
+
+        [Display(Name = "Birth date", Order = 40)]
+        public DateOnly BirthDate { get; set; }
+
+        [Display(Name = "Last login", Order = 50)]
+        public DateTime LastLogin { get; set; }
+
+        [Display(Name = "Status", Order = 60)]
+        public CustomerStatus Status { get; set; }
+
+        [Display(Name = "Admin", Order = 70)]
+        public bool IsAdmin { get; set; }
+
+        [Display(Name = "Notes", Order = 80)]
+        public string Notes { get; set; } = string.Empty;
+    }
+}

@@ -1,0 +1,26 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Data
+
+<div class="w-full space-y-6 p-1">
+    <DataGrid TItem="OrderRow"
+              Items="@DataGridSampleData.Orders"
+              AllowPaging="true"
+              AlwaysShowPager="true"
+              PageSize="4">
+        <Columns>
+            <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
+            <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
+            <DataGridColumn TItem="OrderRow" Property="Total" Title="Total" FormatString="C0" TextAlign="DataGridTextAlign.End" />
+        </Columns>
+    </DataGrid>
+
+    <DataGrid TItem="OrderRow"
+              Items="@DataGridSampleData.Orders"
+              AllowPaging="true"
+              PageSize="4">
+        <Columns>
+            <DataGridColumn TItem="OrderRow" Property="OrderNumber" Title="Order" />
+            <DataGridColumn TItem="OrderRow" Property="Customer.Name" Title="Customer" />
+            <DataGridColumn TItem="OrderRow" Property="Total" Title="Total" FormatString="C0" TextAlign="DataGridTextAlign.End" />
+        </Columns>
+    </DataGrid>
+</div>
