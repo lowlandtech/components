@@ -425,6 +425,40 @@ public sealed class SC01_DynamicBlock : ViewScenario
         cut.Markup.ShouldContain("Northwind");
     }
 
+    [Fact(DisplayName = "UAC18: Collection grid pager uses LowlandTech Select and Button components")]
+    [Trait(Spec.UAC, "18")]
+    [Given("a projected Workspaces collection")]
+    [When("the pager is rendered")]
+    [Then("page size is a Select and previous/next actions are Button components")]
+    public void UAC18_CollectionGridPagerUsesSharedControls()
+    {
+        var discovery = new DynamicBlockDiscovery([new ShowcaseDynamicBlockRegistry()]);
+        var cut = Ctx.Render<Components.DynamicBlock>(p => p
+            .Add(x => x.Model, CreateModel())
+            .Add(x => x.Discovery, discovery));
+        cut.Find("[data-node-id='workspace-root:Workspaces']").Click();
+
+        cut.Find("[data-slot='data-grid-pager'] [data-slot='data-grid-page-size'] [data-slot='select']").ShouldNotBeNull();
+        cut.Find("[data-slot='data-grid-pager'] [data-slot='data-grid-page-previous']").GetAttribute("data-variant").ShouldNotBeNull();
+        cut.Find("[data-slot='data-grid-pager'] [data-slot='data-grid-page-next']").GetAttribute("data-variant").ShouldNotBeNull();
+    }
+
+    [Fact(DisplayName = "UAC19: Descriptor-generated form renders shared controls for representative fields")]
+    [Trait(Spec.UAC, "19")]
+    [Given("a projected Flow with boolean and text fields")]
+    [When("the edit form is rendered")]
+    [Then("boolean uses Checkbox and text uses LowlandTech Input")]
+    public void UAC19_FormUsesSharedControlsForRepresentativeFields()
+    {
+        var cut = Ctx.Render<Components.DynamicBlock>(p => p.Add(x => x.Model, CreateModel()));
+
+        cut.Find("[data-node-id='flow-onboarding']").Click();
+        cut.Find("button[data-action='edit']").Click();
+
+        cut.Find("[data-field-input='IsEnabled']").GetAttribute("data-slot").ShouldBe("checkbox");
+        cut.Find("[data-field-input='Name']").GetAttribute("data-slot").ShouldBe("input");
+    }
+
     private static WorkspaceUseCaseModel CreateModel() => new()
     {
         Id = "workspace-root",
