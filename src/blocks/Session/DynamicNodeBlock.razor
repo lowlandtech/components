@@ -10,8 +10,8 @@
      class="@RootClass">
     @if (IsGridView)
     {
-        <div data-slot="dynamic-node-grid" class="space-y-3">
-            <div class="flex items-center gap-2">
+        <div data-slot="dynamic-node-grid" class="flex h-full min-h-0 flex-col gap-3">
+            <div class="flex shrink-0 items-center gap-2">
                 <Input Type="search"
                        Value="@_filterText"
                        ValueChanged="HandleSearchChanged"
@@ -27,6 +27,7 @@
             </div>
 
             <DataGrid TItem="object"
+                      Class="min-h-0 flex-1"
                       Items="@FilteredItems"
                       AllowPaging="true"
                       AlwaysShowPager="true"

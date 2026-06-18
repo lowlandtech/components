@@ -376,6 +376,32 @@ public sealed class SC01_DynamicBlock : ViewScenario
         cut.Find("[data-field-readonly='Name']").TextContent.ShouldBe("Foundry");
     }
 
+    [Fact(DisplayName = "UAC20: Collection grid fills the available height and keeps its pager at the bottom")]
+    [Trait(Spec.UAC, "20")]
+    [Given("a projected collection header rendered in grid mode")]
+    [When("the collection grid is displayed inside the full-height session content")]
+    [Then("the grid and DataGrid participate in the flex height chain while the toolbar remains fixed")]
+    public void UAC20_CollectionGridUsesFullHeightLayout()
+    {
+        var cut = Ctx.Render<Components.DynamicBlock>(p => p
+            .Add(x => x.Model, CreateModel()));
+
+        cut.Find("[data-node-id='workspace-root:Workspaces']").Click();
+
+        var grid = cut.Find("[data-slot='dynamic-node-grid']");
+        grid.ClassList.ShouldContain("flex");
+        grid.ClassList.ShouldContain("h-full");
+        grid.ClassList.ShouldContain("min-h-0");
+        grid.ClassList.ShouldContain("flex-col");
+
+        var toolbar = grid.FirstElementChild!;
+        toolbar.ClassList.ShouldContain("shrink-0");
+
+        var dataGrid = cut.Find("[data-slot='data-grid']");
+        dataGrid.ClassList.ShouldContain("min-h-0");
+        dataGrid.ClassList.ShouldContain("flex-1");
+    }
+
     [Fact(DisplayName = "UAC15: Collection search filters while typing and Enter quick-creates a missing entity")]
     [Trait(Spec.UAC, "15")]
     [Given("a projected Workspaces collection grid")]

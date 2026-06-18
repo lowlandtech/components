@@ -539,11 +539,11 @@
 
   /* DataGrid Component Styles */
   .cn-data-grid {
-    @apply w-full space-y-2;
+    @apply flex min-h-0 w-full flex-col gap-2;
   }
 
   .cn-data-grid-table-container {
-    @apply w-full overflow-auto rounded-md border border-border;
+    @apply min-h-0 w-full flex-1 overflow-auto rounded-md border border-border;
   }
 
   .cn-data-grid-table {
@@ -607,7 +607,7 @@
   }
 
   .cn-data-grid-pager {
-    @apply flex items-center justify-between gap-3 border-t border-border px-3 py-2 text-sm text-muted-foreground;
+    @apply flex shrink-0 items-center justify-between gap-3 border-t border-border px-3 py-2 text-sm text-muted-foreground;
   }
 
   .cn-data-grid-page-size-label {
