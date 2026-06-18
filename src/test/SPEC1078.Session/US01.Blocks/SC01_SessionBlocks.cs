@@ -275,7 +275,8 @@ public class SC01_SessionBlocks : ViewScenario
             .Add(x => x.Sessions, sessions));
 
         var feed = cut.Find("[data-slot='session-block-feed']");
-        feed.ClassList.ShouldContain("h-full");
+        feed.ClassList.ShouldContain("min-h-full");
+        feed.ClassList.ShouldContain("shrink-0");
         feed.ClassList.ShouldContain("flex-col");
 
         var empty = cut.Find("[data-slot='session-block-feed-empty']");
@@ -2144,7 +2145,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "43")]
     [Given("a SessionBlock with a context card in Page Overlay mode")]
     [When("the command bar is shown and the card is promoted to Maximized")]
-    [Then("the main content panel keeps its padding and the card is square")]
+    [Then("the main content panel keeps its padding and the maximized card retains clipped rounded corners")]
     public void UAC43_MaximizedCardKeepsMainContentPadding()
     {
         var cut = Ctx.Render<Components.SessionBlock>();
@@ -2158,9 +2159,11 @@ public class SC01_SessionBlocks : ViewScenario
             .GetAttribute("style")
             .ShouldBe("padding:10px 6px 10px 10px;");
 
-        var squaredCards = cut.FindAll("[data-square='true']");
-        squaredCards.Count.ShouldBe(1);
-        squaredCards[0].ClassList.ShouldContain("!rounded-none");
+        var maximizedCard = cut.Find(
+            "[data-slot='session-block-maximized-block'] [data-slot='session-context-block'][data-mode='maximized']");
+        maximizedCard.GetAttribute("data-square").ShouldBeNull();
+        maximizedCard.ClassList.ShouldContain("overflow-hidden");
+        maximizedCard.ClassList.ShouldNotContain("!rounded-none");
     }
 
     [Fact(DisplayName = "UAC44: Showing the command bar promotes a page-overlay card to Maximized")]
