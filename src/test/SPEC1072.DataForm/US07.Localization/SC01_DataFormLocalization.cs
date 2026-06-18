@@ -91,7 +91,7 @@ public class SC01_DataFormLocalization : ViewScenario
 
     private static void AssertResxCatalogParity(string className)
     {
-        var resourcesDir = Path.Combine("..", "..", "..", "..", "lib", "Resources");
+        var resourcesDir = FindComponentResourcesDirectory();
         var enPath = Path.Combine(resourcesDir, $"{className}.en.resx");
         File.Exists(enPath).ShouldBeTrue();
 
@@ -105,6 +105,23 @@ public class SC01_DataFormLocalization : ViewScenario
             var locKeys = LoadResxKeys(locPath);
             locKeys.ShouldBe(enKeys, ignoreOrder: true);
         }
+    }
+
+    private static string FindComponentResourcesDirectory()
+    {
+        var startDir = new DirectoryInfo(AppContext.BaseDirectory);
+        var current = startDir;
+        while (current is not null)
+        {
+            var candidate = Path.Combine(current.FullName, "src", "components", "lib", "Resources");
+            if (File.Exists(Path.Combine(candidate, "DataGridStrings.en.resx")))
+            {
+                return candidate;
+            }
+            current = current.Parent;
+        }
+
+        throw new DirectoryNotFoundException($"Could not locate component Resources directory starting from {startDir}");
     }
 
     private static HashSet<string> LoadResxKeys(string path)
