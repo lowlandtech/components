@@ -15,7 +15,7 @@
                     {
                         var num = _nums[(group.Name, story.Name)];
                         <button type="button"
-                                class="@colors.Cell flex w-full cursor-pointer flex-col items-center gap-0.5 rounded-md border p-[5px] m-[2.5px] text-center transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                                class="@colors.Cell story-home-cell flex cursor-pointer flex-col items-center gap-0.5 rounded-md border text-center transition-all focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                                 @onclick="() => SelectAndNavigate(story)">
                             <div class="flex items-center justify-between w-full">
                                 <span class="text-[9px] font-mono leading-none opacity-40 select-none">@num</span>

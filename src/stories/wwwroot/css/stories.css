@@ -79,6 +79,13 @@
     scrollbar-color: color-mix(in oklab, var(--border) 75%, transparent) transparent;
 }
 
+.story-home-cell {
+    box-sizing: border-box;
+    width: calc(100% - 5px);
+    margin: 2.5px;
+    padding: 5px;
+}
+
 .story-card-pill-tabs {
     display: inline-flex;
     height: 2.25rem;
