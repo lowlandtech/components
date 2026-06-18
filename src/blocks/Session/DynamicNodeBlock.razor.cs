@@ -54,12 +54,15 @@ public partial class DynamicNodeBlock : TinyComponentBase
 
     private string FormMode => _isEditing ? "edit" : "view";
 
-    private bool IsMaximized =>
-        string.Equals(Mode, SessionContextBlock.ModeMaximized, StringComparison.OrdinalIgnoreCase);
+    private bool IsFullHeightMode =>
+        Mode?.ToLowerInvariant() is
+            SessionContextBlock.ModeMaximized or
+            SessionContextBlock.ModeOverlayPage or
+            SessionContextBlock.ModeOverlayApp;
 
-    private string RootClass => IsMaximized ? "h-full space-y-4" : "space-y-4";
+    private string RootClass => IsFullHeightMode ? "h-full min-h-0 space-y-4" : "space-y-4";
 
-    private string PresentationCardClass => IsMaximized ? "h-full" : string.Empty;
+    private string PresentationCardClass => IsFullHeightMode ? "h-full min-h-0" : string.Empty;
 
     private IReadOnlyList<string> FieldKeys =>
         Fields.Select(descriptor => descriptor.Key).ToList();

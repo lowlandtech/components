@@ -350,7 +350,60 @@ public sealed class SC01_DynamicBlock : ViewScenario
         var dynamicRoot = cut.Find("[data-slot='dynamic-node-block']");
         dynamicRoot.GetAttribute("data-mode").ShouldBe(SessionContextBlock.ModeMaximized);
         dynamicRoot.ClassList.ShouldContain("h-full");
+        dynamicRoot.ClassList.ShouldContain("min-h-0");
         cut.Find("[data-slot='dynamic-workitem-presentation']").ClassList.ShouldContain("h-full");
+        cut.Find("[data-slot='dynamic-workitem-presentation']").ClassList.ShouldContain("min-h-0");
+    }
+
+    [Theory(DisplayName = "UAC13c: Dynamic presentation height follows the projection mode")]
+    [InlineData(SessionContextBlock.ModeNormal, false)]
+    [InlineData(SessionContextBlock.ModeMinimized, false)]
+    [InlineData(SessionContextBlock.ModeMaximized, true)]
+    [InlineData(SessionContextBlock.ModeOverlayPage, true)]
+    [InlineData(SessionContextBlock.ModeOverlayApp, true)]
+    [Trait(Spec.UAC, "13c")]
+    [Given("a DynamicNodeBlock rendered in one of the five SessionContextBlock display modes")]
+    [When("the dynamic root and presentation card classes are composed")]
+    [Then("only maximized, page-overlay, and app-overlay modes receive the full-height flex contract")]
+    public void UAC13c_DynamicPresentationHeightFollowsProjectionMode(string mode, bool expectsFullHeight)
+    {
+        var model = CreateModel();
+        var descriptor = new ShowcaseDynamicBlockRegistry()
+            .GetDescriptors()
+            .Single(item => item.ModelType == typeof(WorkitemModel));
+        var workitem = model.Workitems[0];
+        var properties = descriptor.Fields.ToDictionary(
+            field => field.Key,
+            field => descriptor.GetFieldValue(workitem, field.Key),
+            StringComparer.Ordinal);
+        properties["dynamic.model"] = workitem;
+        properties["dynamic.fields"] = descriptor.Fields;
+        properties["dynamic.presentation"] = descriptor.Presentation;
+        var node = new SessionNodeInput(
+            workitem.Id,
+            descriptor.NodeTypeKey,
+            workitem.Title,
+            "DynamicNodeBlock",
+            properties);
+        var block = new SessionContextBlockModel(
+            $"context-block:{node.Id}",
+            node,
+            properties,
+            typeof(DynamicNodeBlock));
+
+        var cut = Ctx.Render<DynamicNodeBlock>(parameters => parameters
+            .Add(component => component.Block, block)
+            .Add(component => component.Context, node)
+            .Add(component => component.Data, properties)
+            .Add(component => component.Mode, mode));
+
+        var dynamicRoot = cut.Find("[data-slot='dynamic-node-block']");
+        var presentation = cut.Find("[data-slot='dynamic-workitem-presentation']");
+
+        dynamicRoot.ClassList.Contains("h-full").ShouldBe(expectsFullHeight);
+        dynamicRoot.ClassList.Contains("min-h-0").ShouldBe(expectsFullHeight);
+        presentation.ClassList.Contains("h-full").ShouldBe(expectsFullHeight);
+        presentation.ClassList.Contains("min-h-0").ShouldBe(expectsFullHeight);
     }
 
     [Fact(DisplayName = "UAC14: Collection headers render grid mode and row selection opens form mode")]
