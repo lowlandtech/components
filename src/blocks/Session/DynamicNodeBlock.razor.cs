@@ -64,6 +64,23 @@ public partial class DynamicNodeBlock : TinyComponentBase
 
     private string PresentationCardClass => IsFullHeightMode ? "h-full min-h-0" : string.Empty;
 
+    private string GetPresentationContainerClass() =>
+        IsFullHeightMode
+            ? "flex h-full min-h-0 flex-col"
+            : "space-y-4";
+
+    private string GetPresentationContentClass(string baseClass) =>
+        IsFullHeightMode
+            ? $"min-h-0 flex-1 overflow-auto {baseClass}"
+            : baseClass;
+
+    private string GetPresentationFooterClass(bool hasCompactBorder = true) =>
+        IsFullHeightMode
+            ? "mt-auto flex shrink-0 justify-end gap-2 border-t border-border pt-4"
+            : hasCompactBorder
+                ? "flex justify-end gap-2 border-t border-border pt-4"
+                : "flex justify-end gap-2 pt-4";
+
     private IReadOnlyList<string> FieldKeys =>
         Fields.Select(descriptor => descriptor.Key).ToList();
 

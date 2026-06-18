@@ -63,29 +63,31 @@
                         </CardDescription>
                     </CardHeader>
                     <Separator />
-                    <CardContent class="pt-4">
+                    <CardContent class="@GetPresentationContentClass("pt-4")">
                         @FormContent
                     </CardContent>
-                    <CardFooter class="justify-end gap-2 border-t border-border pt-4">
+                    <CardFooter class="@GetPresentationFooterClass()">
                         @FormActions
                     </CardFooter>
                 </Card>
                 break;
 
             case "flow":
-                <div data-slot="dynamic-flow-presentation" class="space-y-4">
-                    <Alert>
-                        <AlertTitle class="flex items-center justify-between gap-3">
-                            <span>@Context?.Label</span>
-                            <Badge Variant="@FlowStatusVariant">@GetDisplayValue("IsEnabled")</Badge>
-                        </AlertTitle>
-                        <AlertDescription class="mt-2 font-mono text-xs">
-                            @GetDisplayValue("Trigger")
-                        </AlertDescription>
-                    </Alert>
-                    <Progress Value="@FlowProgress" />
-                    @FormContent
-                    <div class="flex justify-end gap-2 pt-4">
+                <div data-slot="dynamic-flow-presentation" class="@GetPresentationContainerClass()">
+                    <div class="@GetPresentationContentClass("space-y-4")">
+                        <Alert>
+                            <AlertTitle class="flex items-center justify-between gap-3">
+                                <span>@Context?.Label</span>
+                                <Badge Variant="@FlowStatusVariant">@GetDisplayValue("IsEnabled")</Badge>
+                            </AlertTitle>
+                            <AlertDescription class="mt-2 font-mono text-xs">
+                                @GetDisplayValue("Trigger")
+                            </AlertDescription>
+                        </Alert>
+                        <Progress Value="@FlowProgress" />
+                        @FormContent
+                    </div>
+                    <div data-slot="dynamic-node-actions" class="@GetPresentationFooterClass(false)">
                         @FormActions
                     </div>
                 </div>
@@ -103,27 +105,31 @@
                         </div>
                         <Badge Variant="@PriorityVariant">@GetDisplayValue("Priority")</Badge>
                     </CardHeader>
-                    <CardContent class="space-y-4">
+                    <CardContent class="@GetPresentationContentClass("space-y-4")">
                         <Progress Value="@WorkitemProgress" />
                         <Separator />
                         @FormContent
                     </CardContent>
-                    <CardFooter class="justify-end gap-2 border-t border-border pt-4">
+                    <CardFooter class="@GetPresentationFooterClass()">
                         @FormActions
                     </CardFooter>
                 </Card>
                 break;
 
             default:
-                <div class="rounded-md border border-border bg-muted/20 p-3">
-                    <p class="text-sm font-medium">@Context?.Label</p>
-                    <p class="mt-1 text-xs text-muted-foreground">
-                        <span class="font-mono">@Context?.NodeTypeKey</span>
-                    </p>
-                </div>
-                @FormContent
-                <div class="flex justify-end gap-2 pt-4">
-                    @FormActions
+                <div data-slot="dynamic-default-presentation" class="@GetPresentationContainerClass()">
+                    <div class="@GetPresentationContentClass("space-y-4")">
+                        <div class="rounded-md border border-border bg-muted/20 p-3">
+                            <p class="text-sm font-medium">@Context?.Label</p>
+                            <p class="mt-1 text-xs text-muted-foreground">
+                                <span class="font-mono">@Context?.NodeTypeKey</span>
+                            </p>
+                        </div>
+                        @FormContent
+                    </div>
+                    <div data-slot="dynamic-node-actions" class="@GetPresentationFooterClass(false)">
+                        @FormActions
+                    </div>
                 </div>
                 break;
         }

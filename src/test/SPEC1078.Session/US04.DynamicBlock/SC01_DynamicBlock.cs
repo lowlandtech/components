@@ -351,8 +351,20 @@ public sealed class SC01_DynamicBlock : ViewScenario
         dynamicRoot.GetAttribute("data-mode").ShouldBe(SessionContextBlock.ModeMaximized);
         dynamicRoot.ClassList.ShouldContain("h-full");
         dynamicRoot.ClassList.ShouldContain("min-h-0");
-        cut.Find("[data-slot='dynamic-workitem-presentation']").ClassList.ShouldContain("h-full");
-        cut.Find("[data-slot='dynamic-workitem-presentation']").ClassList.ShouldContain("min-h-0");
+        var presentation = cut.Find("[data-slot='dynamic-workitem-presentation']");
+        presentation.ClassList.ShouldContain("h-full");
+        presentation.ClassList.ShouldContain("min-h-0");
+
+        var content = presentation.QuerySelector("[data-slot='card-content']");
+        content.ShouldNotBeNull();
+        content!.ClassList.ShouldContain("flex-1");
+        content.ClassList.ShouldContain("overflow-auto");
+
+        var footer = presentation.QuerySelector("[data-slot='card-footer']");
+        footer.ShouldNotBeNull();
+        footer!.ClassList.ShouldContain("mt-auto");
+        footer.ClassList.ShouldContain("shrink-0");
+        footer.ClassList.ShouldContain("border-t");
     }
 
     [Theory(DisplayName = "UAC13c: Dynamic presentation height follows the projection mode")]
