@@ -417,4 +417,29 @@ public sealed class SC10_TreeLazyLoading : ViewScenario
         cut.FindAll("[data-node-id='c1']").Count.ShouldBeGreaterThan(0);
         cut.Markup.ShouldContain(Icons.FolderOpen);
     }
+
+    [Fact(DisplayName = "UAC15: Controlled expansion reveals children added beneath an intent header")]
+    [Trait(Spec.UAC, "15")]
+    [Given("a collapsed nested header whose id is supplied by the SessionBlock intent expansion set")]
+    [When("the tree node renders with a newly added child")]
+    [Then("the header remains expanded and the new child is immediately visible")]
+    public void UAC15_ControlledExpansionRevealsNewChildren()
+    {
+        var header = new SessionContextNode(
+            new SessionNodeInput("pages-header", "header", "Pages"),
+            [new SessionContextNode(new SessionNodeInput("page-1", "page", "Getting Started"), IsLoaded: true)],
+            true);
+
+        var cut = Ctx.Render<SessionContextTreeNode>(parameters => parameters
+            .Add(component => component.Item, header)
+            .Add(component => component.Depth, 1)
+            .Add(component => component.ExpandedNodeIds, new HashSet<string>(["pages-header"], StringComparer.Ordinal)));
+
+        cut.Find("[data-node-id='page-1']").ShouldNotBeNull();
+        cut.Markup.ShouldContain(Icons.FolderOpen);
+
+        cut.Find("span.cursor-pointer").Click();
+
+        cut.FindAll("[data-node-id='page-1']").Count.ShouldBe(0);
+    }
 }

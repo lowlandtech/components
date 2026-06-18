@@ -25,6 +25,7 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
     [Parameter] public EventCallback<SessionNodeInput> OnNodeDelete { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnAddToList { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnExpand { get; set; }
+    [Parameter] public IReadOnlySet<string> ExpandedNodeIds { get; set; } = new HashSet<string>(StringComparer.Ordinal);
     [Parameter] public string ExpandedNodesPersistKey { get; set; } = "session-context-expanded-nodes";
     [Parameter] public string DeleteNodeSkipConfirmationKey { get; set; } = "session-context-delete-skip-confirmation";
 
@@ -33,6 +34,7 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
     private bool _menuOpen;
 
     private bool _isExpanded;
+    private bool _appliedRequestedExpansion;
     private string? _initializedId;
     private string? _hydratedNodeId;
     private bool _showDeleteDialog;
@@ -72,7 +74,13 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
         if (_initializedId != Item.Node.Id)
         {
             _initializedId = Item.Node.Id;
-            _isExpanded = Depth == 0 && Item.IsLoaded;
+            _appliedRequestedExpansion = ExpandedNodeIds.Contains(Item.Node.Id);
+            _isExpanded = _appliedRequestedExpansion || Depth == 0 && Item.IsLoaded;
+        }
+        else if (!_appliedRequestedExpansion && ExpandedNodeIds.Contains(Item.Node.Id))
+        {
+            _appliedRequestedExpansion = true;
+            _isExpanded = true;
         }
     }
 

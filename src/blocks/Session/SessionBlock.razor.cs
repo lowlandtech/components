@@ -24,6 +24,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     private int _commandBarChangeVersion;
     private string? _hydratedCommandBarPersistKey;
     private readonly List<SessionListEntry> _createdSessions = [];
+    private readonly HashSet<string> _expandedContextNodeIds = new(StringComparer.Ordinal);
     private List<SessionContextNode>? _localContextNodes;
     private bool _showAddToListDialog;
     private SessionNodeInput? _addToListNode;
@@ -776,6 +777,8 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
             var headerNode = await EnsureNavigationHeaderAsync(node, edge);
             if (headerNode is not null)
             {
+                _expandedContextNodeIds.Add(node.Id);
+                _expandedContextNodeIds.Add(headerNode.Id);
                 await PrepareCommandBarAccessAsync(headerNode);
                 SessionState.SetAgentType(agentTypeKey);
                 await FocusCommandInputAsync();

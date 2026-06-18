@@ -688,6 +688,10 @@ public sealed class SC01_DynamicBlock : ViewScenario
         state.ContextProjection.ShouldNotBeNull();
         state.ContextProjection.Node.NodeTypeKey.ShouldBe("header");
         state.ContextProjection.Node.Label.ShouldBe("Branches");
+
+        var explorer = cut.FindComponent<SessionContextExplorer>();
+        explorer.Instance.ExpandedNodeIds.ShouldContain("workspace-foundry");
+        explorer.Instance.ExpandedNodeIds.ShouldContain(state.ContextProjection.Node.Id);
     }
 
     private static WorkspaceUseCaseModel CreateModel() => new()
