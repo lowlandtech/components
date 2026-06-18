@@ -197,6 +197,7 @@
                                                          PageOverlayContainerClass="@PageOverlayContainerClass"
                                                          AppOverlayContainerClass="@EffectiveAppOverlayContainerClass"
                                                          HostHandlesPageOverlay="true"
+                                                         OnIntentSelected="OnNodeIntentSelected"
                                                          OnUnpin="@(() => UnpinBlockAsync(maximizedBlock))"
                                                          ModeChanged="@(mode => HandleBlockModeChangedAsync(maximizedBlock, mode))" />
                                 </div>
@@ -281,6 +282,7 @@
                                                                      PageOverlayContainerClass="@PageOverlayContainerClass"
                                                                      AppOverlayContainerClass="@EffectiveAppOverlayContainerClass"
                                                                      HostHandlesPageOverlay="true"
+                                                                     OnIntentSelected="OnNodeIntentSelected"
                                                                      OnUnpin="@(() => UnpinBlockAsync(item.Block!))"
                                                                      ModeChanged="@(mode => HandleBlockModeChangedAsync(item.Block!, mode))" />
                                             }
@@ -318,6 +320,7 @@
                                                      AppOverlayContainerClass="@EffectiveAppOverlayContainerClass"
                                                      HostHandlesPageOverlay="true"
                                                      IsPageOverlayProjection="true"
+                                                     OnIntentSelected="OnNodeIntentSelected"
                                                      OnUnpin="@(() => UnpinBlockAsync(pageOverlayBlock))"
                                                      ModeChanged="@(mode => HandleBlockModeChangedAsync(pageOverlayBlock, mode))" />
                             </div>
@@ -517,6 +520,7 @@
                                                      PageOverlayContainerClass="@PageOverlayContainerClass"
                                                      AppOverlayContainerClass="@EffectiveAppOverlayContainerClass"
                                                      HostHandlesPageOverlay="true"
+                                                     OnIntentSelected="OnNodeIntentSelected"
                                                      OnUnpin="@(() => UnpinBlockAsync(maximizedBlock))"
                                                      ModeChanged="@(mode => HandleBlockModeChangedAsync(maximizedBlock, mode))" />
                             </div>
@@ -601,6 +605,7 @@
                                                                  PageOverlayContainerClass="@PageOverlayContainerClass"
                                                                  AppOverlayContainerClass="@EffectiveAppOverlayContainerClass"
                                                                  HostHandlesPageOverlay="true"
+                                                                 OnIntentSelected="OnNodeIntentSelected"
                                                                  OnUnpin="@(() => UnpinBlockAsync(item.Block!))"
                                                                  ModeChanged="@(mode => HandleBlockModeChangedAsync(item.Block!, mode))" />
                                         }
@@ -637,6 +642,7 @@
                                                  AppOverlayContainerClass="@EffectiveAppOverlayContainerClass"
                                                  HostHandlesPageOverlay="true"
                                                  IsPageOverlayProjection="true"
+                                                 OnIntentSelected="OnNodeIntentSelected"
                                                  OnUnpin="@(() => UnpinBlockAsync(pageOverlayBlock))"
                                                  ModeChanged="@(mode => HandleBlockModeChangedAsync(pageOverlayBlock, mode))" />
                         </div>
@@ -746,6 +752,7 @@
                              PageOverlayContainerClass="@PageOverlayContainerClass"
                              AppOverlayContainerClass="@EffectiveAppOverlayContainerClass"
                              HostHandlesPageOverlay="true"
+                             OnIntentSelected="OnNodeIntentSelected"
                              OnUnpin="@(() => UnpinBlockAsync(appOverlayBlock))"
                              ModeChanged="@(mode => HandleBlockModeChangedAsync(appOverlayBlock, mode))" />
     }

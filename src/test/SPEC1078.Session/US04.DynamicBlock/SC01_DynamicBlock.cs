@@ -601,6 +601,62 @@ public sealed class SC01_DynamicBlock : ViewScenario
         cut.Find("[data-field-input='Name']").GetAttribute("data-slot").ShouldBe("input");
     }
 
+    [Fact(DisplayName = "UAC21: Dynamic forms expose edge-derived intent toolbars")]
+    [Trait(Spec.UAC, "21")]
+    [Given("Workspace, Flow, and Workitem node types with outgoing relationship and command edges")]
+    [When("each node is projected into its dynamic form presentation")]
+    [Then("a toolbar below the alert shows applicable edge labels and omits form-reference edges")]
+    public void UAC21_DynamicFormsRenderEdgeDerivedIntentToolbars()
+    {
+        Ctx.Services.AddSingleton<IEdgeTypeService>(new ToolbarEdgeTypeService());
+        var discovery = new DynamicBlockDiscovery([new ShowcaseDynamicBlockRegistry()]);
+        var cut = Ctx.Render<Components.DynamicBlock>(parameters => parameters
+            .Add(component => component.Model, CreateModel())
+            .Add(component => component.Discovery, discovery));
+
+        cut.Find("[data-node-id='workspace-foundry']").Click();
+        var workspaceToolbar = cut.Find("[data-slot='dynamic-node-intent-toolbar']");
+        workspaceToolbar.TextContent.ShouldContain("Branches");
+        workspaceToolbar.TextContent.ShouldContain("Tables");
+
+        cut.Find("[data-node-id='flow-onboarding']").Click();
+        var flowToolbar = cut.Find("[data-slot='dynamic-node-intent-toolbar']");
+        flowToolbar.TextContent.ShouldContain("Steps");
+
+        cut.Find("[data-node-id='workitem-setup-ci']").Click();
+        var workitemToolbar = cut.Find("[data-slot='dynamic-node-intent-toolbar']");
+        workitemToolbar.TextContent.ShouldContain("Start in OpenCode");
+        workitemToolbar.TextContent.ShouldContain("Labels");
+        workitemToolbar.TextContent.ShouldNotContain("Parent");
+    }
+
+    [Fact(DisplayName = "UAC22: Intent toolbar buttons dispatch their encoded edge intent")]
+    [Trait(Spec.UAC, "22")]
+    [Given("a Workitem dynamic form with a command-bar edge whose intent is encoded in its key")]
+    [When("the user selects the corresponding toolbar button")]
+    [Then("the component emits a transition intent containing the edge key and graph endpoints")]
+    public void UAC22_IntentToolbarDispatchesEncodedEdgeIntent()
+    {
+        Ctx.Services.AddSingleton<IEdgeTypeService>(new ToolbarEdgeTypeService());
+        BlockIntent? selectedIntent = null;
+        var discovery = new DynamicBlockDiscovery([new ShowcaseDynamicBlockRegistry()]);
+        var cut = Ctx.Render<Components.DynamicBlock>(parameters => parameters
+            .Add(component => component.Model, CreateModel())
+            .Add(component => component.Discovery, discovery)
+            .Add(component => component.OnIntentSelected, intent => selectedIntent = intent));
+
+        cut.Find("[data-node-id='workitem-setup-ci']").Click();
+        cut.Find("button[data-edge-key='workitem.init.opencode.session']").Click();
+
+        selectedIntent.ShouldNotBeNull();
+        selectedIntent.Key.ShouldBe("init.opencode:workitem.init.opencode.session");
+        selectedIntent.Class.ShouldBe(BlockIntentClass.Transition);
+        selectedIntent.Payload.ShouldNotBeNull();
+        selectedIntent.Payload["edgeKey"].ShouldBe("workitem.init.opencode.session");
+        selectedIntent.Payload["sourceNodeTypeKey"].ShouldBe("workitem");
+        selectedIntent.Payload["targetNodeTypeKey"].ShouldBe("opencode-session");
+    }
+
     private static WorkspaceUseCaseModel CreateModel() => new()
     {
         Id = "workspace-root",
@@ -717,6 +773,65 @@ public sealed class SC01_DynamicBlock : ViewScenario
                     Presentation: "workitem")
             ];
         }
+    }
+
+    private sealed class ToolbarEdgeTypeService : IEdgeTypeService
+    {
+        private static readonly IReadOnlyDictionary<string, IReadOnlyList<EdgeTypeInfo>> Edges =
+            new Dictionary<string, IReadOnlyList<EdgeTypeInfo>>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["workspace"] =
+                [
+                    CreateEdge("contains.branch", "Branches", "workspace", "branch"),
+                    CreateEdge("contains.table", "Tables", "workspace", "table")
+                ],
+                ["flow"] =
+                [
+                    CreateEdge("has.step", "Steps", "flow", "step", "collection-tab")
+                ],
+                ["workitem"] =
+                [
+                    CreateEdge(
+                        "workitem.init.opencode.session",
+                        "Start in OpenCode",
+                        "workitem",
+                        "opencode-session",
+                        "command-bar",
+                        "init.opencode"),
+                    CreateEdge("workitem.has-label.label", "Labels", "workitem", "label", "collection-tab"),
+                    CreateEdge("workitem.has-parent.workitem", "Parent", "workitem", "workitem", "form-reference")
+                ]
+            };
+
+        public EdgeTypeInfo? FindCreateEdge(string sourceNodeTypeKey) =>
+            GetOutgoingEdges(sourceNodeTypeKey)
+                .FirstOrDefault(edge => string.Equals(edge.Intent, "create", StringComparison.OrdinalIgnoreCase));
+
+        public IReadOnlyList<EdgeTypeInfo> GetOutgoingEdges(string sourceNodeTypeKey) =>
+            Edges.GetValueOrDefault(sourceNodeTypeKey) ?? [];
+
+        public EdgeTypeInfo? FindEdgeByAgentTypeKey(string sourceNodeTypeKey, string agentTypeKey) =>
+            GetOutgoingEdges(sourceNodeTypeKey)
+                .FirstOrDefault(edge => agentTypeKey.EndsWith(edge.EdgeKey, StringComparison.OrdinalIgnoreCase));
+
+        private static EdgeTypeInfo CreateEdge(
+            string edgeKey,
+            string label,
+            string sourceNodeTypeKey,
+            string targetNodeTypeKey,
+            string? surface = null,
+            string intent = "") =>
+            new(
+                edgeKey,
+                intent,
+                label,
+                surface,
+                null,
+                sourceNodeTypeKey,
+                false,
+                targetNodeTypeKey,
+                null,
+                null);
     }
 
     private sealed class RecordingDynamicNodeRuntime(WorkspaceUseCaseModel model) : IDynamicNodeRuntime

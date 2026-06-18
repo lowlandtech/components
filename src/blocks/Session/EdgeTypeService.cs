@@ -34,6 +34,11 @@ public sealed record EdgeTypeInfo(
     INodeTypeDescriptor? TargetDescriptor)
 {
     /// <summary>
+    /// Optional icon name supplied by edge metadata or inferred from the target node type.
+    /// </summary>
+    public string? Icon { get; init; }
+
+    /// <summary>
     /// True when this create edge is a convenience edge from a non-header parent
     /// to a navigation-header child. Selecting it should project the header first.
     /// </summary>
@@ -276,17 +281,30 @@ public sealed class EdgeTypeService : IEdgeTypeService
     private EdgeTypeInfo Map(IEdgeTypeDescriptor edge, INodeTypeDescriptor sourceNodeType)
     {
         var targetNodeType = _nodeTypesById.TryGetValue(edge.TargetNodeTypeId, out var target) ? target : null;
+        var label = edge.DefaultProperties.TryGetValue("ui.label", out var uiLabel)
+            ? uiLabel
+            : edge.DefaultProperties.TryGetValue("label", out var metadataLabel)
+                ? metadataLabel
+                : edge.Label;
+        var icon = edge.DefaultProperties.TryGetValue("ui.icon", out var uiIcon)
+            ? uiIcon
+            : edge.DefaultProperties.TryGetValue("icon", out var metadataIcon)
+                ? metadataIcon
+                : targetNodeType?.Key;
 
         return new EdgeTypeInfo(
             edge.Key,
             edge.Intent ?? string.Empty,
-            edge.DefaultProperties.TryGetValue("ui.label", out var label) ? label : edge.Label,
+            label,
             edge.DefaultProperties.TryGetValue("ui.surface", out var surface) ? surface : null,
             edge.Tool,
             sourceNodeType.Key,
             sourceNodeType.IsHeader,
             targetNodeType?.Key ?? string.Empty,
             targetNodeType?.EntityType,
-            targetNodeType);
+            targetNodeType)
+        {
+            Icon = icon
+        };
     }
 }

@@ -20,6 +20,7 @@ public partial class SessionContextBlock : TinyComponentBase
     [Parameter] public bool IsPinned { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnUnpin { get; set; }
     [Parameter] public EventCallback<string> ModeChanged { get; set; }
+    [Parameter] public EventCallback<BlockIntent> OnIntentSelected { get; set; }
     [Parameter] public string? PageOverlayContainerClass { get; set; }
     [Parameter] public string? AppOverlayContainerClass { get; set; }
     [Parameter] public bool HostHandlesPageOverlay { get; set; }
@@ -95,6 +96,8 @@ public partial class SessionContextBlock : TinyComponentBase
         parameters.TryAdd("Data", Block.Data);
         if (ResolvedComponentType?.GetProperty("Mode")?.GetCustomAttribute<ParameterAttribute>() is not null)
             parameters.TryAdd("Mode", NormalizedMode);
+        if (ResolvedComponentType?.GetProperty("OnIntentSelected")?.GetCustomAttribute<ParameterAttribute>() is not null)
+            parameters.TryAdd("OnIntentSelected", OnIntentSelected);
         return parameters;
     }
 
@@ -132,6 +135,7 @@ public partial class SessionContextBlock : TinyComponentBase
         builder.AddAttribute(3, nameof(SessionContextBlockOverlayContent.Parameters), Parameters);
         builder.AddAttribute(4, nameof(SessionContextBlockOverlayContent.ChildContent), ChildContent);
         builder.AddAttribute(5, nameof(SessionContextBlockOverlayContent.RestoreRequested), EventCallback.Factory.Create(this, () => OnModeChangedAsync(ModeNormal)));
+        builder.AddAttribute(6, nameof(SessionContextBlockOverlayContent.OnIntentSelected), OnIntentSelected);
         builder.CloseComponent();
     };
 }

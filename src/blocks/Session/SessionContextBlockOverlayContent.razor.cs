@@ -13,6 +13,7 @@ public partial class SessionContextBlockOverlayContent : TinyComponentBase
     [Parameter] public bool IsPinned { get; set; }
     [Parameter] public IReadOnlyDictionary<string, object?>? Parameters { get; set; }
     [Parameter] public EventCallback RestoreRequested { get; set; }
+    [Parameter] public EventCallback<BlockIntent> OnIntentSelected { get; set; }
 
     private Type? ResolvedComponentType =>
         Block.ComponentType ?? BlockDiscovery.ResolveComponentType(Block.Context.ComponentBlock ?? Block.Context.NodeTypeKey);
@@ -25,6 +26,8 @@ public partial class SessionContextBlockOverlayContent : TinyComponentBase
         parameters.TryAdd("Block", Block);
         parameters.TryAdd("Context", Block.Context);
         parameters.TryAdd("Data", Block.Data);
+        if (ResolvedComponentType?.GetProperty("OnIntentSelected")?.GetCustomAttribute<ParameterAttribute>() is not null)
+            parameters.TryAdd("OnIntentSelected", OnIntentSelected);
         return parameters;
     }
 

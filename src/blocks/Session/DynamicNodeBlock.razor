@@ -63,6 +63,7 @@
                                 @GetDisplayValue("Slug")
                             </AlertDescription>
                         </Alert>
+                        @IntentToolbar
                         @FormContent
                     </div>
                     <div data-slot="dynamic-node-actions" class="@GetPresentationFooterClass(false)">
@@ -83,6 +84,7 @@
                                 @GetDisplayValue("Trigger")
                             </AlertDescription>
                         </Alert>
+                        @IntentToolbar
                         <Progress Value="@FlowProgress" />
                         @FormContent
                     </div>
@@ -109,6 +111,7 @@
                                 @GetDisplayValue("Assignee")
                             </AlertDescription>
                         </Alert>
+                        @IntentToolbar
                         <Progress Value="@WorkitemProgress" />
                         @FormContent
                     </div>

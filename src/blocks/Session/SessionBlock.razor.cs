@@ -85,6 +85,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     [Parameter] public EventCallback<SessionNodeRenameRequest> OnNodeRenameRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnNodeDeleteRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnLoadChildrenRequested { get; set; }
+    [Parameter] public EventCallback<BlockIntent> OnNodeIntentSelected { get; set; }
 
     private IStringLocalizer<SessionBlockStrings>? _localizer;
 

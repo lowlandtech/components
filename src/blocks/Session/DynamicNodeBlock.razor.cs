@@ -3,11 +3,13 @@ namespace LowlandTech.Components;
 public partial class DynamicNodeBlock : TinyComponentBase
 {
     [Inject] private IStringLocalizer<SessionBlockStrings>? Localizer { get; set; }
+    [Inject] private IEdgeTypeService? EdgeTypeService { get; set; }
 
     [Parameter] public SessionContextBlockModel? Block { get; set; }
     [Parameter] public SessionNodeInput? Context { get; set; }
     [Parameter] public object? Data { get; set; }
     [Parameter] public string Mode { get; set; } = SessionContextBlock.ModeNormal;
+    [Parameter] public EventCallback<BlockIntent> OnIntentSelected { get; set; }
 
     private object? _sourceModel;
     private object? _draftModel;
@@ -53,6 +55,9 @@ public partial class DynamicNodeBlock : TinyComponentBase
     private bool IsGridView => string.Equals(ViewMode, "grid", StringComparison.OrdinalIgnoreCase);
 
     private string FormMode => _isEditing ? "edit" : "view";
+
+    private IReadOnlyList<DynamicNodeIntentAction> ToolbarActions =>
+        DynamicNodeIntentToolbar.Create(EdgeTypeService, Context?.NodeTypeKey);
 
     private bool IsFullHeightMode =>
         Mode?.ToLowerInvariant() is
@@ -161,6 +166,44 @@ public partial class DynamicNodeBlock : TinyComponentBase
         builder.AddAttribute(18, nameof(Button.ChildContent), (RenderFragment)(childBuilder => childBuilder.AddContent(0, L("AddToListConfirm"))));
         builder.CloseComponent();
     };
+
+    private RenderFragment IntentToolbar => builder =>
+    {
+        if (ToolbarActions.Count == 0)
+            return;
+
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "data-slot", "dynamic-node-intent-toolbar");
+        builder.AddAttribute(2, "role", "toolbar");
+        builder.AddAttribute(3, "aria-label", Context?.Label);
+        builder.AddAttribute(4, "class", "flex flex-wrap items-center gap-2");
+
+        var sequence = 5;
+        foreach (var action in ToolbarActions)
+        {
+            var currentAction = action;
+            builder.OpenComponent<Button>(sequence++);
+            builder.AddAttribute(sequence++, nameof(Button.Variant), ButtonVariant.Outline);
+            builder.AddAttribute(sequence++, nameof(Button.Size), ButtonSize.Sm);
+            builder.AddAttribute(sequence++, nameof(Button.Icon), currentAction.Icon);
+            builder.AddAttribute(
+                sequence++,
+                nameof(Button.OnClick),
+                EventCallback.Factory.Create<MouseEventArgs>(this, _ => SelectIntentAsync(currentAction)));
+            builder.AddAttribute(sequence++, "data-intent", currentAction.Intent.Key);
+            builder.AddAttribute(sequence++, "data-edge-key", currentAction.EdgeKey);
+            builder.AddAttribute(
+                sequence++,
+                nameof(Button.ChildContent),
+                (RenderFragment)(childBuilder => childBuilder.AddContent(0, currentAction.Label)));
+            builder.CloseComponent();
+        }
+
+        builder.CloseElement();
+    };
+
+    private Task SelectIntentAsync(DynamicNodeIntentAction action) =>
+        OnIntentSelected.InvokeAsync(action.Intent);
 
     private RenderFragment GridColumns => builder =>
     {

@@ -13,6 +13,7 @@ public partial class DynamicBlock : TinyComponentBase, IDynamicBlockDispatcher, 
     [Parameter] public IDynamicNodeRuntime? Runtime { get; set; }
     [Parameter] public IReadOnlyList<IDynamicReducerArm>? ReducerArms { get; set; }
     [Parameter] public EventCallback<DynamicMutationEffect> OnMutationScheduled { get; set; }
+    [Parameter] public EventCallback<BlockIntent> OnIntentSelected { get; set; }
     [Parameter] public bool AutoApplyMutations { get; set; } = true;
     [Parameter] public bool HasSidebar { get; set; } = true;
     [Parameter] public bool IsTest { get; set; } = true;
