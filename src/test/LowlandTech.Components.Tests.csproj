@@ -91,14 +91,19 @@
 		<Compile Remove="SPEC1017.ContextMenu\US02.Interaction\**\*.cs" />
 		<Compile Remove="SPEC1017.ContextMenu\US03.SubMenu\**\*.cs" />
 		<Compile Remove="SPEC1038.Resizable\US02.Behavior\**\*.cs" />
+		<Compile Remove="TestResults\**" />
 		<Compile Remove="SPEC1043.Sidebar\US02.State\SC02_SidebarMenuSubBehavior.cs" />
 		<Compile Remove="SPEC1043.Sidebar\US02.State\SC03_SidebarMenuSubTriggerBehavior.cs" />
 		<Compile Remove="SPEC1043.Sidebar\US02.State\SC04_SidebarMobileSheetBehavior.cs" />
 		<Compile Remove="SPEC1043.Sidebar\US02.State\SC06_SidebarDataStateBehavior.cs" />
 		<Compile Remove="SPEC1073.AppLayout\**\*.cs" />
+		<Content Remove="TestResults\**" />
+		<EmbeddedResource Remove="TestResults\**" />
+		<None Remove="TestResults\**" />
 	</ItemGroup>
 	<ItemGroup>
 	  <None Remove="LowlandTech.Components.Tests.csproj.lscache" />
+	  <None Remove="LowlandTech.Components.Tests.v3.ncrunchproject" />
 	</ItemGroup>
 
 </Project>
