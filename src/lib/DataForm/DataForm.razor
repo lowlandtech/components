@@ -61,7 +61,6 @@
 
                         <FormField FieldName="@field.PropertyName"
                                    FieldType="@fieldType"
-                                   Label="@field.DisplayName"
                                    Value="@fieldValue"
                                    ValueChanged="async v => { await SetValueAsync(field.PropertyName, v); await OnFieldChanged(new FormFieldChangeArgs { FieldName = field.PropertyName, NewValue = v }); }"
                                    Validator="@validator"
