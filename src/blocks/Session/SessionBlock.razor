@@ -5,7 +5,7 @@
     @if (HasSidebar)
     {
         <div class="relative h-full min-h-0 w-full">
-        <Resizable @key="IsStandaloneSidebarOpen">
+        <Resizable @key="IsStandaloneSidebarOpen" PersistKey="@ResizablePersistKey">
             @if (IsStandaloneSidebarOpen)
             {
             <ResizablePanel DefaultSize="@(SidebarWidth ?? (HasActiveSession ? 16 : 24))" MinSize="16" MaxSize="38" Id="session-block-sidebar-panel" class="h-full">
@@ -426,7 +426,7 @@
     }
     else
     {
-        <Resizable>
+        <Resizable PersistKey="@ResizablePersistKey">
             <ResizablePanel DefaultSize="@(SidebarWidth ?? 24)" MinSize="16" MaxSize="38" Id="session-block-left-panel" class="h-full">
                    <aside class="@GetLeftPanelClass()"
                        data-slot="session-block-left-sidebar">

@@ -72,6 +72,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     [Parameter] public string SidebarPersistKey { get; set; } = "session-block:sidebar-open";
     [Parameter] public string RightSidebarPersistKey { get; set; } = "session-block:right-sidebar-open";
     [Parameter] public string CommandBarVisiblePersistKey { get; set; } = "session-block:command-bar-visible";
+    [Parameter] public string ResizablePersistKey { get; set; } = "session-block:panel-sizes";
     [Parameter] public int? SidebarWidth { get; set; }
     [Parameter] public string Variant { get; set; } = "outlined";
     [Parameter] public string? PageOverlayContainerClass { get; set; }

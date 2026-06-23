@@ -563,7 +563,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "15")]
     [Given("a SessionContextBlock rendered in maximized, page-overlay, and app-overlay modes")]
     [When("the projection containers are composed")]
-    [Then("maximized mode retains rounded clipped corners while app overlay remains square and viewport-bound")]
+    [Then("maximized mode removes rounded corners while app overlay remains square and viewport-bound")]
     public void UAC15_ContextBlockExposesProjectionModes()
     {
         var block = new SessionContextBlockModel(
@@ -587,8 +587,8 @@ public class SC01_SessionBlocks : ViewScenario
 
         maximized.Find("[data-mode='maximized']").ClassList.ShouldContain("flex");
         maximized.Find("[data-mode='maximized']").ClassList.ShouldContain("overflow-hidden");
-        maximized.Find("[data-mode='maximized']").ClassList.ShouldNotContain("!rounded-none");
-        maximized.Find("[data-mode='maximized']").GetAttribute("data-square").ShouldBeNull();
+        maximized.Find("[data-mode='maximized']").ClassList.ShouldContain("!rounded-none");
+        maximized.Find("[data-mode='maximized']").GetAttribute("data-square").ShouldBe("true");
         overlayPage.Find("[data-mode='overlay-page']").ClassList.ShouldContain("opacity-60");
         overlayApp.Find("[data-mode='overlay-app']").ClassList.ShouldContain("fixed");
         overlayApp.Find("[data-mode='overlay-app']").ClassList.ShouldContain("inset-0");
@@ -2145,7 +2145,7 @@ public class SC01_SessionBlocks : ViewScenario
     [Trait(Spec.UAC, "43")]
     [Given("a SessionBlock with a context card in Page Overlay mode")]
     [When("the command bar is shown and the card is promoted to Maximized")]
-    [Then("the main content panel keeps its padding and the maximized card retains clipped rounded corners")]
+    [Then("the main content panel keeps its padding and the maximized card renders square corners")]
     public void UAC43_MaximizedCardKeepsMainContentPadding()
     {
         var cut = Ctx.Render<Components.SessionBlock>();
@@ -2161,9 +2161,9 @@ public class SC01_SessionBlocks : ViewScenario
 
         var maximizedCard = cut.Find(
             "[data-slot='session-block-maximized-block'] [data-slot='session-context-block'][data-mode='maximized']");
-        maximizedCard.GetAttribute("data-square").ShouldBeNull();
+        maximizedCard.GetAttribute("data-square").ShouldBe("true");
         maximizedCard.ClassList.ShouldContain("overflow-hidden");
-        maximizedCard.ClassList.ShouldNotContain("!rounded-none");
+        maximizedCard.ClassList.ShouldContain("!rounded-none");
     }
 
     [Fact(DisplayName = "UAC44: Showing the command bar promotes a page-overlay card to Maximized")]
@@ -2460,5 +2460,22 @@ public class SC01_SessionBlocks : ViewScenario
         var agentCard = agentCut.Find(
             "[data-slot='session-block-maximized-card'] [data-slot='session-card'][data-mode='maximized']");
         agentCard.ClassList.ShouldContain("cn-card-maximized");
+    }
+
+    [Fact(DisplayName = "UAC46: SessionBlock requests persisted panel sizes on render")]
+    [Trait(Spec.UAC, "46")]
+    [Given("a SessionBlock is rendered")]
+    [When("the resizable groups initialize")]
+    [Then("localStorage.getItem is called with the default panel-sizes key")]
+    public void UAC46_SessionBlockRequestsPersistedPanelSizes()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>();
+
+        var getItemCalls = Ctx.JSInterop.Invocations
+            .Where(i => i.Identifier == "localStorage.getItem" &&
+                        i.Arguments.FirstOrDefault()?.ToString() == "resizable:session-block:panel-sizes")
+            .ToList();
+
+        getItemCalls.ShouldNotBeEmpty();
     }
 }

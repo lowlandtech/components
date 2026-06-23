@@ -45,6 +45,9 @@
     internal List<ResizablePanel> Panels { get; } = new();
     internal List<ResizableHandle> Handles { get; } = new();
 
+    private Dictionary<string, int>? _restoredSizes;
+    private bool _isRestored;
+
     internal ResizableHandle? ActiveHandle { get; set; }
     internal bool IsResizing { get; private set; }
 
@@ -52,6 +55,11 @@
     {
         if (!Panels.Contains(panel))
             Panels.Add(panel);
+
+        if (_isRestored && _restoredSizes?.TryGetValue(panel.PanelId, out var size) == true)
+        {
+            panel.UpdateSize(size);
+        }
     }
 
     internal void UnregisterPanel(ResizablePanel panel)
@@ -142,11 +150,19 @@
         {
             var json = await JS.InvokeAsync<string?>("localStorage.getItem", $"resizable:{PersistKey}");
             if (string.IsNullOrEmpty(json))
+            {
+                _isRestored = true;
                 return;
+            }
 
             var sizes = JsonSerializer.Deserialize<Dictionary<string, int>>(json);
             if (sizes is null)
+            {
+                _isRestored = true;
                 return;
+            }
+
+            _restoredSizes = sizes;
 
             foreach (var panel in Panels)
             {
@@ -156,6 +172,7 @@
                 }
             }
 
+            _isRestored = true;
             StateHasChanged();
         }
         catch
