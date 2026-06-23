@@ -18,6 +18,11 @@
     [Parameter] public int MaxSize { get; set; } = 100;
 
     /// <summary>
+    /// When true, the panel grows to absorb any remaining space in the group.
+    /// </summary>
+    [Parameter] public bool Grow { get; set; }
+
+    /// <summary>
     /// Callback fired when this panel is resized.
     /// </summary>
     [Parameter] public EventCallback<ResizeEventArgs> OnResize { get; set; }
@@ -91,7 +96,8 @@
     private string GetStyle()
     {
         var size = CurrentSize > 0 ? CurrentSize : DefaultSize;
-        return $"flex-basis: calc({size}% - var(--resizable-handle-size, 4px));";
+        var grow = Grow ? "1" : "0";
+        return $"flex-basis: calc({size}% - var(--resizable-handle-size, 4px)); flex-grow: {grow};";
     }
 
     private string GetClass()

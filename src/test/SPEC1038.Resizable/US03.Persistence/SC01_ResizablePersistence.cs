@@ -124,6 +124,26 @@ public class SC01_ResizablePersistence : ViewScenario
         secondStyle.ShouldContain("flex-basis: calc(40%");
     }
 
+    [Fact(DisplayName = "UAC04: ResizablePanel with Grow renders flex-grow: 1")]
+    [Trait(Spec.UAC, "04")]
+    [Given("a ResizablePanel with Grow=true")]
+    [When("the panel renders")]
+    [Then("its style contains flex-grow: 1")]
+    public void UAC04_GrowPanelRendersFlexGrow()
+    {
+        var cut = Ctx.Render<ResizableSut>(p => p.AddChildContent(builder =>
+        {
+            builder.OpenComponent<ResizablePanel>(0);
+            builder.AddAttribute(1, nameof(ResizablePanel.Id), "growing");
+            builder.AddAttribute(2, nameof(ResizablePanel.Grow), true);
+            builder.CloseComponent();
+        }));
+
+        var style = cut.Find("[data-panel='growing']").GetAttribute("style");
+        style.ShouldNotBeNull();
+        style.ShouldContain("flex-grow: 1");
+    }
+
     private class TestWrapper : ComponentBase
     {
         [Parameter] public string PersistKey { get; set; } = string.Empty;

@@ -131,7 +131,7 @@
             </ResizablePanel>
             <ResizableHandle WithHandle="true" RevealOnHover="true" Color="primary" class="relative z-20" />
             }
-            <ResizablePanel DefaultSize="100" MinSize="35" Id="session-block-main-panel" class="h-full">
+            <ResizablePanel DefaultSize="100" MinSize="35" Id="session-block-main-panel" Grow="true" class="h-full">
                 <SidebarInset class="@GetSidebarInsetClass()">
                     <main class="relative flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden"
                           style="@GetMainContentStyle(IsStandaloneSidebarOpen)"
@@ -485,7 +485,7 @@
             {
                 <ResizableHandle WithHandle="true" RevealOnHover="true" Color="primary" class="relative z-20" />
             }
-            <ResizablePanel DefaultSize="@(HasActiveSession ? 84 : 60)" MinSize="35" Id="session-block-main-panel" class="h-full">
+            <ResizablePanel DefaultSize="@(HasActiveSession ? 84 : 60)" MinSize="35" Id="session-block-main-panel" Grow="true" class="h-full">
                 <main class="relative flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden"
                       style="@GetMainContentStyle(!HasActiveSession)"
                       data-slot="session-block-main-content">
