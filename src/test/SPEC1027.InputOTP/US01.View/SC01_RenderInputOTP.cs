@@ -61,13 +61,22 @@ public class SC01_RenderInputOTP : ViewScenario
         input.GetAttribute("maxlength").ShouldBe("1");
     }
 
-    [Fact(DisplayName = "UAC07: InputOTP inputs are type text")]
+    [Fact(DisplayName = "UAC07: InputOTP inputs are type text by default")]
     [Trait(Spec.UAC, "07")]
     public void UAC07_InputOTPInputsAreTypeText()
     {
         var cut = Ctx.Render<InputOTPComponent>();
         var input = cut.Find("input");
         input.GetAttribute("type").ShouldBe("text");
+    }
+
+    [Fact(DisplayName = "UAC09: InputOTP inputs are type password when masked")]
+    [Trait(Spec.UAC, "09")]
+    public void UAC09_InputOTPInputsAreTypePasswordWhenMasked()
+    {
+        var cut = Ctx.Render<InputOTPComponent>(p => p.Add(x => x.Mask, true));
+        var input = cut.Find("input");
+        input.GetAttribute("type").ShouldBe("password");
     }
 
     [Fact(DisplayName = "UAC08: InputOTP renders with custom Length")]

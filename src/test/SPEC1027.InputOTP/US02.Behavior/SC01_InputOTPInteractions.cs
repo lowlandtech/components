@@ -74,4 +74,43 @@ public class SC01_InputOTPInteractions : ViewScenario
         // The last value should be the complete code
         values.Last().ShouldBe("1234");
     }
+
+    [Fact(DisplayName = "UAC05: InputOTP invokes Completed when the last digit is entered")]
+    [Trait(Spec.UAC, "05")]
+    public async Task UAC05_InputOTPInvokesCompletedOnLastDigit()
+    {
+        string? completedValue = null;
+
+        var cut = Ctx.Render<InputOTPComponent>(p => p
+            .Add(x => x.Length, 4)
+            .Add(x => x.Completed, EventCallback.Factory.Create<string>(this, v => completedValue = v))
+        );
+
+        await cut.FindAll("input")[0].InputAsync(new ChangeEventArgs { Value = "1" });
+        completedValue.ShouldBeNull();
+
+        await cut.FindAll("input")[1].InputAsync(new ChangeEventArgs { Value = "2" });
+        completedValue.ShouldBeNull();
+
+        await cut.FindAll("input")[2].InputAsync(new ChangeEventArgs { Value = "3" });
+        completedValue.ShouldBeNull();
+
+        await cut.FindAll("input")[3].InputAsync(new ChangeEventArgs { Value = "4" });
+        completedValue.ShouldBe("1234");
+    }
+
+    [Fact(DisplayName = "UAC06: InputOTP masks entered digits")]
+    [Trait(Spec.UAC, "06")]
+    public async Task UAC06_InputOTPMasksEnteredDigits()
+    {
+        var cut = Ctx.Render<InputOTPComponent>(p => p
+            .Add(x => x.Mask, true)
+            .Add(x => x.MaskChar, '*')
+        );
+
+        var input = cut.Find("input");
+        await input.InputAsync(new ChangeEventArgs { Value = "5" });
+
+        input.GetAttribute("value").ShouldBe("*");
+    }
 }

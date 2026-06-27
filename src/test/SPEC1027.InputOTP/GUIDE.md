@@ -13,11 +13,18 @@
 
 ## Parameters
 
-| Parameter | Type | Default | Source |
-|-----------|------|---------|--------|
-| `Class` | `string?` | `null` | `TinyComponentBase` |
-| `ChildContent` | `RenderFragment?` | `null` | `TinyComponentBase` |
-| `AdditionalAttributes` | `Dictionary<string, object>?` | `null` | `TinyComponentBase` |
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `Class` | `string?` | `null` | Additional CSS classes for the root container. From `TinyComponentBase`. |
+| `ChildContent` | `RenderFragment?` | `null` | Child content. From `TinyComponentBase`. |
+| `AdditionalAttributes` | `Dictionary<string, object>?` | `null` | Additional attributes for the root container. From `TinyComponentBase`. |
+| `Length` | `int` | `6` | Number of OTP input boxes. |
+| `Value` | `string` | `""` | Current OTP value. |
+| `ValueChanged` | `EventCallback<string>` | — | Fires when the value changes. |
+| `Completed` | `EventCallback<string>` | — | Fires when the last digit is entered and the OTP is complete. |
+| `Disabled` | `bool` | `false` | Disables all inputs. |
+| `Mask` | `bool` | `false` | Renders inputs as `type="password"` and masks entered digits. |
+| `MaskChar` | `char` | `'•'` | Character used to mask entered digits when `Mask` is true. |
 
 ## Sub-Components
 
@@ -56,8 +63,15 @@ public class SC01_RenderInputOTP : ViewScenario
 }
 ```
 
+## Behavior
+
+- Only a single digit (`0-9`) is accepted in each input box.
+- When a digit is entered, focus automatically advances to the next input via JS interop.
+- Pressing `Backspace` in an empty box clears the previous box and moves focus back.
+- When the last digit is entered, the `Completed` callback fires with the full value.
+- When `Mask="true"`, inputs render as `type="password"` and entered digits are replaced by `MaskChar`.
+
 ## Implementation Notes
 
-- This is an **auto-generated** component — do not edit `.razor` or `.razor.cs` directly
-- Put custom logic in `InputOTP.shared.cs` (partial class)
-- Currently a stub — needs sub-components and behavior per shadcn spec
+- Implementation lives in `InputOTP.razor`.
+- Focus navigation is handled by `wwwroot/js/input-otp.js`.

@@ -1,17 +1,21 @@
 @namespace LowlandTech.Components
 @inherits TinyComponentBase
+@inject IJSRuntime JSRuntime
 
-<div data-slot="input-otp" class="@GetClass()" @attributes="AdditionalAttributes">
+<div @ref="_container"
+     data-slot="input-otp"
+     class="@GetClass()"
+     @attributes="AdditionalAttributes">
     @for (int i = 0; i < Length; i++)
     {
         var index = i;
-        <input type="text"
+        <input type="@GetInputType()"
                inputmode="numeric"
                pattern="[0-9]*"
                maxlength="1"
                disabled="@Disabled"
                class="@GetInputClass()"
-               value="@GetValueAt(index)"
+               value="@GetDisplayValue(index)"
                @oninput="(e) => OnInputChange(index, e)"
                @onkeydown="(e) => OnKeyDown(index, e)"
                @ref="_inputRefs[index]" />
@@ -21,17 +25,22 @@
 @code {
     private ElementReference[] _inputRefs = [];
     private string[] _values = [];
+    private ElementReference _container;
+    private IJSObjectReference? _jsModule;
 
     [Parameter] public int Length { get; set; } = 6;
     [Parameter] public string Value { get; set; } = "";
     [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public EventCallback<string> Completed { get; set; }
     [Parameter] public bool Disabled { get; set; }
+    [Parameter] public bool Mask { get; set; }
+    [Parameter] public char MaskChar { get; set; } = '•';
 
     protected override void OnInitialized()
     {
         _inputRefs = new ElementReference[Length];
         _values = new string[Length];
-        
+
         // Initialize from existing value
         if (!string.IsNullOrEmpty(Value))
         {
@@ -42,16 +51,22 @@
         }
     }
 
-    private string GetValueAt(int index)
+    private string GetInputType() => Mask ? "password" : "text";
+
+    private string GetDisplayValue(int index)
     {
-        return _values[index] ?? "";
+        var value = _values[index] ?? "";
+        if (string.IsNullOrEmpty(value) || !Mask)
+            return value;
+
+        return MaskChar.ToString();
     }
 
     private async Task OnInputChange(int index, ChangeEventArgs e)
     {
         var value = e.Value?.ToString() ?? "";
         var digit = value.Length > 0 ? value[^1..] : "";
-        
+
         // Only accept digits
         if (!string.IsNullOrEmpty(digit) && !char.IsDigit(digit[0]))
         {
@@ -64,7 +79,12 @@
         // Move to next input if current is filled and not the last
         if (!string.IsNullOrEmpty(digit) && index < Length - 1)
         {
-            // Focus next input would require JS interop
+            await FocusNextAsync(index);
+        }
+        else if (!string.IsNullOrEmpty(digit) && index == Length - 1)
+        {
+            // Last digit entered — invoke the completed callback
+            await Completed.InvokeAsync(Value);
         }
     }
 
@@ -75,6 +95,7 @@
             // Move to previous input on backspace if current is empty
             _values[index - 1] = "";
             await UpdateValueAsync();
+            await FocusPreviousAsync(index);
         }
     }
 
@@ -82,6 +103,65 @@
     {
         Value = string.Join("", _values);
         await ValueChanged.InvokeAsync(Value);
+    }
+
+    private async Task FocusNextAsync(int index)
+    {
+        await EnsureJsModuleAsync();
+        if (_jsModule is not null)
+        {
+            try
+            {
+                await _jsModule.InvokeVoidAsync("focusNext", _container, index);
+            }
+            catch (JSDisconnectedException)
+            {
+                // Ignore
+            }
+            catch
+            {
+                // JS interop may not be available in test environments
+            }
+        }
+    }
+
+    private async Task FocusPreviousAsync(int index)
+    {
+        await EnsureJsModuleAsync();
+        if (_jsModule is not null)
+        {
+            try
+            {
+                await _jsModule.InvokeVoidAsync("focusPrevious", _container, index);
+            }
+            catch (JSDisconnectedException)
+            {
+                // Ignore
+            }
+            catch
+            {
+                // JS interop may not be available in test environments
+            }
+        }
+    }
+
+    private async Task EnsureJsModuleAsync()
+    {
+        if (_jsModule is not null)
+            return;
+
+        try
+        {
+            _jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/LowlandTech.Components/js/input-otp.js");
+        }
+        catch (JSDisconnectedException)
+        {
+            // Ignore
+        }
+        catch
+        {
+            // JS interop may not be available in test environments
+        }
     }
 
     private string GetClass()
