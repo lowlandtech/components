@@ -14,6 +14,7 @@ public partial class SessionContextExplorer : TinyComponentBase
     [Parameter] public string EmptyTitle { get; set; } = "No context nodes";
     [Parameter] public string EmptyDescription { get; set; } = "Context nodes appear here when application entities are available.";
     [Parameter] public bool ShowHeader { get; set; } = true;
+    [Parameter] public bool HasFrame { get; set; } = true;
     [Parameter] public string ExpandedNodesPersistKey { get; set; } = "session-context-expanded-nodes";
     [Parameter] public IReadOnlySet<string> ExpandedNodeIds { get; set; } = new HashSet<string>(StringComparer.Ordinal);
     [Parameter] public EventCallback<SessionContextProjected> OnProjected { get; set; }
@@ -39,7 +40,10 @@ public partial class SessionContextExplorer : TinyComponentBase
 
     private string GetClass()
     {
-        var baseClass = "flex w-full flex-col overflow-hidden rounded-lg border border-border bg-background";
+        var frameClass = HasFrame
+            ? "rounded-lg border border-border bg-background"
+            : string.Empty;
+        var baseClass = $"flex w-full flex-col overflow-hidden {frameClass}".Trim();
         return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
     }
 

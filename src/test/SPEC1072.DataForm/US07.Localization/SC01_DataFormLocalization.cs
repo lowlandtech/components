@@ -109,7 +109,9 @@ public class SC01_DataFormLocalization : ViewScenario
 
     private static string FindComponentResourcesDirectory()
     {
-        var startDir = new DirectoryInfo(AppContext.BaseDirectory);
+        // Use assembly location to handle shadow copies (NCrunch, etc.)
+        var assemblyPath = typeof(SC01_DataFormLocalization).Assembly.Location;
+        var startDir = new DirectoryInfo(Path.GetDirectoryName(assemblyPath)!);
         var current = startDir;
 
         while (current is not null)
