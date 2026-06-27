@@ -19,6 +19,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     private bool _isHydratingRightSidebar;
     private int _rightSidebarChangeVersion;
     private string? _hydratedRightSidebarPersistKey;
+    private string _activeRightSidebarTab = RightSidebarPluginTabKey;
     private bool _isCommandBarVisible;
     private bool _isHydratingCommandBar;
     private int _commandBarChangeVersion;
@@ -30,6 +31,8 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     private SessionNodeInput? _addToListNode;
     private IReadOnlyList<SessionNodeInput> _addToListCandidates = [];
     private IReadOnlySet<string> _addToListMemberIds = new HashSet<string>();
+    private const string RightSidebarPluginTabKey = "plugins";
+    private const string RightSidebarSectionsTabKey = "sections";
 
     private IReadOnlyList<SessionContextNode> DisplayContextNodes => _localContextNodes ?? ContextNodes;
 
@@ -77,6 +80,8 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     [Parameter] public string Variant { get; set; } = "outlined";
     [Parameter] public string? PageOverlayContainerClass { get; set; }
     [Parameter] public string? AppOverlayContainerClass { get; set; }
+    [Parameter] public RenderFragment? RightSidebarContent { get; set; }
+    [Parameter] public string RightSidebarContentLabel { get; set; } = "Plugins";
     [Parameter] public SessionStateService? StateService { get; set; }
     [Parameter] public string? Language { get; set; }
     [Parameter] public string LogoSrc { get; set; } = "_content/LowlandTech.Components/img/session-block-logo.svg";
@@ -131,6 +136,16 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         {
             _isStandaloneSidebarOpen = true;
             _hydratedSidebarPersistKey = null;
+        }
+
+        if (RightSidebarContent is null)
+        {
+            _activeRightSidebarTab = RightSidebarSectionsTabKey;
+        }
+        else if (!string.Equals(_activeRightSidebarTab, RightSidebarPluginTabKey, StringComparison.Ordinal)
+            && !string.Equals(_activeRightSidebarTab, RightSidebarSectionsTabKey, StringComparison.Ordinal))
+        {
+            _activeRightSidebarTab = RightSidebarPluginTabKey;
         }
     }
 
@@ -275,6 +290,27 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     private string GetRightSidebarBodyStyle() => IsNoneVariant
         ? "padding:10px 10px 10px 4px;"
         : "padding:10px;";
+
+    private bool IsRightSidebarPluginTabActive =>
+        RightSidebarContent is not null
+        && string.Equals(_activeRightSidebarTab, RightSidebarPluginTabKey, StringComparison.Ordinal);
+
+    private bool IsRightSidebarSectionsTabActive =>
+        !IsRightSidebarPluginTabActive;
+
+    private string GetRightSidebarTabClass(string tabKey)
+    {
+        var isActive = string.Equals(_activeRightSidebarTab, tabKey, StringComparison.Ordinal);
+        return isActive
+            ? "inline-flex h-7 items-center rounded-md bg-accent px-2 text-xs font-semibold text-foreground"
+            : "inline-flex h-7 items-center rounded-md px-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground";
+    }
+
+    private Task SelectRightSidebarTabAsync(string tabKey)
+    {
+        _activeRightSidebarTab = tabKey;
+        return Task.CompletedTask;
+    }
 
     private string GetMainContentStyle(bool isLeftOpen)
     {

@@ -2478,4 +2478,33 @@ public class SC01_SessionBlocks : ViewScenario
 
         getItemCalls.ShouldNotBeEmpty();
     }
+
+    [Fact(DisplayName = "UAC56: SessionBlock right sidebar renders Plugins and Sections tabs when plugin content is supplied")]
+    [Trait(Spec.UAC, "56")]
+    [Given("a SessionBlock with right-sidebar plugin content")]
+    [When("the right sidebar renders and the Sections tab is selected")]
+    [Then("the sidebar exposes Plugins and Sections tabs and restores the Sections panel")]
+    public void UAC56_RightSidebarRendersPluginAndSectionsTabs()
+    {
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.RightSidebarContentLabel, "Plugins")
+            .Add(x => x.RightSidebarContent, builder =>
+            {
+                builder.OpenElement(0, "div");
+                builder.AddAttribute(1, "data-slot", "test-plugin-panel");
+                builder.AddContent(2, "Plugin panel");
+                builder.CloseElement();
+            }));
+
+        var tabs = cut.FindAll("[data-slot='session-block-right-sidebar-tab']");
+        tabs.Count.ShouldBe(2);
+        tabs.Select(tab => tab.GetAttribute("data-tab-key")).ShouldBe(["plugins", "sections"]);
+        cut.Find("[data-slot='test-plugin-panel']").ShouldNotBeNull();
+
+        cut.Find("[data-tab-key='sections']").Click();
+
+        cut.Find("[data-slot='session-block-section-links']").ShouldNotBeNull();
+        cut.Find("[data-testid='session-block-sections-count']").ShouldNotBeNull();
+    }
 }

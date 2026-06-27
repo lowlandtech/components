@@ -371,11 +371,37 @@
                          <section class="flex min-h-0 min-w-0 w-full flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background">
                              <header class="flex h-10 shrink-0 items-center gap-2 border-b border-border px-3"
                                      data-slot="session-block-sections-header">
-                                 <span class="text-xs font-semibold">@L("Sections")</span>
-                                <span class="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground"
-                                      data-testid="session-block-sections-count">
-                                    @VisibleSections.Count
-                                </span>
+                                @if (RightSidebarContent is not null)
+                                {
+                                    <div class="flex min-w-0 flex-1 items-center gap-1" data-slot="session-block-right-sidebar-tabs">
+                                        <button type="button"
+                                                data-slot="session-block-right-sidebar-tab"
+                                                data-tab-key="plugins"
+                                                class="@GetRightSidebarTabClass(RightSidebarPluginTabKey)"
+                                                @onclick="@(() => SelectRightSidebarTabAsync(RightSidebarPluginTabKey))">
+                                            @RightSidebarContentLabel
+                                        </button>
+                                        <button type="button"
+                                                data-slot="session-block-right-sidebar-tab"
+                                                data-tab-key="sections"
+                                                class="@GetRightSidebarTabClass(RightSidebarSectionsTabKey)"
+                                                @onclick="@(() => SelectRightSidebarTabAsync(RightSidebarSectionsTabKey))">
+                                            @L("Sections")
+                                            <span class="ml-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground"
+                                                  data-testid="session-block-sections-count">
+                                                @VisibleSections.Count
+                                            </span>
+                                        </button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-xs font-semibold">@L("Sections")</span>
+                                    <span class="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground"
+                                          data-testid="session-block-sections-count">
+                                        @VisibleSections.Count
+                                    </span>
+                                }
                                 <button type="button"
                                         data-testid="session-block-right-sidebar-close"
                                         class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -385,6 +411,14 @@
                                     <Icon Name="panel-right-close" Size="14" />
                                 </button>
                             </header>
+                         @if (IsRightSidebarPluginTabActive)
+                         {
+                             <div data-slot="session-block-right-sidebar-plugin-panel" class="min-h-0 flex-1 overflow-hidden">
+                                 @RightSidebarContent
+                             </div>
+                         }
+                         else
+                         {
                             <div class="min-h-0 flex-1 overflow-y-auto py-1"
                                  data-slot="session-block-section-links">
                                 @if (VisibleSections.Count == 0)
@@ -417,6 +451,7 @@
                                     <Icon Name="terminal" Size="12" />
                                 </button>
                             </footer>
+                         }
                         </section>
                     </div>
                 </aside>
@@ -694,11 +729,37 @@
                         <section class="flex min-h-0 min-w-0 w-full flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background">
                         <header class="flex h-10 shrink-0 items-center gap-2 border-b border-border px-3"
                                 data-slot="session-block-sections-header">
-                            <span class="text-xs font-semibold">@L("Sections")</span>
-                            <span class="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground"
-                                  data-testid="session-block-sections-count">
-                                @VisibleSections.Count
-                            </span>
+                            @if (RightSidebarContent is not null)
+                            {
+                                <div class="flex min-w-0 flex-1 items-center gap-1" data-slot="session-block-right-sidebar-tabs">
+                                    <button type="button"
+                                            data-slot="session-block-right-sidebar-tab"
+                                            data-tab-key="plugins"
+                                            class="@GetRightSidebarTabClass(RightSidebarPluginTabKey)"
+                                            @onclick="@(() => SelectRightSidebarTabAsync(RightSidebarPluginTabKey))">
+                                        @RightSidebarContentLabel
+                                    </button>
+                                    <button type="button"
+                                            data-slot="session-block-right-sidebar-tab"
+                                            data-tab-key="sections"
+                                            class="@GetRightSidebarTabClass(RightSidebarSectionsTabKey)"
+                                            @onclick="@(() => SelectRightSidebarTabAsync(RightSidebarSectionsTabKey))">
+                                        @L("Sections")
+                                        <span class="ml-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground"
+                                              data-testid="session-block-sections-count">
+                                            @VisibleSections.Count
+                                        </span>
+                                    </button>
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="text-xs font-semibold">@L("Sections")</span>
+                                <span class="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground"
+                                      data-testid="session-block-sections-count">
+                                    @VisibleSections.Count
+                                </span>
+                            }
                             <button type="button"
                                     data-testid="session-block-right-sidebar-close"
                                     class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -708,6 +769,14 @@
                                 <Icon Name="panel-right-close" Size="14" />
                             </button>
                         </header>
+                        @if (IsRightSidebarPluginTabActive)
+                        {
+                            <div data-slot="session-block-right-sidebar-plugin-panel" class="min-h-0 flex-1 overflow-hidden">
+                                @RightSidebarContent
+                            </div>
+                        }
+                        else
+                        {
                         <div class="min-h-0 flex-1 overflow-y-auto py-1"
                              data-slot="session-block-section-links">
                             @if (VisibleSections.Count == 0)
@@ -740,6 +809,7 @@
                                 <Icon Name="terminal" Size="12" />
                             </button>
                         </footer>
+                        }
                         </section>
                     </div>
                 </aside>
