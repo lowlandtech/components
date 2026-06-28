@@ -1169,7 +1169,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     private async Task HandleAddToListAsync(SessionNodeInput node)
     {
         _addToListNode = node;
-        _addToListCandidates = SessionState.GetAllLists().ToList();
+        _addToListCandidates = SessionStateService.GetAllLists(DisplayContextNodes).ToList();
         _addToListMemberIds = SessionState.HasGraphService
             ? await SessionState.GetListIdsForNodeAsync(node.Id)
             : GetLocalListIdsForNode(node.Id);
@@ -1236,7 +1236,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
             var listHeader = FindLocalList(_localContextNodes, listId);
             if (listHeader is null) continue;
 
-            if (!listHeader.Children?.Any(c => string.Equals(c.Node.Id, request.NodeId, StringComparison.Ordinal)) == true)
+            if (listHeader.Children?.Any(c => string.Equals(c.Node.Id, request.NodeId, StringComparison.Ordinal)) != true)
             {
                 var nodeToAdd = FindNodeAcrossTree(_localContextNodes, request.NodeId);
                 if (nodeToAdd is not null)

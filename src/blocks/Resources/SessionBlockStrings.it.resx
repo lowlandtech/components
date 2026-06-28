@@ -78,4 +78,10 @@
   <data name="ToggleCommandBar" xml:space="preserve"><value>Toggle command bar</value></data>
 <data name="DeleteNodeTitle" xml:space="preserve"><value>Elimina nodo</value></data><data name="DeleteNodeDescription" xml:space="preserve"><value>Sei sicuro di voler eliminare questo nodo? Questa azione non può essere annullata.</value></data><data name="DeleteNodeDontAskAgain" xml:space="preserve"><value>Non chiedere più</value></data><data name="DeleteNodeCancel" xml:space="preserve"><value>Cancel</value></data><data name="DeleteNodeConfirm" xml:space="preserve"><value>Delete</value></data><data name="EditCommandPlaceholder" xml:space="preserve"><value>Inserisci un nuovo nome per il nodo selezionato...</value></data><data name="Outbox" xml:space="preserve"><value>Posta in uscita</value></data><data name="OutboxEmpty" xml:space="preserve"><value>Nessuna voce in uscita ancora.</value></data><data name="OutboxType" xml:space="preserve"><value>Tipo</value></data><data name="OutboxPayload" xml:space="preserve"><value>Payload</value></data><data name="OutboxCreatedAt" xml:space="preserve"><value>Ora</value></data><data name="NewList" xml:space="preserve"><value>New List</value></data>
 <data name="LoadingSessionContent" xml:space="preserve"><value>Caricamento del contenuto della sessione</value></data>
+<data name="MenuAddToList" xml:space="preserve"><value>Aggiungi alla lista</value></data>
+<data name="AddToListTitle" xml:space="preserve"><value>Aggiungi alla lista</value></data>
+<data name="AddToListDescription" xml:space="preserve"><value>Seleziona liste per "{0}"</value></data>
+<data name="AddToListEmpty" xml:space="preserve"><value>Ancora nessuna lista</value></data>
+<data name="AddToListCancel" xml:space="preserve"><value>Annulla</value></data>
+<data name="AddToListConfirm" xml:space="preserve"><value>Salva</value></data>
 </root>

@@ -421,7 +421,7 @@ public sealed class SessionStateService
     public IEnumerable<SessionNodeInput> GetAllLists()
         => GetAllLists(ContextNodes);
 
-    private static IEnumerable<SessionNodeInput> GetAllLists(IReadOnlyList<SessionContextNode> nodes)
+    public static IEnumerable<SessionNodeInput> GetAllLists(IReadOnlyList<SessionContextNode> nodes)
     {
         foreach (var node in nodes)
         {
