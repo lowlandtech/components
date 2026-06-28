@@ -41,7 +41,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="LowlandTech.Components.Blocks.v3.ncrunchproject" />
+    <None Remove="*.ncrunchproject" />
   </ItemGroup>
 
 </Project>
