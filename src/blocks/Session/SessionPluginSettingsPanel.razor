@@ -1,11 +1,11 @@
 @namespace LowlandTech.Components
 @inject ISessionPluginSettingsStore SettingsStore
-@inject IStringLocalizer<SessionBlockStrings> L
+@inject IServiceProvider Services
 
 <div data-slot="plugin-settings-panel" class="flex h-full min-h-0 flex-col overflow-auto p-2 text-sm">
     @if (_state is null || _state.Status == SessionPluginSettingsStatus.Loading)
     {
-        <div class="text-muted-foreground">@L["PluginSettingsLoading"]</div>
+        <div class="text-muted-foreground">@L("PluginSettingsLoading")</div>
     }
     else if (_state.Status == SessionPluginSettingsStatus.Error)
     {
@@ -18,7 +18,7 @@
                     data-slot="plugin-settings-save"
                     class="rounded bg-primary px-2 py-1 text-primary-foreground"
                     @onclick="SaveAsync">
-                @L["PluginSettingsSave"]
+                @L("PluginSettingsSave")
             </button>
             @if (_state.SelectedPluginKey is not null)
             {
@@ -26,7 +26,7 @@
                         data-slot="plugin-settings-reset"
                         class="rounded border border-border px-2 py-1"
                         @onclick="async () => await ResetPluginAsync(_state.SelectedPluginKey)">
-                    @L["PluginSettingsReset", _state.SelectedPluginKey]
+                    @LF("PluginSettingsReset", _state.SelectedPluginKey)
                 </button>
             }
         </div>
@@ -41,7 +41,7 @@
                                    checked="@plugin.IsEnabled"
                                    disabled="@plugin.IsProtected"
                                    @onchange="async e => await ToggleEnabledAsync(plugin.Key, (bool?)e.Value == true)" />
-                            <span>@L["PluginSettingsEnabled"]</span>
+                            <span>@L("PluginSettingsEnabled")</span>
                         </label>
 
                         @foreach (var group in plugin.Groups)
@@ -67,13 +67,21 @@
 
 @code {
     private SessionPluginSettingsState? _state;
+    private IStringLocalizer<SessionBlockStrings>? _localizer;
 
     [Parameter] public EventCallback OnSettingsChanged { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        _localizer = Services.GetService<IStringLocalizer<SessionBlockStrings>>();
         await LoadAsync();
     }
+
+    private string L(string key) => _localizer?[key] ?? key;
+
+    private string LF(string key, params object[] arguments) => _localizer is null
+        ? string.Format(CultureInfo.CurrentCulture, key, arguments)
+        : _localizer[key, arguments];
 
     private async Task LoadAsync()
     {
