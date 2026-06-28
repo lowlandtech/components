@@ -363,6 +363,8 @@ public sealed record RemoveSessionContextBlock(string BlockId) : SessionUiAction
 
 public sealed record RestoreSessionUiState(SessionUiState State) : SessionBlockAction;
 
+public sealed record RestoreSessionBlockSnapshot(SessionBlockStateSnapshot Snapshot) : SessionBlockAction;
+
 public sealed record ShowSessionFeedPage : SessionBlockAction;
 
 public sealed record ShowSessionEventLogPage : SessionBlockAction;
@@ -593,6 +595,7 @@ public static class SessionBlockReducer
         var next = action switch
         {
             RestoreSessionUiState restore => RestoreUiState(state, restore),
+            RestoreSessionBlockSnapshot restore => RestoreBlockSnapshot(state, restore.Snapshot),
             SessionUiAction uiAction => state with { Ui = SessionUiReducer.Reduce(state.Ui, uiAction) },
             ShowSessionFeedPage => state with { ActivePage = SessionBlockPage.Feed },
             ShowSessionEventLogPage => state with { ActivePage = SessionBlockPage.EventLog },
@@ -796,6 +799,83 @@ public static class SessionBlockReducer
 
     public static string SerializeEventLogState(SessionBlockState state) =>
         JsonSerializer.Serialize(CreateSnapshot(state), EventLogJsonOptions);
+
+    private static SessionBlockState RestoreBlockSnapshot(SessionBlockState state, SessionBlockStateSnapshot snapshot)
+    {
+        var activePage = Enum.TryParse<SessionBlockPage>(snapshot.ActivePage, out var parsedPage)
+            ? parsedPage
+            : SessionBlockPage.Feed;
+
+        return state with
+        {
+            Ui = RestoreUiSnapshot(snapshot.Ui),
+            Settings = snapshot.Settings,
+            ActivePage = activePage,
+            ActiveSessionId = snapshot.ActiveSessionId,
+            PendingScrollSectionId = snapshot.PendingScrollSectionId,
+            MaximizedBlockId = snapshot.MaximizedBlockId,
+            MaximizedCommandId = snapshot.MaximizedCommandId,
+            PageOverlayBlockId = snapshot.PageOverlayBlockId,
+            PageOverlayCommandId = snapshot.PageOverlayCommandId,
+            AppOverlayBlockId = snapshot.AppOverlayBlockId,
+            AppOverlayCommandId = snapshot.AppOverlayCommandId,
+            OpenSessionNodes = [.. snapshot.OpenSessionNodeIds.Select(id => new SessionNodeInput(id, "session", id))],
+            PinnedNodeIds = new HashSet<string>(snapshot.PinnedNodeIds, StringComparer.Ordinal),
+            FeedSequenceByItemKey = new Dictionary<string, long>(snapshot.FeedSequenceByItemKey, StringComparer.Ordinal),
+            BlockModesByKey = new Dictionary<string, string>(snapshot.BlockModesByKey, StringComparer.Ordinal),
+            CommandModesByKey = new Dictionary<string, string>(snapshot.CommandModesByKey, StringComparer.Ordinal),
+            NextFeedSequence = snapshot.NextFeedSequence,
+            SessionCommandsBySessionId = snapshot.SessionCommandsBySessionId.ToDictionary(
+                pair => pair.Key,
+                pair => (IReadOnlyList<SessionCommandSubmitted>)[.. pair.Value.Select(command => RestoreCommandSnapshot(pair.Key, command))],
+                StringComparer.Ordinal),
+            SessionStatesBySessionId = snapshot.SessionStatesBySessionId.ToDictionary(
+                pair => pair.Key,
+                pair => RestoreUiSnapshot(pair.Value),
+                StringComparer.Ordinal),
+        };
+    }
+
+    private static SessionUiState RestoreUiSnapshot(SessionUiStateSnapshot snapshot)
+    {
+        var selected = string.IsNullOrWhiteSpace(snapshot.SelectedNodeId)
+            ? null
+            : new SessionNodeInput(snapshot.SelectedNodeId, "session", snapshot.SelectedNodeId);
+        var openNodes = snapshot.OpenNodeIds
+            .Select(id => new SessionNodeInput(id, "session", id))
+            .ToList();
+        var projectionNode = string.IsNullOrWhiteSpace(snapshot.ContextProjectionNodeId)
+            ? null
+            : new SessionNodeInput(snapshot.ContextProjectionNodeId, "node", snapshot.ContextProjectionNodeId);
+
+        return new SessionUiState(
+            snapshot.ActiveAgentTypeKey,
+            snapshot.Input,
+            selected,
+            openNodes,
+            projectionNode is null ? null : new SessionContextProjectionModel(projectionNode),
+            [.. snapshot.ContextPins.Select(pin =>
+            {
+                var node = new SessionNodeInput(pin.NodeId, "node", pin.Label);
+                var pinNode = new SessionNodeInput(pin.Id, "session.pin", pin.Label, "SessionContextPin");
+                return new SessionContextPinModel(pin.Id, node, pinNode);
+            })],
+            [.. snapshot.ContextBlocks.Select(block =>
+            {
+                var node = new SessionNodeInput(block.ContextId, block.NodeTypeKey, block.ContextLabel, block.ComponentBlock);
+                return new SessionContextBlockModel(block.Id, node, block.DataPreview, null, block.IncludeInContextWindow);
+            })]);
+    }
+
+    private static SessionCommandSubmitted RestoreCommandSnapshot(string sessionId, SessionCommandSnapshot snapshot)
+    {
+        var sessionNode = new SessionNodeInput(sessionId, "session", sessionId);
+        return new SessionCommandSubmitted(sessionNode, snapshot.AgentTypeKey, snapshot.Input, snapshot.Response)
+        {
+            Id = snapshot.Id,
+            IsStreaming = snapshot.IsStreaming,
+        };
+    }
 
     private static SessionBlockState RestoreUiState(SessionBlockState state, RestoreSessionUiState restore)
     {
@@ -1009,6 +1089,7 @@ public static class SessionBlockReducer
     private static bool ShouldAppendEventLog(object action) => action switch
     {
         RestoreSessionUiState => false,
+        RestoreSessionBlockSnapshot => false,
         ClearSessionEventLog => false,
         RestoreSessionCommandHistory => false,
         _ => true
