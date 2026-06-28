@@ -138,7 +138,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
             _hydratedSidebarPersistKey = null;
         }
 
-        if (RightSidebarContent is null)
+        if (!HasRightSidebarPluginContent)
         {
             _activeRightSidebarTab = RightSidebarSectionsTabKey;
         }
@@ -291,8 +291,24 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         ? "padding:10px 10px 10px 4px;"
         : "padding:10px;";
 
+    private bool HasRegisteredSessionPlugins => Services.GetServices<ISessionPlugin>().Any();
+
+    private bool HasRightSidebarPluginContent => RightSidebarContent is not null || HasRegisteredSessionPlugins;
+
+    private RenderFragment? EffectiveRightSidebarContent => RightSidebarContent ?? (HasRegisteredSessionPlugins ? RenderRegisteredSessionPlugins : null);
+
+    private RenderFragment RenderRegisteredSessionPlugins => builder =>
+    {
+        builder.OpenComponent<SessionPluginHost>(0);
+        builder.AddAttribute(1, nameof(SessionPluginHost.ActiveSessionId), HasActiveSession ? CurrentSessionId : null);
+        builder.AddAttribute(2, nameof(SessionPluginHost.Sessions), DisplaySessions);
+        builder.AddAttribute(3, nameof(SessionPluginHost.ContextNodes), DisplayContextNodes);
+        builder.AddAttribute(4, nameof(SessionPluginHost.BlockContext), Services.GetService<BlockContext>() ?? new BlockContext());
+        builder.CloseComponent();
+    };
+
     private bool IsRightSidebarPluginTabActive =>
-        RightSidebarContent is not null
+        HasRightSidebarPluginContent
         && string.Equals(_activeRightSidebarTab, RightSidebarPluginTabKey, StringComparison.Ordinal);
 
     private bool IsRightSidebarSectionsTabActive =>

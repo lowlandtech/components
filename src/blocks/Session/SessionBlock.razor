@@ -371,7 +371,7 @@
                          <section class="flex min-h-0 min-w-0 w-full flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background">
                              <header class="flex h-10 shrink-0 items-center gap-2 border-b border-border px-3"
                                      data-slot="session-block-sections-header">
-                                @if (RightSidebarContent is not null)
+                                @if (HasRightSidebarPluginContent)
                                 {
                                     <div class="flex min-w-0 flex-1 items-center gap-1" data-slot="session-block-right-sidebar-tabs">
                                         <button type="button"
@@ -414,7 +414,7 @@
                          @if (IsRightSidebarPluginTabActive)
                          {
                              <div data-slot="session-block-right-sidebar-plugin-panel" class="min-h-0 flex-1 overflow-hidden">
-                                 @RightSidebarContent
+                                 @EffectiveRightSidebarContent
                              </div>
                          }
                          else
@@ -729,7 +729,7 @@
                         <section class="flex min-h-0 min-w-0 w-full flex-1 flex-col overflow-hidden rounded-lg border border-border bg-background">
                         <header class="flex h-10 shrink-0 items-center gap-2 border-b border-border px-3"
                                 data-slot="session-block-sections-header">
-                            @if (RightSidebarContent is not null)
+                            @if (HasRightSidebarPluginContent)
                             {
                                 <div class="flex min-w-0 flex-1 items-center gap-1" data-slot="session-block-right-sidebar-tabs">
                                     <button type="button"
@@ -772,7 +772,7 @@
                         @if (IsRightSidebarPluginTabActive)
                         {
                             <div data-slot="session-block-right-sidebar-plugin-panel" class="min-h-0 flex-1 overflow-hidden">
-                                @RightSidebarContent
+                                @EffectiveRightSidebarContent
                             </div>
                         }
                         else

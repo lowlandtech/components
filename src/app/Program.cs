@@ -11,6 +11,7 @@ builder.Services.AddScoped<ShowcodeState>();
 builder.Services.AddScoped<WorkStateService>();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.AddScoped<ISessionSurfaceDiscovery, SessionSurfaceDiscovery>();
+builder.Services.AddScoped<ISessionPlugin, SessionBlockStoryPlugin>();
 builder.Services.AddSingleton<ISessionBlockRegistry, DefaultSessionBlockRegistry>();
 builder.Services.AddSingleton<ISessionBlockRegistry, AssemblyScanningSessionBlockRegistry>();
 builder.Services.AddSingleton<ISessionBlockDiscovery, SessionBlockDiscovery>();
