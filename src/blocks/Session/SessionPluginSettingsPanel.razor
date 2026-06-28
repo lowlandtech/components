@@ -1,0 +1,160 @@
+@namespace LowlandTech.Components
+@inject ISessionPluginSettingsStore SettingsStore
+@inject IStringLocalizer<SessionBlockStrings> L
+
+<div data-slot="plugin-settings-panel" class="flex h-full min-h-0 flex-col overflow-auto p-2 text-sm">
+    @if (_state is null || _state.Status == SessionPluginSettingsStatus.Loading)
+    {
+        <div class="text-muted-foreground">@L["PluginSettingsLoading"]</div>
+    }
+    else if (_state.Status == SessionPluginSettingsStatus.Error)
+    {
+        <div data-slot="plugin-settings-error" class="text-destructive">@_state.Error</div>
+    }
+    else
+    {
+        <div class="mb-2 flex gap-2">
+            <button type="button"
+                    data-slot="plugin-settings-save"
+                    class="rounded bg-primary px-2 py-1 text-primary-foreground"
+                    @onclick="SaveAsync">
+                @L["PluginSettingsSave"]
+            </button>
+            @if (_state.SelectedPluginKey is not null)
+            {
+                <button type="button"
+                        data-slot="plugin-settings-reset"
+                        class="rounded border border-border px-2 py-1"
+                        @onclick="async () => await ResetPluginAsync(_state.SelectedPluginKey)">
+                    @L["PluginSettingsReset", _state.SelectedPluginKey]
+                </button>
+            }
+        </div>
+
+        <PropertyPanel>
+            @foreach (var plugin in _state.Plugins)
+            {
+                <PropertyPanelSection Key="@plugin.Key" Title="@plugin.Label" Order="@plugin.Order">
+                    <div class="space-y-3">
+                        <label class="flex items-center gap-2">
+                            <input type="checkbox"
+                                   checked="@plugin.IsEnabled"
+                                   disabled="@plugin.IsProtected"
+                                   @onchange="async e => await ToggleEnabledAsync(plugin.Key, (bool?)e.Value == true)" />
+                            <span>@L["PluginSettingsEnabled"]</span>
+                        </label>
+
+                        @foreach (var group in plugin.Groups)
+                        {
+                            <div data-slot="plugin-settings-group" data-group-key="@group.Key" class="border-t border-border pt-2">
+                                <div class="mb-1 font-medium">@group.Title</div>
+                                <PropertyGrid TField="SessionPluginSettingField"
+                                              Items="group.Fields"
+                                              LabelSelector="f => f.Label"
+                                              IsReadOnlySelector="f => f.IsReadOnly">
+                                    <EditorTemplate Context="field">
+                                        @RenderEditor(plugin.Key, field)
+                                    </EditorTemplate>
+                                </PropertyGrid>
+                            </div>
+                        }
+                    </div>
+                </PropertyPanelSection>
+            }
+        </PropertyPanel>
+    }
+</div>
+
+@code {
+    private SessionPluginSettingsState? _state;
+
+    [Parameter] public EventCallback OnSettingsChanged { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _state = await SettingsStore.GetStateAsync();
+    }
+
+    private async Task ToggleEnabledAsync(string pluginKey, bool isEnabled)
+    {
+        await SettingsStore.ToggleEnabledAsync(pluginKey, isEnabled);
+        await LoadAsync();
+    }
+
+    private async Task UpdateFieldAsync(string pluginKey, string fieldKey, object? value)
+    {
+        await SettingsStore.UpdateSettingAsync(pluginKey, fieldKey, value);
+        await LoadAsync();
+    }
+
+    private async Task SaveAsync()
+    {
+        await SettingsStore.SaveAsync();
+        await LoadAsync();
+        await OnSettingsChanged.InvokeAsync();
+    }
+
+    private async Task ResetPluginAsync(string pluginKey)
+    {
+        await SettingsStore.ResetPluginSettingsAsync(pluginKey);
+        await LoadAsync();
+    }
+
+    private RenderFragment RenderEditor(string pluginKey, SessionPluginSettingField field) => builder =>
+    {
+        var seq = 0;
+        switch (field.Editor)
+        {
+            case "switch":
+                builder.OpenElement(seq++, "input");
+                builder.AddAttribute(seq++, "type", "checkbox");
+                builder.AddAttribute(seq++, "checked", field.Value is true);
+                builder.AddAttribute(seq++, "disabled", field.IsReadOnly);
+                builder.AddAttribute(seq++, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, e =>
+                    UpdateFieldAsync(pluginKey, field.Key, (bool?)e.Value == true)));
+                builder.CloseElement();
+                break;
+
+            case "number":
+                builder.OpenElement(seq++, "input");
+                builder.AddAttribute(seq++, "type", "number");
+                builder.AddAttribute(seq++, "value", field.Value?.ToString());
+                builder.AddAttribute(seq++, "disabled", field.IsReadOnly);
+                builder.AddAttribute(seq++, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, e =>
+                    UpdateFieldAsync(pluginKey, field.Key, e.Value)));
+                builder.CloseElement();
+                break;
+
+            case "select":
+                builder.OpenElement(seq++, "select");
+                builder.AddAttribute(seq++, "disabled", field.IsReadOnly);
+                builder.AddAttribute(seq++, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, e =>
+                    UpdateFieldAsync(pluginKey, field.Key, e.Value)));
+                foreach (var option in field.Options)
+                {
+                    builder.OpenElement(seq++, "option");
+                    builder.AddAttribute(seq++, "value", option);
+                    builder.AddAttribute(seq++, "selected", string.Equals(option, field.Value?.ToString(), StringComparison.Ordinal));
+                    builder.AddContent(seq++, option);
+                    builder.CloseElement();
+                }
+                builder.CloseElement();
+                break;
+
+            default:
+                builder.OpenElement(seq++, "input");
+                builder.AddAttribute(seq++, "type", "text");
+                builder.AddAttribute(seq++, "value", field.Value?.ToString());
+                builder.AddAttribute(seq++, "disabled", field.IsReadOnly);
+                builder.AddAttribute(seq++, "onchange", EventCallback.Factory.Create<ChangeEventArgs>(this, e =>
+                    UpdateFieldAsync(pluginKey, field.Key, e.Value)));
+                builder.CloseElement();
+                break;
+        }
+    };
+}

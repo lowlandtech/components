@@ -140,6 +140,20 @@ public interface ISessionPlugin
 /// </summary>
 public interface ISessionPluginSettingsStore
 {
+    Task<SessionPluginSettingsState> GetStateAsync(CancellationToken ct = default);
+
+    Task ToggleEnabledAsync(string pluginKey, bool isEnabled, CancellationToken ct = default);
+
+    Task UpdateSettingAsync(string pluginKey, string fieldKey, object? value, CancellationToken ct = default);
+
+    Task ResetPluginSettingsAsync(string pluginKey, CancellationToken ct = default);
+
+    Task ReorderTabsAsync(IReadOnlyList<string> orderedKeys, CancellationToken ct = default);
+
+    Task MovePluginTabAsync(string pluginKey, string direction, CancellationToken ct = default);
+
+    Task SaveAsync(CancellationToken ct = default);
+
     Task<bool> IsEnabledAsync(string pluginKey, CancellationToken ct = default);
 
     Task<IReadOnlyList<string>> GetOrderAsync(CancellationToken ct = default);
@@ -157,4 +171,3 @@ public interface ISessionPluginRegistry
         SessionPluginPlacement placement,
         CancellationToken ct = default);
 }
-

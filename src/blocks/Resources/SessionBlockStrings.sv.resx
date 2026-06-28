@@ -84,4 +84,8 @@
 <data name="AddToListEmpty" xml:space="preserve"><value>Inga listor än</value></data>
 <data name="AddToListCancel" xml:space="preserve"><value>Avbryt</value></data>
 <data name="AddToListConfirm" xml:space="preserve"><value>Spara</value></data>
+<data name="PluginSettingsLoading" xml:space="preserve"><value>Loading settings...</value></data>
+<data name="PluginSettingsSave" xml:space="preserve"><value>Save</value></data>
+<data name="PluginSettingsReset" xml:space="preserve"><value>Reset {0}</value></data>
+<data name="PluginSettingsEnabled" xml:space="preserve"><value>Enabled</value></data>
 </root>

@@ -84,4 +84,8 @@
 <data name="AddToListEmpty" xml:space="preserve"><value>Brak list</value></data>
 <data name="AddToListCancel" xml:space="preserve"><value>Anuluj</value></data>
 <data name="AddToListConfirm" xml:space="preserve"><value>Zapisz</value></data>
+<data name="PluginSettingsLoading" xml:space="preserve"><value>Loading settings...</value></data>
+<data name="PluginSettingsSave" xml:space="preserve"><value>Save</value></data>
+<data name="PluginSettingsReset" xml:space="preserve"><value>Reset {0}</value></data>
+<data name="PluginSettingsEnabled" xml:space="preserve"><value>Enabled</value></data>
 </root>
