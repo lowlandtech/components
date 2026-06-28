@@ -376,13 +376,6 @@
                                     <div class="flex min-w-0 flex-1 items-center gap-1" data-slot="session-block-right-sidebar-tabs">
                                         <button type="button"
                                                 data-slot="session-block-right-sidebar-tab"
-                                                data-tab-key="plugins"
-                                                class="@GetRightSidebarTabClass(RightSidebarPluginTabKey)"
-                                                @onclick="@(() => SelectRightSidebarTabAsync(RightSidebarPluginTabKey))">
-                                            @RightSidebarContentLabel
-                                        </button>
-                                        <button type="button"
-                                                data-slot="session-block-right-sidebar-tab"
                                                 data-tab-key="sections"
                                                 class="@GetRightSidebarTabClass(RightSidebarSectionsTabKey)"
                                                 @onclick="@(() => SelectRightSidebarTabAsync(RightSidebarSectionsTabKey))">
@@ -391,6 +384,13 @@
                                                   data-testid="session-block-sections-count">
                                                 @VisibleSections.Count
                                             </span>
+                                        </button>
+                                        <button type="button"
+                                                data-slot="session-block-right-sidebar-tab"
+                                                data-tab-key="plugins"
+                                                class="@GetRightSidebarTabClass(RightSidebarPluginTabKey)"
+                                                @onclick="@(() => SelectRightSidebarTabAsync(RightSidebarPluginTabKey))">
+                                            @RightSidebarContentLabel
                                         </button>
                                     </div>
                                 }
@@ -734,13 +734,6 @@
                                 <div class="flex min-w-0 flex-1 items-center gap-1" data-slot="session-block-right-sidebar-tabs">
                                     <button type="button"
                                             data-slot="session-block-right-sidebar-tab"
-                                            data-tab-key="plugins"
-                                            class="@GetRightSidebarTabClass(RightSidebarPluginTabKey)"
-                                            @onclick="@(() => SelectRightSidebarTabAsync(RightSidebarPluginTabKey))">
-                                        @RightSidebarContentLabel
-                                    </button>
-                                    <button type="button"
-                                            data-slot="session-block-right-sidebar-tab"
                                             data-tab-key="sections"
                                             class="@GetRightSidebarTabClass(RightSidebarSectionsTabKey)"
                                             @onclick="@(() => SelectRightSidebarTabAsync(RightSidebarSectionsTabKey))">
@@ -749,6 +742,13 @@
                                               data-testid="session-block-sections-count">
                                             @VisibleSections.Count
                                         </span>
+                                    </button>
+                                    <button type="button"
+                                            data-slot="session-block-right-sidebar-tab"
+                                            data-tab-key="plugins"
+                                            class="@GetRightSidebarTabClass(RightSidebarPluginTabKey)"
+                                            @onclick="@(() => SelectRightSidebarTabAsync(RightSidebarPluginTabKey))">
+                                        @RightSidebarContentLabel
                                     </button>
                                 </div>
                             }

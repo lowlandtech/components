@@ -19,7 +19,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     private bool _isHydratingRightSidebar;
     private int _rightSidebarChangeVersion;
     private string? _hydratedRightSidebarPersistKey;
-    private string _activeRightSidebarTab = RightSidebarPluginTabKey;
+    private string _activeRightSidebarTab = RightSidebarSectionsTabKey;
     private bool _isCommandBarVisible;
     private bool _isHydratingCommandBar;
     private int _commandBarChangeVersion;
@@ -145,7 +145,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         else if (!string.Equals(_activeRightSidebarTab, RightSidebarPluginTabKey, StringComparison.Ordinal)
             && !string.Equals(_activeRightSidebarTab, RightSidebarSectionsTabKey, StringComparison.Ordinal))
         {
-            _activeRightSidebarTab = RightSidebarPluginTabKey;
+            _activeRightSidebarTab = RightSidebarSectionsTabKey;
         }
     }
 
