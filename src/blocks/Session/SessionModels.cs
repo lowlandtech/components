@@ -161,16 +161,61 @@ public sealed record SessionEdgeTypeDefinition(
     string? Tool,
     bool IsStatic);
 
+public sealed record SessionGraphSchemaPageRequest(
+    int PageIndex,
+    int PageSize,
+    string? Search = null);
+
+public sealed record SessionNodeTypePage(
+    IReadOnlyList<SessionNodeTypeDefinition> Items,
+    int TotalCount,
+    int PageIndex,
+    int PageSize,
+    string Search);
+
+public sealed record SessionEdgeTypePage(
+    IReadOnlyList<SessionEdgeTypeDefinition> Items,
+    int TotalCount,
+    int PageIndex,
+    int PageSize,
+    string Search);
+
 public sealed record SessionSettingsState
 {
     public IReadOnlyList<SessionClientKeyEntry> ClientKeys { get; init; } = [];
     public IReadOnlyList<SessionNodeTypeDefinition> NodeTypes { get; init; } = [];
     public IReadOnlyList<SessionEdgeTypeDefinition> EdgeTypes { get; init; } = [];
+    public int NodeTypeTotalCount { get; init; }
+    public int NodeTypePageIndex { get; init; }
+    public int NodeTypePageSize { get; init; } = 25;
+    public string NodeTypeSearch { get; init; } = string.Empty;
+    public int NodeTypePageNumber => NodeTypePageIndex + 1;
+    public int NodeTypePageCount => TotalPages(NodeTypeTotalCount, NodeTypePageSize);
+    public int EdgeTypeTotalCount { get; init; }
+    public int EdgeTypePageIndex { get; init; }
+    public int EdgeTypePageSize { get; init; } = 25;
+    public string EdgeTypeSearch { get; init; } = string.Empty;
+    public int EdgeTypePageNumber => EdgeTypePageIndex + 1;
+    public int EdgeTypePageCount => TotalPages(EdgeTypeTotalCount, EdgeTypePageSize);
     public SessionClientKeyIssued? IssuedClientKey { get; init; }
     public bool IsLoading { get; init; } = true;
     public bool IsSchemaLoading { get; init; } = true;
     public bool IsBusy { get; init; }
     public string? Error { get; init; }
+
+    private static int TotalPages(int totalCount, int pageSize) =>
+        Math.Max(1, (int)Math.Ceiling(Math.Max(0, totalCount) / (double)Math.Max(1, pageSize)));
+}
+
+public interface ISessionGraphSchemaQueryService
+{
+    Task<SessionNodeTypePage> QueryNodeTypesAsync(
+        SessionGraphSchemaPageRequest request,
+        CancellationToken ct = default);
+
+    Task<SessionEdgeTypePage> QueryEdgeTypesAsync(
+        SessionGraphSchemaPageRequest request,
+        CancellationToken ct = default);
 }
 
 public interface ISessionClientSettingsService
@@ -415,6 +460,34 @@ public sealed record LoadSessionGraphSchemaSucceeded(
 
 public sealed record LoadSessionGraphSchemaFailed(string Error) : SessionBlockAction;
 
+public sealed record LoadSessionNodeTypesPageRequested(
+    int PageIndex,
+    int PageSize,
+    string? Search) : SessionBlockAction;
+
+public sealed record LoadSessionNodeTypesPageSucceeded(
+    IReadOnlyList<SessionNodeTypeDefinition> NodeTypes,
+    int TotalCount,
+    int PageIndex,
+    int PageSize,
+    string? Search) : SessionBlockAction;
+
+public sealed record LoadSessionNodeTypesPageFailed(string Error) : SessionBlockAction;
+
+public sealed record LoadSessionEdgeTypesPageRequested(
+    int PageIndex,
+    int PageSize,
+    string? Search) : SessionBlockAction;
+
+public sealed record LoadSessionEdgeTypesPageSucceeded(
+    IReadOnlyList<SessionEdgeTypeDefinition> EdgeTypes,
+    int TotalCount,
+    int PageIndex,
+    int PageSize,
+    string? Search) : SessionBlockAction;
+
+public sealed record LoadSessionEdgeTypesPageFailed(string Error) : SessionBlockAction;
+
 public sealed record LoadSessionClientKeysRequested : SessionBlockAction;
 
 public sealed record LoadSessionClientKeysSucceeded(IReadOnlyList<SessionClientKeyEntry> Keys) : SessionBlockAction;
@@ -650,11 +723,75 @@ public static class SessionBlockReducer
                 {
                     NodeTypes = a.NodeTypes.ToList(),
                     EdgeTypes = a.EdgeTypes.ToList(),
+                    NodeTypeTotalCount = a.NodeTypes.Count,
+                    NodeTypePageIndex = 0,
+                    NodeTypePageSize = Math.Max(1, a.NodeTypes.Count),
+                    NodeTypeSearch = string.Empty,
+                    EdgeTypeTotalCount = a.EdgeTypes.Count,
+                    EdgeTypePageIndex = 0,
+                    EdgeTypePageSize = Math.Max(1, a.EdgeTypes.Count),
+                    EdgeTypeSearch = string.Empty,
                     IsSchemaLoading = false,
                     Error = null,
                 },
             },
             LoadSessionGraphSchemaFailed a => state with
+            {
+                Settings = state.Settings with { IsSchemaLoading = false, Error = a.Error },
+            },
+            LoadSessionNodeTypesPageRequested a => state with
+            {
+                Settings = state.Settings with
+                {
+                    NodeTypePageIndex = NormalizePageIndex(a.PageIndex),
+                    NodeTypePageSize = NormalizePageSize(a.PageSize),
+                    NodeTypeSearch = NormalizeSearch(a.Search),
+                    IsSchemaLoading = true,
+                    Error = null,
+                },
+            },
+            LoadSessionNodeTypesPageSucceeded a => state with
+            {
+                Settings = state.Settings with
+                {
+                    NodeTypes = a.NodeTypes.ToList(),
+                    NodeTypeTotalCount = Math.Max(0, a.TotalCount),
+                    NodeTypePageIndex = NormalizePageIndex(a.PageIndex),
+                    NodeTypePageSize = NormalizePageSize(a.PageSize),
+                    NodeTypeSearch = NormalizeSearch(a.Search),
+                    IsSchemaLoading = false,
+                    Error = null,
+                },
+            },
+            LoadSessionNodeTypesPageFailed a => state with
+            {
+                Settings = state.Settings with { IsSchemaLoading = false, Error = a.Error },
+            },
+            LoadSessionEdgeTypesPageRequested a => state with
+            {
+                Settings = state.Settings with
+                {
+                    EdgeTypePageIndex = NormalizePageIndex(a.PageIndex),
+                    EdgeTypePageSize = NormalizePageSize(a.PageSize),
+                    EdgeTypeSearch = NormalizeSearch(a.Search),
+                    IsSchemaLoading = true,
+                    Error = null,
+                },
+            },
+            LoadSessionEdgeTypesPageSucceeded a => state with
+            {
+                Settings = state.Settings with
+                {
+                    EdgeTypes = a.EdgeTypes.ToList(),
+                    EdgeTypeTotalCount = Math.Max(0, a.TotalCount),
+                    EdgeTypePageIndex = NormalizePageIndex(a.PageIndex),
+                    EdgeTypePageSize = NormalizePageSize(a.PageSize),
+                    EdgeTypeSearch = NormalizeSearch(a.Search),
+                    IsSchemaLoading = false,
+                    Error = null,
+                },
+            },
+            LoadSessionEdgeTypesPageFailed a => state with
             {
                 Settings = state.Settings with { IsSchemaLoading = false, Error = a.Error },
             },
@@ -799,6 +936,12 @@ public static class SessionBlockReducer
 
     public static string SerializeEventLogState(SessionBlockState state) =>
         JsonSerializer.Serialize(CreateSnapshot(state), EventLogJsonOptions);
+
+    private static int NormalizePageIndex(int pageIndex) => Math.Max(0, pageIndex);
+
+    private static int NormalizePageSize(int pageSize) => Math.Clamp(pageSize, 1, 500);
+
+    private static string NormalizeSearch(string? search) => search?.Trim() ?? string.Empty;
 
     private static SessionBlockState RestoreBlockSnapshot(SessionBlockState state, SessionBlockStateSnapshot snapshot)
     {

@@ -127,7 +127,7 @@
                             <span class="workitems-list-header-title truncate px-3 text-xs font-semibold">NodeTypes</span>
                         </div>
                         <div class="flex h-full shrink-0 items-center gap-3">
-                            <span class="workitems-list-header-count text-[10px] text-muted-foreground">@FilteredNodeTypes.Count total</span>
+                            <span class="workitems-list-header-count text-[10px] text-muted-foreground">@SettingsState.NodeTypeTotalCount total</span>
                             @if (HeaderTrailing is not null)
                             {
                                 <div data-slot="tabs-header-trailing" class="shrink-0">
@@ -167,7 +167,7 @@
                                           data-testid="session-settings-node-types-grid"
                                           Class="session-settings-schema-grid"
                                           Items="FilteredNodeTypes"
-                                          IsLoading="@SettingsState.IsLoading"
+                                          IsLoading="@SettingsState.IsSchemaLoading"
                                           AllowPaging="false"
                                           SelectionMode="DataGridSelectionMode.Single"
                                           SelectedItem="SelectedNodeType"
@@ -235,12 +235,33 @@
                         <div class="workitems-pagination mt-auto flex shrink-0 items-center justify-between border-t border-border px-3 py-2 text-xs" data-testid="session-settings-node-types-pagination-footer">
                             <label class="workitems-page-size-label flex items-center gap-1 text-muted-foreground">
                                 <span class="workitems-page-size-label-text">Rows</span>
-                                <span class="rounded-md border border-border px-2 py-1">@FilteredNodeTypes.Count</span>
+                                <Select Value="@SettingsState.NodeTypePageSize.ToString(CultureInfo.InvariantCulture)" ValueChanged="ChangeNodeTypePageSizeAsync" Class="w-20">
+                                    <SelectTrigger Size="sm" data-testid="session-settings-node-types-page-size">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        @foreach (var size in new[] { 10, 25, 50, 100, 250 })
+                                        {
+                                            <SelectItem Value="@size.ToString(CultureInfo.InvariantCulture)" Text="@size.ToString(CultureInfo.InvariantCulture)">
+                                                @size
+                                            </SelectItem>
+                                        }
+                                    </SelectContent>
+                                </Select>
                             </label>
                             <div class="workitems-pagination-controls flex items-center gap-2">
-                                <Button type="button" Variant="@ButtonVariant.Outline" Size="@ButtonSize.Sm" disabled="true">Prev</Button>
-                                <span class="workitems-pagination-page">1 / 1</span>
-                                <Button type="button" Variant="@ButtonVariant.Outline" Size="@ButtonSize.Sm" disabled="true">Next</Button>
+                                <span class="whitespace-nowrap text-muted-foreground">@SettingsState.NodeTypes.Count shown</span>
+                                <Button type="button"
+                                        Variant="@ButtonVariant.Outline"
+                                        Size="@ButtonSize.Sm"
+                                        disabled="@(SettingsState.IsSchemaLoading || SettingsState.NodeTypePageIndex <= 0)"
+                                        OnClick="() => LoadNodeTypePageAsync(SettingsState.NodeTypePageIndex - 1)">Prev</Button>
+                                <span class="workitems-pagination-page">@SettingsState.NodeTypePageNumber / @SettingsState.NodeTypePageCount</span>
+                                <Button type="button"
+                                        Variant="@ButtonVariant.Outline"
+                                        Size="@ButtonSize.Sm"
+                                        disabled="@(SettingsState.IsSchemaLoading || SettingsState.NodeTypePageIndex >= SettingsState.NodeTypePageCount - 1)"
+                                        OnClick="() => LoadNodeTypePageAsync(SettingsState.NodeTypePageIndex + 1)">Next</Button>
                             </div>
                         </div>
                     </div>
@@ -369,7 +390,7 @@
                             <span class="workitems-list-header-title truncate px-3 text-xs font-semibold">EdgeTypes</span>
                         </div>
                         <div class="flex h-full shrink-0 items-center gap-3">
-                            <span class="workitems-list-header-count text-[10px] text-muted-foreground">@FilteredEdgeTypes.Count total</span>
+                            <span class="workitems-list-header-count text-[10px] text-muted-foreground">@SettingsState.EdgeTypeTotalCount total</span>
                             @if (HeaderTrailing is not null)
                             {
                                 <div data-slot="tabs-header-trailing" class="shrink-0">
@@ -409,7 +430,7 @@
                                           data-testid="session-settings-edge-types-grid"
                                           Class="session-settings-schema-grid"
                                           Items="FilteredEdgeTypes"
-                                          IsLoading="@SettingsState.IsLoading"
+                                          IsLoading="@SettingsState.IsSchemaLoading"
                                           AllowPaging="false"
                                           SelectionMode="DataGridSelectionMode.Single"
                                           SelectedItem="SelectedEdgeType"
@@ -476,12 +497,33 @@
                         <div class="workitems-pagination mt-auto flex shrink-0 items-center justify-between border-t border-border px-3 py-2 text-xs" data-testid="session-settings-edge-types-pagination-footer">
                             <label class="workitems-page-size-label flex items-center gap-1 text-muted-foreground">
                                 <span class="workitems-page-size-label-text">Rows</span>
-                                <span class="rounded-md border border-border px-2 py-1">@FilteredEdgeTypes.Count</span>
+                                <Select Value="@SettingsState.EdgeTypePageSize.ToString(CultureInfo.InvariantCulture)" ValueChanged="ChangeEdgeTypePageSizeAsync" Class="w-20">
+                                    <SelectTrigger Size="sm" data-testid="session-settings-edge-types-page-size">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        @foreach (var size in new[] { 10, 25, 50, 100, 250 })
+                                        {
+                                            <SelectItem Value="@size.ToString(CultureInfo.InvariantCulture)" Text="@size.ToString(CultureInfo.InvariantCulture)">
+                                                @size
+                                            </SelectItem>
+                                        }
+                                    </SelectContent>
+                                </Select>
                             </label>
                             <div class="workitems-pagination-controls flex items-center gap-2">
-                                <Button type="button" Variant="@ButtonVariant.Outline" Size="@ButtonSize.Sm" disabled="true">Prev</Button>
-                                <span class="workitems-pagination-page">1 / 1</span>
-                                <Button type="button" Variant="@ButtonVariant.Outline" Size="@ButtonSize.Sm" disabled="true">Next</Button>
+                                <span class="whitespace-nowrap text-muted-foreground">@SettingsState.EdgeTypes.Count shown</span>
+                                <Button type="button"
+                                        Variant="@ButtonVariant.Outline"
+                                        Size="@ButtonSize.Sm"
+                                        disabled="@(SettingsState.IsSchemaLoading || SettingsState.EdgeTypePageIndex <= 0)"
+                                        OnClick="() => LoadEdgeTypePageAsync(SettingsState.EdgeTypePageIndex - 1)">Prev</Button>
+                                <span class="workitems-pagination-page">@SettingsState.EdgeTypePageNumber / @SettingsState.EdgeTypePageCount</span>
+                                <Button type="button"
+                                        Variant="@ButtonVariant.Outline"
+                                        Size="@ButtonSize.Sm"
+                                        disabled="@(SettingsState.IsSchemaLoading || SettingsState.EdgeTypePageIndex >= SettingsState.EdgeTypePageCount - 1)"
+                                        OnClick="() => LoadEdgeTypePageAsync(SettingsState.EdgeTypePageIndex + 1)">Next</Button>
                             </div>
                         </div>
                     </div>

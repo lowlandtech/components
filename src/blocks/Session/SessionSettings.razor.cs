@@ -1,6 +1,6 @@
 namespace LowlandTech.Components;
 
-public partial class SessionSettings : TinyComponentBase
+public partial class SessionSettings : TinyComponentBase, IDisposable
 {
     [Inject] private IStringLocalizer<SessionBlockStrings>? Localizer { get; set; }
 
@@ -29,13 +29,9 @@ public partial class SessionSettings : TinyComponentBase
     private string _nodeTypeFilter = string.Empty;
     private string _edgeTypeFilter = string.Empty;
     private SessionStateService? _ownedStateService;
-    private bool _graphSchemaLoadStarted;
+    private SessionStateService? _subscribedStateService;
 
     [Inject] private IServiceProvider Services { get; set; } = default!;
-
-    [Inject] private IEnumerable<INodeTypeDescriptor> NodeTypeDescriptors { get; set; } = [];
-
-    [Inject] private IEnumerable<IEdgeTypeDescriptor> EdgeTypeDescriptors { get; set; } = [];
 
     [Parameter] public ISessionClientSettingsService? ClientSettings { get; set; }
 
@@ -60,9 +56,9 @@ public partial class SessionSettings : TinyComponentBase
 
     private SessionSettingsState SettingsState => EffectiveStateService.State.Settings;
 
-    private IReadOnlyList<SessionNodeTypeDefinition> FilteredNodeTypes => FilterNodeTypes(SettingsState.NodeTypes, _nodeTypeFilter);
+    private IReadOnlyList<SessionNodeTypeDefinition> FilteredNodeTypes => SettingsState.NodeTypes;
 
-    private IReadOnlyList<SessionEdgeTypeDefinition> FilteredEdgeTypes => FilterEdgeTypes(SettingsState.EdgeTypes, _edgeTypeFilter);
+    private IReadOnlyList<SessionEdgeTypeDefinition> FilteredEdgeTypes => SettingsState.EdgeTypes;
 
     private SessionNodeTypeDefinition? SelectedNodeType =>
         SettingsState.NodeTypes.FirstOrDefault(nodeType => string.Equals(nodeType.Id, _selectedNodeTypeId, StringComparison.Ordinal));
@@ -102,24 +98,26 @@ public partial class SessionSettings : TinyComponentBase
 
     protected override async Task OnInitializedAsync()
     {
-        EffectiveStateService.Dispatch(new LoadSessionGraphSchemaRequested());
+        SubscribeToStateChanges();
+        await LoadGraphSchemaPagesAsync();
         await LoadAsync();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override void OnParametersSet()
     {
-        if (!firstRender || _graphSchemaLoadStarted)
-            return;
-
-        _graphSchemaLoadStarted = true;
-        await Task.Yield();
-        LoadGraphSchema();
-        StateHasChanged();
+        SubscribeToStateChanges();
     }
 
     private SessionStateService CreateOwnedStateService()
     {
         var service = new SessionStateService(Outbox);
+        var schema = Services.GetService<ISessionGraphSchemaQueryService>();
+        if (schema is not null)
+        {
+            service.RegisterEffect((state, action, ct) =>
+                SessionGraphSchemaEffects.LoadPagesAsync(schema, service, action, ct));
+        }
+
         if (Outbox is not null)
         {
             service.RegisterEffect((state, action, ct) =>
@@ -132,6 +130,28 @@ public partial class SessionSettings : TinyComponentBase
         }
 
         return service;
+    }
+
+    private void SubscribeToStateChanges()
+    {
+        var service = EffectiveStateService;
+        if (ReferenceEquals(_subscribedStateService, service))
+            return;
+
+        if (_subscribedStateService is not null)
+            _subscribedStateService.StateChanged -= HandleStateChanged;
+
+        _subscribedStateService = service;
+        _subscribedStateService.StateChanged += HandleStateChanged;
+    }
+
+    private void HandleStateChanged(SessionBlockState state)
+        => _ = InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        if (_subscribedStateService is not null)
+            _subscribedStateService.StateChanged -= HandleStateChanged;
     }
 
     private string GetClass()
@@ -228,51 +248,16 @@ public partial class SessionSettings : TinyComponentBase
 
     private void DismissIssuedSecret() => EffectiveStateService.Dispatch(new DismissSessionClientKeySecret());
 
-    private void LoadGraphSchema()
+    private async Task LoadGraphSchemaPagesAsync()
     {
-        EffectiveStateService.Dispatch(new LoadSessionGraphSchemaRequested());
-
-        try
-        {
-            var nodeTypeDescriptors = NodeTypeDescriptors.ToList();
-            var edgeTypeDescriptors = EdgeTypeDescriptors.ToList();
-
-            var nodeTypes = nodeTypeDescriptors
-                .Select(d => new SessionNodeTypeDefinition(
-                    d.Id.ToString("N"),
-                    d.Key,
-                    d.Label,
-                    d.Icon,
-                    d.BlockComponent,
-                    d.IsHeader,
-                    d.IsLeaf,
-                    true))
-                .OrderBy(item => item.Key, StringComparer.Ordinal)
-                .ToList();
-
-            var nodeTypesById = nodeTypeDescriptors
-                .GroupBy(d => d.Id)
-                .ToDictionary(group => group.Key, group => group.First().Key);
-
-            var edgeTypes = edgeTypeDescriptors
-                .Select(d => new SessionEdgeTypeDefinition(
-                    d.Id.ToString("N"),
-                    d.Key,
-                    d.Label,
-                    nodeTypesById.TryGetValue(d.SourceNodeTypeId, out var source) ? source : d.SourceNodeTypeId.ToString("N"),
-                    nodeTypesById.TryGetValue(d.TargetNodeTypeId, out var target) ? target : d.TargetNodeTypeId.ToString("N"),
-                    d.Intent,
-                    d.Tool,
-                    true))
-                .OrderBy(item => item.Key, StringComparer.Ordinal)
-                .ToList();
-
-            EffectiveStateService.Dispatch(new LoadSessionGraphSchemaSucceeded(nodeTypes, edgeTypes));
-        }
-        catch (Exception ex)
-        {
-            EffectiveStateService.Dispatch(new LoadSessionGraphSchemaFailed(ex.Message));
-        }
+        await EffectiveStateService.DispatchAsync(new LoadSessionNodeTypesPageRequested(
+            SettingsState.NodeTypePageIndex,
+            SettingsState.NodeTypePageSize,
+            _nodeTypeFilter));
+        await EffectiveStateService.DispatchAsync(new LoadSessionEdgeTypesPageRequested(
+            SettingsState.EdgeTypePageIndex,
+            SettingsState.EdgeTypePageSize,
+            _edgeTypeFilter));
     }
 
     private void BeginCreateNodeType()
@@ -524,7 +509,10 @@ public partial class SessionSettings : TinyComponentBase
     private Task OnNodeTypeFilterChanged(string? value)
     {
         _nodeTypeFilter = value ?? string.Empty;
-        return Task.CompletedTask;
+        return EffectiveStateService.DispatchAsync(new LoadSessionNodeTypesPageRequested(
+            0,
+            SettingsState.NodeTypePageSize,
+            _nodeTypeFilter));
     }
 
     private Task OnNodeTypeSearchKeyUp(KeyboardEventArgs e)
@@ -546,7 +534,10 @@ public partial class SessionSettings : TinyComponentBase
     private Task OnEdgeTypeFilterChanged(string? value)
     {
         _edgeTypeFilter = value ?? string.Empty;
-        return Task.CompletedTask;
+        return EffectiveStateService.DispatchAsync(new LoadSessionEdgeTypesPageRequested(
+            0,
+            SettingsState.EdgeTypePageSize,
+            _edgeTypeFilter));
     }
 
     private Task OnEdgeTypeSearchKeyUp(KeyboardEventArgs e)
@@ -565,36 +556,27 @@ public partial class SessionSettings : TinyComponentBase
         return Task.CompletedTask;
     }
 
-    private static IReadOnlyList<SessionNodeTypeDefinition> FilterNodeTypes(
-        IReadOnlyList<SessionNodeTypeDefinition> nodeTypes,
-        string filter)
-    {
-        if (string.IsNullOrWhiteSpace(filter))
-            return nodeTypes;
+    private Task LoadNodeTypePageAsync(int pageIndex) =>
+        EffectiveStateService.DispatchAsync(new LoadSessionNodeTypesPageRequested(
+            Math.Clamp(pageIndex, 0, SettingsState.NodeTypePageCount - 1),
+            SettingsState.NodeTypePageSize,
+            _nodeTypeFilter));
 
-        return [.. nodeTypes.Where(nodeType =>
-            Contains(nodeType.Key, filter)
-            || Contains(nodeType.Label, filter)
-            || Contains(nodeType.BlockComponent, filter))];
-    }
+    private Task LoadEdgeTypePageAsync(int pageIndex) =>
+        EffectiveStateService.DispatchAsync(new LoadSessionEdgeTypesPageRequested(
+            Math.Clamp(pageIndex, 0, SettingsState.EdgeTypePageCount - 1),
+            SettingsState.EdgeTypePageSize,
+            _edgeTypeFilter));
 
-    private static IReadOnlyList<SessionEdgeTypeDefinition> FilterEdgeTypes(
-        IReadOnlyList<SessionEdgeTypeDefinition> edgeTypes,
-        string filter)
-    {
-        if (string.IsNullOrWhiteSpace(filter))
-            return edgeTypes;
+    private Task ChangeNodeTypePageSizeAsync(string? value) =>
+        int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var pageSize)
+            ? EffectiveStateService.DispatchAsync(new LoadSessionNodeTypesPageRequested(0, pageSize, _nodeTypeFilter))
+            : Task.CompletedTask;
 
-        return [.. edgeTypes.Where(edgeType =>
-            Contains(edgeType.Key, filter)
-            || Contains(edgeType.Label, filter)
-            || Contains(edgeType.SourceNodeTypeKey, filter)
-            || Contains(edgeType.TargetNodeTypeKey, filter)
-            || Contains(edgeType.Intent, filter))];
-    }
-
-    private static bool Contains(string? value, string filter) =>
-        value?.Contains(filter, StringComparison.OrdinalIgnoreCase) == true;
+    private Task ChangeEdgeTypePageSizeAsync(string? value) =>
+        int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var pageSize)
+            ? EffectiveStateService.DispatchAsync(new LoadSessionEdgeTypesPageRequested(0, pageSize, _edgeTypeFilter))
+            : Task.CompletedTask;
 
     private static string NormalizeKey(string key, string label, string fallback)
     {

@@ -705,9 +705,12 @@ public sealed class SC14_SessionSettingsOutbox : ViewScenario
             true)
     ];
 
-    private static SessionStateService CreateOutboxStateService(InMemorySessionOutbox outbox)
+    private SessionStateService CreateOutboxStateService(InMemorySessionOutbox outbox)
     {
         var stateService = new SessionStateService(outbox);
+        var schema = Ctx.Services.GetRequiredService<ISessionGraphSchemaQueryService>();
+        stateService.RegisterEffect((state, action, ct) =>
+            SessionGraphSchemaEffects.LoadPagesAsync(schema, stateService, action, ct));
         stateService.RegisterEffect((state, action, ct) =>
         {
             if (action is ISessionSideEffect sideEffect)
