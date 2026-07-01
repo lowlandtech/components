@@ -522,6 +522,26 @@ public class SC01_SessionBlocks : ViewScenario
         cut.Markup.ShouldContain("Dynamic workitem-data");
     }
 
+    [Fact(DisplayName = "UAC13c: SessionContextBlock omits undeclared DynamicComponent parameters")]
+    [Trait(Spec.UAC, "13c")]
+    [Given("a SessionContextBlock whose component accepts Block and Context but not Data")]
+    [When("the dynamic component is rendered with block data present")]
+    [Then("the component receives its declared parameters without an unknown Data parameter exception")]
+    public void UAC13c_ContextBlockOmitsUndeclaredDynamicComponentParameters()
+    {
+        var block = new SessionContextBlockModel(
+            "context-block:designer-container",
+            new("designer-container", "designer.container", "Container", "DesignerSessionBlock"),
+            new Dictionary<string, object?> { ["Name"] = "Container" },
+            typeof(TestSessionContextBlockWithoutData));
+
+        var cut = Ctx.Render<SessionContextBlock>(p => p.Add(x => x.Block, block));
+
+        cut.Find("[data-testid='dynamic-without-data']")
+            .TextContent
+            .ShouldBe("Dynamic without data for Container via context-block:designer-container");
+    }
+
     [Fact(DisplayName = "UAC13b: SessionContextBlock flushes outer card block padding")]
     [Trait(Spec.UAC, "13b")]
     public void UAC13b_ContextBlockFlushesOuterCardPadding()
@@ -1788,6 +1808,20 @@ public class SC01_SessionBlocks : ViewScenario
         {
             builder.OpenElement(0, "p");
             builder.AddContent(1, $"Dynamic {Data} for {Context?.Label} via {Block?.Id}");
+            builder.CloseElement();
+        }
+    }
+
+    public sealed class TestSessionContextBlockWithoutData : ComponentBase, ISessionContextBlock
+    {
+        [Parameter] public SessionContextBlockModel? Block { get; set; }
+        [Parameter] public SessionNodeInput? Context { get; set; }
+
+        protected override void BuildRenderTree(RenderTreeBuilder builder)
+        {
+            builder.OpenElement(0, "p");
+            builder.AddAttribute(1, "data-testid", "dynamic-without-data");
+            builder.AddContent(2, $"Dynamic without data for {Context?.Label} via {Block?.Id}");
             builder.CloseElement();
         }
     }

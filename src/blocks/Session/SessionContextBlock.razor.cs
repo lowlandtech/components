@@ -91,14 +91,23 @@ public partial class SessionContextBlock : TinyComponentBase
     private Dictionary<string, object?> GetParameters()
     {
         var parameters = Parameters?.ToDictionary(pair => pair.Key, pair => pair.Value) ?? [];
-        parameters.TryAdd("Block", Block);
-        parameters.TryAdd("Context", Block.Context);
-        parameters.TryAdd("Data", Block.Data);
-        if (ResolvedComponentType?.GetProperty("Mode")?.GetCustomAttribute<ParameterAttribute>() is not null)
-            parameters.TryAdd("Mode", NormalizedMode);
-        if (ResolvedComponentType?.GetProperty("OnIntentSelected")?.GetCustomAttribute<ParameterAttribute>() is not null)
-            parameters.TryAdd("OnIntentSelected", OnIntentSelected);
+        var componentType = ResolvedComponentType;
+        TryAddComponentParameter(parameters, componentType, "Block", Block);
+        TryAddComponentParameter(parameters, componentType, "Context", Block.Context);
+        TryAddComponentParameter(parameters, componentType, "Data", Block.Data);
+        TryAddComponentParameter(parameters, componentType, "Mode", NormalizedMode);
+        TryAddComponentParameter(parameters, componentType, "OnIntentSelected", OnIntentSelected);
         return parameters;
+    }
+
+    private static void TryAddComponentParameter(
+        Dictionary<string, object?> parameters,
+        Type? componentType,
+        string name,
+        object? value)
+    {
+        if (componentType?.GetProperty(name)?.GetCustomAttribute<ParameterAttribute>() is not null)
+            parameters.TryAdd(name, value);
     }
 
     private string GetFallbackText() =>
