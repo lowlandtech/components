@@ -19,6 +19,9 @@ public sealed class InMemorySessionOutbox : ISessionOutbox
 
     public void Clear()
     {
+        if (_entries.Count == 0)
+            return;
+
         _entries.Clear();
         Changed?.Invoke();
     }
