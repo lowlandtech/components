@@ -442,4 +442,35 @@ public sealed class SC10_TreeLazyLoading : ViewScenario
 
         cut.FindAll("[data-node-id='page-1']").Count.ShouldBe(0);
     }
+
+    [Fact(DisplayName = "UAC16: Nested context nodes render increasing indentation")]
+    [Trait(Spec.UAC, "16")]
+    [Given("a SessionContextExplorer with loaded root, child, and grandchild nodes")]
+    [When("the tree renders")]
+    [Then("each nested row receives a wider indentation spacer than its parent")]
+    public void UAC16_NestedNodesRenderIncreasingIndentation()
+    {
+        var grandchild = new SessionContextNode(new SessionNodeInput("grandchild", "designer.container", "Container2"), IsLoaded: true);
+        var child = new SessionContextNode(
+            new SessionNodeInput("child", "designer.container", "Container1"),
+            [grandchild],
+            true);
+        var root = new SessionContextNode(
+            new SessionNodeInput("root", "designer.containers", "Designer"),
+            [child],
+            true);
+
+        var cut = Ctx.Render<SessionContextExplorer>(parameters => parameters
+            .Add(component => component.RootNodes, [root])
+            .Add(component => component.ExpandedNodeIds, new HashSet<string>(["child"], StringComparer.Ordinal)));
+
+        var indents = cut.FindAll("[data-slot='session-context-node-indent']");
+
+        indents[0].GetAttribute("data-depth").ShouldBe("0");
+        indents[0].GetAttribute("style").ShouldContain("width: 0");
+        indents[1].GetAttribute("data-depth").ShouldBe("1");
+        indents[1].GetAttribute("style").ShouldContain("width: 1.25rem");
+        indents[2].GetAttribute("data-depth").ShouldBe("2");
+        indents[2].GetAttribute("style").ShouldContain("width: 2.5rem");
+    }
 }

@@ -59,6 +59,9 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
 
     private bool IsNodePinned(string nodeId) => Pins.Any(pin => pin.Node.Id == nodeId);
 
+    private string GetIndentStyle() =>
+        string.Create(CultureInfo.InvariantCulture, $"width: {Math.Max(0, Depth) * 1.25}rem");
+
     private static bool IsListNode(SessionNodeInput node) =>
         string.Equals(node.NodeTypeKey, "list", StringComparison.OrdinalIgnoreCase)
         || string.Equals(node.NodeTypeKey, "lists", StringComparison.OrdinalIgnoreCase);

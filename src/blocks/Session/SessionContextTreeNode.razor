@@ -4,9 +4,13 @@
 <div data-slot="session-context-tree-item">
     <div data-slot="session-context-node-row"
          class="group flex items-center gap-1 rounded-sm hover:bg-muted/60 focus-within:bg-primary/5 data-[projected=true]:bg-primary/10"
-         style="padding-left: @(Math.Max(0, Depth) * 0.75 + 0.5)rem;"
          data-projected="@(Projection?.Node.Id == Item.Node.Id ? "true" : "false")"
          data-focused="@(_isFocused ? "true" : "false")">
+        <span data-slot="session-context-node-indent"
+              data-depth="@Depth"
+              aria-hidden="true"
+              class="shrink-0"
+              style="@GetIndentStyle()"></span>
         <button type="button"
                 data-slot="session-context-node"
                 data-node-id="@Item.Node.Id"
