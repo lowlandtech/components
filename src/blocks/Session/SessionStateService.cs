@@ -202,7 +202,11 @@ public sealed class SessionStateService
             .Where(n => n.Id != userContextId)
             .OrderBy(n => edgeSortOrders.GetValueOrDefault(n.Id, 0))
             .Select(n => new SessionContextNode(
-                new SessionNodeInput(n.Id.ToString(), n.NodeType?.Key ?? "header", n.Label ?? "Header"),
+                new SessionNodeInput(
+                    n.Id.ToString(),
+                    n.NodeType?.Key ?? "header",
+                    n.Label ?? "Header",
+                    IsHeader: n.NodeType?.IsHeader ?? false),
                 null,
                 false))
             .ToList();
@@ -241,7 +245,11 @@ public sealed class SessionStateService
                 .Where(n => n.Id != nodeId)
                 .OrderBy(n => edgeSortOrders.GetValueOrDefault(n.Id, 0))
                 .Select(n => new SessionContextNode(
-                    new SessionNodeInput(n.Id.ToString(), n.NodeType?.Key ?? "node", n.Label ?? "Node")))
+                    new SessionNodeInput(
+                        n.Id.ToString(),
+                        n.NodeType?.Key ?? "node",
+                        n.Label ?? "Node",
+                        IsHeader: n.NodeType?.IsHeader ?? false)))
                 .ToList();
 
             ContextNodes = UpdateNodeChildren(ContextNodes, node.Id, children);
