@@ -25,6 +25,7 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
     [Parameter] public EventCallback<SessionNodeInput> OnNodeDelete { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnAddToList { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnExpand { get; set; }
+    [Parameter] public SessionNodeInput? ParentNode { get; set; }
     [Parameter] public IReadOnlySet<string> ExpandedNodeIds { get; set; } = new HashSet<string>(StringComparer.Ordinal);
     [Parameter] public string ExpandedNodesPersistKey { get; set; } = "session-context-expanded-nodes";
     [Parameter] public string DeleteNodeSkipConfirmationKey { get; set; } = "session-context-delete-skip-confirmation";
@@ -61,6 +62,19 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
 
     private string GetIndentStyle() =>
         string.Create(CultureInfo.InvariantCulture, $"width: {Math.Max(0, Depth) * 1.25}rem");
+
+    private SessionNodeInput NodeWithParentContext(SessionNodeInput node)
+    {
+        if (ParentNode is null)
+            return node;
+
+        var properties = new Dictionary<string, object?>(node.Properties ?? new Dictionary<string, object?>(), StringComparer.Ordinal)
+        {
+            ["parentNodeId"] = ParentNode.Id
+        };
+
+        return node with { Properties = properties };
+    }
 
     private static bool IsListNode(SessionNodeInput node) =>
         string.Equals(node.NodeTypeKey, "list", StringComparison.OrdinalIgnoreCase)
@@ -330,8 +344,8 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
         builder.AddAttribute(10, nameof(SessionContextTreeNodeMenu.CreateEdges), CreateEdges);
         builder.AddAttribute(6, nameof(SessionContextTreeNodeMenu.RenameRequested), OnNodeRename);
         builder.AddAttribute(7, nameof(SessionContextTreeNodeMenu.PinRequested), OnPin);
-        builder.AddAttribute(8, nameof(SessionContextTreeNodeMenu.MoveUpRequested), OnNodeMoveUp);
-        builder.AddAttribute(9, nameof(SessionContextTreeNodeMenu.MoveDownRequested), OnNodeMoveDown);
+        builder.AddAttribute(8, nameof(SessionContextTreeNodeMenu.MoveUpRequested), EventCallback.Factory.Create<SessionNodeInput>(this, node => OnNodeMoveUp.InvokeAsync(NodeWithParentContext(node))));
+        builder.AddAttribute(9, nameof(SessionContextTreeNodeMenu.MoveDownRequested), EventCallback.Factory.Create<SessionNodeInput>(this, node => OnNodeMoveDown.InvokeAsync(NodeWithParentContext(node))));
         builder.AddAttribute(10, nameof(SessionContextTreeNodeMenu.DeleteRequested), EventCallback.Factory.Create<SessionNodeInput>(this, HandleDeleteRequestedAsync));
         builder.AddAttribute(11, nameof(SessionContextTreeNodeMenu.CanAddToList), !IsListNode(Item.Node));
         builder.AddAttribute(12, nameof(SessionContextTreeNodeMenu.AddToListRequested), OnAddToList);

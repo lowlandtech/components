@@ -90,6 +90,8 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     [Parameter] public EventCallback<SessionListCreateRequest> OnListCreateRequested { get; set; }
     [Parameter] public EventCallback<SessionAddToListRequest> OnAddToListRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeRenameRequest> OnNodeRenameRequested { get; set; }
+    [Parameter] public EventCallback<SessionNodeInput> OnNodeMoveUpRequested { get; set; }
+    [Parameter] public EventCallback<SessionNodeInput> OnNodeMoveDownRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnNodeDeleteRequested { get; set; }
     [Parameter] public EventCallback<SessionNodeInput> OnLoadChildrenRequested { get; set; }
     [Parameter] public EventCallback<BlockIntent> OnNodeIntentSelected { get; set; }
@@ -808,6 +810,12 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         SessionState.UnpinContext(unpinned.PinId);
         return Task.CompletedTask;
     }
+
+    private async Task HandleNodeMoveUpAsync(SessionNodeInput node)
+        => await OnNodeMoveUpRequested.InvokeAsync(node);
+
+    private async Task HandleNodeMoveDownAsync(SessionNodeInput node)
+        => await OnNodeMoveDownRequested.InvokeAsync(node);
 
     private async Task HandleNodeNewAsync(SessionNodeInput node)
     {

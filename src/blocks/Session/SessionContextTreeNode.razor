@@ -71,6 +71,7 @@
         @foreach (var (child, i) in VisibleChildren.Select((node, idx) => (node, idx)))
         {
             <SessionContextTreeNode Item="child"
+                                    ParentNode="Item.Node"
                                     Depth="@(Depth + 1)"
                                     Index="i"
                                     SiblingCount="@VisibleChildren.Count"
