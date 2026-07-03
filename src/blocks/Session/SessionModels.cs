@@ -5,7 +5,8 @@ public sealed record SessionNodeInput(
     string NodeTypeKey,
     string Label,
     string? ComponentBlock = null,
-    IReadOnlyDictionary<string, object?>? Properties = null);
+    IReadOnlyDictionary<string, object?>? Properties = null,
+    bool IsHeader = false);
 
 public sealed record SessionContextNode(
     SessionNodeInput Node,
