@@ -1422,7 +1422,20 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
             null,
             true);
         _localContextNodes = AddChildNode(_localContextNodes, command.Node.Id, childNode).ToList();
-        SessionState.Dispatch(new ScheduleCreateEffect(edge.TargetNodeTypeKey, childNode.Node.Id, label));
+
+        // Properly persist via the host's header callback when available.
+        // ScheduleCreateEffect alone writes fact patches to a non-existent
+        // NodeEntity and gets silently dropped by ReceiveFactAsync.
+        if (OnHeaderCreateRequested.HasDelegate)
+        {
+            await OnHeaderCreateRequested.InvokeAsync(new SessionHeaderCreateRequest(
+                command.Node.Id, command.Node.NodeTypeKey, command.Input));
+        }
+        else
+        {
+            SessionState.Dispatch(new ScheduleCreateEffect(edge.TargetNodeTypeKey, childNode.Node.Id, label));
+        }
+
         return true;
     }
 
