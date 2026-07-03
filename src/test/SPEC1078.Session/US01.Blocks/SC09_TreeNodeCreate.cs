@@ -134,24 +134,22 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
         stateService.State.Ui.ActiveAgentTypeKey.ShouldBe("ask");
     }
 
-    [Fact(DisplayName = "UAC05: SessionContextTreeNodeMenu New button fires NewRequested")]
+    [Fact(DisplayName = "UAC05: SessionContextTreeNodeMenu hides New button when CreateEdges is empty")]
     [Trait(Spec.UAC, "05")]
-    [Given("a SessionContextTreeNodeMenu for a workspace node")]
-    [When("the New button is clicked")]
-    [Then("NewRequested fires with the workspace node")]
-    public void UAC05_MenuNewFiresNewRequested()
+    [Given("a SessionContextTreeNodeMenu for a node with no create edges")]
+    [When("the menu is inspected")]
+    [Then("no New button is rendered")]
+    public void UAC05_MenuHidesNewWhenCreateEdgesEmpty()
     {
-        SessionNodeInput? fired = null;
         var workspaceNode = new SessionNodeInput("ws-1", "workspace", "Accounting");
 
         var cut = Ctx.Render<SessionContextTreeNodeMenu>(p => p
-            .Add(x => x.Node, workspaceNode)
-            .Add(x => x.NewRequested, node => { fired = node; return Task.CompletedTask; }));
+            .Add(x => x.Node, workspaceNode));
 
-        cut.Find(".node-menu-item").Click();
-
-        fired.ShouldNotBeNull();
-        fired.Id.ShouldBe("ws-1");
+        cut.FindAll("[data-testid='session-context-node-new-item']").Count.ShouldBe(0);
+        cut.FindAll(".node-menu-item")
+            .Any(item => string.Equals(item.TextContent.Trim(), "New", StringComparison.Ordinal))
+            .ShouldBeFalse();
     }
 
     [Fact(DisplayName = "UAC06: SessionBlock New from context menu resets Page Overlay to Normal")]
@@ -163,12 +161,12 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
     {
         var cut = Ctx.Render<Components.SessionBlock>();
 
-        cut.Find("[data-node-id='workitems-session']").Click();
-        cut.Find("[data-node-id='setup-ci']").Click();
+        cut.Find("[data-node-id='workspaces-session']").Click();
+        cut.Find("[data-node-id='foundry']").Click();
 
         cut.Find("[data-slot='session-block-page-overlay']").ShouldNotBeNull();
 
-        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='setup-ci']").Click();
+        cut.Find("[data-testid='session-context-node-menu-trigger'][data-node-id='foundry']").Click();
 
         var popoverService = Ctx.Services.GetRequiredService<IPopoverService>();
         var popover = popoverService.ActivePopovers.Single(reference => reference.State.Open);
@@ -180,6 +178,7 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
             builder.AddContent(1, popover.State.Fragment);
             builder.CloseElement();
         });
+        fragmentCut.Find("[data-testid='session-context-node-new-submenu']").Click();
         fragmentCut.Find("[data-testid='session-context-node-new-item']").Click();
 
         cut.FindAll("[data-slot='session-block-page-overlay']").Count.ShouldBe(0);
@@ -413,4 +412,37 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
         items.ShouldContain("Workflow");
     }
 
+    [Fact(DisplayName = "UAC13: OnHeaderCreateRequested is invoked via tool creation (persistence fix)")]
+    [Trait(Spec.UAC, "13")]
+    [Given("a SessionBlock with a workspaces.header node whose has.workspace edge has a tool")]
+    [When("HandleSubmitAsync runs with agentTypeKey create:has.workspace")]
+    [Then("OnHeaderCreateRequested fires after the tool creates the entity")]
+    public void UAC13_OnHeaderCreateRequestedViaTool()
+    {
+        SessionHeaderCreateRequest? request = null;
+        var stateService = new SessionStateService();
+        var sessions = new[] { new SessionListEntry("s1", "Workspaces", 0, "session") };
+        stateService.SelectSession(new SessionNodeInput("s1", "session", "Workspaces"), sessions);
+
+        var parentNode = new SessionNodeInput("ws-header", "workspaces.header", "My Header");
+        var contextNodes = new[] { new SessionContextNode(parentNode, IsLoaded: true) };
+
+        var cut = Ctx.Render<Components.SessionBlock>(p => p
+            .Add(x => x.HasSidebar, true)
+            .Add(x => x.StateService, stateService)
+            .Add(x => x.Sessions, sessions)
+            .Add(x => x.ContextNodes, contextNodes)
+            .Add(x => x.OnHeaderCreateRequested, r => { request = r; return Task.CompletedTask; }));
+
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+
+        var commandBar = cut.FindComponent<SessionCommandBar>();
+        commandBar.InvokeAsync(() => commandBar.Instance.OnSubmit.InvokeAsync(
+            new SessionCommandSubmitted(parentNode, "create:has.workspace", "My Workspace")));
+
+        request.ShouldNotBeNull();
+        request.ParentNodeId.ShouldBe("ws-header");
+        request.ParentNodeTypeKey.ShouldBe("workspaces.header");
+        request.Label.ShouldBe("My Workspace");
+    }
 }
