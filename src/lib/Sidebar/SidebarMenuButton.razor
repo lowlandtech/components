@@ -1,6 +1,6 @@
 @namespace LowlandTech.Components
 @inherits TinyComponentBase
 
-<button data-slot="sidebar-menu-button" data-active="@(IsActive ? "true" : null)" class="sidebar-menu-button @Class" @attributes="AdditionalAttributes">
+<button data-slot="sidebar-menu-button" data-active="@(IsActive ? "true" : null)" class="sidebar-menu-button @Class" @attributes="AdditionalAttributes" @onclick="HandleClick">
     @ChildContent
 </button>

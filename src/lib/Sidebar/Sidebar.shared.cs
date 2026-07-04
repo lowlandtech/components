@@ -8,4 +8,9 @@ public partial class Sidebar
     [Parameter] public string Side { get; set; } = "left";
     [Parameter] public string Variant { get; set; } = "sidebar";
     [Parameter] public string Collapsible { get; set; } = "offcanvas";
+
+    private void CloseMobile()
+    {
+        SidebarState?.SetOpenMobile(false);
+    }
 }

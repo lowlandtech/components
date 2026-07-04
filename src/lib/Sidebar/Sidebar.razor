@@ -1,12 +1,32 @@
 @namespace LowlandTech.Components
 @inherits TinyComponentBase
 
-<aside data-slot="sidebar"
-       data-state="@(SidebarState?.State ?? "expanded")"
-       data-side="@Side"
-       data-variant="@Variant"
-       data-collapsible="@Collapsible"
-       class="app-sidebar @Class"
-       @attributes="AdditionalAttributes">
-    @ChildContent
-</aside>
+@if (SidebarState?.IsMobile == true)
+{
+    @if (SidebarState?.OpenMobile == true)
+    {
+        <div class="sidebar-mobile-overlay" @onclick="@(() => SidebarState?.SetOpenMobile(false))" @onclick:stopPropagation="true"></div>
+        <aside data-slot="sidebar"
+               data-state="expanded"
+               data-side="@Side"
+               data-variant="@Variant"
+               data-collapsible="@Collapsible"
+               data-mobile="true"
+               class="app-sidebar @Class"
+               @attributes="AdditionalAttributes">
+            @ChildContent
+        </aside>
+    }
+}
+else
+{
+    <aside data-slot="sidebar"
+           data-state="@(SidebarState?.State ?? "expanded")"
+           data-side="@Side"
+           data-variant="@Variant"
+           data-collapsible="@Collapsible"
+           class="app-sidebar @Class"
+           @attributes="AdditionalAttributes">
+        @ChildContent
+    </aside>
+}

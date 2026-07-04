@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 
 namespace LowlandTech.Components;
 
-public partial class SidebarProvider : TinyComponentBase, IDisposable
+public partial class SidebarProvider : TinyComponentBase, IAsyncDisposable
 {
     [Parameter] public bool DefaultOpen { get; set; } = true;
     [Parameter] public bool? Open { get; set; }
@@ -16,9 +17,14 @@ public partial class SidebarProvider : TinyComponentBase, IDisposable
     [Parameter] public int InsetPanelDefaultSize { get; set; } = 70;
     [Parameter] public int InsetPanelMinSize { get; set; } = 55;
     [Parameter] public bool RevealHandleOnHover { get; set; } = true;
+    [Parameter] public int MobileBreakpoint { get; set; } = 768;
     [Parameter] public RenderFragment? Inset { get; set; }
 
+    [Inject] private IJSRuntime JS { get; set; } = default!;
+
     private SidebarState _state = new();
+    private IJSObjectReference? _module;
+    private bool _jsInitialized;
 
     protected override void OnInitialized()
     {
@@ -32,6 +38,24 @@ public partial class SidebarProvider : TinyComponentBase, IDisposable
         {
             _state.Open = Open.Value;
         }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_jsInitialized)
+        {
+            _module = await JS.InvokeAsync<IJSObjectReference>(
+                "import", "./_content/LowlandTech.Components/js/sidebar.js");
+
+            await _module.InvokeVoidAsync("initialize", DotNetObjectReference.Create(this), MobileBreakpoint);
+            _jsInitialized = true;
+        }
+    }
+
+    [JSInvokable]
+    public void OnBreakpointChanged(bool isMobile)
+    {
+        _state.SetIsMobile(isMobile);
     }
 
     private async void OnStateChanged()
@@ -54,8 +78,14 @@ public partial class SidebarProvider : TinyComponentBase, IDisposable
         }
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         _state.OnChange -= OnStateChanged;
+
+        if (_module is not null)
+        {
+            await _module.InvokeVoidAsync("dispose");
+            await _module.DisposeAsync();
+        }
     }
 }
