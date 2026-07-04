@@ -605,7 +605,8 @@ public sealed class SessionStateService
                     header.Id.ToString(),
                     headerNodeTypeKey,
                     header.Label ?? headerLabel,
-                    "NodeBlock");
+                    "NodeBlock",
+                    IsHeader: header.NodeType?.IsHeader ?? true);
             }
 
             var sortOrder = childrenTree.Edges

@@ -722,7 +722,8 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
             new Dictionary<string, object?>
             {
                 ["userContextId"] = isUserContext ? userContextNode.Node.Id : null
-            });
+            },
+            IsHeader: true);
 
         await PrepareCommandBarAccessAsync(listsContextNode);
         SessionState.SetAgentType("create");
@@ -947,7 +948,8 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
                         Guid.NewGuid().ToString(),
                         "lists",
                         "Lists",
-                        "NodeBlock"),
+                        "NodeBlock",
+                        IsHeader: true),
                     [],
                     true);
                 _localContextNodes = [.. _localContextNodes, listsHeader];
@@ -1014,7 +1016,8 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
                 Guid.NewGuid().ToString(),
                 "lists",
                 "Lists",
-                "NodeBlock"),
+                "NodeBlock",
+                IsHeader: true),
             [],
             true);
         children.Add(listsHeader);
@@ -1077,7 +1080,8 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
                     Guid.NewGuid().ToString(),
                     headerNodeTypeKey,
                     headerLabel,
-                    "NodeBlock"),
+                    "NodeBlock",
+                    IsHeader: true),
                 [],
                 true);
             children.Add(header);
