@@ -194,13 +194,13 @@ public sealed record SessionSettingsState
     public IReadOnlyList<SessionEdgeTypeDefinition> EdgeTypes { get; init; } = [];
     public int NodeTypeTotalCount { get; init; }
     public int NodeTypePageIndex { get; init; }
-    public int NodeTypePageSize { get; init; } = 25;
+    public int NodeTypePageSize { get; init; } = 100;
     public string NodeTypeSearch { get; init; } = string.Empty;
     public int NodeTypePageNumber => NodeTypePageIndex + 1;
     public int NodeTypePageCount => TotalPages(NodeTypeTotalCount, NodeTypePageSize);
     public int EdgeTypeTotalCount { get; init; }
     public int EdgeTypePageIndex { get; init; }
-    public int EdgeTypePageSize { get; init; } = 25;
+    public int EdgeTypePageSize { get; init; } = 100;
     public string EdgeTypeSearch { get; init; } = string.Empty;
     public int EdgeTypePageNumber => EdgeTypePageIndex + 1;
     public int EdgeTypePageCount => TotalPages(EdgeTypeTotalCount, EdgeTypePageSize);
