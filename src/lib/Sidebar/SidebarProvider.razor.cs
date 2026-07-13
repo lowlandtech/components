@@ -1,6 +1,3 @@
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
-
 namespace LowlandTech.Components;
 
 public partial class SidebarProvider : TinyComponentBase, IAsyncDisposable
@@ -82,10 +79,31 @@ public partial class SidebarProvider : TinyComponentBase, IAsyncDisposable
     {
         _state.OnChange -= OnStateChanged;
 
-        if (_module is not null)
+        if (!_jsInitialized || _module is null)
+        {
+            return;
+        }
+
+        try
         {
             await _module.InvokeVoidAsync("dispose");
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+        catch (OperationCanceledException)
+        {
+        }
+
+        try
+        {
             await _module.DisposeAsync();
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+        catch (OperationCanceledException)
+        {
         }
     }
 }
