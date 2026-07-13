@@ -18,7 +18,13 @@ public sealed record SessionContextNode(
 /// while a header node is selected, so the host page can materialise the child
 /// node in the graph and refresh the context tree.
 /// </summary>
-public sealed record SessionHeaderCreateRequest(string ParentNodeId, string ParentNodeTypeKey, string Label);
+public sealed record SessionHeaderCreateRequest(
+    string ParentNodeId,
+    string ParentNodeTypeKey,
+    string Label,
+    string? ParentLabel = null,
+    string? TargetNodeTypeKey = null,
+    string? EdgeKey = null);
 
 /// <summary>
 /// Fired from <see cref="SessionBlock"/> when the user submits a create command

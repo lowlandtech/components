@@ -203,6 +203,110 @@ public sealed class SC15_EdgeTypeDrivenCreate : ViewScenario
         pageEdge.HeaderNodeTypeKey.ShouldBe("header");
     }
 
+    [Fact(DisplayName = "UAC10: Generic navigation headers resolve create mode to their labelled target type")]
+    [Trait(Spec.UAC, "10")]
+    [Given("a generic Tables header selected in create mode")]
+    [When("the command bar context chip is inspected")]
+    [Then("it displays table rather than the first generic header target")]
+    public void UAC10_GenericHeaderCreateModeUsesLabelledTargetType()
+    {
+        var (cut, _, _) = RenderNodeInCreateMode("header", "Tables");
+
+        cut.Find("[data-testid='session-block-command-bar-toggle']").Click();
+
+        var context = cut.Find("[data-testid='session-command-context'] span");
+        context.GetAttribute("data-node-type").ShouldBe("table");
+        context.GetAttribute("data-transition-key").ShouldBe("header.create.table");
+    }
+
+    [Fact(DisplayName = "UAC11: Creating under a lazy header immediately refreshes that parent's children")]
+    [Trait(Spec.UAC, "11")]
+    [Given("a Tables header loaded beneath the user context")]
+    [When("a table is created under that header")]
+    [Then("the table appears as a child of the Tables header")]
+    public async Task UAC11_CreateRefreshesLazyParentHeader()
+    {
+        var graph = new FakeGraphService();
+        graph.SeedNodeType("header");
+        graph.SeedNodeType("table");
+        graph.SeedEdgeType("has.header", "user-context", "header");
+        graph.SeedEdgeType("has.table", "header", "table", "create");
+
+        var userContextId = Guid.NewGuid();
+        var tablesHeaderId = Guid.NewGuid();
+        graph.SeedUserContext(userContextId, "User");
+        graph.SeedNode(tablesHeaderId, "header", "Tables");
+        graph.SeedEdge("user.has.header", "has.header", userContextId, tablesHeaderId);
+
+        var stateService = new SessionStateService(null as ISessionSurfaceDiscovery, graph);
+        var ct = CancellationToken.None;
+        await stateService.InitializeAsync(userContextId.ToString(), "User", ct);
+
+        var result = await stateService.CreateHeaderChildAsync(
+            new SessionHeaderCreateRequest(tablesHeaderId.ToString(), "header", "SomeTable"),
+            userContextId.ToString(),
+            ct);
+
+        result.Success.ShouldBeTrue();
+        var tablesHeader = stateService.ContextNodes.Single().Children!.Single();
+        tablesHeader.Node.Label.ShouldBe("Tables");
+        tablesHeader.Children.ShouldNotBeNull();
+        tablesHeader.Children!.Single().Node.NodeTypeKey.ShouldBe("table");
+        tablesHeader.Children.Single().Node.Label.ShouldBe("SomeTable");
+    }
+
+    [Fact(DisplayName = "UAC12: Table exposes Column as a navigation-header child create option")]
+    [Trait(Spec.UAC, "12")]
+    [Given("the registered table node type")]
+    [When("its outgoing create edges are inspected")]
+    [Then("a Column option targets a Columns navigation header")]
+    public void UAC12_TableExposesColumnCreateOption()
+    {
+        var edgeService = Ctx.Services.GetRequiredService<IEdgeTypeService>();
+
+        var columnEdges = edgeService.GetOutgoingEdges("table").Where(edge =>
+            string.Equals(edge.TargetNodeTypeKey, "column", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(edge.Intent, "create", StringComparison.OrdinalIgnoreCase)
+            && edge.IsNavigationHeaderChild).ToList();
+        columnEdges.Count.ShouldBe(1);
+        var columnEdge = columnEdges.Single();
+
+        columnEdge.IsNavigationHeaderChild.ShouldBeTrue();
+        columnEdge.HeaderLabel.ShouldBe("Columns");
+        columnEdge.TargetDescriptor.ShouldNotBeNull();
+        columnEdge.TargetDescriptor!.Label.ShouldBe("Column");
+    }
+
+    [Fact(DisplayName = "UAC13: Columns header only exposes the Column create edge")]
+    [Trait(Spec.UAC, "13")]
+    [Given("a generic navigation header whose role is Columns")]
+    [When("its create edges are projected for the context menu")]
+    [Then("only the header-to-column edge is returned")]
+    public void UAC13_ColumnsHeaderOnlyExposesColumnCreateEdge()
+    {
+        var edgeService = Ctx.Services.GetRequiredService<IEdgeTypeService>();
+        var columnsHeader = new SessionNodeInput("columns-header", "header", "Columns", IsHeader: true);
+
+        var createEdges = edgeService.GetCreateEdges(columnsHeader);
+
+        createEdges.Count.ShouldBe(1);
+        createEdges.Single().TargetNodeTypeKey.ShouldBe("column");
+        createEdges.Single().SourceNodeTypeKey.ShouldBe("header");
+    }
+
+    [Fact(DisplayName = "UAC14: Unknown generic header exposes no create edges")]
+    [Trait(Spec.UAC, "14")]
+    [Given("a generic navigation header with no declared role")]
+    [When("its create edges are projected for the context menu")]
+    [Then("no unrelated global header edges are returned")]
+    public void UAC14_UnknownHeaderExposesNoCreateEdges()
+    {
+        var edgeService = Ctx.Services.GetRequiredService<IEdgeTypeService>();
+        var unknownHeader = new SessionNodeInput("unknown-header", "header", "Unknown", IsHeader: true);
+
+        edgeService.GetCreateEdges(unknownHeader).ShouldBeEmpty();
+    }
+
     private (IRenderedComponent<Components.SessionBlock> Cut, SessionStateService StateService, SessionNodeInput ParentNode) RenderNodeInCreateMode(string nodeTypeKey, string sessionLabel)
     {
         var stateService = new SessionStateService();

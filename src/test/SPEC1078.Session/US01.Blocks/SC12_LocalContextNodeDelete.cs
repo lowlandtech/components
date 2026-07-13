@@ -93,6 +93,10 @@ public sealed class SC12_LocalContextNodeDelete : ViewScenario
 
         deleted.ShouldNotBeNull();
         deleted.Id.ShouldBe("setup-ci");
+        deleted.Properties.ShouldNotBeNull();
+        deleted.Properties!.GetValueOrDefault("parentNodeId").ShouldNotBeNull();
+        deleted.Properties.GetValueOrDefault("parentNodeTypeKey").ShouldNotBeNull();
+        deleted.Properties.GetValueOrDefault("parentNodeLabel").ShouldNotBeNull();
     }
 
     [Fact(DisplayName = "UAC05: Skip preference deletes immediately without showing the dialog")]

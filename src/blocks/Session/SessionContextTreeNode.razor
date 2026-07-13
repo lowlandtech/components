@@ -93,7 +93,7 @@
     }
 
     <SessionContextTreeNodeDeleteDialog @bind-IsOpen="_showDeleteDialog"
-                                        Node="Item.Node"
+                                        Node="@(_pendingDeleteNode ?? Item.Node)"
                                         @bind-SkipConfirmation="_skipDeleteConfirmation"
                                         OnConfirm="ConfirmDeleteAsync"
                                         OnCancel="CancelDeleteAsync" />

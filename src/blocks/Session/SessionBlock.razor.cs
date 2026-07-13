@@ -5,6 +5,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     [Inject] private IJSRuntime JS { get; set; } = default!;
     [Inject] private IGraphDiscoveryService Discovery { get; set; } = default!;
     [Inject] private IServiceProvider Services { get; set; } = default!;
+    [Inject] private ILogger<SessionBlock> Logger { get; set; } = default!;
 
     private IEdgeTypeService? EdgeTypeService => Services.GetService<IEdgeTypeService>();
     private IExecutionEngine? ExecutionEngine => Services.GetService<IExecutionEngine>();
@@ -161,7 +162,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
             return L("CreateCommandPlaceholder");
 
         var node = CurrentCommandContextNode;
-        if (node is not null && EdgeTypeService?.FindEdgeByAgentTypeKey(node.NodeTypeKey, ViewState.ActiveAgentTypeKey) is not null)
+        if (node is not null && EdgeTypeService?.FindEdgeByAgentTypeKey(node, ViewState.ActiveAgentTypeKey) is not null)
             return L("CreateCommandPlaceholder");
 
         if (string.Equals(ViewState.ActiveAgentTypeKey, "edit", StringComparison.OrdinalIgnoreCase))
@@ -828,7 +829,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         {
             if (node.Properties?.ContainsKey("agentTypeKey") != true)
                 agentTypeKey = $"create:{edgeKey}";
-            edge = EdgeTypeService?.FindEdgeByAgentTypeKey(node.NodeTypeKey, agentTypeKey);
+            edge = EdgeTypeService?.FindEdgeByAgentTypeKey(node, agentTypeKey);
         }
 
         // Navigation-header children (e.g. workspace -> Pages -> page) should be
@@ -846,6 +847,8 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
                 await FocusCommandInputAsync();
                 return;
             }
+
+            return;
         }
 
         await PrepareCommandBarAccessAsync(node);
@@ -1131,12 +1134,31 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         {
             var headerNode = await SessionState.GetOrCreateNavigationHeaderAsync(sourceNode.Id, headerLabel, headerNodeTypeKey);
             if (headerNode is not null)
-                return headerNode;
+                return headerNode with { Properties = sourceNode.Properties };
+
+            Logger.LogError(
+                "Graph-backed navigation header is unavailable; projecting a transient header until submit retries persistence. ParentId={ParentId} ParentType={ParentType} HeaderType={HeaderType} HeaderLabel={HeaderLabel} TargetType={TargetType} Edge={EdgeKey}",
+                sourceNode.Id, sourceNode.NodeTypeKey, headerNodeTypeKey, headerLabel,
+                edge.TargetNodeTypeKey, edge.EdgeKey);
         }
 
         _localContextNodes = EnsureLocalNavigationHeader(DisplayContextNodes, sourceNode.Id, headerNodeTypeKey, headerLabel).ToList();
         var header = FindLocalNavigationHeader(_localContextNodes, sourceNode.Id, headerNodeTypeKey, headerLabel);
-        return header?.Node;
+        if (header is null)
+            return null;
+
+        var properties = new Dictionary<string, object?>(
+            sourceNode.Properties ?? new Dictionary<string, object?>(),
+            StringComparer.Ordinal)
+        {
+            ["isTransientNavigationHeader"] = true,
+            ["navigationSourceNodeId"] = sourceNode.Id,
+            ["navigationSourceNodeTypeKey"] = sourceNode.NodeTypeKey,
+            ["navigationSourceLabel"] = sourceNode.Label,
+            ["createEdgeKey"] = edge.EdgeKey,
+            ["createTargetNodeTypeKey"] = edge.TargetNodeTypeKey
+        };
+        return header.Node with { Properties = properties };
     }
 
     private async Task HandleNodeRenameAsync(SessionNodeInput node)
@@ -1404,11 +1426,25 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     private async Task<bool> TryCreateViaEdgeToolAsync(SessionCommandSubmitted command, EdgeTypeInfo edge)
     {
         if (string.IsNullOrWhiteSpace(edge.Tool) || ExecutionEngine is null)
+        {
+            Logger.LogWarning(
+                "Session child create skipped tool execution. ParentId={ParentId} ParentType={ParentType} Edge={EdgeKey} TargetType={TargetType} Tool={Tool} HasExecutionEngine={HasExecutionEngine}",
+                command.Node.Id, command.Node.NodeTypeKey, edge.EdgeKey, edge.TargetNodeTypeKey, edge.Tool, ExecutionEngine is not null);
             return false;
+        }
 
         var creator = Discovery.GetAsync<IGraphToolService>(edge.Tool);
         if (creator is null)
+        {
+            Logger.LogWarning(
+                "Session child create could not resolve graph tool. ParentId={ParentId} Edge={EdgeKey} TargetType={TargetType} Tool={Tool}",
+                command.Node.Id, edge.EdgeKey, edge.TargetNodeTypeKey, edge.Tool);
             return false;
+        }
+
+        Logger.LogInformation(
+            "Session child create executing graph tool. ParentId={ParentId} ParentType={ParentType} ParentLabel={ParentLabel} Edge={EdgeKey} TargetType={TargetType} Tool={Tool} Input={Input}",
+            command.Node.Id, command.Node.NodeTypeKey, command.Node.Label, edge.EdgeKey, edge.TargetNodeTypeKey, edge.Tool, command.Input);
 
         var props = new Dictionary<string, object?>
         {
@@ -1423,6 +1459,10 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         var extracted = edge.TargetDescriptor?.ExtractLabel(entity);
         var label = string.IsNullOrWhiteSpace(extracted) ? command.Input : extracted;
         var extractedId = edge.TargetDescriptor?.ExtractId(entity) ?? Guid.Empty;
+
+        Logger.LogInformation(
+            "Session child create graph tool completed. ParentId={ParentId} Edge={EdgeKey} TargetType={TargetType} ExtractedId={ExtractedId} ExtractedLabel={ExtractedLabel}",
+            command.Node.Id, edge.EdgeKey, edge.TargetNodeTypeKey, extractedId, label);
 
         _localContextNodes ??= [.. ContextNodes];
         var childNode = new SessionContextNode(
@@ -1440,8 +1480,19 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         // NodeEntity and gets silently dropped by ReceiveFactAsync.
         if (OnHeaderCreateRequested.HasDelegate)
         {
+            Logger.LogInformation(
+                "Session child create invoking host persistence callback. ParentId={ParentId} ParentType={ParentType} TargetType={TargetType} Label={Label}",
+                command.Node.Id, command.Node.NodeTypeKey, edge.TargetNodeTypeKey, command.Input);
             await OnHeaderCreateRequested.InvokeAsync(new SessionHeaderCreateRequest(
-                command.Node.Id, command.Node.NodeTypeKey, command.Input));
+                command.Node.Id,
+                command.Node.NodeTypeKey,
+                command.Input,
+                command.Node.Label,
+                edge.TargetNodeTypeKey,
+                edge.EdgeKey));
+            Logger.LogInformation(
+                "Session child create host persistence callback completed. ParentId={ParentId} TargetType={TargetType} Label={Label}",
+                command.Node.Id, edge.TargetNodeTypeKey, command.Input);
         }
         else
         {
@@ -1541,6 +1592,59 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     private async Task HandleSubmitAsync(SessionCommandSubmitted command)
     {
+        Logger.LogInformation(
+            "Session command submitted. ParentId={ParentId} ParentType={ParentType} ParentLabel={ParentLabel} AgentType={AgentType} Input={Input}",
+            command.Node.Id, command.Node.NodeTypeKey, command.Node.Label, command.AgentTypeKey, command.Input);
+
+        if (command.Node.Properties?.GetValueOrDefault("isTransientNavigationHeader") is true)
+        {
+            var sourceNodeId = command.Node.Properties.GetValueOrDefault("navigationSourceNodeId") as string;
+            var sourceNodeTypeKey = command.Node.Properties.GetValueOrDefault("navigationSourceNodeTypeKey") as string;
+            var sourceLabel = command.Node.Properties.GetValueOrDefault("navigationSourceLabel") as string;
+            if (string.IsNullOrWhiteSpace(sourceNodeId) || string.IsNullOrWhiteSpace(sourceNodeTypeKey))
+            {
+                Logger.LogError(
+                    "Session child create cannot retry transient header persistence because source metadata is incomplete. HeaderId={HeaderId} HeaderLabel={HeaderLabel}",
+                    command.Node.Id, command.Node.Label);
+                await FocusCommandInputAsync();
+                return;
+            }
+
+            var sourceNode = new SessionNodeInput(sourceNodeId, sourceNodeTypeKey, sourceLabel ?? sourceNodeTypeKey);
+            var sourceEdge = EdgeTypeService?.FindEdgeByAgentTypeKey(sourceNode, command.AgentTypeKey);
+            if (sourceEdge is null)
+            {
+                Logger.LogError(
+                    "Session child create cannot resolve the selected edge while retrying transient header persistence. SourceId={SourceId} SourceType={SourceType} AgentType={AgentType}",
+                    sourceNode.Id, sourceNode.NodeTypeKey, command.AgentTypeKey);
+                await FocusCommandInputAsync();
+                return;
+            }
+
+            var persistedHeader = await SessionState.GetOrCreateNavigationHeaderAsync(
+                sourceNode.Id,
+                sourceEdge.HeaderLabel ?? command.Node.Label,
+                sourceEdge.HeaderNodeTypeKey ?? command.Node.NodeTypeKey);
+            if (persistedHeader is null)
+            {
+                Logger.LogError(
+                    "Session child create submission is waiting for its navigation header to persist. SourceId={SourceId} SourceType={SourceType} HeaderLabel={HeaderLabel} TargetType={TargetType} Edge={EdgeKey}",
+                    sourceNode.Id, sourceNode.NodeTypeKey, command.Node.Label,
+                    sourceEdge.TargetNodeTypeKey, sourceEdge.EdgeKey);
+                await FocusCommandInputAsync();
+                return;
+            }
+
+            var persistedProperties = new Dictionary<string, object?>(StringComparer.Ordinal)
+            {
+                ["createEdgeKey"] = sourceEdge.EdgeKey,
+                ["createTargetNodeTypeKey"] = sourceEdge.TargetNodeTypeKey
+            };
+            command = command with
+            {
+                Node = persistedHeader with { Properties = persistedProperties }
+            };
+        }
         // Rename the selected context node when in edit mode.
         if (string.Equals(command.AgentTypeKey, "edit", StringComparison.OrdinalIgnoreCase))
         {
@@ -1587,7 +1691,11 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         // Non-session node create: resolve the target type and tool from the registered
         // edge descriptors. The default Create agent maps to the first create edge; future
         // dynamic intents are discovered by matching the agent key against edge intents.
-        var createEdge = EdgeTypeService?.FindEdgeByAgentTypeKey(command.Node.NodeTypeKey, command.AgentTypeKey);
+        var createEdge = EdgeTypeService?.FindEdgeByAgentTypeKey(command.Node, command.AgentTypeKey);
+        Logger.LogInformation(
+            "Session child create edge resolved. ParentId={ParentId} ParentType={ParentType} ParentLabel={ParentLabel} AgentType={AgentType} Edge={EdgeKey} TargetType={TargetType} Tool={Tool}",
+            command.Node.Id, command.Node.NodeTypeKey, command.Node.Label, command.AgentTypeKey,
+            createEdge?.EdgeKey, createEdge?.TargetNodeTypeKey, createEdge?.Tool);
         if (string.Equals(command.AgentTypeKey, "create", StringComparison.OrdinalIgnoreCase) || createEdge is not null)
         {
             // Convenience edges from a root to a navigation-header child (e.g. workspace -> page)
@@ -1598,7 +1706,15 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
                 if (headerNode is not null)
                 {
                     command = command with { Node = headerNode };
-                    createEdge = EdgeTypeService?.FindEdgeByAgentTypeKey(headerNode.NodeTypeKey, command.AgentTypeKey);
+                    createEdge = EdgeTypeService?.FindEdgeByAgentTypeKey(headerNode, command.AgentTypeKey);
+                }
+                else
+                {
+                    Logger.LogError(
+                        "Session child create submission aborted because its navigation header could not be persisted. ParentId={ParentId} ParentType={ParentType} TargetType={TargetType} Edge={EdgeKey}",
+                        command.Node.Id, command.Node.NodeTypeKey,
+                        createEdge.TargetNodeTypeKey, createEdge.EdgeKey);
+                    return;
                 }
             }
 
@@ -1640,7 +1756,12 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
             if (OnHeaderCreateRequested.HasDelegate)
             {
                 await OnHeaderCreateRequested.InvokeAsync(new SessionHeaderCreateRequest(
-                    command.Node.Id, command.Node.NodeTypeKey, command.Input));
+                    command.Node.Id,
+                    command.Node.NodeTypeKey,
+                    command.Input,
+                    command.Node.Label,
+                    createEdge?.TargetNodeTypeKey,
+                    createEdge?.EdgeKey));
             }
             else if (!IsHeaderNode(command.Node))
             {

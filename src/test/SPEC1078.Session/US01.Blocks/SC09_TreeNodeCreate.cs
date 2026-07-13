@@ -341,6 +341,8 @@ public sealed class SC09_TreeNodeCreate : ViewScenario
         fired.Properties.ShouldNotBeNull();
         fired.Properties.ShouldContainKey("createEdgeKey");
         fired.Properties!["createEdgeKey"].ShouldBe("has.table");
+        fired.Properties.ShouldContainKey("createTargetNodeTypeKey");
+        fired.Properties["createTargetNodeTypeKey"].ShouldBe("table");
     }
 
     [Fact(DisplayName = "UAC11: SessionBlock sets create:<edgeKey> agent type when a dynamic New option is chosen")]

@@ -277,7 +277,12 @@ public sealed class SessionStateService
 
             var parentNode = await _graphService.GetNodeAsync(parentId, ct);
             var schema = await _graphService.GetSchemaAsync(ct);
-            var edgeType = ResolveCreateEdge(schema, request.ParentNodeTypeKey, parentNode?.Label);
+            var edgeType = ResolveCreateEdge(
+                schema,
+                request.ParentNodeTypeKey,
+                parentNode?.Label ?? request.ParentLabel,
+                request.TargetNodeTypeKey,
+                request.EdgeKey);
             if (edgeType is null)
             {
                 _logger?.LogWarning("Cannot create child node: no create edge found for header type '{HeaderType}' (label: '{Label}')", request.ParentNodeTypeKey, parentNode?.Label);
@@ -315,12 +320,14 @@ public sealed class SessionStateService
 
             _logger?.LogInformation("Created {NodeType} '{Label}' under header {HeaderId}", targetNodeType.Key, request.Label, parentId);
 
-            // Refresh the context tree so the new node appears
-            var userContext = await _graphService.GetUserContextAsync(userId, ct);
-            if (userContext is not null)
-            {
-                await LoadContextNodesAsync(userContext.Id, null, ct);
-            }
+            // Navigation headers are lazy-loaded. Refreshing the user-context root
+            // would discard all hydrated descendants and collapse the explorer.
+            // Reload only the parent that received the new edge so its ancestors
+            // and sibling expansion state remain intact.
+            await LoadChildrenAsync(new SessionNodeInput(
+                request.ParentNodeId,
+                request.ParentNodeTypeKey,
+                parentNode?.Label ?? request.ParentLabel ?? request.ParentNodeTypeKey), ct);
 
             return SessionHeaderCreateResult.Succeeded(child.Id, targetNodeType.Key, request.Label);
         }
@@ -570,6 +577,9 @@ public sealed class SessionStateService
                 return null;
             }
 
+            // Loading children asks the server to reconcile descriptor-defined navigation
+            // headers and synthetic edge types before this client reads the schema.
+            var childrenTree = await _graphService.GetChildrenAsync(parentId, ct: ct);
             var schema = await _graphService.GetSchemaAsync(ct);
             var headerNodeType = schema.NodeTypes.FirstOrDefault(nt =>
                 string.Equals(nt.Key, headerNodeTypeKey, StringComparison.OrdinalIgnoreCase));
@@ -581,14 +591,32 @@ public sealed class SessionStateService
 
             var parentToHeaderEdgeKey = NavigationHeaderConventions.ParentToHeaderEdgeKey(parentNodeTypeKey, headerLabel);
             var parentToHeaderEdgeType = schema.EdgeTypes.FirstOrDefault(e =>
-                string.Equals(e.Key, parentToHeaderEdgeKey, StringComparison.OrdinalIgnoreCase));
+                string.Equals(e.Key, parentToHeaderEdgeKey, StringComparison.OrdinalIgnoreCase)
+                && e.SourceNodeTypeId == parentNode.NodeTypeId
+                && e.TargetNodeTypeId == headerNodeType.Id);
+            parentToHeaderEdgeType ??= schema.EdgeTypes.FirstOrDefault(edge =>
+                edge.SourceNodeTypeId == parentNode.NodeTypeId
+                && edge.TargetNodeTypeId == headerNodeType.Id
+                && edge.Properties.Any(property =>
+                    string.Equals(property.Key, "label", StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(property.Value, headerLabel, StringComparison.OrdinalIgnoreCase)));
+            parentToHeaderEdgeType ??= schema.EdgeTypes.FirstOrDefault(edge =>
+                edge.SourceNodeTypeId == parentNode.NodeTypeId
+                && edge.TargetNodeTypeId == headerNodeType.Id
+                && HeaderEdgeKeyMatchesLabel(edge.Key, headerLabel));
             if (parentToHeaderEdgeType is null)
             {
-                _logger?.LogWarning("Cannot ensure navigation header: edge type '{EdgeKey}' not found", parentToHeaderEdgeKey);
+                _logger?.LogWarning(
+                    "Cannot ensure navigation header: no parent-to-header edge found. ConventionEdge={EdgeKey} ParentId={ParentId} ParentType={ParentType} ParentTypeId={ParentTypeId} HeaderType={HeaderType} HeaderTypeId={HeaderTypeId} HeaderLabel={HeaderLabel}",
+                    parentToHeaderEdgeKey, parentId, parentNodeTypeKey, parentNode.NodeTypeId,
+                    headerNodeTypeKey, headerNodeType.Id, headerLabel);
                 return null;
             }
 
-            var childrenTree = await _graphService.GetChildrenAsync(parentId, ct: ct);
+            _logger?.LogInformation(
+                "Resolved navigation header edge. ParentId={ParentId} ParentType={ParentType} HeaderLabel={HeaderLabel} EdgeKey={EdgeKey}",
+                parentId, parentNodeTypeKey, headerLabel, parentToHeaderEdgeType.Key);
+
             var header = childrenTree.Nodes
                 .Where(n => n.Id != parentId)
                 .FirstOrDefault(n =>
@@ -643,6 +671,24 @@ public sealed class SessionStateService
             _logger?.LogError(ex, "Failed to ensure navigation header '{HeaderLabel}' under parent {ParentNodeId}", headerLabel, parentNodeId);
             return null;
         }
+    }
+
+    private static bool HeaderEdgeKeyMatchesLabel(string edgeKey, string headerLabel)
+    {
+        var normalizedLabel = new string(headerLabel
+            .Where(char.IsLetterOrDigit)
+            .Select(char.ToLowerInvariant)
+            .ToArray());
+        var normalizedEdgeKey = new string(edgeKey
+            .Where(char.IsLetterOrDigit)
+            .Select(char.ToLowerInvariant)
+            .ToArray());
+
+        if (normalizedEdgeKey.Contains(normalizedLabel, StringComparison.Ordinal))
+            return true;
+
+        return string.Equals(normalizedLabel, "columns", StringComparison.Ordinal)
+            && normalizedEdgeKey.Contains("datacolumns", StringComparison.Ordinal);
     }
 
     public async Task LoadSessionCommandsAsync(string sessionId, string? sessionLabel, CancellationToken ct = default)
@@ -766,8 +812,28 @@ public sealed class SessionStateService
 
     #region Edge resolution
 
-    public static EdgeType? ResolveCreateEdge(GraphSchema schema, string parentNodeTypeKey, string? headerLabel = null)
+    public static EdgeType? ResolveCreateEdge(
+        GraphSchema schema,
+        string parentNodeTypeKey,
+        string? headerLabel = null,
+        string? targetNodeTypeKey = null,
+        string? edgeKey = null)
     {
+        if (!string.IsNullOrWhiteSpace(edgeKey))
+        {
+            var selectedEdge = schema.EdgeTypes.FirstOrDefault(edge =>
+                string.Equals(edge.Key, edgeKey, StringComparison.OrdinalIgnoreCase));
+            if (selectedEdge is not null)
+                return selectedEdge;
+        }
+
+        foreach (var candidateTargetTypeKey in ResolveTargetTypeAliases(targetNodeTypeKey))
+        {
+            var selectedTargetEdge = FindCreateEdgeByChildTypeKey(schema, candidateTargetTypeKey);
+            if (selectedTargetEdge is not null)
+                return selectedTargetEdge;
+        }
+
         // Specific header-to-child mappings
         var childTypeKey = parentNodeTypeKey switch
         {
@@ -789,30 +855,33 @@ public sealed class SessionStateService
         if (string.Equals(parentNodeTypeKey, "header", StringComparison.OrdinalIgnoreCase)
             && !string.IsNullOrWhiteSpace(headerLabel))
         {
-            childTypeKey = headerLabel switch
+            var childTypeKeys = headerLabel switch
             {
-                "Data Tables" => "datatable",
-                "Relationships" => "relationship",
-                "Branches" => "branch",
-                "User Stories" => "userstory",
-                "Scenarios" => "scenario",
-                "Tables" => "table",
-                "Pages" => "page",
-                "Workflows" => "workflow",
-                "Steps" => "step",
-                "Flows" => "flow",
-                "Templates" => "template",
-                "Tools" => "tool",
-                "Packages" => "package",
-                "Workspaces" => "workspace",
-                "WorkItems" => "session",
-                "Settings" => "setting",
-                _ => null
+                "Data Tables" => new[] { "datatable", "table" },
+                "Columns" => new[] { "datacolumn", "column" },
+                "Relationships" => ["relationship"],
+                "Branches" => ["branch"],
+                "User Stories" => ["userstory"],
+                "Scenarios" => ["scenario"],
+                // The component catalog calls this target "table" while the
+                // persisted Graph plugin schema uses the canonical "datatable".
+                "Tables" => new[] { "datatable", "table" },
+                "Pages" => ["page"],
+                "Workflows" => ["workflow"],
+                "Steps" => ["step"],
+                "Flows" => ["flow"],
+                "Templates" => ["template"],
+                "Tools" => ["tool"],
+                "Packages" => ["package"],
+                "Workspaces" => ["workspace"],
+                "WorkItems" => ["session"],
+                "Settings" => ["setting"],
+                _ => []
             };
 
-            if (childTypeKey is not null)
+            foreach (var candidateChildTypeKey in childTypeKeys)
             {
-                var edge = FindCreateEdgeByChildTypeKey(schema, childTypeKey);
+                var edge = FindCreateEdgeByChildTypeKey(schema, candidateChildTypeKey);
                 if (edge is not null) return edge;
             }
         }
@@ -829,17 +898,41 @@ public sealed class SessionStateService
                 && string.Equals(p.Value, "create", StringComparison.OrdinalIgnoreCase)));
     }
 
+    private static IReadOnlyList<string> ResolveTargetTypeAliases(string? targetNodeTypeKey) => targetNodeTypeKey switch
+    {
+        "table" => ["datatable", "table"],
+        "datatable" => ["datatable", "table"],
+        "column" => ["datacolumn", "column"],
+        "datacolumn" => ["datacolumn", "column"],
+        { Length: > 0 } key => [key],
+        _ => []
+    };
+
     public static EdgeType? FindCreateEdgeByChildTypeKey(GraphSchema schema, string childTypeKey)
     {
         var childNodeType = schema.NodeTypes.FirstOrDefault(nt =>
             string.Equals(nt.Key, childTypeKey, StringComparison.OrdinalIgnoreCase));
 
-        return schema.EdgeTypes.FirstOrDefault(e =>
-            e.Properties.Any(p => string.Equals(p.Key, "verb", StringComparison.OrdinalIgnoreCase)
-                && string.Equals(p.Value, "create", StringComparison.OrdinalIgnoreCase))
-            && (e.Key.Contains(childTypeKey, StringComparison.OrdinalIgnoreCase)
-                || (childNodeType is not null && e.TargetNodeTypeId == childNodeType.Id)));
+        if (childNodeType is not null)
+        {
+            // Navigation header edges synthesized from descriptor metadata do
+            // not carry verb=create. Once the header has explicitly mapped its
+            // child type, the target node-type ID is the authoritative match.
+            return schema.EdgeTypes
+                .Where(edge => edge.TargetNodeTypeId == childNodeType.Id)
+                .OrderByDescending(HasCreateVerb)
+                .FirstOrDefault();
+        }
+
+        return schema.EdgeTypes.FirstOrDefault(edge =>
+            HasCreateVerb(edge)
+            && edge.Key.Contains(childTypeKey, StringComparison.OrdinalIgnoreCase));
     }
+
+    private static bool HasCreateVerb(EdgeType edgeType) =>
+        edgeType.Properties.Any(property =>
+            string.Equals(property.Key, "verb", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(property.Value, "create", StringComparison.OrdinalIgnoreCase));
 
     #endregion
 

@@ -6,6 +6,7 @@ public sealed class FakeGraphService : IGraphService
     private readonly List<Edge> _edges = [];
     private readonly Dictionary<string, NodeType> _nodeTypes = [];
     private readonly Dictionary<string, EdgeType> _edgeTypes = [];
+    private Node? _userContext;
 
     public IReadOnlyList<Node> Nodes => _nodes.Values.ToList();
     public IReadOnlyList<Edge> Edges => _edges.ToList();
@@ -36,13 +37,19 @@ public sealed class FakeGraphService : IGraphService
         return node;
     }
 
+    public Node SeedUserContext(Guid id, string label)
+    {
+        _userContext = SeedNode(id, "user-context", label);
+        return _userContext;
+    }
+
     public void SeedNodeType(string key)
     {
         if (!_nodeTypes.ContainsKey(key))
             _nodeTypes[key] = new NodeType { Id = Guid.NewGuid(), Key = key };
     }
 
-    public void SeedEdgeType(string key, string sourceNodeTypeKey, string targetNodeTypeKey)
+    public void SeedEdgeType(string key, string sourceNodeTypeKey, string targetNodeTypeKey, string? verb = null)
     {
         if (!_edgeTypes.ContainsKey(key))
         {
@@ -55,7 +62,10 @@ public sealed class FakeGraphService : IGraphService
                 SourceNodeTypeId = sourceType.Id,
                 SourceNodeType = sourceType,
                 TargetNodeTypeId = targetType.Id,
-                TargetNodeType = targetType
+                TargetNodeType = targetType,
+                Properties = string.IsNullOrWhiteSpace(verb)
+                    ? []
+                    : [new Property { Key = "verb", Value = verb }]
             };
         }
     }
@@ -148,7 +158,7 @@ public sealed class FakeGraphService : IGraphService
         => Task.CompletedTask;
 
     public Task<Node?> GetUserContextAsync(string userId, CancellationToken ct = default)
-        => Task.FromResult<Node?>(null);
+        => Task.FromResult(_userContext);
 
     public Task<Node> EnsureUserContextAsync(string userId, string userName, CancellationToken ct = default)
         => Task.FromResult(new Node { Id = Guid.NewGuid(), Label = userName });

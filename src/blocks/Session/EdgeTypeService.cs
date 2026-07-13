@@ -86,6 +86,79 @@ public interface IEdgeTypeService
     EdgeTypeInfo? FindEdgeByAgentTypeKey(string sourceNodeTypeKey, string agentTypeKey);
 }
 
+public static class EdgeTypeServiceExtensions
+{
+    public static IReadOnlyList<EdgeTypeInfo> GetCreateEdges(
+        this IEdgeTypeService service,
+        SessionNodeInput sourceNode)
+    {
+        var createEdges = service.GetOutgoingEdges(sourceNode.NodeTypeKey)
+            .Where(edge => string.Equals(edge.Intent, "create", StringComparison.OrdinalIgnoreCase));
+
+        if (!IsGenericHeaderNode(sourceNode.NodeTypeKey))
+            return createEdges.ToList();
+
+        var targetNodeTypeKey = ResolveHeaderTargetNodeTypeKey(sourceNode);
+        if (string.IsNullOrWhiteSpace(targetNodeTypeKey))
+            return [];
+
+        return createEdges
+            .Where(edge => string.Equals(
+                edge.TargetNodeTypeKey,
+                targetNodeTypeKey,
+                StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
+    public static EdgeTypeInfo? FindEdgeByAgentTypeKey(
+        this IEdgeTypeService service,
+        SessionNodeInput sourceNode,
+        string agentTypeKey)
+    {
+        if (string.Equals(agentTypeKey, "create", StringComparison.OrdinalIgnoreCase)
+            && IsGenericHeaderNode(sourceNode.NodeTypeKey))
+        {
+            return service.GetCreateEdges(sourceNode).FirstOrDefault();
+        }
+
+        return service.FindEdgeByAgentTypeKey(sourceNode.NodeTypeKey, agentTypeKey);
+    }
+
+    private static bool IsGenericHeaderNode(string nodeTypeKey) =>
+        string.Equals(nodeTypeKey, "header", StringComparison.OrdinalIgnoreCase);
+
+    private static string? ResolveHeaderTargetNodeTypeKey(SessionNodeInput sourceNode)
+    {
+        if (sourceNode.Properties?.GetValueOrDefault("createTargetNodeTypeKey") is string targetNodeTypeKey
+            && !string.IsNullOrWhiteSpace(targetNodeTypeKey))
+            return targetNodeTypeKey;
+
+        return ResolveHeaderTargetNodeTypeKey(sourceNode.Label);
+    }
+
+    private static string? ResolveHeaderTargetNodeTypeKey(string headerLabel) => headerLabel.Trim().ToLowerInvariant() switch
+    {
+        "data tables" => "datatable",
+        "relationships" => "relationship",
+        "branches" => "branch",
+        "user stories" => "userstory",
+        "scenarios" => "scenario",
+        "tables" => "table",
+        "columns" => "column",
+        "pages" => "page",
+        "workflows" => "workflow",
+        "steps" => "step",
+        "flows" => "flow",
+        "templates" => "template",
+        "tools" => "tool",
+        "packages" => "package",
+        "workspaces" => "workspace",
+        "workitems" => "session",
+        "settings" => "setting",
+        _ => null
+    };
+}
+
 /// <summary>
 /// Default implementation of <see cref="IEdgeTypeService"/> that collects all
 /// edge and node descriptors from the DI container.

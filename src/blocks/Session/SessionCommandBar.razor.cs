@@ -106,7 +106,11 @@ public partial class SessionCommandBar : TinyComponentBase, IDisposable
         if (SelectedNode is null)
             return string.Empty;
 
-        var edge = EdgeTypeService?.FindEdgeByAgentTypeKey(SelectedNode.NodeTypeKey, ActiveAgentTypeKey);
+        if (SelectedNode.Properties?.GetValueOrDefault("createTargetNodeTypeKey") is string targetNodeTypeKey
+            && !string.IsNullOrWhiteSpace(targetNodeTypeKey))
+            return targetNodeTypeKey;
+
+        var edge = EdgeTypeService?.FindEdgeByAgentTypeKey(SelectedNode, ActiveAgentTypeKey);
         if (edge is not null && !string.IsNullOrWhiteSpace(edge.TargetNodeTypeKey))
             return edge.TargetNodeTypeKey;
 
@@ -118,7 +122,7 @@ public partial class SessionCommandBar : TinyComponentBase, IDisposable
         if (SelectedNode is null)
             return null;
 
-        var edge = EdgeTypeService?.FindEdgeByAgentTypeKey(SelectedNode.NodeTypeKey, ActiveAgentTypeKey);
+        var edge = EdgeTypeService?.FindEdgeByAgentTypeKey(SelectedNode, ActiveAgentTypeKey);
         if (edge is null)
             return null;
 

@@ -40,6 +40,7 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
     private string? _hydratedNodeId;
     private bool _showDeleteDialog;
     private bool _skipDeleteConfirmation;
+    private SessionNodeInput? _pendingDeleteNode;
     private bool _isFocused;
 
     private bool ShowChevron => !Item.IsLoaded || VisibleChildren.Count > 0;
@@ -54,8 +55,7 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
     private IReadOnlyList<SessionContextNode> VisibleChildren => Item.Children ?? [];
     private IEdgeTypeService? EdgeTypeService => Services.GetService<IEdgeTypeService>();
     private IReadOnlyList<EdgeTypeInfo> CreateEdges =>
-        EdgeTypeService?.GetOutgoingEdges(Item.Node.NodeTypeKey)
-            .Where(edge => string.Equals(edge.Intent, "create", StringComparison.OrdinalIgnoreCase))
+        EdgeTypeService?.GetCreateEdges(Item.Node)
             .OrderBy(edge => edge.TargetDescriptor?.Label ?? edge.Label)
             .ToList() ?? [];
 
@@ -71,7 +71,9 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
 
         var properties = new Dictionary<string, object?>(node.Properties ?? new Dictionary<string, object?>(), StringComparer.Ordinal)
         {
-            ["parentNodeId"] = ParentNode.Id
+            ["parentNodeId"] = ParentNode.Id,
+            ["parentNodeTypeKey"] = ParentNode.NodeTypeKey,
+            ["parentNodeLabel"] = ParentNode.Label,
         };
 
         return node with { Properties = properties };
@@ -257,9 +259,11 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
 
     private async Task HandleDeleteRequestedAsync(SessionNodeInput node)
     {
+        _pendingDeleteNode = node;
         if (await IsSkipDeleteConfirmationAsync())
         {
             await OnNodeDelete.InvokeAsync(node);
+            _pendingDeleteNode = null;
             return;
         }
 
@@ -275,11 +279,13 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
         }
 
         await OnNodeDelete.InvokeAsync(node);
+        _pendingDeleteNode = null;
     }
 
     private Task CancelDeleteAsync()
     {
         _showDeleteDialog = false;
+        _pendingDeleteNode = null;
         return Task.CompletedTask;
     }
 
@@ -347,7 +353,7 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
         builder.AddAttribute(7, nameof(SessionContextTreeNodeMenu.PinRequested), OnPin);
         builder.AddAttribute(8, nameof(SessionContextTreeNodeMenu.MoveUpRequested), EventCallback.Factory.Create<SessionNodeInput>(this, node => OnNodeMoveUp.InvokeAsync(NodeWithParentContext(node))));
         builder.AddAttribute(9, nameof(SessionContextTreeNodeMenu.MoveDownRequested), EventCallback.Factory.Create<SessionNodeInput>(this, node => OnNodeMoveDown.InvokeAsync(NodeWithParentContext(node))));
-        builder.AddAttribute(10, nameof(SessionContextTreeNodeMenu.DeleteRequested), EventCallback.Factory.Create<SessionNodeInput>(this, HandleDeleteRequestedAsync));
+        builder.AddAttribute(10, nameof(SessionContextTreeNodeMenu.DeleteRequested), EventCallback.Factory.Create<SessionNodeInput>(this, node => HandleDeleteRequestedAsync(NodeWithParentContext(node))));
         builder.AddAttribute(11, nameof(SessionContextTreeNodeMenu.CanAddToList), !IsListNode(Item.Node));
         builder.AddAttribute(12, nameof(SessionContextTreeNodeMenu.AddToListRequested), OnAddToList);
         builder.CloseComponent();
