@@ -15,6 +15,7 @@ public partial class DynamicBlock : TinyComponentBase, IDynamicBlockDispatcher, 
     [Parameter] public EventCallback<DynamicMutationEffect> OnMutationScheduled { get; set; }
     [Parameter] public EventCallback<BlockIntent> OnIntentSelected { get; set; }
     [Parameter] public bool AutoApplyMutations { get; set; } = true;
+    [Parameter] public bool AutoSelectRootSession { get; set; } = true;
     [Parameter] public bool HasSidebar { get; set; } = true;
     [Parameter] public bool IsTest { get; set; } = true;
     [Parameter] public string Variant { get; set; } = "none";
@@ -159,7 +160,10 @@ public partial class DynamicBlock : TinyComponentBase, IDynamicBlockDispatcher, 
         _machine?.Dispatch(new DynamicBlockInitialized(rootNode.Id, entityProperties, contextNodes));
         _sessions = [new SessionListEntry(rootNode.Id, rootNode.Label, 0, rootNode.NodeTypeKey)];
         _contextNodes = contextNodes;
-        _sessionState?.SelectSession(rootNode, _sessions);
+        if (AutoSelectRootSession)
+        {
+            _sessionState?.SelectSession(rootNode, _sessions);
+        }
     }
 
     public async Task DispatchAsync(DynamicBlockAction action)

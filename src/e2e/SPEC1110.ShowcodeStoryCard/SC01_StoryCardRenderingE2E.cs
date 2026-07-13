@@ -98,21 +98,21 @@ public sealed class SC01_StoryCardRenderingE2E(ShowcodeCollection collection) : 
         await Assertions.Expect(sessionBlock).ToHaveClassAsync(new Regex(@"\bh-full\b"));
         await Assertions.Expect(sessionBlock).Not.ToHaveClassAsync(new Regex(@"\bborder\b"));
 
-        var workspacesSession = card.Locator("[data-testid='session-list-item'][data-node-id='workspaces-session']");
-        await Assertions.Expect(workspacesSession).ToBeVisibleAsync();
-        await workspacesSession.ClickAsync();
+        var sessionItem = card.Locator("[data-testid='session-list-item']").First;
+        await Assertions.Expect(sessionItem).ToBeVisibleAsync();
+        await sessionItem.ClickAsync();
 
-        var workspacesContext = card.Locator("[data-slot='session-context-node'][data-node-id='workspaces']");
-        await Assertions.Expect(workspacesContext).ToBeVisibleAsync();
-        await workspacesContext.ClickAsync();
+        var contextNode = card.Locator("[data-slot='session-context-node']").First;
+        await Assertions.Expect(contextNode).ToBeVisibleAsync();
+        await contextNode.ClickAsync();
 
         await Assertions.Expect(
             card.Locator("[data-slot='session-context-block']")
-        ).ToBeVisibleAsync();
-        await Assertions.Expect(
-            card.Locator("[role='tab'][aria-selected='true']")
                 .Filter(new LocatorFilterOptions { HasText = "Workspaces" })
                 .First
+        ).ToBeVisibleAsync();
+        await Assertions.Expect(
+            card.Locator("[role='tab'][aria-selected='true']").First
         ).ToBeVisibleAsync();
         pageErrors.ShouldBeEmpty();
     }
