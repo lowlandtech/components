@@ -1,0 +1,53 @@
+/* LtGrid / GridItem responsive layout
+   GridItem sets --lt-xs through --lt-xl as CSS custom properties via inline style.
+   Each breakpoint reads from its own var, falling back through the cascade.
+   span 0 hides the item at that breakpoint via display:none. */
+
+.lt-grid {
+    box-sizing: border-box;
+}
+
+.lt-item {
+    box-sizing: border-box;
+    display: var(--lt-xs, 12) == 0 ? none : block;
+    grid-column: span var(--lt-xs, 12) / span var(--lt-xs, 12);
+}
+
+/* xs = 0 → hidden */
+.lt-item:where([style*="--lt-xs:0"]) {
+    display: none;
+}
+
+@media (min-width: 600px) {
+    .lt-item {
+        grid-column: span var(--lt-sm, var(--lt-xs, 12)) / span var(--lt-sm, var(--lt-xs, 12));
+    }
+    .lt-item:where([style*="--lt-sm:0"]) { display: none; }
+    .lt-item:where([style*="--lt-sm:"]:not([style*="--lt-sm:0"])) { display: block; }
+}
+
+@media (min-width: 960px) {
+    .lt-item {
+        grid-column: span var(--lt-md, var(--lt-sm, var(--lt-xs, 12))) / span var(--lt-md, var(--lt-sm, var(--lt-xs, 12)));
+    }
+    .lt-item:where([style*="--lt-md:0"]) { display: none; }
+    .lt-item:where([style*="--lt-md:"]:not([style*="--lt-md:0"])) { display: block; }
+}
+
+@media (min-width: 1280px) {
+    .lt-item {
+        grid-column: span var(--lt-lg, var(--lt-md, var(--lt-sm, var(--lt-xs, 12)))) / span var(--lt-lg, var(--lt-md, var(--lt-sm, var(--lt-xs, 12))));
+    }
+    .lt-item:where([style*="--lt-lg:0"]) { display: none; }
+    .lt-item:where([style*="--lt-lg:"]:not([style*="--lt-lg:0"])) { display: block; }
+}
+
+@media (min-width: 1920px) {
+    .lt-item {
+        grid-column: span var(--lt-xl, var(--lt-lg, var(--lt-md, var(--lt-sm, var(--lt-xs, 12))))) / span var(--lt-xl, var(--lt-lg, var(--lt-md, var(--lt-sm, var(--lt-xs, 12)))));
+    }
+    .lt-item:where([style*="--lt-xl:0"]) { display: none; }
+    .lt-item:where([style*="--lt-xl:"]:not([style*="--lt-xl:0"])) { display: block; }
+}
+
+

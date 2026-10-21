@@ -1,0 +1,13 @@
+{
+  "name": "@lowlandtech/components",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:css": "npx @tailwindcss/cli -i ./css/input.css -o ./css/components.css --minify",
+    "watch:css": "npx @tailwindcss/cli -i ./css/input.css -o ./css/components.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.2.2",
+    "tailwindcss": "^4.2.2"
+  }
+}

@@ -1,0 +1,185 @@
+/* ── Canvas pane bezel ──────────────────────────────────────────────────
+   Neumorphic frame around the designer's center pane (Design / View /
+   Markup / Code tabs). Replaces a borderless layout where the undo/redo
+   toolbar sat as `position: absolute` over the design surface and got
+   visually trapped behind the section chrome.
+
+   Loaded by hosts via:
+     <link rel="stylesheet"
+           href="_content/LowlandTech.Components/css/canvas-bezel.css" />
+*/
+
+.lt-canvas-bezel {
+    /* Flat, flush with the surrounding left/right panels so the header
+       reads as one continuous strip across the canvas page. The previous
+       margin+border-radius+drop-shadow framing made the center pane look
+       like a floating card inside a card; now it matches the explorer
+       sidebars on either side. The body still gets its own background
+       below for surface separation. */
+    margin: 0;
+    border-radius: 0;
+    /* Cancel the cn-tabs default `gap-2` (8px) so the header sits flush
+       against the body — they read as one continuous panel, not stacked. */
+    gap: 0 !important;
+    /* Inherit `bg-background` from the explorer-layout container, matching
+       the left + right sidebars. The grid inside the body sets its own
+       darker designable-canvas tone via `.lt-container-grid` so the
+       designer surface still reads as distinct from the chrome around it. */
+    background: transparent;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Header bar — `height: 2.25rem` matches `h-9` on the left "Canvases" header
+   and the right line-variant TabsList, so the three headers form ONE
+   continuous bar across the canvas page. Tool buttons + viewport switcher
+   sized to fit inside that row (28x28 + 24x24 respectively). */
+.lt-canvas-bezel-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 2.25rem;
+    padding: 0 8px;
+    border-bottom: 1px solid var(--border, #2f2a4f);
+    background: transparent;
+    flex-shrink: 0;
+}
+
+.lt-canvas-bezel-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+/* Tool button — flat by default, raised on hover, pressed-in on active.
+   Sized to match the .lt-bezel-button geometry on selection chrome so
+   the visual rhythm matches across the page. */
+.lt-canvas-bezel-tool {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* 28x28 fits cleanly inside the 2.25rem header row with 4px each side.
+       Was 30x30 when the header was 48px tall. */
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted-foreground, #a0a3b8);
+    cursor: pointer;
+    transition: background-color 0.12s ease, color 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.lt-canvas-bezel-tool:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--muted, #1a1730) 70%, transparent);
+    color: var(--foreground, #e5e7eb);
+    border-color: color-mix(in srgb, var(--border, #2f2a4f) 80%, transparent);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.06),
+        0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.lt-canvas-bezel-tool:active:not(:disabled) {
+    box-shadow:
+        inset 0 1px 2px rgba(0, 0, 0, 0.35);
+    background: color-mix(in srgb, var(--muted, #1a1730) 90%, transparent);
+}
+
+.lt-canvas-bezel-tool:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Tabs spacer — pushes the centre tabs into the available middle space,
+   undo/redo on the left and the dirty badge / right-hand tools to the
+   right. */
+.lt-canvas-bezel-tabs {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 1 auto;
+}
+
+.lt-canvas-bezel-spacer {
+    flex: 1 1 auto;
+}
+
+/* Body — fills remaining height under the header. Tabs panel content
+   (design canvas / view / markup / code) renders inside. */
+.lt-canvas-bezel-body {
+    flex: 1 1 auto;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* SPEC2100.US47 — DevTools-style viewport switcher. Sits in the right
+   action cluster of the bezel header next to the dirty badge. Compact
+   geometry to match the rest of the header chrome. */
+.lt-viewport-switcher {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 4px;
+}
+
+.lt-viewport-switcher-rotate {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid color-mix(in srgb, var(--border, #2f2a4f) 60%, transparent);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--muted-foreground, #a0a3b8);
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.lt-viewport-switcher-rotate:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--muted, #1a1730) 70%, transparent);
+    color: var(--foreground, #e5e7eb);
+}
+
+.lt-viewport-switcher-rotate:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.lt-viewport-switcher-size {
+    font-size: 11px;
+    color: var(--muted-foreground, #a0a3b8);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* Viewport clip — constrains the design surface to the active viewport
+   width/height when a fixed-size preset is selected. The host
+   TabsContent has overflow:auto so anything wider scrolls. The clip
+   wrapper itself uses an inline style to set the actual width/height,
+   so the CSS here is just the framing chrome (border + shadow that
+   read like a device frame). */
+.lt-canvas-viewport-clip {
+    position: relative;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+    border: 1px solid color-mix(in srgb, var(--border, #2f2a4f) 60%, transparent);
+    background: var(--background, #0b0b15);
+    overflow: hidden;
+}
+
+/* Responsive viewport (no clip applied) — let the surface stretch to
+   the full pane and skip the device-frame chrome. */
+.lt-canvas-viewport-clip[data-breakpoint="responsive"] {
+    width: 100%;
+    height: 100%;
+    box-shadow: none;
+    border: none;
+}

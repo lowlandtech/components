@@ -1,0 +1,319 @@
+/* ── CanvasStyleEditor (SPEC2100.US43) ────────────────────────────────────
+   Dense label-left, value-right rows organised into collapsible
+   sub-sections. Mirrors property-grid.css's row geometry so the Style
+   accordion shares visual rhythm with the Layout / Item / Placement /
+   Visibility accordions in the Properties panel.
+
+   Loaded by hosts via:
+     <link rel="stylesheet"
+           href="_content/LowlandTech.Components/css/style-editor.css" />
+
+   NOTE: Shared styles for .lt-style-section, .lt-style-row,
+   .lt-property-panel-gear, .lt-property-panel-toolbar, etc.
+   live in property-grid.css. This file keeps only
+   CanvasStyleEditor-specific rules.
+*/
+
+.lt-style-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 100%;
+    font-size: 13px;
+}
+
+/* ── Spacing block (margin / padding / border-width / border-radius) ──── */
+
+.lt-style-spacing-block {
+    padding: 6px 12px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Override the row layout *inside* a spacing block — the row contains
+   only the label + link toggle, no value column. */
+.lt-style-spacing-block > .lt-style-row {
+    grid-template-columns: 1fr auto;
+    padding: 0;
+    min-height: 24px;
+}
+
+.lt-style-spacing-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+}
+
+/* Make the four-side inputs even more compact than regular row inputs. */
+.lt-style-spacing-grid input.cn-input {
+    height: 26px;
+    font-size: 11px;
+    text-align: center;
+}
+
+/* ── Link toggle (small icon button) ─────────────────────────────────── */
+
+.lt-style-link-toggle.btn {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    background: transparent;
+    color: var(--muted-foreground, #a0a3b8);
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-size: 11px;
+}
+
+.lt-style-link-toggle.btn:hover {
+    background: color-mix(in srgb, var(--muted, #1a1730) 70%, transparent);
+    color: var(--foreground, #e5e7eb);
+}
+
+.lt-style-link-toggle.btn[data-linked="true"] {
+    color: var(--primary, #7e6fff);
+    border-color: color-mix(in srgb, var(--primary, #7e6fff) 30%, transparent);
+}
+
+/* ── Shadow preset chips ─────────────────────────────────────────────── */
+
+.lt-style-shadow-chip.btn {
+    height: 24px;
+    padding: 0 8px;
+    font-size: 11px;
+    border: 1px solid var(--border, #2f2a4f);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--muted-foreground, #a0a3b8);
+}
+
+.lt-style-shadow-chip.btn:hover {
+    background: color-mix(in srgb, var(--primary, #7e6fff) 14%, transparent);
+    border-color: color-mix(in srgb, var(--primary, #7e6fff) 60%, transparent);
+    color: var(--primary, #7e6fff);
+}
+
+/* ── Native range slider (opacity etc.) ──────────────────────────────── */
+
+.lt-style-row input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: var(--border, #2f2a4f);
+    border-radius: 2px;
+    outline: none;
+    padding: 0;
+}
+
+.lt-style-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--primary, #7e6fff);
+    cursor: pointer;
+    border: 2px solid var(--background, #0b0b15);
+    box-shadow: 0 0 0 1px var(--primary, #7e6fff);
+}
+
+.lt-style-row input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--primary, #7e6fff);
+    cursor: pointer;
+    border: 2px solid var(--background, #0b0b15);
+    box-shadow: 0 0 0 1px var(--primary, #7e6fff);
+}
+
+/* ── Component palette group title ────────────────────────────────────── */
+
+.lt-component-palette-group-title {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 6px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0;
+    line-height: 1;
+    text-align: center;
+    text-transform: uppercase;
+    color: var(--lt-palette-accent, #a0a3b8);
+    background: color-mix(in srgb, var(--lt-palette-accent, #7e6fff) 18%, transparent);
+}
+
+.lt-component-palette-strip {
+    display: flex;
+    gap: 8px;
+    height: 100%;
+    min-height: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 8px;
+    scroll-snap-type: x proximity;
+}
+
+.lt-component-palette-group {
+    display: flex;
+    flex: 0 0 9.5rem;
+    flex-direction: column;
+    min-height: 0;
+    scroll-snap-align: start;
+}
+
+.lt-component-palette-group-header {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.lt-component-palette-group:hover .node-menu-trigger,
+.lt-component-palette-group:focus-within .node-menu-trigger {
+    opacity: 1;
+}
+
+.lt-component-palette-items {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 2px;
+}
+
+.lt-component-palette-tile {
+    position: relative;
+    display: flex;
+    width: 100%;
+    min-height: 66px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 6px 8px 8px;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--lt-palette-accent, #7e6fff) 70%, transparent);
+    border-radius: 6px;
+    color: var(--lt-palette-accent, #e5e7eb);
+    background: color-mix(in srgb, var(--lt-palette-accent, #7e6fff) 11%, var(--background, #0b0b15));
+    text-align: center;
+    transition: border-color 120ms ease, background 120ms ease, transform 120ms ease;
+}
+
+.lt-component-palette-tile:hover,
+.lt-component-palette-tile:focus-visible {
+    border-color: var(--lt-palette-accent, #7e6fff);
+    background: color-mix(in srgb, var(--lt-palette-accent, #7e6fff) 18%, var(--background, #0b0b15));
+    outline: none;
+    transform: translateY(-1px);
+}
+
+.lt-component-palette-tile.is-disabled {
+    cursor: not-allowed;
+    opacity: 0.48;
+    filter: saturate(0.35);
+}
+
+.lt-component-palette-tile.is-disabled:hover,
+.lt-component-palette-tile.is-disabled:focus-visible {
+    border-color: color-mix(in srgb, var(--lt-palette-accent, #7e6fff) 55%, transparent);
+    background: color-mix(in srgb, var(--lt-palette-accent, #7e6fff) 9%, var(--background, #0b0b15));
+    transform: none;
+}
+
+.lt-component-palette-tile-top {
+    position: absolute;
+    inset: 6px 7px auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: color-mix(in srgb, var(--lt-palette-accent, #7e6fff) 72%, transparent);
+}
+
+.lt-component-palette-index {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 9px;
+    line-height: 1;
+    opacity: 0.7;
+}
+
+.lt-component-palette-abbrev {
+    max-width: 100%;
+    padding-top: 12px;
+    overflow: hidden;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: color-mix(in srgb, var(--lt-palette-accent, #7e6fff) 35%, #ffffff);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lt-component-palette-name {
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 9px;
+    line-height: 1.2;
+    color: color-mix(in srgb, var(--lt-palette-accent, #7e6fff) 55%, var(--foreground, #e5e7eb));
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lt-component-palette-group-title--blocks,
+.lt-component-palette-tile--blocks {
+    --lt-palette-accent: #ec4899;
+}
+
+.lt-component-palette-group-title--data,
+.lt-component-palette-tile--data {
+    --lt-palette-accent: #facc15;
+}
+
+.lt-component-palette-group-title--feedback,
+.lt-component-palette-tile--feedback {
+    --lt-palette-accent: #fb7185;
+}
+
+.lt-component-palette-group-title--form,
+.lt-component-palette-tile--form {
+    --lt-palette-accent: #60a5fa;
+}
+
+.lt-component-palette-group-title--layout,
+.lt-component-palette-tile--layout {
+    --lt-palette-accent: #34d399;
+}
+
+.lt-component-palette-group-title--misc,
+.lt-component-palette-tile--misc {
+    --lt-palette-accent: #a78bfa;
+}
+
+.lt-component-palette-group-title--navigation,
+.lt-component-palette-tile--navigation {
+    --lt-palette-accent: #22d3ee;
+}
+
+.lt-component-palette-group-title--overlay,
+.lt-component-palette-tile--overlay {
+    --lt-palette-accent: #fb923c;
+}
+
+.lt-component-palette-group-title--session,
+.lt-component-palette-tile--session {
+    --lt-palette-accent: #2dd4bf;
+}
+
+.lt-component-palette-group-title--graph,
+.lt-component-palette-tile--graph {
+    --lt-palette-accent: #c4c7d9;
+}
+
+.lt-component-palette-group-title--work,
+.lt-component-palette-tile--work {
+    --lt-palette-accent: #818cf8;
+}

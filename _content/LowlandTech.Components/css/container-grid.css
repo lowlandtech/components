@@ -1,0 +1,473 @@
+/* ── ContainerGrid: design-surface raster + section outlines ─────────────────
+   Graph-paper style: minor grid lines on every cell, major lines every 4
+   cells. Loaded by hosts via:
+     <link rel="stylesheet"
+           href="_content/LowlandTech.Components/css/container-grid.css" />
+   Kept as a non-isolated stylesheet (rather than ContainerGrid.razor.css) so
+   the rules reach hosts that consume LowlandTech.Components by NuGet/binary
+   reference and don't aggregate library scoped CSS into their host bundle.
+
+   Inline CSS variables --lt-grid-cols / --lt-grid-rows are written by
+   ContainerGrid.razor.cs based on the Columns/Rows parameters.
+*/
+
+.lt-container-grid {
+    position: relative;
+    height: 100%;
+    min-height: 320px;
+    width: 100%;
+
+    /* Cell size = canvas dimension / track count. Used by both the overlay
+       and the minor/major guideline backgrounds. */
+    --lt-cell-w: calc(100% / var(--lt-grid-cols, 12));
+    --lt-cell-h: calc(100% / var(--lt-grid-rows, 8));
+
+    /* Faint paper background so the canvas reads as a designable surface,
+       not a void. */
+    background-color: var(--background, #0b0b15);
+}
+
+/* ── Raster overlay: minor + major guide lines ─────────────────────────────
+   Two stacked backgrounds:
+     1. Minor lines: 1px every cell (Cols+1 vertical, Rows+1 horizontal)
+     2. Major lines: 1px every 4 cells, slightly stronger
+   Drawn underneath positioned sections (z-index 0). */
+.lt-container-grid-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+
+    /* Clip the drag clone (`.lt-container-grid-clone`) to the grid's bounds.
+       The clone follows the cursor's UNCLAMPED delta (so the user can drag
+       freely from any grip position) but committed col/row stays within
+       the grid via wireDrag/wireResize's bounds clamping. Without overflow
+       clipping, the clone visibly escapes the parent grid during drag —
+       deeply confusing in nested layouts where the user thinks they can
+       drop the child into a different parent. Sections paint freely
+       outside the overlay (they're siblings, not children); bezel chrome
+       is portaled to #lt-popover-provider after attachBezel and is
+       unaffected by this rule. */
+    overflow: hidden;
+
+    background-image:
+        /* Major vertical lines (every 4 columns) */
+        linear-gradient(to right,  var(--lt-major, rgba(160, 163, 184, 0.55)) 1px, transparent 1px),
+        /* Major horizontal lines (every 4 rows) */
+        linear-gradient(to bottom, var(--lt-major, rgba(160, 163, 184, 0.55)) 1px, transparent 1px),
+        /* Minor vertical lines (every column) */
+        linear-gradient(to right,  var(--lt-minor, rgba(160, 163, 184, 0.18)) 1px, transparent 1px),
+        /* Minor horizontal lines (every row) */
+        linear-gradient(to bottom, var(--lt-minor, rgba(160, 163, 184, 0.18)) 1px, transparent 1px);
+
+    background-size:
+        calc(var(--lt-cell-w) * 4) 100%,
+        100% calc(var(--lt-cell-h) * 4),
+        var(--lt-cell-w) 100%,
+        100% var(--lt-cell-h);
+
+    background-position: 0 0;
+}
+
+.lt-container-grid-placeholder {
+    pointer-events: none;
+}
+
+/* ── Nested grid (grid-inside-a-grid) ──────────────────────────────────
+   When a ContainerItem has IsGrid=true, the canvas designer renders an
+   inner ContainerGrid inside that item's section so the user can see
+   the nested layout with its own raster overlay.
+
+   The wrapper compensates for two things the section's body normally
+   suppresses:
+     1. pointer-events: the section's CanvasItemBody normally sets
+        pointer-events:none on its body so the section's drag/click
+        chrome stays interactive — but a grid HOST needs its inner
+        sections to receive their own pointer events.
+     2. fill: the inner grid needs `position: relative; height: 100%;
+        width: 100%` to fill its containing section so the raster
+        overlay aligns with the section bounds. */
+.lt-container-grid-section--grid-host {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    pointer-events: auto;
+    transition: box-shadow 0.12s ease, background-color 0.12s ease;
+}
+
+/* Active nested-grid drop target — set when the user drags a palette
+   component into a nested grid. Shows a clear highlight so the user
+   sees WHICH grid will receive the dropped item before they release. */
+.lt-container-grid-section--grid-host[data-drop-active="true"] {
+    box-shadow: inset 0 0 0 2px var(--primary, #7e6fff),
+                inset 0 0 0 4px color-mix(in srgb, var(--primary, #7e6fff) 25%, transparent);
+    background-color: color-mix(in srgb, var(--primary, #7e6fff) 6%, transparent);
+}
+
+/* Inner grid raster — slightly dimmer than the outer raster so users
+   read the nesting at a glance ("the brighter raster is the canvas;
+   the dimmer one is a sub-grid I'm authoring"). Set as overrides on
+   the overlay variables. */
+.lt-container-grid--nested {
+    --lt-major: rgba(160, 163, 184, 0.40);
+    --lt-minor: rgba(160, 163, 184, 0.10);
+    /* Transparent fill so the parent CanvasItemBody's authored
+       style.background-color shows through. The outer (root) grid keeps
+       its paper background to read as the designable canvas surface;
+       nested grids must respect their containing section's paint. */
+    background-color: transparent;
+    /* Subtle border so the nested grid reads as a distinct surface
+       even when its parent section has no background fill. */
+    border: 1px solid color-mix(in srgb, var(--border, #2f2a4f) 50%, transparent);
+    border-radius: 0;
+    /* Drop the outer grid's 320px min-height — at depth-2/3 a nested
+       section is often shorter than that and the floor forces the inner
+       grid to overflow its parent. Without this override every level of
+       nesting compounds the overflow visually. */
+    min-height: 0;
+    /* The 1px border above adds to width:100% / height:100% on a
+       content-box layout, pushing each nested grid 2px past its parent.
+       Border-box keeps the grid inside its allotted section. */
+    box-sizing: border-box;
+}
+
+/* ── ContainerGridSection: framed boxes on the raster ─────────────────────
+   Border outlines positioned items as visible boxes. Transparent fill so the
+   raster underneath remains visible *inside* each section. Hover highlights
+   the selection target with the primary colour. */
+.lt-container-grid-section {
+    position: relative;
+    z-index: 1;
+    border: 1px solid var(--border, #2f2a4f);
+    border-radius: 0;
+    background: transparent;
+    min-height: 32px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, backdrop-filter 0.15s ease;
+
+    /* SPEC2100.US24 perf #4 — paint isolation. `contain: layout style` tells
+       the browser that any layout/style changes inside this section don't
+       escape the section's bounding box. At deep nesting (3+ levels) this
+       cuts style recalc cost — toggling --selected on one section can't
+       invalidate sibling sections' style. We deliberately exclude `paint`
+       from the contain value because the bezel host (label, toolbar, edge
+       badges) uses `transform: translate(50%)` to protrude OUTSIDE the
+       section, and `paint` containment would clip those. */
+    contain: layout style;
+}
+
+.lt-container-grid-section:hover {
+    border-color: rgba(160, 163, 184, 0.55);
+    box-shadow: 0 0 0 1px rgba(160, 163, 184, 0.35) inset;
+}
+
+/* Selected state — applied when CanvasState.SelectedItemId matches.
+   Glasslike chrome: a translucent border in the raster line colour with a
+   subtle frosted-glass inset. Reads as "framed by the grid itself" rather
+   than a saturated primary halo, so it stays visible against any item
+   background without fighting it. */
+.lt-container-grid-section.lt-container-grid-section--selected {
+    border-color: rgba(200, 205, 230, 0.7);
+    box-shadow:
+        0 0 0 1px rgba(200, 205, 230, 0.45) inset,
+        0 0 0 1px rgba(160, 163, 184, 0.35),
+        0 0 12px rgba(160, 163, 184, 0.18);
+    backdrop-filter: blur(0.5px) saturate(110%);
+}
+
+/* Dragging state — applied to the section root while a drag is in flight,
+   so the source visibly dims while the clone follows the cursor.
+   `will-change: transform` pre-promotes the section onto its own GPU
+   compositor layer at gesture start so the first frame of drag isn't janky
+   while the browser figures out layers. Toggled off on cleanup via class
+   removal — `will-change` retains memory while present, so leaving it on
+   every section globally would be a memory leak. */
+.lt-container-grid-section--dragging {
+    opacity: 0.4;
+    will-change: transform;
+}
+
+/* Drag-time chrome suppression — during a drag/resize gesture, hide bezel
+   chrome on every NON-dragging section. Without this, `setDeepestHovered`
+   keeps lighting up `lt-bezel-host--hovered` on whichever section the
+   cursor crosses, producing a label/badge/toolbar flicker storm at 3+
+   levels of nesting. The dragged section's own chrome stays visible
+   because its data-section-classes carries `--dragging` and matches the
+   :not() exclusion below. The body flag is set/cleared by wireDrag /
+   wireResize in containerGrid.js. */
+body[data-canvas-dragging="true"] .lt-bezel-host:not([data-section-classes~="lt-container-grid-section--dragging"]) .lt-bezel-label,
+body[data-canvas-dragging="true"] .lt-bezel-host:not([data-section-classes~="lt-container-grid-section--dragging"]) .lt-bezel-badge,
+body[data-canvas-dragging="true"] .lt-bezel-host:not([data-section-classes~="lt-container-grid-section--dragging"]) .lt-bezel-toolbar {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* ── Selection bezel ───────────────────────────────────────────────────────
+   Pinegrow-style chrome that surrounds a hovered/selected section: a label
+   chip (top-left), four grid-line-number badges on each edge, and a toolbar
+   floating above the section that hosts the drag grip plus consumer-supplied
+   actions (Properties / Delete / etc.).
+
+   The chrome lives inside .lt-bezel-host, which is `position: fixed` so it
+   escapes any parent overflow:auto / stacking context. Its top/left/width/
+   height are JS-synced to the section's bbox via ltBezel.attach (see
+   containerGrid.js → attachBezel).
+
+   Visibility:
+     - hover                                    → label + badges + toolbar
+     - .lt-container-grid-section--selected     → label + badges + toolbar
+     - default                                  → all hidden, no chrome
+*/
+
+/* Bezel host — rendered inside the section in markup (so the bUnit drift
+   guard tests still resolve `[data-id='…'] [data-slot='container-grid-
+   bezel-…']`), but JS-portaled at runtime into the root popover-provider
+   div and given `position: fixed` with bbox synced to the section.
+   That portal escapes two clipping/positioning failure modes that
+   `position: absolute; inset: 0` (or unported `position: fixed`) hit:
+     1. `overflow: hidden` / `overflow: auto` on canvas-pane ancestors
+        clipping the resize handles + edge badges that protrude outside
+        the section box via translate(50%) transforms;
+     2. transformed ancestors reparenting `position: fixed` (Tailwind's
+        transform-gpu, split-pane wrappers, etc.).
+   Initial markup style is `position: absolute; inset: 0` so the host
+   still anchors correctly during the brief window between Razor render
+   and JS attachBezel. The JS overrides position/top/left/width/height
+   on attach. */
+.lt-bezel-host {
+    position: absolute;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.lt-bezel-label,
+.lt-bezel-badge,
+.lt-bezel-toolbar {
+    position: absolute;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.12s ease;
+    user-select: none;
+}
+
+/* Visibility — chrome appears on hover/focus/selected/dragging.
+   After the JS-portal teleport (containerGrid.js → attachBezel) the host
+   is no longer a DOM descendant of the section, so the original
+   descendant selectors `.lt-container-grid-section:hover .lt-bezel-…`
+   stop matching. We mirror the section's class list onto the host as
+   `data-section-classes="..."` and pipe :hover / :focus-within through
+   pointer/focus listeners as `lt-bezel-host--hovered` /
+   `lt-bezel-host--focused` host classes. CSS matches on those so the
+   chrome reveals exactly when it used to.
+
+   Toolbar regains pointer-events:auto so its buttons (grip + actions)
+   are clickable; the label and badges stay pointer-events:none so they
+   never block the resize handles or mouse interactions on the section
+   body. */
+.lt-bezel-host.lt-bezel-host--hovered .lt-bezel-label,
+.lt-bezel-host.lt-bezel-host--hovered .lt-bezel-badge,
+.lt-bezel-host.lt-bezel-host--hovered .lt-bezel-toolbar,
+.lt-bezel-host.lt-bezel-host--focused .lt-bezel-label,
+.lt-bezel-host.lt-bezel-host--focused .lt-bezel-badge,
+.lt-bezel-host.lt-bezel-host--focused .lt-bezel-toolbar,
+.lt-bezel-host[data-section-classes~="lt-container-grid-section--selected"] .lt-bezel-label,
+.lt-bezel-host[data-section-classes~="lt-container-grid-section--selected"] .lt-bezel-badge,
+.lt-bezel-host[data-section-classes~="lt-container-grid-section--selected"] .lt-bezel-toolbar,
+.lt-bezel-host[data-section-classes~="lt-container-grid-section--dragging"] .lt-bezel-label,
+.lt-bezel-host[data-section-classes~="lt-container-grid-section--dragging"] .lt-bezel-badge,
+.lt-bezel-host[data-section-classes~="lt-container-grid-section--dragging"] .lt-bezel-toolbar {
+    opacity: 1;
+}
+
+.lt-bezel-host.lt-bezel-host--hovered .lt-bezel-toolbar,
+.lt-bezel-host.lt-bezel-host--focused .lt-bezel-toolbar,
+.lt-bezel-host[data-section-classes~="lt-container-grid-section--selected"] .lt-bezel-toolbar,
+.lt-bezel-host[data-section-classes~="lt-container-grid-section--dragging"] .lt-bezel-toolbar {
+    pointer-events: auto;
+}
+
+/* Label chip — sits below the toolbar, anchored to the section's top-left
+   inside the box so it doesn't fight the toolbar above. Truncates long
+   selectors so the label never overflows. */
+.lt-bezel-label {
+    top: 4px;
+    left: 4px;
+    max-width: calc(100% - 8px);
+    padding: 1px 6px;
+    border-radius: 3px;
+    background: var(--primary, #7e6fff);
+    color: var(--primary-foreground, #ffffff);
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 14px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
+}
+
+/* Edge badges — show the resolved CSS Grid line numbers on each side. The
+   dashed guideline you see continuing through the badge is the bezel's
+   visual cue that "this section starts/ends at line N". */
+.lt-bezel-badge {
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    background: var(--primary, #7e6fff);
+    color: var(--primary-foreground, #ffffff);
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.lt-bezel-badge--col-start { top: 50%; left: 0;   transform: translate(-50%, -50%); }
+.lt-bezel-badge--col-end   { top: 50%; right: 0;  transform: translate(50%, -50%); }
+.lt-bezel-badge--row-start { left: 50%; top: 0;   transform: translate(-50%, -50%); }
+.lt-bezel-badge--row-end   { left: 50%; bottom: 0; transform: translate(-50%, 50%); }
+
+/* Action toolbar — floats above the section so it never blocks content. The
+   drag grip lives here as the leftmost chip; consumer-supplied actions
+   (Properties / Delete) follow it. */
+.lt-bezel-toolbar {
+    bottom: 100%;
+    left: 0;
+    margin-bottom: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 4px;
+    background: var(--primary, #7e6fff);
+    color: var(--primary-foreground, #ffffff);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    white-space: nowrap;
+}
+
+.lt-bezel-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    border-radius: 3px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+}
+
+.lt-bezel-button:hover {
+    background: color-mix(in srgb, var(--primary-foreground, #ffffff) 18%, transparent);
+}
+
+.lt-bezel-button:active {
+    background: color-mix(in srgb, var(--primary-foreground, #ffffff) 28%, transparent);
+}
+
+/* The grip is just a styled bezel button with the grab cursor and no hover
+   tint distinct from active — pressing it should *immediately* feel like
+   the drag is engaging. */
+.lt-bezel-grip {
+    cursor: grab;
+    touch-action: none;
+}
+
+.lt-bezel-grip:active {
+    cursor: grabbing;
+}
+
+/* Resize handles — 14×14 primary-colored chips that protrude half-outside
+   the section edges (translate(50%) trick). Hidden by default; revealed on
+   section hover/focus-within so they don't compete with content. Mirrors
+   the MudExGrid handle pattern from samples/MudBlazor.Extensions. */
+.lt-container-grid-handle {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    z-index: 5;
+    border-radius: 4px;
+    background: var(--primary, #7e6fff);
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.25),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.65);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s ease, box-shadow 0.12s ease;
+    user-select: none;
+    touch-action: none;
+}
+
+/* Slightly enlarged hit area so the user doesn't need pixel-perfect aim. */
+.lt-container-grid-handle::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+}
+
+/* Handles also live in the portaled host now, so they follow the same
+   mirrored-state pattern as the toolbar/label/badges above. */
+.lt-bezel-host.lt-bezel-host--hovered .lt-container-grid-handle,
+.lt-bezel-host.lt-bezel-host--focused .lt-container-grid-handle,
+.lt-bezel-host[data-section-classes~="lt-container-grid-section--selected"] .lt-container-grid-handle {
+    opacity: 0.95;
+    pointer-events: auto;
+}
+
+.lt-container-grid-handle:hover {
+    box-shadow:
+        0 4px 14px rgba(0, 0, 0, 0.28),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.85);
+}
+
+.lt-container-grid-handle.lt-handle-e {
+    right: 0;
+    top: 50%;
+    transform: translate(50%, -50%);
+    cursor: ew-resize;
+}
+
+.lt-container-grid-handle.lt-handle-s {
+    left: 50%;
+    bottom: 0;
+    transform: translate(-50%, 50%);
+    cursor: ns-resize;
+}
+
+.lt-container-grid-handle.lt-handle-se {
+    right: 0;
+    bottom: 0;
+    transform: translate(50%, 50%);
+    cursor: nwse-resize;
+}
+
+/* Drag clone — visual copy that follows the cursor during drag/resize.
+   left/top are set inline by containerGrid.js per pointer event. */
+.lt-container-grid-clone {
+    border: 1px dashed var(--primary, #7e6fff);
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--primary, #7e6fff) 12%, transparent);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    transition: none;
+}
+
+/* Placeholder — snaps to the resolved target cell so the user sees exactly
+   where the section will land if they release now. left/top set inline by
+   containerGrid.js. */
+.lt-container-grid-placeholder {
+    display: none;
+    position: absolute;
+    pointer-events: none;
+    z-index: 5;
+    border: 2px dashed var(--primary, #7e6fff);
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--primary, #7e6fff) 12%, transparent);
+    transition: left 0.08s ease, top 0.08s ease;
+}

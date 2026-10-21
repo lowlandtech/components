@@ -1,0 +1,185 @@
+/**
+ * RTL (Right-to-Left) Support Utilities
+ * 
+ * These utilities provide RTL support for components.
+ * Use in combination with the Direction component to wrap content.
+ */
+
+/* RTL Flip utility for icons and directional elements */
+[dir="rtl"] .rtl-flip,
+[dir="rtl"] [data-rtl-flip] {
+    transform: scaleX(-1);
+}
+
+/* Logical margin utilities for RTL support */
+[dir="rtl"] .rtl-mr-2 {
+    margin-left: 0.5rem;
+    margin-right: 0;
+}
+
+[dir="rtl"] .rtl-ml-2 {
+    margin-right: 0.5rem;
+    margin-left: 0;
+}
+
+[dir="rtl"] .rtl-mr-auto {
+    margin-left: auto;
+    margin-right: 0;
+}
+
+[dir="rtl"] .rtl-ml-auto {
+    margin-right: auto;
+    margin-left: 0;
+}
+
+/* Text alignment for RTL */
+[dir="rtl"] .rtl-text-right {
+    text-align: left;
+}
+
+[dir="rtl"] .rtl-text-left {
+    text-align: right;
+}
+
+/* Flex/Grid direction helpers for RTL */
+[dir="rtl"] .rtl-flex-row {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .rtl-space-x-reverse > :not([hidden]) ~ :not([hidden]) {
+    --tw-space-x-reverse: 1;
+}
+
+/* Icon specific RTL handling */
+[dir="rtl"] svg[data-icon="inline-start"] {
+    transform: scaleX(-1);
+}
+
+[dir="rtl"] svg[data-icon="inline-end"] {
+    transform: scaleX(-1);
+}
+
+[dir="rtl"] svg[data-icon="arrow-left"],
+[dir="rtl"] svg[data-icon="arrow-right"] {
+    transform: scaleX(-1);
+}
+
+[dir="rtl"] svg[data-icon="chevron-left"],
+[dir="rtl"] svg[data-icon="chevron-right"] {
+    transform: scaleX(-1);
+}
+
+/* Border radius logical properties for RTL */
+[dir="rtl"] .rtl-rounded-l {
+    border-radius: 0;
+    border-top-right-radius: var(--radius);
+    border-bottom-right-radius: var(--radius);
+}
+
+[dir="rtl"] .rtl-rounded-r {
+    border-radius: 0;
+    border-top-left-radius: var(--radius);
+    border-bottom-left-radius: var(--radius);
+}
+
+/* Padding logical properties for RTL */
+[dir="rtl"] .rtl-pl-4 {
+    padding-left: 0;
+    padding-right: 1rem;
+}
+
+[dir="rtl"] .rtl-pr-4 {
+    padding-right: 0;
+    padding-left: 1rem;
+}
+
+/* Accordion chevron rotation in RTL */
+[dir="rtl"] [data-slot="accordion-trigger"] svg[data-icon="chevron-down"],
+[dir="rtl"] [data-slot="accordion-trigger"] svg:last-child {
+    transform: scaleX(-1);
+}
+
+/* Breadcrumb separator in RTL */
+[dir="rtl"] [data-slot="breadcrumb-separator"] svg {
+    transform: scaleX(-1);
+}
+
+/* Pagination previous/next buttons */
+[dir="rtl"] [data-slot="pagination-previous"] svg,
+[dir="rtl"] [data-slot="pagination-next"] svg {
+    transform: scaleX(-1);
+}
+
+/* Dialog close button position */
+[dir="rtl"] [data-slot="dialog-close"] {
+    right: auto;
+    left: 1rem;
+}
+
+/* Select dropdown chevron */
+[dir="rtl"] [data-slot="select-trigger"] svg[data-icon="chevron-down"] {
+    right: auto;
+    left: 0.75rem;
+}
+
+/* Tabs list in RTL */
+[dir="rtl"] [data-slot="tabs-list"] {
+    direction: rtl;
+}
+
+/* Menu/Navigation RTL adjustments */
+[dir="rtl"] [data-slot="navigation-menu"] {
+    direction: rtl;
+}
+
+[dir="rtl"] [data-slot="dropdown-menu-content"] {
+    direction: rtl;
+}
+
+[dir="rtl"] [data-slot="context-menu-content"] {
+    direction: rtl;
+}
+
+/* Tooltip arrow positioning */
+[dir="rtl"] [data-slot="tooltip-content"][data-side="left"] {
+    transform: translateX(-100%);
+}
+
+[dir="rtl"] [data-slot="tooltip-content"][data-side="right"] {
+    transform: translateX(100%);
+}
+
+/* Checkbox and Radio positioning in RTL */
+[dir="rtl"] [data-slot="checkbox-item"] svg,
+[dir="rtl"] [data-slot="radio-item"] svg {
+    margin-right: 0;
+    margin-left: 0.5rem;
+}
+
+/* Calendar navigation arrows */
+[dir="rtl"] [data-slot="calendar-navigation"] svg[data-icon="chevron-left"],
+[dir="rtl"] [data-slot="calendar-navigation"] svg[data-icon="chevron-right"] {
+    transform: scaleX(-1);
+}
+
+/* Drawer/sheet positioning */
+[dir="rtl"] [data-slot="drawer-content"][data-side="left"] {
+    left: auto;
+    right: 0;
+}
+
+[dir="rtl"] [data-slot="drawer-content"][data-side="right"] {
+    right: auto;
+    left: 0;
+}
+
+/* Input with icon positioning */
+[dir="rtl"] [data-slot="input-wrapper"] svg[data-icon="prefix"] {
+    left: auto;
+    right: 0.75rem;
+}
+
+[dir="rtl"] [data-slot="input-wrapper"] svg[data-icon="suffix"] {
+    right: auto;
+    left: 0.75rem;
+}
