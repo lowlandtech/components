@@ -70,7 +70,14 @@
     background: color-mix(in oklab, var(--border) 75%, transparent);
 }
 
-.story-home-column-scroll {
+/* Keep card widths tied to the header column; the scroll lane uses the gap. */
+div:has(> .story-home-column-scroll) {
+    container-type: inline-size;
+}
+
+div.story-home-column-scroll {
+    width: calc(100% + 10px);
+    padding-inline-end: 0;
     scrollbar-color: transparent transparent;
     scrollbar-width: thin;
 }
@@ -79,10 +86,10 @@
     scrollbar-color: color-mix(in oklab, var(--border) 75%, transparent) transparent;
 }
 
-.story-home-cell {
+.story-home-column-scroll > .story-home-cell {
     box-sizing: border-box;
-    width: calc(100% - 5px);
-    margin: 2.5px;
+    width: 100cqi;
+    margin: 2.5px 0;
     padding: 5px;
 }
 
