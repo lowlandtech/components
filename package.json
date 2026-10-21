@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "css:build": "copy ..\\Styles\\app.css .\\input.css && npx @tailwindcss/cli -i ./input.css -o css/app.css --minify && del input.css",
-    "css:watch": "copy ..\\Styles\\app.css .\\input.css && npx @tailwindcss/cli -i ./input.css -o css/app.css --watch",
+    "css:build": "npx @tailwindcss/cli -i ../Styles/app.css -o css/app.css --minify",
+    "css:watch": "npx @tailwindcss/cli -i ../Styles/app.css -o css/app.css --watch",
     "visual:capture:chadcn": "node ./visual/capture-chadcn.mjs",
     "visual:capture:local": "node ./visual/capture-local.mjs",
     "visual:capture:local:dark": "node ./visual/capture-local-dark.mjs",
