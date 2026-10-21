@@ -385,3 +385,17 @@ body:has(.story-card-preview-container[data-expanded="true"]) {
 .story-card-token-number {
     color: #79c0ff;
 }
+
+/* Compact the demo navigation without changing sidebar component examples. */
+[data-slot="sidebar-content"]:has([aria-controls^="showcode-group-"]) {
+    gap: 2px;
+}
+
+[data-slot="sidebar-content"]:has([aria-controls^="showcode-group-"]) > [data-slot="sidebar-group"] {
+    padding-block: 0;
+}
+
+[data-slot="sidebar-group-label"] > button[aria-controls^="showcode-group-"] {
+    height: 100%;
+    cursor: pointer;
+}
