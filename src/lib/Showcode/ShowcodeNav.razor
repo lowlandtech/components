@@ -1,5 +1,6 @@
 @namespace LowlandTech.Components
 @inject ShowcodeState State
+@inject NavigationManager Nav
 @inject IJSRuntime JS
 @implements IDisposable
 
@@ -13,41 +14,138 @@
     <SidebarContent>
         @foreach (var group in StoryRegistry.Root.Children)
         {
+            var expanded = _expandedGroups.Contains(group.Name);
+            var groupId = "showcode-group-" + StoryRegistry.Root.Children.IndexOf(group);
             <SidebarGroup>
-                <SidebarGroupLabel>@group.Name</SidebarGroupLabel>
-                <SidebarGroupContent>
-                    <SidebarMenu>
-                        @foreach (var story in group.Stories)
-                        {
-                            <SidebarMenuItem>
-                                <SidebarMenuButton IsActive="@(State.Current?.Slug == story.Slug)"
-                                                   @onclick="@(() => Select(story))">
-                                    @story.Name
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        }
-                    </SidebarMenu>
-                </SidebarGroupContent>
+                <SidebarGroupLabel>
+                    <button type="button" class="flex w-full items-center justify-between text-left"
+                            aria-expanded="@(expanded ? "true" : "false")" aria-controls="@groupId"
+                            @onclick="() => ToggleGroup(group.Name)">
+                        <span>@group.Name</span>
+                        <Icon Name="chevron-right" Size="14" class="@(expanded ? "rotate-90" : "")" />
+                    </button>
+                </SidebarGroupLabel>
+                @if (expanded)
+                {
+                    <SidebarGroupContent id="@groupId">
+                        <SidebarMenu>
+                            @foreach (var story in group.Stories)
+                            {
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton IsActive="@(State.Current?.Slug == story.Slug)"
+                                                       OnClick="@(() => Select(story))">
+                                        @story.Name
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            }
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                }
             </SidebarGroup>
         }
     </SidebarContent>
 </Sidebar>
 
 @code {
+    private const string StorageKey = "showcode-navigation-v1";
+    private readonly HashSet<string> _expandedGroups = new(StringComparer.Ordinal);
+    private bool _initialized;
     private bool _shouldScroll;
+    private bool _saveRequested;
+    private string? _lastSlug;
 
-    protected override void OnInitialized() => State.Changed += Refresh;
+    protected override void OnInitialized()
+    {
+        State.Changed += Refresh;
+        Nav.LocationChanged += LocationChanged;
+    }
 
-    private void Select(StoryMetadata story) => State.Select(story);
+    private void Select(StoryMetadata story)
+    {
+        State.Select(story);
+        Nav.NavigateTo("/admin/components/" + story.RouteSlug);
+    }
+
+    private void ToggleGroup(string group)
+    {
+        if (!_expandedGroups.Add(group)) _expandedGroups.Remove(group);
+        _saveRequested = true;
+    }
+
+    private void RevealSelection()
+    {
+        var group = StoryRegistry.Root.Children.FirstOrDefault(g => g.Stories.Any(s => s.Slug == State.Current?.Slug));
+        if (group is not null) _expandedGroups.Add(group.Name);
+    }
 
     private void Refresh()
     {
+        if (_initialized && State.Current?.Slug != _lastSlug) RevealSelection();
+        _lastSlug = State.Current?.Slug;
         _shouldScroll = true;
-        InvokeAsync(StateHasChanged);
+        _saveRequested = _initialized;
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    private void LocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        _saveRequested = _initialized;
+        _ = InvokeAsync(StateHasChanged);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender)
+        {
+            ShowcodeNavigationSnapshot? saved = null;
+            try
+            {
+                var json = await JS.InvokeAsync<string?>("localStorage.getItem", StorageKey);
+                if (json is not null) saved = JsonSerializer.Deserialize<ShowcodeNavigationSnapshot>(json);
+            }
+            catch (Exception ex) when (ex is JSException or JsonException)
+            {
+                // Storage may be disabled or contain data from an older version.
+            }
+
+            foreach (var group in saved?.ExpandedGroups ?? [])
+                if (StoryRegistry.Root.Children.Any(g => g.Name == group)) _expandedGroups.Add(group);
+
+            _lastSlug = State.Current?.Slug;
+            var path = new Uri(Nav.Uri).AbsolutePath.TrimEnd('/');
+            if (path == "/admin/components" && saved?.Route is { } route && route.StartsWith("/admin/components/", StringComparison.Ordinal))
+            {
+                var story = StoryRegistry.GetByRouteSlug(route["/admin/components/".Length..]);
+                if (story is not null)
+                {
+                    _lastSlug = story.Slug;
+                    Nav.NavigateTo("/admin/components/" + story.RouteSlug, replace: true);
+                }
+            }
+            else if (State.Current is not null && saved?.Route != path)
+            {
+                RevealSelection();
+            }
+            _initialized = true;
+            _saveRequested = true;
+            _shouldScroll = true;
+            StateHasChanged();
+            return;
+        }
+
+        if (_saveRequested && _initialized)
+        {
+            _saveRequested = false;
+            var snapshot = new ShowcodeNavigationSnapshot(_expandedGroups.Order().ToArray(), new Uri(Nav.Uri).AbsolutePath);
+            try
+            {
+                await JS.InvokeVoidAsync("localStorage.setItem", StorageKey, JsonSerializer.Serialize(snapshot));
+            }
+            catch (JSException)
+            {
+                // Navigation remains usable when browser storage is unavailable.
+            }
+        }
         if (_shouldScroll)
         {
             _shouldScroll = false;
@@ -55,5 +153,9 @@
         }
     }
 
-    public void Dispose() => State.Changed -= Refresh;
+    public void Dispose()
+    {
+        State.Changed -= Refresh;
+        Nav.LocationChanged -= LocationChanged;
+    }
 }

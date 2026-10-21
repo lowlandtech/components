@@ -25,3 +25,13 @@ That command uses the checked-in CSS. If styles changed, rebuild the library Tai
 ```
 
 The script updates `gh-pages` using a normal push from an isolated temporary checkout. GitHub then publishes the site. Verify the published demo after deployment.
+
+## Sidebar navigation
+
+Groups start collapsed in a fresh browser. Group expansion and the last component route are stored in localStorage under `showcode-navigation-v1`. Opening the app restores that route; an explicit component URL takes precedence. Returning to All Components saves the overview as the current route. Clearing browser site data resets these preferences.
+
+Browser regression check against a published build (requires Chrome and the app's npm dependencies):
+
+```powershell
+node src/app/wwwroot/visual/test-navigation.mjs D:/path/to/published/wwwroot
+```
