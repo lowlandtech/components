@@ -1,10 +1,12 @@
-@import "tailwindcss";
+@import "../wwwroot/node_modules/tailwindcss/index.css";
+@custom-variant dark (&:where(.dark, .dark *));
 @import "../wwwroot/css/variables.css";
 @import "../../lib/wwwroot/css/sidebar.css";
 @import "../../lib/wwwroot/css/tooltip.css";
 
-@source ".\./\*\*/\*\.razor";
+@source "../**/*.razor";
 @source "../../stories/**/*.razor";
+@source "../../stories/**/*.cs";
 @source "../**/*.html";
 @source "../../lib/**/*.razor";
 
