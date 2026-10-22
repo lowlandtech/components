@@ -41,6 +41,10 @@ The live demo is a static GitHub Pages deployment. Changes to source branches do
 
 ## Scrum workflow
 
+For the planned optional Plugins integration, see the
+[compatibility review](docs/plugin-recommendations.md) and
+[local follow-up workitems](docs/workitems/README.md).
+
 Use issues for backlog refinement, sprint planning, implementation, and review:
 
 - **Type:** `type: epic`, `type: story`, `type: task`, `type: bug`, or `type: chore`.

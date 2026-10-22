@@ -4,6 +4,11 @@ Imported from the local Foundry checkout at `D:/lowlandtech/develop` and `lowlan
 
 ## Open backlog
 
+New local plugin-integration proposals are listed in
+[docs/workitems/README.md](docs/workitems/README.md), with the
+[compatibility review](docs/plugin-recommendations.md). They are mirrored to
+GitHub issues #16–#21 and do not change the imported issue states below.
+
 - [SPEC1015: verify and close Combobox review gaps](https://github.com/lowlandtech/components/issues/1) — `doc-SPEC1015`
 - [SPEC1043: verify Sidebar behavior and accessibility review gaps](https://github.com/lowlandtech/components/issues/2) — `doc-SPEC1043`
 - [SPEC1062: compose DataGrid pager and internal controls from reusable components](https://github.com/lowlandtech/components/issues/3) — `doc-SPEC1062`
