@@ -6,9 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>true</IsPackable>
     <PackageId>LowlandTech.Components.Blocks</PackageId>
-    <Version>1.0.0</Version>
-    <Authors>LowlandTech</Authors>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>Reusable UI block library for the Foundry platform.</Description>
     <EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
   </PropertyGroup>

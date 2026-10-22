@@ -6,18 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>true</IsPackable>
     <PackageId>LowlandTech.Components</PackageId>
-    <Version>2026.5.29</Version>
-    <Authors>LowlandTech</Authors>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageIcon>icon.png</PackageIcon>
     <Description>Blazor component library for the Foundry platform.</Description>
     <EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
   </PropertyGroup>
 
 
-  <ItemGroup>
-    <None Include="..\..\..\icon.png" Pack="true" PackagePath="\" />
-  </ItemGroup>
+
 
   <ItemGroup>
     <SupportedPlatform Include="browser" />
@@ -37,7 +31,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\core\LowlandTech.Components.Core.csproj" />
-    <ProjectReference Include="..\..\core\LowlandTech.Core.csproj" />
+    <PackageReference Include="LowlandTech.Core" Version="[$(LowlandTechCoreVersion)]" Condition="'$(LowlandTechCoreVersion)' != ''" />
   </ItemGroup>
 
   <ItemGroup>
@@ -66,6 +60,11 @@
     <!-- Linux/macOS: use npm directly from PATH -->
     <Exec Command="npm install" WorkingDirectory="$(WwwRootPath)" Condition="'$(OS)' != 'Windows_NT' And !Exists('$(NodeModulesPath)')" ConsoleToMSBuild="true" IgnoreExitCode="false" />
     <Exec Command="npm run build:css" WorkingDirectory="$(WwwRootPath)" Condition="'$(OS)' != 'Windows_NT'" ConsoleToMSBuild="true" IgnoreExitCode="false" />
+  </Target>
+
+  <Target Name="RequireCompatibleCorePackage" BeforeTargets="CollectPackageReferences;PrepareForBuild;GenerateNuspec">
+    <Error Condition="'$(LowlandTechCoreVersion)' == '' Or '$(LowlandTechCoreVersion)' == '2026.5.29'"
+           Text="Set LowlandTechCoreVersion to a verified Core package that references Components.Core instead of defining its moved types. Core 2026.5.29 duplicates Icons and block intent contracts and is incompatible. See docs/local-build.md." />
   </Target>
 
 </Project>

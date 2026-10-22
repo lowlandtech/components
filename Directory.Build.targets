@@ -1,0 +1,13 @@
+<Project>
+  <!-- Evaluated after project IsPackable overrides the repository default. -->
+  <ItemGroup Condition="'$(IsPackable)' == 'true'">
+    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="/" />
+    <None Include="$(MSBuildThisFileDirectory)icon.png" Pack="true" PackagePath="/" />
+    <None Include="$(MSBuildThisFileDirectory)LICENSE.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="wwwroot/node_modules/**;wwwroot/package.json;wwwroot/package-lock.json;wwwroot/css/input.css" />
+    <None Remove="wwwroot/node_modules/**;wwwroot/package.json;wwwroot/package-lock.json;wwwroot/css/input.css" />
+  </ItemGroup>
+</Project>
+

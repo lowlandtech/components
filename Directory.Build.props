@@ -1,0 +1,21 @@
+<Project>
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <Version>2026.10.1</Version>
+    <Authors>wendellmva</Authors>
+    <Company>LowlandTech</Company>
+    <Product>LowlandTech.Components</Product>
+    <Copyright>Copyright © 2021-2026 LowlandTech</Copyright>
+    <PackageProjectUrl>https://components.lowlandtech.com</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/lowlandtech/components</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>lowlandtech;blazor;components;ui;tailwind</PackageTags>
+    <NpmCommand>npm</NpmCommand>
+  </PropertyGroup>
+</Project>

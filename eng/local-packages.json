@@ -1,0 +1,9 @@
+{
+  "solution": "components.slnx",
+  "versionPrefix": "2026.10.1",
+  "projects": [
+    "src/core/LowlandTech.Components.Core.csproj",
+    "src/lib/LowlandTech.Components.csproj",
+    "src/blocks/LowlandTech.Components.Blocks.csproj"
+  ]
+}

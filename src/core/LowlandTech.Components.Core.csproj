@@ -8,15 +8,9 @@
     <AssemblyName>LowlandTech.Components.Core</AssemblyName>
     <IsPackable>true</IsPackable>
     <PackageId>LowlandTech.Components.Core</PackageId>
-    <Version>2026.5.29</Version>
-    <Authors>LowlandTech</Authors>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageIcon>icon.png</PackageIcon>
     <Description>Framework-neutral contracts and utilities shared by LowlandTech component packages.</Description>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Include="..\..\..\icon.png" Pack="true" PackagePath="\" />
-  </ItemGroup>
+
 
 </Project>

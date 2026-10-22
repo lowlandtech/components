@@ -522,3 +522,5 @@ reel.db
 src/api/workspaces/
 .worktrees/
 .artifacts
+
+/artifacts/

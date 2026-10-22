@@ -20,7 +20,7 @@ A Blazor component library and interactive component explorer for .NET 10. The d
 
 `develop` is the default integration branch. Open pull requests against it. `main` retains the published source baseline; `gh-pages` contains the generated public demo.
 
-Use the .NET 10 SDK and Node.js/npm. The extraction currently retains a project dependency on Foundry core, so a standalone solution build needs that dependency resolved. Until it is packaged independently, use a compatible Foundry checkout with this repository's `src` tree under `src/components`. See [the extraction notes](MIGRATION.md) and [publishing instructions](HOSTING.md).
+Use the .NET 10 SDK and Node.js/npm. The [local NuGet build setup](docs/local-build.md) provides shared metadata, calendar versions and the local feed workflow. Components Core builds independently; controls and Blocks require a compatible upstream Core package. The older 2026.5.29 package duplicates moved types and cannot be used. See the local build guide for the prerequisite and verification limits, plus [the extraction notes](MIGRATION.md) and [publishing instructions](HOSTING.md).
 
 Build the demo CSS from this repository:
 
