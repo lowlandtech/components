@@ -1,8 +1,10 @@
 [CmdletBinding()]
-param([string]$Repository = 'lowlandtech/components', [switch]$Apply)
+param([string]$Repository = 'lowlandtech/components', [switch]$Apply, [switch]$Offline)
 $ErrorActionPreference = 'Stop'
 if ($Repository -notmatch '^[\w.-]+/[\w.-]+$') { throw 'Expected owner/repository.' }
+if ($Apply -and $Offline) { throw 'Offline validation cannot apply GitHub changes.' }
 $root = Split-Path $PSScriptRoot -Parent
+. (Join-Path $PSScriptRoot 'WorkitemRoadmap.ps1')
 function Read-Gh([string[]]$Arguments) {
     $output = & gh @Arguments
     if ($LASTEXITCODE -ne 0) { throw 'GitHub read failed.' }
@@ -15,10 +17,14 @@ function Write-Gh([string]$Endpoint, [string]$Method, $Payload) {
         Read-Gh @('api', $Endpoint, '--method', $Method, '--input', $temporary)
     } finally { Remove-Item -LiteralPath $temporary -Force }
 }
+$issues = @()
+if (!$Offline) {
 $issues = @(foreach ($page in (Read-Gh @('api', "repos/$Repository/issues", '--method', 'GET', '-f', 'state=all', '-f', 'per_page=100', '--paginate', '--slurp'))) {
     foreach ($issue in $page) { if (!$issue.pull_request) { $issue } }
 })
+}
 $board = Get-Content (Join-Path $root 'docs/workitems/README.md') -Raw -Encoding UTF8
+$roadmap = @(Get-WorkitemRoadmap -Path (Join-Path $root 'docs/workitems/README.md'))
 $results = @()
 foreach ($file in (Get-ChildItem (Join-Path $root 'docs/workitems/*.md') -File | Where-Object Name -ne 'README.md' | Sort-Object Name)) {
     # Read as UTF-8: the documents contain an em dash in the title, and the
@@ -37,8 +43,11 @@ foreach ($file in (Get-ChildItem (Join-Path $root 'docs/workitems/*.md') -File |
     $desiredIssueState = if ($scopeState -eq 'done') { 'closed' } else { 'open' }
     if ($body -notmatch '(?m)^- \*\*Blocked by:\*\* (.+)\r?$') { throw "Missing dependency: $id" }
     $dependencies = $Matches[1].Trim()
-    $rows = @($board -split '\r?\n' | Where-Object { $_.StartsWith("| $id |") -and $_ -like "*| $scopeState |*" })
-    if ($rows.Count -ne 1 -or $rows[0] -notlike "*| $scopeState | $dependencies |") { throw "Board mismatch: $id" }
+    $row = Assert-WorkitemRoadmapEntry -Rows $roadmap -Scope $id -State $scopeState -Dependencies $dependencies -FileName $file.Name -Body $body
+    if ($Offline) {
+        $results += [pscustomobject]@{work=$row.Work;scope=$id;state=$scopeState;action='validated'}
+        continue
+    }
     $marker = "<!-- workitem:$id -->"
     $matchesForItem = @($issues | Where-Object { ($_.body -and $_.body.Contains($marker)) -or $_.title.StartsWith("${id}:") })
     if ($matchesForItem.Count -gt 1) { throw "Duplicate issue identity: $id" }

@@ -186,3 +186,27 @@ The schedule does not authorize implementing another scope because a plan
 exists, claiming blocked work, weakening a gate, closing an imported issue,
 inventing an owner, estimate or sprint, publishing to a remote feed, deleting
 data, pushing, or mutating an external issue beyond this lane's own proposals.
+
+## Milestone roadmap pilot
+
+docs/workitems/README.md is the current lane roadmap, grouped by outcome
+milestones M1-M3. Work contains only IDs such as M1-001; the Title column links
+to the existing stable SPEC/US/SC workitem. Source metadata and roadmap rows
+agree on Work, Milestone, Owner, State and dependencies. Milestones are planning
+groups, not sprint assignments or implementation releases; no estimates are invented.
+
+The accountable Owner defaults to the components lane. This records the existing
+agent assignment and does not transfer a live claim or launch a second runner.
+Hub claims and released phases remain authoritative for active execution.
+
+External M#-X## rows link to source-owned workitems. They are references to
+concrete consumed technical contracts, never local assignments, new Components
+issues, or cross-coordinator acknowledgement/completion gates. Recheck their
+linked source and package compatibility before executing a consuming item.
+
+Use scripts/Sync-PluginWorkitems.ps1 -Offline for the local roadmap consistency
+check before the normal online preview and Apply. Dependencies use Work aliases
+on the roadmap and retain canonical scope identities in the workitems.
+The mirror validates the mapping and never mirrors external rows. State changes
+still update the source and its row together; backlog/review/done are preserved
+by this formatting pilot. Imported issues retain their original inventory.
