@@ -18,21 +18,31 @@ function Write-Gh([string]$Endpoint, [string]$Method, $Payload) {
 $issues = @(foreach ($page in (Read-Gh @('api', "repos/$Repository/issues", '--method', 'GET', '-f', 'state=all', '-f', 'per_page=100', '--paginate', '--slurp'))) {
     foreach ($issue in $page) { if (!$issue.pull_request) { $issue } }
 })
-$board = Get-Content (Join-Path $root 'docs/workitems/README.md') -Raw
+$board = Get-Content (Join-Path $root 'docs/workitems/README.md') -Raw -Encoding UTF8
 $results = @()
 foreach ($file in (Get-ChildItem (Join-Path $root 'docs/workitems/*.md') -File | Where-Object Name -ne 'README.md' | Sort-Object Name)) {
-    $body = (Get-Content $file.FullName -Raw).TrimEnd()
-    if ($body -notmatch '(?m)^# ([A-Z]{4}\d{4}-US\d{2}-SC\d{2}) — (.+)\r?$') { throw "Invalid title: $file" }
+    # Read as UTF-8: the documents contain an em dash in the title, and the
+    # default code page would otherwise rewrite it and corrupt the issue body.
+    $body = (Get-Content $file.FullName -Raw -Encoding UTF8).TrimEnd()
+    $emDash = [char]0x2014
+    if ($body -notmatch "(?m)^# ([A-Z]{4}\d{4}-US\d{2}-SC\d{2}) $emDash (.+)\r?$") { throw "Invalid title: $file" }
     $id = $Matches[1]; $title = "${id}: $($Matches[2].Trim())"
-    if ($body -notmatch '(?m)^- \*\*State:\*\* backlog\r?$') { throw "Review non-backlog state before syncing: $id" }
+    # A finished scope rests at review until the coordinator accepts it and then
+    # at done, and the board mirrors its state, so the settled states are
+    # mirrored as well as backlog. A scope still in flight has no settled
+    # mirror and needs a review before it is synced.
+    if ($body -notmatch '(?m)^- \*\*State:\*\* (backlog|review|done)\r?$') { throw "Review non-settled state before syncing: $id" }
+    $scopeState = $Matches[1]
+    # The issue workflow closes a completed issue with `status: done`.
+    $desiredIssueState = if ($scopeState -eq 'done') { 'closed' } else { 'open' }
     if ($body -notmatch '(?m)^- \*\*Blocked by:\*\* (.+)\r?$') { throw "Missing dependency: $id" }
     $dependencies = $Matches[1].Trim()
-    $rows = @($board -split '\r?\n' | Where-Object { $_.StartsWith("| $id |") -and $_ -like '*| backlog |*' })
-    if ($rows.Count -ne 1 -or $rows[0] -notlike "*| backlog | $dependencies |") { throw "Board mismatch: $id" }
+    $rows = @($board -split '\r?\n' | Where-Object { $_.StartsWith("| $id |") -and $_ -like "*| $scopeState |*" })
+    if ($rows.Count -ne 1 -or $rows[0] -notlike "*| $scopeState | $dependencies |") { throw "Board mismatch: $id" }
     $marker = "<!-- workitem:$id -->"
     $matchesForItem = @($issues | Where-Object { ($_.body -and $_.body.Contains($marker)) -or $_.title.StartsWith("${id}:") })
     if ($matchesForItem.Count -gt 1) { throw "Duplicate issue identity: $id" }
-    $labels = @('type: story', 'status: backlog', 'area: integration', 'needs: triage', 'needs: estimate')
+    $labels = @('type: story', "status: $scopeState", 'area: integration', 'needs: triage', 'needs: estimate')
     if ($dependencies -ne 'none') { $labels += 'flag: blocked' }
     $desiredBody = "$marker`n`n$body`n`n---`nSource: ``docs/workitems/$($file.Name)``. Update the local document and board, then sync."
     $number = $null; $action = 'create'
@@ -40,8 +50,8 @@ foreach ($file in (Get-ChildItem (Join-Path $root 'docs/workitems/*.md') -File |
         $issue = $matchesForItem[0]; $number = $issue.number
         $labels = @($labels + @($issue.labels | Where-Object { $_.name -notmatch '^status:' -and $_.name -ne 'flag: blocked' } | ForEach-Object name) | Sort-Object -Unique)
         $actualLabels = @($issue.labels | ForEach-Object name | Sort-Object -Unique)
-        $action = if ($issue.title -eq $title -and $issue.body -ceq $desiredBody -and $issue.state -eq 'open' -and ($labels -join '|') -eq ($actualLabels -join '|')) { 'unchanged' } else { 'update' }
-        if ($Apply -and $action -eq 'update') { $null = Write-Gh "repos/$Repository/issues/$number" PATCH @{title=$title;body=$desiredBody;labels=$labels;state='open'} }
+        $action = if ($issue.title -eq $title -and $issue.body -ceq $desiredBody -and $issue.state -eq $desiredIssueState -and ($labels -join '|') -eq ($actualLabels -join '|')) { 'unchanged' } else { 'update' }
+        if ($Apply -and $action -eq 'update') { $null = Write-Gh "repos/$Repository/issues/$number" PATCH @{title=$title;body=$desiredBody;labels=$labels;state=$desiredIssueState} }
     } elseif ($Apply) {
         $newIssue = Write-Gh "repos/$Repository/issues" POST @{title=$title;body=$desiredBody;labels=$labels}
         $number = $newIssue.number
