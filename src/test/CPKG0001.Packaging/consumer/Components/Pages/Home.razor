@@ -1,0 +1,17 @@
+@page "/"
+<PageTitle>Components package consumer</PageTitle>
+
+<main data-testid="consumer-main">
+    <h1 data-testid="consumer-heading">Components package consumer</h1>
+
+    @* A representative control from LowlandTech.Components. *@
+    <Button data-testid="consumer-button">Consumed control</Button>
+
+    @* A representative session block from LowlandTech.Components.Blocks. *@
+    <SessionCard Node="@Node" data-testid="consumer-session-card" />
+</main>
+
+@code {
+    private static readonly SessionNodeInput Node =
+        new("consumer-node", "session-card", "Consumer session");
+}

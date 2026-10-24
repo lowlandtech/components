@@ -39,6 +39,7 @@ public abstract class ShowcodeScenario : IAsyncLifetime
         await page.GotoAsync(showcodeUrl);
         await page.WaitForLoadStateAsync(LoadState.NetworkIdle,
             new PageWaitForLoadStateOptions { Timeout = 120_000 });
+        await Showcode.EnsureSidebarExpandedAsync();
         await page.WaitForSelectorAsync("[data-slot='sidebar-menu-button']",
             new PageWaitForSelectorOptions { Timeout = 60_000 });
     }

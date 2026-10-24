@@ -126,6 +126,17 @@ public class SC01_DataFormLocalization : ViewScenario
                 }
             }
 
+            // Standalone Components repository: the controls live at <root>/src/lib.
+            var standaloneCandidate = Path.Combine(current.FullName, "src", "lib", "Resources");
+            if (Directory.Exists(standaloneCandidate))
+            {
+                var resxFiles = Directory.GetFiles(standaloneCandidate, "*.resx");
+                if (resxFiles.Length > 0)
+                {
+                    return standaloneCandidate;
+                }
+            }
+
             var componentsDir = new DirectoryInfo(Path.Combine(current.FullName, "components"));
             if (componentsDir.Exists)
             {

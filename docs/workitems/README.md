@@ -9,7 +9,7 @@ Do not mark work ready/done before its dependencies and executable criteria pass
 
 | Scope | Workitem | State | Blocked by |
 |---|---|---|---|
-| CPKG0001-US01-SC01 | [Restore independent package consumption](CPKG0001.US01.SC01.independent-package-consumption.md) | blocked | compatible upstream LowlandTech.Core package without duplicate Components.Core types |
+| CPKG0001-US01-SC01 | [Restore independent package consumption](CPKG0001.US01.SC01.independent-package-consumption.md) | review | none |
 | CPLG0001-US01-SC01 | [Publish an opt-in UI feature manifest](CPLG0001.US01.SC01.ui-feature-manifest.md) | backlog | CPKG0001-US01-SC01 |
 | CPAN0001-US01-SC01 | [Project active session panels](CPAN0001.US01.SC01.active-session-panels.md) | backlog | CPLG0001-US01-SC01; Plugins BLAZ0001-US01-SC01 |
 | CBLK0001-US01-SC01 | [Resolve active owned session blocks](CBLK0001.US01.SC01.active-owned-session-blocks.md) | backlog | CPLG0001-US01-SC01; Plugins BLAZ0001-US01-SC01 |

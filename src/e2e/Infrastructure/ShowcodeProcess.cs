@@ -41,7 +41,10 @@ public sealed class ShowcodeProcess : IAsyncDisposable
     public static async Task<ShowcodeProcess> StartAsync(CancellationToken ct = default)
     {
         var projectPath = FindProjectFile(
-            ["src", "components", "app", "LowlandTech.Components.App.csproj"]);
+        [
+            ["src", "components", "app", "LowlandTech.Components.App.csproj"], // Foundry monorepo layout
+            ["src", "app", "LowlandTech.Components.App.csproj"],              // standalone Components repository
+        ]);
 
         await EnsureBuiltAsync(projectPath, ct);
 
@@ -186,7 +189,7 @@ public sealed class ShowcodeProcess : IAsyncDisposable
     // (e.g. D:\lowlandtech\develop\src\components\e2e\Infrastructure\ShowcodeProcess.cs).
     // This survives NCrunch binary relocation because it is a compile-time constant.
     private static string FindProjectFile(
-        string[] relativeParts,
+        string[][] relativeCandidates,
         [CallerFilePath] string sourceFilePath = "")
     {
         var attempts = new List<string>();
@@ -206,10 +209,13 @@ public sealed class ShowcodeProcess : IAsyncDisposable
 
             foreach (var dir in EnumerateSelfAndParents(new DirectoryInfo(Path.GetDirectoryName(anchor)!)))
             {
-                var candidate = Path.Combine([dir.FullName, .. relativeParts]);
-                attempts.Add(candidate);
-                if (File.Exists(candidate))
-                    return candidate;
+                foreach (var relativeParts in relativeCandidates)
+                {
+                    var candidate = Path.Combine([dir.FullName, .. relativeParts]);
+                    attempts.Add(candidate);
+                    if (File.Exists(candidate))
+                        return candidate;
+                }
             }
         }
 
@@ -218,16 +224,19 @@ public sealed class ShowcodeProcess : IAsyncDisposable
         {
             foreach (var dir in EnumerateSelfAndParents(root))
             {
-                var candidate = Path.Combine([dir.FullName, .. relativeParts]);
-                attempts.Add(candidate);
-                if (File.Exists(candidate))
-                    return candidate;
+                foreach (var relativeParts in relativeCandidates)
+                {
+                    var candidate = Path.Combine([dir.FullName, .. relativeParts]);
+                    attempts.Add(candidate);
+                    if (File.Exists(candidate))
+                        return candidate;
+                }
             }
         }
 
         var diagnostics = string.Join(Environment.NewLine, attempts.Select((p, i) => $"  [{i}] {p}"));
         throw new FileNotFoundException(
-            $"Could not find project file: {string.Join("/", relativeParts)}{Environment.NewLine}" +
+            $"Could not find project file: {string.Join(" or ", relativeCandidates.Select(c => string.Join("/", c)))}{Environment.NewLine}" +
             $"AppContext.BaseDirectory: {AppContext.BaseDirectory}{Environment.NewLine}" +
             $"CurrentDirectory: {Directory.GetCurrentDirectory()}{Environment.NewLine}" +
             $"CallerFilePath: {sourceFilePath}{Environment.NewLine}" +

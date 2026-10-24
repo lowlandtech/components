@@ -145,7 +145,14 @@ public class SC01_DataGridLocalization : ViewScenario
             return candidate2;
         }
 
-        throw new DirectoryNotFoundException($"Could not locate component Resources directory. Checked: {candidate}, {candidate2}");
+        // Standalone Components repository: the controls live at <root>/src/lib.
+        var standalone = Path.Combine(root.FullName, "src", "lib", "Resources");
+        if (File.Exists(Path.Combine(standalone, "DataGridStrings.en.resx")))
+        {
+            return standalone;
+        }
+
+        throw new DirectoryNotFoundException($"Could not locate component Resources directory. Checked: {candidate}, {candidate2}, {standalone}");
     }
 
     private static HashSet<string> LoadResxKeys(string path)

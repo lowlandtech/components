@@ -1,0 +1,293 @@
+@inject IReadOnlyList<IAppPlugin> Plugins
+
+<!DOCTYPE html>
+<html lang="en" class="@HtmlClass">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <link rel="stylesheet" href="_content/LowlandTech.Components/css/components.css" />
+    <link rel="stylesheet" href="_content/LowlandTech.Components/css/container-grid.css" />
+    <link rel="stylesheet" href="_content/LowlandTech.Components/css/property-grid.css" />
+    <link rel="stylesheet" href="_content/LowlandTech.Components/css/style-editor.css" />
+    <link rel="stylesheet" href="_content/LowlandTech.Components/css/canvas-bezel.css" />
+    <link rel="stylesheet" href="_content/LowlandTech.Components/css/explorer-layout.css" />
+    @foreach (var href in Plugins.SelectMany(p => p.StylesheetLinks).Distinct())
+    {
+        <link rel="stylesheet" href="@href" />
+    }
+    <link rel="stylesheet" href="@Assets["app.css"]" />
+    <link rel="stylesheet" href="@Assets["LowlandTech.Web.styles.css"]" />
+    <link rel="stylesheet" href="lib/xterm/xterm.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" />
+    @if (SidebarWidthCookie is not null)
+    {
+        <style id="sidebar-width-init">.app-shell{--sidebar-width:@(SidebarWidthCookie)px!important}</style>
+    }
+    <script>
+        (function() {
+            function applyTheme() {
+                var stored = localStorage.getItem('app-theme');
+                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                var isDark = stored === 'dark' || (stored !== 'light' && prefersDark);
+                document.documentElement.classList.toggle('dark', isDark);
+                document.cookie = 'app-theme=' + (isDark ? 'dark' : 'light') + ';path=/;max-age=31536000;SameSite=Lax';
+            }
+
+            window.toggleTheme = function() {
+                var isDark = document.documentElement.classList.contains('dark');
+                var value = isDark ? 'light' : 'dark';
+                localStorage.setItem('app-theme', value);
+                document.documentElement.classList.toggle('dark', !isDark);
+                document.cookie = 'app-theme=' + value + ';path=/;max-age=31536000;SameSite=Lax';
+            };
+
+            window.scrollActiveNavItemIntoView = function() {
+                document.querySelector('[data-active="true"]')
+                    ?.scrollIntoView({ block: 'nearest' });
+            };
+
+            window.foundryNavigation = window.foundryNavigation || (function() {
+                var lastRouteKey = 'foundry:last-route';
+                var sidebarScrollKey = 'foundry:sidebar-scroll-top';
+                var sidebarSelector = '.app-sidebar-nav';
+
+                function normalizePath(path) {
+                    if (!path) return null;
+                    try {
+                        var url = new URL(path, window.location.origin);
+                        return url.pathname + url.search + url.hash;
+                    } catch {
+                        return path.startsWith('/') ? path : '/' + path;
+                    }
+                }
+
+                function isPersistableRoute(path) {
+                    path = normalizePath(path);
+                    if (!path || path === '/') return false;
+                    var lower = path.toLowerCase();
+                    return !lower.startsWith('/login')
+                        && !lower.startsWith('/register')
+                        && !lower.startsWith('/forgot-password')
+                        && !lower.startsWith('/resend-confirmation')
+                        && !lower.startsWith('/account/login')
+                        && !lower.startsWith('/account/logout');
+                }
+
+                function persistCurrentRoute(path) {
+                    path = normalizePath(path || window.location.href);
+                    if (isPersistableRoute(path)) {
+                        localStorage.setItem(lastRouteKey, path);
+                    }
+                }
+
+                function getLastRoute() {
+                    var route = normalizePath(localStorage.getItem(lastRouteKey));
+                    return isPersistableRoute(route) ? route : null;
+                }
+
+                function sidebar() {
+                    return document.querySelector(sidebarSelector);
+                }
+
+                function captureSidebarScroll() {
+                    var element = sidebar();
+                    if (element) {
+                        localStorage.setItem(sidebarScrollKey, String(element.scrollTop || 0));
+                    }
+                }
+
+                function restoreSidebarScroll() {
+                    var element = sidebar();
+                    var value = parseInt(localStorage.getItem(sidebarScrollKey) || '0', 10);
+                    if (element && !Number.isNaN(value)) {
+                        requestAnimationFrame(function() {
+                            element.scrollTop = value;
+                        });
+                    }
+                }
+
+                function bindSidebarScrollPersistence() {
+                    var element = sidebar();
+                    if (!element || element._foundryScrollBound) return;
+                    element._foundryScrollBound = true;
+                    element.addEventListener('scroll', captureSidebarScroll, { passive: true });
+                    restoreSidebarScroll();
+                }
+
+                return {
+                    bindSidebarScrollPersistence: bindSidebarScrollPersistence,
+                    captureSidebarScroll: captureSidebarScroll,
+                    getLastRoute: getLastRoute,
+                    persistCurrentRoute: persistCurrentRoute,
+                    restoreSidebarScroll: restoreSidebarScroll
+                };
+            })();
+
+            window.toggleSidebarCollapse = function() {
+                var isCollapsed = document.documentElement.classList.contains('sidebar-collapsed');
+                document.documentElement.classList.toggle('sidebar-collapsed', !isCollapsed);
+                var value = !isCollapsed ? 'true' : 'false';
+                localStorage.setItem('sidebar-collapsed', value);
+                document.cookie = 'sidebar-collapsed=' + value + ';path=/;max-age=31536000;SameSite=Lax';
+            };
+
+            applyTheme();
+
+            var savedWidth = localStorage.getItem('sidebar-width');
+            if (savedWidth) {
+                document.cookie = 'sidebar-width=' + savedWidth + ';path=/;max-age=31536000;SameSite=Lax';
+            }
+
+            var savedCollapsed = localStorage.getItem('sidebar-collapsed');
+            if (savedCollapsed) {
+                document.documentElement.classList.toggle('sidebar-collapsed', savedCollapsed === 'true');
+                document.cookie = 'sidebar-collapsed=' + savedCollapsed + ';path=/;max-age=31536000;SameSite=Lax';
+            }
+
+            function initSplitter() {
+                var splitter = document.getElementById('sidebar-splitter');
+                if (!splitter || splitter._jsBound) return;
+                splitter._jsBound = true;
+                splitter.addEventListener('mousedown', function(e) {
+                    if (window.sidebarSplitter) return;
+                    e.preventDefault();
+                    var shell = document.querySelector('.app-shell');
+                    var sidebar = document.getElementById('sidebar');
+                    if (!shell || !sidebar) return;
+                    var initStyle = document.getElementById('sidebar-width-init');
+                    if (initStyle) {
+                        shell.style.setProperty('--sidebar-width', getComputedStyle(shell).getPropertyValue('--sidebar-width'));
+                        initStyle.remove();
+                    }
+                    sidebar.style.transition = 'none';
+                    document.body.style.cursor = 'grabbing';
+                    document.body.style.userSelect = 'none';
+                    function onMove(ev) {
+                        var w = Math.max(200, Math.min(600, ev.clientX));
+                        shell.style.setProperty('--sidebar-width', w + 'px');
+                    }
+                    function onUp() {
+                        document.removeEventListener('mousemove', onMove);
+                        document.removeEventListener('mouseup', onUp);
+                        sidebar.style.transition = '';
+                        document.body.style.cursor = '';
+                        document.body.style.userSelect = '';
+                        var w = parseInt(shell.style.getPropertyValue('--sidebar-width'));
+                        if (w) {
+                            localStorage.setItem('sidebar-width', w);
+                            document.cookie = 'sidebar-width=' + w + ';path=/;max-age=31536000;SameSite=Lax';
+                        }
+                    }
+                    document.addEventListener('mousemove', onMove);
+                    document.addEventListener('mouseup', onUp);
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', initSplitter);
+            document.addEventListener('blazor:enhancedload', function() {
+                applyTheme();
+                initSplitter();
+                window.foundryNavigation.bindSidebarScrollPersistence();
+                window.foundryNavigation.persistCurrentRoute(window.location.href);
+                var sc = localStorage.getItem('sidebar-collapsed');
+                if (sc) {
+                    document.documentElement.classList.toggle('sidebar-collapsed', sc === 'true');
+                }
+            });
+        })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <HeadOutlet @rendermode="PageRenderMode" />
+</head>
+
+<body>
+    <Routes @rendermode="PageRenderMode" />
+    <ReconnectModal />
+    <script>
+        window.authStorage = window.authStorage || {
+            getToken: function () { return localStorage.getItem('auth_access_token'); },
+            getRefresh: function () { return localStorage.getItem('auth_refresh_token'); },
+            setToken: function (t) { localStorage.setItem('auth_access_token', t); },
+            setRefresh: function (t) { localStorage.setItem('auth_refresh_token', t); },
+            removeToken: function () { localStorage.removeItem('auth_access_token'); },
+            removeRefresh: function () { localStorage.removeItem('auth_refresh_token'); }
+        };
+    </script>
+    @foreach (var src in Plugins.SelectMany(p => p.ScriptLinks).Distinct())
+    {
+        <script src="@src"></script>
+    }
+    @foreach (var script in Plugins.SelectMany(p => p.InlineScripts))
+    {
+        <script>@((MarkupString)script)</script>
+    }
+    <script src="@Assets["_framework/blazor.web.js"]"></script>
+    <script src="_content/LowlandTech.Components/js/portal.js"></script>
+    <script src="_content/LowlandTech.Components/js/sessionContextTree.js"></script>
+    <script src="_content/LowlandTech.Components/js/popover.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+    <script>
+        hljs.configure({ ignoreUnescapedHTML: true });
+        window.highlightCode = function() {
+            document.querySelectorAll('.markdown-content pre code').forEach(function(el) {
+                if (el.dataset.highlighted) return;
+                try { hljs.highlightElement(el); } catch(e) {}
+            });
+        };
+    </script>
+    <script src="lib/xterm/xterm.js"></script>
+    <script src="lib/xterm/addon-fit.js"></script>
+    <script src="lib/xterm/addon-web-links.js"></script>
+</body>
+
+</html>
+
+@code {
+    [CascadingParameter]
+    private object? RequestContext { get; set; }
+
+    private string HtmlClass
+    {
+        get
+        {
+            var classes = new List<string>();
+            if (GetCookie("app-theme") == "dark") classes.Add("dark");
+            if (GetCookie("sidebar-collapsed") == "true") classes.Add("sidebar-collapsed");
+            return string.Join(" ", classes);
+        }
+    }
+
+    private string? SidebarWidthCookie => GetCookie("sidebar-width");
+
+    private IComponentRenderMode? PageRenderMode =>
+        HasExcludedFromInteractiveRoutingMetadata()
+            ? null
+            : InteractiveServer;
+
+    private string? GetCookie(string name)
+    {
+        var request = RequestContext?.GetType().GetProperty("Request")?.GetValue(RequestContext);
+        var cookies = request?.GetType().GetProperty("Cookies")?.GetValue(request);
+        var indexer = cookies?.GetType().GetProperty("Item");
+        return indexer?.GetValue(cookies, [name]) as string;
+    }
+
+    private bool HasExcludedFromInteractiveRoutingMetadata()
+    {
+        var endpoint = RequestContext?.GetType().GetMethod("GetEndpoint")?.Invoke(RequestContext, null);
+        var metadata = endpoint?.GetType().GetProperty("Metadata")?.GetValue(endpoint);
+        var getMetadata = metadata?.GetType().GetMethods()
+            .FirstOrDefault(m => m.Name == "GetMetadata" && m.IsGenericMethod && m.GetParameters().Length == 0);
+
+        if (getMetadata is null)
+        {
+            return false;
+        }
+
+        return getMetadata
+            .MakeGenericMethod(typeof(ExcludeFromInteractiveRoutingAttribute))
+            .Invoke(metadata, null) is not null;
+    }
+}

@@ -5,6 +5,18 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<IsPackable>false</IsPackable>
+		<!-- The vendored host sources under Fixtures are test *inputs* for the
+		     drift-guard Facts, not components of the test assembly. The Razor SDK
+		     derives RazorComponent from the default **/*.razor Content glob, so the
+		     folder is excluded through DefaultItemExcludes, which that glob honours.
+		     The files are still embedded explicitly below, and this excludes only
+		     those host inputs - no scenario, Fact or acceptance criterion is
+		     excluded by it.
+		     CPKG0001.Packaging\consumer is the reference consumer application for
+		     the packaging acceptance. It is a separate project that is copied to a
+		     temporary directory and built there, so its sources must not be
+             compiled into the test assembly either. -->
+		<DefaultItemExcludes>$(DefaultItemExcludes);Fixtures\**;CPKG0001.Packaging\consumer\**</DefaultItemExcludes>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -53,16 +65,16 @@
 		<EmbeddedResource Include="..\lib\Explorer\ExplorerLayout.razor">
 			<LogicalName>ExplorerLayout.razor</LogicalName>
 		</EmbeddedResource>
-		<EmbeddedResource Include="..\..\web\Components\App.razor">
+		<EmbeddedResource Include="Fixtures\web\App.razor">
 			<LogicalName>web.App.razor</LogicalName>
 		</EmbeddedResource>
-		<EmbeddedResource Include="..\..\shell\Features\Shell\App.razor">
+		<EmbeddedResource Include="Fixtures\shell\App.razor">
 			<LogicalName>shell.App.razor</LogicalName>
 		</EmbeddedResource>
-		<EmbeddedResource Include="..\..\shell\wwwroot\css\input.css">
+		<EmbeddedResource Include="Fixtures\shell\input.css">
 			<LogicalName>shell.input.css</LogicalName>
 		</EmbeddedResource>
-		<EmbeddedResource Include="..\..\app\Components\App.razor">
+		<EmbeddedResource Include="Fixtures\app\App.razor">
 			<LogicalName>app.App.razor</LogicalName>
 		</EmbeddedResource>
 		<EmbeddedResource Include="..\lib\wwwroot\js\sessionContextTree.js">
@@ -77,7 +89,7 @@
 		<EmbeddedResource Include="..\app\wwwroot\index.html">
 			<LogicalName>components.app.index.html</LogicalName>
 		</EmbeddedResource>
-		<EmbeddedResource Include="..\..\desktop\wwwroot\index.html">
+		<EmbeddedResource Include="Fixtures\desktop\index.html">
 			<LogicalName>desktop.index.html</LogicalName>
 		</EmbeddedResource>
 	</ItemGroup>

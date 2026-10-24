@@ -31,8 +31,7 @@ public sealed class ShowcodePage
             await _page.GotoAsync(_baseUrl);
 
         // Wait for the sidebar to hydrate.
-        await _page.WaitForSelectorAsync("[data-slot='sidebar-menu-button']",
-            new PageWaitForSelectorOptions { Timeout = 30_000 });
+        await EnsureSidebarExpandedAsync();
 
         // Click the exact sidebar entry for this story (exact match avoids
         // "Button" inadvertently matching "Button Group" etc.).
@@ -46,6 +45,45 @@ public sealed class ShowcodePage
             _page.Locator("[data-slot='story-card']")
                  .GetByRole(AriaRole.Heading, new() { Name = storyName, Exact = true })
         ).ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = 15_000 });
+    }
+
+    /// <summary>
+    /// The Showcode navigation renders its story groups collapsed, so the story
+    /// entries only exist once a group has been expanded. Expand every
+    /// collapsed group when no story entry is present yet, the way a user
+    /// opens the navigation, and wait for the entries to appear.
+    /// </summary>
+    public async Task EnsureSidebarExpandedAsync()
+    {
+        var menuButton = _page.Locator("[data-slot='sidebar-menu-button']");
+        if (await menuButton.CountAsync() > 0)
+            return;
+
+        // The navigation only renders once the application has hydrated, so the
+        // group labels are the first thing worth waiting for.
+        await _page.WaitForSelectorAsync(
+            "[data-slot='sidebar-group-label']",
+            new PageWaitForSelectorOptions { Timeout = 60_000 });
+
+        var collapsedGroup = _page.Locator("[data-slot='sidebar-group-label'] button[aria-expanded='false']");
+
+        // Every collapsed group holds stories the scenarios navigate to, so all
+        // of them are opened. The bound keeps a broken toggle from looping.
+        for (var attempt = 0; attempt < 50; attempt++)
+        {
+            if (await collapsedGroup.CountAsync() == 0)
+            {
+                break;
+            }
+
+            await collapsedGroup.First.ClickAsync();
+        }
+
+        await menuButton.First.WaitForAsync(new LocatorWaitForOptions
+        {
+            State = WaitForSelectorState.Visible,
+            Timeout = 60_000,
+        });
     }
 
     // ── Locator helpers ──────────────────────────────────────────────────────
