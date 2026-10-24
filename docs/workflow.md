@@ -135,7 +135,8 @@ second synchronizer is never added.
 
 The preview always runs. The apply touches only the proposals this lane owns or
 created: never the imported issues `#1`-`#15`, never another lane's issue, and
-never a scope whose acceptance did not execute. Unmarked issues, comments,
+never close a scope whose acceptance did not execute. Open refinement and
+planning proposals are reconciled without claiming behavior acceptance. Unmarked issues, comments,
 labels, assignees and milestones are preserved, and a managed issue is never
 edited by hand.
 
