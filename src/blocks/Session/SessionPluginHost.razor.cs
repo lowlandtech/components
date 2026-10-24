@@ -11,6 +11,7 @@ public partial class SessionPluginHost
     private RenderFragment? _activeRender;
     private SessionPluginContext? _context;
     private bool _isCollapsed;
+    private bool _isLoading;
     private readonly Dictionary<string, string> _renderErrors = new(StringComparer.Ordinal);
 
     [Parameter] public string? ActiveSessionId { get; set; }
@@ -21,6 +22,12 @@ public partial class SessionPluginHost
     [Parameter] public string ExpandLabel { get; set; } = "Panels";
     [Parameter] public string EmptyLabel { get; set; } = "No panels";
     [Parameter] public string PanelFailedLabel { get; set; } = "Panel failed to render.";
+
+    /// <summary>
+    /// The placement the host selects its panels from. The right sidebar stays
+    /// the default, so a host keeps the placement it has today.
+    /// </summary>
+    [Parameter] public SessionPluginPlacement Placement { get; set; } = SessionPluginPlacement.RightSidebar;
     [Parameter] public EventCallback<string> OnPluginSelected { get; set; }
     [Parameter] public EventCallback<bool> OnCollapsedChanged { get; set; }
 
@@ -43,6 +50,16 @@ public partial class SessionPluginHost
 
     private async Task LoadAsync()
     {
+        if (_isLoading)
+        {
+            // A panel asked for a reload while the host is still loading. The
+            // load in flight already reads the current state, so the request
+            // must not start another one.
+            return;
+        }
+
+        _isLoading = true;
+
         try
         {
             _context = new SessionPluginContext(
@@ -55,7 +72,7 @@ public partial class SessionPluginHost
                 OnReloadRequested = ReloadAsync
             };
 
-            _plugins = await Registry.ListAsync(_context, SessionPluginPlacement.RightSidebar).ConfigureAwait(false);
+            _plugins = await Registry.ListAsync(_context, Placement).ConfigureAwait(false);
             _visiblePlugins = _plugins.Where(p => p.IsVisible).ToList();
 
             _activePlugin = _visiblePlugins.FirstOrDefault(p => p.Key == _activePlugin?.Key)
@@ -66,6 +83,10 @@ public partial class SessionPluginHost
         catch (Exception ex)
         {
             Logger.LogError(ex, "Failed to load session plugins.");
+        }
+        finally
+        {
+            _isLoading = false;
         }
     }
 

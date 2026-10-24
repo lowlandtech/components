@@ -8,11 +8,6 @@ namespace LowlandTech.Components.Tests.CPAN0001.Integration.US01.SessionPanels;
 /// active, through a reusable optional bridge. The base DI-only mode, the
 /// existing placements and the existing settings semantics stay intact.
 /// </para>
-/// <para>
-/// Every Fact is skipped until the plugin owner bridge exists: the Components
-/// plugin owner contracts and the host placement parameter are the missing
-/// dependencies. A skipped Fact is unfinished inventory, never acceptance.
-/// </para>
 /// </summary>
 [Trait(Spec.SPEC, "CPAN0001")]
 [Trait(Spec.US, "01")]
@@ -25,16 +20,13 @@ public sealed class SC01_ActiveSessionPanels : ViewScenario
 
     private readonly FakeSessionPluginSettingsStore _settings = new();
     private readonly List<(string Owner, ISessionPlugin Plugin)> _owned = [];
-    private object? _bridge;
-    private object? _secondBridge;
+    private SessionPluginOwnerBridge? _bridge;
+    private SessionPluginOwnerBridge? _secondBridge;
     private int _reloadRequests;
 
     public override async ValueTask InitializeAsync()
     {
         await base.InitializeAsync();
-
-        Ctx.Services.AddLogging();
-        Ctx.Services.AddSingleton<ISessionPluginSettingsStore>(_settings);
 
         _owned.Add((ActiveOwner, Panel("owner.active.sidebar", SessionPluginPlacement.RightSidebar, order: 10)));
         _owned.Add((ActiveOwner, Panel(
@@ -50,19 +42,26 @@ public sealed class SC01_ActiveSessionPanels : ViewScenario
         // The host persisted the enablement and the order of its panels.
         await _settings.ToggleEnabledAsync("owner.active.sidebar", false);
         await _settings.ReorderTabsAsync(["owner.active.sidebar", "owner.active.protected"]);
+
+        // The bridge is registered once the panels exist, because the bridge
+        // takes the panels of the host when it is created.
+        Ctx.Services.AddLogging();
+        Ctx.Services.AddSingleton<ISessionPluginSettingsStore>(_settings);
+        Ctx.Services.AddSingleton<ISessionPluginRegistry>(Registry);
     }
 
-    [Fact(
-        DisplayName = "UAC01: only the panels of active owners appear in the selected placement, in the ListAsync and the GetAllPlugins path",
-        Skip = "TODO: the Components plugin owner bridge (SessionPluginOwnerBridge, SessionPluginOwnerSnapshot) and the placement parameter of the session plugin host are not implemented yet, so no owner can be projected onto the session panel contracts.")]
+    [Fact(DisplayName = "UAC01: only the panels of active owners appear in the selected placement, in the ListAsync and the GetAllPlugins path")]
     [Trait(Spec.UAC, "01")]
     [Given("active and inactive panel owners contributing panels at RightSidebar, WorkspaceTab and FooterTool")]
     [When("a host queries its selected placement and lists all plugins")]
     [Then("only the active matching panels appear in both paths, on the existing stable slots")]
     public void UAC01_OnlyActiveOwnersAppearInTheSelectedPlacement() =>
         Registry.ShouldSatisfyAllConditions(
-            () => ComponentsPluginOwnerContracts.HostDeclaresPlacementParameter().ShouldBeTrue(
+            () => typeof(SessionPluginHost).GetProperty("Placement").ShouldNotBeNull(
                 "The session plugin host does not expose the host placement as a parameter."),
+            () => typeof(SessionPluginHost).GetProperty("Placement")!.PropertyType.ShouldBe(
+                typeof(SessionPluginPlacement),
+                "The host placement parameter is not a session plugin placement."),
             () => ListAsync(SessionPluginPlacement.RightSidebar).Select(item => item.Key).ShouldBe(
                 ["owner.active.sidebar", "owner.active.protected"],
                 "The right sidebar does not carry exactly the active panels of the selected placement."),
@@ -84,11 +83,11 @@ public sealed class SC01_ActiveSessionPanels : ViewScenario
                           || plugin.Descriptor.Placement == SessionPluginPlacement.FooterTool,
                 "The bridge projects a panel onto a slot that is not one of the existing stable placements."),
             () => RenderHostShouldShowOnlyActivePanels().ShouldBeTrue(
-                "The host renders a panel of an inactive owner."));
+                "The host renders a panel of an inactive owner."),
+            () => RenderHostHonorsThePlacementParameter().ShouldBeTrue(
+                "The host ignores the placement its host selected."));
 
-    [Fact(
-        DisplayName = "UAC02: badges, visibility, callbacks and ordering keep the existing settings semantics and a protected setting cannot survive a deactivation",
-        Skip = "TODO: the Components plugin owner bridge is not implemented yet, so the bridged panels do not retain the enablement, order, badge and callback semantics of the existing registry.")]
+    [Fact(DisplayName = "UAC02: badges, visibility, callbacks and ordering keep the existing settings semantics and a protected setting cannot survive a deactivation")]
     [Trait(Spec.UAC, "02")]
     [Given("persisted enablement and order with a protected and an order locked descriptor")]
     [When("the settings change and the owner is deactivated and reactivated")]
@@ -120,13 +119,11 @@ public sealed class SC01_ActiveSessionPanels : ViewScenario
             () => ProtectedPanelDoesNotSurviveDeactivation().ShouldBeTrue(
                 "A protected panel survived the deactivation of its owner."));
 
-    [Fact(
-        DisplayName = "UAC03: a withdrawal clears the retained fragment in both consumers on the next revision and shows the host fallback",
-        Skip = "TODO: the Components plugin owner bridge does not deliver revisions or admit subscribers yet, so a withdrawal cannot clear a retained fragment in two live consumers.")]
+    [Fact(DisplayName = "UAC03: a withdrawal clears the retained fragment in both consumers on the next revision and shows the host fallback")]
     [Trait(Spec.UAC, "03")]
-    [Given("two live consumers that retained the selected fragment of an active owner")]
+    [Given("two live consumers and a retained selected fragment")]
     [When("the owner withdraws and a new revision is delivered")]
-    [Then("both clear the fragment and show the host fallback, stale callbacks recheck the authority and no new handler is admitted")]
+    [Then("both clear the fragment and show the host fallback, stale callbacks recheck host authority and no new handler is admitted")]
     public void UAC03_AWithdrawalClearsTheRetainedFragmentInBothConsumers() =>
         Registry.ShouldSatisfyAllConditions(
             () => BothConsumersDropTheWithdrawnOwner().ShouldBeTrue(
@@ -138,13 +135,12 @@ public sealed class SC01_ActiveSessionPanels : ViewScenario
             () => AlreadyAdmittedWorkMayFinish().ShouldBeTrue(
                 "The work that was admitted before the withdrawal did not finish."));
 
-    private ISessionPluginRegistry Registry =>
-        ComponentsPluginOwnerContracts.GetRegistry(Bridge);
+    private SessionPluginOwnerBridge Registry => Bridge;
 
-    private object Bridge =>
+    private SessionPluginOwnerBridge Bridge =>
         _bridge ??= CreateBridge();
 
-    private object SecondBridge =>
+    private SessionPluginOwnerBridge SecondBridge =>
         _secondBridge ??= CreateBridge();
 
     private SessionPluginContext Context =>
@@ -162,16 +158,16 @@ public sealed class SC01_ActiveSessionPanels : ViewScenario
             },
         };
 
-    private object CreateBridge()
+    private SessionPluginOwnerBridge CreateBridge()
     {
-        var bridge = ComponentsPluginOwnerContracts.CreateBridge(
-            ComponentsPluginOwnerContracts.CreateSnapshot(1, [ActiveOwner]),
+        var bridge = new SessionPluginOwnerBridge(
+            new SessionPluginOwnerSnapshot(1, [ActiveOwner]),
             _owned.Select(entry => entry.Plugin),
             _settings);
 
         foreach (var (owner, plugin) in _owned)
         {
-            ComponentsPluginOwnerContracts.Register(bridge, owner, plugin);
+            bridge.Register(owner, plugin);
         }
 
         return bridge;
@@ -208,8 +204,6 @@ public sealed class SC01_ActiveSessionPanels : ViewScenario
 
     private bool RenderHostShouldShowOnlyActivePanels()
     {
-        Ctx.Services.AddSingleton<ISessionPluginRegistry>(Registry);
-
         var cut = Ctx.Render<SessionPluginHost>();
 
         var keys = cut.FindAll("[data-slot='session-plugin-tab']")
@@ -221,18 +215,27 @@ public sealed class SC01_ActiveSessionPanels : ViewScenario
                && !keys.Contains("owner.inactive.sidebar");
     }
 
+    private bool RenderHostHonorsThePlacementParameter()
+    {
+        var cut = Ctx.Render<SessionPluginHost>(parameters => parameters
+            .Add(p => p.Placement, SessionPluginPlacement.WorkspaceTab));
+
+        var keys = cut.FindAll("[data-slot='session-plugin-tab']")
+            .Select(tab => tab.GetAttribute("data-plugin-key"))
+            .ToList();
+
+        return keys.Count == 1
+               && keys.Contains("owner.active.workspace")
+               && !keys.Contains("owner.active.protected");
+    }
+
     private bool PreferencesSurviveDeactivationAndReactivation()
     {
         var enabledBefore = _settings.IsEnabledAsync("owner.active.sidebar").GetAwaiter().GetResult();
         var orderBefore = _settings.GetOrderAsync().GetAwaiter().GetResult();
 
-        ComponentsPluginOwnerContracts.Deliver(
-            Bridge,
-            ComponentsPluginOwnerContracts.CreateSnapshot(2, []));
-
-        ComponentsPluginOwnerContracts.Deliver(
-            Bridge,
-            ComponentsPluginOwnerContracts.CreateSnapshot(3, [ActiveOwner]));
+        Bridge.Deliver(new SessionPluginOwnerSnapshot(2, []));
+        Bridge.Deliver(new SessionPluginOwnerSnapshot(3, [ActiveOwner]));
 
         var enabledAfter = _settings.IsEnabledAsync("owner.active.sidebar").GetAwaiter().GetResult();
         var orderAfter = _settings.GetOrderAsync().GetAwaiter().GetResult();
@@ -243,35 +246,29 @@ public sealed class SC01_ActiveSessionPanels : ViewScenario
 
     private bool ProtectedPanelDoesNotSurviveDeactivation()
     {
-        ComponentsPluginOwnerContracts.Deliver(
-            Bridge,
-            ComponentsPluginOwnerContracts.CreateSnapshot(2, []));
+        Bridge.Deliver(new SessionPluginOwnerSnapshot(2, []));
 
         return Registry.GetAllPlugins().All(plugin => plugin.Descriptor.Key != "owner.active.protected");
     }
 
     private bool BothConsumersDropTheWithdrawnOwner()
     {
-        var withdrawal = ComponentsPluginOwnerContracts.CreateSnapshot(2, []);
+        var withdrawal = new SessionPluginOwnerSnapshot(2, []);
 
-        ComponentsPluginOwnerContracts.Deliver(Bridge, withdrawal);
-        ComponentsPluginOwnerContracts.Deliver(SecondBridge, withdrawal);
+        Bridge.Deliver(withdrawal);
+        SecondBridge.Deliver(withdrawal);
 
-        var first = ComponentsPluginOwnerContracts.GetRegistry(Bridge).GetAllPlugins();
-        var second = ComponentsPluginOwnerContracts.GetRegistry(SecondBridge).GetAllPlugins();
+        var first = Registry.GetAllPlugins();
+        var second = SecondBridge.GetAllPlugins();
 
         return first.Count == 0 && second.Count == 0;
     }
 
     private bool HostFallsBackAfterWithdrawal()
     {
-        Ctx.Services.AddSingleton<ISessionPluginRegistry>(Registry);
-
         var cut = Ctx.Render<SessionPluginHost>();
 
-        ComponentsPluginOwnerContracts.Deliver(
-            Bridge,
-            ComponentsPluginOwnerContracts.CreateSnapshot(2, []));
+        Bridge.Deliver(new SessionPluginOwnerSnapshot(2, []));
 
         cut.Render(parameters => parameters.Add(p => p.ActiveSessionId, "session-1"));
 
@@ -283,13 +280,11 @@ public sealed class SC01_ActiveSessionPanels : ViewScenario
     {
         var received = new List<long>();
 
-        ComponentsPluginOwnerContracts.Deliver(
-            Bridge,
-            ComponentsPluginOwnerContracts.CreateSnapshot(2, []));
+        Bridge.Deliver(new SessionPluginOwnerSnapshot(2, []));
 
         try
         {
-            ComponentsPluginOwnerContracts.Subscribe(Bridge, revision => received.Add(revision));
+            Bridge.Subscribe(revision => received.Add(revision));
         }
         catch (InvalidOperationException)
         {
@@ -297,9 +292,7 @@ public sealed class SC01_ActiveSessionPanels : ViewScenario
             return true;
         }
 
-        ComponentsPluginOwnerContracts.Deliver(
-            Bridge,
-            ComponentsPluginOwnerContracts.CreateSnapshot(3, [ActiveOwner]));
+        Bridge.Deliver(new SessionPluginOwnerSnapshot(3, [ActiveOwner]));
 
         return received.Count == 0;
     }
@@ -308,11 +301,9 @@ public sealed class SC01_ActiveSessionPanels : ViewScenario
     {
         var received = new List<long>();
 
-        ComponentsPluginOwnerContracts.Subscribe(Bridge, revision => received.Add(revision));
+        Bridge.Subscribe(revision => received.Add(revision));
 
-        ComponentsPluginOwnerContracts.Deliver(
-            Bridge,
-            ComponentsPluginOwnerContracts.CreateSnapshot(2, []));
+        Bridge.Deliver(new SessionPluginOwnerSnapshot(2, []));
 
         return received.Count == 1 && received[0] == 2;
     }
