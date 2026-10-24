@@ -185,7 +185,7 @@ user; in that case the pass says exactly what the decision is.
 The schedule does not authorize implementing another scope because a plan
 exists, claiming blocked work, weakening a gate, closing an imported issue,
 inventing an owner, estimate or sprint, publishing to a remote feed, deleting
-data, pushing, or mutating an external issue beyond this lane's own proposals.
+data, or mutating an external issue beyond this lane's own proposals.
 
 ## Milestone roadmap pilot
 
@@ -210,3 +210,15 @@ on the roadmap and retain canonical scope identities in the workitems.
 The mirror validates the mapping and never mirrors external rows. State changes
 still update the source and its row together; backlog/review/done are preserved
 by this formatting pilot. Imported issues retain their original inventory.
+
+
+## Standing source delivery authority
+
+The user instruction of 2026-10-24 and ../AGENTS.md require verified owned
+commits to be pushed to the current origin working branch and managed issue
+reconciliation to be verified before a delivery is complete. This supersedes
+the earlier schedule's prohibition on pushing. Refinement and documentation
+checkpoints are pushed without falsely closing unfinished behavior. Use
+Sync-PluginWorkitems.ps1 -TraceId for the selected managed scope; only close
+after executable acceptance and coordinator acceptance. Package publication
+and demo deployment remain separately gated.
