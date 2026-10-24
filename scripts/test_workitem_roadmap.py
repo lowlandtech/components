@@ -27,6 +27,22 @@ class RoadmapTests(unittest.TestCase):
         name = 'BLAZ0001.US01.SC01.package-optional-blazor-adapter.md'
         shutil.copyfile(ROOT.parent / 'plugins/docs/workitems/done' / name, target / name)
         self.board = self.board_dir / 'README.md'
+        # Keep disposable dependency probes stable as real prerequisites finish.
+        graph = {'M1-001': 'none', 'M2-001': 'M1-001'}
+        lines = self.board.read_text(encoding='utf-8').splitlines()
+        for i, line in enumerate(lines):
+            cells = line.split('|')
+            if len(cells) == 8 and cells[1].strip() in graph:
+                cells[5] = ' ' + graph[cells[1].strip()] + ' '
+                lines[i] = '|'.join(cells)
+        self.board.write_text('\n'.join(lines) + '\n', encoding='utf-8')
+        cpkg = self.board_dir / 'CPKG0001.US01.SC01.independent-package-consumption.md'
+        cplg = self.board_dir / 'CPLG0001.US01.SC01.ui-feature-manifest.md'
+        for path, dependency in [(cpkg, 'none'), (cplg, 'CPKG0001-US01-SC01')]:
+            body = path.read_text(encoding='utf-8')
+            body = re.sub(r'(?m)^- \*\*Blocked by:\*\* .*$', '- **Blocked by:** ' + dependency, body)
+            path.write_text(body, encoding='utf-8')
+        self.cplg_state = re.search(r'- \*\*State:\*\* (\w+)', cplg.read_text(encoding='utf-8')).group(1)
         source = self.board_dir / 'CPKG0001.US01.SC01.independent-package-consumption.md'
         self.cpkg_state = re.search(r'- \*\*State:\*\* (\w+)', source.read_text(encoding='utf-8')).group(1)
 
@@ -65,7 +81,7 @@ foreach ($row in $rows | Where-Object { !$_.External }) {
         self.assertIn('Duplicate roadmap Work', result.stderr)
 
     def test_unknown_dependency_is_rejected(self):
-        self.mutate_board('| M1-001 | backlog |', '| M99-001 | backlog |')
+        self.mutate_board(f'| M1-001 | {self.cplg_state} |', f'| M99-001 | {self.cplg_state} |')
         result = self.run_check()
         self.assertNotEqual(0, result.returncode)
         self.assertIn('Unknown dependency', result.stderr)
