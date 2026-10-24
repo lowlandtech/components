@@ -109,7 +109,11 @@ public sealed class ConsumerScenario : IDisposable
             arguments.Add("-Publish");
         }
 
-        var (exitCode, output) = RunProcess(ResolveShell(), arguments, repositoryRoot);
+        // The scenario packs the shared Components projects in the Release
+        // configuration, so it must not run beside another packaging scenario
+        // of this assembly.
+        var (exitCode, output) = PackagingScenarioLock.Run(
+            () => RunProcess(ResolveShell(), arguments, repositoryRoot));
 
         var manifestPath = Path.Combine(scenarioRoot, "scenario.json");
         if (exitCode != 0 || !File.Exists(manifestPath))
