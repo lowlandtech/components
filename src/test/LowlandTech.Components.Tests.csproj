@@ -48,6 +48,9 @@
 		<ProjectReference Include="..\stories\LowlandTech.Components.Stories.csproj" />
 		<ProjectReference Include="..\lib\LowlandTech.Components.csproj" />
 		<ProjectReference Include="..\blocks\LowlandTech.Components.Blocks.csproj" />
+		<!-- The opt-in feature package under test is referenced from source, so
+		     the acceptance exercises the shipped registration and manifest. -->
+		<ProjectReference Include="..\features\LowlandTech.Components.Features.Session\LowlandTech.Components.Features.Session.csproj" />
 	</ItemGroup>
 
 	<!-- Embed sources used by textual drift-guard tests so they survive NCrunch

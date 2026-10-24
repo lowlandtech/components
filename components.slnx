@@ -3,6 +3,7 @@
   <Project Path="src/blocks/LowlandTech.Components.Blocks.csproj" />
   <Project Path="src/core/LowlandTech.Components.Core.csproj" />
   <Project Path="src/e2e/LowlandTech.Components.E2E.csproj" />
+  <Project Path="src/features/LowlandTech.Components.Features.Session/LowlandTech.Components.Features.Session.csproj" />
   <Project Path="src/lib/LowlandTech.Components.csproj" />
   <Project Path="src/stories/LowlandTech.Components.Stories.csproj" />
   <Project Path="src/test/LowlandTech.Components.Tests.csproj" />

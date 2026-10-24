@@ -12,6 +12,8 @@ global using System.Xml.Linq;
 global using Bunit;
 global using LowlandTech.Components;
 global using LowlandTech.Components.Blocks.Session;
+global using LowlandTech.Components.Core;
+global using LowlandTech.Components.Features.Session;
 global using LowlandTech.Components.Stories.Services.Themes;
 global using LowlandTech.Components.Stories.Showcode;
 global using LowlandTech.Components.Stories.Showcode.Stories.Misc;

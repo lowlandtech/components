@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>LowlandTech.Components.Features.Session</RootNamespace>
+    <AssemblyName>LowlandTech.Components.Features.Session</AssemblyName>
+    <IsPackable>true</IsPackable>
+    <PackageId>LowlandTech.Components.Features.Session</PackageId>
+    <Description>Optional session plugin feature package for LowlandTech Components. The base Components packages stay ordinary dependencies.</Description>
+    <PackageTags>lowlandtech;blazor;components;plugin;feature;session</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The base Blocks package stays an ordinary NuGet dependency. -->
+    <ProjectReference Include="..\..\blocks\LowlandTech.Components.Blocks.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The published manifest lives at the canonical plugin archive path. -->
+    <None Update="plugin.json" Pack="true" PackagePath="lowlandtech/" />
+  </ItemGroup>
+
+</Project>

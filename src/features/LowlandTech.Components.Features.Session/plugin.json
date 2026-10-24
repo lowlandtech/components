@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 2,
+  "key": "lowlandtech.components.session",
+  "name": "Components session panels",
+  "description": "Session plugin panels contributed by the Components session surface.",
+  "target": "blazor",
+  "installationUnit": {
+    "requiredCapabilities": [
+      "blazor"
+    ]
+  },
+  "dependencies": [
+    {
+      "key": "lowlandtech.components.blocks"
+    }
+  ],
+  "contributions": {
+    "components": [
+      "LowlandTech.Components.SessionPluginHost"
+    ]
+  }
+}

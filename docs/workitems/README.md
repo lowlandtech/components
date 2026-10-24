@@ -29,7 +29,7 @@ trusted startup binding; base libraries remain ordinary dependencies.
 
 | Work | Scope | Title | Owner | Depends on | State |
 |---|---|---|---|---|---|
-| M2-001 | `CPLG0001-US01-SC01` | [Publish an opt-in UI feature manifest](CPLG0001.US01.SC01.ui-feature-manifest.md) - [#20](https://github.com/lowlandtech/components/issues/20) | components | M1-001 | backlog |
+| M2-001 | `CPLG0001-US01-SC01` | [Publish an opt-in UI feature manifest](CPLG0001.US01.SC01.ui-feature-manifest.md) - [#20](https://github.com/lowlandtech/components/issues/20) | components | none | review |
 
 ## M3 - Activation-aware UI contributions
 
