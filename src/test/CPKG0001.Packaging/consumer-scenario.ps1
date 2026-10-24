@@ -43,6 +43,12 @@
 .PARAMETER Publish
     Also publish the consumer application.
 
+.PARAMETER ConsumerSource
+    Directory of the consumer application, relative to the repository root.
+    Defaults to the CPKG0001 consumer. Another acceptance that needs the same
+    packaging path hands its own consumer over this parameter; the packaging
+    work itself is identical.
+
 .OUTPUTS
     A JSON manifest at <ScenarioRoot>\scenario.json describing every artifact.
 #>
@@ -51,7 +57,8 @@ param(
     [string] $RepositoryRoot,
     [string] $ScenarioRoot,
     [string] $CoreVersion,
-    [switch] $Publish
+    [switch] $Publish,
+    [string] $ConsumerSource = 'src/test/CPKG0001.Packaging/consumer'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -291,7 +298,7 @@ if ($missingFramework -contains "Microsoft.AspNetCore.App.Internal.Assets/$aspNe
 }
 
 # ---------------------------------------------------------------- consumer ---
-$consumerSource = Join-Path $RepositoryRoot 'src/test/CPKG0001.Packaging/consumer'
+$consumerSource = Join-Path $RepositoryRoot $ConsumerSource
 if (-not (Test-Path -LiteralPath $consumerSource)) {
     throw "Consumer sources not found at '$consumerSource'."
 }

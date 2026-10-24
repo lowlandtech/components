@@ -34,6 +34,13 @@ public sealed record SessionPluginOwnerSnapshot(
 /// against the persisted enablement only: it never survives the deactivation
 /// of its owner, and a reactivation never erases the persisted preferences.
 /// </para>
+/// <para>
+/// A host that follows the authority subscribes to the revisions and reads
+/// the registry again on the next render. The session plugin host reads the
+/// registry when its parameters change, so the host carries the revision of
+/// the authority in the parameters of the session plugin host: a re-render
+/// with unchanged parameters does not make the host read the registry again.
+/// </para>
 /// </summary>
 public sealed class SessionPluginOwnerBridge : ISessionPluginRegistry
 {
@@ -134,6 +141,11 @@ public sealed class SessionPluginOwnerBridge : ISessionPluginRegistry
     /// that arrives while no owner is active is never told about a revision,
     /// because the bridge is closed to new handlers after a withdrawal. The
     /// work that was admitted before keeps running.
+    /// </para>
+    /// <para>
+    /// A host therefore subscribes while its owners are active. A host that
+    /// renders while no owner is active holds no subscription, and it learns
+    /// about the next owner from the authority it owns itself.
     /// </para>
     /// </summary>
     /// <param name="onRevision">The handler that is told about a revision.</param>

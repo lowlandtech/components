@@ -15,8 +15,13 @@
 		     CPKG0001.Packaging\consumer is the reference consumer application for
 		     the packaging acceptance. It is a separate project that is copied to a
 		     temporary directory and built there, so its sources must not be
-             compiled into the test assembly either. -->
-		<DefaultItemExcludes>$(DefaultItemExcludes);Fixtures\**;CPKG0001.Packaging\consumer\**</DefaultItemExcludes>
+             compiled into the test assembly either.
+		     CPAN0001.Integration\consumer is the reference consumer application for
+		     the session panel acceptance. It is a separate project that is copied
+		     to a temporary directory and built there, so its sources must not be
+		     compiled into the test assembly either. No Fact, scenario or
+		     acceptance criterion of it is excluded by this. -->
+		<DefaultItemExcludes>$(DefaultItemExcludes);Fixtures\**;CPKG0001.Packaging\consumer\**;CPAN0001.Integration\consumer\**</DefaultItemExcludes>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -34,9 +34,15 @@ public sealed class ConsumerAppHost : IAsyncDisposable
     /// Starts the published consumer and waits until it answers requests.
     /// </summary>
     /// <param name="publishDirectory">Publish output of the consumer application.</param>
-    public static async Task<ConsumerAppHost> StartAsync(string publishDirectory)
+    /// <param name="assemblyName">
+    /// The assembly of the consumer application. Another acceptance that
+    /// publishes its own consumer hands its own assembly over this parameter.
+    /// </param>
+    public static async Task<ConsumerAppHost> StartAsync(
+        string publishDirectory,
+        string assemblyName = "LowlandTech.Components.Consumer.dll")
     {
-        var assembly = Path.Combine(publishDirectory, "LowlandTech.Components.Consumer.dll");
+        var assembly = Path.Combine(publishDirectory, assemblyName);
         if (!File.Exists(assembly))
         {
             throw new FileNotFoundException(

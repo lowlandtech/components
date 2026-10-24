@@ -1,0 +1,62 @@
+@page "/"
+@implements IDisposable
+@inject SessionPluginOwnerBridge Bridge
+
+<PageTitle>Components session panel consumer</PageTitle>
+
+<main data-testid="consumer-main">
+    <h1 data-testid="consumer-heading">Components session panel consumer</h1>
+
+    @* The session plugin host of the Blocks package, fed by the owner bridge.
+         The parameters carry the revision the bridge holds: the host reads the
+         registry again whenever the parameters change, so a panel of an owner
+         that withdrew leaves the surface. *@
+    <SessionPluginHost ActiveSessionId="consumer-session" Parameters="@_parameters" />
+
+    @* The marker appears once the circuit of this consumer is live. The
+       prerendered markup does not carry it, so a browser can tell the
+       prerendered surface from the interactive one. *@
+    @if (_isLive)
+    {
+        <span data-testid="consumer-live">live</span>
+    }
+</main>
+
+@code {
+    private IDisposable? _subscription;
+    private IReadOnlyDictionary<string, object?>? _parameters;
+    private bool _isLive;
+
+    protected override void OnInitialized()
+    {
+        // The host owns the authority over the plugin owners and delivers it
+        // to the bridge as a revision. The consumer follows the revisions the
+        // bridge delivers, so a withdrawal reaches every live circuit of the
+        // consumer and the host reads the registry again on the next render.
+        _subscription = Bridge.Subscribe(revision => InvokeAsync(() =>
+        {
+            _parameters = new Dictionary<string, object?> { ["revision"] = revision };
+
+            StateHasChanged();
+        }));
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        // OnAfterRender only runs in the browser, never during the prerender,
+        // so the marker tells the browser that the circuit of this consumer is
+        // live. A browser that acts on the authority before the circuit is
+        // live would never be told about it: the bridge admits no handler
+        // while no owner is active.
+        if (!firstRender)
+        {
+            return;
+        }
+
+        _isLive = true;
+
+        StateHasChanged();
+    }
+
+    public void Dispose() => _subscription?.Dispose();
+}

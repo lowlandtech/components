@@ -77,11 +77,20 @@ public sealed class ConsumerScenario : IDisposable
     /// returns the produced artifacts.
     /// </summary>
     /// <param name="repositoryRoot">Repository the packages are packed from.</param>
-    public static ConsumerScenario Run(string repositoryRoot)
+    /// <param name="consumerSource">
+    /// The consumer application, relative to the repository root. Defaults to
+    /// the CPKG0001 consumer; another acceptance that needs the same packaging
+    /// path hands its own consumer over this parameter.
+    /// </param>
+    /// <param name="scenarioPrefix">Prefix of the temporary scenario directory.</param>
+    public static ConsumerScenario Run(
+        string repositoryRoot,
+        string? consumerSource = null,
+        string scenarioPrefix = "cpkg0001-e2e-")
     {
         var scenarioRoot = Path.Combine(
             Path.GetTempPath(),
-            $"cpkg0001-e2e-{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid():N}");
+            $"{scenarioPrefix}{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid():N}");
         Directory.CreateDirectory(scenarioRoot);
 
         var script = Path.Combine(
@@ -101,6 +110,12 @@ public sealed class ConsumerScenario : IDisposable
             "-ScenarioRoot", scenarioRoot,
             "-Publish",
         };
+
+        if (consumerSource is not null)
+        {
+            arguments.Add("-ConsumerSource");
+            arguments.Add(consumerSource);
+        }
 
         var (exitCode, output) = RunProcess(ResolveShell(), arguments, repositoryRoot);
 
