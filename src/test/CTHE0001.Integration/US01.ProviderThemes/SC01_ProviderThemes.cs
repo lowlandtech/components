@@ -41,10 +41,10 @@ public sealed class SC01_ProviderThemes
     private static readonly ComponentSlotKey RootSlot = new("Button", "Root");
 
     private object? _bridge;
+    private ComponentThemeService? _service;
 
     [Fact(
-        DisplayName = "UAC01: two independent providers resolve only their own theme and the consumer override keeps its precedence",
-        Skip = "TODO: the Components theme owner bridge (ComponentThemeOwnerBridge, ComponentThemeBinding, ComponentThemeOwnerSnapshot) is not implemented yet, so no owned theme can be published to a provider boundary.")]
+        DisplayName = "UAC01: two independent providers resolve only their own theme and the consumer override keeps its precedence")]
     [Trait(Spec.UAC, "01")]
     [Given("an active owner that publishes a plugin theme beside the host theme, and two independent provider boundaries")]
     [When("the plugin theme is selected for the first provider and both providers resolve classes, fragments and style families")]
@@ -87,8 +87,7 @@ public sealed class SC01_ProviderThemes
                 "The bridge does not publish the binding of the active owner."));
 
     [Fact(
-        DisplayName = "UAC02: an inactive or invalid theme binding is excluded or rejected before publication and the provider selections do not change",
-        Skip = "TODO: the Components theme owner bridge does not validate a theme binding before publication yet, so an inactive or invalid binding can still be published.")]
+        DisplayName = "UAC02: an inactive or invalid theme binding is excluded or rejected before publication and the provider selections do not change")]
     [Trait(Spec.UAC, "02")]
     [Given("a published binding of an active owner, a binding of an inactive owner and an invalid binding")]
     [When("both bindings are published and the themes are enumerated")]
@@ -145,8 +144,7 @@ public sealed class SC01_ProviderThemes
                 "The bridge selected a theme for a provider whose binding was refused."));
 
     [Fact(
-        DisplayName = "UAC03: the withdrawal of an owner restores the host defaults and detaches its stylesheet selection while the other providers keep their state",
-        Skip = "TODO: the Components theme owner bridge does not restore the host defaults after a withdrawal yet, so a withdrawn owner keeps its theme selected.")]
+        DisplayName = "UAC03: the withdrawal of an owner restores the host defaults and detaches its stylesheet selection while the other providers keep their state")]
     [Trait(Spec.UAC, "03")]
     [Given("two owners with an active theme each, selected for two providers")]
     [When("one owner withdraws and the themes are enumerated and resolved again")]
@@ -193,8 +191,27 @@ public sealed class SC01_ProviderThemes
     /// <summary>The theme the plugin owner contributes.</summary>
     private static FakePluginTheme PluginTheme { get; } = new();
 
-    /// <summary>The resolver of the host, with the host theme registered first.</summary>
-    private ComponentThemeService Service { get; } = new([HostTheme, PluginTheme]);
+    /// <summary>
+    /// The resolver of the host, with the host theme registered first and both
+    /// provider boundaries registered, exactly as the ThemeProvider component
+    /// registers itself.
+    /// </summary>
+    private ComponentThemeService Service
+    {
+        get
+        {
+            if (_service is not null)
+            {
+                return _service;
+            }
+
+            _service = new ComponentThemeService([HostTheme, PluginTheme]);
+            _service.Register(ProviderA);
+            _service.Register(ProviderB);
+
+            return _service;
+        }
+    }
 
     /// <summary>The bridge under test, over the authority of the host.</summary>
     private object Bridge =>

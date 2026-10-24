@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!-- Reference consumer for the CTHE0001 provider scoped theme acceptance. It
+       deliberately has no ProjectReference and no reference to the Components
+       source tree: everything it renders comes from the NuGet packages, and it
+       never references the Components demo host.
+
+       The root namespace sits outside LowlandTech.Components on purpose. The
+       ThemeProvider boundary of the base package is a type named ThemeProvider
+       in the namespace LowlandTech.Components, so a consumer namespace below
+       that one would make the boundary ambiguous to resolve. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>LowlandTech.ThemeConsumer</RootNamespace>
+    <AssemblyName>LowlandTech.ThemeConsumer</AssemblyName>
+    <ComponentsPackageVersion Condition="'$(ComponentsPackageVersion)' == ''">0.0.0-unset</ComponentsPackageVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LowlandTech.Components.Core" Version="[$(ComponentsPackageVersion)]" />
+    <PackageReference Include="LowlandTech.Components" Version="[$(ComponentsPackageVersion)]" />
+    <PackageReference Include="LowlandTech.Components.Blocks" Version="[$(ComponentsPackageVersion)]" />
+  </ItemGroup>
+
+</Project>

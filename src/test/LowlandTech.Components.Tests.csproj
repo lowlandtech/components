@@ -20,8 +20,13 @@
 		     the session panel acceptance. It is a separate project that is copied
 		     to a temporary directory and built there, so its sources must not be
 		     compiled into the test assembly either. No Fact, scenario or
+		     acceptance criterion of it is excluded by this.
+		     CTHE0001.Integration\consumer is the reference consumer application for
+		     the provider scoped theme acceptance. It is a separate project that is
+		     copied to a temporary directory and built there, so its sources must not
+		     be compiled into the test assembly either. No Fact, scenario or
 		     acceptance criterion of it is excluded by this. -->
-		<DefaultItemExcludes>$(DefaultItemExcludes);Fixtures\**;CPKG0001.Packaging\consumer\**;CPAN0001.Integration\consumer\**</DefaultItemExcludes>
+		<DefaultItemExcludes>$(DefaultItemExcludes);Fixtures\**;CPKG0001.Packaging\consumer\**;CPAN0001.Integration\consumer\**;CTHE0001.Integration\consumer\**</DefaultItemExcludes>
 	</PropertyGroup>
 
 	<ItemGroup>

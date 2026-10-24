@@ -1,0 +1,124 @@
+@page "/"
+@implements IDisposable
+@inject ComponentThemeOwnerBridge Bridge
+@inject ComponentThemeService ThemeService
+@inject ThemeAuthority Authority
+@inject ConsumerPluginTheme PluginTheme
+
+<PageTitle>Components theme consumer</PageTitle>
+
+<main data-testid="consumer-main">
+    <h1 data-testid="consumer-heading">Components theme consumer</h1>
+
+    @* The stylesheet selection of the provider boundary. It follows the owner:
+         a withdrawn owner loses the selection, while the deployed file of the
+         package stays untouched and served. *@
+    @foreach (var stylesheet in _stylesheets)
+    {
+        <link rel="stylesheet" href="@stylesheet" data-slot="theme-stylesheet" />
+    }
+
+    @* The provider boundary of the host. It renders the name and the style
+         family of the theme it resolves and cascades the context the button
+         resolves its class through. *@
+    <ThemeProvider Id="@ThemeAuthority.ProviderId">
+        <Button Class="consumer-class">Themed button</Button>
+    </ThemeProvider>
+
+    @* The marker appears once the circuit of this consumer is live. The
+       prerendered markup does not carry it, so a browser can tell the
+       prerendered surface from the interactive one. *@
+    @if (_isLive)
+    {
+        <span data-testid="consumer-live">live</span>
+    }
+</main>
+
+@code {
+    private IDisposable? _subscription;
+    private IReadOnlyList<string> _stylesheets = [];
+    private bool _isLive;
+    private bool _disposed;
+
+    protected override void OnInitialized()
+    {
+        // The owner contributes its theme through the bridge. The bridge
+        // validates the binding before it is published, so a theme of an owner
+        // that is not active never reaches a provider boundary.
+        var validation = Bridge.Publish(new ComponentThemeBinding(
+            ThemeAuthority.OwnerKey,
+            ThemeAuthority.ProviderId,
+            ThemeAuthority.ThemeKey,
+            PluginTheme,
+            [ConsumerPluginTheme.Stylesheet]));
+
+        if (!validation.IsValid)
+        {
+            throw new InvalidOperationException(
+                "The consumer could not publish the theme of its owner: " +
+                string.Join("; ", validation.Errors.Select(error => error.Message)));
+        }
+
+        // The host owns the authority over the plugin owners and delivers it as
+        // a revision. The consumer follows the revisions, so a withdrawal
+        // reaches every live circuit of the consumer.
+        _subscription = Authority.Subscribe(snapshot => InvokeAsync(() =>
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            Follow(snapshot);
+
+            StateHasChanged();
+        }));
+
+        ThemeService.ThemeChanged += OnThemeChanged;
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        // OnAfterRender only runs in the browser, never during the prerender,
+        // so the marker tells the browser that the circuit of this consumer is
+        // live.
+        _isLive = true;
+
+        // The provider boundary registered itself while the tree rendered, so
+        // the bridge now restores the host default of that boundary when the
+        // owner withdraws.
+        Follow(Authority.Snapshot);
+
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Follows a revision of the authority: the bridge projects it onto the
+    /// resolver of this circuit, and the provider selects the theme of its
+    /// owner again while that owner is active.
+    /// </summary>
+    /// <param name="snapshot">The revision of the authority.</param>
+    private void Follow(ComponentThemeOwnerSnapshot snapshot)
+    {
+        Bridge.Deliver(snapshot);
+
+        Bridge.Select(ThemeAuthority.ProviderId, ThemeAuthority.ThemeKey);
+
+        _stylesheets = Bridge.StylesheetsFor(ThemeAuthority.ProviderId);
+    }
+
+    private void OnThemeChanged(string providerId) => InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        _disposed = true;
+
+        _subscription?.Dispose();
+        ThemeService.ThemeChanged -= OnThemeChanged;
+    }
+}
