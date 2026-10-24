@@ -3,7 +3,8 @@ param(
     [string]$FeedPath = 'D:\lowlandtech\packages',
     [string]$Version,
     [string]$Configuration = 'Release',
-    [string]$ManifestPath = (Join-Path $PSScriptRoot 'local-packages.json')
+    [string]$ManifestPath = (Join-Path $PSScriptRoot 'local-packages.json'),
+    [string[]]$Projects
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -17,7 +18,12 @@ if (!$Version) {
 if ($Version -notmatch '^[1-9][0-9]{3}\.(?:[1-9]|1[0-2])\.(?:0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*))?$') {
     throw 'Version must follow year.month.major[-minor], e.g. 2026.10.1 or 2026.10.1-2 (no leading zeroes).'
 }
-$projects = @($manifest.projects)
+# A subset of the manifest publishes a part of the batch. The dependency
+# closure of the published packages needs the identities of the parts and the
+# whole in one agreed version, so a subset carries the same version as the
+# whole batch it belongs to.
+if (!$Projects) { $Projects = @($manifest.projects) }
+$projects = @($Projects)
 if (!$projects.Count) { throw 'The manifest must select at least one packable project.' }
 $solution = Join-Path $root $manifest.solution
 foreach ($path in @($solution) + @($projects | ForEach-Object { Join-Path $root $_ })) {
@@ -32,7 +38,15 @@ function Invoke-DotNet([string[]]$Arguments) {
 }
 Push-Location $root
 try {
-    Invoke-DotNet @('build', $solution, '-c', $Configuration, "-p:Version=$Version", '-m:1')
+    # A subset builds only its own projects: the whole solution needs the
+    # verified Core package of the whole batch, a subset does not.
+    $buildInputs = @($solution)
+    if ($projects.Count -lt @($manifest.projects).Count) {
+        $buildInputs = @($projects | ForEach-Object { Join-Path $root $_ })
+    }
+    foreach ($buildInput in $buildInputs) {
+        Invoke-DotNet @('build', $buildInput, '-c', $Configuration, "-p:Version=$Version", '-m:1')
+    }
     foreach ($project in $projects) {
         Invoke-DotNet @('pack', $project, '-c', $Configuration, '--no-build', "-p:Version=$Version", '-o', $staging)
     }
