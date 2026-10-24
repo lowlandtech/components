@@ -15,6 +15,16 @@ public sealed class ComponentsFeatureActivator
     /// <summary>The target a Components feature activates for.</summary>
     public const string BlazorTarget = "blazor";
 
+    /// <summary>
+    /// The host capability a Blazor target requires.
+    /// </summary>
+    /// <remarks>
+    /// The name belongs to the shared capability vocabulary the Plugins
+    /// contract derives from a host's own project evidence, so both contracts
+    /// refuse the same host for the same reason.
+    /// </remarks>
+    public const string BlazorCapability = "blazor";
+
     private readonly ComponentsStartupMap _startupMap;
 
     /// <summary>
@@ -46,6 +56,19 @@ public sealed class ComponentsFeatureActivator
                 ComponentsFeatureActivationErrorCode.UnsupportedTarget,
                 manifest.Key,
                 $"The feature '{manifest.Key}' targets '{manifest.Target}' and cannot activate in a {BlazorTarget} host."));
+        }
+        else
+        {
+            foreach (var capability in RequiredCapabilities(manifest))
+            {
+                if (!_startupMap.HostCapabilities.Contains(capability))
+                {
+                    errors.Add(new ComponentsFeatureActivationError(
+                        ComponentsFeatureActivationErrorCode.TargetCapabilitiesRequired,
+                        manifest.Key,
+                        $"The feature '{manifest.Key}' requires the capability '{capability}' that the host does not provide."));
+                }
+            }
         }
 
         foreach (var dependency in manifest.LogicalDependencies ?? [])
@@ -89,5 +112,25 @@ public sealed class ComponentsFeatureActivator
         }
 
         return new ComponentsFeatureActivationResult(errors.Count == 0, resolved, errors);
+    }
+
+    /// <summary>
+    /// The capabilities the host must provide for the manifest: the capability
+    /// its target implies and every capability its installation unit declares.
+    /// </summary>
+    /// <param name="manifest">The manifest of the installed feature.</param>
+    private static IReadOnlyList<string> RequiredCapabilities(ComponentsFeatureManifest manifest)
+    {
+        var required = new List<string> { BlazorCapability };
+
+        foreach (var capability in manifest.RequiredCapabilities ?? [])
+        {
+            if (!required.Contains(capability, StringComparer.Ordinal))
+            {
+                required.Add(capability);
+            }
+        }
+
+        return required;
     }
 }

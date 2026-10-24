@@ -16,4 +16,14 @@ public enum ComponentsFeatureActivationErrorCode
 
     /// <summary>A component the feature declares is not bound by the startup map.</summary>
     UnresolvedComponent,
+
+    /// <summary>
+    /// The host does not provide a capability the feature requires.
+    /// </summary>
+    /// <remarks>
+    /// The name is the one the shared Plugins capability contract reports the
+    /// same refusal with, so a host adapter maps one refusal onto the other
+    /// without a second vocabulary.
+    /// </remarks>
+    TargetCapabilitiesRequired,
 }

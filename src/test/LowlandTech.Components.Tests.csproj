@@ -29,7 +29,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="bunit" Version="2.7.2" />
-		<PackageReference Include="LowlandTech.Plugins" Version="2026.10.1-20261022220009853293878" />
+		<PackageReference Include="LowlandTech.Plugins" Version="2026.10.1-20261024190755988902385" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.8" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
 		<PackageReference Include="coverlet.collector" Version="10.0.1">
