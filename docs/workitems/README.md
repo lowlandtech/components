@@ -20,7 +20,7 @@ and Blocks from a verified local NuGet closure without a Foundry checkout.
 
 | Work | Scope | Title | Owner | Depends on | State |
 |---|---|---|---|---|---|
-| M1-001 | `CPKG0001-US01-SC01` | [Restore independent package consumption](CPKG0001.US01.SC01.independent-package-consumption.md) - [#19](https://github.com/lowlandtech/components/issues/19) | components | none | review |
+| M1-001 | `CPKG0001-US01-SC01` | [Restore independent package consumption](CPKG0001.US01.SC01.independent-package-consumption.md) - [#19](https://github.com/lowlandtech/components/issues/19) | components | none | done |
 
 ## M2 - Opt-in UI feature manifest
 

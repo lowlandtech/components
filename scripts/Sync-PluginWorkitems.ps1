@@ -1,6 +1,7 @@
 [CmdletBinding()]
-param([string]$Repository = 'lowlandtech/components', [switch]$Apply, [switch]$Offline)
+param([string]$Repository = 'lowlandtech/components', [switch]$Apply, [switch]$Offline, [string]$TraceId = '')
 $ErrorActionPreference = 'Stop'
+if ($TraceId -and $TraceId -notmatch '^[A-Z]{4}\d{4}-US\d{2}-SC\d{2}$') { throw 'Invalid TraceId scope.' }
 if ($Repository -notmatch '^[\w.-]+/[\w.-]+$') { throw 'Expected owner/repository.' }
 if ($Apply -and $Offline) { throw 'Offline validation cannot apply GitHub changes.' }
 $root = Split-Path $PSScriptRoot -Parent
@@ -33,6 +34,7 @@ foreach ($file in (Get-ChildItem (Join-Path $root 'docs/workitems/*.md') -File |
     $emDash = [char]0x2014
     if ($body -notmatch "(?m)^# ([A-Z]{4}\d{4}-US\d{2}-SC\d{2}) $emDash (.+)\r?$") { throw "Invalid title: $file" }
     $id = $Matches[1]; $title = "${id}: $($Matches[2].Trim())"
+    if ($TraceId -and $id -ne $TraceId) { continue }
     # A finished scope rests at review until the coordinator accepts it and then
     # at done, and the board mirrors its state, so the settled states are
     # mirrored as well as backlog. A scope still in flight has no settled
@@ -67,4 +69,5 @@ foreach ($file in (Get-ChildItem (Join-Path $root 'docs/workitems/*.md') -File |
     }
     $results += [pscustomobject]@{scope=$id;action=$action;number=$number;url=$(if ($number) { "https://github.com/$Repository/issues/$number" } else { $null })}
 }
+if (-not $results.Count) { throw 'No workitems match the selected TraceId.' }
 $results | ConvertTo-Json -Depth 4

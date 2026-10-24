@@ -1,5 +1,6 @@
 """Regression checks for the milestone roadmap and managed-source mapping."""
 import json
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -26,6 +27,8 @@ class RoadmapTests(unittest.TestCase):
         name = 'BLAZ0001.US01.SC01.package-optional-blazor-adapter.md'
         shutil.copyfile(ROOT.parent / 'plugins/docs/workitems/done' / name, target / name)
         self.board = self.board_dir / 'README.md'
+        source = self.board_dir / 'CPKG0001.US01.SC01.independent-package-consumption.md'
+        self.cpkg_state = re.search(r'- \*\*State:\*\* (\w+)', source.read_text(encoding='utf-8')).group(1)
 
     def run_check(self):
         quote = lambda value: "'" + str(value).replace("'", "''") + "'"
@@ -68,14 +71,15 @@ foreach ($row in $rows | Where-Object { !$_.External }) {
         self.assertIn('Unknown dependency', result.stderr)
 
     def test_cycle_is_rejected(self):
-        self.mutate_board('| none | review |', '| M2-001 | review |')
+        self.mutate_board(f'| none | {self.cpkg_state} |', f'| M2-001 | {self.cpkg_state} |')
         result = self.run_check()
         self.assertNotEqual(0, result.returncode)
         self.assertIn('dependency cycle', result.stderr)
 
     def test_source_state_disagreement_is_rejected(self):
         source = self.board_dir / 'CPKG0001.US01.SC01.independent-package-consumption.md'
-        source.write_text(source.read_text().replace('- **State:** review', '- **State:** done', 1))
+        other_state = 'review' if self.cpkg_state == 'done' else 'done'
+        source.write_text(source.read_text(encoding='utf-8').replace(f'- **State:** {self.cpkg_state}', f'- **State:** {other_state}', 1), encoding='utf-8')
         result = self.run_check()
         self.assertNotEqual(0, result.returncode)
         self.assertIn('Board state/link mismatch', result.stderr)
@@ -95,6 +99,22 @@ foreach ($row in $rows | Where-Object { !$_.External }) {
         self.assertEqual(6, len(rows))
         self.assertTrue(all(row['action'] == 'validated' for row in rows))
         self.assertFalse(any(row['scope'].startswith('BLAZ') for row in rows))
+
+    def test_scoped_offline_mirror_selects_only_requested_scope(self):
+        result = subprocess.run(['pwsh', '-NoProfile', '-File',
+            str(ROOT / 'scripts/Sync-PluginWorkitems.ps1'), '-Offline',
+            '-TraceId', 'CPKG0001-US01-SC01'], capture_output=True, text=True)
+        self.assertEqual(0, result.returncode, result.stderr)
+        row = json.loads(result.stdout)
+        self.assertEqual('CPKG0001-US01-SC01', row['scope'])
+        self.assertEqual('validated', row['action'])
+
+    def test_unknown_mirror_scope_fails_closed(self):
+        result = subprocess.run(['pwsh', '-NoProfile', '-File',
+            str(ROOT / 'scripts/Sync-PluginWorkitems.ps1'), '-Offline',
+            '-TraceId', 'NONE9999-US01-SC01'], capture_output=True, text=True)
+        self.assertNotEqual(0, result.returncode)
+        self.assertIn('No workitems match', result.stderr)
 
 
 if __name__ == '__main__':
