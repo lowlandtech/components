@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!-- Shared feed consumer proof for the CPGS0001 active plugin page scope.
+       It restores the published packages from the local feed of the workspace
+       and drives the documented consumption path of a host: a trusted startup
+       map, a published page binding, the Plugins route and page catalogs
+       built from the bridge projection, a withdrawal and a reactivation.
+
+       It is deliberately not part of the test assembly and not part of the
+       scenario suites. The acceptance of the scope restores a private feed
+       that the packaging harness packs, so that a closed gate never depends
+       on the mutable state of the shared feed. This consumer is the separate
+       proof that the shared feed carries the published identities and that an
+       external consumer compiles against them. Run it on demand from this
+       folder with "dotnet restore" followed by "dotnet run", passing the
+       NuGet.Config of this folder to the restore.
+
+       The local feed path is relative to this folder, so the proof runs
+       against the workspace feed without an absolute path in the repository. -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>LowlandTech.FeedConsumer</RootNamespace>
+    <AssemblyName>LowlandTech.FeedConsumer</AssemblyName>
+    <ComponentsPackageVersion Condition="'$(ComponentsPackageVersion)' == ''">2026.10.1-20261024235136415</ComponentsPackageVersion>
+    <PluginsPackageVersion Condition="'$(PluginsPackageVersion)' == ''">2026.10.1-20261024190755988902385</PluginsPackageVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LowlandTech.Components.Features.Pages" Version="[$(ComponentsPackageVersion)]" />
+    <PackageReference Include="LowlandTech.Plugins.Blazor" Version="[$(PluginsPackageVersion)]" />
+  </ItemGroup>
+
+</Project>

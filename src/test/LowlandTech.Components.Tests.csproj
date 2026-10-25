@@ -35,8 +35,13 @@
 		     the active plugin page acceptance. It is a separate project that is
 		     copied to a temporary directory and built there, so its sources must not
 		     be compiled into the test assembly either. No Fact, scenario or
-		     acceptance criterion of it is excluded by this. -->
-		<DefaultItemExcludes>$(DefaultItemExcludes);Fixtures\**;CPKG0001.Packaging\consumer\**;CPAN0001.Integration\consumer\**;CTHE0001.Integration\consumer\**;CBLK0001.Integration\consumer\**;CPGS0001.Integration\consumer\**</DefaultItemExcludes>
+		     acceptance criterion of it is excluded by this.
+		     CPGS0001.Integration\feed-consumer is the shared feed consumption proof
+		     of the published page adapter. It is a separate project that restores
+		     the published packages of the workspace feed and runs on demand, so its
+		     sources must not be compiled into the test assembly either. No Fact,
+		     scenario or acceptance criterion of it is excluded by this. -->
+		<DefaultItemExcludes>$(DefaultItemExcludes);Fixtures\**;CPKG0001.Packaging\consumer\**;CPAN0001.Integration\consumer\**;CTHE0001.Integration\consumer\**;CBLK0001.Integration\consumer\**;CPGS0001.Integration\consumer\**;CPGS0001.Integration\feed-consumer\**</DefaultItemExcludes>
 	</PropertyGroup>
 
 	<ItemGroup>
