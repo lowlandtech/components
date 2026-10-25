@@ -30,8 +30,13 @@
 		     the owned session block acceptance. It is a separate project that is
 		     copied to a temporary directory and built there, so its sources must not
 		     be compiled into the test assembly either. No Fact, scenario or
+		     acceptance criterion of it is excluded by this.
+		     CPGS0001.Integration\consumer is the reference consumer application for
+		     the active plugin page acceptance. It is a separate project that is
+		     copied to a temporary directory and built there, so its sources must not
+		     be compiled into the test assembly either. No Fact, scenario or
 		     acceptance criterion of it is excluded by this. -->
-		<DefaultItemExcludes>$(DefaultItemExcludes);Fixtures\**;CPKG0001.Packaging\consumer\**;CPAN0001.Integration\consumer\**;CTHE0001.Integration\consumer\**;CBLK0001.Integration\consumer\**</DefaultItemExcludes>
+		<DefaultItemExcludes>$(DefaultItemExcludes);Fixtures\**;CPKG0001.Packaging\consumer\**;CPAN0001.Integration\consumer\**;CTHE0001.Integration\consumer\**;CBLK0001.Integration\consumer\**;CPGS0001.Integration\consumer\**</DefaultItemExcludes>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -66,6 +71,9 @@
 		<!-- The opt-in feature package under test is referenced from source, so
 		     the acceptance exercises the shipped registration and manifest. -->
 		<ProjectReference Include="..\features\LowlandTech.Components.Features.Session\LowlandTech.Components.Features.Session.csproj" />
+		<!-- The opt-in page feature package under test is referenced from source,
+		     so the acceptance exercises the shipped page bridge. -->
+		<ProjectReference Include="..\features\LowlandTech.Components.Features.Pages\LowlandTech.Components.Features.Pages.csproj" />
 	</ItemGroup>
 
 	<!-- Embed sources used by textual drift-guard tests so they survive NCrunch

@@ -5,6 +5,7 @@
     "src/core/LowlandTech.Components.Core.csproj",
     "src/lib/LowlandTech.Components.csproj",
     "src/blocks/LowlandTech.Components.Blocks.csproj",
-    "src/features/LowlandTech.Components.Features.Session/LowlandTech.Components.Features.Session.csproj"
+    "src/features/LowlandTech.Components.Features.Session/LowlandTech.Components.Features.Session.csproj",
+    "src/features/LowlandTech.Components.Features.Pages/LowlandTech.Components.Features.Pages.csproj"
   ]
 }

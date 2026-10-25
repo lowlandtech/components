@@ -49,6 +49,19 @@
     packaging path hands its own consumer over this parameter; the packaging
     work itself is identical.
 
+.PARAMETER AdditionalPackages
+    Project files, relative to the repository root, that are packed into the
+    private feed next to the three base packages under the same version. Their
+    own dependency closure travels with them, so a consumer may reference an
+    optional feature package of this repository without reaching outside the
+    private feed. The CPKG0001 acceptance packs nothing extra.
+
+.PARAMETER FeedPackages
+    Package ids whose every version in the local feed travels with the private
+    feed. Use it for a package the consumer needs that is not a dependency of
+    the packed Components projects, for example a host framework package. The
+    CPKG0001 acceptance copies nothing extra.
+
 .OUTPUTS
     A JSON manifest at <ScenarioRoot>\scenario.json describing every artifact.
 #>
@@ -58,7 +71,9 @@ param(
     [string] $ScenarioRoot,
     [string] $CoreVersion,
     [switch] $Publish,
-    [string] $ConsumerSource = 'src/test/CPKG0001.Packaging/consumer'
+    [string] $ConsumerSource = 'src/test/CPKG0001.Packaging/consumer',
+    [string[]] $AdditionalPackages = @(),
+    [string[]] $FeedPackages = @()
 )
 
 $ErrorActionPreference = 'Stop'
@@ -108,6 +123,21 @@ function Get-NuspecDependencies([string] $nupkgPath) {
         $dependencies += [pscustomobject]@{ Id = $node.GetAttribute('id'); Version = $version }
     }
     return $dependencies
+}
+
+function Get-NuspecId([string] $nupkgPath) {
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $zip = [System.IO.Compression.ZipFile]::OpenRead($nupkgPath)
+    try {
+        $entry = $zip.Entries | Where-Object { $_.FullName -like '*.nuspec' } | Select-Object -First 1
+        if (-not $entry) { return $null }
+        $reader = New-Object System.IO.StreamReader($entry.Open())
+        try { $text = $reader.ReadToEnd() } finally { $reader.Dispose() }
+    }
+    finally { $zip.Dispose() }
+
+    $xml = [xml]$text
+    return [string]$xml.package.metadata.id
 }
 
 function Resolve-CompatibleCore([string] $feedPath, [string] $requested) {
@@ -233,6 +263,15 @@ $projects = @(
     @{ Id = 'LowlandTech.Components.Blocks'; Path = 'src/blocks/LowlandTech.Components.Blocks.csproj' }
 )
 
+# An optional feature package of this repository joins the batch under the same
+# version, so a consumer may reference it from the private feed alone.
+foreach ($path in $AdditionalPackages) {
+    $projects += @{
+        Id   = [System.IO.Path]::GetFileNameWithoutExtension($path)
+        Path = $path
+    }
+}
+
 $packFailures = @()
 foreach ($project in $projects) {
     $projectPath = Join-Path $RepositoryRoot $project.Path
@@ -257,11 +296,20 @@ if ($packFailures.Count -gt 0) {
 # the consumer never needs a network source.
 Copy-Item -LiteralPath $core.Package -Destination $feedDirectory -Force
 
-$closure = Get-PackageClosure @(
+$assetsFiles = @(
     (Join-Path $RepositoryRoot 'src/core/obj/project.assets.json'),
     (Join-Path $RepositoryRoot 'src/lib/obj/project.assets.json'),
     (Join-Path $RepositoryRoot 'src/blocks/obj/project.assets.json')
 )
+
+# The dependency closure of an additional package travels with it, so the
+# consumer resolves it from the private feed alone.
+foreach ($path in $AdditionalPackages) {
+    $projectDirectory = Split-Path -Parent (Join-Path $RepositoryRoot $path)
+    $assetsFiles += (Join-Path $projectDirectory 'obj/project.assets.json')
+}
+
+$closure = Get-PackageClosure $assetsFiles
 
 $globalPackages = Join-Path $env:USERPROFILE '.nuget\packages'
 $missing = @()
@@ -274,6 +322,22 @@ foreach ($entry in $closure) {
 
 if ($missing.Count -gt 0) {
     throw "Transitive packages missing from the global cache: $($missing -join ', ')."
+}
+
+# A package the consumer needs that is not a dependency of the packed
+# Components projects travels with the feed as well, so the consumer restores
+# against the private feed alone. Every version of the requested id travels.
+foreach ($id in $FeedPackages) {
+    $copied = $false
+    foreach ($file in Get-ChildItem -LiteralPath $localFeed -Filter '*.nupkg') {
+        if ((Get-NuspecId $file.FullName) -ne $id) { continue }
+        Copy-Item -LiteralPath $file.FullName -Destination $feedDirectory -Force
+        $copied = $true
+    }
+
+    if (-not $copied) {
+        throw "The package '$id' is not in the local feed '$localFeed'."
+    }
 }
 
 # A web application resolves the ASP.NET Core framework reference through

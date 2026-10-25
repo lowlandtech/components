@@ -1,0 +1,55 @@
+@page "/"
+@page "/{*Path}"
+@implements IDisposable
+@inject ConsumerPageHost PageHost
+
+@if (string.IsNullOrEmpty(Path))
+{
+    @* The route the host reserved for itself. It stays available while the
+         owner of the plugin page is active and after it withdraws. *@
+    <main data-testid="consumer-main">
+        <h1 data-testid="consumer-heading">Components page consumer</h1>
+
+        @* The navigation of the shell route gateway. The entry of the active
+             owner is offered while the owner is active, and it leaves the
+             navigation with its owner. *@
+        <PluginPageNavigation Host="@PageHost.Host" />
+
+        <p data-testid="host-reserved-route">/</p>
+    </main>
+}
+else
+{
+    @* A route the host does not serve itself is resolved by the Plugins route
+         gateway. It serves only the pages of the owners the authority holds
+         active, and falls back to the host otherwise. *@
+    <PluginRouteOutlet Host="@PageHost.Host" Fallback="@Fallback" />
+}
+
+@code {
+    /// <summary>The path of the request, empty for the reserved host route.</summary>
+    [Parameter] public string? Path { get; set; }
+
+    /// <summary>The host fallback of a route that no active owner serves.</summary>
+    private RenderFragment Fallback => @<p data-testid="host-fallback">host fallback</p>;
+
+    protected override void OnInitialized()
+    {
+        // The projection of the authority changed: the gateway refreshes
+        // itself, so the outlet and the navigation resolve the new projection
+        // of the route host instead of the one they were rendered with.
+        PageHost.Changed += OnProjectionChanged;
+    }
+
+    private void OnProjectionChanged()
+    {
+        Console.WriteLine($"[gateway] projection changed on {Path ?? "/"}");
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        PageHost.Changed -= OnProjectionChanged;
+    }
+}

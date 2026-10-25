@@ -1,0 +1,64 @@
+@implements IDisposable
+@inject ConsumerPageHost PageHost
+@inject ConsumerPageAuthority Authority
+
+<Router AppAssembly="typeof(Program).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+</Router>
+
+@* The marker appears once the circuit of this consumer is live. The
+   prerendered markup does not carry it, so a browser can tell the prerendered
+   surface from the interactive one. *@
+@if (_isLive)
+{
+    <span data-testid="consumer-live">live</span>
+}
+
+@code {
+    private IDisposable? _subscription;
+    private bool _isLive;
+    private bool _disposed;
+
+    protected override void OnInitialized()
+    {
+        // The host owns the authority over the plugin owners and delivers it as
+        // a revision. The consumer follows the revisions, so a withdrawal
+        // reaches every live circuit of the consumer.
+        _subscription = Authority.Subscribe(snapshot => InvokeAsync(() =>
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            PageHost.Deliver(snapshot);
+
+            StateHasChanged();
+        }));
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        // OnAfterRender only runs in the browser, never during the prerender,
+        // so the marker tells the browser that the circuit of this consumer is
+        // live.
+        _isLive = true;
+
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        _disposed = true;
+
+        _subscription?.Dispose();
+    }
+}

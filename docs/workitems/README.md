@@ -42,7 +42,7 @@ the existing Plugins lifecycle through reusable, independently tested adapters.
 | M3-001 | `CPAN0001-US01-SC01` | [Project active session panels](CPAN0001.US01.SC01.active-session-panels.md) - [#17](https://github.com/lowlandtech/components/issues/17) | components | M2-001; M3-X01 | done |
 | M3-002 | `CBLK0001-US01-SC01` | [Resolve active owned session blocks](CBLK0001.US01.SC01.active-owned-session-blocks.md) - [#16](https://github.com/lowlandtech/components/issues/16) | components | M2-001; M3-X01 | done |
 | M3-003 | `CTHE0001-US01-SC01` | [Resolve active provider-scoped themes](CTHE0001.US01.SC01.active-provider-themes.md) - [#21](https://github.com/lowlandtech/components/issues/21) | components | M2-001; M3-X01 | done |
-| M3-004 | `CPGS0001-US01-SC01` | [Resolve active plugin pages](CPGS0001.US01.SC01.active-plugin-pages.md) - [#18](https://github.com/lowlandtech/components/issues/18) | components | M2-001; M3-X01 | backlog |
+| M3-004 | `CPGS0001-US01-SC01` | [Resolve active plugin pages](CPGS0001.US01.SC01.active-plugin-pages.md) - [#18](https://github.com/lowlandtech/components/issues/18) | components | M2-001; M3-X01 | review |
 
 ## Dependency and ownership rules
 

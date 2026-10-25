@@ -12,9 +12,8 @@ namespace LowlandTech.Components.Tests.CPGS0001.Integration.US01.ActivePluginPag
 /// reads, stops offering the pages of an owner that withdraws.
 /// </para>
 /// <para>
-/// Every Fact is skipped until the page owner bridge exists: the Components
-/// plugin page owner contracts are the missing dependency. A skipped Fact is
-/// unfinished inventory, never acceptance.
+/// The page owner bridge of the optional page feature package implements the
+/// contracts this inventory accepts, so every Fact executes.
 /// </para>
 /// </summary>
 [Trait(Spec.SPEC, "CPGS0001")]
@@ -39,8 +38,7 @@ public sealed class SC01_ActivePluginPages
     private object? _bridge;
 
     [Fact(
-        DisplayName = "UAC01: an active page keeps the metadata it declares, a page that hides itself from the navigation stays routable and the page resolves to the component the host authorizes",
-        Skip = "TODO: the Components plugin page owner bridge (ComponentPageOwnerBridge, ComponentPageBinding, ComponentPageOwnerSnapshot, ComponentPageBindingValidation, ComponentPageBindingErrorCode, ComponentPageNavigationEntry) is not implemented yet, so no owned page can be adapted from the real PluginPage metadata and projected onto the Plugins route and page primitives.")]
+        DisplayName = "UAC01: an active page keeps the metadata it declares, a page that hides itself from the navigation stays routable and the page resolves to the component the host authorizes")]
     [Trait(Spec.UAC, "01")]
     [Given("a published page of an active owner that carries the real PluginPage metadata, beside a page of the same owner that hides itself from the navigation")]
     [When("the navigation and the direct route resolution are evaluated")]
@@ -81,8 +79,7 @@ public sealed class SC01_ActivePluginPages
                 "The Plugins page catalog does not carry the adapted metadata of the page."));
 
     [Fact(
-        DisplayName = "UAC02: a duplicate, a conflicting, an unresolved, a wrong type, an undescribed and a reserved page is refused by name and the published projection keeps the first valid page",
-        Skip = "TODO: the Components plugin page owner bridge is not implemented yet, so no owned page can be validated before publication and no refused page can leave the published projection untouched.")]
+        DisplayName = "UAC02: a duplicate, a conflicting, an unresolved, a wrong type, an undescribed and a reserved page is refused by name and the published projection keeps the first valid page")]
     [Trait(Spec.UAC, "02")]
     [Given("a published page of an active owner, beside further pages that duplicate it, conflict with its route, do not resolve, resolve to a type that is not a component, carry no page metadata or claim a reserved host route")]
     [When("each page is validated before publication")]
@@ -141,8 +138,7 @@ public sealed class SC01_ActivePluginPages
                 "The refused page took a place in the navigation."));
 
     [Fact(
-        DisplayName = "UAC03: a withdrawn owner loses its navigation entry, its direct route and its page catalog entry, and the host routes stay reserved",
-        Skip = "TODO: the Components plugin page owner bridge does not project the active owners only yet, so a withdrawn owner can still offer its navigation entry, its direct route and its page catalog entry.")]
+        DisplayName = "UAC03: a withdrawn owner loses its navigation entry, its direct route and its page catalog entry, and the host routes stay reserved")]
     [Trait(Spec.UAC, "03")]
     [Given("a published page of an owner that withdraws, beside the reserved host route of the host")]
     [When("every lookup path is queried again after the withdrawal")]

@@ -1,0 +1,27 @@
+@using Microsoft.JSInterop
+@using LowlandTech.Core.Plugins
+@inject IJSRuntime JS
+
+@* The page the owner of the consumer contributes. The metadata the bridge
+   adapts comes from the attribute below, so the page declares what it really
+   is instead of what a test invented. *@
+@attribute [PluginPage(Label = "Reports", Icon = "table", Order = 20, Group = "Operations", SubGroup = "Daily")]
+
+<section data-testid="consumer-plugin-page">
+    <p data-testid="plugin-page-label">Reports</p>
+    <button type="button"
+            data-testid="plugin-page-action"
+            @onclick="RunActionAsync">
+        Run protected action
+    </button>
+    <p data-testid="plugin-page-action-result">@_result</p>
+</section>
+
+@code {
+    private string _result = "none";
+
+    private async Task RunActionAsync()
+    {
+        _result = await JS.InvokeAsync<string>("consumerPluginAction");
+    }
+}

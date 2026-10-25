@@ -83,10 +83,22 @@ public sealed class ConsumerScenario : IDisposable
     /// path hands its own consumer over this parameter.
     /// </param>
     /// <param name="scenarioPrefix">Prefix of the temporary scenario directory.</param>
+    /// <param name="additionalPackages">
+    /// Project files, relative to the repository root, that are packed into the
+    /// private feed beside the three base packages. An acceptance that consumes
+    /// an optional feature package of this repository hands it over here.
+    /// </param>
+    /// <param name="feedPackages">
+    /// Package ids whose every version in the local feed travels with the
+    /// private feed, for a package the consumer needs that is not a dependency
+    /// of the packed Components projects.
+    /// </param>
     public static ConsumerScenario Run(
         string repositoryRoot,
         string? consumerSource = null,
-        string scenarioPrefix = "cpkg0001-e2e-")
+        string scenarioPrefix = "cpkg0001-e2e-",
+        IReadOnlyCollection<string>? additionalPackages = null,
+        IReadOnlyCollection<string>? feedPackages = null)
     {
         var scenarioRoot = Path.Combine(
             Path.GetTempPath(),
@@ -115,6 +127,18 @@ public sealed class ConsumerScenario : IDisposable
         {
             arguments.Add("-ConsumerSource");
             arguments.Add(consumerSource);
+        }
+
+        if (additionalPackages is { Count: > 0 })
+        {
+            arguments.Add("-AdditionalPackages");
+            arguments.AddRange(additionalPackages);
+        }
+
+        if (feedPackages is { Count: > 0 })
+        {
+            arguments.Add("-FeedPackages");
+            arguments.AddRange(feedPackages);
         }
 
         var (exitCode, output) = RunProcess(ResolveShell(), arguments, repositoryRoot);

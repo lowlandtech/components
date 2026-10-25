@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 2,
+  "key": "lowlandtech.components.pages",
+  "name": "Components plugin pages",
+  "description": "Plugin page routing contributed by the Components page surface.",
+  "target": "blazor",
+  "installationUnit": {
+    "requiredCapabilities": [
+      "blazor"
+    ]
+  },
+  "dependencies": [
+    {
+      "key": "lowlandtech.components.core"
+    }
+  ],
+  "contributions": {
+    "components": []
+  }
+}

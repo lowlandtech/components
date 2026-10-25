@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>LowlandTech.Components.Features.Pages</RootNamespace>
+    <AssemblyName>LowlandTech.Components.Features.Pages</AssemblyName>
+    <IsPackable>true</IsPackable>
+    <PackageId>LowlandTech.Components.Features.Pages</PackageId>
+    <Description>Optional plugin page feature package for LowlandTech Components. The base Components packages stay ordinary dependencies.</Description>
+    <PackageTags>lowlandtech;blazor;components;plugin;feature;pages</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The trusted startup map and the page attribute stay ordinary NuGet
+         dependencies of the base packages. -->
+    <ProjectReference Include="..\..\core\LowlandTech.Components.Core.csproj" />
+    <!-- The Plugins repository owns the page metadata shape. Only the domain
+         package is needed: the route gateway that consumes the projection is a
+         host concern and stays out of this library. -->
+    <PackageReference Include="LowlandTech.Plugins.Domain" Version="2026.10.1-20261024190755988902385" />
+    <!-- The component contract the bridge validates a page against. The plain
+         Components package is enough, so this library needs no ASP.NET Core
+         shared framework and stays usable in a plain class library host. -->
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="10.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The published manifest lives at the canonical plugin archive path. -->
+    <None Update="plugin.json" Pack="true" PackagePath="lowlandtech/" />
+  </ItemGroup>
+
+</Project>
