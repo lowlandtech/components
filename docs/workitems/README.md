@@ -44,6 +44,14 @@ the existing Plugins lifecycle through reusable, independently tested adapters.
 | M3-003 | `CTHE0001-US01-SC01` | [Resolve active provider-scoped themes](CTHE0001.US01.SC01.active-provider-themes.md) - [#21](https://github.com/lowlandtech/components/issues/21) | components | M2-001; M3-X01 | done |
 | M3-004 | `CPGS0001-US01-SC01` | [Resolve active plugin pages](CPGS0001.US01.SC01.active-plugin-pages.md) - [#18](https://github.com/lowlandtech/components/issues/18) | components | M2-001; M3-X01 | done |
 
+## Milestone status
+
+M1, M2 and M3 are closed: every managed row reads `done` and every managed issue
+is closed. The lane has no eligible backlog row, so a pass takes no scope and
+invents no milestone until the coordinator publishes the next one. The delivery
+state of the lane and the candidate that remains are recorded in
+[docs/evidence/milestone-exhaustion.md](../evidence/milestone-exhaustion.md).
+
 ## Dependency and ownership rules
 
 Local dependencies use milestone item IDs. Each resolves to the stable scope in
