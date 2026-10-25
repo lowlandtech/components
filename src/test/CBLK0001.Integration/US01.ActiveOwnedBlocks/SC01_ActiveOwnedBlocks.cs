@@ -11,9 +11,9 @@ namespace LowlandTech.Components.Tests.CBLK0001.Integration.US01.ActiveOwnedBloc
 /// fallback, stops offering it once its owner withdraws.
 /// </para>
 /// <para>
-/// Every Fact is skipped until the block owner bridge exists: the Components
-/// session block owner contracts are the missing dependency. A skipped Fact is
-/// unfinished inventory, never acceptance.
+/// The bridge is implemented: the Facts below execute against the real
+/// session block discovery, the real trusted startup map and the real
+/// assembly-scanning fallback.
 /// </para>
 /// </summary>
 [Trait(Spec.SPEC, "CBLK0001")]
@@ -33,8 +33,7 @@ public sealed class SC01_ActiveOwnedBlocks
     private object? _bridge;
 
     [Fact(
-        DisplayName = "UAC01: a duplicate, a conflicting or a wrong type owned descriptor is refused by name and the published lookup does not change",
-        Skip = "TODO: the Components session block owner bridge (SessionBlockOwnerBridge, SessionBlockCandidate, SessionBlockOwnerSnapshot, SessionBlockCandidateValidation, SessionBlockCandidateErrorCode) is not implemented yet, so no owned candidate can be validated before publication.")]
+        DisplayName = "UAC01: a duplicate, a conflicting or a wrong type owned descriptor is refused by name and the published lookup does not change")]
     [Trait(Spec.UAC, "01")]
     [Given("an owned candidate that is published, and further owned candidates that duplicate its node type key, conflict with it, do not resolve or resolve to a type that is not a component")]
     [When("each candidate is validated before publication")]
@@ -79,8 +78,7 @@ public sealed class SC01_ActiveOwnedBlocks
                 "A refused candidate was published."));
 
     [Fact(
-        DisplayName = "UAC02: only the valid descriptors of active owners take part in the priority resolution and the host defaults stay available",
-        Skip = "TODO: the Components session block owner bridge is not implemented yet, so no owned descriptor can take part in the resolution of the active owners.")]
+        DisplayName = "UAC02: only the valid descriptors of active owners take part in the priority resolution and the host defaults stay available")]
     [Trait(Spec.UAC, "02")]
     [Given("owned candidates of two active owners with different priorities and one candidate of an inactive owner, beside the host defaults")]
     [When("the discovery queries the descriptors, the descriptor of a node type key and the component type of a key")]
@@ -122,8 +120,7 @@ public sealed class SC01_ActiveOwnedBlocks
                 "The owned descriptors do not resolve in a deterministic priority order."));
 
     [Fact(
-        DisplayName = "UAC03: a withdrawn owner cannot reappear through any lookup path and the host fallback stays available",
-        Skip = "TODO: the Components session block owner bridge does not filter the assembly-scanning fallback yet, so a withdrawn plugin component can still reappear as a plugin contribution.")]
+        DisplayName = "UAC03: a withdrawn owner cannot reappear through any lookup path and the host fallback stays available")]
     [Trait(Spec.UAC, "03")]
     [Given("an owned descriptor that overrides a host default, published by an owner that withdraws")]
     [When("every lookup path is queried again after the withdrawal")]

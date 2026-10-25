@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <title>Components block consumer</title>
+    @* The stylesheet of the host itself. It is deployed by the package the
+       consumer restored and stays served after a plugin owner withdraws. *@
+    <link rel="stylesheet" href="_content/LowlandTech.Components/css/components.css" data-slot="host-stylesheet" />
+    <HeadOutlet @rendermode="InteractiveServer" />
+</head>
+<body>
+    <Routes @rendermode="InteractiveServer" />
+    <script src="_framework/blazor.web.js"></script>
+</body>
+</html>

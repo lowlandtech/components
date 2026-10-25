@@ -1,0 +1,124 @@
+@page "/"
+@implements IDisposable
+@inject SessionBlockOwnerBridge Bridge
+@inject ConsumerBlockAuthority Authority
+
+<PageTitle>Components block consumer</PageTitle>
+
+<main data-testid="consumer-main">
+    <h1 data-testid="consumer-heading">Components block consumer</h1>
+
+    @* The block of the active owner. After the withdrawal the host fallback
+         takes its place. *@
+    <section data-testid="owned-block-host">
+        @if (_ownedType is not null)
+        {
+            <DynamicComponent Type="_ownedType" />
+        }
+        else
+        {
+            <p data-testid="owned-block-fallback">host fallback</p>
+        }
+    </section>
+
+    @* The host default stays available beside the owned block. *@
+    <p data-testid="host-default">@(_hostDefaultType?.Name ?? "none")</p>
+
+    @* The assembly-scanning shape of the owned type stays closed, while the
+         owner is active and after the withdrawal. *@
+    <p data-testid="type-name-path">@(_typeNamePath?.Name ?? "none")</p>
+
+    @* The marker appears once the circuit of this consumer is live. The
+       prerendered markup does not carry it, so a browser can tell the
+       prerendered surface from the interactive one. *@
+    @if (_isLive)
+    {
+        <span data-testid="consumer-live">live</span>
+    }
+</main>
+
+@code {
+    private IDisposable? _subscription;
+    private Type? _ownedType;
+    private Type? _hostDefaultType;
+    private Type? _typeNamePath;
+    private bool _isLive;
+    private bool _disposed;
+
+    protected override void OnInitialized()
+    {
+        // The owner contributes its block through the bridge. The bridge
+        // validates the candidate before it is published, so a block whose
+        // identity does not resolve never reaches a provider boundary.
+        var validation = Bridge.Publish(new SessionBlockCandidate(
+            ConsumerBlockAuthority.OwnerKey,
+            ConsumerBlockAuthority.NodeTypeKey,
+            ConsumerBlockAuthority.SymbolicIdentity,
+            Priority: 100,
+            Label: "Owned block",
+            Icon: "plug"));
+
+        if (!validation.IsValid)
+        {
+            throw new InvalidOperationException(
+                "The consumer could not publish the block of its owner: " +
+                string.Join("; ", validation.Errors.Select(error => error.Message)));
+        }
+
+        // The host owns the authority over the plugin owners and delivers it as
+        // a revision. The consumer follows the revisions, so a withdrawal
+        // reaches every live circuit of the consumer.
+        _subscription = Authority.Subscribe(snapshot => InvokeAsync(() =>
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            Bridge.Deliver(snapshot);
+
+            Resolve();
+
+            StateHasChanged();
+        }));
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        // OnAfterRender only runs in the browser, never during the prerender,
+        // so the marker tells the browser that the circuit of this consumer is
+        // live.
+        _isLive = true;
+
+        Resolve();
+
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Resolves the blocks of this round. The discovery reads the registries
+    /// it is built over, so the host builds it over the bridge for every
+    /// resolution round and the revision the bridge holds is the one that
+    /// decides.
+    /// </summary>
+    private void Resolve()
+    {
+        var discovery = new SessionBlockDiscovery([Bridge]);
+
+        _ownedType = discovery.ResolveComponentType(ConsumerBlockAuthority.NodeTypeKey);
+        _hostDefaultType = discovery.ResolveComponentType("session");
+        _typeNamePath = discovery.ResolveComponentType(nameof(ConsumerOwnedBlock));
+    }
+
+    public void Dispose()
+    {
+        _disposed = true;
+
+        _subscription?.Dispose();
+    }
+}
