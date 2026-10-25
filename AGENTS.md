@@ -33,6 +33,43 @@ Commit every owned change before ending a turn; report exact blockers if a safe
 checkpoint cannot be created. Do not deploy the demo or publish remote packages
 under source delivery authority.
 
+## Blocked and idle work escalates to coordinator-1
+
+`blocked` is a state you report, never a state you rest in. If you are stuck, if your
+owned scope cannot finish in this turn, or if you find no dependency-ready work to
+claim, send `coordinator-1` a message and ask for the decision or action you need.
+A lane that is blocked or idle without having messaged the coordinator is the failure
+this rule exists to prevent.
+
+A blocked item is acceptable in exactly two forms:
+
+1. You can name a concrete action that is yours to take. Take it now and report the
+   result in the same turn.
+2. You cannot. The blocker then belongs to somebody else, and the owner of that
+   decision is `coordinator-1`. Send it the exact blocker, the action required, the
+   owner of that action, and the evidence that proves the blocker.
+
+Never end a pass, a wakeup or a turn blocked or idle with no message to the
+coordinator. "No eligible row" and "everything is blocked" are findings to report, not
+reasons to stop. The coordinator owns phase release, acceptance and cross-lane
+decisions, so a lane asks and keeps working; it does not wait for a permission it
+never requested.
+
+```powershell
+python D:\lowlandtech\eng\agent_hub.py send --actor <lane> --to coordinator-1 `
+  --kind coordination --repo D:\lowlandtech\<lane> --source <repo-relative document> `
+  --workitem <scope> --body '<exact state, decision or action needed, and its owner>'
+```
+
+Keep the whole message at most 150 words including the frontmatter, and link the
+repository document that holds the detail instead of copying it, per [the chat
+protocol](../docs/agent-chat.md) and [the hub](../docs/agent-hub.md). A reply carries
+a disposition and a source link; claiming a message means received, not finished.
+
+The components lane can reach a state with no eligible row when a milestone is
+exhausted. Report the exhaustion evidence and the next-milestone candidate to
+`coordinator-1`; exhaustion is a reportable state, not a stopping state.
+
 ## Required remote delivery
 
 The user's 2026-10-24 instruction grants standing authorization to push verified,
