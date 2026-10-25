@@ -23,6 +23,7 @@ global using LowlandTech.Core.Abstractions;
 global using LowlandTech.Core.Graph;
 global using LowlandTech.Core.Graph.EdgeTypes;
 global using LowlandTech.Core.Graph.Entities;
+global using LowlandTech.Core.Plugins;
 global using LowlandTech.Plugins;
 global using Microsoft.AspNetCore.Components;
 global using Microsoft.AspNetCore.Components.Rendering;
