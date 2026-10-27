@@ -1675,9 +1675,10 @@ public class SC01_SessionBlocks : ViewScenario
         standalone.FindAll("[data-slot='resizable-handle']").Count.ShouldBe(1);
         standalone.Find("[data-panel='session-block-main-panel']").ShouldNotBeNull();
         standalone.Find("[data-panel='session-block-sections-panel']").ShouldNotBeNull();
-        // Standalone main panel fills the available width (height:100% pattern
-        // repeated for width); the right Sections panel keeps its 16% default.
-        standalone.Find("[data-panel='session-block-main-panel']").GetAttribute("style")!.ShouldContain("100%");
+        // The panels of a group share the width of the group: the middle panel
+        // claims the width that the right Sections panel leaves, so the group
+        // subscribes 100 percent and no panel of it is shrunk.
+        standalone.Find("[data-panel='session-block-main-panel']").GetAttribute("style")!.ShouldContain("84%");
         standalone.Find("[data-panel='session-block-sections-panel']").GetAttribute("style")!.ShouldContain("16%");
         standalone.Find("[data-testid='session-block-sidebar-open']").ShouldNotBeNull();
         standalone.FindAll("[data-slot='tabs-header-leading'] [data-testid='session-block-sidebar-open']").Count

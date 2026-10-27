@@ -134,7 +134,7 @@
             </ResizablePanel>
             <ResizableHandle WithHandle="true" RevealOnHover="true" Color="primary" class="relative z-20" />
             }
-            <ResizablePanel DefaultSize="100" MinSize="35" Id="session-block-main-panel" Grow="true" class="h-full">
+            <ResizablePanel DefaultSize="@GetMainPanelSize(standalone: true)" MinSize="35" Id="session-block-main-panel" Grow="true" class="h-full">
                 <SidebarInset class="@GetSidebarInsetClass()">
                     <main class="relative flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden"
                           style="@GetMainContentStyle(IsStandaloneSidebarOpen)"
@@ -375,7 +375,7 @@
                                      data-slot="session-block-sections-header">
                                 @if (HasRightSidebarPluginContent)
                                 {
-                                    <div class="flex min-w-0 flex-1 items-center gap-1" data-slot="session-block-right-sidebar-tabs">
+                                    <div class="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto overflow-y-hidden" data-slot="session-block-right-sidebar-tabs">
                                         <button type="button"
                                                 data-slot="session-block-right-sidebar-tab"
                                                 data-tab-key="sections"
@@ -526,7 +526,7 @@
             {
                 <ResizableHandle WithHandle="true" RevealOnHover="true" Color="primary" class="relative z-20" />
             }
-            <ResizablePanel DefaultSize="@(HasActiveSession ? 84 : 60)" MinSize="35" Id="session-block-main-panel" Grow="true" class="h-full">
+            <ResizablePanel DefaultSize="@GetMainPanelSize(standalone: false)" MinSize="35" Id="session-block-main-panel" Grow="true" class="h-full">
                 <main class="relative flex h-full min-h-0 w-full flex-col gap-3 overflow-hidden"
                       style="@GetMainContentStyle(!HasActiveSession)"
                       data-slot="session-block-main-content">

@@ -294,6 +294,28 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         ? "padding:10px 10px 10px 4px;"
         : "padding:10px;";
 
+    /// <summary>
+    /// The size of the middle panel of a panel group of this surface.
+    /// <para>
+    /// The panels of a group share the width of the group, so the middle panel
+    /// claims the width that the side panels leave and not the whole of it. A
+    /// group that subscribes more than the width of the group shrinks every
+    /// panel of it, and the right pane of the surface then lands below the
+    /// width that its tab strip needs, which puts the tab of the plugin
+    /// surface under the close button of the pane.
+    /// </para>
+    /// </summary>
+    private int GetMainPanelSize(bool standalone)
+    {
+        var left = standalone
+            ? (IsStandaloneSidebarOpen ? SidebarWidth ?? (HasActiveSession ? 16 : 24) : 0)
+            : SidebarWidth ?? 24;
+
+        var right = _isRightSidebarOpen ? SidebarWidth ?? 16 : 0;
+
+        return Math.Max(35, 100 - left - right);
+    }
+
     private bool HasRegisteredSessionPlugins => Services.GetServices<ISessionPlugin>().Any();
 
     private bool HasRightSidebarPluginContent => RightSidebarContent is not null || HasRegisteredSessionPlugins;
