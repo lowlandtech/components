@@ -7,10 +7,13 @@
         "**/.DS_Store": true,
         "**/Thumbs.db": true,
         "**/bin": true,
-        "**/obj": true
+        "**/obj": true,
+        "artifacts": true
     },
     "hide-files.files": [
         "**/bin",
-        "**/obj"
-    ]
+        "**/obj",
+        "artifacts"
+    ],
+    "window.title": "Components"
 }
