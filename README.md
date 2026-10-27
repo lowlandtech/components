@@ -20,7 +20,7 @@ A Blazor component library and interactive component explorer for .NET 10. The d
 
 `develop` is the default integration branch. Open pull requests against it. `main` retains the published source baseline; `gh-pages` contains the generated public demo.
 
-Use the .NET 10 SDK and Node.js/npm. The [local NuGet build setup](docs/local-build.md) provides shared metadata, calendar versions and the local feed workflow. Components Core builds independently; controls and Blocks require a compatible upstream Core package. The older 2026.5.29 package duplicates moved types and cannot be used. See the local build guide for the prerequisite and verification limits, plus [the extraction notes](MIGRATION.md) and [publishing instructions](HOSTING.md).
+Use the .NET 10 SDK and Node.js/npm. The [local NuGet build setup](docs/workitems/done/CPKG0001.US01.SC01.independent-package-consumption.md) provides shared metadata, calendar versions and the local feed workflow. Components Core builds independently; controls and Blocks require a compatible upstream Core package. The older 2026.5.29 package duplicates moved types and cannot be used. See the local build guide for the prerequisite and verification limits, plus [the extraction notes](MIGRATION.md) and [publishing instructions](HOSTING.md).
 
 Build the demo CSS from this repository:
 
@@ -39,21 +39,6 @@ dotnet run --project src/components/app/LowlandTech.Components.App.csproj
 
 The live demo is a static GitHub Pages deployment. Changes to source branches do not automatically rebuild it yet.
 
-## Scrum workflow
+## Workitems
 
-For the planned optional Plugins integration, see the
-[compatibility review](docs/plugin-recommendations.md) and
-[local follow-up workitems](docs/workitems/README.md).
-
-Use issues for backlog refinement, sprint planning, implementation, and review:
-
-- **Type:** `type: epic`, `type: story`, `type: task`, `type: bug`, or `type: chore`.
-- **State:** exactly one of `status: backlog`, `status: ready`, `status: in progress`, `status: review`, or `status: done`.
-- **Priority:** `priority: critical`, `priority: high`, `priority: medium`, or `priority: low`.
-- **Estimate:** `points: 1`, `points: 2`, `points: 3`, `points: 5`, `points: 8`, or `points: 13`; use `needs: estimate` until refined.
-- **Area:** component library, Showcode, theming, integration, or documentation.
-- **Flags:** `needs: triage` for imported findings awaiting verification; `flag: blocked` for impediments.
-
-Track sprints with GitHub milestones. Add a SPEC trace to issue titles, such as `SPEC1007US02: Button behavior`, and include scope, acceptance criteria, and affected files. Move work through the status labels and close completed issues with `status: done`. Do not invent sprint assignments or estimates before refinement.
-
-Imported workitems retain their source references and original completion state. See [the migration inventory](WORKITEMS.md) for the source-to-issue mapping.
+The sole planning board is [docs/workitems/README.md](docs/workitems/README.md). Source workitems hold specifications, dependencies, issue links and delivery evidence. Shared operating instructions and the Components trigger live under D:/lowlandtech/.skills and D:/lowlandtech/.chatbox/components/README.md. Native build-local and Publish-Pages tooling remain repository-owned.
