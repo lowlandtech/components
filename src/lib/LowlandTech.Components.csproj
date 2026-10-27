@@ -8,6 +8,9 @@
     <PackageId>LowlandTech.Components</PackageId>
     <Description>Blazor component library for the Foundry platform.</Description>
     <EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>
+    <!-- The resources of this package are embedded under two manifest names
+         below, so the default glob is replaced by an explicit list. -->
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
   </PropertyGroup>
 
 
@@ -23,11 +26,60 @@
     <PackageReference Include="NCalcSync" Version="6.3.2" />
   </ItemGroup>
 
+  <!--
+    i18n: the manifest name of an embedded resource decides whether
+    IStringLocalizer<T> resolves its strings.
+
+    ResourceManagerStringLocalizerFactory asks for the full name of the type, so
+    the resource of LowlandTech.Components.DataFormStrings has to carry the
+    manifest name "LowlandTech.Components.DataFormStrings.resources".
+
+    Two rules follow from that name. The name carries the namespace of the type
+    and not the path of the file, so the LogicalName below names the type of the
+    file and not the folder it sits in. The name of a culture resource carries
+    its culture, because the ResourceManager looks a resource up in the
+    satellite that carries the culture under the name of the resource with its
+    culture, and the neutral resource of the type carries no culture at all.
+
+    The English resource of every type is the neutral resource: it is named
+    without a culture and the SDK embeds it in the assembly of the package
+    itself. A client that asks for a culture without a satellite of its own
+    reads the English resource, and the ResourceManager never depends on a
+    satellite being loaded to answer in English.
+
+    A host that configures a resources path asks for another name: the path is
+    inserted between the assembly and the type. The hosts of this workspace
+    configure "Resources", so the package carries that name as well and no host
+    style loses its labels.
+  -->
   <ItemGroup>
-    <EmbeddedResource Update="Resources\**\*.resx">
-      <LogicalName>$(AssemblyName).$([System.String]::Copy('%(RelativeDir)%(Filename)').Replace('\', '.').Replace('/', '.')).resources</LogicalName>
+    <ComponentsResource Include="Resources\**\*.resx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="Resources\**\*.resx" />
+    <EmbeddedResource Include="@(ComponentsResource)">
+      <LogicalName>$(AssemblyName).%(Filename).resources</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
+
+  <!--
+    The second copy of every resource carries the name a host asks for when it
+    configures a resources path. It is a copy of the same file under its own
+    path, because two embedded resources of one file cannot carry two manifest
+    names: the SDK resolves one manifest name per file path.
+  -->
+  <Target Name="AddResourcesPathResources" BeforeTargets="AssignTargetPaths">
+    <Copy SourceFiles="@(ComponentsResource)"
+          DestinationFiles="@(ComponentsResource->'$(IntermediateOutputPath)resources-path/%(Filename).resx')">
+      <Output TaskParameter="CopiedFiles" ItemName="ComponentsResourceCopy" />
+    </Copy>
+    <ItemGroup>
+      <EmbeddedResource Include="@(ComponentsResourceCopy)">
+        <LogicalName>$(AssemblyName).Resources.%(Filename).resources</LogicalName>
+      </EmbeddedResource>
+    </ItemGroup>
+  </Target>
 
   <ItemGroup>
     <ProjectReference Include="..\core\LowlandTech.Components.Core.csproj" />

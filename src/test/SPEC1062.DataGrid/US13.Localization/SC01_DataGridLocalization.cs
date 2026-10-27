@@ -100,10 +100,13 @@ public class SC01_DataGridLocalization : ViewScenario
     private static void AssertResxCatalogParity(string className)
     {
         var resourcesDir = FindComponentResourcesDirectory();
-        var enPath = Path.Combine(resourcesDir, $"{className}.en.resx");
-        File.Exists(enPath).ShouldBeTrue();
 
-        var enKeys = LoadResxKeys(enPath);
+        // The English resource of a type is the neutral resource of that type,
+        // so it carries no culture in its file name.
+        var neutralPath = Path.Combine(resourcesDir, $"{className}.resx");
+        File.Exists(neutralPath).ShouldBeTrue();
+
+        var enKeys = LoadResxKeys(neutralPath);
         enKeys.Count.ShouldBeGreaterThan(0);
 
         foreach (var locale in new[] { "da", "de", "es", "fr", "it", "nl", "pl", "pt", "sv" })
@@ -134,20 +137,20 @@ public class SC01_DataGridLocalization : ViewScenario
         var root = projectRoot ?? (current != null ? current : new DirectoryInfo(Path.GetPathRoot(startDir.FullName)));
 
         var candidate = Path.Combine(root.FullName, "src", "components", "lib", "Resources");
-        if (File.Exists(Path.Combine(candidate, "DataGridStrings.en.resx")))
+        if (File.Exists(Path.Combine(candidate, "DataGridStrings.resx")))
         {
             return candidate;
         }
 
         var candidate2 = Path.Combine(root.FullName, "components", "src", "lib", "Resources");
-        if (File.Exists(Path.Combine(candidate2, "DataGridStrings.en.resx")))
+        if (File.Exists(Path.Combine(candidate2, "DataGridStrings.resx")))
         {
             return candidate2;
         }
 
         // Standalone Components repository: the controls live at <root>/src/lib.
         var standalone = Path.Combine(root.FullName, "src", "lib", "Resources");
-        if (File.Exists(Path.Combine(standalone, "DataGridStrings.en.resx")))
+        if (File.Exists(Path.Combine(standalone, "DataGridStrings.resx")))
         {
             return standalone;
         }

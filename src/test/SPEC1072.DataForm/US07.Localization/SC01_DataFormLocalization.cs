@@ -92,10 +92,13 @@ public class SC01_DataFormLocalization : ViewScenario
     private static void AssertResxCatalogParity(string className)
     {
         var resourcesDir = FindComponentResourcesDirectory();
-        var enPath = Path.Combine(resourcesDir, $"{className}.en.resx");
-        File.Exists(enPath).ShouldBeTrue();
 
-        var enKeys = LoadResxKeys(enPath);
+        // The English resource of a type is the neutral resource of that type,
+        // so it carries no culture in its file name.
+        var neutralPath = Path.Combine(resourcesDir, $"{className}.resx");
+        File.Exists(neutralPath).ShouldBeTrue();
+
+        var enKeys = LoadResxKeys(neutralPath);
         enKeys.Count.ShouldBeGreaterThan(0);
 
         foreach (var locale in new[] { "da", "de", "es", "fr", "it", "nl", "pl", "pt", "sv" })
