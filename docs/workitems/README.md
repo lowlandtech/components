@@ -17,4 +17,4 @@
 | M4-001 | CLOC0001-US01-SC01 | [Resolve the packaged localization](done/CLOC0001.US01.SC01.packaged-localization.md) | P1 | components | M1-001 | done | true |
 | M4-002 | CPKG0002-US01-SC01 | [Consume the published feed in the packaging scenario](todo/CPKG0002.US01.SC01.published-feed-consumption.md) | P2 | components | M1-001 | todo | true |
 | M5-001 | CBLK0002-US01-SC01 | [Reach the plugin tab of the session surface](doing/CBLK0002.US01.SC01.session-plugin-tab-reachability.md) | P1 | components | M3-001 | doing | true |
-| M5-002 | CBLK0003-US01-SC01 | [Reset a stale state of the session surface](todo/CBLK0003.US01.SC01.session-surface-stale-state.md) | P1 | components | M3-001 | todo | true |
+| M5-002 | CBLK0003-US01-SC01 | [Reset a stale state of the session surface](doing/CBLK0003.US01.SC01.session-surface-stale-state.md) | P1 | components | M3-001 | doing | true |
