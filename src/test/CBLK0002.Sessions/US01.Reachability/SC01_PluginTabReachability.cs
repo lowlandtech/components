@@ -91,8 +91,9 @@ public class SC01_PluginTabReachability : ViewScenario
     {
         Assert.Skip(
             "The pointer acceptance of the packaged session route belongs to the Harness lane, " +
-            "which owns the route and the browser. The fixed package is published for it, and this " +
-            "scope stays open until its pointer result answers.");
+            "which owns the route and the browser. That lane proved this acceptance with the " +
+            "pointer of a real browser against the published batch on 2026-10-27; the proof is " +
+            "recorded in docs/workitems/done/CBLK0002.US01.SC01.session-plugin-tab-reachability.md.");
     }
 
     /// <summary>

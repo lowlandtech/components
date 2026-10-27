@@ -132,8 +132,9 @@ public class SC01_SessionSurfaceStaleState : ViewScenario
     {
         Assert.Skip(
             "The acceptance of the packaged session route belongs to the Harness lane, " +
-            "which owns the route and the browser. The recovered package is published for it, " +
-            "and this scope stays open until its result answers.");
+            "which owns the route and the browser. That lane proved this acceptance on the " +
+            "packaged route of the published batch on 2026-10-27; the proof is recorded in " +
+            "docs/workitems/done/CBLK0003.US01.SC01.session-surface-stale-state.md.");
     }
 
     private void Seed(string key, string value)
