@@ -6,15 +6,15 @@
 | M4 | Consumed packages and localized labels | Package/Consumer |
 | M5 | Reachable session surface | Behavior/Consumer |
 
-| Work | Scope | Title | Priority | Lane | Depends on | Status | Refined |
-|---|---|---|---|---|---|---|---|
-| M1-001 | CPKG0001-US01-SC01 | [Restore independent package consumption](done/CPKG0001.US01.SC01.independent-package-consumption.md) | P1 | components | None | done | true |
-| M2-001 | CPLG0001-US01-SC01 | [Publish an opt-in UI feature manifest](done/CPLG0001.US01.SC01.ui-feature-manifest.md) | P1 | components | None | done | true |
-| M3-001 | CPAN0001-US01-SC01 | [Project active session panels](done/CPAN0001.US01.SC01.active-session-panels.md) | P1 | components | M2-001, M3-X01 | done | true |
-| M3-002 | CBLK0001-US01-SC01 | [Resolve active owned session blocks](done/CBLK0001.US01.SC01.active-owned-session-blocks.md) | P1 | components | M2-001, M3-X01 | done | true |
-| M3-003 | CTHE0001-US01-SC01 | [Resolve active provider-scoped themes](done/CTHE0001.US01.SC01.active-provider-themes.md) | P1 | components | M2-001, M3-X01 | done | true |
-| M3-004 | CPGS0001-US01-SC01 | [Resolve active plugin pages](done/CPGS0001.US01.SC01.active-plugin-pages.md) | P1 | components | M2-001, M3-X01 | done | true |
-| M4-001 | CLOC0001-US01-SC01 | [Resolve the packaged localization](done/CLOC0001.US01.SC01.packaged-localization.md) | P1 | components | M1-001 | done | true |
-| M4-002 | CPKG0002-US01-SC01 | [Consume the published feed in the packaging scenario](done/CPKG0002.US01.SC01.published-feed-consumption.md) | P2 | components | M1-001 | done | true |
-| M5-001 | CBLK0002-US01-SC01 | [Reach the plugin tab of the session surface](doing/CBLK0002.US01.SC01.session-plugin-tab-reachability.md) | P1 | components | M3-001 | doing | true |
-| M5-002 | CBLK0003-US01-SC01 | [Reset a stale state of the session surface](doing/CBLK0003.US01.SC01.session-surface-stale-state.md) | P1 | components | M3-001 | doing | true |
+| Work | Scope | Title | Priority | Lane | Depends on | Status | Refined | Issue |
+|---|---|---|---|---|---|---|---|---|
+| M1-001 | CPKG0001-US01-SC01 | [Restore independent package consumption](done/CPKG0001.US01.SC01.independent-package-consumption.md) | P1 | components | None | done | true | [#19](https://github.com/lowlandtech/components/issues/19) |
+| M2-001 | CPLG0001-US01-SC01 | [Publish an opt-in UI feature manifest](done/CPLG0001.US01.SC01.ui-feature-manifest.md) | P1 | components | None | done | true | [#20](https://github.com/lowlandtech/components/issues/20) |
+| M3-001 | CPAN0001-US01-SC01 | [Project active session panels](done/CPAN0001.US01.SC01.active-session-panels.md) | P1 | components | M2-001, M3-X01 | done | true | [#17](https://github.com/lowlandtech/components/issues/17) |
+| M3-002 | CBLK0001-US01-SC01 | [Resolve active owned session blocks](done/CBLK0001.US01.SC01.active-owned-session-blocks.md) | P1 | components | M2-001, M3-X01 | done | true | [#16](https://github.com/lowlandtech/components/issues/16) |
+| M3-003 | CTHE0001-US01-SC01 | [Resolve active provider-scoped themes](done/CTHE0001.US01.SC01.active-provider-themes.md) | P1 | components | M2-001, M3-X01 | done | true | [#21](https://github.com/lowlandtech/components/issues/21) |
+| M3-004 | CPGS0001-US01-SC01 | [Resolve active plugin pages](done/CPGS0001.US01.SC01.active-plugin-pages.md) | P1 | components | M2-001, M3-X01 | done | true | [#18](https://github.com/lowlandtech/components/issues/18) |
+| M4-001 | CLOC0001-US01-SC01 | [Resolve the packaged localization](done/CLOC0001.US01.SC01.packaged-localization.md) | P1 | components | M1-001 | done | true | [#22](https://github.com/lowlandtech/components/issues/22) |
+| M4-002 | CPKG0002-US01-SC01 | [Consume the published feed in the packaging scenario](done/CPKG0002.US01.SC01.published-feed-consumption.md) | P2 | components | M1-001 | done | true | [#23](https://github.com/lowlandtech/components/issues/23) |
+| M5-001 | CBLK0002-US01-SC01 | [Reach the plugin tab of the session surface](doing/CBLK0002.US01.SC01.session-plugin-tab-reachability.md) | P1 | components | M3-001 | doing | true | [#24](https://github.com/lowlandtech/components/issues/24) |
+| M5-002 | CBLK0003-US01-SC01 | [Reset a stale state of the session surface](doing/CBLK0003.US01.SC01.session-surface-stale-state.md) | P1 | components | M3-001 | doing | true | [#25](https://github.com/lowlandtech/components/issues/25) |
