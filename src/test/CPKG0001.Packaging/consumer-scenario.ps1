@@ -62,6 +62,16 @@
     the packed Components projects, for example a host framework package. The
     CPKG0001 acceptance copies nothing extra.
 
+.PARAMETER UsePublishedBatch
+    Consume the published identities of the shared feed instead of packing the
+    packages of this repository. The three base packages are copied from the
+    shared feed under the version that the selected Core package pins, and the
+    dependency closure of the copied packages travels with them, so the
+    consumer still resolves everything from the private feed alone. The
+    additional packages of this repository are not part of the published batch
+    and are still packed. Without the switch the harness packs the packages of
+    this repository, so the gate of the closed CPKG0001 scope is unchanged.
+
 .OUTPUTS
     A JSON manifest at <ScenarioRoot>\scenario.json describing every artifact.
 #>
@@ -73,7 +83,8 @@ param(
     [switch] $Publish,
     [string] $ConsumerSource = 'src/test/CPKG0001.Packaging/consumer',
     [string[]] $AdditionalPackages = @(),
-    [string[]] $FeedPackages = @()
+    [string[]] $FeedPackages = @(),
+    [switch] $UsePublishedBatch
 )
 
 $ErrorActionPreference = 'Stop'
@@ -257,7 +268,7 @@ $coreVersion = $core.Version
 $packageVersion = $core.ComponentsCoreVersion
 
 # ---------------------------------------------------------------- packages ---
-$projects = @(
+$baseProjects = @(
     @{ Id = 'LowlandTech.Components.Core'; Path = 'src/core/LowlandTech.Components.Core.csproj' },
     @{ Id = 'LowlandTech.Components'; Path = 'src/lib/LowlandTech.Components.csproj' },
     @{ Id = 'LowlandTech.Components.Blocks'; Path = 'src/blocks/LowlandTech.Components.Blocks.csproj' }
@@ -265,11 +276,40 @@ $projects = @(
 
 # An optional feature package of this repository joins the batch under the same
 # version, so a consumer may reference it from the private feed alone.
+$additionalProjects = @()
 foreach ($path in $AdditionalPackages) {
-    $projects += @{
+    $additionalProjects += @{
         Id   = [System.IO.Path]::GetFileNameWithoutExtension($path)
         Path = $path
     }
+}
+
+$projects = @($baseProjects) + @($additionalProjects)
+$packageSource = 'packed'
+
+if ($UsePublishedBatch) {
+    # The published identities of the shared feed are the packages under test:
+    # the published packages travel with the scenario feed instead of a fresh
+    # pack of this repository. The additional packages of this repository are
+    # not part of the published batch, so they are still packed.
+    $packageSource = 'published'
+    $missingPublished = @()
+    foreach ($project in $baseProjects) {
+        $published = Get-ChildItem -LiteralPath $localFeed -Filter "$($project.Id).$packageVersion.nupkg" |
+            Select-Object -First 1
+        if (-not $published) {
+            $missingPublished += $project.Id
+            continue
+        }
+        Copy-Item -LiteralPath $published.FullName -Destination $feedDirectory -Force
+    }
+
+    if ($missingPublished.Count -gt 0) {
+        throw "The published batch '$packageVersion' of the shared feed is missing: " +
+              "$($missingPublished -join ', '). See '$localFeed'."
+    }
+
+    $projects = @($additionalProjects)
 }
 
 $packFailures = @()
@@ -311,10 +351,29 @@ foreach ($path in $AdditionalPackages) {
 
 $closure = Get-PackageClosure $assetsFiles
 
+if ($UsePublishedBatch) {
+    # The dependency closure of the copied published packages travels with them,
+    # so the consumer resolves them from the scenario feed alone.
+    foreach ($project in $baseProjects) {
+        $published = Get-ChildItem -LiteralPath $feedDirectory -Filter "$($project.Id).$packageVersion.nupkg" |
+            Select-Object -First 1
+        if (-not $published) { continue }
+        foreach ($dependency in (Get-NuspecDependencies $published.FullName)) {
+            $closure += "$($dependency.Id)/$($dependency.Version)"
+        }
+    }
+}
+
 $globalPackages = Join-Path $env:USERPROFILE '.nuget\packages'
 $missing = @()
 foreach ($entry in $closure) {
     $parts = $entry -split '/'
+    if ($UsePublishedBatch) {
+        # A package of the published batch already travels with the feed.
+        $alreadyThere = Get-ChildItem -LiteralPath $feedDirectory -Filter "$($parts[0]).$($parts[1]).nupkg" |
+            Select-Object -First 1
+        if ($alreadyThere) { continue }
+    }
     if (-not (Copy-CachedPackage $globalPackages $parts[0] $parts[1] $feedDirectory)) {
         $missing += $entry
     }
@@ -425,6 +484,8 @@ $manifest = [ordered]@{
     assetsFile        = (Join-Path $consumerDirectory 'obj/project.assets.json')
     coreVersion       = $coreVersion
     packageVersion    = $packageVersion
+    packageSource     = $packageSource
+    usePublishedBatch = [bool] $UsePublishedBatch
     localFeed         = $localFeed
     restoreExitCode   = $restore.ExitCode
     buildExitCode     = $build.ExitCode

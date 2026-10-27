@@ -30,6 +30,9 @@ public sealed class ConsumerScenario : IDisposable
         AssetsFile = Read(manifest, "assetsFile");
         CoreVersion = Read(manifest, "coreVersion");
         PackageVersion = Read(manifest, "packageVersion");
+        PackageSource = Read(manifest, "packageSource");
+        UsePublishedBatch = manifest.GetProperty("usePublishedBatch").GetBoolean();
+        LocalFeed = Read(manifest, "localFeed");
         Log = Read(manifest, "log");
         RestoreExitCode = manifest.GetProperty("restoreExitCode").GetInt32();
         BuildExitCode = manifest.GetProperty("buildExitCode").GetInt32();
@@ -60,6 +63,19 @@ public sealed class ConsumerScenario : IDisposable
     /// <summary>Version the three Components packages were packed under.</summary>
     public string PackageVersion { get; }
 
+    /// <summary>
+    /// Where the three base packages of the scenario came from: <c>packed</c>
+    /// when the harness packed them from this repository, <c>published</c> when
+    /// it copied the published identities of the shared feed.
+    /// </summary>
+    public string PackageSource { get; }
+
+    /// <summary>Whether the scenario consumed the published batch of the shared feed.</summary>
+    public bool UsePublishedBatch { get; }
+
+    /// <summary>The shared feed the published identities are read from.</summary>
+    public string LocalFeed { get; }
+
     /// <summary>Transcript of every command the harness ran.</summary>
     public string Log { get; }
 
@@ -77,7 +93,14 @@ public sealed class ConsumerScenario : IDisposable
     /// </summary>
     /// <param name="repositoryRoot">Repository the packages are packed from.</param>
     /// <param name="publish">Also publish the consumer application.</param>
-    public static ConsumerScenario Run(string repositoryRoot, bool publish = false)
+    /// <param name="usePublishedBatch">
+    /// Consume the published identities of the shared feed instead of packing
+    /// the packages of this repository.
+    /// </param>
+    public static ConsumerScenario Run(
+        string repositoryRoot,
+        bool publish = false,
+        bool usePublishedBatch = false)
     {
         var scenarioRoot = Path.Combine(
             Path.GetTempPath(),
@@ -107,6 +130,11 @@ public sealed class ConsumerScenario : IDisposable
         if (publish)
         {
             arguments.Add("-Publish");
+        }
+
+        if (usePublishedBatch)
+        {
+            arguments.Add("-UsePublishedBatch");
         }
 
         // The scenario packs the shared Components projects in the Release
