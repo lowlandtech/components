@@ -4,7 +4,8 @@ param(
     [string]$Version,
     [string]$Configuration = 'Release',
     [string]$ManifestPath,
-    [string[]]$Projects
+    [string[]]$Projects,
+    [switch]$CompleteBatch
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -33,7 +34,13 @@ foreach ($path in @($solution) + @($projects | ForEach-Object { Join-Path $root 
     if (!(Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing build input: $path" }
 }
 $staging = Join-Path $root "artifacts/local-packages/$Version"
-if (Test-Path -LiteralPath $staging) { throw "Version already staged: $Version. Choose a new version." }
+# A batch whose packages carry different dependencies on each other is published
+# in parts at one version: the part that the producer pins exactly is published
+# first, and the rest of the batch follows at the same version. The completing
+# pass reuses the staging directory of the first pass, and the feed check below
+# still refuses to replace a package that is already published.
+if ((Test-Path -LiteralPath $staging) -and !$CompleteBatch) { throw "Version already staged: $Version. Choose a new version." }
+$stagingExisted = Test-Path -LiteralPath $staging
 New-Item -ItemType Directory -Path $staging -Force | Out-Null
 function Invoke-DotNet([string[]]$Arguments) {
     & dotnet @Arguments
@@ -53,12 +60,17 @@ try {
     foreach ($project in $projects) {
         Invoke-DotNet @('pack', $project, '-c', $Configuration, '--no-build', "-p:Version=$Version", '-o', $staging)
     }
-    $packages = @(Get-ChildItem -LiteralPath $staging -Filter '*.nupkg')
-    if ($packages.Count -ne $projects.Count) { throw 'Expected one package per selected project. Check IsPackable and PackageId.' }
-    # Check the entire batch before publishing; never replace an existing identity.
-    foreach ($package in $packages) {
-        if (Test-Path -LiteralPath (Join-Path $FeedPath $package.Name)) { throw "Package already exists: $($package.Name). Choose a new version." }
+    $staged = @(Get-ChildItem -LiteralPath $staging -Filter '*.nupkg')
+    if (!$CompleteBatch) {
+        # Check the entire batch before publishing; never replace an existing identity.
+        foreach ($package in $staged) {
+            if (Test-Path -LiteralPath (Join-Path $FeedPath $package.Name)) { throw "Package already exists: $($package.Name). Choose a new version." }
+        }
     }
+    # A completing pass publishes the parts of the batch that the feed does not
+    # hold yet, because the packages of the first pass are published already.
+    $packages = @($staged | Where-Object { !(Test-Path -LiteralPath (Join-Path $FeedPath $_.Name)) })
+    if ($packages.Count -ne $projects.Count) { throw 'Expected one package per selected project. Check IsPackable and PackageId.' }
     New-Item -ItemType Directory -Path $FeedPath -Force | Out-Null
     foreach ($package in $packages) {
         # Copy without overwrite, including when two builders race.
@@ -69,7 +81,7 @@ try {
 } catch {
     # A failed publication leaves no staged version behind, so the same version
     # can be retried and a second shell can take over the batch.
-    if (Test-Path -LiteralPath $staging) { Remove-Item -LiteralPath $staging -Recurse -Force }
+    if (!$stagingExisted -and (Test-Path -LiteralPath $staging)) { Remove-Item -LiteralPath $staging -Recurse -Force }
     throw
 } finally {
     Pop-Location
