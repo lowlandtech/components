@@ -13,13 +13,11 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
     private SessionStateService? _ownedStateService;
     private SessionStateService? _subscribedStateService;
     private bool _isStandaloneSidebarOpen = true;
-    private bool _isHydratingStandaloneSidebar;
     private int _standaloneSidebarChangeVersion;
-    private string? _hydratedSidebarPersistKey;
     private bool _isRightSidebarOpen = true;
-    private bool _isHydratingRightSidebar;
     private int _rightSidebarChangeVersion;
-    private string? _hydratedRightSidebarPersistKey;
+    private bool _isHydratingPanes;
+    private string? _hydratedPaneKeys;
     private string _activeRightSidebarTab = RightSidebarSectionsTabKey;
     private bool _isCommandBarVisible;
     private bool _isHydratingCommandBar;
@@ -138,7 +136,6 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         if (!HasSidebar)
         {
             _isStandaloneSidebarOpen = true;
-            _hydratedSidebarPersistKey = null;
         }
 
         if (!HasRightSidebarPluginContent)
@@ -173,8 +170,7 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await HydrateStandaloneSidebarAsync();
-        await HydrateRightSidebarAsync();
+        await HydratePanesAsync();
         await HydrateCommandBarAsync();
 
         if (!string.IsNullOrWhiteSpace(AppState.PendingScrollSectionId))
@@ -438,26 +434,79 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         await PersistStandaloneSidebarAsync();
     }
 
-    private async Task HydrateStandaloneSidebarAsync()
+    /// <summary>
+    /// Reads the persisted collapse state of the side panes of the surface and
+    /// applies it, or recovers the surface from a stale state.
+    /// </summary>
+    /// <remarks>
+    /// The state of the two panes belongs together, because a state that keeps
+    /// the surface in a single panel view is not a state of a live surface. A
+    /// persisted state is stale when it would leave the surface in a single
+    /// panel view, or when the surface owns no sessions at all, because the
+    /// profile that wrote the state no longer owns the sessions of the surface.
+    /// A stale state does not keep the surface collapsed: the surface recovers
+    /// its panels and their handles, and the control repairs the stored state,
+    /// so the recovery holds after a reload without the user clearing the
+    /// storage of the browser.
+    /// </remarks>
+    private async Task HydratePanesAsync()
     {
-        if (!HasSidebar ||
-            _isHydratingStandaloneSidebar ||
-            string.Equals(_hydratedSidebarPersistKey, SidebarPersistKey, StringComparison.Ordinal))
+        var paneKeys = string.Concat(
+            HasSidebar ? "1" : "0",
+            "|",
+            SidebarPersistKey,
+            "|",
+            RightSidebarPersistKey);
+        if (_isHydratingPanes || string.Equals(_hydratedPaneKeys, paneKeys, StringComparison.Ordinal))
         {
             return;
         }
 
-        _isHydratingStandaloneSidebar = true;
-        var changeVersion = _standaloneSidebarChangeVersion;
+        _isHydratingPanes = true;
+        var sidebarChangeVersion = _standaloneSidebarChangeVersion;
+        var rightSidebarChangeVersion = _rightSidebarChangeVersion;
 
         try
         {
-            var storedValue = await JS.InvokeAsync<string?>("localStorage.getItem", SidebarPersistKey);
-            if (changeVersion == _standaloneSidebarChangeVersion &&
-                bool.TryParse(storedValue, out var isOpen) &&
-                isOpen != _isStandaloneSidebarOpen)
+            var storedSidebar = await JS.InvokeAsync<string?>("localStorage.getItem", SidebarPersistKey);
+            var storedRightSidebar = await JS.InvokeAsync<string?>("localStorage.getItem", RightSidebarPersistKey);
+
+            if (sidebarChangeVersion != _standaloneSidebarChangeVersion ||
+                rightSidebarChangeVersion != _rightSidebarChangeVersion)
             {
-                _isStandaloneSidebarOpen = isOpen;
+                return;
+            }
+
+            var sidebarOpen = _isStandaloneSidebarOpen;
+            var rightSidebarOpen = _isRightSidebarOpen;
+
+            if (HasSidebar && bool.TryParse(storedSidebar, out var storedSidebarOpen))
+            {
+                sidebarOpen = storedSidebarOpen;
+            }
+
+            if (bool.TryParse(storedRightSidebar, out var storedRightSidebarOpen))
+            {
+                rightSidebarOpen = storedRightSidebarOpen;
+            }
+
+            var keepsSinglePanelView = HasSidebar && !sidebarOpen && !rightSidebarOpen;
+            var ownsNoSession = DisplaySessions.Count == 0;
+
+            if (keepsSinglePanelView || ownsNoSession)
+            {
+                _isStandaloneSidebarOpen = true;
+                _isRightSidebarOpen = true;
+                await PersistStandaloneSidebarAsync();
+                await PersistRightSidebarAsync();
+                await InvokeAsync(StateHasChanged);
+                return;
+            }
+
+            if (sidebarOpen != _isStandaloneSidebarOpen || rightSidebarOpen != _isRightSidebarOpen)
+            {
+                _isStandaloneSidebarOpen = sidebarOpen;
+                _isRightSidebarOpen = rightSidebarOpen;
                 await InvokeAsync(StateHasChanged);
             }
         }
@@ -471,8 +520,8 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         }
         finally
         {
-            _hydratedSidebarPersistKey = SidebarPersistKey;
-            _isHydratingStandaloneSidebar = false;
+            _hydratedPaneKeys = paneKeys;
+            _isHydratingPanes = false;
         }
     }
 
@@ -507,43 +556,6 @@ public partial class SessionBlock : TinyComponentBase, IDisposable
         _isRightSidebarOpen = true;
         _rightSidebarChangeVersion++;
         await PersistRightSidebarAsync();
-    }
-
-    private async Task HydrateRightSidebarAsync()
-    {
-        if (_isHydratingRightSidebar ||
-            string.Equals(_hydratedRightSidebarPersistKey, RightSidebarPersistKey, StringComparison.Ordinal))
-        {
-            return;
-        }
-
-        _isHydratingRightSidebar = true;
-        var changeVersion = _rightSidebarChangeVersion;
-
-        try
-        {
-            var storedValue = await JS.InvokeAsync<string?>("localStorage.getItem", RightSidebarPersistKey);
-            if (changeVersion == _rightSidebarChangeVersion &&
-                bool.TryParse(storedValue, out var isOpen) &&
-                isOpen != _isRightSidebarOpen)
-            {
-                _isRightSidebarOpen = isOpen;
-                await InvokeAsync(StateHasChanged);
-            }
-        }
-        catch (InvalidOperationException)
-        {
-            // JavaScript interop is unavailable during static rendering.
-        }
-        catch (JSException)
-        {
-            // Persistence is best effort when browser storage is unavailable.
-        }
-        finally
-        {
-            _hydratedRightSidebarPersistKey = RightSidebarPersistKey;
-            _isHydratingRightSidebar = false;
-        }
     }
 
     private async Task PersistRightSidebarAsync()
