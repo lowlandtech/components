@@ -11,6 +11,18 @@
     <Description>Framework-neutral contracts and utilities shared by LowlandTech component packages.</Description>
   </PropertyGroup>
 
+  <!--
+    The contracts package of a batch can stay at a version that the feed holds
+    already. A Core release that pins that published version exactly then pairs
+    with the packages that depend on it, because the dependency of a project
+    reference carries the PackageVersion of the referenced project. The batch
+    itself moves to a new version, so the packages that depend on the contracts
+    are published again with the Core of that release as their pin.
+  -->
+  <PropertyGroup Condition="'$(ComponentsContractsVersion)' != ''">
+    <PackageVersion>$(ComponentsContractsVersion)</PackageVersion>
+  </PropertyGroup>
+
 
 
 </Project>

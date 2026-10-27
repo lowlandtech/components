@@ -5,7 +5,8 @@ param(
     [string]$Configuration = 'Release',
     [string]$ManifestPath,
     [string[]]$Projects,
-    [switch]$CompleteBatch
+    [switch]$CompleteBatch,
+    [string]$ContractsVersion
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -33,6 +34,27 @@ $solution = Join-Path $root $manifest.solution
 foreach ($path in @($solution) + @($projects | ForEach-Object { Join-Path $root $_ })) {
     if (!(Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing build input: $path" }
 }
+# A Core release pins the contracts version it was built against exactly. When
+# that release keeps a contracts version that the feed holds already, the batch
+# moves to a new version and the packages that depend on the contracts carry
+# the published contracts version in their own dependency. The contracts
+# package itself stays published, so it is not part of this batch.
+$contractsId = 'LowlandTech.Components.Core'
+$contractProperties = @()
+if ($ContractsVersion) {
+    $contractsProject = @($manifest.projects | Where-Object {
+        [System.IO.Path]::GetFileNameWithoutExtension($_) -eq $contractsId
+    }) | Select-Object -First 1
+    if (!$contractsProject) { throw "The manifest does not select the contracts package '$contractsId'." }
+    if ($projects -contains $contractsProject) {
+        throw "The contracts package stays published at $ContractsVersion; remove '$contractsProject' from the projects of this batch."
+    }
+    $contractsPackage = "$contractsId.$ContractsVersion.nupkg"
+    if (!(Test-Path -LiteralPath (Join-Path $FeedPath $contractsPackage))) {
+        throw "The contracts package '$contractsPackage' is not published in '$FeedPath'."
+    }
+    $contractProperties = @("-p:ComponentsContractsVersion=$ContractsVersion")
+}
 $staging = Join-Path $root "artifacts/local-packages/$Version"
 # A batch whose packages carry different dependencies on each other is published
 # in parts at one version: the part that the producer pins exactly is published
@@ -55,10 +77,10 @@ try {
     # what it publishes, and the solution stays the validated repository build
     # unit without being the build input of the batch.
     foreach ($project in $projects) {
-        Invoke-DotNet @('build', (Join-Path $root $project), '-c', $Configuration, "-p:Version=$Version", '-m:1')
+        Invoke-DotNet (@('build', (Join-Path $root $project), '-c', $Configuration, "-p:Version=$Version") + $contractProperties + @('-m:1'))
     }
     foreach ($project in $projects) {
-        Invoke-DotNet @('pack', $project, '-c', $Configuration, '--no-build', "-p:Version=$Version", '-o', $staging)
+        Invoke-DotNet (@('pack', $project, '-c', $Configuration, '--no-build', "-p:Version=$Version") + $contractProperties + @('-o', $staging))
     }
     $staged = @(Get-ChildItem -LiteralPath $staging -Filter '*.nupkg')
     if (!$CompleteBatch) {
