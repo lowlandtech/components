@@ -3,11 +3,14 @@ param(
     [string]$FeedPath = 'D:\lowlandtech\packages',
     [string]$Version,
     [string]$Configuration = 'Release',
-    [string]$ManifestPath = (Join-Path $PSScriptRoot 'local-packages.json'),
+    [string]$ManifestPath,
     [string[]]$Projects
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
+# $PSScriptRoot is empty inside a param() default in Windows PowerShell 5.1, so every
+# default that needs the script directory is resolved in the body instead.
+if (!$ManifestPath) { $ManifestPath = Join-Path $PSScriptRoot 'local-packages.json' }
 $root = Split-Path $PSScriptRoot -Parent
 $manifest = Get-Content -LiteralPath $ManifestPath -Raw | ConvertFrom-Json
 if (!$Version) {
@@ -38,14 +41,14 @@ function Invoke-DotNet([string[]]$Arguments) {
 }
 Push-Location $root
 try {
-    # A subset builds only its own projects: the whole solution needs the
-    # verified Core package of the whole batch, a subset does not.
-    $buildInputs = @($solution)
-    if ($projects.Count -lt @($manifest.projects).Count) {
-        $buildInputs = @($projects | ForEach-Object { Join-Path $root $_ })
-    }
-    foreach ($buildInput in $buildInputs) {
-        Invoke-DotNet @('build', $buildInput, '-c', $Configuration, "-p:Version=$Version", '-m:1')
+    # The batch publishes the manifest's projects. The solution also carries the
+    # test, story and host projects that the batch does not publish, and
+    # rebuilding them writes into the output directory a running test host
+    # holds, which fails the publication with MSB3027. The batch builds only
+    # what it publishes, and the solution stays the validated repository build
+    # unit without being the build input of the batch.
+    foreach ($project in $projects) {
+        Invoke-DotNet @('build', (Join-Path $root $project), '-c', $Configuration, "-p:Version=$Version", '-m:1')
     }
     foreach ($project in $projects) {
         Invoke-DotNet @('pack', $project, '-c', $Configuration, '--no-build', "-p:Version=$Version", '-o', $staging)
@@ -63,6 +66,11 @@ try {
     }
     Write-Host "Published $($packages.Count) packages to $FeedPath"
     Write-Host "Package version: $Version"
+} catch {
+    # A failed publication leaves no staged version behind, so the same version
+    # can be retried and a second shell can take over the batch.
+    if (Test-Path -LiteralPath $staging) { Remove-Item -LiteralPath $staging -Recurse -Force }
+    throw
 } finally {
     Pop-Location
 }
