@@ -30,6 +30,9 @@ public sealed class ConsumerScenario : IDisposable
         AssetsFile = Read(manifest, "assetsFile");
         CoreVersion = Read(manifest, "coreVersion");
         PackageVersion = Read(manifest, "packageVersion");
+        ContractsVersion = Read(manifest, "contractsVersion");
+        BatchVersion = Read(manifest, "batchVersion");
+        PackageVersions = ReadPackageVersions(manifest);
         PackageSource = Read(manifest, "packageSource");
         UsePublishedBatch = manifest.GetProperty("usePublishedBatch").GetBoolean();
         LocalFeed = Read(manifest, "localFeed");
@@ -62,6 +65,25 @@ public sealed class ConsumerScenario : IDisposable
 
     /// <summary>Version the three Components packages were packed under.</summary>
     public string PackageVersion { get; }
+
+    /// <summary>
+    /// Version of the contracts package of the scenario. The published
+    /// contracts package keeps the version that the Core package pins, so it
+    /// is not the version of the batch.
+    /// </summary>
+    public string ContractsVersion { get; }
+
+    /// <summary>
+    /// Version of the batch of the scenario. The published batch carries its
+    /// own version and keeps the published contracts version in its
+    /// dependency, so the two versions differ.
+    /// </summary>
+    public string BatchVersion { get; }
+
+    /// <summary>
+    /// The version of every base package of the scenario, by package id.
+    /// </summary>
+    public IReadOnlyDictionary<string, string> PackageVersions { get; }
 
     /// <summary>
     /// Where the three base packages of the scenario came from: <c>packed</c>
@@ -211,6 +233,20 @@ public sealed class ConsumerScenario : IDisposable
     {
         return manifest.GetProperty(name).GetString()
                ?? throw new InvalidOperationException($"The scenario manifest has no '{name}'.");
+    }
+
+    private static IReadOnlyDictionary<string, string> ReadPackageVersions(JsonElement manifest)
+    {
+        var versions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var property in manifest.GetProperty("packageVersions").EnumerateObject())
+        {
+            versions[property.Name] = property.Value.GetString()
+                ?? throw new InvalidOperationException(
+                    $"The scenario manifest carries no version for '{property.Name}'.");
+        }
+
+        return versions;
     }
 
     private static string ResolveShell()

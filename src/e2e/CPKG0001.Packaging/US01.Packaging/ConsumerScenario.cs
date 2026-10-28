@@ -30,6 +30,11 @@ public sealed class ConsumerScenario : IDisposable
         AssetsFile = Read(manifest, "assetsFile");
         CoreVersion = Read(manifest, "coreVersion");
         PackageVersion = Read(manifest, "packageVersion");
+        ContractsVersion = Read(manifest, "contractsVersion");
+        BatchVersion = Read(manifest, "batchVersion");
+        PackageVersions = ReadPackageVersions(manifest);
+        PackageSource = Read(manifest, "packageSource");
+        UsePublishedBatch = manifest.GetProperty("usePublishedBatch").GetBoolean();
         Log = Read(manifest, "log");
         RestoreExitCode = manifest.GetProperty("restoreExitCode").GetInt32();
         BuildExitCode = manifest.GetProperty("buildExitCode").GetInt32();
@@ -59,6 +64,29 @@ public sealed class ConsumerScenario : IDisposable
 
     /// <summary>Version the three Components packages were packed under.</summary>
     public string PackageVersion { get; }
+
+    /// <summary>
+    /// Version of the contracts package of the scenario. The published
+    /// contracts package keeps the version that the Core package pins, so it
+    /// is not the version of the batch.
+    /// </summary>
+    public string ContractsVersion { get; }
+
+    /// <summary>
+    /// Version of the batch of the scenario. The published batch carries its
+    /// own version and keeps the published contracts version in its
+    /// dependency, so the two versions differ.
+    /// </summary>
+    public string BatchVersion { get; }
+
+    /// <summary>The version of every base package of the scenario, by package id.</summary>
+    public IReadOnlyDictionary<string, string> PackageVersions { get; }
+
+    /// <summary>Whether the scenario consumed the published batch or a fresh pack.</summary>
+    public string PackageSource { get; }
+
+    /// <summary>Whether the scenario consumed the published batch of the shared feed.</summary>
+    public bool UsePublishedBatch { get; }
 
     /// <summary>Transcript of every command the harness ran.</summary>
     public string Log { get; }
@@ -93,12 +121,24 @@ public sealed class ConsumerScenario : IDisposable
     /// private feed, for a package the consumer needs that is not a dependency
     /// of the packed Components projects.
     /// </param>
+    /// <param name="usePublishedBatch">
+    /// Consumes the published batch of the shared feed instead of a fresh pack
+    /// of this repository. The scenario then selects the batch that pairs with
+    /// the Core package it resolved, so the consumer restores the published
+    /// identities of the current batch.
+    /// </param>
+    /// <param name="publishedBatchVersion">
+    /// The published batch the scenario consumes, when the caller names it.
+    /// The scenario resolves the batch of the shared feed when it is empty.
+    /// </param>
     public static ConsumerScenario Run(
         string repositoryRoot,
         string? consumerSource = null,
         string scenarioPrefix = "cpkg0001-e2e-",
         IReadOnlyCollection<string>? additionalPackages = null,
-        IReadOnlyCollection<string>? feedPackages = null)
+        IReadOnlyCollection<string>? feedPackages = null,
+        bool usePublishedBatch = false,
+        string? publishedBatchVersion = null)
     {
         var scenarioRoot = Path.Combine(
             Path.GetTempPath(),
@@ -139,6 +179,17 @@ public sealed class ConsumerScenario : IDisposable
         {
             arguments.Add("-FeedPackages");
             arguments.AddRange(feedPackages);
+        }
+
+        if (usePublishedBatch)
+        {
+            arguments.Add("-UsePublishedBatch");
+        }
+
+        if (publishedBatchVersion is { Length: > 0 })
+        {
+            arguments.Add("-PublishedBatchVersion");
+            arguments.Add(publishedBatchVersion);
         }
 
         var (exitCode, output) = RunProcess(ResolveShell(), arguments, repositoryRoot);
@@ -211,6 +262,20 @@ public sealed class ConsumerScenario : IDisposable
     {
         return manifest.GetProperty(name).GetString()
                ?? throw new InvalidOperationException($"The scenario manifest has no '{name}'.");
+    }
+
+    private static IReadOnlyDictionary<string, string> ReadPackageVersions(JsonElement manifest)
+    {
+        var versions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var property in manifest.GetProperty("packageVersions").EnumerateObject())
+        {
+            versions[property.Name] = property.Value.GetString()
+                ?? throw new InvalidOperationException(
+                    $"The scenario manifest carries no version for '{property.Name}'.");
+        }
+
+        return versions;
     }
 
     private static string ResolveShell()

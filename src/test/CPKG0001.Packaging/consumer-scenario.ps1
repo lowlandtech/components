@@ -84,7 +84,8 @@ param(
     [string] $ConsumerSource = 'src/test/CPKG0001.Packaging/consumer',
     [string[]] $AdditionalPackages = @(),
     [string[]] $FeedPackages = @(),
-    [switch] $UsePublishedBatch
+    [switch] $UsePublishedBatch,
+    [string] $PublishedBatchVersion = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -130,8 +131,16 @@ function Get-NuspecDependencies([string] $nupkgPath) {
     $xml = [xml]$text
     $dependencies = @()
     foreach ($node in $xml.SelectNodes("//*[local-name()='dependency']")) {
-        $version = $node.GetAttribute('version') -replace '^\[', '' -replace '\]$', ''
-        $dependencies += [pscustomobject]@{ Id = $node.GetAttribute('id'); Version = $version }
+        $range = $node.GetAttribute('version')
+        $version = $range -replace '^\[', '' -replace '\]$', ''
+        $dependencies += [pscustomobject]@{
+            Id     = $node.GetAttribute('id')
+            Version = $version
+            # A dependency that carries brackets in its nuspec pins that
+            # version exactly. A bare version is a minimum, and the package
+            # graph resolves a newer one against it.
+            Exact  = ($range.StartsWith('[') -and $range.EndsWith(']'))
+        }
     }
     return $dependencies
 }
@@ -176,6 +185,45 @@ function Resolve-CompatibleCore([string] $feedPath, [string] $requested) {
     }
 
     $sorted = $compatible | Sort-Object -Property @{ Expression = { [version](($_.Version -split '-')[0]) } }, @{ Expression = { $_.Version } }
+    return @($sorted)[-1]
+}
+
+function Resolve-PublishedBatch([string] $feedPath, [string] $coreVersion, [string] $contractsVersion) {
+    <#
+    .SYNOPSIS
+        The published batch of the shared feed that pairs with a Core package.
+
+    .DESCRIPTION
+        The batch of the shared feed is published under its own version, and
+        it keeps the published contracts version in its dependency, so the
+        version of the batch and the version of the contracts package are not
+        the same. The batch that pairs with a Core package is the published
+        Components package that pins that Core exactly and that keeps the
+        contracts version the Core was built against.
+
+        A batch that pins another Core is not the batch of that Core: the
+        consumer resolves a Core outside the constraint of the batch and
+        reports NU1608.
+    #>
+    $candidates = @()
+    foreach ($file in Get-ChildItem -LiteralPath $feedPath -Filter '*.nupkg') {
+        if ((Get-NuspecId $file.FullName) -ne 'LowlandTech.Components') { continue }
+
+        $version = ($file.Name -replace '^LowlandTech\.Components\.', '') -replace '\.nupkg$', ''
+        $dependencies = Get-NuspecDependencies $file.FullName
+
+        $core = $dependencies | Where-Object { $_.Id -eq 'LowlandTech.Core' } | Select-Object -First 1
+        if (-not $core -or -not $core.Exact -or $core.Version -ne $coreVersion) { continue }
+
+        $contracts = $dependencies | Where-Object { $_.Id -eq 'LowlandTech.Components.Core' } | Select-Object -First 1
+        if (-not $contracts -or $contracts.Version -ne $contractsVersion) { continue }
+
+        $candidates += [pscustomobject]@{ Version = $version; Package = $file.FullName }
+    }
+
+    if ($candidates.Count -eq 0) { return $null }
+
+    $sorted = $candidates | Sort-Object -Property @{ Expression = { [version](($_.Version -split '-')[0]) } }, @{ Expression = { $_.Version } }
     return @($sorted)[-1]
 }
 
@@ -263,9 +311,16 @@ $core = Resolve-CompatibleCore $localFeed $CoreVersion
 $coreVersion = $core.Version
 
 # The upstream Core package pins the Components.Core version it was built
-# against, so the Components packages are packed under exactly that version.
-# Any other version makes the consumer resolve a downgrade.
-$packageVersion = $core.ComponentsCoreVersion
+# against, so the contracts package of the batch carries exactly that
+# version.
+$contractsVersion = $core.ComponentsCoreVersion
+
+# The batch of this repository is published under its own version, and it
+# keeps the published contracts version in its dependency. The version of
+# the batch and the version of the contracts package are therefore not the
+# same, and the consumer references every package at its own version.
+$batchVersion = $contractsVersion
+$packageVersion = $contractsVersion
 
 # ---------------------------------------------------------------- packages ---
 $baseProjects = @(
@@ -293,23 +348,63 @@ if ($UsePublishedBatch) {
     # pack of this repository. The additional packages of this repository are
     # not part of the published batch, so they are still packed.
     $packageSource = 'published'
+
+    # The batch of the shared feed that pairs with the selected Core package.
+    # The contracts version alone does not name it: several batches keep the
+    # same published contracts version in their dependency, and the batch that
+    # pins another Core is not the batch of this Core.
+    if ($PublishedBatchVersion) {
+        $candidate = Join-Path $localFeed "LowlandTech.Components.$PublishedBatchVersion.nupkg"
+        if (-not (Test-Path -LiteralPath $candidate)) {
+            throw "The shared feed '$localFeed' carries no published batch '$PublishedBatchVersion'."
+        }
+        $batch = [pscustomobject]@{ Version = $PublishedBatchVersion; Package = $candidate }
+    }
+    else {
+        $batch = Resolve-PublishedBatch $localFeed $coreVersion $contractsVersion
+        if (-not $batch) {
+            throw "The shared feed '$localFeed' carries no published batch that pins " +
+                  "LowlandTech.Core $coreVersion and the contracts version $contractsVersion."
+        }
+    }
+
+    $batchVersion = $batch.Version
+    $packageVersion = $batchVersion
+
+    # Every base package travels at its own published version: the contracts
+    # package at the version the Core pins, the batch at the version of the
+    # batch.
+    $publishedPackages = @(
+        @{ Id = 'LowlandTech.Components.Core'; Version = $contractsVersion },
+        @{ Id = 'LowlandTech.Components'; Version = $batchVersion },
+        @{ Id = 'LowlandTech.Components.Blocks'; Version = $batchVersion }
+    )
+
     $missingPublished = @()
-    foreach ($project in $baseProjects) {
-        $published = Get-ChildItem -LiteralPath $localFeed -Filter "$($project.Id).$packageVersion.nupkg" |
-            Select-Object -First 1
-        if (-not $published) {
-            $missingPublished += $project.Id
+    foreach ($package in $publishedPackages) {
+        $published = Join-Path $localFeed "$($package.Id).$($package.Version).nupkg"
+        if (-not (Test-Path -LiteralPath $published)) {
+            $missingPublished += "$($package.Id) $($package.Version)"
             continue
         }
-        Copy-Item -LiteralPath $published.FullName -Destination $feedDirectory -Force
+        Copy-Item -LiteralPath $published -Destination $feedDirectory -Force
     }
 
     if ($missingPublished.Count -gt 0) {
-        throw "The published batch '$packageVersion' of the shared feed is missing: " +
+        throw "The published batch '$batchVersion' of the shared feed is missing: " +
               "$($missingPublished -join ', '). See '$localFeed'."
     }
 
     $projects = @($additionalProjects)
+}
+
+# The version of every base package of the scenario. The consumer references
+# each package at its own version: the contracts package at the version the
+# Core pins, the batch at the version of the batch.
+$packageVersions = [ordered]@{
+    'LowlandTech.Components.Core'   = $contractsVersion
+    'LowlandTech.Components'        = $batchVersion
+    'LowlandTech.Components.Blocks' = $batchVersion
 }
 
 $packFailures = @()
@@ -353,12 +448,12 @@ $closure = Get-PackageClosure $assetsFiles
 
 if ($UsePublishedBatch) {
     # The dependency closure of the copied published packages travels with them,
-    # so the consumer resolves them from the scenario feed alone.
-    foreach ($project in $baseProjects) {
-        $published = Get-ChildItem -LiteralPath $feedDirectory -Filter "$($project.Id).$packageVersion.nupkg" |
-            Select-Object -First 1
-        if (-not $published) { continue }
-        foreach ($dependency in (Get-NuspecDependencies $published.FullName)) {
+    # so the consumer resolves them from the scenario feed alone. Every copied
+    # package contributes the closure of its own published version.
+    foreach ($package in $publishedPackages) {
+        $published = Join-Path $feedDirectory "$($package.Id).$($package.Version).nupkg"
+        if (-not (Test-Path -LiteralPath $published)) { continue }
+        foreach ($dependency in (Get-NuspecDependencies $published)) {
             $closure += "$($dependency.Id)/$($dependency.Version)"
         }
     }
@@ -446,6 +541,7 @@ try {
         'restore', $consumerProject,
         "--configfile", (Join-Path $consumerDirectory 'NuGet.Config'),
         "-p:ComponentsPackageVersion=$packageVersion",
+        "-p:ComponentsContractsVersion=$contractsVersion",
         '--nologo'
     ) $consumerDirectory $logPath
 
@@ -454,6 +550,7 @@ try {
         '-c', 'Release',
         '--no-restore',
         "-p:ComponentsPackageVersion=$packageVersion",
+        "-p:ComponentsContractsVersion=$contractsVersion",
         '--nologo'
     ) $consumerDirectory $logPath
 
@@ -465,6 +562,7 @@ try {
             '-o', $publishDirectory,
             '--no-restore',
             "-p:ComponentsPackageVersion=$packageVersion",
+        "-p:ComponentsContractsVersion=$contractsVersion",
             '--nologo'
         ) $consumerDirectory $logPath
         $publishExitCode = $publishResult.ExitCode
@@ -484,6 +582,9 @@ $manifest = [ordered]@{
     assetsFile        = (Join-Path $consumerDirectory 'obj/project.assets.json')
     coreVersion       = $coreVersion
     packageVersion    = $packageVersion
+    contractsVersion  = $contractsVersion
+    batchVersion      = $batchVersion
+    packageVersions   = $packageVersions
     packageSource     = $packageSource
     usePublishedBatch = [bool] $UsePublishedBatch
     localFeed         = $localFeed

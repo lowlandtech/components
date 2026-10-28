@@ -16,10 +16,13 @@
     <RootNamespace>LowlandTech.ThemeConsumer</RootNamespace>
     <AssemblyName>LowlandTech.ThemeConsumer</AssemblyName>
     <ComponentsPackageVersion Condition="'$(ComponentsPackageVersion)' == ''">0.0.0-unset</ComponentsPackageVersion>
+    <!-- The contracts package keeps the published version that the Core
+         package pins, so it is referenced at its own version. -->
+    <ComponentsContractsVersion Condition="'$(ComponentsContractsVersion)' == ''">$(ComponentsPackageVersion)</ComponentsContractsVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LowlandTech.Components.Core" Version="[$(ComponentsPackageVersion)]" />
+    <PackageReference Include="LowlandTech.Components.Core" Version="[$(ComponentsContractsVersion)]" />
     <PackageReference Include="LowlandTech.Components" Version="[$(ComponentsPackageVersion)]" />
     <PackageReference Include="LowlandTech.Components.Blocks" Version="[$(ComponentsPackageVersion)]" />
   </ItemGroup>

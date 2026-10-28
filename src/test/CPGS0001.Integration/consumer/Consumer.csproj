@@ -15,11 +15,14 @@
     <RootNamespace>LowlandTech.PageConsumer</RootNamespace>
     <AssemblyName>LowlandTech.PageConsumer</AssemblyName>
     <ComponentsPackageVersion Condition="'$(ComponentsPackageVersion)' == ''">0.0.0-unset</ComponentsPackageVersion>
+    <!-- The contracts package keeps the published version that the Core
+         package pins, so it is referenced at its own version. -->
+    <ComponentsContractsVersion Condition="'$(ComponentsContractsVersion)' == ''">$(ComponentsPackageVersion)</ComponentsContractsVersion>
     <PluginsPackageVersion Condition="'$(PluginsPackageVersion)' == ''">2026.10.1-20261024190755988902385</PluginsPackageVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LowlandTech.Components.Core" Version="[$(ComponentsPackageVersion)]" />
+    <PackageReference Include="LowlandTech.Components.Core" Version="[$(ComponentsContractsVersion)]" />
     <PackageReference Include="LowlandTech.Components.Features.Pages" Version="[$(ComponentsPackageVersion)]" />
     <!-- The route gateway of the shell is a host concern, so the consumer
          references the Plugins package itself. -->

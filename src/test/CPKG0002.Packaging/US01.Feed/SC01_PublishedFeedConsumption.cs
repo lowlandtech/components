@@ -69,17 +69,27 @@ public class SC01_PublishedFeedConsumption(PublishedBatchScenarioFixture fixture
         scenario.BuildExitCode.ShouldBe(
             0, $"The consumer build failed. Scenario log:{Environment.NewLine}{scenario.ReadLog()}");
 
+        // The batch of the shared feed is published under its own version and
+        // keeps the published contracts version in its dependency, so every
+        // base package is consumed at its own published version.
+        scenario.BatchVersion.ShouldBe(
+            scenario.PackageVersions["LowlandTech.Components"],
+            "The scenario did not consume the batch of the shared feed.");
+        scenario.ContractsVersion.ShouldBe(
+            scenario.PackageVersions["LowlandTech.Components.Core"],
+            "The scenario did not consume the published contracts version.");
+
         foreach (var packageId in BasePackages)
         {
-            var consumed = Path.Combine(
-                scenario.FeedDirectory, $"{packageId}.{scenario.PackageVersion}.nupkg");
-            var published = Path.Combine(
-                scenario.LocalFeed, $"{packageId}.{scenario.PackageVersion}.nupkg");
+            var version = scenario.PackageVersions[packageId];
+
+            var consumed = Path.Combine(scenario.FeedDirectory, $"{packageId}.{version}.nupkg");
+            var published = Path.Combine(scenario.LocalFeed, $"{packageId}.{version}.nupkg");
 
             File.Exists(published).ShouldBeTrue(
-                $"The shared feed carries no published '{packageId}' {scenario.PackageVersion}.");
+                $"The shared feed carries no published '{packageId}' {version}.");
             File.Exists(consumed).ShouldBeTrue(
-                $"The scenario feed carries no '{packageId}' {scenario.PackageVersion}.");
+                $"The scenario feed carries no '{packageId}' {version}.");
 
             // The consumed package is the published identity itself and not a
             // fresh pack of the sources of this repository.
@@ -102,7 +112,8 @@ public class SC01_PublishedFeedConsumption(PublishedBatchScenarioFixture fixture
 
             resolved.ShouldNotBeEmpty($"The consumer did not resolve '{packageId}'.");
             resolved.ShouldAllBe(
-                name => name.EndsWith($"/{scenario.PackageVersion}", StringComparison.OrdinalIgnoreCase),
+                name => name.EndsWith(
+                    $"/{scenario.PackageVersions[packageId]}", StringComparison.OrdinalIgnoreCase),
                 $"The consumer resolved '{packageId}' in a version that is not the published one.");
         }
     }
