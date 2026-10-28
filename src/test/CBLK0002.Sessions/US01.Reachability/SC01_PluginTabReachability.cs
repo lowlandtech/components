@@ -82,20 +82,6 @@ public class SC01_PluginTabReachability : ViewScenario
         }
     }
 
-    [Fact(DisplayName = "UAC04: a real pointer reaches the plugin tab of the packaged session route")]
-    [Trait(Spec.UAC, "04")]
-    [Given("the packaged session route of the Harness acceptance")]
-    [When("a real pointer clicks the plugin tab of the right pane")]
-    [Then("the click reaches the tab instead of timing out")]
-    public void UAC04_RealPointerReachesThePluginTab()
-    {
-        Assert.Skip(
-            "The pointer acceptance of the packaged session route belongs to the Harness lane, " +
-            "which owns the route and the browser. That lane proved this acceptance with the " +
-            "pointer of a real browser against the published batch on 2026-10-27; the proof is " +
-            "recorded in docs/workitems/done/CBLK0002.US01.SC01.session-plugin-tab-reachability.md.");
-    }
-
     /// <summary>
     /// The session surface renders two variants: the standalone variant with a
     /// collapsible sidebar and the embedded variant without one. Both of them

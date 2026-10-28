@@ -1,0 +1,41 @@
+@page "/"
+<PageTitle>Components session route consumer</PageTitle>
+
+<main data-testid="consumer-main">
+    <h1 data-testid="consumer-heading">Components session route consumer</h1>
+
+    @* The session surface of the packaged route. The container fixes the width
+         of the surface, so the right pane of the surface lands on a width that
+         its tab strip has to share with the close button of the pane, and the
+         tab of the plugin surface has to stay reachable inside the pane. *@
+    <div data-testid="consumer-session-surface" style="width: 1280px; height: 720px;">
+        <SessionBlock HasSidebar="true">
+            <RightSidebarContent>
+                <div data-testid="consumer-plugin-surface">Plugin surface of the packaged route</div>
+            </RightSidebarContent>
+        </SessionBlock>
+    </div>
+
+    @* The marker appears once the circuit of this consumer is live. The
+       prerendered markup does not carry it, so a browser can tell the
+       prerendered surface from the interactive one. *@
+    @if (_isLive)
+    {
+        <span data-testid="consumer-live">live</span>
+    }
+</main>
+
+@code {
+    private bool _isLive;
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isLive = true;
+            StateHasChanged();
+        }
+
+        return Task.CompletedTask;
+    }
+}

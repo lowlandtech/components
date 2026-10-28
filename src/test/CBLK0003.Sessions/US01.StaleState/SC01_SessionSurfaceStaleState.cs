@@ -123,20 +123,6 @@ public class SC01_SessionSurfaceStaleState : ViewScenario
             "the repaired state has to be applied on the reload instead of being recovered again");
     }
 
-    [Fact(DisplayName = "UAC04: the packaged session route recovers from the stale state")]
-    [Trait(Spec.UAC, "04")]
-    [Given("the packaged session route of the Harness acceptance")]
-    [When("the route is reloaded with the stale state seeded")]
-    [Then("it renders the three panels and the two handles and every linked asset answers 200")]
-    public void UAC04_PackagedSessionRouteRecoversFromTheStaleState()
-    {
-        Assert.Skip(
-            "The acceptance of the packaged session route belongs to the Harness lane, " +
-            "which owns the route and the browser. That lane proved this acceptance on the " +
-            "packaged route of the published batch on 2026-10-27; the proof is recorded in " +
-            "docs/workitems/done/CBLK0003.US01.SC01.session-surface-stale-state.md.");
-    }
-
     private void Seed(string key, string value)
     {
         Ctx.JSInterop.Setup<string?>("localStorage.getItem", key).SetResult(value);
