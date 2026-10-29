@@ -161,7 +161,7 @@ public partial class ContainerGrid : IAsyncDisposable
     }
 
     public Task<string> SaveLayoutAsync() =>
-        Task.FromResult(JsonSerializer.Serialize(GetSnapshot()));
+        Task.FromResult(JsonSerializer.Serialize(GetSnapshot(), ComponentsJsonContext.Default.ContainerGridLayout));
 
     public void SetLayout(ContainerGridLayout layout)
     {
@@ -176,7 +176,7 @@ public partial class ContainerGrid : IAsyncDisposable
 
     public Task RestoreLayoutAsync(string json)
     {
-        var layout = JsonSerializer.Deserialize<ContainerGridLayout>(json);
+        var layout = JsonSerializer.Deserialize(json, ComponentsJsonContext.Default.ContainerGridLayout);
         if (layout is null) return Task.CompletedTask;
         SetLayout(layout);
         return Task.CompletedTask;
@@ -223,14 +223,9 @@ public partial class ContainerGrid : IAsyncDisposable
     /// Grid-level options serialised onto <c>data-options</c> so containerGrid.js
     /// can read them per pointer event without round-tripping to .NET.
     /// </summary>
-    private string GridOptionsJson => JsonSerializer.Serialize(new
-    {
-        floatMode = FloatMode,
-        compactOnDrop = CompactOnDrop,
-        resolveCollisions = ResolveCollisions,
-    }, JsonOpts);
-
-    private static readonly JsonSerializerOptions JsonOpts = new(JsonSerializerDefaults.Web);
+    private string GridOptionsJson => JsonSerializer.Serialize(
+        new ContainerGridOptionsPayload(FloatMode, CompactOnDrop, ResolveCollisions),
+        ComponentsJsonContext.Default.ContainerGridOptionsPayload);
 
     private bool IsOccupied(ContainerGridSection? ignore, int r, int c) =>
         _childSections.Any(s => s != ignore

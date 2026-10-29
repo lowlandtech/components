@@ -281,7 +281,7 @@ public partial class TreeView<TItem> : TinyComponentBase
             var expandJson = await JS.InvokeAsync<string?>("localStorage.getItem", $"treeview:{EffectivePersistKey}:expanded");
             if (!string.IsNullOrEmpty(expandJson))
             {
-                var keys = JsonSerializer.Deserialize<List<string>>(expandJson);
+                var keys = JsonSerializer.Deserialize(expandJson, ComponentsJsonContext.Default.ListString);
                 if (keys != null && keys.Count > 0)
                 {
                     ApplyExpandedKeys(keys);
@@ -298,7 +298,7 @@ public partial class TreeView<TItem> : TinyComponentBase
                 var selectedJson = await JS.InvokeAsync<string?>("localStorage.getItem", $"treeview:{EffectivePersistKey}:selected");
                 if (!string.IsNullOrEmpty(selectedJson))
                 {
-                    var keys = JsonSerializer.Deserialize<List<string>>(selectedJson);
+                    var keys = JsonSerializer.Deserialize(selectedJson, ComponentsJsonContext.Default.ListString);
                     if (keys != null && keys.Count > 0)
                     {
                         ApplySelectedKeys(keys);
@@ -317,7 +317,7 @@ public partial class TreeView<TItem> : TinyComponentBase
                 var checkedJson = await JS.InvokeAsync<string?>("localStorage.getItem", $"treeview:{EffectivePersistKey}:checked");
                 if (!string.IsNullOrEmpty(checkedJson))
                 {
-                    var keys = JsonSerializer.Deserialize<List<string>>(checkedJson);
+                    var keys = JsonSerializer.Deserialize(checkedJson, ComponentsJsonContext.Default.ListString);
                     if (keys != null && keys.Count > 0)
                     {
                         ApplyCheckedKeys(keys);
@@ -337,21 +337,21 @@ public partial class TreeView<TItem> : TinyComponentBase
     private void PersistExpandedKeys()
     {
         if (NoPersist) return;
-        var json = JsonSerializer.Serialize(_expandedKeys.ToList());
+        var json = JsonSerializer.Serialize(_expandedKeys.ToList(), ComponentsJsonContext.Default.ListString);
         JS.InvokeVoidAsync("localStorage.setItem", $"treeview:{EffectivePersistKey}:expanded", json);
     }
 
     private void PersistSelectedKeys()
     {
         if (NoPersist) return;
-        var json = JsonSerializer.Serialize(_selectedKeys.ToList());
+        var json = JsonSerializer.Serialize(_selectedKeys.ToList(), ComponentsJsonContext.Default.ListString);
         JS.InvokeVoidAsync("localStorage.setItem", $"treeview:{EffectivePersistKey}:selected", json);
     }
 
     private void PersistCheckedKeys()
     {
         if (NoPersist) return;
-        var json = JsonSerializer.Serialize(_checkedKeys.ToList());
+        var json = JsonSerializer.Serialize(_checkedKeys.ToList(), ComponentsJsonContext.Default.ListString);
         JS.InvokeVoidAsync("localStorage.setItem", $"treeview:{EffectivePersistKey}:checked", json);
     }
 

@@ -1,4 +1,6 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 namespace LowlandTech.Components;
 
@@ -157,6 +159,33 @@ public sealed class BlockContext
 		return _entityData.TryGetValue(blockId, out var data) ? data : null;
 	}
 
+	/// <summary>
+	/// Reads the entity data of a block into <typeparamref name="T"/> through the
+	/// shape that the caller's generated contract names. This is the trim-safe path:
+	/// the shape is declared where the type is known instead of resolved by reflection.
+	/// </summary>
+	public T? GetEntity<T>(Guid blockId, JsonTypeInfo<T> typeInfo)
+	{
+		ArgumentNullException.ThrowIfNull(typeInfo);
+		if (!_entityData.TryGetValue(blockId, out var data))
+			return default;
+
+		try
+		{
+			return JsonSerializer.Deserialize(data.GetRawText(), typeInfo);
+		}
+		catch
+		{
+			return default;
+		}
+	}
+
+	/// <summary>
+	/// Reads the entity data of a block into <typeparamref name="T"/> by reflection.
+	/// The caller has to preserve the members of <typeparamref name="T"/>; prefer the
+	/// overload that names the shape through a <see cref="JsonTypeInfo{T}"/>.
+	/// </summary>
+	[RequiresUnreferencedCode("Reads the entity payload through reflection; the caller must preserve the members of T or use the JsonTypeInfo overload.")]
 	public T? GetEntity<T>(Guid blockId) where T : class
 	{
 		if (!_entityData.TryGetValue(blockId, out var data))

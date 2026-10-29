@@ -101,7 +101,7 @@
             try
             {
                 var json = await JS.InvokeAsync<string?>("localStorage.getItem", StorageKey);
-                if (json is not null) saved = JsonSerializer.Deserialize<ShowcodeNavigationSnapshot>(json);
+                if (json is not null) saved = JsonSerializer.Deserialize(json, ComponentsJsonContext.Default.ShowcodeNavigationSnapshot);
             }
             catch (Exception ex) when (ex is JSException or JsonException)
             {
@@ -139,7 +139,7 @@
             var snapshot = new ShowcodeNavigationSnapshot(_expandedGroups.Order().ToArray(), new Uri(Nav.Uri).AbsolutePath);
             try
             {
-                await JS.InvokeVoidAsync("localStorage.setItem", StorageKey, JsonSerializer.Serialize(snapshot));
+                await JS.InvokeVoidAsync("localStorage.setItem", StorageKey, JsonSerializer.Serialize(snapshot, ComponentsJsonContext.Default.ShowcodeNavigationSnapshot));
             }
             catch (JSException)
             {

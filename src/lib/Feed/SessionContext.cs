@@ -28,15 +28,11 @@ public sealed class SessionContext
         => _entries.TryGetValue(blockId, out var entry) ? entry.Entity : null;
 
     public string ToPromptJson()
-        => JsonSerializer.Serialize(new
-        {
-            context = _entries.Values.Select(entry => new
-            {
-                blockId = entry.BlockId,
-                blockType = entry.BlockType,
-                entity = entry.Entity
-            })
-        });
+        => JsonSerializer.Serialize(
+            new SessionPromptPayload(_entries.Values
+                .Select(entry => new SessionPromptEntry(entry.BlockId, entry.BlockType, entry.Entity))
+                .ToArray()),
+            ComponentsJsonContext.Default.SessionPromptPayload);
 
     public string? Response { get; set; }
 

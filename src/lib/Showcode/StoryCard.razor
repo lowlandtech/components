@@ -478,7 +478,7 @@
         {
             try
             {
-                var values = JsonSerializer.Deserialize<Dictionary<string, string>>(valuesJson);
+                var values = JsonSerializer.Deserialize(valuesJson, ComponentsJsonContext.Default.DictionaryStringString);
                 if (values is not null)
                 {
                     _designValues.Clear();
@@ -500,7 +500,7 @@
             if (string.IsNullOrEmpty(json))
                 return;
 
-            var state = JsonSerializer.Deserialize<SessionPersistedState>(json);
+            var state = JsonSerializer.Deserialize(json, ComponentsJsonContext.Default.SessionPersistedState);
             if (state is null)
                 return;
 
@@ -569,7 +569,7 @@
 
         if (_designValues.Count > 0 && _selectedDesignComponentType is not null)
         {
-            query[$"{PersistKey}-values"] = JsonSerializer.Serialize(_designValues);
+            query[$"{PersistKey}-values"] = JsonSerializer.Serialize(_designValues, ComponentsJsonContext.Default.DictionaryStringString);
         }
         else
         {
@@ -602,7 +602,7 @@
                 DesignKey = _selectedDesignPersistenceKey,
                 Values = _designValues.Count > 0 ? new Dictionary<string, string>(_designValues) : null
             };
-            var json = JsonSerializer.Serialize(state);
+            var json = JsonSerializer.Serialize(state, ComponentsJsonContext.Default.SessionPersistedState);
             await JS.InvokeVoidAsync("sessionStorage.setItem", $"storycard:{PersistKey}", json);
         }
         catch
@@ -630,16 +630,6 @@
         return result;
     }
 
-    private class SessionPersistedState
-    {
-        public string? Scenario { get; set; }
-        public string? CodeTab { get; set; }
-        public bool DesignMode { get; set; }
-        public string? TypeName { get; set; }
-        public string? InstanceId { get; set; }
-        public string? DesignKey { get; set; }
-        public Dictionary<string, string>? Values { get; set; }
-    }
 
     private string GetDesignValue(PropertyDescriptor property) =>
         _designValues.TryGetValue(property.Name, out var value)

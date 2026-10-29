@@ -14,6 +14,7 @@ global using System.Text.Json.Serialization;
 global using System.Text.Json.Nodes;
 global using System.Text.RegularExpressions;
 global using LowlandTech.Components;
+global using LowlandTech.Components.Json;
 global using LowlandTech.Components.Core;
 global using LowlandTech.Components.Core.Validation;
 global using LowlandTech.Core;

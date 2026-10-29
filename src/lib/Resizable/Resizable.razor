@@ -135,7 +135,7 @@
         try
         {
             var sizes = Panels.ToDictionary(p => p.PanelId, p => p.CurrentSize);
-            var json = JsonSerializer.Serialize(sizes);
+            var json = JsonSerializer.Serialize(sizes, ComponentsJsonContext.Default.DictionaryStringInt32);
             await JS.InvokeVoidAsync("localStorage.setItem", $"resizable:{PersistKey}", json);
         }
         catch
@@ -155,7 +155,7 @@
                 return;
             }
 
-            var sizes = JsonSerializer.Deserialize<Dictionary<string, int>>(json);
+            var sizes = JsonSerializer.Deserialize(json, ComponentsJsonContext.Default.DictionaryStringInt32);
             if (sizes is null)
             {
                 _isRestored = true;
