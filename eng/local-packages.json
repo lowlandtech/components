@@ -1,6 +1,6 @@
 {
   "solution": "components.slnx",
-  "versionPrefix": "2026.10.1",
+  "versionPrefix": "2026.10.3",
   "projects": [
     "src/core/LowlandTech.Components.Core.csproj",
     "src/lib/LowlandTech.Components.csproj",

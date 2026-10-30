@@ -27,9 +27,12 @@ if ($Version -notmatch '^[1-9][0-9]{3}\.(?:[1-9]|1[0-2])\.(?:0|[1-9][0-9]*)(?:-(
 # closure of the published packages needs the identities of the parts and the
 # whole in one agreed version, so a subset carries the same version as the
 # whole batch it belongs to.
-if (!$Projects) { $Projects = @($manifest.projects) }
+# A caller that omits the selection gets the manifest. A caller that supplies an
+# empty selection asked for nothing, which is refused instead of silently packing
+# the whole manifest.
+if (-not $PSBoundParameters.ContainsKey('Projects')) { $Projects = @($manifest.projects) }
 $projects = @($Projects)
-if (!$projects.Count) { throw 'The manifest must select at least one packable project.' }
+if ($projects.Count -eq 0) { throw 'Select at least one packable project; an empty -Projects selection packs nothing.' }
 $solution = Join-Path $root $manifest.solution
 foreach ($path in @($solution) + @($projects | ForEach-Object { Join-Path $root $_ })) {
     if (!(Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing build input: $path" }
@@ -40,7 +43,11 @@ foreach ($path in @($solution) + @($projects | ForEach-Object { Join-Path $root 
 # the published contracts version in their own dependency. The contracts
 # package itself stays published, so it is not part of this batch.
 $contractsId = 'LowlandTech.Components.Core'
-$contractProperties = @()
+# The build restores the referenced contracts project under the bare package
+# version, so the bracket cannot reach the build; only the pack emits it. The two
+# properties therefore carry the same generation in the two forms the steps need.
+$contractBuildProperties = @()
+$contractPackProperties = @()
 if ($ContractsVersion) {
     $contractsProject = @($manifest.projects | Where-Object {
         [System.IO.Path]::GetFileNameWithoutExtension($_) -eq $contractsId
@@ -53,7 +60,8 @@ if ($ContractsVersion) {
     if (!(Test-Path -LiteralPath (Join-Path $FeedPath $contractsPackage))) {
         throw "The contracts package '$contractsPackage' is not published in '$FeedPath'."
     }
-    $contractProperties = @("-p:ComponentsContractsVersion=$ContractsVersion")
+    $contractBuildProperties = @("-p:ComponentsContractsVersion=$ContractsVersion")
+    $contractPackProperties = @("-p:ComponentsContractsVersion=[$ContractsVersion]")
 }
 $staging = Join-Path $root "artifacts/local-packages/$Version"
 # A batch whose packages carry different dependencies on each other is published
@@ -77,10 +85,10 @@ try {
     # what it publishes, and the solution stays the validated repository build
     # unit without being the build input of the batch.
     foreach ($project in $projects) {
-        Invoke-DotNet (@('build', (Join-Path $root $project), '-c', $Configuration, "-p:Version=$Version") + $contractProperties + @('-m:1'))
+        Invoke-DotNet (@('build', (Join-Path $root $project), '-c', $Configuration, "-p:Version=$Version") + $contractBuildProperties + @('-m:1'))
     }
     foreach ($project in $projects) {
-        Invoke-DotNet (@('pack', $project, '-c', $Configuration, '--no-build', "-p:Version=$Version") + $contractProperties + @('-o', $staging))
+        Invoke-DotNet (@('pack', $project, '-c', $Configuration, '--no-build', "-p:Version=$Version") + $contractPackProperties + @('-o', $staging))
     }
     $staged = @(Get-ChildItem -LiteralPath $staging -Filter '*.nupkg')
     if (!$CompleteBatch) {

@@ -6,6 +6,7 @@
 | M4 | Consumed packages and localized labels | Package/Consumer |
 | M5 | Reachable session surface | Behavior/Consumer |
 | M6 | Trim-safe canonical source | Package/Consumer |
+| M7 | Compatible producer batch | Package/Consumer |
 
 | Work | Scope | Title | Priority | Lane | Depends on | Status | Refined | Issue |
 |---|---|---|---|---|---|---|---|---|
@@ -20,3 +21,5 @@
 | M5-001 | CBLK0002-US01-SC01 | [Reach the plugin tab of the session surface](done/CBLK0002.US01.SC01.session-plugin-tab-reachability.md) | P1 | components | M3-001 | done | true | [#24](https://github.com/lowlandtech/components/issues/24) |
 | M5-002 | CBLK0003-US01-SC01 | [Reset a stale state of the session surface](done/CBLK0003.US01.SC01.session-surface-stale-state.md) | P1 | components | M3-001 | done | true | [#25](https://github.com/lowlandtech/components/issues/25) |
 | M6-001 | CTRM0001-US01-SC01 | [Make the canonical components source trim-safe](done/CTRM0001.US01.SC01.trim-safe-canonical-components-source.md) | P1 | components | None | done | true | [#26](https://github.com/lowlandtech/components/issues/26) |
+| M7-001 | CPKG0003-US01-SC01 | [Declare the batch dependency range exactly](done/CPKG0003.US01.SC01.exact-batch-declaration.md) | P1 | components | None | done | true | [#27](https://github.com/lowlandtech/components/issues/27) |
+| M7-002 | CPKG0005-US01-SC01 | [Publish the compatible immutable producer batch](todo/CPKG0005.US01.SC01.publish-compatible-producer-batch.md) | P1 | components | M7-001 | todo | true | [#28](https://github.com/lowlandtech/components/issues/28) |
