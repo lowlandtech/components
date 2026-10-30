@@ -84,6 +84,7 @@ public sealed record SessionBlockDescriptor(
 /// </summary>
 public sealed class DefaultSessionBlockRegistry : ISessionBlockRegistry
 {
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Discovery reads the types of the loaded assemblies, which a trimmed publish cannot name statically; the host that publishes trimmed preserves and registers the block and component types, which the trimmed-host preservation probe checks.")]
     public IReadOnlyList<ISessionBlockDescriptor> GetDescriptors() =>
     [
         new SessionBlockDescriptor("session", typeof(SessionCard), "Session Card", "message-square"),
@@ -104,6 +105,7 @@ public sealed class AssemblyScanningSessionBlockRegistry : ISessionBlockRegistry
 {
     public int Priority => -100; // Lowest priority
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Discovery reads the types of the loaded assemblies, which a trimmed publish cannot name statically; the host that publishes trimmed preserves and registers the block and component types, which the trimmed-host preservation probe checks.")]
     public IReadOnlyList<ISessionBlockDescriptor> GetDescriptors()
     {
         var descriptors = new List<ISessionBlockDescriptor>();
@@ -176,5 +178,6 @@ public sealed class SessionBlockDiscovery : ISessionBlockDiscovery
             string.Equals(d.NodeTypeKey, nodeTypeKey, StringComparison.OrdinalIgnoreCase));
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Discovery reads the types of the loaded assemblies, which a trimmed publish cannot name statically; the host that publishes trimmed preserves and registers the block and component types, which the trimmed-host preservation probe checks.")]
     public IReadOnlyList<ISessionBlockDescriptor> GetDescriptors() => _descriptors;
 }

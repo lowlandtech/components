@@ -53,6 +53,7 @@ public sealed class ComponentDescriptorRegistry : IComponentDescriptorRegistry
         }
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The component or model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private static List<ComponentDescriptor> Discover()
     {
         var descriptors = new List<ComponentDescriptor>();
@@ -88,6 +89,7 @@ public sealed class ComponentDescriptorRegistry : IComponentDescriptorRegistry
             .ToList();
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "The component or model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private static ComponentDescriptor BuildDescriptor(Type type, PropertiesAttribute classAttr)
     {
         var props = new List<PropertyDescriptor>();
@@ -156,6 +158,8 @@ public sealed class ComponentDescriptorRegistry : IComponentDescriptorRegistry
         return [];
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "The component or model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The component or model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private static IReadOnlyList<string> ResolveProviderOptions(Type providerType)
     {
         var all = providerType.GetProperty("All", BindingFlags.Public | BindingFlags.Static)?.GetValue(null) ??
@@ -186,6 +190,7 @@ public sealed class ComponentDescriptorRegistry : IComponentDescriptorRegistry
         return [emptyOption, .. options];
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2067", Justification = "The component or model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private static object? TryCreateInstance(Type type)
     {
         // Components with a parameterless constructor seed nicely. Some

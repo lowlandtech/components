@@ -1,3 +1,4 @@
+global using System.Diagnostics.CodeAnalysis;
 global using System.Collections;
 global using System.Collections.Concurrent;
 global using System.Globalization;
@@ -15,6 +16,7 @@ global using System.Text.Json.Nodes;
 global using System.Text.Json.Serialization;
 global using System.Text.RegularExpressions;
 global using LowlandTech.Components;
+global using LowlandTech.Components.Json;
 global using LowlandTech.Components.Blocks;
 global using LowlandTech.Components.Blocks.Session;
 global using LowlandTech.Core;

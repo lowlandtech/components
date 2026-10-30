@@ -366,15 +366,15 @@ public static class WorkAppReducer
     public static string SerializeEventLogState(WorkAppState state)
     {
         var trimmed = state with { EventLogEntries = [] };
-        return JsonSerializer.Serialize(trimmed, EventLogJsonOptions);
+        return JsonSerializer.Serialize(trimmed, BlocksIndentedJsonContext.Default.WorkAppState);
     }
 
     private static IReadOnlyList<WorkStateDeltaItem> BuildStateDelta(WorkAppState before, WorkAppState after)
     {
         var beforeTrimmed = before with { EventLogEntries = [] };
         var afterTrimmed = after with { EventLogEntries = [] };
-        var beforeNode = JsonSerializer.SerializeToNode(beforeTrimmed, EventLogJsonOptions);
-        var afterNode = JsonSerializer.SerializeToNode(afterTrimmed, EventLogJsonOptions);
+        var beforeNode = JsonSerializer.SerializeToNode(beforeTrimmed, BlocksIndentedJsonContext.Default.WorkAppState);
+        var afterNode = JsonSerializer.SerializeToNode(afterTrimmed, BlocksIndentedJsonContext.Default.WorkAppState);
         var deltas = new List<WorkStateDeltaItem>();
         AppendDelta(string.Empty, beforeNode, afterNode, deltas);
         return deltas;

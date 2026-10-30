@@ -2,6 +2,7 @@ namespace LowlandTech.Components;
 
 public sealed class HttpDynamicNodeRuntime(HttpClient client) : IDynamicNodeRuntime
 {
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The entity type is supplied by the block descriptor and a DynamicallyAccessedMembers requirement cannot flow from a runtime Type; the host that publishes trimmed preserves the entity model, which the trimmed-host preservation probe checks.")]
     public async Task<DynamicEntity?> LoadAsync(
         SessionNodeInput node,
         IDynamicBlockDescriptor descriptor,
@@ -30,6 +31,8 @@ public sealed class HttpDynamicNodeRuntime(HttpClient client) : IDynamicNodeRunt
         };
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The entity type is supplied by the block descriptor and a DynamicallyAccessedMembers requirement cannot flow from a runtime Type; the host that publishes trimmed preserves the entity model, which the trimmed-host preservation probe checks.")]
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The entity type is supplied by the block descriptor and a DynamicallyAccessedMembers requirement cannot flow from a runtime Type; the host that publishes trimmed preserves the entity model, which the trimmed-host preservation probe checks.")]
     private async Task<DynamicEntity?> CreateAsync(
         DynamicMutationEffect mutation,
         IDynamicBlockDescriptor descriptor,
@@ -56,6 +59,8 @@ public sealed class HttpDynamicNodeRuntime(HttpClient client) : IDynamicNodeRunt
         return ToDynamicEntity(node, descriptor, created);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The entity type is supplied by the block descriptor and a DynamicallyAccessedMembers requirement cannot flow from a runtime Type; the host that publishes trimmed preserves the entity model, which the trimmed-host preservation probe checks.")]
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The entity type is supplied by the block descriptor and a DynamicallyAccessedMembers requirement cannot flow from a runtime Type; the host that publishes trimmed preserves the entity model, which the trimmed-host preservation probe checks.")]
     private async Task<DynamicEntity?> UpdateAsync(
         DynamicMutationEffect mutation,
         IDynamicBlockDescriptor descriptor,
@@ -118,6 +123,9 @@ public sealed class HttpDynamicNodeRuntime(HttpClient client) : IDynamicNodeRunt
                 field => descriptor.GetFieldValue(instance, field.Key),
                 StringComparer.Ordinal));
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The entity or component is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The entity or component is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The entity or component is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private static object ToInstance(Type modelType, IReadOnlyDictionary<string, object?> values)
     {
         var json = JsonSerializer.Serialize(values);
@@ -125,6 +133,7 @@ public sealed class HttpDynamicNodeRuntime(HttpClient client) : IDynamicNodeRunt
             ?? throw new InvalidOperationException($"Could not materialize dynamic entity '{modelType.Name}'.");
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The entity or component is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private static void SetId(object instance, string entityId)
     {
         var property = instance.GetType().GetProperty("Id", BindingFlags.Public | BindingFlags.Instance);

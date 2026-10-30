@@ -20,6 +20,7 @@ public partial class SessionContextBlockOverlayContent : TinyComponentBase
 
     private Task RestoreAsync() => RestoreRequested.InvokeAsync();
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The entity or component is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private Dictionary<string, object?> GetParameters()
     {
         var parameters = Parameters?.ToDictionary(pair => pair.Key, pair => pair.Value) ?? [];

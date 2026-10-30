@@ -160,6 +160,7 @@ public partial class SessionContextExplorer : TinyComponentBase
             : blocks.Where(block => block.Context.Id != contextNodeId).ToList();
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Discovery reads the types of the loaded assemblies, which a trimmed publish cannot name statically; the host that publishes trimmed preserves and registers the block and component types, which the trimmed-host preservation probe checks.")]
     private static Type? ResolveComponentType(string? componentBlock)
     {
         if (string.IsNullOrWhiteSpace(componentBlock))

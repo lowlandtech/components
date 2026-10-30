@@ -32,6 +32,7 @@
         Owner?.UnregisterColumn(this);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The component or model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     internal object? GetValue(TItem item)
     {
         if (item is null || string.IsNullOrWhiteSpace(Property))

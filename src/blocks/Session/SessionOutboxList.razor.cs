@@ -21,6 +21,7 @@ public partial class SessionOutboxList : TinyComponentBase, IDisposable
         return string.IsNullOrWhiteSpace(Class) ? baseClass : $"{baseClass} {Class}";
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The entity or component is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private static string SerializePayload(object payload)
     {
         try

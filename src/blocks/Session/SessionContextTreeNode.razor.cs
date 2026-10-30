@@ -121,7 +121,7 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
             if (string.IsNullOrWhiteSpace(json))
                 return;
 
-            var expanded = JsonSerializer.Deserialize<IReadOnlyList<string>>(json);
+            var expanded = JsonSerializer.Deserialize(json, BlocksJsonContext.Default.ListString);
             if (expanded?.Contains(Item.Node.Id) != true)
                 return;
 
@@ -212,7 +212,7 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
         try
         {
             var json = await JS.InvokeAsync<string?>("localStorage.getItem", ExpandedNodesPersistKey);
-            var expanded = new HashSet<string>(JsonSerializer.Deserialize<IReadOnlyList<string>>(json ?? "[]") ?? [], StringComparer.Ordinal);
+            var expanded = new HashSet<string>(JsonSerializer.Deserialize(json ?? "[]", BlocksJsonContext.Default.ListString) ?? [], StringComparer.Ordinal);
 
             if (_isExpanded)
                 expanded.Add(Item.Node.Id);
@@ -222,7 +222,7 @@ public partial class SessionContextTreeNode : TinyComponentBase, IDisposable
             await JS.InvokeVoidAsync(
                 "localStorage.setItem",
                 ExpandedNodesPersistKey,
-                JsonSerializer.Serialize(expanded));
+                JsonSerializer.Serialize(expanded.ToArray(), BlocksJsonContext.Default.StringArray));
         }
         catch (InvalidOperationException)
         {

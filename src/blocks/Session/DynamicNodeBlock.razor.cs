@@ -241,6 +241,7 @@ public partial class DynamicNodeBlock : TinyComponentBase
         _isEditing = false;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The entity or component is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private bool IsFlowEnabled =>
         DisplayModel?.GetType().GetProperty("IsEnabled")?.GetValue(DisplayModel) is true;
 
@@ -276,6 +277,7 @@ public partial class DynamicNodeBlock : TinyComponentBase
         }
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The entity or component is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private string GetDisplayValue(string propertyName)
     {
         var value = DisplayModel?.GetType().GetProperty(propertyName)?.GetValue(DisplayModel);
@@ -294,6 +296,7 @@ public partial class DynamicNodeBlock : TinyComponentBase
         _isEditing = false;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The entity or component is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private async Task SaveAsync()
     {
         if (Context is null || Dispatcher is null || _draftModel is null)
@@ -381,6 +384,7 @@ public partial class DynamicNodeBlock : TinyComponentBase
         return node is null ? Task.CompletedTask : Dispatcher.ProjectAsync(node);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The entity or component is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private string GetItemKey(object item)
     {
         var value = item.GetType().GetProperty("Id")?.GetValue(item)
@@ -392,6 +396,7 @@ public partial class DynamicNodeBlock : TinyComponentBase
         CollectionFields.Any(field =>
             GetItemDisplayValue(item, field.Key).Contains(_filterText, StringComparison.OrdinalIgnoreCase));
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The entity or component is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private static string GetItemDisplayValue(object item, string propertyName)
     {
         var value = item.GetType().GetProperty(propertyName)?.GetValue(item);

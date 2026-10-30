@@ -1,3 +1,4 @@
+global using System.Diagnostics.CodeAnalysis;
 // Global using directives
 
 global using System.Collections.Concurrent;

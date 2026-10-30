@@ -66,7 +66,7 @@ public sealed class AgentSelectionService : IAgentSelectionService
             if (string.IsNullOrWhiteSpace(json))
                 return;
 
-            var stored = JsonSerializer.Deserialize<SessionCompletionSelection>(json);
+            var stored = JsonSerializer.Deserialize(json, BlocksJsonContext.Default.SessionCompletionSelection);
             if (stored is null)
                 return;
 
@@ -141,7 +141,7 @@ public sealed class AgentSelectionService : IAgentSelectionService
             await _js.InvokeVoidAsync(
                 "localStorage.setItem",
                 _persistKey,
-                JsonSerializer.Serialize(_current));
+                JsonSerializer.Serialize(_current, BlocksJsonContext.Default.SessionCompletionSelection));
         }
         catch (InvalidOperationException)
         {

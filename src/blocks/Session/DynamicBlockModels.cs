@@ -342,6 +342,7 @@ public sealed class DynamicBlockStateMachine(IEnumerable<IDynamicReducerArm> red
 
 public static class ReflectionDynamicBlockDescriptor
 {
+    [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "The entity or component is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     public static IDynamicBlockDescriptor Create(Type modelType)
     {
         var properties = modelType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
@@ -404,6 +405,7 @@ public static class ReflectionDynamicBlockDescriptor
             || underlying == typeof(decimal);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "The entity or component is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private static bool TryGetCollectionItemType(Type type, out Type? itemType)
     {
         itemType = null;

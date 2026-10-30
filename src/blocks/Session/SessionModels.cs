@@ -942,7 +942,7 @@ public static class SessionBlockReducer
     }
 
     public static string SerializeEventLogState(SessionBlockState state) =>
-        JsonSerializer.Serialize(CreateSnapshot(state), EventLogJsonOptions);
+        JsonSerializer.Serialize(CreateSnapshot(state), BlocksIndentedJsonContext.Default.SessionBlockStateSnapshot);
 
     private static int NormalizePageIndex(int pageIndex) => Math.Max(0, pageIndex);
 
@@ -1110,8 +1110,8 @@ public static class SessionBlockReducer
 
     private static IReadOnlyList<SessionStateDeltaItem> BuildStateDelta(SessionBlockState before, SessionBlockState after)
     {
-        var beforeNode = JsonSerializer.SerializeToNode(CreateSnapshot(before));
-        var afterNode = JsonSerializer.SerializeToNode(CreateSnapshot(after));
+        var beforeNode = JsonSerializer.SerializeToNode(CreateSnapshot(before), BlocksJsonContext.Default.SessionBlockStateSnapshot);
+        var afterNode = JsonSerializer.SerializeToNode(CreateSnapshot(after), BlocksJsonContext.Default.SessionBlockStateSnapshot);
         var deltas = new List<SessionStateDeltaItem>();
         AppendDelta(string.Empty, beforeNode, afterNode, deltas);
         return deltas;

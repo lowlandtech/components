@@ -157,6 +157,7 @@ public partial class DataForm : TinyComponentBase
         // Focus handling is per-field in FormField component
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the model's public properties, which the trimmed-host preservation probe checks.")]
     private void DiscoverFields()
     {
         var modelType = Model.GetType();
@@ -250,6 +251,8 @@ public partial class DataForm : TinyComponentBase
         return $"{baseClass}{borderClass}";
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the model's public properties, which the trimmed-host preservation probe checks.")]
+    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "The model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the model's public properties, which the trimmed-host preservation probe checks.")]
     internal async Task SetValueAsync(string propertyName, object? value)
     {
         try
@@ -351,12 +354,14 @@ public partial class DataForm : TinyComponentBase
         return ConvertValue(value, targetType);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the model's public properties, which the trimmed-host preservation probe checks.")]
     internal object? GetValue(string propertyName)
     {
         var prop = Model.GetType().GetProperty(propertyName);
         return prop?.GetValue(Model);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the model's public properties, which the trimmed-host preservation probe checks.")]
     internal string GetDisplayValue(string propertyName)
     {
         var prop = Model.GetType().GetProperty(propertyName);
@@ -378,6 +383,7 @@ public partial class DataForm : TinyComponentBase
         return _editContext.GetValidationMessages(new FieldIdentifier(Model, propertyName)).ToList();
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the model's public properties, which the trimmed-host preservation probe checks.")]
     private void SnapshotValues()
     {
         _originalValues.Clear();
@@ -389,6 +395,7 @@ public partial class DataForm : TinyComponentBase
         }
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the model's public properties, which the trimmed-host preservation probe checks.")]
     private void ResetModel()
     {
         foreach (var field in _fields)
@@ -405,6 +412,8 @@ public partial class DataForm : TinyComponentBase
         _editContext = new EditContext(Model);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The validation context names its display explicitly, so the reflection-based DisplayNameAttribute lookup is not taken, and the model's properties are preserved by the host as the trimmed-host preservation probe checks.")]
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The validation context names its display explicitly, so the reflection-based DisplayNameAttribute lookup is not taken, and the model's properties are preserved by the host as the trimmed-host preservation probe checks.")]
     private async Task HandleSubmit()
     {
         if (UseStore && Store != null)
@@ -424,7 +433,7 @@ public partial class DataForm : TinyComponentBase
         if (ValidateOnSubmit)
         {
             _messageStore?.Clear();
-            var validationContext = new ValidationContext(Model);
+            var validationContext = new ValidationContext(Model) { DisplayName = Model.GetType().Name };
             var results = new List<ValidationResult>();
             Validator.TryValidateObject(Model, validationContext, results, validateAllProperties: true);
 

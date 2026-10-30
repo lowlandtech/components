@@ -402,6 +402,7 @@ public partial class DynamicBlock : TinyComponentBase, IDynamicBlockDispatcher, 
             field => descriptor.GetFieldValue(model, field.Key),
             StringComparer.Ordinal);
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The entity or component is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private static IReadOnlyDictionary<string, object?> CreatePropertyBag(object model)
         => model.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Where(property => property.CanRead)
@@ -428,12 +429,14 @@ public partial class DynamicBlock : TinyComponentBase, IDynamicBlockDispatcher, 
         }
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The entity or component is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private static string CreateId(object model)
     {
         var id = model.GetType().GetProperty("Id")?.GetValue(model);
         return Convert.ToString(id, CultureInfo.InvariantCulture) ?? CreateStableId(model);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The entity or component is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private static string CreateLabel(object model)
     {
         var type = model.GetType();
@@ -443,6 +446,7 @@ public partial class DynamicBlock : TinyComponentBase, IDynamicBlockDispatcher, 
         return Convert.ToString(label, CultureInfo.InvariantCulture) ?? type.Name;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The entity or component is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private static string? CreateNodeTypeKey(object model)
     {
         var type = model.GetType();

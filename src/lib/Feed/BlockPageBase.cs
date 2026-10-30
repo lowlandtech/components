@@ -35,6 +35,7 @@ public abstract class BlockPageBase : BlockBase, IDisposable
     private List<Action>?       _onDispose;
     private bool _hooksDiscovered;
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The component or model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private void DiscoverHooks()
     {
         if (_hooksDiscovered) return;

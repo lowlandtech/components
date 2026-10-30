@@ -717,7 +717,7 @@ public sealed class SessionStateService
                 return;
             }
 
-            var snapshots = JsonSerializer.Deserialize<List<SessionCommandSnapshot>>(json);
+            var snapshots = JsonSerializer.Deserialize(json, BlocksJsonContext.Default.ListSessionCommandSnapshot);
             if (snapshots is null || snapshots.Count == 0)
             {
                 _logger?.LogInformation("Session commands empty for {SessionId}", sessionId);
@@ -798,7 +798,7 @@ public sealed class SessionStateService
                 ? cmds
                 : [];
             var snapshots = commands.Select(SessionBlockReducer.CreateCommandSnapshot).ToList();
-            var json = JsonSerializer.Serialize(snapshots);
+            var json = JsonSerializer.Serialize(snapshots, BlocksJsonContext.Default.ListSessionCommandSnapshot);
             await _graphService.SetPropertyAsync(nodeId, "sessionCommands", json, ct);
             _logger?.LogInformation("Persisted {Count} commands for session {SessionId}", snapshots.Count, persist.SessionId);
         }

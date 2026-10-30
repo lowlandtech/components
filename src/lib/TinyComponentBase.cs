@@ -347,6 +347,7 @@ public abstract class TinyComponentBase : ComponentBase
         return Task.CompletedTask;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "The component or model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private static bool HasDesignableParameters(Type componentType) =>
         componentType
             .GetProperties(BindingFlags.Public | BindingFlags.Instance)
@@ -354,6 +355,7 @@ public abstract class TinyComponentBase : ComponentBase
                 property.GetCustomAttribute<ParameterAttribute>(inherit: false) is not null &&
                 property.GetCustomAttribute<PropertyGridAttribute>(inherit: false) is not null);
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The component or model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private IReadOnlyDictionary<string, string> CaptureDesignValues()
     {
         var values = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -372,6 +374,7 @@ public abstract class TinyComponentBase : ComponentBase
         return values;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The component or model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private void ApplyDesignPropertyValues()
     {
         var properties = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);

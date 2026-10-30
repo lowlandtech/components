@@ -100,6 +100,7 @@ public partial class SessionContextBlock : TinyComponentBase
         return parameters;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "The entity or component is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     private static void TryAddComponentParameter(
         Dictionary<string, object?> parameters,
         Type? componentType,

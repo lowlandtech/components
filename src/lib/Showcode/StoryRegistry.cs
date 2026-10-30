@@ -29,6 +29,7 @@ public static class StoryRegistry
         FileInto(Root, path, metadata);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The component or model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
     public static void RegisterAllStories(Assembly assembly)
     {
         foreach (var type in assembly.GetTypes())

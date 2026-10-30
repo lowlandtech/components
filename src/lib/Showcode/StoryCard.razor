@@ -456,7 +456,7 @@
         {
             try
             {
-                _selectedDesignComponentType = Type.GetType(typeName);
+                _selectedDesignComponentType = ResolveDesignComponentType(typeName);
             }
             catch { /* ignore type resolution errors */ }
         }
@@ -523,7 +523,7 @@
             {
                 try
                 {
-                    _selectedDesignComponentType = Type.GetType(state.TypeName);
+                    _selectedDesignComponentType = ResolveDesignComponentType(state.TypeName);
                 }
                 catch { /* ignore */ }
             }
@@ -630,6 +630,21 @@
         return result;
     }
 
+
+    /// <summary>
+    /// Resolves a persisted design-component name to the component the
+    /// descriptor registry discovered. A trimmed publish cannot resolve an
+    /// arbitrary name with <see cref="Type.GetType(string)"/>, so the name is
+    /// matched against the components the registry already holds; a name that no
+    /// discovered component carries stays unresolved, which is the same outcome
+    /// as a failed lookup.
+    /// </summary>
+    private Type? ResolveDesignComponentType(string? assemblyQualifiedName)
+        => string.IsNullOrEmpty(assemblyQualifiedName)
+            ? null
+            : DescriptorRegistry.All
+                .Select(descriptor => descriptor.ComponentType)
+                .FirstOrDefault(type => string.Equals(type.AssemblyQualifiedName, assemblyQualifiedName, StringComparison.Ordinal));
 
     private string GetDesignValue(PropertyDescriptor property) =>
         _designValues.TryGetValue(property.Name, out var value)
