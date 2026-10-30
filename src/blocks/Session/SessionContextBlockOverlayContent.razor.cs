@@ -1,5 +1,8 @@
 namespace LowlandTech.Components;
 
+// The Razor render tree feeds DynamicComponent a component type that the descriptor// registry discovered. The renderer assigns that parameter through reflection, so the// trimmer cannot verify the DynamicallyAccessedMembers requirement of the parameter;// the host that publishes trimmed preserves the discovered component types, and the// trimmed-host preservation probe executes this render path.
+[UnconditionalSuppressMessage("Trimming", "IL2110", Justification = "The generated render tree assigns a component type that the descriptor registry discovered to DynamicComponent.Type, whose setter and backing field carry a DynamicallyAccessedMembers requirement that the reflection-based parameter assignment of the renderer cannot satisfy statically; the host that publishes trimmed preserves the discovered component types and their members, which the trimmed-host preservation probe checks.")]
+[UnconditionalSuppressMessage("Trimming", "IL2111", Justification = "The generated render tree assigns a component type that the descriptor registry discovered to DynamicComponent.Type, whose setter and backing field carry a DynamicallyAccessedMembers requirement that the reflection-based parameter assignment of the renderer cannot satisfy statically; the host that publishes trimmed preserves the discovered component types and their members, which the trimmed-host preservation probe checks.")]
 public partial class SessionContextBlockOverlayContent : TinyComponentBase
 {
     [Inject] private ISessionBlockDiscovery BlockDiscovery { get; set; } = default!;
