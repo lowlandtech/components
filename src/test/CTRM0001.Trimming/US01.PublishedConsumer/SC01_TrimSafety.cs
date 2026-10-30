@@ -54,11 +54,14 @@ public sealed class SC01_TrimSafety(global::LowlandTech.Components.Tests.Refinem
             Text(probe, "choiceOptions") == "one,two" &&
             Text(probe, "properties") == "Title,Choice";
 
-        // UAC04: the DataForm discovers and renders the fields of its model.
+        // UAC04: the DataForm discovers and renders the fields of its model in the
+        // trimmed consumer, and it still sets, reads and validates a value of the
+        // model in the untrimmed component host.
         UseCase.DataFormBehaviorRetained =
             Flag(probe, "dataFormRendered") &&
             Flag(probe, "dataFormHasNameField") &&
-            Flag(probe, "dataFormHasAgeField");
+            Flag(probe, "dataFormHasAgeField") &&
+            DataFormSetsReadsAndValidates();
 
         // UAC05: the packed batch declares the exact Core pin and the published
         // contracts generation, and the trimmed consumer that restored it ran. The
@@ -97,6 +100,31 @@ public sealed class SC01_TrimSafety(global::LowlandTech.Components.Tests.Refinem
 
     private static bool Flag(IReadOnlyDictionary<string, JsonElement> probe, string key) =>
         probe.TryGetValue(key, out var value) && value.ValueKind == JsonValueKind.True;
+
+    /// <summary>
+    /// Binds a model to the DataForm, changes a rendered field and submits the form,
+    /// so the set, the read and the reported validation errors are observed through
+    /// the component's own surface.
+    /// </summary>
+    private static bool DataFormSetsReadsAndValidates()
+    {
+        using var host = new BunitContext();
+        host.JSInterop.Mode = JSRuntimeMode.Loose;
+        host.Services.AddLocalization();
+
+        var model = new TrimProbeFormModel { Name = string.Empty, Rating = 99 };
+        var cut = host.Render<DataForm>(parameters => parameters.Add(form => form.Model, model));
+
+        var input = cut.Find("[data-field-input='Name']");
+        input.Input("Grace");
+        input.Change("Grace");
+
+        var editContext = cut.FindComponent<CascadingValue<
+            Microsoft.AspNetCore.Components.Forms.EditContext>>().Instance.Value!;
+        cut.Find("form").Submit();
+
+        return model.Name == "Grace" && editContext.GetValidationMessages().Any();
+    }
 
     private static int? Number(IReadOnlyDictionary<string, JsonElement> probe, string key) =>
         probe.TryGetValue(key, out var value) && value.ValueKind == JsonValueKind.Number ? value.GetInt32() : null;
