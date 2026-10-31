@@ -6,7 +6,10 @@ param(
     [string]$ManifestPath,
     [string[]]$Projects,
     [switch]$CompleteBatch,
-    [string]$ContractsVersion
+    [string]$ContractsVersion,
+    # Captures a project that the caller left as a separate positional argument,
+    # so the tool can refuse with one diagnostic instead of a binding error.
+    [Parameter(ValueFromRemainingArguments = $true)][string[]]$Unbound
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -30,9 +33,34 @@ if ($Version -notmatch '^[1-9][0-9]{3}\.(?:[1-9]|1[0-2])\.(?:0|[1-9][0-9]*)(?:-(
 # A caller that omits the selection gets the manifest. A caller that supplies an
 # empty selection asked for nothing, which is refused instead of silently packing
 # the whole manifest.
+$supportedInvocation = 'pwsh -NoProfile -Command "& eng/build-local.ps1 -Projects @(''src/lib/LowlandTech.Components.csproj'',''src/blocks/LowlandTech.Components.Blocks.csproj'')"'
+if ($Unbound -and $Unbound.Count -gt 0) {
+    throw "The project selection left '$($Unbound -join ' ')', which is not a parameter of this tool. Pass the selection as a PowerShell array through -Command, not through -File, for example: $supportedInvocation"
+}
+# An advanced script binds named parameters only, so a stray argument of a -File
+# invocation is dropped instead of reported: the script would pack fewer projects
+# than the caller named. The raw command line still carries it, so the counts are
+# compared for a -File invocation and the case is refused by name.
+$rawArguments = [Environment]::GetCommandLineArgs()
+if (($rawArguments -contains '-File') -and ($rawArguments -contains '-Projects')) {
+    $rawSelection = @()
+    $start = [Array]::IndexOf($rawArguments, '-Projects') + 1
+    for ($i = $start; $i -lt $rawArguments.Count; $i++) {
+        if ($rawArguments[$i] -match '^-') { break }
+        $rawSelection += $rawArguments[$i]
+    }
+    if ($rawSelection.Count -gt @($Projects).Count) {
+        $left = @($rawSelection | Select-Object -Skip @($Projects).Count)
+        throw "The project selection left '$($left -join ' ')', which is not a parameter of this tool and was dropped by the -File binding. Pass the selection as a PowerShell array through -Command, not through -File, for example: $supportedInvocation"
+    }
+}
 if (-not $PSBoundParameters.ContainsKey('Projects')) { $Projects = @($manifest.projects) }
 $projects = @($Projects)
 if ($projects.Count -eq 0) { throw 'Select at least one packable project; an empty -Projects selection packs nothing.' }
+$joined = @($projects | Where-Object { $_ -match '[,;]' })
+if ($joined.Count -gt 0) {
+    throw "The project selection '$($joined -join ', ')' is a joined string, not a list. Pass the selection as a PowerShell array through -Command, for example: $supportedInvocation"
+}
 $solution = Join-Path $root $manifest.solution
 foreach ($path in @($solution) + @($projects | ForEach-Object { Join-Path $root $_ })) {
     if (!(Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing build input: $path" }
@@ -76,6 +104,24 @@ function Invoke-DotNet([string[]]$Arguments) {
     & dotnet @Arguments
     if ($LASTEXITCODE -ne 0) { throw "dotnet failed ($LASTEXITCODE): $Arguments" }
 }
+# Two batches of this repository build the same projects, so a build and a pack
+# that overlap collide on the intermediate output of the shared projects. The lock
+# serializes the build and the pack across processes and lanes; a batch that finds
+# the lock held waits for it instead of reporting an IO error of the build.
+$lockPath = Join-Path $root 'artifacts/packing.lock'
+New-Item -ItemType Directory -Path (Split-Path $lockPath -Parent) -Force | Out-Null
+$lock = $null
+for ($attempt = 0; $attempt -lt 900; $attempt++) {
+    try {
+        $lock = [System.IO.File]::Open($lockPath, [System.IO.FileMode]::OpenOrCreate, [System.IO.FileAccess]::ReadWrite, [System.IO.FileShare]::None)
+        break
+    }
+    catch [System.IO.IOException] {
+        Start-Sleep -Milliseconds 500
+    }
+}
+if ($null -eq $lock) { throw "The packing lock '$lockPath' stayed held for another batch; retry when the other batch finished." }
+
 Push-Location $root
 try {
     # The batch publishes the manifest's projects. The solution also carries the
@@ -115,4 +161,5 @@ try {
     throw
 } finally {
     Pop-Location
+    if ($null -ne $lock) { $lock.Dispose() }
 }

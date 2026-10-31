@@ -7,6 +7,7 @@
 | M5 | Reachable session surface | Behavior/Consumer |
 | M6 | Trim-safe canonical source | Package/Consumer |
 | M7 | Compatible producer batch | Package/Consumer |
+| M8 | Packing tool diagnostics | Tooling/Refusal |
 
 | Work | Scope | Title | Priority | Lane | Depends on | Status | Refined | Issue |
 |---|---|---|---|---|---|---|---|---|
@@ -23,3 +24,4 @@
 | M6-001 | CTRM0001-US01-SC01 | [Make the canonical components source trim-safe](done/CTRM0001.US01.SC01.trim-safe-canonical-components-source.md) | P1 | components | None | done | true | [#26](https://github.com/lowlandtech/components/issues/26) |
 | M7-001 | CPKG0003-US01-SC01 | [Declare the batch dependency range exactly](done/CPKG0003.US01.SC01.exact-batch-declaration.md) | P1 | components | None | done | true | [#27](https://github.com/lowlandtech/components/issues/27) |
 | M7-002 | CPKG0005-US01-SC01 | [Publish the compatible immutable producer batch](done/CPKG0005.US01.SC01.publish-compatible-producer-batch.md) | P1 | components | M7-001 | done | true | [#28](https://github.com/lowlandtech/components/issues/28) |
+| M8-001 | CPKG0004-US01-SC01 | [Diagnose the project selection of the packing tool](done/CPKG0004.US01.SC01.diagnose-project-selection.md) | P2 | components | None | done | true | [#29](https://github.com/lowlandtech/components/issues/29) |
