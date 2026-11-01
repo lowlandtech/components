@@ -42,3 +42,27 @@ The live demo is a static GitHub Pages deployment. Changes to source branches do
 ## Workitems
 
 The sole planning board is [docs/workitems/README.md](docs/workitems/README.md). Source workitems hold specifications, dependencies, issue links and delivery evidence. Shared operating instructions and the Components trigger live under D:/lowlandtech/.skills and D:/lowlandtech/.chatbox/components/README.md. Native build-local and Publish-Pages tooling remain repository-owned.
+
+## Trimming
+
+The five packages declare themselves trimmable, so a consumer that publishes trimmed
+trims them instead of copying them byte for byte. Measured against
+`2026.10.3-20261101114716139983370`: `LowlandTech.Components` falls from 1,273,344 to
+91,648 bytes and `LowlandTech.Components.Blocks` from 1,783,296 to 31,232 bytes.
+
+The packages publish three declarations a consumer has to keep in view:
+
+| Declaration | Member | What the consumer keeps |
+| --- | --- | --- |
+| `IsTrimmable` | the assembly | the linker may trim the assembly |
+| `DynamicallyAccessedMembers(PublicParameterlessConstructor)` | `ComponentDescriptor.ComponentType` | the public parameterless constructor of a component type handed back through a descriptor |
+| `DynamicallyAccessedMembers(PublicProperties \| PublicFields)` | `PropertyGridAttribute.OptionsProvider` | the public properties and fields of an options provider |
+
+**Do not set `TrimMode=partial` for a consumer of these packages.** With partial trimming
+the SDK drops the trimmed package assembly from `deps.json`, and the host fails with
+`Could not load file or assembly 'LowlandTech.Components.Blocks, Version=2026.10.3.0, ...'`
+even though the file is in the publish output. The `.NET 10` default (`TrimMode` unset,
+which is `full`) loads and runs; `partial` is the default only below `.NET 8`.
+
+The packages cannot preserve a consumer's own types. A consumer that reflects over its
+own models or components keeps those members itself.
