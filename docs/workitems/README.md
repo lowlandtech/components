@@ -9,6 +9,7 @@
 | M7 | Compatible producer batch | Package/Consumer |
 | M8 | Packing tool diagnostics | Tooling/Refusal |
 | M9 | Residual trim coverage | Package/Consumer |
+| M10 | Trimmable shared assemblies | Package/Consumer |
 
 | Work | Scope | Title | Priority | Lane | Depends on | Status | Refined | Issue |
 |---|---|---|---|---|---|---|---|---|
@@ -27,3 +28,4 @@
 | M7-002 | CPKG0005-US01-SC01 | [Publish the compatible immutable producer batch](done/CPKG0005.US01.SC01.publish-compatible-producer-batch.md) | P1 | components | M7-001 | done | true | [#28](https://github.com/lowlandtech/components/issues/28) |
 | M8-001 | CPKG0004-US01-SC01 | [Diagnose the project selection of the packing tool](done/CPKG0004.US01.SC01.diagnose-project-selection.md) | P2 | components | None | done | true | [#29](https://github.com/lowlandtech/components/issues/29) |
 | M9-001 | CPKG0006-US01-SC01 | [Prove the residual trim suppressions in a host](todo/CPKG0006.US01.SC01.prove-residual-trim-suppressions.md) | P2 | components | None | todo | true | [#30](https://github.com/lowlandtech/components/issues/30) |
+| M10-001 | CPKG0007-US01-SC01 | [Let a consumer trim the shared assemblies](done/CPKG0007.US01.SC01.trim-the-shared-assemblies.md) | P1 | components | None | done | true | [#31](https://github.com/lowlandtech/components/issues/31) |

@@ -7,6 +7,8 @@
     <RootNamespace>LowlandTech.Components.Features.Session</RootNamespace>
     <AssemblyName>LowlandTech.Components.Features.Session</AssemblyName>
     <IsPackable>true</IsPackable>
+    <!-- A consumer that publishes trimmed must be able to trim this assembly. -->
+    <IsTrimmable>true</IsTrimmable>
     <PackageId>LowlandTech.Components.Features.Session</PackageId>
     <Description>Optional session plugin feature package for LowlandTech Components. The base Components packages stay ordinary dependencies.</Description>
     <PackageTags>lowlandtech;blazor;components;plugin;feature;session</PackageTags>

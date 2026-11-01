@@ -6,7 +6,9 @@ namespace LowlandTech.Components;
 /// reflection happens at startup, not on every Properties-panel render.
 /// </summary>
 public sealed record ComponentDescriptor(
-    Type ComponentType,
+    // A consumer renders this type through DynamicComponent, so the contract says the
+    // type keeps the public constructor the renderer needs.
+    [property: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type ComponentType,
     string Element,
     string Group,
     string? Icon,

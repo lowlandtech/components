@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>true</IsPackable>
+    <!-- A consumer that publishes trimmed must be able to trim this assembly. -->
+    <IsTrimmable>true</IsTrimmable>
     <PackageId>LowlandTech.Components.Blocks</PackageId>
     <Description>Reusable UI block library for the Foundry platform.</Description>
     <EmbeddedResourceUseDependentUponConvention>false</EmbeddedResourceUseDependentUponConvention>

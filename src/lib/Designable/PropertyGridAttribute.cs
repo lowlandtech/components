@@ -49,6 +49,9 @@ public sealed class PropertyGridAttribute : Attribute
     /// the descriptor registry reads common catalogs such as
     /// <c>Icons.All</c> and projects their <c>Name</c> values into the
     /// select options.</summary>
+    // The registry reads the static All member and the Name of every entry, so the
+    // contract says a provider keeps its public properties and fields.
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)]
     public Type? OptionsProvider { get; init; }
 
     /// <summary>Optional first option for a select editor, typically used

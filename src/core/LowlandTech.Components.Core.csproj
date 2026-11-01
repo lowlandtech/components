@@ -7,6 +7,8 @@
     <RootNamespace>LowlandTech.Components.Core</RootNamespace>
     <AssemblyName>LowlandTech.Components.Core</AssemblyName>
     <IsPackable>true</IsPackable>
+    <!-- A consumer that publishes trimmed must be able to trim this assembly. -->
+    <IsTrimmable>true</IsTrimmable>
     <PackageId>LowlandTech.Components.Core</PackageId>
     <Description>Framework-neutral contracts and utilities shared by LowlandTech component packages.</Description>
   </PropertyGroup>
