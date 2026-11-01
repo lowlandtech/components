@@ -54,6 +54,8 @@ public sealed class ComponentDescriptorRegistry : IComponentDescriptorRegistry
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The component or model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
+    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "The descriptors are built from the types of the loaded assemblies, which carry no annotation; the host that publishes trimmed preserves the designable components and their members, which the trimmed-host preservation probe checks.")]
+    [UnconditionalSuppressMessage("Trimming", "IL2062", Justification = "The descriptors are built from the types of the loaded assemblies, which carry no annotation; the host that publishes trimmed preserves the designable components and their members, which the trimmed-host preservation probe checks.")]
     private static List<ComponentDescriptor> Discover()
     {
         var descriptors = new List<ComponentDescriptor>();
@@ -90,7 +92,9 @@ public sealed class ComponentDescriptorRegistry : IComponentDescriptorRegistry
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "The component or model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
-    private static ComponentDescriptor BuildDescriptor(Type type, PropertiesAttribute classAttr)
+    private static ComponentDescriptor BuildDescriptor(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | DynamicallyAccessedMemberTypes.PublicProperties)] Type type,
+        PropertiesAttribute classAttr)
     {
         var props = new List<PropertyDescriptor>();
         var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);

@@ -10,6 +10,7 @@
 | M8 | Packing tool diagnostics | Tooling/Refusal |
 | M9 | Residual trim coverage | Package/Consumer |
 | M10 | Trimmable shared assemblies | Package/Consumer |
+| M11 | Annotation chain | Package/Consumer |
 
 | Work | Scope | Title | Priority | Lane | Depends on | Status | Refined | Issue |
 |---|---|---|---|---|---|---|---|---|
@@ -29,3 +30,4 @@
 | M8-001 | CPKG0004-US01-SC01 | [Diagnose the project selection of the packing tool](done/CPKG0004.US01.SC01.diagnose-project-selection.md) | P2 | components | None | done | true | [#29](https://github.com/lowlandtech/components/issues/29) |
 | M9-001 | CPKG0006-US01-SC01 | [Prove the residual trim suppressions in a host](todo/CPKG0006.US01.SC01.prove-residual-trim-suppressions.md) | P2 | components | None | todo | true | [#30](https://github.com/lowlandtech/components/issues/30) |
 | M10-001 | CPKG0007-US01-SC01 | [Let a consumer trim the shared assemblies](done/CPKG0007.US01.SC01.trim-the-shared-assemblies.md) | P1 | components | None | done | true | [#31](https://github.com/lowlandtech/components/issues/31) |
+| M11-001 | CPKG0008-US01-SC01 | [Close the annotation chain of the descriptor](done/CPKG0008.US01.SC01.close-the-annotation-chain.md) | P1 | components | None | done | true | [#32](https://github.com/lowlandtech/components/issues/32) |

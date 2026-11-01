@@ -8,7 +8,8 @@ namespace LowlandTech.Components;
 public sealed record ComponentDescriptor(
     // A consumer renders this type through DynamicComponent, so the contract says the
     // type keeps the public constructor the renderer needs.
-    [property: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type ComponentType,
+    [property: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+    [param: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type ComponentType,
     string Element,
     string Group,
     string? Icon,
