@@ -2,6 +2,16 @@ namespace LowlandTech.Components;
 
 public abstract class BlockBase : ComponentBase, IBlock, IDisposable
 {
+    // The renderer assigns an injected or cascaded member of a component by reflection.
+    // Under trimming only the members a dependency names survive, so the constructor every
+    // block runs roots this class's own properties: a trimmed host still receives its
+    // BlockContext, its session settings and its parent mode instead of failing on a
+    // member the trimmer removed.
+    [DynamicDependency(DynamicallyAccessedMemberTypes.NonPublicProperties | DynamicallyAccessedMemberTypes.PublicProperties, typeof(BlockBase))]
+    protected BlockBase()
+    {
+    }
+
     [Parameter] public string? NodeId { get; set; }
     [Parameter] public string? Name { get; set; }
     [Parameter] public string? BlockType { get; set; }
