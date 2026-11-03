@@ -12,6 +12,7 @@
 | M10 | Trimmable shared assemblies | Package/Consumer |
 | M11 | Annotation chain | Package/Consumer |
 | M12 | Consolidation decisions | Assessment |
+| M13 | Current Core generation | Package/Consumer |
 
 | Work | Scope | Title | Priority | Lane | Depends on | Status | Refined | Issue |
 |---|---|---|---|---|---|---|---|---|
@@ -34,3 +35,4 @@
 | M11-001 | CPKG0008-US01-SC01 | [Close the annotation chain of the descriptor](done/CPKG0008.US01.SC01.close-the-annotation-chain.md) | P1 | components | None | done | true | [#32](https://github.com/lowlandtech/components/issues/32) |
 | M12-001 | CPKG0009-US01-SC01 | [Assess the central-source consolidation for the components packages](done/CPKG0009.US01.SC01.assess-central-source-consolidation.md) | P2 | components | None | done | true | [#33](https://github.com/lowlandtech/components/issues/33) |
 | M12-002 | CPKG0010-US01-SC01 | [Record the trimming contract for consumers](done/CPKG0010.US01.SC01.record-consumer-trimming-contract.md) | P3 | components | None | done | true | [#34](https://github.com/lowlandtech/components/issues/34) |
+| M13-001 | CPKG0011-US01-SC01 | [Move the batch to the current Core generation](done/CPKG0011.US01.SC01.move-batch-to-current-core.md) | P1 | components | None | done | true | [#35](https://github.com/lowlandtech/components/issues/35) |
