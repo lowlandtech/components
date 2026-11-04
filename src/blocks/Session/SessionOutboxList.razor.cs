@@ -22,10 +22,13 @@ public partial class SessionOutboxList : TinyComponentBase, IDisposable
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The entity or component is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
-    private static string SerializePayload(object payload)
+    private static string SerializePayload(object payload, System.Text.Json.Serialization.Metadata.JsonTypeInfo? typeInfo)
     {
         try
         {
+            if (typeInfo is not null)
+                return JsonSerializer.Serialize(payload, typeInfo);
+
             return JsonSerializer.Serialize(payload, new JsonSerializerOptions
             {
                 WriteIndented = false,

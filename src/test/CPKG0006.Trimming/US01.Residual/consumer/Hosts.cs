@@ -60,7 +60,7 @@ public sealed class OutboxHost : ComponentBase
     private readonly ProbeOutbox _outbox = new();
 
     protected override void OnInitialized() =>
-        _outbox.Append(new SessionOutboxEntry("probe", new ProbePayload { Value = 7 }, DateTimeOffset.UtcNow));
+        _outbox.Append(new SessionOutboxEntry("probe", new ProbePayload { Value = 7 }, DateTimeOffset.UtcNow, ProbePayloadContext.Default.ProbePayload));
 
     protected override void BuildRenderTree(RenderTreeBuilder builder)
     {
@@ -86,6 +86,12 @@ public sealed class ProbeCustomer(string name)
 public sealed class ProbePayload
 {
     public int Value { get; set; }
+}
+
+/// <summary>The generated JSON contract the host hands the outbox for its own payload.</summary>
+[System.Text.Json.Serialization.JsonSerializable(typeof(ProbePayload))]
+internal sealed partial class ProbePayloadContext : System.Text.Json.Serialization.JsonSerializerContext
+{
 }
 
 /// <summary>The smallest outbox the list needs.</summary>

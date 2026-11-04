@@ -22,7 +22,7 @@
                      data-slot="session-outbox-entry"
                      data-outbox-type="@entry.Type">
                     <span class="truncate font-medium text-foreground">@GetDisplayType(entry.Type)</span>
-                    <pre class="overflow-auto text-[10px] text-muted-foreground">@SerializePayload(entry.Payload)</pre>
+                    <pre class="overflow-auto text-[10px] text-muted-foreground">@SerializePayload(entry.Payload, entry.TypeInfo)</pre>
                     <span class="text-right text-[10px] text-muted-foreground">@entry.CreatedAt.ToString("HH:mm:ss.fff")</span>
                 </div>
             }
