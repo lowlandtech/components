@@ -17,7 +17,8 @@ public static class StoryRegistry
 
     public static StoryMetadata? GetFirst() => _stories.Values.FirstOrDefault();
 
-    public static void Register(Type type)
+    public static void Register(
+        [System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.All)] Type type)
     {
         var slug = type.FullName!.Replace(".", "_").ToLowerInvariant();
         var displayName = type.GetCustomAttribute<DisplayNameAttribute>()?.DisplayName ?? slug;
@@ -30,6 +31,8 @@ public static class StoryRegistry
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The component or model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the reflected members, which the trimmed-host preservation probe checks.")]
+    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "The story types are the types of a loaded assembly, which carry no annotation; the host that publishes trimmed preserves its own showcase components, which the browser-host measurement records.")]
+    [UnconditionalSuppressMessage("Trimming", "IL2062", Justification = "The story types are the types of a loaded assembly, which carry no annotation; the host that publishes trimmed preserves its own showcase components, which the browser-host measurement records.")]
     public static void RegisterAllStories(Assembly assembly)
     {
         foreach (var type in assembly.GetTypes())

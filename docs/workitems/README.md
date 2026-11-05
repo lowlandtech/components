@@ -14,6 +14,7 @@
 | M12 | Consolidation decisions | Assessment |
 | M13 | Current Core generation | Package/Consumer |
 | M14 | Trimmed block pages | Package/Consumer |
+| M15 | Showcase trim cleanliness | Test/Consumer |
 
 | Work | Scope | Title | Priority | Lane | Depends on | Status | Refined | Issue |
 |---|---|---|---|---|---|---|---|---|
@@ -38,3 +39,4 @@
 | M12-002 | CPKG0010-US01-SC01 | [Record the trimming contract for consumers](done/CPKG0010.US01.SC01.record-consumer-trimming-contract.md) | P3 | components | None | done | true | [#34](https://github.com/lowlandtech/components/issues/34) |
 | M13-001 | CPKG0011-US01-SC01 | [Move the batch to the current Core generation](done/CPKG0011.US01.SC01.move-batch-to-current-core.md) | P1 | components | None | done | true | [#35](https://github.com/lowlandtech/components/issues/35) |
 | M14-001 | CPKG0012-US01-SC01 | [Keep the injected members of a block alive under trimming](done/CPKG0012.US01.SC01.keep-block-injections-alive.md) | P1 | components | None | done | true | [#36](https://github.com/lowlandtech/components/issues/36) |
+| M15-001 | CPKG0013-US01-SC01 | [Let the showcase pages render trim-clean](done/CPKG0013.US01.SC01.showcase-pages-trim-clean.md) | P3 | components | None | done | true | [#37](https://github.com/lowlandtech/components/issues/37) |

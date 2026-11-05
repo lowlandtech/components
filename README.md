@@ -66,3 +66,14 @@ which is `full`) loads and runs; `partial` is the default only below `.NET 8`.
 
 The packages cannot preserve a consumer's own types. A consumer that reflects over its
 own models or components keeps those members itself.
+
+### Consuming from a local feed in a container
+
+A container build cannot see a folder feed on the host, so it restores from a package server
+instead. A plain-HTTP server (a local BaGet, for example) needs the insecure connection
+declared **on the source itself** — `dotnet restore --source` refuses an HTTP URL with
+`NU1302` no matter how the URL is written:
+
+```xml
+<add key="local" value="http://localhost:5000/v3/index.json" allowInsecureConnections="true" />
+```

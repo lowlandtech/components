@@ -1,3 +1,5 @@
+@attribute [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Trimming", "IL2111", Justification = "The generated render tree hands DynamicComponent.Type a story component type through the reflection-based parameter assignment of the renderer, which the trimmer cannot verify statically; the story registry preserves every registered story component, and the metadata now declares the requirement.")]
+@attribute [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Trimming", "IL2110", Justification = "The generated render tree hands DynamicComponent.Type a story component type through the reflection-based parameter assignment of the renderer, which the trimmer cannot verify statically; the story registry preserves every registered story component, and the metadata now declares the requirement.")]
 @page "/components"
 @page "/components/{Component}"
 @layout ShowcodeLayout
