@@ -6,8 +6,8 @@ using LowlandTech.Plugins.Shell;
 // The shared feed consumption proof of the CPGS0001 page adapter.
 //
 // It compiles against the published packages only, never against the
-// Components source tree, and drives the documented consumption path of a host
-// such as the Coder lane: a trusted startup map, a published page binding, the
+// Components source tree, and drives the documented consumption path of a host:
+// a trusted startup map, a published page binding, the
 // Plugins route and page catalogs built from the bridge projection, a
 // withdrawal and a reactivation.
 //
@@ -15,7 +15,7 @@ using LowlandTech.Plugins.Shell;
 
 const string OwnerKey = "coder.owner";
 const string SymbolicIdentity = "Coder.Page";
-const string RoutePath = "/plugin/coder";
+const string RoutePath = "/plugin/overview";
 
 var failures = new List<string>();
 

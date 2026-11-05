@@ -15,6 +15,7 @@
 | M13 | Current Core generation | Package/Consumer |
 | M14 | Trimmed block pages | Package/Consumer |
 | M15 | Showcase trim cleanliness | Test/Consumer |
+| M16 | Semantic page routes | Test/Fixture |
 
 | Work | Scope | Title | Priority | Lane | Depends on | Status | Refined | Issue |
 |---|---|---|---|---|---|---|---|---|
@@ -40,3 +41,4 @@
 | M13-001 | CPKG0011-US01-SC01 | [Move the batch to the current Core generation](done/CPKG0011.US01.SC01.move-batch-to-current-core.md) | P1 | components | None | done | true | [#35](https://github.com/lowlandtech/components/issues/35) |
 | M14-001 | CPKG0012-US01-SC01 | [Keep the injected members of a block alive under trimming](done/CPKG0012.US01.SC01.keep-block-injections-alive.md) | P1 | components | None | done | true | [#36](https://github.com/lowlandtech/components/issues/36) |
 | M15-001 | CPKG0013-US01-SC01 | [Let the showcase pages render trim-clean](done/CPKG0013.US01.SC01.showcase-pages-trim-clean.md) | P3 | components | None | done | true | [#37](https://github.com/lowlandtech/components/issues/37) |
+| M16-001 | CPKG0014-US01-SC01 | [Take the lane identity out of the page fixture's route](done/CPKG0014.US01.SC01.semantic-page-fixture-route.md) | P2 | components | None | done | true | [#38](https://github.com/lowlandtech/components/issues/38) |
