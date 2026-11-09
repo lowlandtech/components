@@ -33,6 +33,13 @@ public partial class ContainerGridSection : IAsyncDisposable
     /// <summary>Injected by the parent <see cref="ContainerGrid"/> via CascadingValue.</summary>
     [CascadingParameter] public ContainerGrid Grid { get; set; } = default!;
 
+    /// <summary>
+    /// Whether this section lies entirely outside the row window the grid was asked to render.
+    /// A grid that was given no window renders every section, so this is false unless the host
+    /// narrowed the window and this section missed it.
+    /// </summary>
+    private bool IsOutsideWindow => Grid is not null && !Grid.IsRowInWindow(Row, RowSpan);
+
     /// <summary>One-based column start position. Default is 1.</summary>
 #pragma warning disable BL0007
     [Parameter]

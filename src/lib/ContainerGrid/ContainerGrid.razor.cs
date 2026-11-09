@@ -43,6 +43,42 @@ public partial class ContainerGrid : IAsyncDisposable
     /// <summary>Push overlapping sections rather than blocking the move.</summary>
     [Parameter] public bool ResolveCollisions { get; set; } = true;
 
+    /// <summary>
+    /// The first row of the window the host asks this grid to render, inclusive. Absent by
+    /// default, which renders every section: the host that owns the scroll container decides
+    /// which rows are visible, and a host that supplies nothing keeps the previous behaviour
+    /// (and the exact server-rendered markup).
+    /// </summary>
+    [Parameter] public int? VisibleRowFrom { get; set; }
+
+    /// <summary>
+    /// The last row of that window, inclusive. Both ends are required for a window; supplying
+    /// only one renders every section, so a partially configured host cannot lose content.
+    /// </summary>
+    [Parameter] public int? VisibleRowTo { get; set; }
+
+    /// <summary>The window the host asked for, or <c>null</c> when it asked for the whole grid.</summary>
+    public (int From, int To)? RowWindow =>
+        VisibleRowFrom is int from && VisibleRowTo is int to
+            ? (Math.Min(from, to), Math.Max(from, to))
+            : null;
+
+    /// <summary>
+    /// Whether the rows a section occupies intersect the window the host asked for. A section
+    /// that intersects renders normally; a section entirely outside it may render a
+    /// placeholder of the same geometry instead of its content.
+    /// </summary>
+    public bool IsRowInWindow(int row, int rowSpan)
+    {
+        if (RowWindow is not { } window)
+        {
+            return true;
+        }
+
+        var last = row + Math.Max(1, rowSpan) - 1;
+        return last >= window.From && row <= window.To;
+    }
+
     /// <summary>Raised after the JS drag engine commits a new layout.</summary>
     [Parameter] public EventCallback<ContainerGridLayout> OnLayoutCommit { get; set; }
 

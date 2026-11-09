@@ -17,6 +17,15 @@
      @oncontextmenu="OnContextMenu"
      @oncontextmenu:preventDefault="OnContextMenuPreventDefault"
      @oncontextmenu:stopPropagation="OnContextMenuStopPropagation">
+    @if (IsOutsideWindow)
+    {
+        @* The host asked the grid to render a row window and this section lies entirely
+           outside it: keep the box the section occupies so the grid's scroll extent and
+           every visible row stay exactly as they are, and drop the chrome and the content. *@
+        <div data-slot="container-grid-section-window" aria-hidden="true"></div>
+    }
+    else
+    {
     @* ── Selection bezel host ────────────────────────────────────────────
        SPIKE 2026-05-02 (issue-03): host renders BEFORE @ChildContent so
        a plain descendant query `el.querySelector('.lt-bezel-host')`
@@ -95,4 +104,5 @@
         }
     </div>
     @ChildContent
+    }
 </div>
