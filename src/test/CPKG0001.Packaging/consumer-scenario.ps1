@@ -267,13 +267,49 @@ function Get-PackageClosure {
     return @($closure.Keys)
 }
 
+function Get-TargetFrameworkBand {
+    <#
+    .SYNOPSIS
+        The framework band the repository targets, as a version.
+
+    .DESCRIPTION
+        Every project of this repository targets one framework, and the scenario has to
+        carry the framework packages of that band. Resolving the highest installed runtime
+        instead would silently adopt a newer .NET the repository has not moved to, which
+        both breaks the feed and ships a consumer against a framework the packages do not
+        declare.
+    #>
+    param([string] $root)
+
+    $project = Join-Path $root 'src/lib/LowlandTech.Components.csproj'
+    if (!(Test-Path -LiteralPath $project)) { throw "The target project '$project' is missing." }
+    $match = Select-String -LiteralPath $project -Pattern '<TargetFrameworks?>([^<]+)<' | Select-Object -First 1
+    if (-not $match) { throw "Could not read the target framework of '$project'." }
+    $targetFramework = $match.Matches[0].Groups[1].Value.Trim()
+    if ($targetFramework -notmatch '^net(\d+)\.(\d+)$') {
+        throw "The target framework '$targetFramework' is not of the form net<major>.<minor>, so the scenario cannot derive its framework packages."
+    }
+    return [version]"$($Matches[1]).$($Matches[2])"
+}
+
 function Get-AspNetCoreRuntimeVersion {
+    param([version] $targetFramework)
+
     $versions = @()
     foreach ($line in (& dotnet --list-runtimes)) {
         if ($line -match '^Microsoft\.AspNetCore\.App\s+(\S+)\s') { $versions += $Matches[1] }
     }
     if ($versions.Count -eq 0) { throw 'No Microsoft.AspNetCore.App runtime was found.' }
-    $sorted = $versions | Sort-Object -Property @{ Expression = { [version](($_ -split '-')[0]) } }
+
+    $band = @($versions | Where-Object {
+        $parsed = [version](($_ -split '-')[0])
+        $parsed.Major -eq $targetFramework.Major -and $parsed.Minor -eq $targetFramework.Minor
+    })
+    if ($band.Count -eq 0) {
+        throw "No Microsoft.AspNetCore.App $($targetFramework.Major).$($targetFramework.Minor) runtime is installed. The repository targets net$($targetFramework.Major).$($targetFramework.Minor), and this scenario does not substitute another framework version. Installed: $($versions -join ', ')."
+    }
+
+    $sorted = $band | Sort-Object -Property @{ Expression = { [version](($_ -split '-')[0]) } }
     return @($sorted)[-1]
 }
 
@@ -495,8 +531,10 @@ foreach ($id in $FeedPackages) {
 }
 
 # A web application resolves the ASP.NET Core framework reference through
-# framework packages; they travel with the feed as well.
-$aspNetVersion = Get-AspNetCoreRuntimeVersion
+# framework packages; they travel with the feed as well. The version is the band the
+# repository targets, never the highest runtime that happens to be installed.
+$targetFramework = Get-TargetFrameworkBand -root $RepositoryRoot
+$aspNetVersion = Get-AspNetCoreRuntimeVersion -targetFramework $targetFramework
 $frameworkPackages = @(
     "Microsoft.AspNetCore.App.Internal.Assets/$aspNetVersion",
     "Microsoft.AspNetCore.App.Runtime.win-x64/$aspNetVersion",
