@@ -8,6 +8,8 @@
     <select data-slot="native-select"
             data-size="@SizeValue"
             class="cn-native-select w-full appearance-none rounded-md border border-input bg-transparent text-foreground pl-3 pr-8 transition-colors outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:cursor-not-allowed @SelectSizeClass"
+            value="@Value"
+            @onchange="HandleChangeAsync"
             @attributes="AdditionalAttributes">
         @ChildContent
     </select>

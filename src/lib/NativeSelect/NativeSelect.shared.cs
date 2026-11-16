@@ -2,7 +2,24 @@ namespace LowlandTech.Components;
 
 public partial class NativeSelect
 {
+    /// <summary>
+    /// The selected value. Two-way bindable like the rest of the form components:
+    /// a caller writes <c>@bind-Value</c> and the control raises the change.
+    /// </summary>
+    [Parameter, PropertyGrid(Group = "Behavior", Description = "The selected option value")]
+    public string? Value { get; set; }
+
+    /// <summary>Raised with the newly selected value.</summary>
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+
     private string SizeValue => string.IsNullOrWhiteSpace(size) ? "default" : size!;
+
+    private async Task HandleChangeAsync(ChangeEventArgs args)
+    {
+        var next = args.Value?.ToString();
+        Value = next;
+        await ValueChanged.InvokeAsync(next);
+    }
 
     private string WrapperClass
     {

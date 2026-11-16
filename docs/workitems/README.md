@@ -17,6 +17,7 @@
 | M15 | Showcase trim cleanliness | Test/Consumer |
 | M16 | Semantic page routes | Test/Fixture |
 | M17 | Grid row window | Proposal |
+| M18 | User-requested component features | Package/Consumer |
 
 | Work | Scope | Title | Priority | Lane | Depends on | Status | Refined | Issue |
 |---|---|---|---|---|---|---|---|---|
@@ -44,3 +45,4 @@
 | M15-001 | CPKG0013-US01-SC01 | [Let the showcase pages render trim-clean](done/CPKG0013.US01.SC01.showcase-pages-trim-clean.md) | P3 | components | None | done | true | [#37](https://github.com/lowlandtech/components/issues/37) |
 | M16-001 | CPKG0014-US01-SC01 | [Take the lane identity out of the page fixture's route](done/CPKG0014.US01.SC01.semantic-page-fixture-route.md) | P2 | components | None | done | true | [#38](https://github.com/lowlandtech/components/issues/38) |
 | M17-001 | CPKG0015-US01-SC01 | [A host-supplied visible-row window for grid templates](done/CPKG0015.US01.SC01.host-supplied-row-window.md) | P3 | components | None | done | true | [#39](https://github.com/lowlandtech/components/issues/39) |
+| M18-001 | CPKG0016-US01-SC01 | [Bind NativeSelect and draw the separator tab strip](done/CPKG0016.US01.SC01.nativeselect-binding-and-separator-tabs.md) | P1 | components | None | done | true | [#40](https://github.com/lowlandtech/components/issues/40) |

@@ -190,6 +190,9 @@ else
         var isVertical = GetOrientation() == "vertical";
         var isLineVariant = IsVariant("line");
         var isIdeVariant = IsVariant("ide");
+        // "seperator" (and its correct spelling) draws the tabs as small buttons with a
+        // vertical rule between them, matching the app's language switch.
+        var isSeparatorVariant = IsVariant("seperator") || IsVariant("separator");
 
         var baseClass = isVertical
             ? "cn-tabs-list flex flex-col gap-1 p-1"
@@ -203,6 +206,8 @@ else
 
         baseClass += isIdeVariant
             ? " cn-tabs-list-ide bg-transparent rounded-none gap-0 p-0 h-10"
+            : isSeparatorVariant
+            ? " cn-tabs-list-seperator bg-transparent rounded-none gap-0 p-0 h-auto"
             : isLineVariant
             ? (isVertical
                 ? (Parent?.Placement == "right" ? " bg-transparent border-l rounded-none" : " bg-transparent border-r rounded-none")

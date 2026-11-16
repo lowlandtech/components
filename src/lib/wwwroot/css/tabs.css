@@ -1,0 +1,75 @@
+/*
+ * Ship this file with the package and link it once in the host, beside the other
+ * component stylesheets:
+ * 
+ *   <link rel="stylesheet"
+ *         href="_content/LowlandTech.Components/css/tabs.css" />
+ */
+
+/*
+ * The "seperator" tab list: tabs drawn as small buttons with a vertical rule between
+ * them, so a strip of a few names reads like a segmented switch rather than a row of
+ * underlined tabs. Matches the app's language switch.
+ */
+
+.cn-tabs-list-seperator {
+    align-items: center;
+    gap: 0;
+    padding: 0;
+    height: auto;
+    list-style: none;
+}
+
+.cn-tabs-list-seperator [data-slot="tabs-trigger"] {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 24px;
+    padding: 0 8px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted-foreground, #9aa3ad);
+    font: inherit;
+    font-size: 11px;
+    line-height: 1;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.cn-tabs-list-seperator [data-slot="tabs-trigger"]:hover {
+    background: rgb(255 255 255 / 6%);
+    color: var(--foreground, #e8ecf0);
+}
+
+.cn-tabs-list-seperator [data-slot="tabs-trigger"][data-state="active"] {
+    background: rgb(255 255 255 / 9%);
+    border-color: var(--border, #2f3742);
+    color: var(--foreground, #e8ecf0);
+}
+
+/* The rule sits between two tabs, never before the first or after the last. */
+.cn-tabs-list-seperator [data-slot="tabs-trigger"] + [data-slot="tabs-trigger"] {
+    position: relative;
+    margin-left: 6px;
+    padding-left: 12px;
+}
+
+.cn-tabs-list-seperator [data-slot="tabs-trigger"] + [data-slot="tabs-trigger"]::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    height: 14px;
+    width: 1px;
+    transform: translateY(-50%);
+    background: var(--border, #2f3742);
+}
+
+.cn-tabs-list-seperator [data-slot="tabs-trigger"] svg {
+    opacity: 0.6;
+}
+
+.cn-tabs-list-seperator [data-slot="tabs-trigger"]:hover svg {
+    opacity: 1;
+}
