@@ -145,6 +145,10 @@ function Invoke-Step([string] $filePath, [string[]] $arguments, [string] $workin
 }
 
 if (-not $RepositoryRoot) { $RepositoryRoot = Find-RepositoryRoot }
+
+# Every dotnet invocation goes through a host that satisfies this repository's pinned SDK.
+. (Join-Path $RepositoryRoot 'eng/dotnet-host.ps1')
+$dotnetHost = Resolve-DotnetHost -RepositoryRoot $RepositoryRoot
 if (-not $ScenarioRoot) { throw 'ScenarioRoot is required.' }
 
 $ScenarioRoot = [System.IO.Path]::GetFullPath($ScenarioRoot)
@@ -177,7 +181,7 @@ $packFailures = @()
 $packages = [ordered]@{}
 foreach ($project in $projects) {
     $projectPath = Join-Path $RepositoryRoot $project.Path
-    $result = Invoke-Step 'dotnet' @(
+    $result = Invoke-Step $dotnetHost @(
         'pack', $projectPath,
         '-c', 'Release',
         '-o', $feedDirectory,

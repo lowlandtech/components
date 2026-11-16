@@ -48,6 +48,8 @@ if (!$RepositoryRoot) {
     $RepositoryRoot = $candidate
 }
 $RepositoryRoot = (Resolve-Path -LiteralPath $RepositoryRoot).Path
+. (Join-Path $RepositoryRoot 'eng/dotnet-host.ps1')
+$dotnetHost = Resolve-DotnetHost -RepositoryRoot $RepositoryRoot
 $ScenarioRoot = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($ScenarioRoot)
 $feed = Join-Path $ScenarioRoot 'feed'
 $consumer = Join-Path $ScenarioRoot 'consumer'
@@ -97,7 +99,7 @@ $runExit = $null
 $runOutput = $null
 if ($packExit -eq 0) {
     Write-Step 'publishing the consumer trimmed'
-    $output = & dotnet publish (Join-Path $consumer 'Consumer.csproj') -c Release -r win-x64 --self-contained true `
+    $output = & $dotnetHost publish (Join-Path $consumer 'Consumer.csproj') -c Release -r win-x64 --self-contained true `
         -p:PublishTrimmed=true "-p:ComponentsBatchVersion=$version" -p:LowlandTechCoreVersion=$CoreVersion `
         -o $publish 2>&1
     $output | Tee-Object -FilePath $logPath -Append | Out-Null
@@ -168,7 +170,7 @@ Set-Content -LiteralPath (Join-Path $restore 'pins.csproj') -Value @"
 </Project>
 "@ -Encoding utf8
 Copy-Item -LiteralPath (Join-Path $consumer 'NuGet.config') -Destination (Join-Path $restore 'NuGet.config') -Force
-$restoreOutput = (& dotnet restore (Join-Path $restore 'pins.csproj') 2>&1) -join "`n"
+$restoreOutput = (& $dotnetHost restore (Join-Path $restore 'pins.csproj') 2>&1) -join "`n"
 $restoreExit = $LASTEXITCODE
 $restoreOutput | Tee-Object -FilePath $logPath -Append | Out-Null
 

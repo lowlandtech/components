@@ -296,7 +296,7 @@ function Get-AspNetCoreRuntimeVersion {
     param([version] $targetFramework)
 
     $versions = @()
-    foreach ($line in (& dotnet --list-runtimes)) {
+    foreach ($line in (& $dotnetHost --list-runtimes)) {
         if ($line -match '^Microsoft\.AspNetCore\.App\s+(\S+)\s') { $versions += $Matches[1] }
     }
     if ($versions.Count -eq 0) { throw 'No Microsoft.AspNetCore.App runtime was found.' }
@@ -326,6 +326,10 @@ function Copy-CachedPackage([string] $globalPackages, [string] $id, [string] $ve
 }
 
 if (-not $RepositoryRoot) { $RepositoryRoot = Find-RepositoryRoot }
+
+# Every dotnet invocation goes through a host that satisfies this repository's pinned SDK.
+. (Join-Path $RepositoryRoot 'eng/dotnet-host.ps1')
+$dotnetHost = Resolve-DotnetHost -RepositoryRoot $RepositoryRoot
 if (-not $ScenarioRoot) { throw 'ScenarioRoot is required.' }
 
 $ScenarioRoot = [System.IO.Path]::GetFullPath($ScenarioRoot)
@@ -446,7 +450,7 @@ $packageVersions = [ordered]@{
 $packFailures = @()
 foreach ($project in $projects) {
     $projectPath = Join-Path $RepositoryRoot $project.Path
-    $result = Invoke-Step 'dotnet' @(
+    $result = Invoke-Step $dotnetHost @(
         'pack', $projectPath,
         '-c', 'Release',
         '-o', $feedDirectory,
@@ -575,7 +579,7 @@ $consumerProject = Join-Path $consumerDirectory 'Consumer.csproj'
 $previousPackages = $env:NUGET_PACKAGES
 $env:NUGET_PACKAGES = $packagesDirectory
 try {
-    $restore = Invoke-Step 'dotnet' @(
+    $restore = Invoke-Step $dotnetHost @(
         'restore', $consumerProject,
         "--configfile", (Join-Path $consumerDirectory 'NuGet.Config'),
         "-p:ComponentsPackageVersion=$packageVersion",
@@ -583,7 +587,7 @@ try {
         '--nologo'
     ) $consumerDirectory $logPath
 
-    $build = Invoke-Step 'dotnet' @(
+    $build = Invoke-Step $dotnetHost @(
         'build', $consumerProject,
         '-c', 'Release',
         '--no-restore',
@@ -594,7 +598,7 @@ try {
 
     $publishExitCode = 0
     if ($Publish) {
-        $publishResult = Invoke-Step 'dotnet' @(
+        $publishResult = Invoke-Step $dotnetHost @(
             'publish', $consumerProject,
             '-c', 'Release',
             '-o', $publishDirectory,

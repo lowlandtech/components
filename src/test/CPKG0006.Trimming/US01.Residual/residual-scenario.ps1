@@ -38,6 +38,8 @@ if (!$RepositoryRoot) {
     $RepositoryRoot = $candidate
 }
 $RepositoryRoot = (Resolve-Path -LiteralPath $RepositoryRoot).Path
+. (Join-Path $RepositoryRoot 'eng/dotnet-host.ps1')
+$dotnetHost = Resolve-DotnetHost -RepositoryRoot $RepositoryRoot
 $ScenarioRoot = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($ScenarioRoot)
 $feed = Join-Path $ScenarioRoot 'feed'
 $consumer = Join-Path $ScenarioRoot 'consumer'
@@ -86,7 +88,7 @@ $observations = @{}
 $owned = @()
 if ($packExit -eq 0) {
     Write-Step 'publishing the consumer trimmed'
-    $output = & dotnet publish (Join-Path $consumer 'Consumer.csproj') -c Release -r win-x64 --self-contained true `
+    $output = & $dotnetHost publish (Join-Path $consumer 'Consumer.csproj') -c Release -r win-x64 --self-contained true `
         -p:PublishTrimmed=true -p:TrimmerSingleWarn=false "-p:ComponentsBatchVersion=$version" `
         -o $publish 2>&1
     $output | Tee-Object -FilePath $logPath -Append | Out-Null
@@ -108,7 +110,7 @@ if ($packExit -eq 0) {
 }
 
 # The browser host needs the WebAssembly toolchain; record its state instead of claiming it.
-$workloads = (& dotnet workload list 2>&1) -join "`n"
+$workloads = (& $dotnetHost workload list 2>&1) -join "`n"
 $wasmWorkload = $workloads -match 'wasm-tools'
 
 $result = [pscustomobject]@{

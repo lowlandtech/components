@@ -19,6 +19,7 @@
 | M17 | Grid row window | Proposal |
 | M18 | User-requested component features | Package/Consumer |
 | M19 | Target framework discipline | Test/Toolchain |
+| M20 | Pinned SDK host | Test/Toolchain |
 
 | Work | Scope | Title | Priority | Lane | Depends on | Status | Refined | Issue |
 |---|---|---|---|---|---|---|---|---|
@@ -48,3 +49,4 @@
 | M17-001 | CPKG0015-US01-SC01 | [A host-supplied visible-row window for grid templates](done/CPKG0015.US01.SC01.host-supplied-row-window.md) | P3 | components | None | done | true | [#39](https://github.com/lowlandtech/components/issues/39) |
 | M18-001 | CPKG0016-US01-SC01 | [Bind NativeSelect and draw the separator tab strip](done/CPKG0016.US01.SC01.nativeselect-binding-and-separator-tabs.md) | P1 | components | None | done | true | [#40](https://github.com/lowlandtech/components/issues/40) |
 | M19-001 | CPKG0017-US01-SC01 | [Keep the packaging harness on the target framework band](done/CPKG0017.US01.SC01.harness-target-framework-band.md) | P1 | components | None | done | true | [#41](https://github.com/lowlandtech/components/issues/41) |
+| M20-001 | CPKG0018-US01-SC01 | [Resolve a host that satisfies the pinned SDK](doing/CPKG0018.US01.SC01.resolve-sdk-satisfying-host.md) | P1 | components | None | doing | true | [#42](https://github.com/lowlandtech/components/issues/42) |

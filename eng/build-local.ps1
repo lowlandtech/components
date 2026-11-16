@@ -100,8 +100,11 @@ $staging = Join-Path $root "artifacts/local-packages/$Version"
 if ((Test-Path -LiteralPath $staging) -and !$CompleteBatch) { throw "Version already staged: $Version. Choose a new version." }
 $stagingExisted = Test-Path -LiteralPath $staging
 New-Item -ItemType Directory -Path $staging -Force | Out-Null
+. (Join-Path $root 'eng/dotnet-host.ps1')
+$dotnetHost = Resolve-DotnetHost -RepositoryRoot $root
+
 function Invoke-DotNet([string[]]$Arguments) {
-    & dotnet @Arguments
+    & $dotnetHost @Arguments
     if ($LASTEXITCODE -ne 0) { throw "dotnet failed ($LASTEXITCODE): $Arguments" }
 }
 # Two batches of this repository build the same projects, so a build and a pack

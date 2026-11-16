@@ -58,6 +58,8 @@ if (!$RepositoryRoot) {
     $RepositoryRoot = $candidate
 }
 $RepositoryRoot = (Resolve-Path -LiteralPath $RepositoryRoot).Path
+. (Join-Path $RepositoryRoot 'eng/dotnet-host.ps1')
+$dotnetHost = Resolve-DotnetHost -RepositoryRoot $RepositoryRoot
 $ScenarioRoot = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($ScenarioRoot)
 $feed = Join-Path $ScenarioRoot 'feed'
 $consumer = Join-Path $ScenarioRoot 'consumer'
@@ -120,7 +122,7 @@ $arguments = @(
     '-o', $publish
 )
 Write-Step "publishing the trimmed consumer: dotnet $($arguments -join ' ')"
-$output = & dotnet @arguments 2>&1
+$output = & $dotnetHost @arguments 2>&1
 $output | Tee-Object -FilePath $logPath -Append | Out-Null
 $publishExit = $LASTEXITCODE
 
