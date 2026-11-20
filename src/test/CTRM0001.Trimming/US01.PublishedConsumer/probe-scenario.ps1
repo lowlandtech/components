@@ -41,7 +41,7 @@ param(
     [string] $RepositoryRoot,
     [Parameter(Mandatory = $true)][string] $ScenarioRoot,
     [string] $ContractsVersion = '2026.10.3-20261029112040813496109',
-    [string] $CoreVersion = '2026.10.3-20261029175917',
+    [string] $CoreVersion = '2026.10.3-20261101231129',
     [string] $SharedFeed = 'D:\lowlandtech\packages'
 )
 

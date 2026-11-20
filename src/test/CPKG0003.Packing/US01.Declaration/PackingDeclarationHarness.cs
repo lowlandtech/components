@@ -20,7 +20,7 @@ internal sealed class PackingDeclarationHarness
     /// <summary>A version per run, so the staging directory of a previous run never collides.</summary>
     public string BatchVersion { get; } = "2026.10.3-" + DateTimeOffset.UtcNow.ToUnixTimeSeconds();
     public const string ContractsVersion = "2026.10.3-20261029112040813496109";
-    public const string CoreVersion = "2026.10.3-20261029175917";
+    public const string CoreVersion = "2026.10.3-20261101231129";
 
     private const string BatchProjects =
         "@('src/lib/LowlandTech.Components.csproj','src/blocks/LowlandTech.Components.Blocks.csproj')";

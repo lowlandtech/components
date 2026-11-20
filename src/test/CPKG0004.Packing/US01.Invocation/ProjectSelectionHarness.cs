@@ -12,7 +12,7 @@ internal sealed class ProjectSelectionHarness
     private const string LibProject = "src/lib/LowlandTech.Components.csproj";
     private const string BlocksProject = "src/blocks/LowlandTech.Components.Blocks.csproj";
     private const string ContractsVersion = "2026.10.3-20261029112040813496109";
-    private const string CoreVersion = "2026.10.3-20261029175917";
+    private const string CoreVersion = "2026.10.3-20261101231129";
 
     private ProjectSelectionHarness(string repositoryRoot, string feedPath, string version)
     {
