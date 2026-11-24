@@ -2,7 +2,20 @@ namespace LowlandTech.Components;
 
 public partial class DataForm : TinyComponentBase
 {
-    [Parameter, EditorRequired] public object Model { get; set; } = null!;
+    [Parameter] public object? Model { get; set; }
+
+    /// <summary>
+    /// Fields the host declares at runtime. When supplied, the form renders exactly these fields
+    /// and reflects no model, so a document whose properties are declared at runtime can use the
+    /// form instead of per-field markup.
+    /// </summary>
+    [Parameter] public IReadOnlyList<DataFormField>? Fields { get; set; }
+
+    /// <summary>
+    /// Values keyed by field name, for the runtime-declared path. The host keeps ownership of the
+    /// document: the form reads and writes these entries and never copies the document.
+    /// </summary>
+    [Parameter] public IDictionary<string, string?>? Values { get; set; }
     [Parameter] public EditContext? EditContext { get; set; }
     [Parameter] public string Layout { get; set; } = "vertical";
     [Parameter] public IReadOnlyList<string>? IncludeProperties { get; set; }
@@ -26,8 +39,10 @@ public partial class DataForm : TinyComponentBase
     [Parameter] public EventCallback<FormFieldIntent> OnIntentDispatched { get; set; }
 
     private EditContext _editContext = null!;
-    private object _currentModel = null!;
+    private object? _currentModel;
     private EditContext? _currentEditContextParam;
+    private IReadOnlyList<DataFormField>? _currentFields;
+    private IDictionary<string, string?>? _currentValues;
     private ValidationMessageStore? _messageStore;
     private IReadOnlyList<DataFormField> _fields = [];
     private List<string> _validationSummary = [];
@@ -37,11 +52,14 @@ public partial class DataForm : TinyComponentBase
 
     protected override void OnParametersSet()
     {
-        var newEditContext = EditContext ?? new EditContext(Model);
-        if (_currentModel != Model || _currentEditContextParam != EditContext)
+        var newEditContext = EditContext ?? new EditContext(Model ?? new object());
+        if (_currentModel != Model || _currentEditContextParam != EditContext
+            || !ReferenceEquals(_currentFields, Fields) || !ReferenceEquals(_currentValues, Values))
         {
             _currentModel = Model;
             _currentEditContextParam = EditContext;
+            _currentFields = Fields;
+            _currentValues = Values;
             _editContext = newEditContext;
             _messageStore = new ValidationMessageStore(_editContext);
             _fieldMessages.Clear();
@@ -160,6 +178,20 @@ public partial class DataForm : TinyComponentBase
     [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the model's public properties, which the trimmed-host preservation probe checks.")]
     private void DiscoverFields()
     {
+        if (Fields is not null)
+        {
+            // The host declared the fields, so reflection is neither needed nor attempted: a
+            // runtime-declared document has no typed model to reflect over.
+            _fields = Fields.OrderBy(f => f.Order).ThenBy(f => f.PropertyName).ToList();
+            return;
+        }
+
+        if (Model is null)
+        {
+            _fields = [];
+            return;
+        }
+
         var modelType = Model.GetType();
         var properties = modelType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Where(p => p.CanRead && p.CanWrite)
@@ -257,6 +289,25 @@ public partial class DataForm : TinyComponentBase
     {
         try
         {
+            if (Values is not null)
+            {
+                var hadPrevious = Values.TryGetValue(propertyName, out var previous);
+                var text = value?.ToString();
+                Values[propertyName] = text;
+                await OnModelChanged.InvokeAsync();
+                await OnFieldValueChanged.InvokeAsync(new FormFieldChangeArgs
+                {
+                    FieldName = propertyName,
+                    OldValue = hadPrevious ? previous : null,
+                    NewValue = text,
+                    IsValid = !GetFieldMessages(propertyName).Any(),
+                    Errors = GetFieldMessages(propertyName)
+                });
+                return;
+            }
+
+            if (Model is null) return;
+
             var prop = Model.GetType().GetProperty(propertyName);
             if (prop == null || !prop.CanWrite) return;
             var oldValue = prop.GetValue(Model);
@@ -357,6 +408,11 @@ public partial class DataForm : TinyComponentBase
     [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the model's public properties, which the trimmed-host preservation probe checks.")]
     internal object? GetValue(string propertyName)
     {
+        if (Values is not null)
+            return Values.TryGetValue(propertyName, out var declared) ? declared : null;
+
+        if (Model is null) return null;
+
         var prop = Model.GetType().GetProperty(propertyName);
         return prop?.GetValue(Model);
     }
@@ -364,6 +420,11 @@ public partial class DataForm : TinyComponentBase
     [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "The model is supplied by the host and a DynamicallyAccessedMembers requirement cannot flow from object.GetType(); the host preserves the model's public properties, which the trimmed-host preservation probe checks.")]
     internal string GetDisplayValue(string propertyName)
     {
+        if (Values is not null)
+            return Values.TryGetValue(propertyName, out var declared) ? declared ?? "" : "";
+
+        if (Model is null) return "";
+
         var prop = Model.GetType().GetProperty(propertyName);
         if (prop == null) return "";
         var value = prop.GetValue(Model);
@@ -379,7 +440,7 @@ public partial class DataForm : TinyComponentBase
 
     private IReadOnlyList<string> GetFieldMessages(string propertyName)
     {
-        if (_editContext == null) return [];
+        if (_editContext == null || Model is null) return [];
         return _editContext.GetValidationMessages(new FieldIdentifier(Model, propertyName)).ToList();
     }
 
@@ -389,6 +450,14 @@ public partial class DataForm : TinyComponentBase
         _originalValues.Clear();
         foreach (var field in _fields)
         {
+            if (Values is not null)
+            {
+                _originalValues[field.PropertyName] = Values.TryGetValue(field.PropertyName, out var declared) ? declared : null;
+                continue;
+            }
+
+            if (Model is null) continue;
+
             var prop = Model.GetType().GetProperty(field.PropertyName);
             if (prop != null && prop.CanRead)
                 _originalValues[field.PropertyName] = prop.GetValue(Model);
@@ -400,16 +469,23 @@ public partial class DataForm : TinyComponentBase
     {
         foreach (var field in _fields)
         {
-            if (_originalValues.TryGetValue(field.PropertyName, out var originalValue))
+            if (!_originalValues.TryGetValue(field.PropertyName, out var originalValue)) continue;
+
+            if (Values is not null)
             {
-                var prop = Model.GetType().GetProperty(field.PropertyName);
-                if (prop != null && prop.CanWrite)
-                    prop.SetValue(Model, originalValue);
+                Values[field.PropertyName] = originalValue as string;
+                continue;
             }
+
+            if (Model is null) continue;
+
+            var prop = Model.GetType().GetProperty(field.PropertyName);
+            if (prop != null && prop.CanWrite)
+                prop.SetValue(Model, originalValue);
         }
         _fieldMessages.Clear();
         _validationSummary.Clear();
-        _editContext = new EditContext(Model);
+        _editContext = new EditContext(Model ?? new object());
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "The validation context names its display explicitly, so the reflection-based DisplayNameAttribute lookup is not taken, and the model's properties are preserved by the host as the trimmed-host preservation probe checks.")]
@@ -427,6 +503,14 @@ public partial class DataForm : TinyComponentBase
             {
                 await OnInvalidSubmit.InvokeAsync(_editContext);
             }
+            return;
+        }
+
+        if (Model is null || Values is not null)
+        {
+            // A runtime-declared document has no typed model to attribute-validate, so the form
+            // reports no invented validation and leaves the document's rules to its host.
+            await OnValidSubmit.InvokeAsync(_editContext);
             return;
         }
 

@@ -1,11 +1,17 @@
 @namespace LowlandTech.Components
 
-<div data-slot="edge-form" @attributes="AdditionalAttributes">
+<div data-slot="edge-form" data-readonly="@(ReadOnly ? "true" : null)" @attributes="AdditionalAttributes">
     @foreach (var field in Fields)
     {
         var fname = field.Name;
         <div data-field="@field.Name">
             <label data-field-label="@field.Name">@field.Label</label>
+            @if (ReadOnly)
+            {
+                <div data-field-readonly="@field.Name">@GetString(fname)</div>
+            }
+            else
+            {
             @switch (field.FieldType)
             {
                 case FieldType.Text:
@@ -44,6 +50,7 @@
                     </select>
                     break;
             }
+            }
         </div>
     }
 </div>
@@ -52,10 +59,31 @@
     [Parameter, EditorRequired] public IReadOnlyList<EdgeFormField> Fields { get; set; } = [];
     [Parameter] public IReadOnlyList<IEdgeRule>? Rules { get; set; }
     [Parameter] public EventCallback<EdgeFormResult> OnChange { get; set; }
+
+    /// <summary>
+    /// Shows the relation without inviting an edit: every field renders its value as text and no
+    /// input is drawn, so a document view of an existing relation does not look writable.
+    /// </summary>
+    [Parameter] public bool ReadOnly { get; set; }
+
+    /// <summary>Values keyed by field name, used for display and as the starting values.</summary>
+    [Parameter] public IDictionary<string, string?>? Values { get; set; }
+
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object>? AdditionalAttributes { get; set; }
 
     private readonly Dictionary<string, object?> _values = new();
+    private IDictionary<string, string?>? _seededValues;
+
+    protected override void OnParametersSet()
+    {
+        if (Values is null) { _seededValues = null; return; }
+        if (ReferenceEquals(_seededValues, Values)) return;
+
+        _seededValues = Values;
+        foreach (var entry in Values)
+            _values[entry.Key] = entry.Value;
+    }
 
     private string? GetString(string name)
         => _values.TryGetValue(name, out var v) ? v?.ToString() : null;
