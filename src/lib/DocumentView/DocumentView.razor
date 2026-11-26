@@ -1,0 +1,166 @@
+@namespace LowlandTech.Components
+@inherits TinyComponentBase
+@using LowlandTech.Components.Core.Documents
+
+<div data-slot="document-view"
+     data-document-type="@Document.Type"
+     data-document-id="@Document.Id"
+     class="@GetRootClass()">
+    @if (ShowHead)
+    {
+        <div data-document-meta class="flex flex-wrap items-center justify-between gap-2">
+            <span data-document-key class="text-sm font-medium">@Document.Key</span>
+            <span data-document-head data-head="@Document.Head"
+                  class="rounded-md border border-input px-2 py-0.5 font-mono text-xs text-muted-foreground">@Document.Head</span>
+        </div>
+    }
+
+    <DataForm Fields="_fields"
+              Values="_values"
+              ReadOnly="true"
+              ShowDefaultActions="false"
+              ShowValidationSummary="false" />
+
+    @if (_relationFields.Count > 0)
+    {
+        <section data-document-relations class="space-y-2">
+            @if (!string.IsNullOrWhiteSpace(RelationsLabel))
+            {
+                <h2 data-document-relations-label class="text-sm font-medium">@RelationsLabel</h2>
+            }
+            <DynamicEdgeForm Fields="_relationFields" Values="_relationValues" ReadOnly="true" />
+        </section>
+    }
+
+    @if (Document.ActionsOrEmpty.Count > 0)
+    {
+        <section data-document-actions class="flex flex-wrap gap-2">
+            @foreach (var action in Document.ActionsOrEmpty)
+            {
+                var item = action;
+                <span data-document-action="@item.Key" data-primary="@(item.Primary ? "true" : "false")">
+                    <Button Variant="@(item.Primary ? "default" : "outline")"
+                            OnClick="() => ActivateAsync(item)">
+                        @(LabelFor(item.Key, item.Label) ?? item.Label)
+                    </Button>
+                </span>
+            }
+        </section>
+    }
+
+    @ResultTemplate
+</div>
+
+@code {
+    /// <summary>The document to render: its declared shape, values, relations, head and actions.</summary>
+    [Parameter, EditorRequired] public DocumentSnapshot Document { get; set; } = null!;
+
+    /// <summary>
+    /// Labels the host resolves itself, keyed by property, relation or action key. An override wins
+    /// over the definition; neither falling back to the key, ever.
+    /// </summary>
+    [Parameter] public IReadOnlyDictionary<string, string>? LabelMap { get; set; }
+
+    /// <summary>Whether to show the record's name and its causal head.</summary>
+    [Parameter] public bool ShowHead { get; set; } = true;
+
+    /// <summary>Heading for the relations section, already localized by the host; omitted when empty.</summary>
+    [Parameter] public string? RelationsLabel { get; set; }
+
+    /// <summary>Raised when a person chooses an action; the trigger renders its inputs and runs it.</summary>
+    [Parameter] public EventCallback<DocumentAction> OnAction { get; set; }
+
+    /// <summary>Slot for the result the trigger raises, so the view stays presentation only.</summary>
+    [Parameter] public RenderFragment? ResultTemplate { get; set; }
+
+    private DocumentSnapshot? _rendered;
+    private IReadOnlyDictionary<string, string>? _renderedLabels;
+    private IReadOnlyList<DataFormField> _fields = [];
+    private Dictionary<string, string?> _values = new(StringComparer.Ordinal);
+    private IReadOnlyList<EdgeFormField> _relationFields = [];
+    private Dictionary<string, string?> _relationValues = new(StringComparer.Ordinal);
+
+    protected override void OnParametersSet()
+    {
+        if (ReferenceEquals(_rendered, Document) && ReferenceEquals(_renderedLabels, LabelMap)) return;
+
+        _rendered = Document;
+        _renderedLabels = LabelMap;
+        BuildFields();
+        BuildRelations();
+    }
+
+    private void BuildFields()
+    {
+        var values = new Dictionary<string, string?>(StringComparer.Ordinal);
+        var fields = new List<DataFormField>(Document.Definition.Properties.Count);
+
+        foreach (var property in Document.Definition.Properties)
+        {
+            var (type, inputKind) = Map(property.ValueKind);
+            var label = LabelFor(property.Key, property.Label) ?? "";
+            if (property.Required && label.Length > 0) label = label + " *";
+
+            fields.Add(new DataFormField(
+                property.Key,
+                label,
+                type,
+                inputKind,
+                property.Required,
+                ReadOnly: true,
+                Order: property.Order));
+
+            values[property.Key] = Document.Values.TryGetValue(property.Key, out var value) ? value : null;
+        }
+
+        _fields = fields.OrderBy(field => field.Order).ThenBy(field => field.PropertyName).ToList();
+        _values = values;
+    }
+
+    private void BuildRelations()
+    {
+        var fields = new List<EdgeFormField>();
+        var values = new Dictionary<string, string?>(StringComparer.Ordinal);
+
+        foreach (var relation in Document.RelationsOrEmpty)
+        {
+            fields.Add(new EdgeFormField(relation.Key, LabelFor(relation.Key, relation.Label) ?? "", FieldType.Text));
+
+            var shown = string.IsNullOrWhiteSpace(relation.Direction)
+                ? relation.Counterpart
+                : $"{relation.Counterpart} · {relation.Direction}";
+            values[relation.Key] = shown;
+        }
+
+        _relationFields = fields;
+        _relationValues = values;
+    }
+
+    private static (Type Type, string InputKind) Map(DocumentValueKind kind) => kind switch
+    {
+        DocumentValueKind.Number => (typeof(int), "number"),
+        DocumentValueKind.Decimal => (typeof(decimal), "number"),
+        DocumentValueKind.Boolean => (typeof(bool), "checkbox"),
+        DocumentValueKind.Date => (typeof(DateOnly), "date"),
+        DocumentValueKind.DateTime => (typeof(DateTime), "date"),
+        DocumentValueKind.Guid => (typeof(string), "text"),
+        DocumentValueKind.Json => (typeof(string), "text"),
+        DocumentValueKind.Selection => (typeof(string), "select"),
+        _ => (typeof(string), "text"),
+    };
+
+    /// <summary>The host map wins over the definition; the key itself is never a label.</summary>
+    private string? LabelFor(string key, string? declared)
+    {
+        if (LabelMap is not null && LabelMap.TryGetValue(key, out var mapped) && !string.IsNullOrWhiteSpace(mapped))
+            return mapped;
+        return string.IsNullOrWhiteSpace(declared) ? null : declared;
+    }
+
+    private string GetRootClass() => string.IsNullOrEmpty(Class) ? "space-y-4" : $"space-y-4 {Class}";
+
+    private async Task ActivateAsync(DocumentAction action)
+    {
+        await OnAction.InvokeAsync(action);
+    }
+}
