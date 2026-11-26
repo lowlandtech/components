@@ -1,0 +1,68 @@
+@namespace LowlandTech.Components.Stories.Showcode.Examples.Documents
+@using LowlandTech.Components.Core.Documents
+@using LowlandTech.Components.Core.Transitions
+
+<Card class="w-full">
+    <CardHeader>
+        <CardTitle>Document</CardTitle>
+        <CardDescription>One component renders a record from its declaration; one trigger runs the action it offers.</CardDescription>
+    </CardHeader>
+    <CardContent class="space-y-4">
+        <div class="flex flex-wrap gap-2">
+            <Button Variant="outline" OnClick="() => Choose(TransitionOutcome.Applied)">Applied</Button>
+            <Button Variant="outline" OnClick="() => Choose(TransitionOutcome.Refused)">Refused</Button>
+            <Button Variant="outline" OnClick="() => Choose(TransitionOutcome.Conflict)">Conflict</Button>
+        </div>
+
+        <DocumentView Document="_document" OnAction="Pick" />
+
+        @if (_action is not null)
+        {
+            <TransitionTrigger Document="_document"
+                               Action="_action"
+                               Client="_client"
+                               ResolveText="DocumentStubClient.Resolve"
+                               OnResult="Landed" />
+        }
+
+        <p data-story-outcome>@_outcome</p>
+    </CardContent>
+</Card>
+
+@code {
+    private readonly DocumentStubClient _client = new();
+    private DocumentAction? _action;
+    private string _outcome = "none";
+
+    private readonly DocumentSnapshot _document = new(
+        "document.record",
+        "3f2a9c11-0000-4000-8000-000000000007",
+        "The tide turns",
+        "sha256:head",
+        new DocumentDefinition("document.record",
+        [
+            new DocumentPropertyDefinition("headline", "Title", Required: true),
+            new DocumentPropertyDefinition("detail", "Body"),
+        ]),
+        new Dictionary<string, string?>
+        {
+            ["headline"] = "The tide turns",
+            ["detail"] = "A quiet street",
+        },
+        Relations:
+        [
+            new DocumentRelation("parent", "Belongs to", "Episode 1", "outgoing"),
+        ],
+        Actions:
+        [
+            new DocumentAction("approve", "Approve", Primary: true,
+                Inputs: [new DocumentInput("note", "Note")],
+                TargetType: "document.approval"),
+        ]);
+
+    private void Choose(TransitionOutcome outcome) => _client.Next = outcome;
+
+    private void Pick(DocumentAction action) => _action = action;
+
+    private void Landed(TransitionResult result) => _outcome = result.Outcome.ToString().ToLowerInvariant();
+}

@@ -1,0 +1,17 @@
+@attribute [DisplayName("Data/Document")]
+@inherits StoryComponent
+@using LowlandTech.Components.Stories.Showcode.Examples.Documents
+
+<StoryCard Title="Document"
+           Description="A record rendered from its declaration, and the action it offers run through the host's transition client."
+           States="@States" />
+
+@code {
+    private IReadOnlyList<StoryCard.State> States => [
+        new(
+            "default",
+            "Default",
+            @<DocumentExample />,
+            [])
+    ];
+}
