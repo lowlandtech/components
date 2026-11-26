@@ -22,6 +22,7 @@
 | M20 | Pinned SDK host | Test/Toolchain |
 | M21 | Document-defined forms | Behavior/Consumer |
 | M22 | Result-case transitions | Behavior/Consumer |
+| M23 | Documents and transitions render from data | Behavior/Consumer |
 
 | Work | Scope | Title | Priority | Lane | Depends on | Status | Refined | Issue |
 |---|---|---|---|---|---|---|---|---|
@@ -55,3 +56,4 @@
 | M21-001 | CPKG0019-US01-SC01 | [A form renders fields the document declares](done/CPKG0019.US01.SC01.dynamic-dataform-model.md) | P1 | components | None | done | true | [#43](https://github.com/lowlandtech/components/issues/43) |
 | M21-002 | CPKG0020-US01-SC01 | [A view-only relation does not look editable](done/CPKG0020.US01.SC01.readonly-edge-form.md) | P2 | components | None | done | true | [#44](https://github.com/lowlandtech/components/issues/44) |
 | M22-001 | CPKG0021-US01-SC01 | [A transition result carries its cases](done/CPKG0021.US01.SC01.transition-result-cases.md) | P1 | components | None | done | true | [#45](https://github.com/lowlandtech/components/issues/45) |
+| M23-001 | CPKG0022-US01-SC01 | [A document and its transitions render from data](todo/CPKG0022.US01.SC01.document-view-and-transition-trigger.proposal.md) | P1 | components | CPKG0019-US01-SC01, CPKG0020-US01-SC01, CPKG0021-US01-SC01 | proposal | false | [#46](https://github.com/lowlandtech/components/issues/46) |
