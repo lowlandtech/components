@@ -21,6 +21,7 @@
 | M19 | Target framework discipline | Test/Toolchain |
 | M20 | Pinned SDK host | Test/Toolchain |
 | M21 | Document-defined forms | Behavior/Consumer |
+| M22 | Result-case transitions | Behavior/Consumer |
 
 | Work | Scope | Title | Priority | Lane | Depends on | Status | Refined | Issue |
 |---|---|---|---|---|---|---|---|---|
@@ -53,3 +54,4 @@
 | M20-001 | CPKG0018-US01-SC01 | [Resolve a host that satisfies the pinned SDK](done/CPKG0018.US01.SC01.resolve-sdk-satisfying-host.md) | P1 | components | None | done | true | [#42](https://github.com/lowlandtech/components/issues/42) |
 | M21-001 | CPKG0019-US01-SC01 | [A form renders fields the document declares](done/CPKG0019.US01.SC01.dynamic-dataform-model.md) | P1 | components | None | done | true | [#43](https://github.com/lowlandtech/components/issues/43) |
 | M21-002 | CPKG0020-US01-SC01 | [A view-only relation does not look editable](done/CPKG0020.US01.SC01.readonly-edge-form.md) | P2 | components | None | done | true | [#44](https://github.com/lowlandtech/components/issues/44) |
+| M22-001 | CPKG0021-US01-SC01 | [A transition result carries its cases](doing/CPKG0021.US01.SC01.transition-result-cases.md) | P1 | components | None | doing | true | [#45](https://github.com/lowlandtech/components/issues/45) |
