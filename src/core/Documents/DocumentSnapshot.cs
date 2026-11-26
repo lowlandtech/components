@@ -67,11 +67,13 @@ public sealed record DocumentInput(
 /// <param name="Label">The words a person reads on the action.</param>
 /// <param name="Primary">Whether this is the main action of the document.</param>
 /// <param name="Inputs">The inputs the transition declares; the trigger renders them.</param>
+/// <param name="TargetType">Target node type, when the transition creates one.</param>
 public sealed record DocumentAction(
     string Key,
     string Label,
     bool Primary = false,
-    IReadOnlyList<DocumentInput>? Inputs = null);
+    IReadOnlyList<DocumentInput>? Inputs = null,
+    string? TargetType = null);
 
 /// <summary>
 /// One document as the host presents it: what it is, its declared shape, its values, its

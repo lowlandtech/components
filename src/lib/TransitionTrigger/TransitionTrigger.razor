@@ -1,0 +1,188 @@
+@namespace LowlandTech.Components
+@inherits TinyComponentBase
+@using LowlandTech.Components.Core.Documents
+@using LowlandTech.Components.Core.Transitions
+
+<div data-slot="transition-trigger"
+     data-action="@Action.Key"
+     data-state="@StateName"
+     class="@GetRootClass()">
+    @if (Action.Inputs is { Count: > 0 })
+    {
+        <div data-trigger-inputs class="grid gap-2 sm:grid-cols-2">
+            @foreach (var input in Action.Inputs)
+            {
+                var item = input;
+                <label class="flex flex-col gap-1 text-sm">
+                    <span data-trigger-input-label="@item.Key">@(item.Label)@(item.Required ? " *" : "")</span>
+                    @if (item.ValueKind == DocumentValueKind.Boolean)
+                    {
+                        <input data-trigger-input="@item.Key" type="checkbox"
+                               checked="@IsTrue(item.Key)" disabled="@_submitting"
+                               @onchange="e => SetInput(item.Key, e.Value)" />
+                    }
+                    else if (item.ValueKind == DocumentValueKind.Selection && item.Options is { Count: > 0 })
+                    {
+                        <select data-trigger-input="@item.Key" disabled="@_submitting"
+                                @onchange="e => SetInput(item.Key, e.Value)">
+                            <option value="">Choose</option>
+                            @foreach (var option in item.Options)
+                            {
+                                <option value="@option" selected="@(ValueOf(item.Key) == option)">@option</option>
+                            }
+                        </select>
+                    }
+                    else
+                    {
+                        <input data-trigger-input="@item.Key" type="@InputType(item)" disabled="@_submitting"
+                               value="@ValueOf(item.Key)"
+                               @oninput="e => SetInput(item.Key, e.Value)" />
+                    }
+                </label>
+            }
+        </div>
+    }
+
+    <div class="flex flex-wrap items-center gap-2">
+        <span data-trigger-submit>
+            <Button Variant="@(Action.Primary ? "default" : "outline")"
+                    Disabled="@(_submitting || Client is null)"
+                    OnClick="SubmitAsync">
+                @Action.Label
+            </Button>
+        </span>
+        @if (_submitting)
+        {
+            <span data-trigger-pending class="text-sm text-muted-foreground">@(PendingLabel ?? "Working…")</span>
+        }
+    </div>
+
+    @if (Client is null)
+    {
+        <p data-trigger-no-client role="alert" class="text-sm text-destructive">
+            No transition client is supplied, so this action cannot run.
+        </p>
+    }
+
+    <div data-trigger-result
+         tabindex="-1"
+         role="status"
+         aria-live="polite"
+         @ref="_resultRegion">
+        @if (_result is not null)
+        {
+            <TransitionResultView Result="_result"
+                                  ResolveText="ResolveText"
+                                  ShowObserved="ShowObserved"
+                                  OnAction="ForwardResultAction" />
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>The document the action belongs to: its causal head and addressable identity travel with the request.</summary>
+    [Parameter, EditorRequired] public DocumentSnapshot Document { get; set; } = null!;
+
+    /// <summary>The action to offer.</summary>
+    [Parameter, EditorRequired] public DocumentAction Action { get; set; } = null!;
+
+    /// <summary>The host's transport; when absent the trigger refuses visibly instead of failing silently.</summary>
+    [Parameter] public ITransitionClient? Client { get; set; }
+
+    /// <summary>Raised with the outcome, its cases and the resulting document payload.</summary>
+    [Parameter] public EventCallback<TransitionResult> OnResult { get; set; }
+
+    /// <summary>Raised when a person chooses an action a result case offers, such as a retry.</summary>
+    [Parameter] public EventCallback<ResultAction> OnResultAction { get; set; }
+
+    /// <summary>Host text resolver, passed to the result view.</summary>
+    [Parameter] public Func<string, string>? ResolveText { get; set; }
+
+    /// <summary>Whether the result view shows the evidence the runtime observed.</summary>
+    [Parameter] public bool ShowObserved { get; set; }
+
+    /// <summary>Text shown beside the action while the request is in flight.</summary>
+    [Parameter] public string? PendingLabel { get; set; }
+
+    private readonly Dictionary<string, string?> _inputs = new(StringComparer.Ordinal);
+    private bool _submitting;
+    private TransitionResult? _result;
+    private ElementReference _resultRegion;
+
+    private string StateName => _submitting ? "submitting" : "idle";
+
+    private string GetRootClass() => string.IsNullOrEmpty(Class) ? "space-y-3" : $"space-y-3 {Class}";
+
+    private static string InputType(DocumentInput input) => input.ValueKind switch
+    {
+        DocumentValueKind.Number => "number",
+        DocumentValueKind.Decimal => "number",
+        DocumentValueKind.Date => "date",
+        DocumentValueKind.DateTime => "datetime-local",
+        _ => "text",
+    };
+
+    private string? ValueOf(string key) => _inputs.TryGetValue(key, out var value) ? value : null;
+
+    private bool IsTrue(string key) => string.Equals(ValueOf(key), "true", StringComparison.OrdinalIgnoreCase);
+
+    private void SetInput(string key, object? value)
+    {
+        _inputs[key] = value switch
+        {
+            bool flag => flag ? "true" : "false",
+            null => null,
+            _ => value.ToString(),
+        };
+    }
+
+    /// <summary>
+    /// Runs the action once. A second activation while the request is in flight sends nothing, and
+    /// a missing client refuses before the click rather than failing after it.
+    /// </summary>
+    private async Task SubmitAsync()
+    {
+        if (Client is null || _submitting) return;
+
+        _submitting = true;
+        StateHasChanged();
+
+        try
+        {
+            var request = new TransitionRequest(
+                Document.Head,
+                Document.Id,
+                Action.Key,
+                Action.TargetType,
+                new Dictionary<string, string?>(_inputs, StringComparer.Ordinal));
+
+            var result = await Client.ApplyAsync(request);
+            _result = result;
+            await OnResult.InvokeAsync(result);
+            await FocusResultAsync();
+        }
+        finally
+        {
+            _submitting = false;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>Moves a keyboard user to the announcement region; a host without a DOM focus bridge simply skips it.</summary>
+    private async Task FocusResultAsync()
+    {
+        try
+        {
+            await _resultRegion.FocusAsync();
+        }
+        catch (Exception error) when (error is InvalidOperationException or JSException)
+        {
+            // The region is still a live region, so the outcome is announced without the focus move.
+        }
+    }
+
+    private async Task ForwardResultAction(ResultAction action)
+    {
+        await OnResultAction.InvokeAsync(action);
+    }
+}
