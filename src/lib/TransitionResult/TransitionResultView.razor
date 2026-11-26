@@ -1,0 +1,113 @@
+@namespace LowlandTech.Components
+@inherits TinyComponentBase
+@using LowlandTech.Components.Core.Transitions
+
+<div data-slot="transition-result"
+     data-outcome="@OutcomeName"
+     class="@GetClass()">
+    @foreach (var item in Result.Cases)
+    {
+        var severity = SeverityName(item.Severity);
+        <div data-result-case="@item.Code" data-severity="@severity" class="rounded-md border px-3 py-2 text-sm @SeverityClass(item.Severity)">
+            @if (!string.IsNullOrWhiteSpace(item.TitleKey))
+            {
+                <p data-result-title="@item.Code" class="font-medium">@Text(item.TitleKey, item.Arguments)</p>
+            }
+            @if (!string.IsNullOrWhiteSpace(item.MessageKey))
+            {
+                <p data-result-message="@item.Code">@Text(item.MessageKey, item.Arguments)</p>
+            }
+            @if (item.Fields is { Count: > 0 })
+            {
+                <ul data-result-fields="@item.Code" class="mt-1 list-disc pl-5">
+                    @foreach (var field in item.Fields)
+                    {
+                        <li data-result-field="@field.Key">@Text(field.Value, item.Arguments)</li>
+                    }
+                </ul>
+            }
+            @if (ShowObserved && item.Observed is { Count: > 0 })
+            {
+                <dl data-result-observed="@item.Code" class="mt-1 grid grid-cols-[auto_1fr] gap-x-2 text-xs">
+                    @foreach (var observed in item.Observed)
+                    {
+                        <dt class="text-muted-foreground">@observed.Key</dt>
+                        <dd class="font-mono">@observed.Value</dd>
+                    }
+                </dl>
+            }
+            @if (item.Actions is { Count: > 0 })
+            {
+                <div data-result-actions="@item.Code" class="mt-2 flex flex-wrap gap-2">
+                    @foreach (var action in item.Actions)
+                    {
+                        <Button Variant="@(action.Primary ? "default" : "outline")"
+                                Disabled="@action.Disabled"
+                                OnClick="() => ActivateAsync(item, action)">
+                            @Text(action.LabelKey)
+                        </Button>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    /// <summary>The result to show: its outcome and every case that explains it.</summary>
+    [Parameter, EditorRequired] public TransitionResult Result { get; set; } = null!;
+
+    /// <summary>
+    /// Resolves a text key to the words a person reads. The host owns localization, so the
+    /// library never invents copy; without a resolver the key itself is shown, which makes a
+    /// missing resource visible instead of silent.
+    /// </summary>
+    [Parameter] public Func<string, string>? ResolveText { get; set; }
+
+    /// <summary>
+    /// Whether to show the evidence the runtime observed. Off by default because it names model
+    /// concepts that a person must not see.
+    /// </summary>
+    [Parameter] public bool ShowObserved { get; set; }
+
+    /// <summary>Raised when a person chooses an action one of the cases offers.</summary>
+    [Parameter] public EventCallback<ResultAction> OnAction { get; set; }
+
+    private string OutcomeName => Result.Outcome.ToString().ToLowerInvariant();
+
+    private string GetClass() => string.IsNullOrEmpty(Class)
+        ? "space-y-2"
+        : $"space-y-2 {Class}";
+
+    private static string SeverityName(ResultSeverity severity) => severity.ToString().ToLowerInvariant();
+
+    private static string SeverityClass(ResultSeverity severity) => severity switch
+    {
+        ResultSeverity.Success => "border-emerald-500/40 text-emerald-700 dark:text-emerald-400",
+        ResultSeverity.Warning => "border-amber-500/50 text-amber-700 dark:text-amber-400",
+        ResultSeverity.Error => "border-destructive/50 text-destructive",
+        _ => "border-input text-muted-foreground",
+    };
+
+    /// <summary>Resolves the key and substitutes <c>{name}</c> placeholders from the case's arguments.</summary>
+    private string Text(string? key, IReadOnlyDictionary<string, string?>? arguments = null)
+    {
+        if (string.IsNullOrWhiteSpace(key)) return string.Empty;
+
+        var text = ResolveText is null ? key : ResolveText(key);
+        if (arguments is null || arguments.Count == 0) return text;
+
+        foreach (var argument in arguments)
+        {
+            text = text.Replace("{" + argument.Key + "}", argument.Value ?? string.Empty, StringComparison.Ordinal);
+        }
+
+        return text;
+    }
+
+    private async Task ActivateAsync(ResultCase item, ResultAction action)
+    {
+        if (action.Disabled) return;
+        await OnAction.InvokeAsync(action);
+    }
+}
